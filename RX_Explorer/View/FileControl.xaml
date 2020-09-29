@@ -17,18 +17,23 @@
         <Flyout x:Name="AddressExtentionFlyout"
                 Placement="BottomEdgeAlignedLeft"
                 Closing="AddressExtentionFlyout_Closing">
-            <ListView MaxHeight="300"
-                      MaxWidth="250"
-                      MinWidth="150"
+            <Flyout.FlyoutPresenterStyle>
+                <Style TargetType="FlyoutPresenter">
+                    <Setter Property="CornerRadius"
+                            Value="0" />
+                    <Setter Property="Background"
+                            Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
+                </Style>
+            </Flyout.FlyoutPresenterStyle>
+            <ListView MaxHeight="400"
+                      Width="220"
                       SelectionMode="None"
                       IsItemClickEnabled="True"
                       Name="AddressExtensionSubFolderList"
                       ItemClick="AddressExtensionSubFolderList_ItemClick"
                       ItemsSource="{x:Bind AddressExtentionList}"
                       ScrollViewer.VerticalScrollBarVisibility="Hidden"
-                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                      IncrementalLoadingTrigger="Edge"
-                      DataFetchSize="1.5">
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
@@ -39,8 +44,7 @@
                             </Viewbox>
                             <TextBlock Text="{Binding}"
                                        Margin="5,0,0,0"
-                                       MaxWidth="200"
-                                       MinWidth="100"
+                                       Width="175"
                                        FontSize="14"
                                        TextWrapping="NoWrap"
                                        TextTrimming="CharacterEllipsis"

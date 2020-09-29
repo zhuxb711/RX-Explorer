@@ -37,6 +37,14 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extention
     {
+        public static string ToFileSizeDescription(this ulong SizeRaw)
+        {
+            return SizeRaw / 1024d < 1024 ? Math.Round(SizeRaw / 1024d, 2).ToString("0.00") + " KB" :
+                    (SizeRaw / 1048576d < 1024 ? Math.Round(SizeRaw / 1048576d, 2).ToString("0.00") + " MB" :
+                    (SizeRaw / 1073741824d < 1024 ? Math.Round(SizeRaw / 1073741824d, 2).ToString("0.00") + " GB" :
+                    Math.Round(SizeRaw / 1099511627776d, 2).ToString() + " TB"));
+        }
+
         public static IEnumerable<T> OrderByLikeFileSystem<T>(this IEnumerable<T> Input, Func<T, string> GetString, SortDirection Direction)
         {
             if (Input.Any())
@@ -1077,18 +1085,15 @@ namespace RX_Explorer.Class
             {
                 if (Item is StorageFolder Folder)
                 {
-                    using (StorageItemThumbnail Thumbnail = await Folder.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 100))
+                    using (StorageItemThumbnail Thumbnail = await Folder.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 150))
                     {
                         if (Thumbnail == null || Thumbnail.Size == 0 || Thumbnail.OriginalHeight == 0 || Thumbnail.OriginalWidth == 0)
                         {
                             return null;
                         }
 
-                        BitmapImage bitmapImage = new BitmapImage
-                        {
-                            DecodePixelHeight = 100,
-                            DecodePixelWidth = 100
-                        };
+                        BitmapImage bitmapImage = new BitmapImage();
+
                         await bitmapImage.SetSourceAsync(Thumbnail);
                         return bitmapImage;
                     }
@@ -1097,7 +1102,7 @@ namespace RX_Explorer.Class
                 {
                     using (CancellationTokenSource Cancellation = new CancellationTokenSource())
                     {
-                        Task<StorageItemThumbnail> GetThumbnailTask = File.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 100).AsTask(Cancellation.Token);
+                        Task<StorageItemThumbnail> GetThumbnailTask = File.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 150).AsTask(Cancellation.Token);
 
                         bool IsSuccess = await Task.Run(() => SpinWait.SpinUntil(() => GetThumbnailTask.IsCompleted, 3000)).ConfigureAwait(true);
 
@@ -1105,16 +1110,13 @@ namespace RX_Explorer.Class
                         {
                             using (StorageItemThumbnail Thumbnail = GetThumbnailTask.Result)
                             {
-                                if (Thumbnail == null)
+                                if (Thumbnail == null || Thumbnail.Size == 0 || Thumbnail.OriginalHeight == 0 || Thumbnail.OriginalWidth == 0)
                                 {
                                     return null;
                                 }
 
-                                BitmapImage bitmapImage = new BitmapImage
-                                {
-                                    DecodePixelHeight = 100,
-                                    DecodePixelWidth = 100
-                                };
+                                BitmapImage bitmapImage = new BitmapImage();
+
                                 await bitmapImage.SetSourceAsync(Thumbnail);
                                 return bitmapImage;
                             }

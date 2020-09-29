@@ -766,7 +766,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
         </trans-unit>
         <trans-unit id="SAVerifyDialogErrorTip.Title" translate="yes" xml:space="preserve">
           <source>Error</source>
-          <target state="translated">下载出错</target>
+          <target state="translated">错误</target>
         </trans-unit>
         <trans-unit id="SAVerifyDialogPasswordBox.Header" translate="yes" xml:space="preserve">
           <source>Password</source>

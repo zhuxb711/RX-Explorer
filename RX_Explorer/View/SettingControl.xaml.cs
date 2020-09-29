@@ -49,8 +49,6 @@ namespace RX_Explorer
 
         public static bool IsQuicklookEnable { get; set; }
 
-        public static bool IsInputFromPrimaryButton { get; set; } = true;
-
         public static bool IsDisplayHiddenItem { get; set; }
 
         private int EnterAndExitLock;

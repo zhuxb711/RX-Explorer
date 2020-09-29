@@ -21,12 +21,14 @@ namespace RX_Explorer.Class
 
         public string CurrentLocation { get; private set; }
 
-        private readonly SemaphoreSlim Locker1 = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim Locker = new SemaphoreSlim(1, 1);
 
-        private readonly SemaphoreSlim Locker2 = new SemaphoreSlim(1, 1);
+        public bool IsDisplayHiddenItem { get; private set; }
 
-        public void StartWatchDirectory(string Path)
+        public void StartWatchDirectory(string Path,bool IsDisplayHiddenItem)
         {
+            this.IsDisplayHiddenItem = IsDisplayHiddenItem;
+
             if (!string.IsNullOrWhiteSpace(Path))
             {
                 CurrentLocation = Path;
@@ -50,205 +52,167 @@ namespace RX_Explorer.Class
 
         private async void Modified(string Path)
         {
-            await Locker1.WaitAsync().ConfigureAwait(false);
-
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+            if (!WIN_Native_API.CheckIfHidden(Path) || IsDisplayHiddenItem)
             {
-                try
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                 {
-                    if (CurrentCollection.FirstOrDefault((Item) => Item.Path == Path) is FileSystemStorageItemBase Item)
+                    await Locker.WaitAsync().ConfigureAwait(true);
+
+                    try
                     {
-                        await Item.Update(true).ConfigureAwait(false);
+                        if (CurrentCollection.FirstOrDefault((Item) => Item.Path == Path) is FileSystemStorageItemBase Item)
+                        {
+                            await Item.Update().ConfigureAwait(false);
+                        }
                     }
-                }
-                catch
-                {
-                    Debug.WriteLine("StorageAreaWatcher: Modify item to collection failed");
-                }
-                finally
-                {
-                    Locker1.Release();
-                }
-            });
+                    catch
+                    {
+                        Debug.WriteLine("StorageAreaWatcher: Modify item to collection failed");
+                    }
+                    finally
+                    {
+                        Locker.Release();
+                    }
+                });
+            }
         }
 
         private async void Renamed(string OldPath, string NewPath)
         {
-            await Locker1.WaitAsync().ConfigureAwait(false);
-
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            if (!WIN_Native_API.CheckIfHidden(OldPath) || IsDisplayHiddenItem)
             {
-                try
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                 {
-                    if (CurrentCollection.FirstOrDefault((Item) => Item.Path == OldPath) is FileSystemStorageItemBase OlderItem)
+                    try
                     {
-                        if (CurrentCollection.FirstOrDefault((Item) => Item.Path == NewPath) is FileSystemStorageItemBase ExistItem)
-                        {
-                            await ExistItem.Replace(NewPath).ConfigureAwait(true);
-                            
-                            await Task.Delay(700).ConfigureAwait(true);
+                        await Locker.WaitAsync().ConfigureAwait(true);
 
-                            CurrentCollection.Remove(OlderItem);
-                        }
-                        else
+                        if (CurrentCollection.FirstOrDefault((Item) => Item.Path == OldPath) is FileSystemStorageItemBase OlderItem)
                         {
-                            await OlderItem.Replace(NewPath).ConfigureAwait(true);
-                        }
-                    }
-                    else
-                    {
-                        if(WIN_Native_API.GetStorageItems(NewPath).FirstOrDefault() is FileSystemStorageItemBase Item)
-                        {
-                            int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, Item);
-                            
-                            if(Index == CurrentCollection.Count - 1)
+                            if (CurrentCollection.FirstOrDefault((Item) => Item.Path == NewPath) is FileSystemStorageItemBase ExistItem)
                             {
-                                CurrentCollection.Add(Item);
+                                await ExistItem.Replace(NewPath).ConfigureAwait(true);
+
+                                await Task.Delay(700).ConfigureAwait(true);
+
+                                CurrentCollection.Remove(OlderItem);
                             }
                             else
                             {
-                                CurrentCollection.Insert(Index, Item);
+                                await OlderItem.Replace(NewPath).ConfigureAwait(true);
                             }
                         }
-                    }
-
-                    if (!SettingControl.IsDetachTreeViewAndPresenter)
-                    {
-                        if (await TreeView.RootNodes[0].GetChildNodeAsync(new PathAnalysis(OldPath, (TreeView.RootNodes[0].Content as TreeViewNodeContent).Path), true).ConfigureAwait(true) is TreeViewNode Node)
+                        else
                         {
-                            try
+                            if (WIN_Native_API.GetStorageItems(NewPath).FirstOrDefault() is FileSystemStorageItemBase Item)
                             {
-                                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(NewPath);
-                                (Node.Content as TreeViewNodeContent).Update(Folder);
+                                int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, Item);
+
+                                if (Index == CurrentCollection.Count - 1)
+                                {
+                                    CurrentCollection.Add(Item);
+                                }
+                                else
+                                {
+                                    CurrentCollection.Insert(Index, Item);
+                                }
                             }
-                            catch
+                        }
+
+                        if (!SettingControl.IsDetachTreeViewAndPresenter)
+                        {
+                            if (await TreeView.RootNodes[0].GetChildNodeAsync(new PathAnalysis(OldPath, (TreeView.RootNodes[0].Content as TreeViewNodeContent).Path), true).ConfigureAwait(true) is TreeViewNode Node)
                             {
-                                Debug.WriteLine("Error happened when try to rename folder in Treeview");
+                                try
+                                {
+                                    StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(NewPath);
+                                    (Node.Content as TreeViewNodeContent).Update(Folder);
+                                }
+                                catch
+                                {
+                                    Debug.WriteLine("Error happened when try to rename folder in Treeview");
+                                }
                             }
                         }
                     }
-                }
-                catch
-                {
-                    Debug.WriteLine("StorageAreaWatcher: Rename item to collection failed");
-                }
-                finally
-                {
-                    Locker1.Release();
-                }
-            });
+                    catch
+                    {
+                        Debug.WriteLine("StorageAreaWatcher: Rename item to collection failed");
+                    }
+                    finally
+                    {
+                        Locker.Release();
+                    }
+                });
+            }
         }
 
         private async void Removed(string Path)
         {
-            await Locker1.WaitAsync().ConfigureAwait(false);
-
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+            if (!WIN_Native_API.CheckIfHidden(Path) || IsDisplayHiddenItem)
             {
-                try
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                 {
-                    if (CurrentCollection.FirstOrDefault((Item) => Item.Path == Path) is FileSystemStorageItemBase Item)
+                    try
                     {
-                        CurrentCollection.Remove(Item);
-                    }
+                        await Locker.WaitAsync().ConfigureAwait(true);
 
-                    if (!SettingControl.IsDetachTreeViewAndPresenter)
-                    {
-                        await TreeView.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
+                        if (CurrentCollection.FirstOrDefault((Item) => Item.Path == Path) is FileSystemStorageItemBase Item)
+                        {
+                            CurrentCollection.Remove(Item);
+                        }
+
+                        if (!SettingControl.IsDetachTreeViewAndPresenter)
+                        {
+                            await TreeView.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
+                        }
                     }
-                }
-                catch
-                {
-                    Debug.WriteLine("StorageAreaWatcher: Remove item to collection failed");
-                }
-                finally
-                {
-                    Locker1.Release();
-                }
-            });
+                    catch
+                    {
+                        Debug.WriteLine("StorageAreaWatcher: Remove item to collection failed");
+                    }
+                    finally
+                    {
+                        Locker.Release();
+                    }
+                });
+            }
         }
 
         private async void Added(string Path)
         {
-            await Locker2.WaitAsync().ConfigureAwait(false);
-
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            if (!WIN_Native_API.CheckIfHidden(Path) || IsDisplayHiddenItem)
             {
-                try
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                 {
-                    if (CurrentCollection.FirstOrDefault() is FileSystemStorageItemBase Item)
+                    try
                     {
-                        if (Item.StorageType == StorageItemTypes.File)
-                        {
-                            int Index = CurrentCollection.IndexOf(CurrentCollection.FirstOrDefault((Item) => Item.StorageType == StorageItemTypes.Folder));
+                        await Locker.WaitAsync().ConfigureAwait(true);
 
-                            if (Index != -1)
-                            {
-                                if (WIN_Native_API.GetStorageItems(Path).FirstOrDefault() is FileSystemStorageItemBase NewItem)
-                                {
-                                    await NewItem.LoadMoreProperty().ConfigureAwait(true);
-
-                                    CurrentCollection.Insert(Index, NewItem);
-                                }
-                            }
-                            else
-                            {
-                                if (WIN_Native_API.GetStorageItems(Path).FirstOrDefault() is FileSystemStorageItemBase NewItem)
-                                {
-                                    await NewItem.LoadMoreProperty().ConfigureAwait(true);
-
-                                    CurrentCollection.Add(NewItem);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            int Index = CurrentCollection.IndexOf(CurrentCollection.FirstOrDefault((Item) => Item.StorageType == StorageItemTypes.File));
-
-                            if (Index != -1)
-                            {
-                                if (WIN_Native_API.GetStorageItems(Path).FirstOrDefault() is FileSystemStorageItemBase NewItem)
-                                {
-                                    await NewItem.LoadMoreProperty().ConfigureAwait(true);
-
-                                    CurrentCollection.Insert(Index, NewItem);
-                                }
-                            }
-                            else
-                            {
-                                if (WIN_Native_API.GetStorageItems(Path).FirstOrDefault() is FileSystemStorageItemBase NewItem)
-                                {
-                                    await NewItem.LoadMoreProperty().ConfigureAwait(true);
-
-                                    CurrentCollection.Add(NewItem);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
                         if (WIN_Native_API.GetStorageItems(Path).FirstOrDefault() is FileSystemStorageItemBase NewItem)
                         {
                             await NewItem.LoadMoreProperty().ConfigureAwait(true);
 
-                            CurrentCollection.Add(NewItem);
+                            int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, NewItem);
+
+                            CurrentCollection.Insert(Index, NewItem);
+
+                            if (!SettingControl.IsDetachTreeViewAndPresenter)
+                            {
+                                await TreeView.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
+                            }
                         }
                     }
-
-                    if (!SettingControl.IsDetachTreeViewAndPresenter)
+                    catch
                     {
-                        await TreeView.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
+                        Debug.WriteLine("StorageAreaWatcher: Add item to collection failed");
                     }
-                }
-                catch
-                {
-                    Debug.WriteLine("StorageAreaWatcher: Add item to collection failed");
-                }
-                finally
-                {
-                    Locker2.Release();
-                }
-            });
+                    finally
+                    {
+                        Locker.Release();
+                    }
+                });
+            }
         }
 
         public void Dispose()
@@ -260,8 +224,7 @@ namespace RX_Explorer.Class
                 WIN_Native_API.StopDirectoryWatcher(ref WatchPtr);
             }
 
-            Locker1.Dispose();
-            Locker2.Dispose();
+            Locker.Dispose();
 
             CurrentCollection = null;
             TreeView = null;

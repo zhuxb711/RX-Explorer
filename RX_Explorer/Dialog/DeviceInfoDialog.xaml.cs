@@ -24,7 +24,7 @@ namespace RX_Explorer.Dialog
 
             FreeSpace.Text = Device.FreeSpace;
             TotalSpace.Text = Device.Capacity;
-            UsedSpace.Text = GetSizeDescription(Device.TotalByte - Device.FreeByte);
+            UsedSpace.Text = (Device.TotalByte - Device.FreeByte).ToFileSizeDescription();
 
             switch (Device.DriveType)
             {
@@ -64,14 +64,6 @@ namespace RX_Explorer.Dialog
         {
             DoubleAnimation.To = Device.Percent * 100;
             Animation.Begin();
-        }
-
-        private string GetSizeDescription(ulong Size)
-        {
-            return Size / 1024d < 1024 ? Math.Round(Size / 1024d, 2).ToString("0.00") + " KB" :
-            (Size / 1048576d < 1024 ? Math.Round(Size / 1048576d, 2).ToString("0.00") + " MB" :
-            (Size / 1073741824d < 1024 ? Math.Round(Size / 1073741824d, 2).ToString("0.00") + " GB" :
-            Math.Round(Size / 1099511627776d, 2).ToString("0.00") + " TB"));
         }
     }
 }

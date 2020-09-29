@@ -110,7 +110,7 @@ namespace RX_Explorer
         {
             try
             {
-                if (SettingControl.IsInputFromPrimaryButton && (e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Device)
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Device)
                 {
                     if (string.IsNullOrEmpty(Device.Folder.Path))
                     {
@@ -150,7 +150,7 @@ namespace RX_Explorer
         {
             try
             {
-                if (SettingControl.IsInputFromPrimaryButton && (e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Library)
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Library)
                 {
                     if (AnimationController.Current.IsEnableAnimation)
                     {

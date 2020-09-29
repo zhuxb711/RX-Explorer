@@ -111,7 +111,7 @@ namespace RX_Explorer.Class
                 if (PropertiesRetrieve.ContainsKey("System.Capacity") && PropertiesRetrieve["System.Capacity"] is ulong TotalByte)
                 {
                     this.TotalByte = TotalByte;
-                    Capacity = GetSizeDescription(TotalByte);
+                    Capacity = TotalByte.ToFileSizeDescription();
                 }
                 else
                 {
@@ -121,7 +121,7 @@ namespace RX_Explorer.Class
                 if (PropertiesRetrieve.ContainsKey("System.FreeSpace") && PropertiesRetrieve["System.FreeSpace"] is ulong FreeByte)
                 {
                     this.FreeByte = FreeByte;
-                    FreeSpace = GetSizeDescription(FreeByte);
+                    FreeSpace = FreeByte.ToFileSizeDescription();
                 }
                 else
                 {
@@ -153,19 +153,6 @@ namespace RX_Explorer.Class
                 FileSystem = Globalization.GetString("UnknownText");
                 Percent = 0;
             }
-        }
-
-        /// <summary>
-        /// 根据Size计算大小描述
-        /// </summary>
-        /// <param name="Size">大小</param>
-        /// <returns></returns>
-        private string GetSizeDescription(ulong Size)
-        {
-            return Size / 1024d < 1024 ? Math.Round(Size / 1024d, 2).ToString("0.00") + " KB" :
-            (Size / 1048576d < 1024 ? Math.Round(Size / 1048576d, 2).ToString("0.00") + " MB" :
-            (Size / 1073741824d < 1024 ? Math.Round(Size / 1073741824d, 2).ToString("0.00") + " GB" :
-            Math.Round(Size / 1099511627776d, 2).ToString("0.00") + " TB"));
         }
     }
 }

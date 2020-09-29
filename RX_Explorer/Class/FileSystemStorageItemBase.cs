@@ -248,19 +248,16 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="ReGenerateSizeAndModifiedTime"><是否重新计算大小和修改时间/param>
         /// <returns></returns>
-        public virtual async Task Update(bool ReGenerateSizeAndModifiedTime)
+        public virtual async Task Update()
         {
-            if (ReGenerateSizeAndModifiedTime)
+            if (await GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
             {
-                if (await GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
+                if (Item.IsOfType(StorageItemTypes.File))
                 {
-                    if (Item.IsOfType(StorageItemTypes.File))
-                    {
-                        SizeRaw = await Item.GetSizeRawDataAsync().ConfigureAwait(true);
-                    }
-
-                    ModifiedTimeRaw = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
+                    SizeRaw = await Item.GetSizeRawDataAsync().ConfigureAwait(true);
                 }
+
+                ModifiedTimeRaw = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
             }
 
             OnPropertyChanged(nameof(Name));
@@ -314,10 +311,7 @@ namespace RX_Explorer.Class
             {
                 if (StorageType == StorageItemTypes.File)
                 {
-                    return SizeRaw / 1024d < 1024 ? Math.Round(SizeRaw / 1024d, 2).ToString("0.00") + " KB" :
-                    (SizeRaw / 1048576d < 1024 ? Math.Round(SizeRaw / 1048576d, 2).ToString("0.00") + " MB" :
-                    (SizeRaw / 1073741824d < 1024 ? Math.Round(SizeRaw / 1073741824d, 2).ToString("0.00") + " GB" :
-                    Math.Round(SizeRaw / 1099511627776d, 2).ToString() + " TB"));
+                    return SizeRaw.ToFileSizeDescription();
                 }
                 else
                 {

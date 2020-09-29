@@ -76,7 +76,6 @@ jobs:
         solution: '$(solution)'
         msbuildArgs: '/t:$(buildProject):Rebuild /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(appxPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
         configuration: '$(buildConfiguration)'
-        clean: true
         maximumCpuCount: true
         msbuildArchitecture: 'x64'
 

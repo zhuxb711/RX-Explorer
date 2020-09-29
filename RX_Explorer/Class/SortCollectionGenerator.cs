@@ -118,7 +118,14 @@ namespace RX_Explorer.Class
 
                             if (SearchResult == default)
                             {
-                                return InputCollection.Count - 1;
+                                if (SearchTarget.StorageType == StorageItemTypes.File)
+                                {
+                                    return InputCollection.Count;
+                                }
+                                else
+                                {
+                                    return InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.Folder);
+                                }
                             }
                             else
                             {
@@ -153,7 +160,14 @@ namespace RX_Explorer.Class
 
                             if (SearchResult == default)
                             {
-                                return InputCollection.Count - 1;
+                                if (SearchTarget.StorageType == StorageItemTypes.File)
+                                {
+                                    return InputCollection.Count;
+                                }
+                                else
+                                {
+                                    return InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.Folder);
+                                }
                             }
                             else
                             {
@@ -188,7 +202,14 @@ namespace RX_Explorer.Class
 
                             if(SearchResult == default)
                             {
-                                return InputCollection.Count - 1;
+                                if (SearchTarget.StorageType == StorageItemTypes.File)
+                                {
+                                    return InputCollection.Count;
+                                }
+                                else
+                                {
+                                    return InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.Folder);
+                                }
                             }
                             else
                             {
@@ -223,7 +244,14 @@ namespace RX_Explorer.Class
 
                             if (SearchResult == default)
                             {
-                                return InputCollection.Count - 1;
+                                if (SearchTarget.StorageType == StorageItemTypes.File)
+                                {
+                                    return InputCollection.Count;
+                                }
+                                else
+                                {
+                                    return InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.Folder);
+                                }
                             }
                             else
                             {

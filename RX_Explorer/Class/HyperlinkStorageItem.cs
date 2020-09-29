@@ -55,7 +55,7 @@ namespace RX_Explorer.Class
                 {
                     (TargetPath, Argument, NeedRunAs, TargetPathIsFile) = await FullTrustProcessController.Current.GetHyperlinkRelatedInformationAsync(InternalPathString).ConfigureAwait(true);
 
-                    if(TargetPathIsFile)
+                    if (TargetPathIsFile)
                     {
                         return StorageItem = await StorageFile.GetFileFromPathAsync(TargetPath);
                     }
@@ -92,15 +92,12 @@ namespace RX_Explorer.Class
             OnPropertyChanged(nameof(ModifiedTime));
         }
 
-        public override Task Update(bool ReGenerateSizeAndModifiedTime)
+        public override Task Update()
         {
-            if (ReGenerateSizeAndModifiedTime)
+            if (WIN_Native_API.GetStorageItems(InternalPathString).FirstOrDefault() is HyperlinkStorageItem HItem)
             {
-                if (WIN_Native_API.GetStorageItems(InternalPathString).FirstOrDefault() is HyperlinkStorageItem HItem)
-                {
-                    SizeRaw = HItem.SizeRaw;
-                    ModifiedTimeRaw = HItem.ModifiedTimeRaw;
-                }
+                SizeRaw = HItem.SizeRaw;
+                ModifiedTimeRaw = HItem.ModifiedTimeRaw;
             }
 
             OnPropertyChanged(nameof(Name));

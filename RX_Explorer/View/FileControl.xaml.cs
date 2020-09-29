@@ -48,7 +48,7 @@ namespace RX_Explorer
                 {
                     if (!IsNetworkDevice)
                     {
-                        CommonAccessCollection.GetFilePresenterInstance(this).AreaWatcher.StartWatchDirectory(Content.Path);
+                        CommonAccessCollection.GetFilePresenterInstance(this).AreaWatcher.StartWatchDirectory(Content.Path, SettingControl.IsDisplayHiddenItem);
                     }
 
                     CurrentPath = Content.Path;
@@ -133,7 +133,7 @@ namespace RX_Explorer
                 {
                     if (!IsNetworkDevice)
                     {
-                        CommonAccessCollection.GetFilePresenterInstance(this).AreaWatcher.StartWatchDirectory(value.Path);
+                        CommonAccessCollection.GetFilePresenterInstance(this).AreaWatcher.StartWatchDirectory(value.Path, SettingControl.IsDisplayHiddenItem);
                     }
 
                     UpdateAddressButton(value.Path);
@@ -234,7 +234,7 @@ namespace RX_Explorer
             {
                 if (CommonAccessCollection.GetFilePresenterInstance(this) is FilePresenter Presenter)
                 {
-                    Presenter.AreaWatcher.StartWatchDirectory(Presenter.AreaWatcher.CurrentLocation);
+                    Presenter.AreaWatcher.StartWatchDirectory(Presenter.AreaWatcher.CurrentLocation, SettingControl.IsDisplayHiddenItem);
                 }
             }
         }

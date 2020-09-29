@@ -194,7 +194,6 @@ namespace RX_Explorer
                 if (BackButtonPressed)
                 {
                     args.Handled = true;
-                    SettingControl.IsInputFromPrimaryButton = false;
 
                     if (!QueueContentDialog.IsRunningOrWaiting)
                     {
@@ -221,16 +220,11 @@ namespace RX_Explorer
                 else if (ForwardButtonPressed)
                 {
                     args.Handled = true;
-                    SettingControl.IsInputFromPrimaryButton = false;
 
                     if (Control.Nav.CurrentSourcePageType.Name == nameof(FilePresenter) && !QueueContentDialog.IsRunningOrWaiting)
                     {
                         Control.GoForwardRecord_Click(null, null);
                     }
-                }
-                else
-                {
-                    SettingControl.IsInputFromPrimaryButton = true;
                 }
             }
             else if (CurrentTabNavigation?.Content is ThisPC PC)
@@ -238,18 +232,12 @@ namespace RX_Explorer
                 if (BackButtonPressed)
                 {
                     args.Handled = true;
-                    SettingControl.IsInputFromPrimaryButton = false;
 
                     MainPage.ThisPage.NavView_BackRequested(null, null);
                 }
                 else if (ForwardButtonPressed)
                 {
                     args.Handled = true;
-                    SettingControl.IsInputFromPrimaryButton = false;
-                }
-                else
-                {
-                    SettingControl.IsInputFromPrimaryButton = true;
                 }
             }
         }

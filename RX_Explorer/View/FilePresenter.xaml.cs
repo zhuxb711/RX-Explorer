@@ -1797,13 +1797,26 @@ namespace RX_Explorer
 
             if (SelectedItems.Count > 0)
             {
+                string SizeInfo = string.Empty;
+
+                if (SelectedItems.All((Item) => Item.StorageType == StorageItemTypes.File))
+                {
+                    ulong TotalSize = 0;
+                    foreach (ulong Size in SelectedItems.Select((Item) => Item.SizeRaw).ToArray())
+                    {
+                        TotalSize += Size;
+                    }
+
+                    SizeInfo = $"  |  {TotalSize.ToFileSizeDescription()}";
+                }
+
                 if (StatusTipsSplit.Length > 0)
                 {
-                    StatusTips.Text = $"{StatusTipsSplit[0]}  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItems.Count.ToString())}";
+                    StatusTips.Text = $"{StatusTipsSplit[0]}  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItems.Count.ToString())}{SizeInfo}";
                 }
                 else
                 {
-                    StatusTips.Text += $"  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItems.Count.ToString())}";
+                    StatusTips.Text += $"  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItems.Count.ToString())}{SizeInfo}";
                 }
             }
             else
@@ -2393,22 +2406,19 @@ namespace RX_Explorer
         {
             e.Handled = true;
 
-            if (SettingControl.IsInputFromPrimaryButton)
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase ReFile)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase ReFile)
+                await EnterSelectedItem(ReFile).ConfigureAwait(false);
+            }
+            else if (e.OriginalSource is Grid)
+            {
+                if (Path.IsPathRooted(FileControlInstance.CurrentFolder.Path))
                 {
-                    await EnterSelectedItem(ReFile).ConfigureAwait(false);
+                    MainPage.ThisPage.NavView_BackRequested(null, null);
                 }
                 else
                 {
-                    if (Path.IsPathRooted(FileControlInstance.CurrentFolder.Path))
-                    {
-                        MainPage.ThisPage.NavView_BackRequested(null, null);
-                    }
-                    else
-                    {
-                        FileControlInstance.GoParentFolder_Click(null, null);
-                    }
+                    FileControlInstance.GoParentFolder_Click(null, null);
                 }
             }
         }
@@ -4622,11 +4632,6 @@ namespace RX_Explorer
             {
                 if (args.Item is FileSystemStorageItemBase Item)
                 {
-                    if (Item.StorageType == StorageItemTypes.File)
-                    {
-                        await Item.LoadMoreProperty().ConfigureAwait(true);
-                    }
-
                     if (Item.StorageType == StorageItemTypes.Folder)
                     {
                         args.ItemContainer.AllowDrop = true;
@@ -4641,6 +4646,11 @@ namespace RX_Explorer
                     }
 
                     args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
+
+                    if (Item.StorageType == StorageItemTypes.File)
+                    {
+                        await Item.LoadMoreProperty().ConfigureAwait(true);
+                    }
                 }
             }
         }
@@ -6749,6 +6759,11 @@ namespace RX_Explorer
                     BottomCommandBar.SecondaryCommands.Add(TerminalButton);
                 }
             }
+        }
+
+        private void ListHeader_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        {
+            e.Handled = true;
         }
     }
 }
