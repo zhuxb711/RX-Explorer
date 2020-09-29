@@ -74,19 +74,11 @@ jobs:
       displayName: 'Build RX-Explorer'
       inputs:
         solution: '$(solution)'
-        msbuildArchitecture: 'x64'
+        msbuildArgs: '/t:$(buildProject):Rebuild /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(appxPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
         configuration: '$(buildConfiguration)'
-        msbuildArgs: '/m
-                      /t:$(buildProject):Rebuild
-                      /p:AppxBundlePlatforms="$(buildPlatform)"
-                      /p:AppxPackageDir="$(appxPackageDir)"
-                      /p:AppxBundle=Always
-                      /p:UapAppxPackageBuildMode=StoreUpload
-                      /p:AppxPackageSigningEnabled=true
-                      /p:PackageCertificateThumbprint="$(signingCert.thumbprint)"
-                      /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)"
-                      /p:PackageCertificatePassword="$(signingCert.password)"'
         clean: true
+        maximumCpuCount: true
+        msbuildArchitecture: 'x64'
 
     - task: ArchiveFiles@2
       inputs:
