@@ -1,24 +1,23 @@
-﻿<Page
-    x:Class="RX_Explorer.SecureArea"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:RX_Explorer.Class"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
-    xmlns:control="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    mc:Ignorable="d"
-    Background="Transparent"
-    NavigationCacheMode="Required">
+﻿<Page x:Class="RX_Explorer.SecureArea"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:RX_Explorer.Class"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+      xmlns:control="using:Microsoft.Toolkit.Uwp.UI.Controls"
+      mc:Ignorable="d"
+      Background="Transparent"
+      NavigationCacheMode="Required">
 
     <Page.Resources>
-        <CommandBarFlyout x:Name="FileFlyout"
-                          Placement="RightEdgeAlignedTop">
-            <CommandBarFlyout.SecondaryCommands>
+        <muxc:CommandBarFlyout x:Name="FileFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Import"
                               Label="导出"
                               x:Uid="SecureAreaExportButton"
-                              Click="ExportFile_Click"/>
+                              Click="ExportFile_Click" />
                 <AppBarButton Icon="Delete"
                               Label="删除"
                               x:Uid="SecureAreaDeleteButton"
@@ -27,42 +26,42 @@
                               Label="重命名"
                               x:Uid="SecureAreaRenameButton"
                               x:Name="RenameFile"
-                              Click="RenameFile_Click"/>
-                <AppBarButton Icon="Tag" 
+                              Click="RenameFile_Click" />
+                <AppBarButton Icon="Tag"
                               Label="属性"
                               x:Uid="SecureAreaProperty"
                               x:Name="Property"
-                              Click="Property_Click"/>
-            </CommandBarFlyout.SecondaryCommands>
-        </CommandBarFlyout>
-        <CommandBarFlyout x:Name="EmptyFlyout"
-                          Placement="RightEdgeAlignedTop">
-            <CommandBarFlyout.SecondaryCommands>
+                              Click="Property_Click" />
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
+        <muxc:CommandBarFlyout x:Name="EmptyFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Add"
                               Label="添加文件"
                               x:Uid="SecureAreaAddFileButton"
                               Click="AddFile_Click" />
-            </CommandBarFlyout.SecondaryCommands>
-        </CommandBarFlyout>
-        <controls:TeachingTip x:Name="WindowsHelloTip"
-                              x:Uid="SecureAreaWHTip"
-                              IsLightDismissEnabled="True"
-                              PreferredPlacement="Auto"
-                              Target="{x:Bind WindowsHelloQuestion}"
-                              Title="与Windows Hello结合"
-                              Subtitle="利用Windows Hello来加强安全域的安全性，Windows Hello将必要的凭据保存至TPM安全芯片中。TPM芯片不受任何软硬件漏洞的影响，因此不会在任何未授权状态下泄露这些凭据。RX利用这一特性，结合AES加密，提供无与伦比的安全保护" />
-        <controls:TeachingTip x:Name="EncryptTip" 
-                              PreferredPlacement="Auto"
-                              x:Uid="SecureAreaEncryptTip"
-                              IsLightDismissEnabled="True"
-                              Target="{x:Bind EncryptionModeQuestion}"
-                              Title="AES模式"
-                              Subtitle="默认情况下AES-128-CBC模式已经提供足够的安全性，但是您也可以选择AES-256-CBC模式以获得更加好的安全保护。第二代酷睿处理器以上等级的处理器均支持两种模式的硬件加速，因此无需担心性能问题"/>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
+        <muxc:TeachingTip x:Name="WindowsHelloTip"
+                          x:Uid="SecureAreaWHTip"
+                          IsLightDismissEnabled="True"
+                          PreferredPlacement="Auto"
+                          Target="{x:Bind WindowsHelloQuestion}"
+                          Title="与Windows Hello结合"
+                          Subtitle="利用Windows Hello来加强安全域的安全性，Windows Hello将必要的凭据保存至TPM安全芯片中。TPM芯片不受任何软硬件漏洞的影响，因此不会在任何未授权状态下泄露这些凭据。RX利用这一特性，结合AES加密，提供无与伦比的安全保护" />
+        <muxc:TeachingTip x:Name="EncryptTip"
+                          PreferredPlacement="Auto"
+                          x:Uid="SecureAreaEncryptTip"
+                          IsLightDismissEnabled="True"
+                          Target="{x:Bind EncryptionModeQuestion}"
+                          Title="AES模式"
+                          Subtitle="默认情况下AES-128-CBC模式已经提供足够的安全性，但是您也可以选择AES-256-CBC模式以获得更加好的安全保护。第二代酷睿处理器以上等级的处理器均支持两种模式的硬件加速，因此无需担心性能问题" />
     </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="40"/>
+            <RowDefinition Height="40" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
         <CommandBar Background="Transparent"
@@ -71,24 +70,24 @@
                           Icon="Add"
                           x:Uid="SecureAreaAddFileButton"
                           Name="AddFile"
-                          Click="AddFile_Click"/>
+                          Click="AddFile_Click" />
             <AppBarButton Label="导出"
                           Icon="Import"
                           x:Uid="SecureAreaExportButton"
                           IsEnabled="False"
                           Name="ExportFile"
-                          Click="ExportFile_Click"/>
+                          Click="ExportFile_Click" />
             <AppBarButton Label="删除"
                           x:Uid="SecureAreaDeleteButton"
                           Icon="Delete"
                           IsEnabled="False"
                           Name="DeleteFile"
-                          Click="DeleteFile_Click"/>
+                          Click="DeleteFile_Click" />
             <AppBarButton Label="设置"
                           Icon="Setting"
                           x:Uid="SecureAreaSettingButton"
                           Name="Setting"
-                          Click="Setting_Click"/>
+                          Click="Setting_Click" />
         </CommandBar>
         <GridView IsRightTapEnabled="True"
                   IsItemClickEnabled="False"
@@ -152,24 +151,24 @@
                 <StackPanel Padding="20">
                     <TextBlock FontSize="24"
                                Text="设置"
-                               x:Uid="SecureAreaSettingHeader"/>
+                               x:Uid="SecureAreaSettingHeader" />
                     <StackPanel Orientation="Horizontal"
                                 Margin="0,30,0,0">
                         <ToggleSwitch Header="使用Windows Hello简化认证过程"
                                       x:Name="UseWindowsHello"
-                                      x:Uid="SecureAreaSettingUseWH"/>
+                                      x:Uid="SecureAreaSettingUseWH" />
                         <Viewbox Margin="15,3.5,0,0"
                                  Height="15"
                                  VerticalAlignment="Top">
                             <FontIcon Glyph="&#xE9CE;"
-                                      Name="WindowsHelloQuestion" 
-                                      PointerPressed="WindowsHelloQuestion_PointerPressed"/>
+                                      Name="WindowsHelloQuestion"
+                                      PointerPressed="WindowsHelloQuestion_PointerPressed" />
                         </Viewbox>
                     </StackPanel>
                     <StackPanel Margin="0,30,0,0">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="加密模式"
-                                       x:Uid="SecureAreaSettingEncryptionHeader"/>
+                                       x:Uid="SecureAreaSettingEncryptionHeader" />
                             <Viewbox Margin="15,3.5,0,0"
                                      Height="15"
                                      VerticalAlignment="Top">
@@ -181,35 +180,35 @@
                         <RadioButton Content="AES-128bit CBC模式"
                                      x:Uid="SecureAreaSettingAESMode1"
                                      Margin="0,10,0,0"
-                                     Name="AES128Mode"/>
+                                     Name="AES128Mode" />
                         <RadioButton Content="AES-256bit CBC模式"
                                      x:Uid="SecureAreaSettingAESMode2"
-                                     Margin="0,10,0,0" 
-                                     Name="AES256Mode"/>
+                                     Margin="0,10,0,0"
+                                     Name="AES256Mode" />
                     </StackPanel>
                     <StackPanel Margin="0,30,0,0">
                         <TextBlock Text="安全域锁定模式"
-                                   x:Uid="SecureAreaSettingLockModeHeader"/>
+                                   x:Uid="SecureAreaSettingLockModeHeader" />
                         <RadioButton Content="离开此页面时立刻锁定"
                                      x:Uid="SecureAreaSettingLockMode1"
                                      Margin="0,10,0,0"
-                                     Name="ImmediateLockMode"/>
+                                     Name="ImmediateLockMode" />
                         <RadioButton Content="此应用关闭时锁定"
                                      x:Uid="SecureAreaSettingLockMode2"
-                                     Margin="0,10,0,0" 
-                                     Name="CloseLockMode"/>
+                                     Margin="0,10,0,0"
+                                     Name="CloseLockMode" />
                     </StackPanel>
                     <StackPanel Margin="0,30,0,0">
                         <TextBlock Text="关于"
                                    x:Uid="SecureAreaSettingAboutHeader"
-                                   FontSize="24"/>
+                                   FontSize="24" />
                         <TextBlock Margin="0,20,0,0"
                                    Text="RX内建文件保险箱"
-                                   x:Uid="SecureAreaSettingAboutText1"/>
+                                   x:Uid="SecureAreaSettingAboutText1" />
                         <TextBlock Margin="0,10,0,0"
                                    TextWrapping="Wrap"
                                    Text="基于AES-CBC算法，结合多项系统级安全认证措施，确保文件安全存储"
-                                   x:Uid="SecureAreaSettingAboutText2"/>
+                                   x:Uid="SecureAreaSettingAboutText2" />
                     </StackPanel>
                 </StackPanel>
             </SplitView.Pane>
@@ -244,8 +243,8 @@
                 <TextBlock Name="LoadingText"
                            FontSize="16"
                            TextAlignment="Center" />
-                <controls:ProgressBar IsIndeterminate="True"
-                                      Margin="0,10,0,0" />
+                <muxc:ProgressBar IsIndeterminate="True"
+                                  Margin="0,10,0,0" />
                 <Button Content="取消"
                         Width="100"
                         Margin="0,10,0,0"
@@ -253,7 +252,7 @@
                         Name="CancelButton"
                         HorizontalAlignment="Center"
                         Click="CancelButton_Click"
-                        Style="{ThemeResource ButtonRevealStyle}"/>
+                        Style="{ThemeResource ButtonRevealStyle}" />
             </StackPanel>
         </control:Loading>
     </Grid>

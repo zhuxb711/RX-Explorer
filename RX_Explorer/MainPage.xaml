@@ -5,41 +5,41 @@
       xmlns:Cla="using:RX_Explorer.Class"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+      xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       xmlns:media="using:Microsoft.Toolkit.Uwp.UI.Media"
       mc:Ignorable="d"
       RequestedTheme="{x:Bind Cla:AppThemeController.Current.Theme,Mode=OneWay}"
       Background="{x:Bind Cla:BackgroundController.Current.BackgroundBrush,Mode=OneWay}">
 
     <Page.Resources>
-        <controls:TeachingTip x:Name="PinTip"
-                              x:Uid="PinTip"
-                              Grid.Row="1"
-                              Title="更快捷的启动"
-                              PreferredPlacement="Bottom"
-                              IsLightDismissEnabled="True"
-                              ActionButtonContent="一键固定"
-                              CloseButtonContent="关闭提示">
-        </controls:TeachingTip>
-        <controls:TeachingTip x:Name="RateTip"
-                              x:Uid="RateTip"
-                              Grid.Row="1"
-                              Title="请为此App评分"
-                              PreferredPlacement="Bottom"
-                              IsLightDismissEnabled="True"
-                              Subtitle="您的评分很重要，请花一两分钟评价一下App吧！"
-                              ActionButtonContent="现在评价"
-                              CloseButtonContent="不再提醒">
-        </controls:TeachingTip>
-        <controls:TeachingTip x:Name="PurchaseTip"
-                              x:Uid="PurchaseTip"
-                              Grid.Row="1"
-                              Title="购买本应用"
-                              PreferredPlacement="Bottom"
-                              IsLightDismissEnabled="False"
-                              ActionButtonContent="准奏"
-                              CloseButtonContent="跪安">
-        </controls:TeachingTip>
+        <muxc:TeachingTip x:Name="PinTip"
+                          x:Uid="PinTip"
+                          Grid.Row="1"
+                          Title="更快捷的启动"
+                          PreferredPlacement="Bottom"
+                          IsLightDismissEnabled="True"
+                          ActionButtonContent="一键固定"
+                          CloseButtonContent="关闭提示">
+        </muxc:TeachingTip>
+        <muxc:TeachingTip x:Name="RateTip"
+                          x:Uid="RateTip"
+                          Grid.Row="1"
+                          Title="请为此App评分"
+                          PreferredPlacement="Bottom"
+                          IsLightDismissEnabled="True"
+                          Subtitle="您的评分很重要，请花一两分钟评价一下App吧！"
+                          ActionButtonContent="现在评价"
+                          CloseButtonContent="不再提醒">
+        </muxc:TeachingTip>
+        <muxc:TeachingTip x:Name="PurchaseTip"
+                          x:Uid="PurchaseTip"
+                          Grid.Row="1"
+                          Title="购买本应用"
+                          PreferredPlacement="Bottom"
+                          IsLightDismissEnabled="False"
+                          ActionButtonContent="准奏"
+                          CloseButtonContent="跪安">
+        </muxc:TeachingTip>
     </Page.Resources>
 
     <Grid>
@@ -49,7 +49,7 @@
         </Grid.RowDefinitions>
         <Grid.Background>
             <media:BackdropBlurBrush x:Name="BackgroundBlur"
-                                     x:FieldModifier="public"/>
+                                     x:FieldModifier="public" />
         </Grid.Background>
 
         <Border x:Name="TitleBar"
@@ -60,39 +60,39 @@
                        Margin="10,0,0,0"
                        VerticalAlignment="Center"
                        Text="RX文件管理器"
-                       Name="AppName"/>
+                       Name="AppName" />
         </Border>
-        <NavigationView Grid.Row="1"
-                        Name="NavView"
-                        PaneDisplayMode="Top"
-                        IsPaneOpen="False"
-                        BackRequested="NavView_BackRequested"
-                        x:FieldModifier="public"
-                        ItemInvoked="NavView_ItemInvoked"
-                        SelectionFollowsFocus="Disabled">
-            <NavigationView.MenuItems>
-                <NavigationViewItem Content="这台电脑"
-                                    x:Uid="ThisPC"
-                                    IsSelected="True">
-                    <NavigationViewItem.Icon>
+        <muxc:NavigationView Grid.Row="1"
+                             Name="NavView"
+                             PaneDisplayMode="Top"
+                             IsPaneOpen="False"
+                             BackRequested="NavView_BackRequested"
+                             x:FieldModifier="public"
+                             ItemInvoked="NavView_ItemInvoked"
+                             SelectionFollowsFocus="Disabled">
+            <muxc:NavigationView.MenuItems>
+                <muxc:NavigationViewItem Content="这台电脑"
+                                         x:Uid="ThisPC"
+                                         IsSelected="True">
+                    <muxc:NavigationViewItem.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets"
                                   Glyph="&#xE8CC;" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem Content="回收站"
-                                    x:Uid="RecycleBin">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xED10;"/>
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem Content="安全域"
-                                    x:Uid="SecureArea">
-                    <NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="ProtectedDocument"/>
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-            </NavigationView.MenuItems>
-            <NavigationView.Content>
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem Content="回收站"
+                                         x:Uid="RecycleBin">
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xED10;" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem Content="安全域"
+                                         x:Uid="SecureArea">
+                    <muxc:NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="ProtectedDocument" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+            </muxc:NavigationView.MenuItems>
+            <muxc:NavigationView.Content>
                 <Grid>
                     <Frame Name="Nav"
                            Navigating="Nav_Navigating"
@@ -102,9 +102,9 @@
                     <local:SettingControl x:Name="SettingControl"
                                           Visibility="Collapsed"
                                           x:FieldModifier="public"
-                                          x:DeferLoadStrategy="Lazy" />
+                                          x:Load="False" />
                 </Grid>
-            </NavigationView.Content>
-        </NavigationView>
+            </muxc:NavigationView.Content>
+        </muxc:NavigationView>
     </Grid>
 </Page>

@@ -29,6 +29,10 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
+using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
+using NavigationView = Microsoft.UI.Xaml.Controls.NavigationView;
+using NavigationViewBackRequestedEventArgs = Microsoft.UI.Xaml.Controls.NavigationViewBackRequestedEventArgs;
+using NavigationViewItemInvokedEventArgs = Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs;
 
 namespace RX_Explorer
 {
@@ -667,33 +671,43 @@ namespace RX_Explorer
             {
                 if (args.IsSettingsInvoked)
                 {
-                    _ = FindName(nameof(SettingControl));
-
-                    await SettingControl.Show().ConfigureAwait(true);
+                    if (FindName(nameof(SettingControl)) is SettingControl Control)
+                    {
+                        await Control.Show().ConfigureAwait(true);
+                    }
 
                     NavView.IsBackEnabled = true;
                 }
                 else
                 {
-                    if ((SettingControl?.IsOpened).GetValueOrDefault())
-                    {
-                        await SettingControl.Hide().ConfigureAwait(true);
-                    }
-
                     if (args.InvokedItem.ToString() == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
                     {
                         NavView.IsBackEnabled = (TabViewContainer.CurrentTabNavigation?.CanGoBack).GetValueOrDefault();
+
+                        if ((SettingControl?.IsOpened).GetValueOrDefault())
+                        {
+                            await SettingControl.Hide().ConfigureAwait(true);
+                        }
+
                         Nav.Navigate(typeof(TabViewContainer), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
                     }
-                    else if (args.InvokedItem.ToString() == Globalization.GetString("MainPage_PageDictionary_SecureArea_Label"))
+                    else
                     {
                         NavView.IsBackEnabled = false;
-                        Nav.Navigate(typeof(SecureArea), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
-                    }
-                    else if (args.InvokedItem.ToString() == Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label"))
-                    {
-                        NavView.IsBackEnabled = false;
-                        Nav.Navigate(typeof(RecycleBin), null, new SlideNavigationTransitionInfo() { Effect = Nav.CurrentSourcePageType == typeof(SecureArea) ? SlideNavigationTransitionEffect.FromLeft : SlideNavigationTransitionEffect.FromRight });
+
+                        if ((SettingControl?.IsOpened).GetValueOrDefault())
+                        {
+                            await SettingControl.Hide().ConfigureAwait(true);
+                        }
+
+                        if (args.InvokedItem.ToString() == Globalization.GetString("MainPage_PageDictionary_SecureArea_Label"))
+                        {
+                            Nav.Navigate(typeof(SecureArea), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+                        }
+                        else if (args.InvokedItem.ToString() == Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label"))
+                        {
+                            Nav.Navigate(typeof(RecycleBin), null, new SlideNavigationTransitionInfo() { Effect = Nav.CurrentSourcePageType == typeof(SecureArea) ? SlideNavigationTransitionEffect.FromLeft : SlideNavigationTransitionEffect.FromRight });
+                        }
                     }
                 }
             }

@@ -123,13 +123,14 @@ namespace RX_Explorer.Dialog
             };
             Picker.FileTypeFilter.Add(".mp4");
             Picker.FileTypeFilter.Add(".wmv");
+
             if ((await Picker.PickSingleFileAsync()) is StorageFile MergeFile)
             {
                 SelectClipButton.Visibility = Visibility.Collapsed;
                 ClipThumbnail.Visibility = Visibility.Visible;
                 this.MergeFile = MergeFile;
                 ClipName.Text = MergeFile.Name;
-                ClipThumbnail.Source = await MergeFile.GetThumbnailBitmapAsync().ConfigureAwait(false);
+                ClipThumbnail.Source = await MergeFile.GetThumbnailBitmapAsync().ConfigureAwait(true);
             }
         }
     }

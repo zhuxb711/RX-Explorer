@@ -6,14 +6,15 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+      xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d"
       NavigationCacheMode="Required"
       Background="Transparent">
 
     <Page.Resources>
-        <CommandBarFlyout x:Name="AppFlyout"
-                          Placement="RightEdgeAlignedTop">
-            <CommandBarFlyout.SecondaryCommands>
+        <muxc:CommandBarFlyout x:Name="AppFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Edit"
                               Label="编辑"
                               x:Uid="AppEdit"
@@ -24,11 +25,11 @@
                               x:Uid="AppDelete"
                               Label="删除"
                               Click="AppDelete_Click" />
-            </CommandBarFlyout.SecondaryCommands>
-        </CommandBarFlyout>
-        <CommandBarFlyout x:Name="WebFlyout"
-                          Placement="RightEdgeAlignedTop">
-            <CommandBarFlyout.SecondaryCommands>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
+        <muxc:CommandBarFlyout x:Name="WebFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Edit"
                               Label="编辑"
                               x:Uid="WebEdit"
@@ -39,31 +40,31 @@
                               x:Uid="WebDelete"
                               Label="删除"
                               Click="WebDelete_Click" />
-            </CommandBarFlyout.SecondaryCommands>
-        </CommandBarFlyout>
-        <CommandBarFlyout x:Name="AppEmptyFlyout"
-                          Placement="RightEdgeAlignedTop">
-            <CommandBarFlyout.SecondaryCommands>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
+        <muxc:CommandBarFlyout x:Name="AppEmptyFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Add"
                               Label="添加"
                               x:Uid="QuickStartAddButton"
                               x:Name="AddQuickStartApp"
                               Click="AddQuickStartApp_Click" />
-            </CommandBarFlyout.SecondaryCommands>
-        </CommandBarFlyout>
-        <CommandBarFlyout x:Name="WebEmptyFlyout"
-                          Placement="RightEdgeAlignedTop">
-            <CommandBarFlyout.SecondaryCommands>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
+        <muxc:CommandBarFlyout x:Name="WebEmptyFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Add"
                               Label="添加"
                               x:Uid="QuickStartAddButton"
                               x:Name="AddQuickStartWeb"
                               Click="AddQuickStartWeb_Click" />
-            </CommandBarFlyout.SecondaryCommands>
-        </CommandBarFlyout>
-        <CommandBarFlyout x:Name="LibraryFlyout"
-                          Placement="RightEdgeAlignedTop">
-            <CommandBarFlyout.SecondaryCommands>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
+        <muxc:CommandBarFlyout x:Name="LibraryFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow"
                               Label="打开"
                               x:Uid="LibraryOpenButton"
@@ -81,12 +82,12 @@
                               x:Uid="FolderAttribute"
                               x:Name="LibraryProperties"
                               Click="LibraryProperties_Click" />
-            </CommandBarFlyout.SecondaryCommands>
-        </CommandBarFlyout>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
 
-        <CommandBarFlyout x:Name="EmptyFlyout"
-                          Placement="RightEdgeAlignedTop">
-            <CommandBarFlyout.SecondaryCommands>
+        <muxc:CommandBarFlyout x:Name="EmptyFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Refresh"
                               Label="刷新"
                               x:Uid="RefreshView"
@@ -97,12 +98,12 @@
                               x:Uid="AddDevice"
                               x:Name="AddDevice"
                               Click="AddDevice_Click" />
-            </CommandBarFlyout.SecondaryCommands>
-        </CommandBarFlyout>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
 
-        <CommandBarFlyout x:Name="DeviceFlyout"
-                          Placement="RightEdgeAlignedTop">
-            <CommandBarFlyout.SecondaryCommands>
+        <muxc:CommandBarFlyout x:Name="DeviceFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow"
                               Label="打开"
                               x:Uid="OpenDevice"
@@ -114,12 +115,12 @@
                               x:Uid="DeviceAttribute"
                               x:Name="Attribute"
                               Click="Attribute_Click" />
-            </CommandBarFlyout.SecondaryCommands>
-        </CommandBarFlyout>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
 
-        <CommandBarFlyout x:Name="PortableDeviceFlyout"
-                          Placement="RightEdgeAlignedTop">
-            <CommandBarFlyout.SecondaryCommands>
+        <muxc:CommandBarFlyout x:Name="PortableDeviceFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow"
                               Label="打开"
                               x:Uid="OpenDevice"
@@ -139,8 +140,8 @@
                               Label="属性"
                               x:Uid="DeviceAttribute"
                               Click="Attribute_Click" />
-            </CommandBarFlyout.SecondaryCommands>
-        </CommandBarFlyout>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
     </Page.Resources>
 
     <Grid Background="Transparent"

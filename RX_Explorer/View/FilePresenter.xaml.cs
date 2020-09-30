@@ -68,17 +68,25 @@ namespace RX_Explorer
 
                     if (value is GridView)
                     {
-                        GridViewControl.Visibility = Visibility.Visible;
-                        ListViewControl.Visibility = Visibility.Collapsed;
+                        if (ListViewRefreshContainer != null)
+                        {
+                            ListViewRefreshContainer.Visibility = Visibility.Collapsed;
+                            ListViewControl.ItemsSource = null;
+                        }
+
                         GridViewControl.ItemsSource = FileCollection;
-                        ListViewControl.ItemsSource = null;
+                        GridViewRefreshContainer.Visibility = Visibility.Visible;
                     }
                     else
                     {
-                        ListViewControl.Visibility = Visibility.Visible;
-                        GridViewControl.Visibility = Visibility.Collapsed;
+                        if (GridViewRefreshContainer != null)
+                        {
+                            GridViewRefreshContainer.Visibility = Visibility.Collapsed;
+                            GridViewControl.ItemsSource = null;
+                        }
+
                         ListViewControl.ItemsSource = FileCollection;
-                        GridViewControl.ItemsSource = null;
+                        ListViewRefreshContainer.Visibility = Visibility.Visible;
                     }
                 }
             }
@@ -371,6 +379,7 @@ namespace RX_Explorer
             EmptyFlyout.Hide();
             MixedFlyout.Hide();
             HiddenItemFlyout.Hide();
+            LnkItemFlyout.Hide();
         }
 
         private async Task Ctrl_Z_Click()
@@ -1737,7 +1746,7 @@ namespace RX_Explorer
 
                     Zip.Label = Globalization.GetString("Operate_Text_Compression");
 
-                    switch (Item.Type)
+                    switch (Item.Type.ToLower())
                     {
                         case ".zip":
                             {
@@ -1777,16 +1786,6 @@ namespace RX_Explorer
                         case ".bat":
                             {
                                 RunWithSystemAuthority.IsEnabled = true;
-                                break;
-                            }
-                        case ".lnk":
-                            {
-                                ChooseOtherApp.IsEnabled = false;
-                                RunWithSystemAuthority.IsEnabled = true;
-                                FileTool.IsEnabled = false;
-                                FileEdit.IsEnabled = false;
-                                FileShare.IsEnabled = false;
-                                Zip.IsEnabled = false;
                                 break;
                             }
                     }
@@ -1864,6 +1863,10 @@ namespace RX_Explorer
                             {
                                 ItemPresenter.ContextFlyout = HiddenItemFlyout;
                             }
+                            else if (Context is HyperlinkStorageItem)
+                            {
+                                ItemPresenter.ContextFlyout = LnkItemFlyout;
+                            }
                             else
                             {
                                 ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
@@ -1912,6 +1915,10 @@ namespace RX_Explorer
                                         {
                                             ItemPresenter.ContextFlyout = HiddenItemFlyout;
                                         }
+                                        else if (Context is HyperlinkStorageItem)
+                                        {
+                                            ItemPresenter.ContextFlyout = LnkItemFlyout;
+                                        }
                                         else
                                         {
                                             ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
@@ -1926,6 +1933,10 @@ namespace RX_Explorer
                                             if (Context is HiddenStorageItem)
                                             {
                                                 ItemPresenter.ContextFlyout = HiddenItemFlyout;
+                                            }
+                                            else if (Context is HyperlinkStorageItem)
+                                            {
+                                                ItemPresenter.ContextFlyout = LnkItemFlyout;
                                             }
                                             else
                                             {
@@ -5197,6 +5208,10 @@ namespace RX_Explorer
                             {
                                 ItemPresenter.ContextFlyout = HiddenItemFlyout;
                             }
+                            else if (Context is HyperlinkStorageItem)
+                            {
+                                ItemPresenter.ContextFlyout = LnkItemFlyout;
+                            }
                             else
                             {
                                 ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
@@ -5245,6 +5260,10 @@ namespace RX_Explorer
                                         {
                                             ItemPresenter.ContextFlyout = HiddenItemFlyout;
                                         }
+                                        else if (Context is HyperlinkStorageItem)
+                                        {
+                                            ItemPresenter.ContextFlyout = LnkItemFlyout;
+                                        }
                                         else
                                         {
                                             ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
@@ -5259,6 +5278,10 @@ namespace RX_Explorer
                                             if (Context is HiddenStorageItem)
                                             {
                                                 ItemPresenter.ContextFlyout = HiddenItemFlyout;
+                                            }
+                                            else if (Context is HyperlinkStorageItem)
+                                            {
+                                                ItemPresenter.ContextFlyout = LnkItemFlyout;
                                             }
                                             else
                                             {

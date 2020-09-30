@@ -51,45 +51,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        public TransitionCollection PresenterGridViewTransitions
-        {
-            get
-            {
-                if (IsEnableAnimation)
-                {
-                    return new TransitionCollection
-                    {
-                        new PaneThemeTransition
-                        {
-                            Edge = EdgeTransitionLocation.Left
-                        }
-                    };
-                }
-                else
-                {
-                    return new TransitionCollection();
-                }
-            }
-        }
-
-        public TransitionCollection PresenterListViewTransitions
-        {
-            get
-            {
-                if (IsEnableAnimation)
-                {
-                    return new TransitionCollection
-                    {
-                        new AddDeleteThemeTransition()
-                    };
-                }
-                else
-                {
-                    return new TransitionCollection();
-                }
-            }
-        }
-
         public TransitionCollection AddDeleteTransitions
         {
             get
@@ -201,8 +162,6 @@ namespace RX_Explorer.Class
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsEnableAnimation)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DeviceAndLibraryTransitions)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(QuickStartTransitions)));
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PresenterGridViewTransitions)));
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PresenterListViewTransitions)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AddDeleteTransitions)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(EntranceTransitions)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PaneLeftTransitions)));

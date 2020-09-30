@@ -25,8 +25,8 @@
 
         <Cls:EmptyTextFiliterConverter x:Key="EmptyTextFiliter" />
 
-        <CommandBarFlyout x:Name="HiddenItemFlyout"
-                          Placement="RightEdgeAlignedTop">
+        <muxc:CommandBarFlyout x:Name="HiddenItemFlyout"
+                               Placement="RightEdgeAlignedTop">
             <AppBarButton Icon="Copy"
                           ToolTipService.ToolTip="复制"
                           x:Uid="FileCopy"
@@ -39,7 +39,7 @@
                           ToolTipService.ToolTip="删除"
                           x:Uid="FileDelete"
                           Click="Delete_Click" />
-            <CommandBarFlyout.SecondaryCommands>
+            <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Label="使用系统管理器打开"
                               x:Uid="SystemManagerOpen"
                               x:Name="OpenHiddenItemExplorer"
@@ -63,11 +63,60 @@
                                   Glyph="&#xF5EF;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
-            </CommandBarFlyout.SecondaryCommands>
-        </CommandBarFlyout>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
 
-        <CommandBarFlyout x:Name="FileFlyout"
-                          Placement="RightEdgeAlignedTop">
+        <muxc:CommandBarFlyout x:Name="LnkItemFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <AppBarButton Icon="Copy"
+                          ToolTipService.ToolTip="复制"
+                          x:Uid="FileCopy"
+                          Click="Copy_Click" />
+            <AppBarButton Icon="Cut"
+                          ToolTipService.ToolTip="剪切"
+                          x:Uid="FileCut"
+                          Click="Cut_Click" />
+            <AppBarButton Icon="Delete"
+                          ToolTipService.ToolTip="删除"
+                          x:Uid="FileDelete"
+                          Click="Delete_Click" />
+            <AppBarButton Icon="Rename"
+                          ToolTipService.ToolTip="重命名"
+                          Click="Rename_Click" />
+            <muxc:CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="OpenFile"
+                              Label="打开"
+                              x:Uid="FileOpen"
+                              Click="ItemOpen_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control"
+                                             Key="G"
+                                             IsEnabled="False" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
+                <AppBarButton Label="以管理员权限打开"
+                              Click="RunWithSystemAuthority_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                                  Glyph="&#xEA0D;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton Label="打开文件所在位置">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                                  Glyph="&#xF133;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarSeparator />
+                <AppBarButton Icon="Tag"
+                              x:Uid="FileAttribute"
+                              Label="属性"
+                              Click="Attribute_Click" />
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
+
+        <muxc:CommandBarFlyout x:Name="FileFlyout"
+                               Placement="RightEdgeAlignedTop">
             <AppBarButton Icon="Copy"
                           ToolTipService.ToolTip="复制"
                           Name="Copy"
@@ -87,7 +136,7 @@
                           ToolTipService.ToolTip="重命名"
                           x:Uid="FileRename"
                           Click="Rename_Click" />
-            <CommandBarFlyout.SecondaryCommands>
+            <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="OpenFile"
                               Label="打开"
                               x:Uid="FileOpen"
@@ -236,11 +285,11 @@
                               x:Uid="FileAttribute"
                               Label="属性"
                               Click="Attribute_Click" />
-            </CommandBarFlyout.SecondaryCommands>
-        </CommandBarFlyout>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
 
-        <CommandBarFlyout x:Name="MixedFlyout"
-                          Placement="RightEdgeAlignedTop">
+        <muxc:CommandBarFlyout x:Name="MixedFlyout"
+                               Placement="RightEdgeAlignedTop">
             <AppBarButton Icon="Copy"
                           ToolTipService.ToolTip="复制"
                           x:Uid="FileCopy"
@@ -253,16 +302,16 @@
                           ToolTipService.ToolTip="删除"
                           x:Uid="FileDelete"
                           Click="Delete_Click" />
-            <CommandBarFlyout.SecondaryCommands>
+            <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Bookmarks"
                               Label="压缩"
                               x:Name="MixZip"
                               Click="MixZip_Click" />
-            </CommandBarFlyout.SecondaryCommands>
-        </CommandBarFlyout>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
 
-        <CommandBarFlyout x:Name="FolderFlyout"
-                          Placement="RightEdgeAlignedTop">
+        <muxc:CommandBarFlyout x:Name="FolderFlyout"
+                               Placement="RightEdgeAlignedTop">
             <AppBarButton Icon="Copy"
                           ToolTipService.ToolTip="复制"
                           x:Uid="FileCopy"
@@ -280,7 +329,7 @@
                           x:Uid="FolderRename"
                           x:Name="FolderRename"
                           Click="Rename_Click" />
-            <CommandBarFlyout.SecondaryCommands>
+            <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow"
                               Label="打开"
                               x:Uid="FolderOpen"
@@ -337,12 +386,12 @@
                               x:Uid="FolderAttribute"
                               x:Name="FolderProperty"
                               Click="FolderProperty_Click" />
-            </CommandBarFlyout.SecondaryCommands>
-        </CommandBarFlyout>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
 
-        <CommandBarFlyout x:Name="EmptyFlyout"
-                          Placement="RightEdgeAlignedTop"
-                          Opening="EmptyFlyout_Opening">
+        <muxc:CommandBarFlyout x:Name="EmptyFlyout"
+                               Placement="RightEdgeAlignedTop"
+                               Opening="EmptyFlyout_Opening">
             <AppBarButton Icon="Paste"
                           x:Uid="FilePaste"
                           ToolTipService.ToolTip="{x:Bind Paste.Label}"
@@ -357,7 +406,7 @@
                           x:Uid="Undo"
                           Click="Undo_Click"
                           IsEnabled="False" />
-            <CommandBarFlyout.SecondaryCommands>
+            <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Add"
                               Label="新建"
                               x:Uid="EmptyFlyoutNew">
@@ -456,8 +505,8 @@
                               x:Uid="FolderAttribute"
                               x:Name="ParentProperty"
                               Click="ParentProperty_Click" />
-            </CommandBarFlyout.SecondaryCommands>
-        </CommandBarFlyout>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
 
         <muxc:TeachingTip PreferredPlacement="Auto"
                           Title="WIFI分享"
@@ -603,7 +652,7 @@
                              Visibility="Collapsed"
                              LostFocus="NameEditBox_LostFocus"
                              BeforeTextChanging="NameEditBox_BeforeTextChanging"
-                             x:DeferLoadStrategy="Lazy" />
+                             x:Load="False" />
                     <TextBlock Text="{x:Bind DisplayType,Mode=OneWay}"
                                FontSize="12"
                                HorizontalTextAlignment="Left"
@@ -809,7 +858,7 @@
                              Visibility="Collapsed"
                              LostFocus="NameEditBox_LostFocus"
                              BeforeTextChanging="NameEditBox_BeforeTextChanging"
-                             x:DeferLoadStrategy="Lazy" />
+                             x:Load="False" />
                 </Grid>
                 <TextBlock VerticalAlignment="Center"
                            FontSize="14"
@@ -879,7 +928,7 @@
                          Visibility="Collapsed"
                          LostFocus="NameEditBox_LostFocus"
                          BeforeTextChanging="NameEditBox_BeforeTextChanging"
-                         x:DeferLoadStrategy="Lazy" />
+                         x:Load="False" />
                 <TextBlock VerticalAlignment="Stretch"
                            HorizontalAlignment="Stretch"
                            Grid.Column="2"
@@ -893,73 +942,76 @@
             <RowDefinition />
             <RowDefinition Height="43" />
         </Grid.RowDefinitions>
-        <ListView Background="Transparent"
-                  x:Name="ListViewControl"
-                  HorizontalAlignment="Stretch"
-                  VerticalAlignment="Stretch"
-                  PointerPressed="ViewControl_PointerPressed"
-                  RightTapped="ViewControl_RightTapped"
-                  SelectionChanged="ViewControl_SelectionChanged"
-                  SelectionMode="Extended"
-                  ItemClick="ViewControl_ItemClick"
-                  ContainerContentChanging="ViewControl_ContainerContentChanging"
-                  CanDrag="False"
-                  CanReorderItems="False"
-                  CanDragItems="True"
-                  DragItemsStarting="ViewControl_DragItemsStarting"
-                  AllowDrop="True"
-                  DragOver="ViewControl_DragOver"
-                  Drop="ViewControl_Drop"
-                  IsHoldingEnabled="True"
-                  IsItemClickEnabled="True"
-                  IsDoubleTapEnabled="True"
-                  Holding="ViewControl_Holding"
-                  DoubleTapped="ViewControl_DoubleTapped"
-                  x:FieldModifier="Public"
-                  Visibility="Collapsed"
-                  HeaderTemplate="{StaticResource ListHeaderDataTemplate}"
-                  ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.PresenterListViewTransitions,Mode=OneWay}">
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="HorizontalContentAlignment"
-                            Value="Stretch" />
-                    <Setter Property="Padding"
-                            Value="0" />
-                </Style>
-            </ListView.ItemContainerStyle>
-        </ListView>
-        <GridView Name="GridViewControl"
-                  Background="Transparent"
-                  ContainerContentChanging="ViewControl_ContainerContentChanging"
-                  HorizontalAlignment="Stretch"
-                  VerticalAlignment="Stretch"
-                  PointerPressed="ViewControl_PointerPressed"
-                  RightTapped="ViewControl_RightTapped"
-                  Holding="ViewControl_Holding"
-                  SelectionChanged="ViewControl_SelectionChanged"
-                  SelectionMode="Extended"
-                  ItemClick="ViewControl_ItemClick"
-                  CanDrag="False"
-                  CanReorderItems="False"
-                  CanDragItems="True"
-                  AllowDrop="True"
-                  IsHoldingEnabled="True"
-                  DragOver="ViewControl_DragOver"
-                  Drop="ViewControl_Drop"
-                  ItemsSource="{x:Bind FileCollection}"
-                  DragItemsStarting="ViewControl_DragItemsStarting"
-                  IsItemClickEnabled="True"
-                  IsDoubleTapEnabled="True"
-                  DoubleTapped="ViewControl_DoubleTapped"
-                  x:FieldModifier="Public"
-                  ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.PresenterGridViewTransitions,Mode=OneWay}">
-            <GridView.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <ItemsWrapGrid Orientation="Horizontal"
-                                   HorizontalAlignment="Stretch" />
-                </ItemsPanelTemplate>
-            </GridView.ItemsPanel>
-        </GridView>
+        <muxc:RefreshContainer x:Name="ListViewRefreshContainer"
+                               x:Load="False">
+            <ListView Background="Transparent"
+                      x:Name="ListViewControl"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch"
+                      PointerPressed="ViewControl_PointerPressed"
+                      RightTapped="ViewControl_RightTapped"
+                      SelectionChanged="ViewControl_SelectionChanged"
+                      SelectionMode="Extended"
+                      ItemClick="ViewControl_ItemClick"
+                      ContainerContentChanging="ViewControl_ContainerContentChanging"
+                      CanDrag="False"
+                      CanReorderItems="False"
+                      CanDragItems="True"
+                      DragItemsStarting="ViewControl_DragItemsStarting"
+                      AllowDrop="True"
+                      DragOver="ViewControl_DragOver"
+                      Drop="ViewControl_Drop"
+                      IsHoldingEnabled="True"
+                      IsItemClickEnabled="True"
+                      IsDoubleTapEnabled="True"
+                      Holding="ViewControl_Holding"
+                      DoubleTapped="ViewControl_DoubleTapped"
+                      x:FieldModifier="Public"
+                      ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment"
+                                Value="Stretch" />
+                        <Setter Property="Padding"
+                                Value="0" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+            </ListView>
+        </muxc:RefreshContainer>
+        <muxc:RefreshContainer x:Name="GridViewRefreshContainer"
+                               x:Load="False">
+            <GridView Name="GridViewControl"
+                      Background="Transparent"
+                      ContainerContentChanging="ViewControl_ContainerContentChanging"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch"
+                      PointerPressed="ViewControl_PointerPressed"
+                      RightTapped="ViewControl_RightTapped"
+                      Holding="ViewControl_Holding"
+                      SelectionChanged="ViewControl_SelectionChanged"
+                      SelectionMode="Extended"
+                      ItemClick="ViewControl_ItemClick"
+                      CanDrag="False"
+                      CanReorderItems="False"
+                      CanDragItems="True"
+                      AllowDrop="True"
+                      IsHoldingEnabled="True"
+                      DragOver="ViewControl_DragOver"
+                      Drop="ViewControl_Drop"
+                      DragItemsStarting="ViewControl_DragItemsStarting"
+                      IsItemClickEnabled="True"
+                      IsDoubleTapEnabled="True"
+                      DoubleTapped="ViewControl_DoubleTapped"
+                      x:FieldModifier="Public"
+                      ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
+                <GridView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <ItemsWrapGrid Orientation="Horizontal"
+                                       HorizontalAlignment="Stretch" />
+                    </ItemsPanelTemplate>
+                </GridView.ItemsPanel>
+            </GridView>
+        </muxc:RefreshContainer>
         <TextBlock Name="HasFile"
                    x:FieldModifier="public"
                    HorizontalAlignment="Center"

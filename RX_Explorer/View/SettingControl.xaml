@@ -4,7 +4,7 @@
              xmlns:local="using:RX_Explorer.Class"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+             xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
              xmlns:control="using:Microsoft.Toolkit.Uwp.UI.Controls"
              xmlns:sys="using:System"
              mc:Ignorable="d"
@@ -12,21 +12,21 @@
              d:DesignWidth="1920">
 
     <UserControl.Resources>
-        <local:ThemeToIndexConverter x:Key="ThemeConverter"/>
-        
-        <controls:TeachingTip x:Name="ColorPickerTeachTip"
-                              IsLightDismissEnabled="True"
-                              Title="Acrylic主题颜色"
-                              x:Uid="SettingPageColorPickerTip"
-                              Target="{x:Bind AcrylicColor}"
-                              Closed="ColorPickerTeachTip_Closed"
-                              HeroContentPlacement="Top">
-            <controls:TeachingTip.HeroContent>
+        <local:ThemeToIndexConverter x:Key="ThemeConverter" />
+
+        <muxc:TeachingTip x:Name="ColorPickerTeachTip"
+                          IsLightDismissEnabled="True"
+                          Title="Acrylic主题颜色"
+                          x:Uid="SettingPageColorPickerTip"
+                          Target="{x:Bind AcrylicColor}"
+                          Closed="ColorPickerTeachTip_Closed"
+                          HeroContentPlacement="Top">
+            <muxc:TeachingTip.HeroContent>
                 <Image Stretch="UniformToFill"
                        Height="130"
                        Source="ms-appx:///Assets/ColorPickerHero.png" />
-            </controls:TeachingTip.HeroContent>
-            <controls:TeachingTip.Content>
+            </muxc:TeachingTip.HeroContent>
+            <muxc:TeachingTip.Content>
                 <ColorPicker ColorSpectrumShape="Ring"
                              IsMoreButtonVisible="True"
                              IsColorSliderVisible="True"
@@ -34,15 +34,15 @@
                              IsHexInputVisible="False"
                              Color="{x:Bind local:BackgroundController.Current.AcrylicColor,Mode=TwoWay}"
                              x:Name="AcrylicColorPicker" />
-            </controls:TeachingTip.Content>
-        </controls:TeachingTip>
+            </muxc:TeachingTip.Content>
+        </muxc:TeachingTip>
 
-        <controls:TeachingTip x:Name="OpacityTip"
-                              IsLightDismissEnabled="True"
-                              PreferredPlacement="TopRight"
-                              Title="颜色透明度"
-                              x:Uid="SettingPageOpacityTip"
-                              Target="{x:Bind TintOpacityQuestion}">
+        <muxc:TeachingTip x:Name="OpacityTip"
+                          IsLightDismissEnabled="True"
+                          PreferredPlacement="TopRight"
+                          Title="颜色透明度"
+                          x:Uid="SettingPageOpacityTip"
+                          Target="{x:Bind TintOpacityQuestion}">
             <StackPanel>
                 <TextBlock x:Uid="SettingPageOpacityTipText1"
                            Text="Acrylic主题色层透明度，此值越大表示Acrylic颜色越淡，越小则表示颜色越深"
@@ -52,14 +52,14 @@
                            Text="'推荐'模式下此值默认为60%"
                            TextWrapping="WrapWholeWords" />
             </StackPanel>
-        </controls:TeachingTip>
+        </muxc:TeachingTip>
 
-        <controls:TeachingTip x:Name="LuminosityTip"
-                              IsLightDismissEnabled="True"
-                              PreferredPlacement="TopRight"
-                              Title="背景透光度"
-                              x:Uid="SettingPageLuminosityTip"
-                              Target="{x:Bind TintLuminosityQuestion}">
+        <muxc:TeachingTip x:Name="LuminosityTip"
+                          IsLightDismissEnabled="True"
+                          PreferredPlacement="TopRight"
+                          Title="背景透光度"
+                          x:Uid="SettingPageLuminosityTip"
+                          Target="{x:Bind TintLuminosityQuestion}">
             <StackPanel VerticalAlignment="Center"
                         HorizontalAlignment="Left">
                 <TextBlock x:Uid="SettingPageLuminosityTipText1"
@@ -77,35 +77,35 @@
                            Text="调整此值可能导致内容不清晰或无法识别"
                            TextWrapping="WrapWholeWords" />
             </StackPanel>
-        </controls:TeachingTip>
+        </muxc:TeachingTip>
 
-        <controls:TeachingTip x:Name="PreLaunchTip"
-                              IsLightDismissEnabled="True"
-                              PreferredPlacement="TopRight"
-                              x:Uid="PreLaunchTip"
-                              Target="{x:Bind PreLaunchQuestion}"
-                              Title="预加载技术"
-                              Subtitle="启用预加载技术时，Windows将根据您的使用情况自动决定是否在系统资源足够的时候对RX文件管理器进行预加载。若RX文件管理器已提前由Windows加载，则将大幅度提高启动速度" />
+        <muxc:TeachingTip x:Name="PreLaunchTip"
+                          IsLightDismissEnabled="True"
+                          PreferredPlacement="TopRight"
+                          x:Uid="PreLaunchTip"
+                          Target="{x:Bind PreLaunchQuestion}"
+                          Title="预加载技术"
+                          Subtitle="启用预加载技术时，Windows将根据您的使用情况自动决定是否在系统资源足够的时候对RX文件管理器进行预加载。若RX文件管理器已提前由Windows加载，则将大幅度提高启动速度" />
 
-        <controls:TeachingTip x:Name="QuicklookTip"
-                              IsLightDismissEnabled="True"
-                              PreferredPlacement="TopRight"
-                              x:Uid="QuicklookTip"
-                              Target="{x:Bind QuicklookQuestion}"
-                              Title="QuickLook"
-                              Subtitle="QuickLook是一种方便快捷查看文件内容的辅助软件。若要启用此功能，则您必须提前安装QuickLook并确保QuickLook正常运行。您可以在RX文件管理器中点击任意文件并按下空格键来激活QuickLook" />
+        <muxc:TeachingTip x:Name="QuicklookTip"
+                          IsLightDismissEnabled="True"
+                          PreferredPlacement="TopRight"
+                          x:Uid="QuicklookTip"
+                          Target="{x:Bind QuicklookQuestion}"
+                          Title="QuickLook"
+                          Subtitle="QuickLook是一种方便快捷查看文件内容的辅助软件。若要启用此功能，则您必须提前安装QuickLook并确保QuickLook正常运行。您可以在RX文件管理器中点击任意文件并按下空格键来激活QuickLook" />
 
-        <controls:TeachingTip x:Name="FeedBackTip"
-                              IsLightDismissEnabled="True"
-                              Title="反馈说明"
-                              PreferredPlacement="TopRight"
-                              Target="{x:Bind FeedBackQuestion}"
-                              x:Uid="FeedBackTip"
-                              Subtitle="此反馈清单将向所有使用者展示您的建议或者反馈，同样您也可以查看其他人提出的建议，并给予您感兴趣的提议一个支持，支持越多且反对越少的建议将越靠前，开发者将聆听您的建议。您只能修改或删除您提交的建议。" />
+        <muxc:TeachingTip x:Name="FeedBackTip"
+                          IsLightDismissEnabled="True"
+                          Title="反馈说明"
+                          PreferredPlacement="TopRight"
+                          Target="{x:Bind FeedBackQuestion}"
+                          x:Uid="FeedBackTip"
+                          Subtitle="此反馈清单将向所有使用者展示您的建议或者反馈，同样您也可以查看其他人提出的建议，并给予您感兴趣的提议一个支持，支持越多且反对越少的建议将越靠前，开发者将聆听您的建议。您只能修改或删除您提交的建议。" />
 
-        <CommandBarFlyout x:Name="FeedBackFlyout"
-                          Placement="RightEdgeAlignedTop">
-            <CommandBarFlyout.SecondaryCommands>
+        <muxc:CommandBarFlyout x:Name="FeedBackFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Edit"
                               x:Name="FeedBackEdit"
                               x:Uid="FeedBackEditButton"
@@ -116,12 +116,12 @@
                               x:Uid="FeedBackDeleteButton"
                               Label="删除"
                               Click="FeedBackDelete_Click" />
-            </CommandBarFlyout.SecondaryCommands>
-        </CommandBarFlyout>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
 
-        <CommandBarFlyout x:Name="TranslateFlyout"
-                          Placement="RightEdgeAlignedTop">
-            <CommandBarFlyout.SecondaryCommands>
+        <muxc:CommandBarFlyout x:Name="TranslateFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton x:Name="FeedBackTranslate"
                               x:Uid="FeedBackTranslateButton"
                               Label="翻译"
@@ -131,12 +131,12 @@
                                   Glyph="&#xF2B7;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
-            </CommandBarFlyout.SecondaryCommands>
-        </CommandBarFlyout>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
 
-        <CommandBarFlyout x:Name="FeedBackDevelopFlyout"
-                          Placement="RightEdgeAlignedTop">
-            <CommandBarFlyout.SecondaryCommands>
+        <muxc:CommandBarFlyout x:Name="FeedBackDevelopFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Edit"
                               Label="编辑"
                               Click="FeedBackEdit_Click" />
@@ -159,18 +159,18 @@
                 <AppBarButton Icon="Delete"
                               Label="删除"
                               Click="FeedBackDelete_Click" />
-            </CommandBarFlyout.SecondaryCommands>
-        </CommandBarFlyout>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
 
-        <CommandBarFlyout Placement="RightEdgeAlignedTop"
-                          x:Name="PictureFlyout">
-            <CommandBarFlyout.SecondaryCommands>
+        <muxc:CommandBarFlyout Placement="RightEdgeAlignedTop"
+                               x:Name="PictureFlyout">
+            <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Delete"
                               Label="删除"
                               x:Name="DeletePictureButton"
                               Click="DeletePictureButton_Click" />
-            </CommandBarFlyout.SecondaryCommands>
-        </CommandBarFlyout>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
     </UserControl.Resources>
 
     <Grid x:Name="Gr"
@@ -204,14 +204,14 @@
                                   OnContent="启用"
                                   OffContent="隐藏"
                                   x:Name="TreeViewDetach"
-                                  x:Uid="SettingTreeViewDetach"/>
+                                  x:Uid="SettingTreeViewDetach" />
 
                     <ToggleSwitch Margin="0,20,0,0"
                                   Header="显示隐藏文件/文件夹"
                                   x:Uid="SettingDisplayHiddenItem"
                                   OnContent="启用"
                                   OffContent="禁用"
-                                  Name="DisplayHiddenItem"/>
+                                  Name="DisplayHiddenItem" />
 
                     <ComboBox Margin="0,20,0,0"
                               Header="文件夹打开方式"
@@ -295,7 +295,7 @@
                                   Name="UseWinAndEActivate"
                                   OnContent="启用"
                                   OffContent="禁用"
-                                  x:Uid="UseWinAndEActivate"/>
+                                  x:Uid="UseWinAndEActivate" />
 
                     <StackPanel Orientation="Horizontal"
                                 Name="AlwaysLaunchNewArea">
@@ -304,13 +304,13 @@
                               Y1="3"
                               Y2="29"
                               StrokeThickness="3"
-                              Stroke="Gray"/>
+                              Stroke="Gray" />
                         <CheckBox Content="激活时始终启动新的进程"
                                   Margin="20,0,0,0"
                                   x:Uid="SettingPageAlwaysLaunchNew"
                                   Name="AlwaysLaunchNew"
                                   Checked="AlwaysLaunchNew_Checked"
-                                  Unchecked="AlwaysLaunchNew_Unchecked"/>
+                                  Unchecked="AlwaysLaunchNew_Unchecked" />
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal"
@@ -356,9 +356,9 @@
                                   Margin="20,0,0,0"
                                   x:Uid="SettingPageExceptAnimation"
                                   IsChecked="{x:Bind local:AnimationController.Current.IsDisableStartupAnimation,Mode=TwoWay}"
-                                  Name="ExceptAnimation"/>
+                                  Name="ExceptAnimation" />
                     </StackPanel>
-                    
+
                     <ComboBox Header="自定义字体颜色"
                               Margin="0,20,0,0"
                               MinWidth="120"
@@ -380,7 +380,7 @@
                         <RadioButton Content="Windows默认"
                                      Name="SolidColor_FollowSystem"
                                      x:Uid="SolidColor_FollowSystem"
-                                     Checked="SolidColor_FollowSystem_Checked"/>
+                                     Checked="SolidColor_FollowSystem_Checked" />
                         <RadioButton Content="白色"
                                      x:Uid="SolidColor_White"
                                      Name="SolidColor_White"
@@ -395,8 +395,8 @@
                         <RadioButton Content="Acrylic背景"
                                      x:Uid="CustomUISubtype1"
                                      Name="AcrylicMode"
-                                     Checked="AcrylicMode_Checked" 
-                                     GroupName="CustomSubRadio"/>
+                                     Checked="AcrylicMode_Checked"
+                                     GroupName="CustomSubRadio" />
                         <StackPanel Orientation="Horizontal"
                                     Margin="0,10,0,0">
                             <RadioButton Content="必应每日壁纸"
@@ -404,12 +404,12 @@
                                          x:Uid="CustomUISubtype3"
                                          GroupName="CustomSubRadio"
                                          Checked="BingPictureMode_Checked" />
-                            <controls:ProgressRing IsActive="True"
-                                                   Margin="10,0,0,0"
-                                                   Height="20"
-                                                   Width="20"
-                                                   Name="GetBingPhotoState"
-                                                   Visibility="Collapsed"/>
+                            <muxc:ProgressRing IsActive="True"
+                                               Margin="10,0,0,0"
+                                               Height="20"
+                                               Width="20"
+                                               Name="GetBingPhotoState"
+                                               Visibility="Collapsed" />
                         </StackPanel>
                         <RadioButton Content="自定义图片背景"
                                      x:Uid="CustomUISubtype2"
@@ -755,8 +755,8 @@
                 <TextBlock Name="LoadingText"
                            FontSize="16"
                            TextAlignment="Center" />
-                <controls:ProgressBar IsIndeterminate="True"
-                                      Margin="0,10,0,0" />
+                <muxc:ProgressBar IsIndeterminate="True"
+                                  Margin="0,10,0,0" />
             </StackPanel>
         </control:Loading>
     </Grid>

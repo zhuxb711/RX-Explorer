@@ -12,9 +12,9 @@
       NavigationCacheMode="Required">
 
     <Page.Resources>
-        <CommandBarFlyout x:Name="SelectFlyout"
-                          Placement="RightEdgeAlignedTop">
-            <CommandBarFlyout.SecondaryCommands>
+        <muxc:CommandBarFlyout x:Name="SelectFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Label="永久删除"
                               Icon="Delete"
                               Name="PermanentDelete"
@@ -30,12 +30,12 @@
                               Icon="Tag"
                               Name="PropertyButton"
                               Click="PropertyButton_Click" />
-            </CommandBarFlyout.SecondaryCommands>
-        </CommandBarFlyout>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
 
-        <CommandBarFlyout x:Name="EmptyFlyout"
-                          Placement="RightEdgeAlignedTop">
-            <CommandBarFlyout.SecondaryCommands>
+        <muxc:CommandBarFlyout x:Name="EmptyFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Refresh"
                               Label="刷新"
                               x:Uid="RefreshView"
@@ -52,8 +52,8 @@
                                   Glyph="&#xED62;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
-            </CommandBarFlyout.SecondaryCommands>
-        </CommandBarFlyout>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
     </Page.Resources>
 
     <Grid>
@@ -72,7 +72,7 @@
                   Holding="ListViewControl_Holding"
                   DoubleTapped="ListViewControl_DoubleTapped"
                   ItemsSource="{x:Bind FileCollection}"
-                  ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.PresenterListViewTransitions,Mode=OneWay}">
+                  ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
             <ListView.Header>
                 <Grid Height="35">
                     <Grid.ColumnDefinitions>

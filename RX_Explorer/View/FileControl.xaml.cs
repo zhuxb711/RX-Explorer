@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using Microsoft.Toolkit.Uwp.UI.Animations;
+using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using System;
@@ -24,6 +25,7 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
+using RefreshContainer = Microsoft.UI.Xaml.Controls.RefreshContainer;
 using TreeView = Microsoft.UI.Xaml.Controls.TreeView;
 using TreeViewCollapsedEventArgs = Microsoft.UI.Xaml.Controls.TreeViewCollapsedEventArgs;
 using TreeViewExpandingEventArgs = Microsoft.UI.Xaml.Controls.TreeViewExpandingEventArgs;
@@ -2052,53 +2054,54 @@ namespace RX_Explorer
         {
             ApplicationData.Current.LocalSettings.Values["FilePresenterDisplayMode"] = ItemDisplayMode.SelectedIndex;
 
+            FilePresenter Presenter = CommonAccessCollection.GetFilePresenterInstance(this);
+
             switch (ItemDisplayMode.SelectedIndex)
             {
                 case 0:
                     {
-                        CommonAccessCollection.GetFilePresenterInstance(this).GridViewControl.ItemTemplate = CommonAccessCollection.GetFilePresenterInstance(this).TileDataTemplate;
+                        Presenter.ItemPresenter = (Presenter.FindName("GridViewRefreshContainer") as RefreshContainer)?.Content as ListViewBase;
 
-                        CommonAccessCollection.GetFilePresenterInstance(this).ItemPresenter = CommonAccessCollection.GetFilePresenterInstance(this).GridViewControl;
+                        Presenter.GridViewControl.ItemTemplate = Presenter.TileDataTemplate;
                         break;
                     }
                 case 1:
                     {
-                        CommonAccessCollection.GetFilePresenterInstance(this).ListViewControl.HeaderTemplate = CommonAccessCollection.GetFilePresenterInstance(this).ListHeaderDataTemplate;
-                        CommonAccessCollection.GetFilePresenterInstance(this).ListViewControl.ItemTemplate = CommonAccessCollection.GetFilePresenterInstance(this).ListViewDetailDataTemplate;
-                        CommonAccessCollection.GetFilePresenterInstance(this).ListViewControl.ItemsSource = CommonAccessCollection.GetFilePresenterInstance(this).FileCollection;
+                        Presenter.ItemPresenter = (Presenter.FindName("ListViewRefreshContainer") as RefreshContainer)?.Content as ListViewBase;
 
-                        CommonAccessCollection.GetFilePresenterInstance(this).ItemPresenter = CommonAccessCollection.GetFilePresenterInstance(this).ListViewControl;
+                        Presenter.ListViewControl.HeaderTemplate = Presenter.ListHeaderDataTemplate;
+                        Presenter.ListViewControl.ItemTemplate = Presenter.ListViewDetailDataTemplate;
+                        Presenter.ListViewControl.ItemsSource = Presenter.FileCollection;
                         break;
                     }
-
                 case 2:
                     {
-                        CommonAccessCollection.GetFilePresenterInstance(this).ListViewControl.HeaderTemplate = null;
-                        CommonAccessCollection.GetFilePresenterInstance(this).ListViewControl.ItemTemplate = CommonAccessCollection.GetFilePresenterInstance(this).ListViewSimpleDataTemplate;
-                        CommonAccessCollection.GetFilePresenterInstance(this).ListViewControl.ItemsSource = CommonAccessCollection.GetFilePresenterInstance(this).FileCollection;
+                        Presenter.ItemPresenter = (Presenter.FindName("ListViewRefreshContainer") as RefreshContainer)?.Content as ListViewBase;
 
-                        CommonAccessCollection.GetFilePresenterInstance(this).ItemPresenter = CommonAccessCollection.GetFilePresenterInstance(this).ListViewControl;
+                        Presenter.ListViewControl.HeaderTemplate = null;
+                        Presenter.ListViewControl.ItemTemplate = Presenter.ListViewSimpleDataTemplate;
+                        Presenter.ListViewControl.ItemsSource = Presenter.FileCollection;
                         break;
                     }
                 case 3:
                     {
-                        CommonAccessCollection.GetFilePresenterInstance(this).GridViewControl.ItemTemplate = CommonAccessCollection.GetFilePresenterInstance(this).LargeImageDataTemplate;
+                        Presenter.ItemPresenter = (Presenter.FindName("GridViewRefreshContainer") as RefreshContainer)?.Content as ListViewBase;
 
-                        CommonAccessCollection.GetFilePresenterInstance(this).ItemPresenter = CommonAccessCollection.GetFilePresenterInstance(this).GridViewControl;
+                        Presenter.GridViewControl.ItemTemplate = Presenter.LargeImageDataTemplate;
                         break;
                     }
                 case 4:
                     {
-                        CommonAccessCollection.GetFilePresenterInstance(this).GridViewControl.ItemTemplate = CommonAccessCollection.GetFilePresenterInstance(this).MediumImageDataTemplate;
+                        Presenter.ItemPresenter = (Presenter.FindName("GridViewRefreshContainer") as RefreshContainer)?.Content as ListViewBase;
 
-                        CommonAccessCollection.GetFilePresenterInstance(this).ItemPresenter = CommonAccessCollection.GetFilePresenterInstance(this).GridViewControl;
+                        Presenter.GridViewControl.ItemTemplate = Presenter.MediumImageDataTemplate;
                         break;
                     }
                 case 5:
                     {
-                        CommonAccessCollection.GetFilePresenterInstance(this).GridViewControl.ItemTemplate = CommonAccessCollection.GetFilePresenterInstance(this).SmallImageDataTemplate;
+                        Presenter.ItemPresenter = (Presenter.FindName("GridViewRefreshContainer") as RefreshContainer)?.Content as ListViewBase;
 
-                        CommonAccessCollection.GetFilePresenterInstance(this).ItemPresenter = CommonAccessCollection.GetFilePresenterInstance(this).GridViewControl;
+                        Presenter.GridViewControl.ItemTemplate = Presenter.SmallImageDataTemplate;
                         break;
                     }
             }
