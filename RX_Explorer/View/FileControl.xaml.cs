@@ -190,7 +190,7 @@ namespace RX_Explorer
         private ObservableCollection<string> AddressExtentionList = new ObservableCollection<string>();
         private volatile int recordIndex;
         private bool IsBackOrForwardAction;
-        private Microsoft.UI.Xaml.Controls.TabViewItem TabItem;
+        private TabViewItem TabItem;
 
         public FileControl()
         {
@@ -457,14 +457,10 @@ namespace RX_Explorer
 
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e?.Parameter is Tuple<Microsoft.UI.Xaml.Controls.TabViewItem, StorageFolder, ThisPC> Parameters)
+            if (e?.Parameter is Tuple<TabViewItem, StorageFolder, ThisPC> Parameters)
             {
                 Application.Current.Suspending += Current_Suspending;
                 Application.Current.Resuming += Current_Resuming;
-
-                string PlaceText = Parameters.Item2.DisplayName.Length > 18 ? Parameters.Item2.DisplayName.Substring(0, 18) + "..." : Parameters.Item2.DisplayName;
-
-                GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {PlaceText}";
 
                 if (Parameters.Item1 != null)
                 {

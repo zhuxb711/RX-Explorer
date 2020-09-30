@@ -1142,51 +1142,21 @@ namespace RX_Explorer
             if (FeedBackList.SelectedItem is FeedBackItem SelectItem)
             {
                 FeedBackDialog Dialog = new FeedBackDialog($"@{SelectItem.UserName}");
+                
                 if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    if (FeedBackCollection.FirstOrDefault((It) => It.UserName == UserName && It.Suggestion == Dialog.FeedBack && It.Title == Dialog.TitleName) == null)
+                    if (Regex.IsMatch(SelectItem.UserID, "^\\s*([A-Za-z0-9_-]+(\\.\\w+)*@(\\w+\\.)+\\w{2,5})\\s*$"))
                     {
-                        FeedBackItem Item = new FeedBackItem(UserName, Dialog.TitleName, Dialog.FeedBack, "0", "0", UserID, Guid.NewGuid().ToString("D"));
-                        if (await MySQL.Current.SetFeedBackAsync(Item).ConfigureAwait(true))
+                        if (Globalization.CurrentLanguage == LanguageEnum.Chinese_Simplified)
                         {
-                            FeedBackCollection.Add(Item);
-                            await Task.Delay(1000).ConfigureAwait(true);
-                            FeedBackList.ScrollIntoViewSmoothly(FeedBackCollection.Last());
-
-                            if (Regex.IsMatch(SelectItem.UserID, "^\\s*([A-Za-z0-9_-]+(\\.\\w+)*@(\\w+\\.)+\\w{2,5})\\s*$"))
-                            {
-                                if (Globalization.CurrentLanguage == LanguageEnum.Chinese_Simplified)
-                                {
-                                    string Message = $"您的反馈原文：\r------------------------------------\r{SelectItem.Title}{Environment.NewLine}{SelectItem.Suggestion}\r------------------------------------\r\r开发者回复内容：\r------------------------------------\r{Item.Title}{Environment.NewLine}{Item.Suggestion}\r------------------------------------{Environment.NewLine}";
-                                    _ = await Launcher.LaunchUriAsync(new Uri($"mailto:{SelectItem.UserID}?subject=开发者已回复您的反馈&body={Uri.EscapeDataString(Message)}"), new LauncherOptions { TreatAsUntrusted = false, DisplayApplicationPicker = false });
-                                }
-                                else
-                                {
-                                    string Message = $"Your original feedback：\r------------------------------------\r{SelectItem.Title}{Environment.NewLine}{SelectItem.Suggestion}\r------------------------------------\r\rDeveloper reply：\r------------------------------------\r{Item.Title}{Environment.NewLine}{Item.Suggestion}\r------------------------------------{Environment.NewLine}";
-                                    _ = await Launcher.LaunchUriAsync(new Uri($"mailto:{SelectItem.UserID}?subject=The developer has responded to your feedback in RX Explorer&body={Uri.EscapeDataString(Message)}"), new LauncherOptions { TreatAsUntrusted = false, DisplayApplicationPicker = false });
-                                }
-                            }
+                            string Message = $"您的反馈原文：{Environment.NewLine}------------------------------------{Environment.NewLine}{SelectItem.Title}{Environment.NewLine}{SelectItem.Suggestion}{Environment.NewLine}------------------------------------{Environment.NewLine}{Environment.NewLine}开发者回复内容：{Environment.NewLine}------------------------------------\r{Dialog.TitleName}{Environment.NewLine}{Dialog.FeedBack}{Environment.NewLine}------------------------------------{Environment.NewLine}";
+                            _ = await Launcher.LaunchUriAsync(new Uri($"mailto:{SelectItem.UserID}?subject=开发者已回复您的反馈&body={Uri.EscapeDataString(Message)}"), new LauncherOptions { TreatAsUntrusted = false, DisplayApplicationPicker = false });
                         }
                         else
                         {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_FeedBackNetworkError_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-                            _ = await dialog.ShowAsync().ConfigureAwait(true);
+                            string Message = $"Your original feedback：{Environment.NewLine}------------------------------------{Environment.NewLine}{SelectItem.Title}{Environment.NewLine}{SelectItem.Suggestion}{Environment.NewLine}------------------------------------{Environment.NewLine}{Environment.NewLine}Developer reply：{Environment.NewLine}------------------------------------\r{Dialog.TitleName}{Environment.NewLine}{Dialog.FeedBack}{Environment.NewLine}------------------------------------{Environment.NewLine}";
+                            _ = await Launcher.LaunchUriAsync(new Uri($"mailto:{SelectItem.UserID}?subject=The developer has responded to your feedback in RX Explorer&body={Uri.EscapeDataString(Message)}"), new LauncherOptions { TreatAsUntrusted = false, DisplayApplicationPicker = false });
                         }
-                    }
-                    else
-                    {
-                        QueueContentDialog TipsDialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                            Content = Globalization.GetString("QueueDialog_FeedBackRepeatError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await TipsDialog.ShowAsync().ConfigureAwait(true);
                     }
                 }
             }

@@ -1,10 +1,12 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
+using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Portable;
@@ -18,6 +20,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
+using ProgressBar = Microsoft.UI.Xaml.Controls.ProgressBar;
 using TabViewItem = Microsoft.UI.Xaml.Controls.TabViewItem;
 
 namespace RX_Explorer
@@ -755,6 +758,19 @@ namespace RX_Explorer
                 }
                 else
                 {
+                    foreach(TabViewItem Tab in TabViewContainer.ThisPage.TabViewControl.TabItems.Select((Tab)=>Tab as TabViewItem).Where((Tab)=> (Tab.Content as Frame)?.Content is FileControl Control && Control.CurrentFolder.Path == Item.Folder.Path).ToArray())
+                    {
+                        if ((Tab.Content as Frame).Content is FileControl Control)
+                        {
+                            Control.Dispose();
+                            CommonAccessCollection.UnRegister(Control);
+                        }
+
+                        Tab.DragOver -= TabViewContainer.ThisPage.Item_DragOver;
+                        Tab.Drop -= TabViewContainer.ThisPage.Item_Drop;
+                        TabViewContainer.ThisPage.TabViewControl.TabItems.Remove(Tab);
+                    }
+
                     if (await FullTrustProcessController.Current.EjectPortableDevice(Item.Folder.Path).ConfigureAwait(true))
                     {
                         ShowEjectNotification();

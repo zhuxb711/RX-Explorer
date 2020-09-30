@@ -250,6 +250,12 @@ namespace RX_Explorer
                 {
                     if (CreateNewTab() is TabViewItem Item)
                     {
+                        //预览版TabView在没有子Item时会崩溃，此方案作为临时解决方案
+                        if (TabViewControl == null)
+                        {
+                            _ = FindName(nameof(TabViewControl));
+                        }
+
                         TabViewControl.TabItems.Add(Item);
                         TabViewControl.UpdateLayout();
                         TabViewControl.SelectedItem = Item;
@@ -266,12 +272,68 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
-                        _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+
+                        //预览版TabView在没有子Item时会崩溃，此方案作为临时解决方案
+                        if (TabViewControl == null)
+                        {
+                            _ = FindName(nameof(TabViewControl));
+
+                            if (CreateNewTab() is TabViewItem EmptyItem)
+                            {
+                                TabViewControl.TabItems.Add(EmptyItem);
+                                TabViewControl.UpdateLayout();
+                                TabViewControl.SelectedItem = EmptyItem;
+                            }
+                        }
                     }
                     else
                     {
-                        if (CreateNewTab(await StorageFolder.GetFolderFromPathAsync(Path)) is TabViewItem Item)
+                        if (!SettingControl.IsDetachTreeViewAndPresenter && !SettingControl.IsDisplayHiddenItem)
                         {
+                            PathAnalysis Analysis = new PathAnalysis(Path, string.Empty);
+
+                            while (Analysis.HasNextLevel)
+                            {
+                                if (WIN_Native_API.CheckIfHidden(Analysis.NextFullPath()))
+                                {
+                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_NeedOpenHiddenSwitch_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+
+                                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+
+                                    //预览版TabView在没有子Item时会崩溃，此方案作为临时解决方案
+                                    if (TabViewControl == null)
+                                    {
+                                        _ = FindName(nameof(TabViewControl));
+
+                                        if (CreateNewTab() is TabViewItem EmptyItem)
+                                        {
+                                            TabViewControl.TabItems.Add(EmptyItem);
+                                            TabViewControl.UpdateLayout();
+                                            TabViewControl.SelectedItem = EmptyItem;
+                                        }
+                                    }
+
+                                    return;
+                                }
+                            }
+                        }
+
+                        StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(Path);
+
+                        if (CreateNewTab(TargetFolder) is TabViewItem Item)
+                        {
+                            //预览版TabView在没有子Item时会崩溃，此方案作为临时解决方案
+                            if (TabViewControl == null)
+                            {
+                                _ = FindName(nameof(TabViewControl));
+                            }
+
                             TabViewControl.TabItems.Add(Item);
                             TabViewControl.UpdateLayout();
                             TabViewControl.SelectedItem = Item;
@@ -489,6 +551,12 @@ namespace RX_Explorer
             {
                 if (CreateNewTab() is TabViewItem TabItem)
                 {
+                    //预览版TabView在没有子Item时会崩溃，此方案作为临时解决方案
+                    if (TabViewControl == null)
+                    {
+                        _ = FindName(nameof(TabViewControl));
+                    }
+
                     TabViewControl.TabItems.Add(TabItem);
                 }
             }
@@ -803,6 +871,12 @@ namespace RX_Explorer
         {
             if (CreateNewTab() is TabViewItem Item)
             {
+                //预览版TabView在没有子Item时会崩溃，此方案作为临时解决方案
+                if (TabViewControl == null)
+                {
+                    _ = FindName(nameof(TabViewControl));
+                }
+
                 sender.TabItems.Add(Item);
                 sender.UpdateLayout();
                 sender.SelectedItem = Item;
@@ -858,7 +932,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void Item_Drop(object sender, DragEventArgs e)
+        public async void Item_Drop(object sender, DragEventArgs e)
         {
             var Deferral = e.GetDeferral();
 
@@ -905,7 +979,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void Item_DragOver(object sender, DragEventArgs e)
+        public async void Item_DragOver(object sender, DragEventArgs e)
         {
             var Deferral = e.GetDeferral();
 

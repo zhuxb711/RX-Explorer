@@ -190,9 +190,9 @@
                                           Spacing="0" />
                     </muxc:ItemsRepeater.Layout>
                     <muxc:ItemsRepeater.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="Cls:AddressBlock">
                             <StackPanel Orientation="Horizontal">
-                                <Button Content="{Binding}"
+                                <Button Content="{x:Bind Name}"
                                         VerticalAlignment="Center"
                                         Name="AddressButton"
                                         Padding="3,5,3,6"

@@ -111,6 +111,37 @@ namespace RX_Explorer
                     }
                 }
             }
+            else if(activatedArgs is FileActivatedEventArgs)
+            {
+                if (!string.IsNullOrWhiteSpace(AppInstanceIdContainer.LastActiveId))
+                {
+                    do
+                    {
+                        if (AppInstance.GetInstances().Any((Ins) => Ins.Key == AppInstanceIdContainer.LastActiveId))
+                        {
+                            if (AppInstance.FindOrRegisterInstanceForKey(AppInstanceIdContainer.LastActiveId) is AppInstance TargetInstance)
+                            {
+                                TargetInstance.RedirectActivationTo();
+                            }
+
+                            break;
+                        }
+                        else
+                        {
+                            AppInstanceIdContainer.UngisterId(AppInstanceIdContainer.LastActiveId);
+                        }
+                    }
+                    while (!string.IsNullOrEmpty(AppInstanceIdContainer.LastActiveId));
+                }
+                else
+                {
+                    string InstanceId = Guid.NewGuid().ToString();
+                    AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
+                    AppInstanceIdContainer.RegisterCurrentId(InstanceId);
+
+                    Application.Start((p) => new App());
+                }
+            }
             else
             {
                 string InstanceId = Guid.NewGuid().ToString();

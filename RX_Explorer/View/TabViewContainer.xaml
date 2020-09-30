@@ -15,6 +15,7 @@
         <muxc:TabView TabWidthMode="Equal"
                       Name="TabViewControl"
                       x:FieldModifier="public"
+                      x:Load="False"
                       VerticalAlignment="Stretch"
                       AllowDropTabs="True"
                       CanDragTabs="True"

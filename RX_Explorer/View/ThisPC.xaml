@@ -416,7 +416,7 @@
                                                    TextTrimming="CharacterEllipsis"
                                                    Text="{x:Bind Name}"
                                                    ToolTipService.ToolTip="{x:Bind Name}" />
-                                        <ProgressBar x:Name="Pro"
+                                        <muxc:ProgressBar x:Name="Pro"
                                                      Width="200"
                                                      Height="12"
                                                      Foreground="{x:Bind ProgressBarForeground}"

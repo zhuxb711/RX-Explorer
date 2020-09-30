@@ -689,7 +689,7 @@ namespace RX_Explorer
                             await SettingControl.Hide().ConfigureAwait(true);
                         }
 
-                        Nav.Navigate(typeof(TabViewContainer), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
+                        Nav.Navigate(typeof(TabViewContainer), null, new DrillInNavigationTransitionInfo());
                     }
                     else
                     {
@@ -702,11 +702,11 @@ namespace RX_Explorer
 
                         if (args.InvokedItem.ToString() == Globalization.GetString("MainPage_PageDictionary_SecureArea_Label"))
                         {
-                            Nav.Navigate(typeof(SecureArea), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight });
+                            Nav.Navigate(typeof(SecureArea), null, new DrillInNavigationTransitionInfo());
                         }
                         else if (args.InvokedItem.ToString() == Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label"))
                         {
-                            Nav.Navigate(typeof(RecycleBin), null, new SlideNavigationTransitionInfo() { Effect = Nav.CurrentSourcePageType == typeof(SecureArea) ? SlideNavigationTransitionEffect.FromLeft : SlideNavigationTransitionEffect.FromRight });
+                            Nav.Navigate(typeof(RecycleBin), null, new DrillInNavigationTransitionInfo());
                         }
                     }
                 }

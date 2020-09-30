@@ -247,7 +247,7 @@ namespace FullTrustProcess
                                         using (Stream TempStream = await TempFile.OpenStreamForWriteAsync())
                                         using (StreamWriter Writer = new StreamWriter(TempStream, Encoding.Unicode))
                                         {
-                                            await Writer.WriteAsync(Content.Replace("<FillActualAliasPathInHere>", AliasLocation.Replace(@"\", @"\\")));
+                                            await Writer.WriteAsync(Content.Replace("<FillActualAliasPathInHere>", $"{AliasLocation.Replace(@"\", @"\\")} %1"));
                                         }
                                     }
 

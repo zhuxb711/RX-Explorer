@@ -170,20 +170,27 @@ namespace RX_Explorer
 
             if (args is CommandLineActivatedEventArgs CmdArgs)
             {
+                string[] Arguments = CmdArgs.Operation.Arguments.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+
                 if (Window.Current.Content is Frame mainPageFrame)
                 {
                     if (mainPageFrame.Content is MainPage mainPage && mainPage.Nav.Content is TabViewContainer tabViewContainer)
                     {
-                        _ = tabViewContainer.CreateNewTabAndOpenTargetFolder(CmdArgs.Operation.Arguments.Split(" ").LastOrDefault());
+                        if (Arguments.Length > 1)
+                        {
+                            _ = tabViewContainer.CreateNewTabAndOpenTargetFolder(string.Join(" ", Arguments.Skip(1)));
+                        }
+                        else
+                        {
+                            _ = tabViewContainer.CreateNewTabAndOpenTargetFolder(string.Empty);
+                        }
                     }
                 }
                 else
                 {
-                    string[] Arguments = CmdArgs.Operation.Arguments.Split(" ", StringSplitOptions.RemoveEmptyEntries);
-
-                    if (Arguments.Length >= 2)
+                    if (Arguments.Length > 1)
                     {
-                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, false, $"PathActivate||{Arguments[1]}");
+                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, false, $"PathActivate||{string.Join(" ", Arguments.Skip(1))}");
                         Window.Current.Content = extendedSplash;
                     }
                     else
@@ -227,8 +234,18 @@ namespace RX_Explorer
                     viewTitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
                     viewTitleBar.ButtonForegroundColor = (Color)Resources["SystemBaseHighColor"];
 
-                    ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, false, $"PathActivate||{args.Files[0].Path}");
-                    Window.Current.Content = extendedSplash;
+                    if (Window.Current.Content is Frame mainPageFrame)
+                    {
+                        if (mainPageFrame.Content is MainPage mainPage && mainPage.Nav.Content is TabViewContainer tabViewContainer)
+                        {
+                            _ = tabViewContainer.CreateNewTabAndOpenTargetFolder(args.Files[0].Path);
+                        }
+                    }
+                    else
+                    {
+                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, false, $"PathActivate||{args.Files[0].Path}");
+                        Window.Current.Content = extendedSplash;
+                    }
 
                     Window.Current.Activate();
                 }
