@@ -246,7 +246,7 @@ namespace RX_Explorer
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(Path))
+                if (string.IsNullOrWhiteSpace(Path) || Path.Contains("{20D04FE0-3AEA-1069-A2D8-08002B30309D}"))
                 {
                     if (CreateNewTab() is TabViewItem Item)
                     {
@@ -343,6 +343,19 @@ namespace RX_Explorer
             }
             catch
             {
+                if (CreateNewTab() is TabViewItem Item)
+                {
+                    //预览版TabView在没有子Item时会崩溃，此方案作为临时解决方案
+                    if (TabViewControl == null)
+                    {
+                        _ = FindName(nameof(TabViewControl));
+                    }
+
+                    TabViewControl.TabItems.Add(Item);
+                    TabViewControl.UpdateLayout();
+                    TabViewControl.SelectedItem = Item;
+                }
+
                 Debug.WriteLine("Error happened when try to create a new tab");
             }
         }

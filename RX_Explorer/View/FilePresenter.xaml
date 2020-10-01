@@ -632,7 +632,8 @@
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
                        Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
                        Height="55"
-                       Width="55" />
+                       Width="55" 
+                       x:Phase="1"/>
                 <StackPanel Orientation="Vertical"
                             VerticalAlignment="Top"
                             Margin="5,0,0,0">
@@ -640,6 +641,7 @@
                                ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                                FontSize="14"
                                Width="150"
+                               x:Phase="0"
                                HorizontalTextAlignment="Left"
                                TextTrimming="CharacterEllipsis"
                                x:Name="NameLabel"
@@ -655,11 +657,13 @@
                              x:Load="False" />
                     <TextBlock Text="{x:Bind DisplayType,Mode=OneWay}"
                                FontSize="12"
+                               x:Phase="1"
                                HorizontalTextAlignment="Left"
                                TextTrimming="CharacterEllipsis"
                                Width="150" />
                     <TextBlock Text="{x:Bind Size,Mode=OneWay}"
                                FontSize="12"
+                               x:Phase="0"
                                HorizontalTextAlignment="Left"
                                TextTrimming="CharacterEllipsis"
                                Width="150" />
@@ -676,12 +680,14 @@
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
                        Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
+                       x:Phase="1"
                        Height="190"
                        Width="240" />
                 <TextBlock Text="{x:Bind Name,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            FontSize="16"
                            Width="240"
+                           x:Phase="0"
                            Margin="0,3,0,0"
                            TextAlignment="Center"
                            HorizontalAlignment="Center"
@@ -699,12 +705,14 @@
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
                        Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
                        Height="140"
-                       Width="180" />
+                       Width="180"
+                       x:Phase="1"/>
                 <TextBlock Text="{x:Bind Name,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            FontSize="15"
                            Width="180"
                            Margin="0,3,0,0"
+                           x:Phase="0"
                            TextAlignment="Center"
                            HorizontalAlignment="Center"
                            TextTrimming="CharacterEllipsis" />
@@ -721,12 +729,14 @@
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
                        Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
                        Height="80"
-                       Width="120" />
+                       Width="120" 
+                       x:Phase="1"/>
                 <TextBlock Text="{x:Bind Name,Mode=OneWay}"
                            FontSize="14"
                            ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            Width="120"
                            Margin="0,3,0,0"
+                           x:Phase="0"
                            TextAlignment="Center"
                            HorizontalAlignment="Center"
                            TextTrimming="CharacterEllipsis" />
@@ -840,11 +850,13 @@
                            Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
                            Height="30"
                            Width="30"
+                           x:Phase="1"
                            PointerPressed="GetFocus_PointerPressed" />
                     <TextBlock VerticalAlignment="Center"
                                HorizontalAlignment="Left"
                                FontSize="14"
                                Grid.Column="1"
+                               x:Phase="0"
                                Text="{x:Bind Name,Mode=OneWay}"
                                ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                                TextTrimming="CharacterEllipsis"
@@ -867,6 +879,7 @@
                            Text="{x:Bind ModifiedTime,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind ModifiedTime,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            Grid.Column="1"
+                           x:Phase="0"
                            TextTrimming="CharacterEllipsis"
                            PointerPressed="GetFocus_PointerPressed" />
                 <TextBlock VerticalAlignment="Center"
@@ -876,6 +889,7 @@
                            Text="{x:Bind DisplayType,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind DisplayType,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            Grid.Column="2"
+                           x:Phase="1"
                            TextTrimming="CharacterEllipsis"
                            PointerPressed="GetFocus_PointerPressed" />
                 <TextBlock VerticalAlignment="Center"
@@ -886,6 +900,7 @@
                            ToolTipService.ToolTip="{x:Bind Size,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            TextTrimming="CharacterEllipsis"
                            Grid.Column="3"
+                           x:Phase="0"
                            PointerPressed="GetFocus_PointerPressed" />
                 <TextBlock VerticalAlignment="Stretch"
                            HorizontalAlignment="Stretch"
@@ -909,6 +924,7 @@
                        Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
                        Height="30"
                        Width="30"
+                       x:Phase="1"
                        PointerPressed="GetFocus_PointerPressed" />
                 <TextBlock VerticalAlignment="Center"
                            HorizontalAlignment="Left"
@@ -917,6 +933,7 @@
                            ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            TextTrimming="CharacterEllipsis"
                            Grid.Column="1"
+                           x:Phase="0"
                            PointerPressed="NameLabel_PointerPressed"
                            x:Name="NameLabel" />
                 <TextBox VerticalAlignment="Center"
@@ -967,6 +984,7 @@
                       Holding="ViewControl_Holding"
                       DoubleTapped="ViewControl_DoubleTapped"
                       x:FieldModifier="Public"
+                      ShowsScrollingPlaceholders="False"
                       ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
@@ -1003,6 +1021,7 @@
                       IsDoubleTapEnabled="True"
                       DoubleTapped="ViewControl_DoubleTapped"
                       x:FieldModifier="Public"
+                      ShowsScrollingPlaceholders="False"
                       ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
                 <GridView.ItemsPanel>
                     <ItemsPanelTemplate>

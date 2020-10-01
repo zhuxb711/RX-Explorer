@@ -4623,46 +4623,34 @@ namespace RX_Explorer
             }
         }
 
-        private async void ViewControl_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
+        private void ViewControl_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
         {
             args.ItemContainer.UseSystemFocusVisuals = false;
 
-            if (args.InRecycleQueue)
+            if (args.Item is FileSystemStorageItemBase Item)
             {
-                args.ItemContainer.AllowDrop = false;
-                args.ItemContainer.Drop -= Item_Drop;
-                args.ItemContainer.DragEnter -= ItemContainer_DragEnter;
-                args.ItemContainer.PointerEntered -= ItemContainer_PointerEntered;
-
-                if (args.ItemContainer.ContentTemplateRoot.FindChildOfType<TextBox>() is TextBox NameEditBox)
+                if (Item.StorageType == StorageItemTypes.Folder)
                 {
-                    NameEditBox.Visibility = Visibility.Collapsed;
+                    args.ItemContainer.AllowDrop = true;
+                    args.ItemContainer.Drop += Item_Drop;
+                    args.ItemContainer.DragEnter += ItemContainer_DragEnter;
                 }
-            }
-            else
-            {
-                if (args.Item is FileSystemStorageItemBase Item)
+
+                if (Item is HiddenStorageItem)
                 {
-                    if (Item.StorageType == StorageItemTypes.Folder)
-                    {
-                        args.ItemContainer.AllowDrop = true;
-                        args.ItemContainer.Drop += Item_Drop;
-                        args.ItemContainer.DragEnter += ItemContainer_DragEnter;
-                    }
-
-                    if (Item is HiddenStorageItem)
-                    {
-                        args.ItemContainer.AllowDrop = false;
-                        args.ItemContainer.CanDrag = false;
-                    }
-
-                    args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
-
-                    if (Item.StorageType == StorageItemTypes.File)
-                    {
-                        await Item.LoadMoreProperty().ConfigureAwait(true);
-                    }
+                    args.ItemContainer.AllowDrop = false;
+                    args.ItemContainer.CanDrag = false;
                 }
+
+                args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
+
+                args.RegisterUpdateCallback(async(s, e) =>
+                {
+                    if (e.Item is FileSystemStorageItemBase Item)
+                    {
+                        await Item.LoadMoreProperty().ConfigureAwait(false);
+                    }
+                });
             }
         }
 
