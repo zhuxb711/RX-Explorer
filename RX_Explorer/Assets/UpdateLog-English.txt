@@ -1,4 +1,49 @@
 ﻿*****
+###What's new in Ver.5.4.5.0
+
+#####Performance optimization
+
+>#####Delayed loading of some invisible controls, improving the interface loading speed
+
+>#####Increasing staged progressive loading, improving file loading and rendering speed (especially for devices with slower hard drives)
+
+#####UI update
+
+>#####Increased the area of ​​large, medium and small icons
+
+>#####When a file change is detected, the file will be automatically inserted into the correct position according to the current sorting rules
+
+>#####Added some new animation effects
+
+>#####Acrylic effect has been added to the floating control of the address bar, the size and rounded corner effect of the control have been adjusted
+
+>#####Added the file size to the selected item information area
+
+#####Bug fix
+
+>#####Fixed the problem of crash when starting RX with shortcut key or right-click menu
+
+>#####Fixed the problem that the right-click menu cannot be used to open a folder with spaces in the path
+
+>#####After enabling WIN+E, the problem that you cannot navigate directly when you right-click the system explorer icon in the taskbar and select any folder
+
+>#####Fixed the problem that the corresponding tab will not be closed before ejecting the USB device, which may cause the normal ejection
+
+>#####Fixed the problem of always opening a new instance when activating via a USB device
+
+>#####Fixed the problem that renaming a file suffix may cause the file to disappear
+
+>#####Fixed the problem that the file system monitoring module will still add and display hidden files even if the "Show hidden files" switch is turned off
+
+>#####Fixed the problem that double-clicking the head area of ​​the list will also trigger the return to the parent directory function
+
+>#####Fixed the problem that some functions of the right-click menu cannot correctly handle files with uppercase suffixes
+
+>#####Fixed the problem that the right-click menu would be closed when clicking on a menu item with sub-options in the right-click menu through the touch screen
+
+>#####Fixed the problem that may cause a crash when starting RX with the right-click menu of the system explorer and specifying a hidden folder
+
+*****
 ###What's new in Ver.5.4.2.0
 
 #####Feature update

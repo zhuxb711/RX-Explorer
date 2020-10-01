@@ -755,7 +755,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Searching</value>
   </data>
   <data name="SearchLocation.Label" xml:space="preserve">
-    <value>Open Location</value>
+    <value>Open location</value>
   </data>
   <data name="SearchModified.Text" xml:space="preserve">
     <value>Date modified</value>
@@ -1152,183 +1152,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="VideoMontage.Text" xml:space="preserve">
     <value>Montage</value>
-  </data>
-  <data name="WebAllowDB.Header" xml:space="preserve">
-    <value>Allow to use IndexedDB</value>
-  </data>
-  <data name="WebAllowJS.Header" xml:space="preserve">
-    <value>Allow JavaScript to run</value>
-  </data>
-  <data name="WebClearCache.Content" xml:space="preserve">
-    <value>Clear cache and history</value>
-  </data>
-  <data name="WebDefaultSearchEngine.Header" xml:space="preserve">
-    <value>Default search engine</value>
-  </data>
-  <data name="WebDelete.Label" xml:space="preserve">
-    <value>Delete</value>
-  </data>
-  <data name="WebDonwloadLoaction.Text" xml:space="preserve">
-    <value>Default download location</value>
-  </data>
-  <data name="WebDownloadButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>DownloadList</value>
-  </data>
-  <data name="WebDownloadCancel.Content" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
-  <data name="WebDownloadCancelText.Text" xml:space="preserve">
-    <value>Cancelled</value>
-  </data>
-  <data name="WebDownloadCompleteText.Text" xml:space="preserve">
-    <value>Complete</value>
-  </data>
-  <data name="WebDownloadErrorText.Text" xml:space="preserve">
-    <value>Error</value>
-  </data>
-  <data name="WebDownloadList.Text" xml:space="preserve">
-    <value>Download List</value>
-  </data>
-  <data name="WebDownloadListCopyLink.Label" xml:space="preserve">
-    <value>Copy link</value>
-  </data>
-  <data name="WebDownloadListEmpty.Text" xml:space="preserve">
-    <value>Empty</value>
-  </data>
-  <data name="WebDownloadListOpenLocation.Label" xml:space="preserve">
-    <value>Open file location</value>
-  </data>
-  <data name="WebDownloadPause.Content" xml:space="preserve">
-    <value>Pause</value>
-  </data>
-  <data name="WebDownloadPauseCancel.Content" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
-  <data name="WebDownloadPauseContinue.Content" xml:space="preserve">
-    <value>Continue</value>
-  </data>
-  <data name="WebDownloadPauseText.Text" xml:space="preserve">
-    <value>Paused</value>
-  </data>
-  <data name="WebEdit.Label" xml:space="preserve">
-    <value>Edit</value>
-  </data>
-  <data name="WebExplorerButton.Content" xml:space="preserve">
-    <value>Browse</value>
-  </data>
-  <data name="WebFavButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Favorites</value>
-  </data>
-  <data name="WebFavFlyoutCancel.Content" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
-  <data name="WebFavFlyoutConfirm.Content" xml:space="preserve">
-    <value>Confirm</value>
-  </data>
-  <data name="WebFavName.Header" xml:space="preserve">
-    <value>Name</value>
-  </data>
-  <data name="WebFavouriteClear.Text" xml:space="preserve">
-    <value>Clear all</value>
-  </data>
-  <data name="WebFavouriteClearCancel.Content" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
-  <data name="WebFavouriteClearConfirm.Content" xml:space="preserve">
-    <value>Continue</value>
-  </data>
-  <data name="WebFavouriteClearText.Text" xml:space="preserve">
-    <value>Clear all tags?</value>
-  </data>
-  <data name="WebFavouriteFlyoutDelete.Label" xml:space="preserve">
-    <value>Delete</value>
-  </data>
-  <data name="WebFavouriteListTitle.Header" xml:space="preserve">
-    <value>Favourite</value>
-  </data>
-  <data name="WebFavouriteText.Text" xml:space="preserve">
-    <value>Favorites</value>
-  </data>
-  <data name="WebHistoryClear.Text" xml:space="preserve">
-    <value>Clear all</value>
-  </data>
-  <data name="WebHistoryClearCancel.Content" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
-  <data name="WebHistoryClearConfirm.Content" xml:space="preserve">
-    <value>Continue</value>
-  </data>
-  <data name="WebHistoryClearText.Text" xml:space="preserve">
-    <value>Clear all history?</value>
-  </data>
-  <data name="WebHistoryEmptyTip.Text" xml:space="preserve">
-    <value>Empty</value>
-  </data>
-  <data name="WebHistoryTitle.Header" xml:space="preserve">
-    <value>History</value>
-  </data>
-  <data name="WebInPrivate.Header" xml:space="preserve">
-    <value>InPrivate Mode</value>
-  </data>
-  <data name="WebInPrivateConfirm.Content" xml:space="preserve">
-    <value>Confirm</value>
-  </data>
-  <data name="WebInPrivateExit.Content" xml:space="preserve">
-    <value>Exit InPrivate</value>
-  </data>
-  <data name="WebInPrivateText.Text" xml:space="preserve">
-    <value>The browser has entered InPrivate privacy mode and will not record any information.</value>
-  </data>
-  <data name="WebScreenShot.Content" xml:space="preserve">
-    <value>Screenshot and send by Bluetooth</value>
-  </data>
-  <data name="WebSettingAbout.Content" xml:space="preserve">
-    <value>About</value>
-  </data>
-  <data name="WebSettingAdvanceTile.Text" xml:space="preserve">
-    <value>Advance</value>
-  </data>
-  <data name="WebSettingButton.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Setting</value>
-  </data>
-  <data name="WebSettingClearFlyCancel.Content" xml:space="preserve">
-    <value>Cancel</value>
-  </data>
-  <data name="WebSettingClearFlyConfirm.Content" xml:space="preserve">
-    <value>Continue</value>
-  </data>
-  <data name="WebSettingClearFlyText.Text" xml:space="preserve">
-    <value>All caches including browsing history will be cleared</value>
-  </data>
-  <data name="WebSettingOtherTitle.Text" xml:space="preserve">
-    <value>Other</value>
-  </data>
-  <data name="WebSettingShowMainPage.Header" xml:space="preserve">
-    <value>Show home button</value>
-  </data>
-  <data name="WebSettingTitle.Text" xml:space="preserve">
-    <value>Custom</value>
-  </data>
-  <data name="WebSettingUrl.Header" xml:space="preserve">
-    <value>Home page URL</value>
-  </data>
-  <data name="WebSettingUrl.PlaceholderText" xml:space="preserve">
-    <value>Enter URL</value>
-  </data>
-  <data name="WebSpecificUrl.Header" xml:space="preserve">
-    <value>Page Url</value>
-  </data>
-  <data name="WebSpecificUrl.PlaceholderText" xml:space="preserve">
-    <value>Enter Url</value>
-  </data>
-  <data name="WebSuggestBox.PlaceholderText" xml:space="preserve">
-    <value>Search or enter url</value>
-  </data>
-  <data name="WebTabOpenMethod.Header" xml:space="preserve">
-    <value>Open with</value>
-  </data>
-  <data name="WevFavEmptyTip.Text" xml:space="preserve">
-    <value>Empty</value>
   </data>
   <data name="WIFIShare.Text" xml:space="preserve">
     <value>WIFI</value>
@@ -2777,5 +2600,8 @@ Invalid names include
   </data>
   <data name="SettingPageExceptAnimation.Content" xml:space="preserve">
     <value>Turn off the initial animation to speed up the startup</value>
+  </data>
+  <data name="LnkOpenLocation.Label" xml:space="preserve">
+    <value>Open location</value>
   </data>
 </root>

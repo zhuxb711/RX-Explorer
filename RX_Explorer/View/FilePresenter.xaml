@@ -81,6 +81,7 @@
                           x:Uid="FileDelete"
                           Click="Delete_Click" />
             <AppBarButton Icon="Rename"
+                          x:Uid="FileRename"
                           ToolTipService.ToolTip="重命名"
                           Click="Rename_Click" />
             <muxc:CommandBarFlyout.SecondaryCommands>
@@ -94,14 +95,10 @@
                                              IsEnabled="False" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
-                <AppBarButton Label="以管理员权限打开"
-                              Click="RunWithSystemAuthority_Click">
-                    <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets"
-                                  Glyph="&#xEA0D;" />
-                    </AppBarButton.Icon>
-                </AppBarButton>
-                <AppBarButton Label="打开文件所在位置">
+                <AppBarButton Label="打开文件所在位置"
+                              x:Uid="LnkOpenLocation"
+                              x:Name="LnkOpenLocation"
+                              Click="LnkOpenLocation_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets"
                                   Glyph="&#xF133;" />
@@ -960,7 +957,8 @@
             <RowDefinition Height="43" />
         </Grid.RowDefinitions>
         <muxc:RefreshContainer x:Name="ListViewRefreshContainer"
-                               x:Load="False">
+                               x:Load="False"
+                               RefreshRequested="ViewControlRefreshContainer_RefreshRequested">
             <ListView Background="Transparent"
                       x:Name="ListViewControl"
                       HorizontalAlignment="Stretch"
@@ -997,7 +995,8 @@
             </ListView>
         </muxc:RefreshContainer>
         <muxc:RefreshContainer x:Name="GridViewRefreshContainer"
-                               x:Load="False">
+                               x:Load="False"
+                               RefreshRequested="ViewControlRefreshContainer_RefreshRequested">
             <GridView Name="GridViewControl"
                       Background="Transparent"
                       ContainerContentChanging="ViewControl_ContainerContentChanging"

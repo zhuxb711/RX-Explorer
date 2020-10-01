@@ -2880,19 +2880,28 @@ namespace RX_Explorer
         {
             Restore();
 
-            if (!await FileControlInstance.CurrentFolder.CheckExist().ConfigureAwait(true))
+            try
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                if (await FileControlInstance.CurrentFolder.CheckExist().ConfigureAwait(true))
                 {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
-                };
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                return;
-            }
+                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(true);
+                }
+                else
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                    };
 
-            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                }
+            }
+            catch
+            {
+                Debug.WriteLine("ItemPresenter refresh failured");
+            }
         }
 
         private async void ViewControl_ItemClick(object sender, ItemClickEventArgs e)
@@ -4644,7 +4653,7 @@ namespace RX_Explorer
 
                 args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
 
-                args.RegisterUpdateCallback(async(s, e) =>
+                args.RegisterUpdateCallback(async (s, e) =>
                 {
                     if (e.Item is FileSystemStorageItemBase Item)
                     {
@@ -6775,6 +6784,75 @@ namespace RX_Explorer
         private void ListHeader_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
             e.Handled = true;
+        }
+
+        private async void LnkOpenLocation_Click(object sender, RoutedEventArgs e)
+        {
+            if (SelectedItem is HyperlinkStorageItem Item)
+            {
+                if (!SettingControl.IsDetachTreeViewAndPresenter && !SettingControl.IsDisplayHiddenItem)
+                {
+                    PathAnalysis Analysis = new PathAnalysis(Item.TargetPath, string.Empty);
+                    while (Analysis.HasNextLevel)
+                    {
+                        if (WIN_Native_API.CheckIfHidden(Analysis.NextFullPath()))
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_NeedOpenHiddenSwitch_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                            return;
+                        }
+                    }
+                }
+
+                StorageFolder ParentFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(Item.TargetPath));
+
+                await FileControlInstance.OpenTargetFolder(ParentFolder).ConfigureAwait(true);
+
+                if (FileCollection.FirstOrDefault((SItem) => SItem.Path == Item.TargetPath) is FileSystemStorageItemBase Target)
+                {
+                    ItemPresenter.ScrollIntoViewSmoothly(Target, ScrollIntoViewAlignment.Leading);
+                    SelectedItem = Target;
+                }
+            }
+        }
+
+        private async void ViewControlRefreshContainer_RefreshRequested(Microsoft.UI.Xaml.Controls.RefreshContainer sender, Microsoft.UI.Xaml.Controls.RefreshRequestedEventArgs args)
+        {
+            var Deferral = args.GetDeferral();
+
+            try
+            {
+                if (await FileControlInstance.CurrentFolder.CheckExist().ConfigureAwait(true))
+                {
+                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(true);
+                }
+                else
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                    };
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                }
+            }
+            catch
+            {
+                Debug.WriteLine("ItemPresenter refresh failured");
+            }
+            finally
+            {
+                await Task.Delay(700).ConfigureAwait(true);
+
+                Deferral.Complete();
+            }
         }
     }
 }

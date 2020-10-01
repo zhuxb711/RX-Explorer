@@ -14,7 +14,6 @@ using Windows.Storage.Search;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
-using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace RX_Explorer
 {
@@ -130,69 +129,29 @@ namespace RX_Explorer
         {
             if (SearchResultList.SelectedItem is FileSystemStorageItemBase Item)
             {
-                if (Item.StorageType == StorageItemTypes.Folder)
+                try
                 {
-                    try
+                    FilePresenter Presenter = CommonAccessCollection.GetFilePresenterInstance(FileControlInstance);
+
+                    StorageFolder ParentFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(Item.Path));
+
+                    await FileControlInstance.OpenTargetFolder(ParentFolder).ConfigureAwait(true);
+
+                    if (Presenter.FileCollection.FirstOrDefault((SItem) => SItem.Path == Item.Path) is FileSystemStorageItemBase Target)
                     {
-                        if (SettingControl.IsDetachTreeViewAndPresenter)
-                        {
-                            if ((await Item.GetStorageItem().ConfigureAwait(true)) is StorageFolder Folder)
-                            {
-                                await FileControlInstance.DisplayItemsInFolder(Folder).ConfigureAwait(true);
-                            }
-                        }
-                        else
-                        {
-                            TreeViewNode TargetNode = await FileControlInstance.FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(Item.Path, (FileControlInstance.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
-                            if (TargetNode != null)
-                            {
-                                await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
-                            }
-                            else
-                            {
-                                throw new Exception();
-                            }
-                        }
-                    }
-                    catch
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                        Presenter.ItemPresenter.ScrollIntoViewSmoothly(Target, ScrollIntoViewAlignment.Leading);
+                        Presenter.SelectedItem = Target;
                     }
                 }
-                else
+                catch
                 {
-                    try
+                    QueueContentDialog dialog = new QueueContentDialog
                     {
-                        if ((await Item.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
-                        {
-                            if (SettingControl.IsDetachTreeViewAndPresenter)
-                            {
-                                await FileControlInstance.DisplayItemsInFolder(await File.GetParentAsync()).ConfigureAwait(true);
-                            }
-                            else
-                            {
-                                TreeViewNode CurrentNode = await FileControlInstance.FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(Path.GetDirectoryName(Item.Path), (FileControlInstance.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
-
-                                await FileControlInstance.DisplayItemsInFolder(CurrentNode).ConfigureAwait(true);
-                            }
-                        }
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                    }
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
             }
         }

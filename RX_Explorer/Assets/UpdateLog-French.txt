@@ -1,4 +1,49 @@
 ﻿*****
+###Quoi de neuf dans la version 5.4.5.0
+
+#####Optimisation des performances
+
+>#####Chargement retardé de certaines commandes invisibles, améliorant la vitesse de chargement de l'interface
+
+>#####Augmentation du chargement progressif par étapes, amélioration du chargement des fichiers et de la vitesse de rendu (en particulier pour les appareils avec des disques durs plus lents)
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Augmentation de la surface des grandes, moyennes et petites icônes
+
+>#####Lorsqu'un changement de fichier est détecté, le fichier sera automatiquement inséré dans la bonne position selon les règles de tri actuelles
+
+>#####Ajout de nouveaux effets d'animation
+
+>#####L'effet acrylique a été ajouté au contrôle flottant de la barre d'adresse, la taille et l'effet de coin arrondi du contrôle ont été ajustés
+
+>#####Ajout de la taille du fichier à la zone d'informations de l'élément sélectionné
+
+#####Correction d'un bug
+
+>#####Correction du problème de plantage lors du démarrage de RX avec une touche de raccourci ou un menu contextuel
+
+>#####Correction du problème selon lequel le menu contextuel ne peut pas être utilisé pour ouvrir un dossier avec des espaces dans le chemin
+
+>#####Après avoir activé WIN + E, le problème que vous ne pouvez pas naviguer directement lorsque vous cliquez avec le bouton droit sur l'icône de l'explorateur système dans la barre des tâches et sélectionnez un dossier
+
+>#####Correction du problème selon lequel l'onglet correspondant ne sera pas fermé avant l'éjection du périphérique USB, ce qui peut provoquer l'éjection normale
+
+>#####Correction du problème de toujours ouvrir une nouvelle instance lors de l'activation via un périphérique USB
+
+>#####Correction du problème qui faisait que renommer un suffixe de fichier pouvait entraîner la disparition du fichier
+
+>#####Correction du problème selon lequel le module de surveillance du système de fichiers ajoutait et afficherait toujours les fichiers cachés même si le commutateur "Afficher les fichiers cachés" est désactivé
+
+>#####Correction du problème selon lequel un double-clic sur la zone d'en-tête de la liste déclenchera également le retour à la fonction du répertoire parent
+
+>#####Correction du problème selon lequel certaines fonctions du menu contextuel ne peuvent pas gérer correctement les fichiers avec des suffixes majuscules
+
+>#####Correction du problème de fermeture du menu contextuel lorsque vous cliquez sur un élément de menu avec des sous-options dans le menu contextuel via l'écran tactile
+
+>#####Correction du problème pouvant provoquer un plantage lors du démarrage de RX avec le menu contextuel de l'explorateur système et en spécifiant un dossier caché
+
+*****
 ###Quoi de neuf dans la version 5.4.2.0
 
 ##### Mise à jour des fonctionnalités

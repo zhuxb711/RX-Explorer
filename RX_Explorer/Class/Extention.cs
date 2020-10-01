@@ -444,7 +444,6 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(View), "Parameter could not be null");
             }
 
-            View.SelectedNode = null;
             View.SelectedNode = Node;
 
             View.UpdateLayout();
