@@ -15,7 +15,7 @@ pr:
     - master
 
 schedules:
-  - cron: 0 12 * * *
+  - cron: 0 0 * * *
     displayName: DailyBuild
     branches:
       include:
