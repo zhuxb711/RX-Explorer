@@ -873,6 +873,8 @@ namespace RX_Explorer
             }
 
             args.Tab.DragEnter -= Item_DragEnter;
+            args.Tab.PointerPressed -= Item_PointerPressed;
+
             sender.TabItems.Remove(args.Tab);
 
             if (sender.TabItems.Count == 0)
@@ -911,6 +913,7 @@ namespace RX_Explorer
                         AllowDrop = true
                     };
                     Item.DragEnter += Item_DragEnter;
+                    Item.PointerPressed += Item_PointerPressed;
 
                     if (StorageFolderForNewTab != null)
                     {
@@ -942,6 +945,36 @@ namespace RX_Explorer
             else
             {
                 return null;
+            }
+        }
+
+        public async void Item_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if(e.GetCurrentPoint(null).Properties.IsMiddleButtonPressed)
+            {
+                if (sender is TabViewItem Tab)
+                {
+                    if ((Tab.Content as Frame).Content is ThisPC PC)
+                    {
+                        CommonAccessCollection.GetFileControlInstance(PC)?.Dispose();
+                        CommonAccessCollection.UnRegister(PC);
+                    }
+                    else if ((Tab.Content as Frame).Content is FileControl Control)
+                    {
+                        Control.Dispose();
+                        CommonAccessCollection.UnRegister(Control);
+                    }
+
+                    Tab.DragEnter -= Item_DragEnter;
+                    Tab.PointerPressed -= Item_PointerPressed;
+
+                    TabViewControl.TabItems.Remove(Tab);
+
+                    if (TabViewControl.TabItems.Count == 0)
+                    {
+                        await ApplicationView.GetForCurrentView().TryConsolidateAsync();
+                    }
+                }
             }
         }
 
@@ -1049,6 +1082,7 @@ namespace RX_Explorer
                 }
 
                 args.Tab.DragEnter -= Item_DragEnter;
+                args.Tab.PointerPressed -= Item_PointerPressed;
 
                 sender.TabItems.Remove(args.Tab);
 

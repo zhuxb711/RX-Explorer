@@ -767,6 +767,7 @@ namespace RX_Explorer
                         }
 
                         Tab.DragEnter -= TabViewContainer.ThisPage.Item_DragEnter;
+                        Tab.PointerPressed -= TabViewContainer.ThisPage.Item_PointerPressed;
 
                         TabViewContainer.ThisPage.TabViewControl.TabItems.Remove(Tab);
                     }

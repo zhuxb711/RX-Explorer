@@ -1827,12 +1827,19 @@ namespace RX_Explorer
             }
         }
 
-        private void ViewControl_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private async void ViewControl_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             if ((e.OriginalSource as FrameworkElement)?.DataContext == null)
             {
                 SelectedItem = null;
                 FileControlInstance.IsSearchOrPathBoxFocused = false;
+            }
+            else if(e.GetCurrentPoint(null).Properties.IsMiddleButtonPressed)
+            {
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item && Item.StorageType == StorageItemTypes.Folder)
+                {
+                    await TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(Item.Path).ConfigureAwait(false);
+                }
             }
         }
 
