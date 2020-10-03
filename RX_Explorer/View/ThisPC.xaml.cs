@@ -766,8 +766,8 @@ namespace RX_Explorer
                             CommonAccessCollection.UnRegister(Control);
                         }
 
-                        Tab.DragOver -= TabViewContainer.ThisPage.Item_DragOver;
-                        Tab.Drop -= TabViewContainer.ThisPage.Item_Drop;
+                        Tab.DragEnter -= TabViewContainer.ThisPage.Item_DragEnter;
+
                         TabViewContainer.ThisPage.TabViewControl.TabItems.Remove(Tab);
                     }
 

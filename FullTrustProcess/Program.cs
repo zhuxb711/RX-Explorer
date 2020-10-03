@@ -929,7 +929,15 @@ namespace FullTrustProcess
 
         private static void SetWindowsZPosition(Process OtherProcess)
         {
-            User32.SetWindowPos(OtherProcess.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_SHOWWINDOW);
+            try
+            {
+                OtherProcess.Refresh();
+                User32.SetWindowPos(OtherProcess.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_SHOWWINDOW);
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine($"Error: SetWindowsZPosition threw an error, message: {e.Message}");
+            }
         }
 
         private static void AliveCheck(object state)

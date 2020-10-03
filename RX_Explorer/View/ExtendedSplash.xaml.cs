@@ -11,6 +11,7 @@ using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Notifications;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -219,9 +220,9 @@ namespace RX_Explorer
             });
         }
 
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        private async void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            Application.Current.Exit();
+            await ApplicationView.GetForCurrentView().TryConsolidateAsync();
         }
 
         private async void NavigationButton_Click(object sender, RoutedEventArgs e)
@@ -271,7 +272,7 @@ namespace RX_Explorer
 
             ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
 
-            Application.Current.Exit();
+            await ApplicationView.GetForCurrentView().TryConsolidateAsync();
         }
     }
 }

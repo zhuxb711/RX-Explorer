@@ -11,7 +11,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
-using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Portable;
@@ -19,6 +18,7 @@ using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.System;
 using Windows.UI.Core;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
@@ -242,8 +242,10 @@ namespace RX_Explorer
             }
         }
 
-        public async Task CreateNewTabAndOpenTargetFolder(string Path)
+        public async Task CreateNewTabAndOpenTargetFolder(string Path, int? InsertIndex = null)
         {
+            int Index = InsertIndex ?? (TabViewControl?.TabItems.Count ?? 0);
+
             try
             {
                 if (string.IsNullOrWhiteSpace(Path))
@@ -256,7 +258,7 @@ namespace RX_Explorer
                             _ = FindName(nameof(TabViewControl));
                         }
 
-                        TabViewControl.TabItems.Add(Item);
+                        TabViewControl.TabItems.Insert(Index, Item);
                         TabViewControl.UpdateLayout();
                         TabViewControl.SelectedItem = Item;
                     }
@@ -281,7 +283,7 @@ namespace RX_Explorer
 
                             if (CreateNewTab() is TabViewItem EmptyItem)
                             {
-                                TabViewControl.TabItems.Add(EmptyItem);
+                                TabViewControl.TabItems.Insert(Index, EmptyItem);
                                 TabViewControl.UpdateLayout();
                                 TabViewControl.SelectedItem = EmptyItem;
                             }
@@ -313,7 +315,7 @@ namespace RX_Explorer
 
                                         if (CreateNewTab() is TabViewItem EmptyItem)
                                         {
-                                            TabViewControl.TabItems.Add(EmptyItem);
+                                            TabViewControl.TabItems.Insert(Index, EmptyItem);
                                             TabViewControl.UpdateLayout();
                                             TabViewControl.SelectedItem = EmptyItem;
                                         }
@@ -334,7 +336,7 @@ namespace RX_Explorer
                                 _ = FindName(nameof(TabViewControl));
                             }
 
-                            TabViewControl.TabItems.Add(Item);
+                            TabViewControl.TabItems.Insert(Index, Item);
                             TabViewControl.UpdateLayout();
                             TabViewControl.SelectedItem = Item;
                         }
@@ -351,7 +353,7 @@ namespace RX_Explorer
                         _ = FindName(nameof(TabViewControl));
                     }
 
-                    TabViewControl.TabItems.Add(Item);
+                    TabViewControl.TabItems.Insert(Index, Item);
                     TabViewControl.UpdateLayout();
                     TabViewControl.SelectedItem = Item;
                 }
@@ -857,7 +859,7 @@ namespace RX_Explorer
             }
         }
 
-        private void TabViewControl_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
+        private async void TabViewControl_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
         {
             if ((args.Tab.Content as Frame).Content is ThisPC PC)
             {
@@ -870,13 +872,12 @@ namespace RX_Explorer
                 CommonAccessCollection.UnRegister(Control);
             }
 
-            args.Tab.DragOver -= Item_DragOver;
-            args.Tab.Drop -= Item_Drop;
+            args.Tab.DragEnter -= Item_DragEnter;
             sender.TabItems.Remove(args.Tab);
 
-            if (TabViewControl.TabItems.Count == 0)
+            if (sender.TabItems.Count == 0)
             {
-                CoreApplication.Exit();
+                await ApplicationView.GetForCurrentView().TryConsolidateAsync();
             }
         }
 
@@ -909,8 +910,7 @@ namespace RX_Explorer
                         IconSource = new SymbolIconSource { Symbol = Symbol.Document },
                         AllowDrop = true
                     };
-                    Item.DragOver += Item_DragOver;
-                    Item.Drop += Item_Drop;
+                    Item.DragEnter += Item_DragEnter;
 
                     if (StorageFolderForNewTab != null)
                     {
@@ -945,60 +945,20 @@ namespace RX_Explorer
             }
         }
 
-        public async void Item_Drop(object sender, DragEventArgs e)
+        public async void Item_DragEnter(object sender, DragEventArgs e)
         {
             var Deferral = e.GetDeferral();
 
             try
             {
-                if (e.DataView.Contains(StandardDataFormats.Html))
+                if (e.DataView.Contains(StandardDataFormats.StorageItems))
                 {
-                    string Html = await e.DataView.GetHtmlFormatAsync();
-                    string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
-
-                    HtmlDocument Document = new HtmlDocument();
-                    Document.LoadHtml(Fragment);
-                    HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
-
-                    if (HeadNode?.InnerText == "RX-Explorer-TabItem")
+                    if (e.OriginalSource is TabViewItem Item)
                     {
-                        HtmlNode BodyNode = Document.DocumentNode.SelectSingleNode("/p");
-                        string[] Split = BodyNode.InnerText.Split("||", StringSplitOptions.RemoveEmptyEntries);
-
-                        switch (Split[0])
-                        {
-                            case "ThisPC":
-                                {
-                                    await CreateNewTabAndOpenTargetFolder(string.Empty).ConfigureAwait(true);
-                                    break;
-                                }
-                            case "FileControl":
-                                {
-                                    await CreateNewTabAndOpenTargetFolder(Split[1]).ConfigureAwait(true);
-                                    break;
-                                }
-                        }
+                        TabViewControl.SelectedItem = Item;
                     }
                 }
-            }
-            catch
-            {
-                Debug.WriteLine("Error happened when try to drop a tab");
-            }
-            finally
-            {
-                e.Handled = true;
-                Deferral.Complete();
-            }
-        }
-
-        public async void Item_DragOver(object sender, DragEventArgs e)
-        {
-            var Deferral = e.GetDeferral();
-
-            try
-            {
-                if (e.DataView.Contains(StandardDataFormats.Html))
+                else if (e.DataView.Contains(StandardDataFormats.Html))
                 {
                     string Html = await e.DataView.GetHtmlFormatAsync();
                     string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
@@ -1011,25 +971,14 @@ namespace RX_Explorer
                     {
                         e.AcceptedOperation = DataPackageOperation.Link;
                     }
-                    else
-                    {
-                        if (e.OriginalSource is TabViewItem Item)
-                        {
-                            TabViewControl.SelectedItem = Item;
-                        }
-                    }
                 }
-                else if (e.DataView.Contains(StandardDataFormats.StorageItems))
-                {
-                    if (e.OriginalSource is TabViewItem Item)
-                    {
-                        TabViewControl.SelectedItem = Item;
-                    }
-                }
+            }
+            catch
+            {
+                e.AcceptedOperation = DataPackageOperation.None;
             }
             finally
             {
-                e.Handled = true;
                 Deferral.Complete();
             }
         }
@@ -1084,7 +1033,7 @@ namespace RX_Explorer
             args.Data.SetHtmlFormat(HtmlFormatHelper.CreateHtmlFormat(Builder.ToString()));
         }
 
-        private void TabViewControl_TabDragCompleted(TabView sender, TabViewTabDragCompletedEventArgs args)
+        private async void TabViewControl_TabDragCompleted(TabView sender, TabViewTabDragCompletedEventArgs args)
         {
             if (args.DropResult == DataPackageOperation.Link)
             {
@@ -1099,14 +1048,13 @@ namespace RX_Explorer
                     CommonAccessCollection.UnRegister(Control);
                 }
 
-                args.Tab.DragOver -= Item_DragOver;
-                args.Tab.Drop -= Item_Drop;
+                args.Tab.DragEnter -= Item_DragEnter;
 
                 sender.TabItems.Remove(args.Tab);
 
-                if (TabViewControl.TabItems.Count == 0)
+                if (sender.TabItems.Count == 0)
                 {
-                    Application.Current.Exit();
+                    await ApplicationView.GetForCurrentView().TryConsolidateAsync();
                 }
             }
         }
@@ -1126,6 +1074,109 @@ namespace RX_Explorer
                 {
                     await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(Control.CurrentFolder.Path)}"));
                 }
+            }
+        }
+
+        private async void TabViewControl_TabStripDragOver(object sender, DragEventArgs e)
+        {
+            var Deferral = e.GetDeferral();
+
+            try
+            {
+                if (e.DataView.Contains(StandardDataFormats.Html))
+                {
+                    string Html = await e.DataView.GetHtmlFormatAsync();
+                    string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
+
+                    HtmlDocument Document = new HtmlDocument();
+                    Document.LoadHtml(Fragment);
+                    HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
+
+                    if (HeadNode?.InnerText == "RX-Explorer-TabItem")
+                    {
+                        e.AcceptedOperation = DataPackageOperation.Link;
+                        e.Handled = true;
+                    }
+                }
+            }
+            catch
+            {
+                e.AcceptedOperation = DataPackageOperation.None;
+            }
+            finally
+            {
+                Deferral.Complete();
+            }
+        }
+
+        private async void TabViewControl_TabStripDrop(object sender, DragEventArgs e)
+        {
+            var Deferral = e.GetDeferral();
+
+            try
+            {
+                if (e.DataView.Contains(StandardDataFormats.Html))
+                {
+                    string Html = await e.DataView.GetHtmlFormatAsync();
+                    string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
+
+                    HtmlDocument Document = new HtmlDocument();
+                    Document.LoadHtml(Fragment);
+                    HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
+
+                    if (HeadNode?.InnerText == "RX-Explorer-TabItem")
+                    {
+                        HtmlNode BodyNode = Document.DocumentNode.SelectSingleNode("/p");
+                        string[] Split = BodyNode.InnerText.Split("||", StringSplitOptions.RemoveEmptyEntries);
+
+                        int InsertIndex = TabViewControl.TabItems.Count;
+
+                        for (int i = 0; i < TabViewControl.TabItems.Count; i++)
+                        {
+                            TabViewItem Item = TabViewControl.ContainerFromIndex(i) as TabViewItem;
+
+                            Windows.Foundation.Point Position = e.GetPosition(Item);
+                            
+                            if (Position.X < Item.ActualWidth)
+                            {
+                                if (Position.X < Item.ActualWidth / 2)
+                                {
+                                    InsertIndex = i;
+                                    break;
+                                }
+                                else
+                                {
+                                    InsertIndex = i + 1;
+                                    break;
+                                }
+                            }
+                        }
+
+                        switch (Split[0])
+                        {
+                            case "ThisPC":
+                                {
+                                    await CreateNewTabAndOpenTargetFolder(string.Empty, InsertIndex).ConfigureAwait(true);
+                                    break;
+                                }
+                            case "FileControl":
+                                {
+                                    await CreateNewTabAndOpenTargetFolder(Split[1], InsertIndex).ConfigureAwait(true);
+                                    break;
+                                }
+                        }
+
+                        e.Handled = true;
+                    }
+                }
+            }
+            catch
+            {
+                Debug.WriteLine("Error happened when try to drop a tab");
+            }
+            finally
+            {
+                Deferral.Complete();
             }
         }
     }
