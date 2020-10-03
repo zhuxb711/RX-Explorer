@@ -246,7 +246,7 @@ namespace RX_Explorer
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(Path) || Path.Contains("{20D04FE0-3AEA-1069-A2D8-08002B30309D}"))
+                if (string.IsNullOrWhiteSpace(Path))
                 {
                     if (CreateNewTab() is TabViewItem Item)
                     {

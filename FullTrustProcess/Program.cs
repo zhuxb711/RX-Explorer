@@ -929,11 +929,6 @@ namespace FullTrustProcess
 
         private static void SetWindowsZPosition(Process OtherProcess)
         {
-            if (ExplorerProcess != null && !ExplorerProcess.HasExited)
-            {
-                User32.SetWindowPos(ExplorerProcess.MainWindowHandle, new IntPtr(1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE);
-            }
-
             User32.SetWindowPos(OtherProcess.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_SHOWWINDOW);
         }
 

@@ -162,6 +162,11 @@ namespace RX_Explorer
             {
                 ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] = false;
             }
+
+            if(!ApplicationData.Current.LocalSettings.Values.ContainsKey("AlwaysStartNew"))
+            {
+                ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] = true;
+            }
         }
 
         private void MainPage_BackRequested(object sender, BackRequestedEventArgs e)

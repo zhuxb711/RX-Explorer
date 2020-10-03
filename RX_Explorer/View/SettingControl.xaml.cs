@@ -271,10 +271,6 @@ namespace RX_Explorer
             {
                 AlwaysLaunchNew.IsChecked = AlwaysStartNew;
             }
-            else
-            {
-                AlwaysLaunchNew.IsChecked = true;
-            }
 
             if (ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] is bool IsIntercepted)
             {

@@ -178,7 +178,16 @@ namespace RX_Explorer
                     {
                         if (Arguments.Length > 1)
                         {
-                            _ = tabViewContainer.CreateNewTabAndOpenTargetFolder(string.Join(" ", Arguments.Skip(1)));
+                            string Path = string.Join(" ", Arguments.Skip(1));
+
+                            if (Path.Contains("{20D04FE0-3AEA-1069-A2D8-08002B30309D}"))
+                            {
+                                _ = tabViewContainer.CreateNewTabAndOpenTargetFolder(string.Empty);
+                            }
+                            else
+                            {
+                                _ = tabViewContainer.CreateNewTabAndOpenTargetFolder(Path);
+                            }
                         }
                         else
                         {
@@ -188,9 +197,11 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if (Arguments.Length > 1)
+                    string Path = string.Join(" ", Arguments.Skip(1));
+
+                    if (Arguments.Length > 1 && !Path.Contains("{20D04FE0-3AEA-1069-A2D8-08002B30309D}"))
                     {
-                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, false, $"PathActivate||{string.Join(" ", Arguments.Skip(1))}");
+                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, false, $"PathActivate||{Path}");
                         Window.Current.Content = extendedSplash;
                     }
                     else

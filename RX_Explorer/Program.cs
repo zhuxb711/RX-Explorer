@@ -63,9 +63,44 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if(ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] is bool AlwaysStartNew)
+                    if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("AlwaysStartNew"))
                     {
-                        if(AlwaysStartNew)
+                        ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] = true;
+                    }
+
+                    bool AlwaysStartNew = Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"]);
+
+                    if (AlwaysStartNew)
+                    {
+                        string InstanceId = Guid.NewGuid().ToString();
+                        AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
+                        AppInstanceIdContainer.RegisterCurrentId(InstanceId);
+
+                        Application.Start((p) => new App());
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrWhiteSpace(AppInstanceIdContainer.LastActiveId))
+                        {
+                            do
+                            {
+                                if (AppInstance.GetInstances().Any((Ins) => Ins.Key == AppInstanceIdContainer.LastActiveId))
+                                {
+                                    if (AppInstance.FindOrRegisterInstanceForKey(AppInstanceIdContainer.LastActiveId) is AppInstance TargetInstance)
+                                    {
+                                        TargetInstance.RedirectActivationTo();
+                                    }
+
+                                    break;
+                                }
+                                else
+                                {
+                                    AppInstanceIdContainer.UngisterId(AppInstanceIdContainer.LastActiveId);
+                                }
+                            }
+                            while (!string.IsNullOrEmpty(AppInstanceIdContainer.LastActiveId));
+                        }
+                        else
                         {
                             string InstanceId = Guid.NewGuid().ToString();
                             AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
@@ -73,45 +108,10 @@ namespace RX_Explorer
 
                             Application.Start((p) => new App());
                         }
-                        else
-                        {
-                            if (!string.IsNullOrWhiteSpace(AppInstanceIdContainer.LastActiveId))
-                            {
-                                do
-                                {
-                                    if (AppInstance.GetInstances().Any((Ins) => Ins.Key == AppInstanceIdContainer.LastActiveId))
-                                    {
-                                        if (AppInstance.FindOrRegisterInstanceForKey(AppInstanceIdContainer.LastActiveId) is AppInstance TargetInstance)
-                                        {
-                                            TargetInstance.RedirectActivationTo();
-                                        }
-
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        AppInstanceIdContainer.UngisterId(AppInstanceIdContainer.LastActiveId);
-                                    }
-                                }
-                                while (!string.IsNullOrEmpty(AppInstanceIdContainer.LastActiveId));
-                            }
-                            else
-                            {
-                                string InstanceId = Guid.NewGuid().ToString();
-                                AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
-                                AppInstanceIdContainer.RegisterCurrentId(InstanceId);
-
-                                Application.Start((p) => new App());
-                            }
-                        }
-                    }
-                    else
-                    {
-                        ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] = true;
                     }
                 }
             }
-            else if(activatedArgs is FileActivatedEventArgs)
+            else if (activatedArgs is FileActivatedEventArgs)
             {
                 if (!string.IsNullOrWhiteSpace(AppInstanceIdContainer.LastActiveId))
                 {
