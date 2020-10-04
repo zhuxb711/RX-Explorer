@@ -2499,4 +2499,7 @@ Les noms non valides incluent
   <data name="LnkOpenLocation.Label" xml:space="preserve">
     <value>Ouvrir dossier</value>
   </data>
+  <data name="MulSelect.Label" xml:space="preserve">
+    <value>Sélection multiple</value>
+  </data>
 </root>

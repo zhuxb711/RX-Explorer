@@ -3312,6 +3312,10 @@ Les noms non valides incluent
           <source>Open location</source>
           <target state="translated">Ouvrir dossier</target>
         </trans-unit>
+        <trans-unit id="MulSelect.Label" translate="yes" xml:space="preserve">
+          <source>Multi-select</source>
+          <target state="translated">Sélection multiple</target>
+        </trans-unit>
       </group>
     </body>
   </file>

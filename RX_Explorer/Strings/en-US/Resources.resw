@@ -2604,4 +2604,7 @@ Invalid names include
   <data name="LnkOpenLocation.Label" xml:space="preserve">
     <value>Open location</value>
   </data>
+  <data name="MulSelect.Label" xml:space="preserve">
+    <value>Multi-select</value>
+  </data>
 </root>
