@@ -272,6 +272,7 @@ namespace RX_Explorer
                 }
 
                 ProBar.IsIndeterminate = true;
+                ProBar.Value = 0;
                 ProgressInfo.Text = Info + "...";
 
                 MainPage.ThisPage.IsAnyTaskRunning = true;
@@ -2450,8 +2451,11 @@ namespace RX_Explorer
                                         {
                                             await FullTrustProcessController.Current.CopyAsync(LinkItemsPath, TargetFolder.Path, (s, arg) =>
                                             {
-                                                ProBar.IsIndeterminate = false;
-                                                ProBar.Value = arg.ProgressPercentage;
+                                                if (ProBar.Value < arg.ProgressPercentage)
+                                                {
+                                                    ProBar.IsIndeterminate = false;
+                                                    ProBar.Value = arg.ProgressPercentage;
+                                                }
                                             }).ConfigureAwait(true);
                                         }
                                         catch (FileNotFoundException)
@@ -2522,8 +2526,11 @@ namespace RX_Explorer
                                         {
                                             await FullTrustProcessController.Current.MoveAsync(LinkItemsPath, TargetFolder.Path, (s, arg) =>
                                             {
-                                                ProBar.IsIndeterminate = false;
-                                                ProBar.Value = arg.ProgressPercentage;
+                                                if (ProBar.Value < arg.ProgressPercentage)
+                                                {
+                                                    ProBar.IsIndeterminate = false;
+                                                    ProBar.Value = arg.ProgressPercentage;
+                                                }
                                             }).ConfigureAwait(true);
                                         }
                                         catch (FileNotFoundException)
@@ -2647,8 +2654,11 @@ namespace RX_Explorer
                                         {
                                             await FullTrustProcessController.Current.CopyAsync(DragItemList, TargetFolder, (s, arg) =>
                                             {
-                                                ProBar.IsIndeterminate = false;
-                                                ProBar.Value = arg.ProgressPercentage;
+                                                if (ProBar.Value < arg.ProgressPercentage)
+                                                {
+                                                    ProBar.IsIndeterminate = false;
+                                                    ProBar.Value = arg.ProgressPercentage;
+                                                }
                                             }).ConfigureAwait(true);
 
                                             if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
@@ -2775,8 +2785,11 @@ namespace RX_Explorer
                                         {
                                             await FullTrustProcessController.Current.MoveAsync(DragItemList, TargetFolder, (s, arg) =>
                                             {
-                                                ProBar.IsIndeterminate = false;
-                                                ProBar.Value = arg.ProgressPercentage;
+                                                if (ProBar.Value < arg.ProgressPercentage)
+                                                {
+                                                    ProBar.IsIndeterminate = false;
+                                                    ProBar.Value = arg.ProgressPercentage;
+                                                }
                                             }).ConfigureAwait(true);
 
                                             if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))

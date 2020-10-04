@@ -7,6 +7,7 @@ using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -410,16 +411,22 @@ namespace RX_Explorer
                                                     {
                                                         await FullTrustProcessController.Current.MoveAsync(SplitGroup[3], OriginFolder, (s, arg) =>
                                                         {
-                                                            FileControlInstance.ProBar.IsIndeterminate = false;
-                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                            {
+                                                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            }
                                                         }, true).ConfigureAwait(true);
                                                     }
                                                     else if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
                                                     {
                                                         await FullTrustProcessController.Current.MoveAsync(File, OriginFolder, (s, arg) =>
                                                         {
-                                                            FileControlInstance.ProBar.IsIndeterminate = false;
-                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                            {
+                                                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            }
                                                         }, true).ConfigureAwait(true);
                                                     }
                                                     else
@@ -435,8 +442,11 @@ namespace RX_Explorer
                                                     {
                                                         await FullTrustProcessController.Current.MoveAsync(Folder, OriginFolder, (s, arg) =>
                                                         {
-                                                            FileControlInstance.ProBar.IsIndeterminate = false;
-                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                            {
+                                                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            }
                                                         }, true).ConfigureAwait(true);
                                                     }
                                                     else
@@ -458,8 +468,11 @@ namespace RX_Explorer
                                                     {
                                                         await FullTrustProcessController.Current.MoveAsync(SplitGroup[3], FileControlInstance.CurrentFolder, (s, arg) =>
                                                         {
-                                                            FileControlInstance.ProBar.IsIndeterminate = false;
-                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                            {
+                                                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            }
                                                         }, true).ConfigureAwait(true);
                                                     }
                                                     else
@@ -470,8 +483,11 @@ namespace RX_Explorer
                                                         {
                                                             await FullTrustProcessController.Current.MoveAsync(File, FileControlInstance.CurrentFolder, (s, arg) =>
                                                             {
-                                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                                if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                                {
+                                                                    FileControlInstance.ProBar.IsIndeterminate = false;
+                                                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                                }
                                                             }, true).ConfigureAwait(true);
                                                         }
                                                         else
@@ -488,8 +504,11 @@ namespace RX_Explorer
 
                                                     await FullTrustProcessController.Current.MoveAsync(Folder, FileControlInstance.CurrentFolder, (s, arg) =>
                                                     {
-                                                        FileControlInstance.ProBar.IsIndeterminate = false;
-                                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                        if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                        {
+                                                            FileControlInstance.ProBar.IsIndeterminate = false;
+                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                        }
                                                     }, true).ConfigureAwait(true);
 
                                                     break;
@@ -508,8 +527,11 @@ namespace RX_Explorer
                                                     {
                                                         await FullTrustProcessController.Current.MoveAsync(SplitGroup[3], OriginFolder, (s, arg) =>
                                                         {
-                                                            FileControlInstance.ProBar.IsIndeterminate = false;
-                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                            {
+                                                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            }
                                                         }, true).ConfigureAwait(true);
                                                     }
                                                     else
@@ -518,8 +540,11 @@ namespace RX_Explorer
 
                                                         await FullTrustProcessController.Current.MoveAsync(File, OriginFolder, (s, arg) =>
                                                         {
-                                                            FileControlInstance.ProBar.IsIndeterminate = false;
-                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                            {
+                                                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            }
                                                         }, true).ConfigureAwait(true);
                                                     }
 
@@ -531,8 +556,11 @@ namespace RX_Explorer
 
                                                     await FullTrustProcessController.Current.MoveAsync(Folder, OriginFolder, (s, arg) =>
                                                     {
-                                                        FileControlInstance.ProBar.IsIndeterminate = false;
-                                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                        if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                        {
+                                                            FileControlInstance.ProBar.IsIndeterminate = false;
+                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                        }
                                                     }, true).ConfigureAwait(true);
 
                                                     if (!SettingControl.IsDetachTreeViewAndPresenter)
@@ -559,16 +587,22 @@ namespace RX_Explorer
                                                     {
                                                         await FullTrustProcessController.Current.DeleteAsync(SplitGroup[3], true, (s, arg) =>
                                                         {
-                                                            FileControlInstance.ProBar.IsIndeterminate = false;
-                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                            {
+                                                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            }
                                                         }, true).ConfigureAwait(true);
                                                     }
                                                     else if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
                                                     {
                                                         await FullTrustProcessController.Current.DeleteAsync(File, true, (s, arg) =>
                                                         {
-                                                            FileControlInstance.ProBar.IsIndeterminate = false;
-                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                            {
+                                                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            }
                                                         }, true).ConfigureAwait(true);
                                                     }
                                                     else
@@ -584,8 +618,11 @@ namespace RX_Explorer
                                                     {
                                                         await FullTrustProcessController.Current.DeleteAsync(Folder, true, (s, arg) =>
                                                         {
-                                                            FileControlInstance.ProBar.IsIndeterminate = false;
-                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                            {
+                                                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            }
                                                         }, true).ConfigureAwait(true);
                                                     }
 
@@ -597,8 +634,11 @@ namespace RX_Explorer
                                     {
                                         await FullTrustProcessController.Current.DeleteAsync(SplitGroup[3], true, (s, arg) =>
                                         {
-                                            FileControlInstance.ProBar.IsIndeterminate = false;
-                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                            {
+                                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                            }
                                         }, true).ConfigureAwait(true);
 
                                         if (!SettingControl.IsDetachTreeViewAndPresenter)
@@ -776,8 +816,11 @@ namespace RX_Explorer
                             {
                                 await FullTrustProcessController.Current.MoveAsync(ItemList, FileControlInstance.CurrentFolder, (s, arg) =>
                                 {
-                                    FileControlInstance.ProBar.IsIndeterminate = false;
-                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                    if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                    {
+                                        FileControlInstance.ProBar.IsIndeterminate = false;
+                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                    }
                                 }).ConfigureAwait(true);
                             }
                         }
@@ -889,8 +932,11 @@ namespace RX_Explorer
                             {
                                 await FullTrustProcessController.Current.CopyAsync(ItemList, FileControlInstance.CurrentFolder, (s, arg) =>
                                 {
-                                    FileControlInstance.ProBar.IsIndeterminate = false;
-                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                    if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                    {
+                                        FileControlInstance.ProBar.IsIndeterminate = false;
+                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                    }
                                 }).ConfigureAwait(true);
                             }
                         }
@@ -989,8 +1035,11 @@ namespace RX_Explorer
                             {
                                 await FullTrustProcessController.Current.MoveAsync(LinkItemsPath, FileControlInstance.CurrentFolder.Path, (s, arg) =>
                                 {
-                                    FileControlInstance.ProBar.IsIndeterminate = false;
-                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                    if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                    {
+                                        FileControlInstance.ProBar.IsIndeterminate = false;
+                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                    }
                                 }).ConfigureAwait(true);
                             }
                             catch (FileNotFoundException)
@@ -1066,8 +1115,11 @@ namespace RX_Explorer
                             {
                                 await FullTrustProcessController.Current.CopyAsync(LinkItemsPath, FileControlInstance.CurrentFolder.Path, (s, arg) =>
                                 {
-                                    FileControlInstance.ProBar.IsIndeterminate = false;
-                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                    if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                    {
+                                        FileControlInstance.ProBar.IsIndeterminate = false;
+                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                    }
                                 }).ConfigureAwait(true);
                             }
                             catch (FileNotFoundException)
@@ -1218,8 +1270,11 @@ namespace RX_Explorer
                     {
                         await FullTrustProcessController.Current.DeleteAsync(PathList, true, (s, arg) =>
                         {
-                            FileControlInstance.ProBar.IsIndeterminate = false;
-                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                            {
+                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                            }
                         }).ConfigureAwait(true);
 
                         if (FileControlInstance.IsNetworkDevice)
@@ -1317,8 +1372,11 @@ namespace RX_Explorer
                         {
                             await FullTrustProcessController.Current.DeleteAsync(PathList, QueueContenDialog.IsPermanentDelete, (s, arg) =>
                             {
-                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                {
+                                    FileControlInstance.ProBar.IsIndeterminate = false;
+                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                }
                             }).ConfigureAwait(true);
 
                             if (FileControlInstance.IsNetworkDevice)
@@ -1834,7 +1892,7 @@ namespace RX_Explorer
                 SelectedItem = null;
                 FileControlInstance.IsSearchOrPathBoxFocused = false;
             }
-            else if(e.GetCurrentPoint(null).Properties.IsMiddleButtonPressed)
+            else if (e.GetCurrentPoint(null).Properties.IsMiddleButtonPressed)
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item && Item.StorageType == StorageItemTypes.Folder)
                 {
@@ -2001,7 +2059,18 @@ namespace RX_Explorer
 
             if (Item.FileType == ".zip")
             {
-                await UnZipAsync(Item).ConfigureAwait(true);
+                await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
+
+                await UnZipAsync(Item, (s, e) =>
+                {
+                    if (FileControlInstance.ProBar.Value < e.ProgressPercentage)
+                    {
+                        FileControlInstance.ProBar.IsIndeterminate = false;
+                        FileControlInstance.ProBar.Value = e.ProgressPercentage;
+                    }
+                }).ConfigureAwait(true);
+
+                await FileControlInstance.LoadingActivation(false).ConfigureAwait(true);
             }
             else
             {
@@ -2013,11 +2082,25 @@ namespace RX_Explorer
 
                     if (dialog.IsCryptionEnable)
                     {
-                        await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level, true, dialog.Key, dialog.Password).ConfigureAwait(true);
+                        await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level, true, dialog.Password, dialog.Key, (s, e) =>
+                        {
+                            if (FileControlInstance.ProBar.Value < e.ProgressPercentage)
+                            {
+                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                FileControlInstance.ProBar.Value = e.ProgressPercentage;
+                            }
+                        }).ConfigureAwait(true);
                     }
                     else
                     {
-                        await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level).ConfigureAwait(true);
+                        await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level, ProgressHandler: (s, e) =>
+                        {
+                            if (FileControlInstance.ProBar.Value < e.ProgressPercentage)
+                            {
+                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                FileControlInstance.ProBar.Value = e.ProgressPercentage;
+                            }
+                        }).ConfigureAwait(true);
                     }
 
                     await FileControlInstance.LoadingActivation(false).ConfigureAwait(false);
@@ -2025,48 +2108,82 @@ namespace RX_Explorer
             }
         }
 
+        private async Task UnZipAsync(IEnumerable<FileSystemStorageItemBase> FileList, ProgressChangedEventHandler ProgressHandler = null)
+        {
+            long TotalSize = 0;
+
+            foreach (FileSystemStorageItemBase Item in FileList)
+            {
+                TotalSize += Convert.ToInt64(Item.SizeRaw);
+            }
+
+            if (TotalSize == 0)
+            {
+                return;
+            }
+
+            await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
+
+            long Step = 0;
+
+            foreach (FileSystemStorageItemBase Item in FileList)
+            {
+                if (await Item.GetStorageItem().ConfigureAwait(true) is StorageFile File)
+                {
+                    await UnZipAsync(File, (s, e) =>
+                    {
+                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((Convert.ToDouble(e.ProgressPercentage * Convert.ToInt64(Item.SizeRaw)) + Step * 100) / TotalSize)), null));
+                    }).ConfigureAwait(true);
+
+                    Step += Convert.ToInt64(Item.SizeRaw);
+                }
+            }
+
+            await FileControlInstance.LoadingActivation(false).ConfigureAwait(true);
+        }
+
         /// <summary>
         /// 执行ZIP解压功能
         /// </summary>
-        /// <param name="ZFileList">ZIP文件</param>
+        /// <param name="ZFile">ZIP文件</param>
         /// <returns>无</returns>
-        private async Task<StorageFolder> UnZipAsync(StorageFile ZFile)
+        private async Task UnZipAsync(StorageFile ZFile, ProgressChangedEventHandler ProgressHandler = null)
         {
-            StorageFolder NewFolder = null;
-            using (Stream ZipFileStream = await ZFile.OpenStreamForReadAsync().ConfigureAwait(true))
-            using (ZipFile ZipEntries = new ZipFile(ZipFileStream))
+            StorageFolder ParentFolder = null;
+
+            try
             {
-                ZipEntries.IsStreamOwner = false;
+                ParentFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(ZFile.Path));
+                StorageFolder NewFolder = await ParentFolder.CreateFolderAsync(Path.GetFileNameWithoutExtension(ZFile.Name), CreationCollisionOption.OpenIfExists);
 
-                if (ZipEntries.Count == 0)
+                using (Stream ZipFileStream = await ZFile.OpenStreamForReadAsync().ConfigureAwait(true))
+                using (ZipFile ZipEntries = new ZipFile(ZipFileStream))
                 {
-                    return null;
-                }
+                    if (ZipEntries.Count == 0)
+                    {
+                        return;
+                    }
 
-                try
-                {
                     if (ZipEntries[0].IsCrypted)
                     {
                         ZipDialog Dialog = new ZipDialog(false);
+
                         if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                         {
-                            await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
                             ZipEntries.Password = Dialog.Password;
                         }
                         else
                         {
-                            return null;
+                            return;
                         }
                     }
-                    else
-                    {
-                        await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
-                    }
 
-                    NewFolder = await FileControlInstance.CurrentFolder.CreateFolderAsync(Path.GetFileNameWithoutExtension(ZFile.Name), CreationCollisionOption.OpenIfExists);
+                    ZipFileStream.Seek(0, SeekOrigin.Begin);
 
                     foreach (ZipEntry Entry in ZipEntries)
                     {
+                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(ZipFileStream.Position * 100d / ZipFileStream.Length)), null));
+
                         using (Stream ZipEntryStream = ZipEntries.GetInputStream(Entry))
                         {
                             StorageFile NewFile = null;
@@ -2074,7 +2191,9 @@ namespace RX_Explorer
                             if (Entry.Name.Contains("/"))
                             {
                                 string[] SplitFolderPath = Entry.Name.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
                                 StorageFolder TempFolder = NewFolder;
+
                                 for (int i = 0; i < SplitFolderPath.Length - 1; i++)
                                 {
                                     TempFolder = await TempFolder.CreateFolderAsync(SplitFolderPath[i], CreationCollisionOption.OpenIfExists);
@@ -2102,51 +2221,45 @@ namespace RX_Explorer
                         }
                     }
                 }
-                catch (UnauthorizedAccessException)
+            }
+            catch (UnauthorizedAccessException)
+            {
+                QueueContentDialog dialog = new QueueContentDialog
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"),
-                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                    };
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"),
+                    PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                };
 
-                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                    {
-                        _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
-                    }
-                }
-                catch (Exception e)
+                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_DecompressionError_Content") + e.Message,
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
-                }
-                finally
-                {
-                    await FileControlInstance.LoadingActivation(false).ConfigureAwait(false);
+                    _ = await Launcher.LaunchFolderAsync(ParentFolder);
                 }
             }
-
-            return NewFolder;
+            catch (Exception e)
+            {
+                QueueContentDialog dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_DecompressionError_Content") + e.Message,
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+                _ = await dialog.ShowAsync().ConfigureAwait(true);
+            }
         }
 
         /// <summary>
         /// 执行ZIP文件创建功能
         /// </summary>
-        /// <param name="FileList">待压缩文件</param>
+        /// <param name="ZipTarget">待压缩文件</param>
         /// <param name="NewZipName">生成的Zip文件名</param>
         /// <param name="ZipLevel">压缩等级</param>
         /// <param name="EnableCryption">是否启用加密</param>
         /// <param name="Size">AES加密密钥长度</param>
         /// <param name="Password">密码</param>
         /// <returns>无</returns>
-        private async Task CreateZipAsync(IStorageItem ZipTarget, string NewZipName, int ZipLevel, bool EnableCryption = false, KeySize Size = KeySize.None, string Password = null)
+        private async Task CreateZipAsync(IStorageItem ZipTarget, string NewZipName, int ZipLevel, bool EnableCryption = false, string Password = null, KeySize Size = KeySize.None, ProgressChangedEventHandler ProgressHandler = null)
         {
             try
             {
@@ -2155,7 +2268,6 @@ namespace RX_Explorer
                 using (Stream NewFileStream = await Newfile.OpenStreamForWriteAsync().ConfigureAwait(true))
                 using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
                 {
-                    OutputStream.IsStreamOwner = false;
                     OutputStream.SetLevel(ZipLevel);
                     OutputStream.UseZip64 = UseZip64.Dynamic;
 
@@ -2202,14 +2314,15 @@ namespace RX_Explorer
                                     await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
                                 }
                             }
+
+                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(100, null));
                         }
                         else if (ZipTarget is StorageFolder ZipFolder)
                         {
-                            await ZipFolderCore(ZipFolder, OutputStream, ZipFolder.Name, EnableCryption, Size, Password).ConfigureAwait(true);
+                            await ZipFolderCore(ZipFolder, OutputStream, ZipFolder.Name, EnableCryption, Password, Size, ProgressHandler).ConfigureAwait(true);
                         }
 
                         await OutputStream.FlushAsync().ConfigureAwait(true);
-                        OutputStream.Finish();
                     }
                     catch (Exception e)
                     {
@@ -2250,7 +2363,7 @@ namespace RX_Explorer
         /// <param name="Size">AES加密密钥长度</param>
         /// <param name="Password">密码</param>
         /// <returns>无</returns>
-        private async Task CreateZipAsync(IEnumerable<FileSystemStorageItemBase> ZipItemGroup, string NewZipName, int ZipLevel, bool EnableCryption = false, KeySize Size = KeySize.None, string Password = null)
+        private async Task CreateZipAsync(IEnumerable<FileSystemStorageItemBase> ZipItemGroup, string NewZipName, int ZipLevel, bool EnableCryption = false, string Password = null, KeySize Size = KeySize.None, ProgressChangedEventHandler ProgressHandler = null)
         {
             try
             {
@@ -2259,7 +2372,6 @@ namespace RX_Explorer
                 using (Stream NewFileStream = await Newfile.OpenStreamForWriteAsync().ConfigureAwait(true))
                 using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
                 {
-                    OutputStream.IsStreamOwner = false;
                     OutputStream.SetLevel(ZipLevel);
                     OutputStream.UseZip64 = UseZip64.Dynamic;
 
@@ -2270,6 +2382,22 @@ namespace RX_Explorer
 
                     try
                     {
+                        long TotalSize = 0;
+
+                        foreach (FileSystemStorageItemBase StorageItem in ZipItemGroup)
+                        {
+                            if (StorageItem.StorageType == StorageItemTypes.File)
+                            {
+                                TotalSize += Convert.ToInt64(StorageItem.SizeRaw);
+                            }
+                            else
+                            {
+                                TotalSize += Convert.ToInt64(WIN_Native_API.CalculateSize(StorageItem.Path));
+                            }
+                        }
+
+                        long CurrentPosition = 0;
+
                         foreach (FileSystemStorageItemBase StorageItem in ZipItemGroup)
                         {
                             if (await StorageItem.GetStorageItem().ConfigureAwait(true) is StorageFile ZipFile)
@@ -2308,15 +2436,34 @@ namespace RX_Explorer
                                         await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
                                     }
                                 }
+
+                                if (TotalSize > 0)
+                                {
+                                    CurrentPosition += Convert.ToInt64(StorageItem.SizeRaw);
+                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
+                                }
                             }
                             else if (await StorageItem.GetStorageItem().ConfigureAwait(true) is StorageFolder ZipFolder)
                             {
-                                await ZipFolderCore(ZipFolder, OutputStream, ZipFolder.Name, EnableCryption, Size, Password).ConfigureAwait(true);
+                                long InnerFolderSixe = Convert.ToInt64(WIN_Native_API.CalculateSize(ZipFolder.Path));
+
+                                await ZipFolderCore(ZipFolder, OutputStream, ZipFolder.Name, EnableCryption, Password, Size, (s, e) =>
+                                {
+                                    if (TotalSize > 0)
+                                    {
+                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * InnerFolderSixe)) * 100d / TotalSize)), null));
+                                    }
+                                }).ConfigureAwait(true);
+
+                                if (TotalSize > 0)
+                                {
+                                    CurrentPosition += InnerFolderSixe;
+                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
+                                }
                             }
                         }
 
                         await OutputStream.FlushAsync().ConfigureAwait(true);
-                        OutputStream.Finish();
                     }
                     catch (Exception e)
                     {
@@ -2347,7 +2494,7 @@ namespace RX_Explorer
             }
         }
 
-        private async Task ZipFolderCore(StorageFolder Folder, ZipOutputStream OutputStream, string BaseFolderName, bool EnableCryption = false, KeySize Size = KeySize.None, string Password = null)
+        private async Task ZipFolderCore(StorageFolder Folder, ZipOutputStream OutputStream, string BaseFolderName, bool EnableCryption = false, string Password = null, KeySize Size = KeySize.None, ProgressChangedEventHandler ProgressHandler = null)
         {
             IReadOnlyList<IStorageItem> ItemsCollection = await Folder.GetItemsAsync();
 
@@ -2362,17 +2509,41 @@ namespace RX_Explorer
             }
             else
             {
+                long TotalSize = Convert.ToInt64(WIN_Native_API.CalculateSize(Folder.Path));
+
+                long CurrentPosition = 0;
+
                 foreach (IStorageItem Item in ItemsCollection)
                 {
                     if (Item is StorageFolder InnerFolder)
                     {
+                        long InnerFolderSixe = Convert.ToInt64(WIN_Native_API.CalculateSize(InnerFolder.Path));
+
                         if (EnableCryption)
                         {
-                            await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{InnerFolder.Name}", true, Size, Password).ConfigureAwait(false);
+                            await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{InnerFolder.Name}", true, Password, Size, (s, e) =>
+                            {
+                                if (TotalSize > 0)
+                                {
+                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * InnerFolderSixe)) * 100d / TotalSize)), null));
+                                }
+                            }).ConfigureAwait(true);
                         }
                         else
                         {
-                            await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{InnerFolder.Name}").ConfigureAwait(false);
+                            await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{InnerFolder.Name}", ProgressHandler: (s, e) =>
+                            {
+                                if (TotalSize > 0)
+                                {
+                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * InnerFolderSixe)) * 100d / TotalSize)), null));
+                                }
+                            }).ConfigureAwait(true);
+                        }
+
+                        if (TotalSize > 0)
+                        {
+                            CurrentPosition += InnerFolderSixe;
+                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
                         }
                     }
                     else if (Item is StorageFile InnerFile)
@@ -2392,7 +2563,7 @@ namespace RX_Explorer
 
                                 OutputStream.PutNextEntry(NewEntry);
 
-                                await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
+                                await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
 
                                 OutputStream.CloseEntry();
                             }
@@ -2410,10 +2581,17 @@ namespace RX_Explorer
 
                                 OutputStream.PutNextEntry(NewEntry);
 
-                                await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
+                                await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
 
                                 OutputStream.CloseEntry();
                             }
+                        }
+
+
+                        if (TotalSize > 0)
+                        {
+                            CurrentPosition += Convert.ToInt64(await InnerFile.GetSizeRawDataAsync().ConfigureAwait(true));
+                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
                         }
                     }
                 }
@@ -4082,11 +4260,25 @@ namespace RX_Explorer
 
                 if (dialog.IsCryptionEnable)
                 {
-                    await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level, true, dialog.Key, dialog.Password).ConfigureAwait(true);
+                    await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level, true, dialog.Password, dialog.Key, (s, e) =>
+                    {
+                        if (FileControlInstance.ProBar.Value < e.ProgressPercentage)
+                        {
+                            FileControlInstance.ProBar.IsIndeterminate = false;
+                            FileControlInstance.ProBar.Value = e.ProgressPercentage;
+                        }
+                    }).ConfigureAwait(true);
                 }
                 else
                 {
-                    await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level).ConfigureAwait(true);
+                    await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level, ProgressHandler: (s, e) =>
+                    {
+                        if (FileControlInstance.ProBar.Value < e.ProgressPercentage)
+                        {
+                            FileControlInstance.ProBar.IsIndeterminate = false;
+                            FileControlInstance.ProBar.Value = e.ProgressPercentage;
+                        }
+                    }).ConfigureAwait(true);
                 }
             }
 
@@ -4167,8 +4359,11 @@ namespace RX_Explorer
                                             {
                                                 await FullTrustProcessController.Current.CopyAsync(LinkItemsPath, TargetFolder.Path, (s, arg) =>
                                                 {
-                                                    FileControlInstance.ProBar.IsIndeterminate = false;
-                                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                    if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                    {
+                                                        FileControlInstance.ProBar.IsIndeterminate = false;
+                                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                    }
                                                 }).ConfigureAwait(true);
                                             }
                                             catch (FileNotFoundException)
@@ -4234,8 +4429,11 @@ namespace RX_Explorer
                                             {
                                                 await FullTrustProcessController.Current.MoveAsync(LinkItemsPath, TargetFolder.Path, (s, arg) =>
                                                 {
-                                                    FileControlInstance.ProBar.IsIndeterminate = false;
-                                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                    if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                    {
+                                                        FileControlInstance.ProBar.IsIndeterminate = false;
+                                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                    }
                                                 }).ConfigureAwait(true);
                                             }
                                             catch (FileNotFoundException)
@@ -4374,8 +4572,11 @@ namespace RX_Explorer
                                             {
                                                 await FullTrustProcessController.Current.CopyAsync(DragItemList, TargetFolder, (s, arg) =>
                                                 {
-                                                    FileControlInstance.ProBar.IsIndeterminate = false;
-                                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                    if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                    {
+                                                        FileControlInstance.ProBar.IsIndeterminate = false;
+                                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                    }
                                                 }).ConfigureAwait(true);
 
                                                 if (!SettingControl.IsDetachTreeViewAndPresenter)
@@ -4497,8 +4698,11 @@ namespace RX_Explorer
                                             {
                                                 await FullTrustProcessController.Current.MoveAsync(DragItemList, TargetFolder, (s, arg) =>
                                                 {
-                                                    FileControlInstance.ProBar.IsIndeterminate = false;
-                                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                    if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                    {
+                                                        FileControlInstance.ProBar.IsIndeterminate = false;
+                                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                    }
                                                 }).ConfigureAwait(true);
                                             }
                                         }
@@ -4758,8 +4962,11 @@ namespace RX_Explorer
                                         {
                                             await FullTrustProcessController.Current.CopyAsync(LinkItemsPath, TargetFolder.Path, (s, arg) =>
                                             {
-                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                {
+                                                    FileControlInstance.ProBar.IsIndeterminate = false;
+                                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                }
                                             }).ConfigureAwait(true);
                                         }
                                         catch (FileNotFoundException)
@@ -4830,8 +5037,11 @@ namespace RX_Explorer
                                         {
                                             await FullTrustProcessController.Current.MoveAsync(LinkItemsPath, TargetFolder.Path, (s, arg) =>
                                             {
-                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                {
+                                                    FileControlInstance.ProBar.IsIndeterminate = false;
+                                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                }
                                             }).ConfigureAwait(true);
                                         }
                                         catch (FileNotFoundException)
@@ -4968,8 +5178,11 @@ namespace RX_Explorer
                                         {
                                             await FullTrustProcessController.Current.CopyAsync(DragItemList, TargetFolder, (s, arg) =>
                                             {
-                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                {
+                                                    FileControlInstance.ProBar.IsIndeterminate = false;
+                                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                }
                                             }).ConfigureAwait(true);
                                         }
                                     }
@@ -5092,8 +5305,11 @@ namespace RX_Explorer
                                         {
                                             await FullTrustProcessController.Current.MoveAsync(DragItemList, TargetFolder, (s, arg) =>
                                             {
-                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                {
+                                                    FileControlInstance.ProBar.IsIndeterminate = false;
+                                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                }
                                             }).ConfigureAwait(true);
                                         }
                                     }
@@ -5410,11 +5626,25 @@ namespace RX_Explorer
 
                     if (dialog.IsCryptionEnable)
                     {
-                        await CreateZipAsync(SelectedItems, dialog.FileName, (int)dialog.Level, true, dialog.Key, dialog.Password).ConfigureAwait(true);
+                        await CreateZipAsync(SelectedItems, dialog.FileName, (int)dialog.Level, true, dialog.Password, dialog.Key, (s, e) =>
+                        {
+                            if (FileControlInstance.ProBar.Value < e.ProgressPercentage)
+                            {
+                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                FileControlInstance.ProBar.Value = e.ProgressPercentage;
+                            }
+                        }).ConfigureAwait(true);
                     }
                     else
                     {
-                        await CreateZipAsync(SelectedItems, dialog.FileName, (int)dialog.Level).ConfigureAwait(true);
+                        await CreateZipAsync(SelectedItems, dialog.FileName, (int)dialog.Level, ProgressHandler: (s, e) =>
+                        {
+                            if (FileControlInstance.ProBar.Value < e.ProgressPercentage)
+                            {
+                                FileControlInstance.ProBar.IsIndeterminate = false;
+                                FileControlInstance.ProBar.Value = e.ProgressPercentage;
+                            }
+                        }).ConfigureAwait(true);
                     }
 
                     await FileControlInstance.LoadingActivation(false).ConfigureAwait(true);
@@ -5422,14 +5652,15 @@ namespace RX_Explorer
             }
             else
             {
-                foreach (FileSystemStorageItemBase Item in SelectedItems)
+                await UnZipAsync(SelectedItems, (s, e) =>
                 {
-                    StorageFile File = (await Item.GetStorageItem().ConfigureAwait(true)) as StorageFile;
-
-                    await UnZipAsync(File).ConfigureAwait(true);
-                }
+                    if (FileControlInstance.ProBar.Value < e.ProgressPercentage)
+                    {
+                        FileControlInstance.ProBar.IsIndeterminate = false;
+                        FileControlInstance.ProBar.Value = e.ProgressPercentage;
+                    }
+                }).ConfigureAwait(true);
             }
-
         }
 
         private async void TryUnlock_Click(object sender, RoutedEventArgs e)
