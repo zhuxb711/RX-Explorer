@@ -122,6 +122,7 @@
                     x:FieldModifier="public"
                     Click="GoBackRecord_Click"
                     AllowFocusWhenDisabled="True"
+                    CornerRadius="0"
                     IsEnabled="False"
                     Style="{ThemeResource ButtonRevealStyle}"
                     Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
@@ -137,6 +138,7 @@
                     x:FieldModifier="public"
                     Click="GoForwardRecord_Click"
                     IsEnabled="False"
+                    CornerRadius="0"
                     ToolTipService.ToolTip="前进"
                     AllowFocusWhenDisabled="True"
                     Style="{ThemeResource ButtonRevealStyle}"
@@ -152,6 +154,7 @@
                     x:Name="GoParentFolder"
                     x:FieldModifier="public"
                     IsEnabled="False"
+                    CornerRadius="0"
                     Click="GoParentFolder_Click"
                     Style="{ThemeResource ButtonRevealStyle}"
                     ToolTipService.ToolTip="返回上级"
@@ -222,7 +225,7 @@
             <ComboBox Grid.Column="5"
                       Margin="5,0,5,0"
                       Width="140"
-                      Height="32.5"
+                      CornerRadius="0"
                       x:Name="ItemDisplayMode"
                       VerticalAlignment="Center"
                       SelectionChanged="ItemDisplayMode_SelectionChanged" />

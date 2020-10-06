@@ -2499,4 +2499,7 @@
   <data name="LnkOpenLocation.Label" xml:space="preserve">
     <value>打开文件所在位置</value>
   </data>
+  <data name="MulSelect.Label" xml:space="preserve">
+    <value>多选</value>
+  </data>
 </root>

@@ -2844,6 +2844,8 @@ namespace RX_Explorer
 
         private async void ParentProperty_Click(object sender, RoutedEventArgs e)
         {
+            Restore();
+
             if (!await FileControlInstance.CurrentFolder.CheckExist().ConfigureAwait(true))
             {
                 QueueContentDialog Dialog = new QueueContentDialog
@@ -5843,6 +5845,8 @@ namespace RX_Explorer
 
         private async void OpenInTerminal_Click(object sender, RoutedEventArgs e)
         {
+            Restore();
+
             if (await SQLite.Current.GetTerminalProfileByName(Convert.ToString(ApplicationData.Current.LocalSettings.Values["DefaultTerminal"])).ConfigureAwait(true) is TerminalProfile Profile)
             {
             Retry:
@@ -5891,6 +5895,8 @@ namespace RX_Explorer
 
         private async void OpenFolderInNewTab_Click(object sender, RoutedEventArgs e)
         {
+            Restore();
+
             if (SelectedItem is FileSystemStorageItemBase Item && Item.StorageType == StorageItemTypes.Folder)
             {
                 await TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(Item.Path).ConfigureAwait(false);
@@ -6189,6 +6195,8 @@ namespace RX_Explorer
 
         private async void OpenFolderInNewWindow_Click(object sender, RoutedEventArgs e)
         {
+            Restore();
+
             if (SelectedItem is FileSystemStorageItemBase Item && Item.StorageType == StorageItemTypes.Folder)
             {
                 await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(Item.Path)}"));
@@ -7091,6 +7099,20 @@ namespace RX_Explorer
                 await Task.Delay(700).ConfigureAwait(true);
 
                 Deferral.Complete();
+            }
+        }
+
+        private void MulSelect_Click(object sender, RoutedEventArgs e)
+        {
+            EmptyFlyout.Hide();
+
+            if (ItemPresenter.SelectionMode == ListViewSelectionMode.Extended)
+            {
+                ItemPresenter.SelectionMode = ListViewSelectionMode.Multiple;
+            }
+            else
+            {
+                ItemPresenter.SelectionMode = ListViewSelectionMode.Extended;
             }
         }
     }

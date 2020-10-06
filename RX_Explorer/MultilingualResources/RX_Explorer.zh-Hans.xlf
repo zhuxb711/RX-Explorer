@@ -3312,6 +3312,10 @@ Invalid names include
           <source>Open location</source>
           <target state="translated">打开文件所在位置</target>
         </trans-unit>
+        <trans-unit id="MulSelect.Label" translate="yes" xml:space="preserve">
+          <source>Multi-select</source>
+          <target state="translated">多选</target>
+        </trans-unit>
       </group>
     </body>
   </file>
