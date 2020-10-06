@@ -1896,6 +1896,7 @@ namespace RX_Explorer
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item && Item.StorageType == StorageItemTypes.Folder)
                 {
+                    SelectedItem = Item;
                     await TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(Item.Path).ConfigureAwait(false);
                 }
             }

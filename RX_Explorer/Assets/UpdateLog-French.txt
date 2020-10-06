@@ -1,6 +1,14 @@
 ﻿*****
 ###Quoi de neuf dans la version 5.4.5.0
 
+#####Mise à jour des fonctionnalités
+
+>#####L'onglet sera fermé lorsque le bouton central de la souris cliquera sur l'onglet
+
+>#####Lorsque vous cliquez sur le dossier avec le bouton central de la souris, il sera affiché dans un nouvel onglet
+
+>#####Les fonctions de compression et de décompression prennent désormais en charge l'affichage de la barre de progression
+
 #####Optimisation des performances
 
 >#####Chargement retardé de certaines commandes invisibles, améliorant la vitesse de chargement de l'interface
@@ -18,6 +26,8 @@
 >#####L'effet acrylique a été ajouté au contrôle flottant de la barre d'adresse, la taille et l'effet de coin arrondi du contrôle ont été ajustés
 
 >#####Ajout de la taille du fichier à la zone d'informations de l'élément sélectionné
+
+>#####Mise à jour du mécanisme de glissement des onglets à travers les fenêtres, il est désormais plus facile de faire glisser les onglets à travers les fenêtres et peut insérer des onglets en fonction de la position libérée
 
 #####Correction d'un bug
 
@@ -42,6 +52,8 @@
 >#####Correction du problème de fermeture du menu contextuel lorsque vous cliquez sur un élément de menu avec des sous-options dans le menu contextuel via l'écran tactile
 
 >#####Correction du problème pouvant provoquer un plantage lors du démarrage de RX avec le menu contextuel de l'explorateur système et en spécifiant un dossier caché
+
+>#####Correction du problème qui pouvait échouer lors du premier démarrage avec Win + E
 
 *****
 ###Quoi de neuf dans la version 5.4.2.0

@@ -1,6 +1,14 @@
 ﻿*****
 ###What's new in Ver.5.4.5.0
 
+#####Feature update
+
+>#####The tab will be closed when the middle mouse button clicks on the tab
+
+>#####When you click the folder with the middle mouse button, it will be displayed in a new tab
+
+>#####Compression and decompression functions now support displaying progress bar
+
 #####Performance optimization
 
 >#####Delayed loading of some invisible controls, improving the interface loading speed
@@ -18,6 +26,8 @@
 >#####Acrylic effect has been added to the floating control of the address bar, the size and rounded corner effect of the control have been adjusted
 
 >#####Added the file size to the selected item information area
+
+>#####Updated the mechanism of dragging tabs across windows, now it is easier to drag tabs across windows and can insert tabs according to the released position
 
 #####Bug fix
 
@@ -42,6 +52,8 @@
 >#####Fixed the problem that the right-click menu would be closed when clicking on a menu item with sub-options in the right-click menu through the touch screen
 
 >#####Fixed the problem that may cause a crash when starting RX with the right-click menu of the system explorer and specifying a hidden folder
+
+>#####Fixed the problem that may fail when starting with Win+E for the first time
 
 *****
 ###What's new in Ver.5.4.2.0
