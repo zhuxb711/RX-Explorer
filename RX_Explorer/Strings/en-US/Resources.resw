@@ -778,12 +778,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="SearchCopyPath.Label" xml:space="preserve">
     <value>Copy the full path</value>
   </data>
-  <data name="SearchTip.CloseButtonContent" xml:space="preserve">
-    <value>Got it</value>
-  </data>
-  <data name="SearchTip.Subtitle" xml:space="preserve">
-    <value>Clear this search box or click on any folder to exit the search status</value>
-  </data>
   <data name="SearchType.Text" xml:space="preserve">
     <value>Type</value>
   </data>
@@ -2606,5 +2600,26 @@ Invalid names include
   </data>
   <data name="MulSelect.Label" xml:space="preserve">
     <value>Multi-select</value>
+  </data>
+  <data name="Operate_Text_MultiSelect" xml:space="preserve">
+    <value>Multi-select</value>
+  </data>
+  <data name="BuildIn_CropperPage_Description" xml:space="preserve">
+    <value>Built-in picture editor</value>
+  </data>
+  <data name="BuildIn_MediaPlayer_Description" xml:space="preserve">
+    <value>Built-in media player</value>
+  </data>
+  <data name="BuildIn_PdfReader_Description" xml:space="preserve">
+    <value>Built-in pdf viewer</value>
+  </data>
+  <data name="BuildIn_PhotoViewer_Description" xml:space="preserve">
+    <value>Built-in picture viewer</value>
+  </data>
+  <data name="BuildIn_SearchPage_Description" xml:space="preserve">
+    <value>Searcher</value>
+  </data>
+  <data name="BuildIn_TextViewer_Description" xml:space="preserve">
+    <value>Built-in text editor</value>
   </data>
 </root>

@@ -5,6 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+      xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d"
       NavigationCacheMode="Required"
       Background="Transparent">
@@ -94,8 +95,8 @@
                                 <FontIcon Margin="0,1,0,0"
                                           Glyph="&#xE799;" />
                                 <TextBlock Margin="5,0,0,0"
-                                           Text="纵横比:" 
-                                           x:Uid="CropperPageAspButton"/>
+                                           Text="纵横比:"
+                                           x:Uid="CropperPageAspButton" />
                             </StackPanel>
                             <TextBlock Grid.Column="2"
                                        Name="AspText"
@@ -127,8 +128,8 @@
                                 <SymbolIcon Symbol="Refresh" />
                             </Viewbox>
                             <TextBlock Margin="5,0,0,0"
-                                       Text="重置操作" 
-                                       x:Uid="CropperPageResetButton"/>
+                                       Text="重置操作"
+                                       x:Uid="CropperPageResetButton" />
                         </StackPanel>
                     </Button>
 
@@ -155,11 +156,11 @@
                         <StackPanel Orientation="Horizontal">
                             <Viewbox Height="14"
                                      Margin="0,2,0,0">
-                                <FontIcon Glyph="&#xEBD2;"/>
+                                <FontIcon Glyph="&#xEBD2;" />
                             </Viewbox>
                             <TextBlock Margin="5,0,0,0"
                                        x:Uid="CropperPageAutoOptimizeButton"
-                                       Text="自动优化"/>
+                                       Text="自动优化" />
                         </StackPanel>
                     </Button>
 
@@ -261,8 +262,8 @@
                                 Orientation="Horizontal">
                         <FontIcon Glyph="&#xE74E;" />
                         <TextBlock Margin="5,0,0,0"
-                                   Text="保存副本" 
-                                   x:Uid="CropperPageSaveAsButton"/>
+                                   Text="保存副本"
+                                   x:Uid="CropperPageSaveAsButton" />
                     </StackPanel>
                     <SplitButton.Flyout>
                         <MenuFlyout>
@@ -297,10 +298,10 @@
             </controls:Loading.Background>
             <StackPanel Orientation="Horizontal"
                         Padding="12">
-                <ProgressRing IsActive="True"
-                              Height="25"
-                              Width="25"
-                              HorizontalAlignment="Center" />
+                <muxc:ProgressRing IsActive="True"
+                                   Height="25"
+                                   Width="25"
+                                   HorizontalAlignment="Center" />
                 <TextBlock Text="正在保存..."
                            x:Uid="CropperPageSavingTips"
                            Margin="10,0,0,0"

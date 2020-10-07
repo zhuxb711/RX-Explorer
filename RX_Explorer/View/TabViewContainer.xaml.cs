@@ -23,6 +23,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Xaml.Navigation;
 using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
 using TabView = Microsoft.UI.Xaml.Controls.TabView;
 using TabViewTabCloseRequestedEventArgs = Microsoft.UI.Xaml.Controls.TabViewTabCloseRequestedEventArgs;
@@ -197,23 +198,13 @@ namespace RX_Explorer
 
                     if (!QueueContentDialog.IsRunningOrWaiting)
                     {
-                        if (Control.Nav.CurrentSourcePageType.Name == nameof(FilePresenter))
+                        if (Control.GoBackRecord.IsEnabled)
                         {
-                            if (Control.GoBackRecord.IsEnabled)
-                            {
-                                Control.GoBackRecord_Click(null, null);
-                            }
-                            else
-                            {
-                                MainPage.ThisPage.NavView_BackRequested(null, null);
-                            }
+                            Control.GoBackRecord_Click(null, null);
                         }
                         else
                         {
-                            if (Control.Nav.CanGoBack)
-                            {
-                                Control.Nav.GoBack();
-                            }
+                            MainPage.ThisPage.NavView_BackRequested(null, null);
                         }
                     }
                 }
@@ -221,13 +212,13 @@ namespace RX_Explorer
                 {
                     args.Handled = true;
 
-                    if (Control.Nav.CurrentSourcePageType.Name == nameof(FilePresenter) && !QueueContentDialog.IsRunningOrWaiting)
+                    if (!QueueContentDialog.IsRunningOrWaiting && Control.GoForwardRecord.IsEnabled)
                     {
                         Control.GoForwardRecord_Click(null, null);
                     }
                 }
             }
-            else if (CurrentTabNavigation?.Content is ThisPC PC)
+            else
             {
                 if (BackButtonPressed)
                 {
@@ -384,25 +375,6 @@ namespace RX_Explorer
             }
         }
 
-        public static void GoBack()
-        {
-            if (CurrentTabNavigation.Content is FileControl Control)
-            {
-                if (Control.Nav.CanGoBack)
-                {
-                    Control.Nav.GoBack();
-                }
-                else if (CurrentTabNavigation.CanGoBack)
-                {
-                    CurrentTabNavigation.GoBack();
-                }
-            }
-            else if (CurrentTabNavigation.CanGoBack)
-            {
-                CurrentTabNavigation.GoBack();
-            }
-        }
-
         private async void PortalDeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
         {
             try
@@ -449,8 +421,6 @@ namespace RX_Explorer
                                 }
                                 else
                                 {
-                                    CommonAccessCollection.UnRegister(Control);
-
                                     Control.Dispose();
 
                                     TabViewControl.TabItems.RemoveAt(j);
@@ -861,15 +831,19 @@ namespace RX_Explorer
 
         private async void TabViewControl_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
         {
-            if ((args.Tab.Content as Frame).Content is ThisPC PC)
+            Frame frame = args.Tab.Content as Frame;
+
+            while (frame.CanGoBack)
             {
-                CommonAccessCollection.GetFileControlInstance(PC)?.Dispose();
-                CommonAccessCollection.UnRegister(PC);
-            }
-            else if ((args.Tab.Content as Frame).Content is FileControl Control)
-            {
-                Control.Dispose();
-                CommonAccessCollection.UnRegister(Control);
+                if (frame.Content is FileControl Control)
+                {
+                    Control.Dispose();
+                    break;
+                }
+                else
+                {
+                    frame.GoBack();
+                }
             }
 
             args.Tab.DragEnter -= Item_DragEnter;
@@ -917,20 +891,20 @@ namespace RX_Explorer
 
                     if (StorageFolderForNewTab != null)
                     {
-                        frame.Navigate(typeof(ThisPC), new Tuple<TabViewItem, Frame>(Item, frame), new SuppressNavigationTransitionInfo());
+                        frame.Navigate(typeof(ThisPC), Item, new SuppressNavigationTransitionInfo());
 
                         if (AnimationController.Current.IsEnableAnimation)
                         {
-                            frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(Item, StorageFolderForNewTab, frame.Content as ThisPC), new DrillInNavigationTransitionInfo());
+                            frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(Item, StorageFolderForNewTab), new DrillInNavigationTransitionInfo());
                         }
                         else
                         {
-                            frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(Item, StorageFolderForNewTab, frame.Content as ThisPC), new SuppressNavigationTransitionInfo());
+                            frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(Item, StorageFolderForNewTab), new SuppressNavigationTransitionInfo());
                         }
                     }
                     else
                     {
-                        frame.Navigate(typeof(ThisPC), new Tuple<TabViewItem, Frame>(Item, frame), new SuppressNavigationTransitionInfo());
+                        frame.Navigate(typeof(ThisPC), Item, new SuppressNavigationTransitionInfo());
                     }
 
                     Item.Content = frame;
@@ -950,19 +924,23 @@ namespace RX_Explorer
 
         public async void Item_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if(e.GetCurrentPoint(null).Properties.IsMiddleButtonPressed)
+            if (e.GetCurrentPoint(null).Properties.IsMiddleButtonPressed)
             {
                 if (sender is TabViewItem Tab)
                 {
-                    if ((Tab.Content as Frame).Content is ThisPC PC)
+                    Frame frame = Tab.Content as Frame;
+
+                    while (frame.CanGoBack)
                     {
-                        CommonAccessCollection.GetFileControlInstance(PC)?.Dispose();
-                        CommonAccessCollection.UnRegister(PC);
-                    }
-                    else if ((Tab.Content as Frame).Content is FileControl Control)
-                    {
-                        Control.Dispose();
-                        CommonAccessCollection.UnRegister(Control);
+                        if (frame.Content is FileControl Control)
+                        {
+                            Control.Dispose();
+                            break;
+                        }
+                        else
+                        {
+                            frame.GoBack();
+                        }
                     }
 
                     Tab.DragEnter -= Item_DragEnter;
@@ -1070,15 +1048,19 @@ namespace RX_Explorer
         {
             if (args.DropResult == DataPackageOperation.Link)
             {
-                if ((args.Tab.Content as Frame).Content is ThisPC PC)
+                Frame frame = args.Tab.Content as Frame;
+
+                while (frame.CanGoBack)
                 {
-                    CommonAccessCollection.GetFileControlInstance(PC)?.Dispose();
-                    CommonAccessCollection.UnRegister(PC);
-                }
-                else if ((args.Tab.Content as Frame).Content is FileControl Control)
-                {
-                    Control.Dispose();
-                    CommonAccessCollection.UnRegister(Control);
+                    if (frame.Content is FileControl Control)
+                    {
+                        Control.Dispose();
+                        break;
+                    }
+                    else
+                    {
+                        frame.GoBack();
+                    }
                 }
 
                 args.Tab.DragEnter -= Item_DragEnter;
@@ -1170,7 +1152,7 @@ namespace RX_Explorer
                             TabViewItem Item = TabViewControl.ContainerFromIndex(i) as TabViewItem;
 
                             Windows.Foundation.Point Position = e.GetPosition(Item);
-                            
+
                             if (Position.X < Item.ActualWidth)
                             {
                                 if (Position.X < Item.ActualWidth / 2)

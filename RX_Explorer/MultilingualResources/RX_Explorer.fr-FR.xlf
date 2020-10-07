@@ -876,14 +876,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Copy the full path</source>
           <target state="translated">Copier le chemin complet</target>
         </trans-unit>
-        <trans-unit id="SearchTip.CloseButtonContent" translate="yes" xml:space="preserve">
-          <source>Got it</source>
-          <target state="translated">Compris</target>
-        </trans-unit>
-        <trans-unit id="SearchTip.Subtitle" translate="yes" xml:space="preserve">
-          <source>Clear this search box or click on any folder to exit the search status</source>
-          <target state="translated">Videz cette boîte de recherche ou cliquez sur n'importe quel dossier pour annuler la recherche</target>
-        </trans-unit>
         <trans-unit id="SearchType.Text" translate="yes" xml:space="preserve">
           <source>Type</source>
           <target state="translated">Type</target>
@@ -3315,6 +3307,34 @@ Les noms non valides incluent
         <trans-unit id="MulSelect.Label" translate="yes" xml:space="preserve">
           <source>Multi-select</source>
           <target state="translated">Sélection multiple</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_MultiSelect" translate="yes" xml:space="preserve">
+          <source>Multi-select</source>
+          <target state="translated">Sélection multiple</target>
+        </trans-unit>
+        <trans-unit id="BuildIn_CropperPage_Description" translate="yes" xml:space="preserve">
+          <source>Built-in picture editor</source>
+          <target state="translated">Éditeur d'image intégré</target>
+        </trans-unit>
+        <trans-unit id="BuildIn_MediaPlayer_Description" translate="yes" xml:space="preserve">
+          <source>Built-in media player</source>
+          <target state="translated">Lecteur multimédia intégré</target>
+        </trans-unit>
+        <trans-unit id="BuildIn_PdfReader_Description" translate="yes" xml:space="preserve">
+          <source>Built-in pdf viewer</source>
+          <target state="translated">Visionneuse PDF intégrée</target>
+        </trans-unit>
+        <trans-unit id="BuildIn_PhotoViewer_Description" translate="yes" xml:space="preserve">
+          <source>Built-in picture viewer</source>
+          <target state="translated">Visionneuse d'images intégrée</target>
+        </trans-unit>
+        <trans-unit id="BuildIn_SearchPage_Description" translate="yes" xml:space="preserve">
+          <source>Searcher</source>
+          <target state="translated">Chercheur</target>
+        </trans-unit>
+        <trans-unit id="BuildIn_TextViewer_Description" translate="yes" xml:space="preserve">
+          <source>Built-in text editor</source>
+          <target state="translated">Éditeur de texte intégré</target>
         </trans-unit>
       </group>
     </body>

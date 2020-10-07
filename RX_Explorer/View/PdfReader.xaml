@@ -15,7 +15,8 @@
             <RowDefinition Height="100" />
         </Grid.RowDefinitions>
         <FlipView Name="Flip"
-                  Grid.RowSpan="2">
+                  Grid.RowSpan="2"
+                  Background="Transparent">
             <FlipView.ItemTemplate>
                 <DataTemplate>
                     <ScrollViewer x:Name="ScrollViewerMain"

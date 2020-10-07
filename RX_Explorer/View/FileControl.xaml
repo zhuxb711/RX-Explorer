@@ -87,17 +87,6 @@
                               Click="FolderAttribute_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
-
-        <muxc:TeachingTip x:Name="SearchTip"
-                          x:Uid="SearchTip"
-                          Grid.Row="1"
-                          Title="Tips"
-                          Target="{x:Bind GlobeSearch}"
-                          PreferredPlacement="BottomRight"
-                          IsLightDismissEnabled="True"
-                          Subtitle="清空这个搜索框或点击任意文件夹即可退出搜索状态哦！"
-                          CloseButtonContent="知道啦">
-        </muxc:TeachingTip>
     </Page.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -193,9 +182,9 @@
                                           Spacing="0" />
                     </muxc:ItemsRepeater.Layout>
                     <muxc:ItemsRepeater.ItemTemplate>
-                        <DataTemplate x:DataType="Cls:AddressBlock">
+                        <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <Button Content="{x:Bind Name}"
+                                <Button Content="{Binding}"
                                         VerticalAlignment="Center"
                                         Name="AddressButton"
                                         Padding="3,5,3,6"
@@ -284,11 +273,11 @@
                 <ColumnDefinition Width="{x:Bind TreeViewGridCol.Width,Mode=OneWay,Converter={StaticResource Converter}}" />
                 <ColumnDefinition Width="6.5*" />
             </Grid.ColumnDefinitions>
-            <Frame Name="Nav"
-                   Margin="2,0,2,0"
-                   Grid.Column="2"
-                   x:FieldModifier="Public"
-                   PointerWheelChanged="Nav_PointerWheelChanged" />
+            <local:FilePresenter Margin="2,0,2,0"
+                                 Grid.Column="2"
+                                 x:Name="Presenter"
+                                 x:FieldModifier="public"
+                                 PointerWheelChanged="Presenter_PointerWheelChanged" />
             <muxc:TreeView Name="FolderTree"
                            x:FieldModifier="public"
                            Expanding="FolderTree_Expanding"

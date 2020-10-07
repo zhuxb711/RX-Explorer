@@ -664,12 +664,6 @@
   <data name="SearchCopyPath.Label" xml:space="preserve">
     <value>Copier le chemin complet</value>
   </data>
-  <data name="SearchTip.CloseButtonContent" xml:space="preserve">
-    <value>Compris</value>
-  </data>
-  <data name="SearchTip.Subtitle" xml:space="preserve">
-    <value>Videz cette boîte de recherche ou cliquez sur n'importe quel dossier pour annuler la recherche</value>
-  </data>
   <data name="SearchType.Text" xml:space="preserve">
     <value>Type</value>
   </data>
@@ -2501,5 +2495,26 @@ Les noms non valides incluent
   </data>
   <data name="MulSelect.Label" xml:space="preserve">
     <value>Sélection multiple</value>
+  </data>
+  <data name="Operate_Text_MultiSelect" xml:space="preserve">
+    <value>Sélection multiple</value>
+  </data>
+  <data name="BuildIn_CropperPage_Description" xml:space="preserve">
+    <value>Éditeur d'image intégré</value>
+  </data>
+  <data name="BuildIn_MediaPlayer_Description" xml:space="preserve">
+    <value>Lecteur multimédia intégré</value>
+  </data>
+  <data name="BuildIn_PdfReader_Description" xml:space="preserve">
+    <value>Visionneuse PDF intégrée</value>
+  </data>
+  <data name="BuildIn_PhotoViewer_Description" xml:space="preserve">
+    <value>Visionneuse d'images intégrée</value>
+  </data>
+  <data name="BuildIn_SearchPage_Description" xml:space="preserve">
+    <value>Chercheur</value>
+  </data>
+  <data name="BuildIn_TextViewer_Description" xml:space="preserve">
+    <value>Éditeur de texte intégré</value>
   </data>
 </root>

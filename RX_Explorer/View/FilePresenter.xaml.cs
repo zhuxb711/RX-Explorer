@@ -32,7 +32,6 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
-using Windows.UI.Xaml.Navigation;
 using ZXing;
 using ZXing.QrCode;
 using ZXing.QrCode.Internal;
@@ -51,8 +50,6 @@ namespace RX_Explorer
         private int ViewDropLock;
 
         private CancellationTokenSource HashCancellation;
-
-        public StorageAreaWatcher AreaWatcher { get; private set; }
 
         private ListViewBase itemPresenter;
         public ListViewBase ItemPresenter
@@ -143,12 +140,16 @@ namespace RX_Explorer
         {
             CoreWindow.GetForCurrentThread().KeyDown -= Window_KeyDown;
             Dispatcher.AcceleratorKeyActivated -= Dispatcher_AcceleratorKeyActivated;
+
+            FileControlInstance = null;
         }
 
         private void FilePresenter_Loaded(object sender, RoutedEventArgs e)
         {
             CoreWindow.GetForCurrentThread().KeyDown += Window_KeyDown;
             Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
+
+            FileControlInstance = this.FindParentOfType<FileControl>();
         }
 
         private void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
@@ -168,18 +169,6 @@ namespace RX_Explorer
                             break;
                         }
                 }
-            }
-        }
-
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            if (e?.Parameter is FileControl Instance)
-            {
-                CommonAccessCollection.Register(Instance, this);
-
-                FileControlInstance = Instance;
-
-                AreaWatcher = new StorageAreaWatcher(FileCollection, FileControlInstance.FolderTree);
             }
         }
 
@@ -3131,7 +3120,7 @@ namespace RX_Explorer
         {
             FileControlInstance.IsSearchOrPathBoxFocused = false;
 
-            if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is FileSystemStorageItemBase ReFile)
+            if (!SettingControl.IsDoubleClickEnable && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple && e.ClickedItem is FileSystemStorageItemBase ReFile)
             {
                 CoreVirtualKeyStates CtrlState = Window.Current.CoreWindow.GetKeyState(VirtualKey.Control);
                 CoreVirtualKeyStates ShiftState = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift);
@@ -3270,11 +3259,11 @@ namespace RX_Explorer
                                                         {
                                                             if (AnimationController.Current.IsEnableAnimation)
                                                             {
-                                                                FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, File.Name), new DrillInNavigationTransitionInfo());
+                                                                FileControlInstance.Frame.Navigate(typeof(PhotoViewer), File.Path, new DrillInNavigationTransitionInfo());
                                                             }
                                                             else
                                                             {
-                                                                FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, File.Name), new SuppressNavigationTransitionInfo());
+                                                                FileControlInstance.Frame.Navigate(typeof(PhotoViewer), File.Path, new SuppressNavigationTransitionInfo());
                                                             }
                                                             break;
                                                         }
@@ -3290,11 +3279,11 @@ namespace RX_Explorer
                                                         {
                                                             if (AnimationController.Current.IsEnableAnimation)
                                                             {
-                                                                FileControlInstance.Nav.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
+                                                                FileControlInstance.Frame.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
                                                             }
                                                             else
                                                             {
-                                                                FileControlInstance.Nav.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
+                                                                FileControlInstance.Frame.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
                                                             }
                                                             break;
                                                         }
@@ -3302,11 +3291,11 @@ namespace RX_Explorer
                                                         {
                                                             if (AnimationController.Current.IsEnableAnimation)
                                                             {
-                                                                FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, StorageFile>(FileControlInstance, File), new DrillInNavigationTransitionInfo());
+                                                                FileControlInstance.Frame.Navigate(typeof(TextViewer), File, new DrillInNavigationTransitionInfo());
                                                             }
                                                             else
                                                             {
-                                                                FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, StorageFile>(FileControlInstance, File), new SuppressNavigationTransitionInfo());
+                                                                FileControlInstance.Frame.Navigate(typeof(TextViewer), File, new SuppressNavigationTransitionInfo());
                                                             }
                                                             break;
                                                         }
@@ -3314,11 +3303,11 @@ namespace RX_Explorer
                                                         {
                                                             if (AnimationController.Current.IsEnableAnimation)
                                                             {
-                                                                FileControlInstance.Nav.Navigate(typeof(PdfReader), new Tuple<Frame, StorageFile>(FileControlInstance.Nav, File), new DrillInNavigationTransitionInfo());
+                                                                FileControlInstance.Frame.Navigate(typeof(PdfReader), File, new DrillInNavigationTransitionInfo());
                                                             }
                                                             else
                                                             {
-                                                                FileControlInstance.Nav.Navigate(typeof(PdfReader), new Tuple<Frame, StorageFile>(FileControlInstance.Nav, File), new SuppressNavigationTransitionInfo());
+                                                                FileControlInstance.Frame.Navigate(typeof(PdfReader), File, new SuppressNavigationTransitionInfo());
                                                             }
                                                             break;
                                                         }
@@ -3413,11 +3402,11 @@ namespace RX_Explorer
                                                     {
                                                         if (AnimationController.Current.IsEnableAnimation)
                                                         {
-                                                            FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, File.Name), new DrillInNavigationTransitionInfo());
+                                                            FileControlInstance.Frame.Navigate(typeof(PhotoViewer), File.Path, new DrillInNavigationTransitionInfo());
                                                         }
                                                         else
                                                         {
-                                                            FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, File.Name), new SuppressNavigationTransitionInfo());
+                                                            FileControlInstance.Frame.Navigate(typeof(PhotoViewer), File.Path, new SuppressNavigationTransitionInfo());
                                                         }
                                                         break;
                                                     }
@@ -3433,11 +3422,11 @@ namespace RX_Explorer
                                                     {
                                                         if (AnimationController.Current.IsEnableAnimation)
                                                         {
-                                                            FileControlInstance.Nav.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
+                                                            FileControlInstance.Frame.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
                                                         }
                                                         else
                                                         {
-                                                            FileControlInstance.Nav.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
+                                                            FileControlInstance.Frame.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
                                                         }
                                                         break;
                                                     }
@@ -3445,11 +3434,11 @@ namespace RX_Explorer
                                                     {
                                                         if (AnimationController.Current.IsEnableAnimation)
                                                         {
-                                                            FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, StorageFile>(FileControlInstance, File), new DrillInNavigationTransitionInfo());
+                                                            FileControlInstance.Frame.Navigate(typeof(TextViewer), File, new DrillInNavigationTransitionInfo());
                                                         }
                                                         else
                                                         {
-                                                            FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, StorageFile>(FileControlInstance, File), new SuppressNavigationTransitionInfo());
+                                                            FileControlInstance.Frame.Navigate(typeof(TextViewer), File, new SuppressNavigationTransitionInfo());
                                                         }
                                                         break;
                                                     }
@@ -3457,11 +3446,11 @@ namespace RX_Explorer
                                                     {
                                                         if (AnimationController.Current.IsEnableAnimation)
                                                         {
-                                                            FileControlInstance.Nav.Navigate(typeof(PdfReader), new Tuple<Frame, StorageFile>(FileControlInstance.Nav, File), new DrillInNavigationTransitionInfo());
+                                                            FileControlInstance.Frame.Navigate(typeof(PdfReader), File, new DrillInNavigationTransitionInfo());
                                                         }
                                                         else
                                                         {
-                                                            FileControlInstance.Nav.Navigate(typeof(PdfReader), new Tuple<Frame, StorageFile>(FileControlInstance.Nav, File), new SuppressNavigationTransitionInfo());
+                                                            FileControlInstance.Frame.Navigate(typeof(PdfReader), File, new SuppressNavigationTransitionInfo());
                                                         }
                                                         break;
                                                     }
@@ -3551,11 +3540,11 @@ namespace RX_Explorer
                                     {
                                         if (AnimationController.Current.IsEnableAnimation)
                                         {
-                                            FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, File.Name), new DrillInNavigationTransitionInfo());
+                                            FileControlInstance.Frame.Navigate(typeof(PhotoViewer), File.Path, new DrillInNavigationTransitionInfo());
                                         }
                                         else
                                         {
-                                            FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, File.Name), new SuppressNavigationTransitionInfo());
+                                            FileControlInstance.Frame.Navigate(typeof(PhotoViewer), File.Path, new SuppressNavigationTransitionInfo());
                                         }
                                         break;
                                     }
@@ -3571,11 +3560,11 @@ namespace RX_Explorer
                                     {
                                         if (AnimationController.Current.IsEnableAnimation)
                                         {
-                                            FileControlInstance.Nav.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
+                                            FileControlInstance.Frame.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
                                         }
                                         else
                                         {
-                                            FileControlInstance.Nav.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
+                                            FileControlInstance.Frame.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
                                         }
                                         break;
                                     }
@@ -3583,11 +3572,11 @@ namespace RX_Explorer
                                     {
                                         if (AnimationController.Current.IsEnableAnimation)
                                         {
-                                            FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, StorageFile>(FileControlInstance, File), new DrillInNavigationTransitionInfo());
+                                            FileControlInstance.Frame.Navigate(typeof(TextViewer), File, new DrillInNavigationTransitionInfo());
                                         }
                                         else
                                         {
-                                            FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, StorageFile>(FileControlInstance, File), new SuppressNavigationTransitionInfo());
+                                            FileControlInstance.Frame.Navigate(typeof(TextViewer), File, new SuppressNavigationTransitionInfo());
                                         }
                                         break;
                                     }
@@ -3595,11 +3584,11 @@ namespace RX_Explorer
                                     {
                                         if (AnimationController.Current.IsEnableAnimation)
                                         {
-                                            FileControlInstance.Nav.Navigate(typeof(PdfReader), new Tuple<Frame, StorageFile>(FileControlInstance.Nav, File), new DrillInNavigationTransitionInfo());
+                                            FileControlInstance.Frame.Navigate(typeof(PdfReader), File, new DrillInNavigationTransitionInfo());
                                         }
                                         else
                                         {
-                                            FileControlInstance.Nav.Navigate(typeof(PdfReader), new Tuple<Frame, StorageFile>(FileControlInstance.Nav, File), new SuppressNavigationTransitionInfo());
+                                            FileControlInstance.Frame.Navigate(typeof(PdfReader), File, new SuppressNavigationTransitionInfo());
                                         }
                                         break;
                                     }
@@ -3679,11 +3668,11 @@ namespace RX_Explorer
                                                         {
                                                             if (AnimationController.Current.IsEnableAnimation)
                                                             {
-                                                                FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, File.Name), new DrillInNavigationTransitionInfo());
+                                                                FileControlInstance.Frame.Navigate(typeof(PhotoViewer), File.Path, new DrillInNavigationTransitionInfo());
                                                             }
                                                             else
                                                             {
-                                                                FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, File.Name), new SuppressNavigationTransitionInfo());
+                                                                FileControlInstance.Frame.Navigate(typeof(PhotoViewer), File.Path, new SuppressNavigationTransitionInfo());
                                                             }
                                                             break;
                                                         }
@@ -3699,11 +3688,11 @@ namespace RX_Explorer
                                                         {
                                                             if (AnimationController.Current.IsEnableAnimation)
                                                             {
-                                                                FileControlInstance.Nav.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
+                                                                FileControlInstance.Frame.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
                                                             }
                                                             else
                                                             {
-                                                                FileControlInstance.Nav.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
+                                                                FileControlInstance.Frame.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
                                                             }
                                                             break;
                                                         }
@@ -3711,11 +3700,11 @@ namespace RX_Explorer
                                                         {
                                                             if (AnimationController.Current.IsEnableAnimation)
                                                             {
-                                                                FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, StorageFile>(FileControlInstance, File), new DrillInNavigationTransitionInfo());
+                                                                FileControlInstance.Frame.Navigate(typeof(TextViewer), File, new DrillInNavigationTransitionInfo());
                                                             }
                                                             else
                                                             {
-                                                                FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, StorageFile>(FileControlInstance, File), new SuppressNavigationTransitionInfo());
+                                                                FileControlInstance.Frame.Navigate(typeof(TextViewer), File, new SuppressNavigationTransitionInfo());
                                                             }
                                                             break;
                                                         }
@@ -3723,11 +3712,11 @@ namespace RX_Explorer
                                                         {
                                                             if (AnimationController.Current.IsEnableAnimation)
                                                             {
-                                                                FileControlInstance.Nav.Navigate(typeof(PdfReader), new Tuple<Frame, StorageFile>(FileControlInstance.Nav, File), new DrillInNavigationTransitionInfo());
+                                                                FileControlInstance.Frame.Navigate(typeof(PdfReader), File, new DrillInNavigationTransitionInfo());
                                                             }
                                                             else
                                                             {
-                                                                FileControlInstance.Nav.Navigate(typeof(PdfReader), new Tuple<Frame, StorageFile>(FileControlInstance.Nav, File), new SuppressNavigationTransitionInfo());
+                                                                FileControlInstance.Frame.Navigate(typeof(PdfReader), File, new SuppressNavigationTransitionInfo());
                                                             }
                                                             break;
                                                         }
@@ -3942,11 +3931,11 @@ namespace RX_Explorer
                                 {
                                     if (AnimationController.Current.IsEnableAnimation)
                                     {
-                                        FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, Item.Name), new DrillInNavigationTransitionInfo());
+                                        FileControlInstance.Frame.Navigate(typeof(PhotoViewer), Item.Path, new DrillInNavigationTransitionInfo());
                                     }
                                     else
                                     {
-                                        FileControlInstance.Nav.Navigate(typeof(PhotoViewer), new Tuple<FileControl, string>(FileControlInstance, Item.Name), new SuppressNavigationTransitionInfo());
+                                        FileControlInstance.Frame.Navigate(typeof(PhotoViewer), Item.Path, new SuppressNavigationTransitionInfo());
                                     }
                                     break;
                                 }
@@ -3962,11 +3951,11 @@ namespace RX_Explorer
                                 {
                                     if (AnimationController.Current.IsEnableAnimation)
                                     {
-                                        FileControlInstance.Nav.Navigate(typeof(MediaPlayer), Item, new DrillInNavigationTransitionInfo());
+                                        FileControlInstance.Frame.Navigate(typeof(MediaPlayer), Item, new DrillInNavigationTransitionInfo());
                                     }
                                     else
                                     {
-                                        FileControlInstance.Nav.Navigate(typeof(MediaPlayer), Item, new SuppressNavigationTransitionInfo());
+                                        FileControlInstance.Frame.Navigate(typeof(MediaPlayer), Item, new SuppressNavigationTransitionInfo());
                                     }
                                     break;
                                 }
@@ -3974,11 +3963,11 @@ namespace RX_Explorer
                                 {
                                     if (AnimationController.Current.IsEnableAnimation)
                                     {
-                                        FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, StorageFile>(FileControlInstance, Item), new DrillInNavigationTransitionInfo());
+                                        FileControlInstance.Frame.Navigate(typeof(TextViewer), Item, new DrillInNavigationTransitionInfo());
                                     }
                                     else
                                     {
-                                        FileControlInstance.Nav.Navigate(typeof(TextViewer), new Tuple<FileControl, StorageFile>(FileControlInstance, Item), new SuppressNavigationTransitionInfo());
+                                        FileControlInstance.Frame.Navigate(typeof(TextViewer), Item, new SuppressNavigationTransitionInfo());
                                     }
                                     break;
                                 }
@@ -3986,11 +3975,11 @@ namespace RX_Explorer
                                 {
                                     if (AnimationController.Current.IsEnableAnimation)
                                     {
-                                        FileControlInstance.Nav.Navigate(typeof(PdfReader), new Tuple<Frame, StorageFile>(FileControlInstance.Nav, Item), new DrillInNavigationTransitionInfo());
+                                        FileControlInstance.Frame.Navigate(typeof(PdfReader), Item, new DrillInNavigationTransitionInfo());
                                     }
                                     else
                                     {
-                                        FileControlInstance.Nav.Navigate(typeof(PdfReader), new Tuple<Frame, StorageFile>(FileControlInstance.Nav, Item), new SuppressNavigationTransitionInfo());
+                                        FileControlInstance.Frame.Navigate(typeof(PdfReader), Item, new SuppressNavigationTransitionInfo());
                                     }
                                     break;
                                 }
@@ -4943,7 +4932,7 @@ namespace RX_Explorer
 
         private void ItemContainer_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (!SettingControl.IsDoubleClickEnable && e.KeyModifiers != VirtualKeyModifiers.Control && e.KeyModifiers != VirtualKeyModifiers.Shift)
+            if (!SettingControl.IsDoubleClickEnable && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple && e.KeyModifiers != VirtualKeyModifiers.Control && e.KeyModifiers != VirtualKeyModifiers.Shift)
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
                 {
@@ -6868,6 +6857,14 @@ namespace RX_Explorer
                     {
                         IsEnableUndo = false;
                     }
+
+                    AppBarButton MultiSelectButton = new AppBarButton
+                    {
+                        Icon = new FontIcon { Glyph = "\uE762" },
+                        Label = Globalization.GetString("Operate_Text_MultiSelect")
+                    };
+                    MultiSelectButton.Click += MulSelect_Click;
+                    BottomCommandBar.PrimaryCommands.Add(MultiSelectButton);
 
                     AppBarButton PasteButton = new AppBarButton
                     {

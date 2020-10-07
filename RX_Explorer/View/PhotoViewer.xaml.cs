@@ -27,13 +27,11 @@ namespace RX_Explorer
     {
         ObservableCollection<PhotoDisplaySupport> PhotoCollection;
         AnimationFlipViewBehavior Behavior = new AnimationFlipViewBehavior();
-        string SelectedPhotoName;
+        string SelectedPhotoPath;
         int LastSelectIndex;
         double OriginHorizonOffset;
         double OriginVerticalOffset;
         Point OriginMousePosition;
-        bool IsNavigateToCropperPage;
-        FileControl FileControlInstance;
         CancellationTokenSource Cancellation;
         Queue<int> LoadQueue;
         private int LockResource;
@@ -46,10 +44,9 @@ namespace RX_Explorer
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is Tuple<FileControl, string> Parameters)
+            if (e.NavigationMode == NavigationMode.New && e.Parameter is string Parameters)
             {
-                FileControlInstance = Parameters.Item1;
-                SelectedPhotoName = Parameters.Item2;
+                SelectedPhotoPath = Parameters;
 
                 await Initialize().ConfigureAwait(false);
             }
@@ -57,13 +54,6 @@ namespace RX_Explorer
 
         private async Task Initialize()
         {
-            if (IsNavigateToCropperPage)
-            {
-                IsNavigateToCropperPage = false;
-                await PhotoCollection[Flip.SelectedIndex].UpdateImage().ConfigureAwait(true);
-                return;
-            }
-
             try
             {
                 ExitLocker = new ManualResetEvent(false);
@@ -74,9 +64,9 @@ namespace RX_Explorer
 
                 Behavior.Attach(Flip);
 
-                List<FileSystemStorageItemBase> FileList = WIN_Native_API.GetStorageItems(FileControlInstance.CurrentFolder, false, ItemFilters.File).Where((Item) => Item.Type.Equals(".png", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".bmp", StringComparison.OrdinalIgnoreCase)).ToList();
+                List<FileSystemStorageItemBase> FileList = WIN_Native_API.GetStorageItems(Path.GetDirectoryName(SelectedPhotoPath), false, ItemFilters.File).Where((Item) => Item.Type.Equals(".png", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".bmp", StringComparison.OrdinalIgnoreCase)).ToList();
 
-                int LastSelectIndex = FileList.FindIndex((Photo) => Photo.Name == SelectedPhotoName);
+                int LastSelectIndex = FileList.FindIndex((Photo) => Photo.Path == SelectedPhotoPath);
                 if (LastSelectIndex < 0 || LastSelectIndex >= FileList.Count)
                 {
                     LastSelectIndex = 0;
@@ -92,7 +82,7 @@ namespace RX_Explorer
                     };
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                    FileControlInstance.Nav.GoBack();
+                    Frame.GoBack();
                     return;
                 }
 
@@ -155,30 +145,27 @@ namespace RX_Explorer
 
         protected async override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            if (IsNavigateToCropperPage)
+            if (e.NavigationMode == NavigationMode.Back)
             {
-                return;
+                Cancellation?.Cancel();
+
+                await Task.Run(() =>
+                {
+                    ExitLocker.WaitOne();
+                }).ConfigureAwait(true);
+
+                ExitLocker.Dispose();
+                ExitLocker = null;
+                Cancellation.Dispose();
+                Cancellation = null;
+                Behavior.Detach();
+                PhotoCollection?.Clear();
+                PhotoCollection = null;
+                SelectedPhotoPath = string.Empty;
+                Flip.SelectionChanged -= Flip_SelectionChanged;
+                Flip.SelectionChanged -= Flip_SelectionChanged1;
+                Flip.Opacity = 0;
             }
-
-            Cancellation?.Cancel();
-
-            await Task.Run(() =>
-            {
-                ExitLocker.WaitOne();
-            }).ConfigureAwait(true);
-
-            FileControlInstance = null;
-            ExitLocker.Dispose();
-            ExitLocker = null;
-            Cancellation.Dispose();
-            Cancellation = null;
-            Behavior.Detach();
-            PhotoCollection?.Clear();
-            PhotoCollection = null;
-            SelectedPhotoName = string.Empty;
-            Flip.SelectionChanged -= Flip_SelectionChanged;
-            Flip.SelectionChanged -= Flip_SelectionChanged1;
-            Flip.Opacity = 0;
         }
 
         private async void Flip_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -261,7 +248,7 @@ namespace RX_Explorer
 
             if (Viewer.ZoomFactor != 1 && e.Pointer.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                Window.Current.CoreWindow.PointerCursor = new Windows.UI.Core.CoreCursor(Windows.UI.Core.CoreCursorType.Hand, 0);
+                Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.Hand, 0);
                 var Point = e.GetCurrentPoint(Viewer);
                 if (Point.Properties.IsLeftButtonPressed)
                 {
@@ -274,7 +261,7 @@ namespace RX_Explorer
 
         private void ScrollViewerMain_PointerReleased(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            Window.Current.CoreWindow.PointerCursor = new Windows.UI.Core.CoreCursor(Windows.UI.Core.CoreCursorType.Arrow, 0);
+            Window.Current.CoreWindow.PointerCursor = new CoreCursor(CoreCursorType.Arrow, 0);
         }
 
         private async void ImageRotate_Click(object sender, RoutedEventArgs e)
@@ -467,16 +454,15 @@ namespace RX_Explorer
 
         private void Adjust_Click(object sender, RoutedEventArgs e)
         {
-            IsNavigateToCropperPage = true;
             try
             {
                 if (AnimationController.Current.IsEnableAnimation)
                 {
-                    FileControlInstance.Nav.Navigate(typeof(CropperPage), new Tuple<Frame, object>(FileControlInstance.Nav, Flip.SelectedItem), new DrillInNavigationTransitionInfo());
+                    Frame.Navigate(typeof(CropperPage), Flip.SelectedItem, new DrillInNavigationTransitionInfo());
                 }
                 else
                 {
-                    FileControlInstance.Nav.Navigate(typeof(CropperPage), new Tuple<Frame, object>(FileControlInstance.Nav, Flip.SelectedItem), new SuppressNavigationTransitionInfo());
+                    Frame.Navigate(typeof(CropperPage), Flip.SelectedItem, new SuppressNavigationTransitionInfo());
                 }
             }
             catch (Exception ex)

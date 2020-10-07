@@ -664,12 +664,6 @@
   <data name="SearchCopyPath.Label" xml:space="preserve">
     <value>复制完整路径</value>
   </data>
-  <data name="SearchTip.CloseButtonContent" xml:space="preserve">
-    <value>知道了</value>
-  </data>
-  <data name="SearchTip.Subtitle" xml:space="preserve">
-    <value>清空搜索框或点击任意其他文件夹即可退出搜索页面</value>
-  </data>
   <data name="SearchType.Text" xml:space="preserve">
     <value>类型</value>
   </data>
@@ -2501,5 +2495,26 @@
   </data>
   <data name="MulSelect.Label" xml:space="preserve">
     <value>多选</value>
+  </data>
+  <data name="Operate_Text_MultiSelect" xml:space="preserve">
+    <value>多选</value>
+  </data>
+  <data name="BuildIn_CropperPage_Description" xml:space="preserve">
+    <value>内置图片编辑器</value>
+  </data>
+  <data name="BuildIn_MediaPlayer_Description" xml:space="preserve">
+    <value>内置媒体播放器</value>
+  </data>
+  <data name="BuildIn_PdfReader_Description" xml:space="preserve">
+    <value>内置PDF查看器</value>
+  </data>
+  <data name="BuildIn_PhotoViewer_Description" xml:space="preserve">
+    <value>内置图片查看器</value>
+  </data>
+  <data name="BuildIn_SearchPage_Description" xml:space="preserve">
+    <value>搜索</value>
+  </data>
+  <data name="BuildIn_TextViewer_Description" xml:space="preserve">
+    <value>内置文本编辑器</value>
   </data>
 </root>

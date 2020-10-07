@@ -26,7 +26,6 @@ namespace RX_Explorer
         StorageFile OriginFile;
         Rect UnchangeRegion;
         ObservableCollection<FilterItem> FilterCollection = new ObservableCollection<FilterItem>();
-        Frame FileControlNav;
 
         public CropperPage()
         {
@@ -46,11 +45,8 @@ namespace RX_Explorer
         {
             try
             {
-                if (e?.Parameter is Tuple<Frame, object> Parameters)
+                if (e?.Parameter is PhotoDisplaySupport Item)
                 {
-                    FileControlNav = Parameters.Item1;
-
-                    PhotoDisplaySupport Item = Parameters.Item2 as PhotoDisplaySupport;
                     OriginFile = (await Item.PhotoFile.GetStorageItem().ConfigureAwait(true)) as StorageFile;
                     OriginImage = await Item.GenerateImageWithRotation().ConfigureAwait(true);
                     OriginBackupImage = SoftwareBitmap.Copy(OriginImage);
@@ -170,7 +166,7 @@ namespace RX_Explorer
 
         private void OptionCancel_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
-            FileControlNav.GoBack();
+            Frame.GoBack();
         }
 
         private async void SaveAs_Click(SplitButton sender, SplitButtonClickEventArgs args)
@@ -223,7 +219,8 @@ namespace RX_Explorer
                 await Task.Delay(1000).ConfigureAwait(true);
                 LoadingControl.IsLoading = false;
                 MainPage.ThisPage.IsAnyTaskRunning = false;
-                FileControlNav.GoBack();
+
+                Frame.GoBack();
             }
         }
 
@@ -346,7 +343,7 @@ namespace RX_Explorer
             LoadingControl.IsLoading = false;
             MainPage.ThisPage.IsAnyTaskRunning = false;
 
-            FileControlNav.GoBack();
+            Frame.GoBack();
         }
 
         private void RotationButton_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)

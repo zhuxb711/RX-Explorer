@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RX_Explorer.Class;
+using System;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -13,7 +14,6 @@ namespace RX_Explorer
     public sealed partial class TextViewer : Page
     {
         private StorageFile SFile;
-        private FileControl FileControlInstance;
 
         public TextViewer()
         {
@@ -57,10 +57,9 @@ namespace RX_Explorer
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e?.Parameter is Tuple<FileControl, StorageFile> Parameters)
+            if (e?.Parameter is StorageFile Parameters)
             {
-                FileControlInstance = Parameters.Item1;
-                SFile = Parameters.Item2;
+                SFile = Parameters;
                 Title.Text = SFile.Name;
 
                 await Initialize().ConfigureAwait(false);
@@ -78,12 +77,13 @@ namespace RX_Explorer
             StorageFolder Folder = await SFile.GetParentAsync();
             StorageFile NewFile = await Folder.CreateFileAsync(SFile.Name, CreationCollisionOption.ReplaceExisting);
             await FileIO.WriteTextAsync(NewFile, Text.Text);
-            FileControlInstance.Nav.GoBack();
+
+            Frame.GoBack();
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
-            FileControlInstance.Nav.GoBack();
+            Frame.GoBack();
         }
     }
 }

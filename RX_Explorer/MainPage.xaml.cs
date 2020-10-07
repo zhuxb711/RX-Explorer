@@ -171,7 +171,8 @@ namespace RX_Explorer
 
         private void MainPage_BackRequested(object sender, BackRequestedEventArgs e)
         {
-            TabViewContainer.GoBack();
+            NavView_BackRequested(null, null);
+
             e.Handled = true;
         }
 
@@ -752,7 +753,10 @@ namespace RX_Explorer
             }
             else
             {
-                TabViewContainer.GoBack();
+                if (TabViewContainer.CurrentTabNavigation.CanGoBack)
+                {
+                    TabViewContainer.CurrentTabNavigation.GoBack();
+                }
             }
         }
     }

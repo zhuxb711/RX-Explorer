@@ -1,12 +1,10 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
-using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Portable;
@@ -27,7 +25,6 @@ namespace RX_Explorer
 {
     public sealed partial class ThisPC : Page
     {
-        private Frame Nav;
         private TabViewItem TabItem;
         private QuickStartItem CurrentSelectedItem;
         private int LockResource;
@@ -39,10 +36,9 @@ namespace RX_Explorer
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e?.Parameter is Tuple<TabViewItem, Frame> Parameters)
+            if (e?.Parameter is TabViewItem Parameters)
             {
-                Nav = Parameters.Item2;
-                TabItem = Parameters.Item1;
+                TabItem = Parameters;
                 TabItem.Header = Globalization.GetString("MainPage_PageDictionary_ThisPC_Label");
             }
         }
@@ -134,11 +130,11 @@ namespace RX_Explorer
                     {
                         if (AnimationController.Current.IsEnableAnimation)
                         {
-                            Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new DrillInNavigationTransitionInfo());
+                            Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Device.Folder), new DrillInNavigationTransitionInfo());
                         }
                         else
                         {
-                            Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new SuppressNavigationTransitionInfo());
+                            Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Device.Folder), new SuppressNavigationTransitionInfo());
                         }
                     }
                 }
@@ -157,11 +153,11 @@ namespace RX_Explorer
                 {
                     if (AnimationController.Current.IsEnableAnimation)
                     {
-                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new DrillInNavigationTransitionInfo());
+                        Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Library.Folder), new DrillInNavigationTransitionInfo());
                     }
                     else
                     {
-                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new SuppressNavigationTransitionInfo());
+                        Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Library.Folder), new SuppressNavigationTransitionInfo());
                     }
                 }
             }
@@ -358,11 +354,11 @@ namespace RX_Explorer
                     {
                         if (AnimationController.Current.IsEnableAnimation)
                         {
-                            Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new DrillInNavigationTransitionInfo());
+                            Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Device.Folder), new DrillInNavigationTransitionInfo());
                         }
                         else
                         {
-                            Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new SuppressNavigationTransitionInfo());
+                            Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Device.Folder), new SuppressNavigationTransitionInfo());
                         }
                     }
                 }
@@ -427,11 +423,11 @@ namespace RX_Explorer
                 {
                     if (AnimationController.Current.IsEnableAnimation)
                     {
-                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new DrillInNavigationTransitionInfo());
+                        Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Library.Folder), new DrillInNavigationTransitionInfo());
                     }
                     else
                     {
-                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new SuppressNavigationTransitionInfo());
+                        Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Library.Folder), new SuppressNavigationTransitionInfo());
                     }
                 }
             }
@@ -581,11 +577,11 @@ namespace RX_Explorer
                     {
                         if (AnimationController.Current.IsEnableAnimation)
                         {
-                            Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new DrillInNavigationTransitionInfo());
+                            Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Device.Folder), new DrillInNavigationTransitionInfo());
                         }
                         else
                         {
-                            Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Device.Folder, this), new SuppressNavigationTransitionInfo());
+                            Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Device.Folder), new SuppressNavigationTransitionInfo());
                         }
                     }
                 }
@@ -606,11 +602,11 @@ namespace RX_Explorer
                 {
                     if (AnimationController.Current.IsEnableAnimation)
                     {
-                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new DrillInNavigationTransitionInfo());
+                        Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Library.Folder), new DrillInNavigationTransitionInfo());
                     }
                     else
                     {
-                        Nav.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder, ThisPC>(TabItem, Library.Folder, this), new SuppressNavigationTransitionInfo());
+                        Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Library.Folder), new SuppressNavigationTransitionInfo());
                     }
                 }
             }
@@ -758,12 +754,13 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    foreach(TabViewItem Tab in TabViewContainer.ThisPage.TabViewControl.TabItems.Select((Tab)=>Tab as TabViewItem).Where((Tab)=> (Tab.Content as Frame)?.Content is FileControl Control && Control.CurrentFolder.Path == Item.Folder.Path).ToArray())
+                    foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabViewControl.TabItems.Select((Tab) => Tab as TabViewItem).Where((Tab) => (Tab.Content as Frame)?.Content is FileControl Control && Control.CurrentFolder.Path == Item.Folder.Path).ToArray())
                     {
-                        if ((Tab.Content as Frame).Content is FileControl Control)
+                        Frame frame = Tab.Content as Frame;
+
+                        while (!(frame.Content is ThisPC) && frame.CanGoBack)
                         {
-                            Control.Dispose();
-                            CommonAccessCollection.UnRegister(Control);
+                            frame.GoBack();
                         }
 
                         Tab.DragEnter -= TabViewContainer.ThisPage.Item_DragEnter;

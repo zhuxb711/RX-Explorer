@@ -50,7 +50,7 @@ namespace RX_Explorer
                 {
                     if (!IsNetworkDevice)
                     {
-                        CommonAccessCollection.GetFilePresenterInstance(this).AreaWatcher.StartWatchDirectory(Content.Path, SettingControl.IsDisplayHiddenItem);
+                        AreaWatcher.StartWatchDirectory(Content.Path, SettingControl.IsDisplayHiddenItem);
                     }
 
                     CurrentPath = Content.Path;
@@ -61,7 +61,7 @@ namespace RX_Explorer
 
                     UpdateAddressButton(Content.Path);
 
-                    CommonAccessCollection.GetFilePresenterInstance(this).ItemPresenter.Focus(FocusState.Programmatic);
+                    Presenter.ItemPresenter.Focus(FocusState.Programmatic);
 
                     string PlaceText;
                     if (Content.DisplayName.Length > 22)
@@ -101,7 +101,9 @@ namespace RX_Explorer
 
         private volatile StorageFolder currentFolder;
 
-        private readonly SemaphoreSlim EnterLock = new SemaphoreSlim(1, 1);
+        private SemaphoreSlim EnterLock;
+
+        private StorageAreaWatcher AreaWatcher;
 
         public bool IsNetworkDevice { get; private set; }
 
@@ -135,12 +137,12 @@ namespace RX_Explorer
                 {
                     if (!IsNetworkDevice)
                     {
-                        CommonAccessCollection.GetFilePresenterInstance(this).AreaWatcher.StartWatchDirectory(value.Path, SettingControl.IsDisplayHiddenItem);
+                        AreaWatcher.StartWatchDirectory(value.Path, SettingControl.IsDisplayHiddenItem);
                     }
 
                     UpdateAddressButton(value.Path);
 
-                    CommonAccessCollection.GetFilePresenterInstance(this).ItemPresenter.Focus(FocusState.Programmatic);
+                    Presenter.ItemPresenter.Focus(FocusState.Programmatic);
 
                     string PlaceText;
                     if (value.DisplayName.Length > 22)
@@ -186,7 +188,7 @@ namespace RX_Explorer
         public bool IsSearchOrPathBoxFocused { get; set; }
 
         private List<string> GoAndBackRecord = new List<string>();
-        private ObservableCollection<AddressBlock> AddressButtonList = new ObservableCollection<AddressBlock>();
+        private ObservableCollection<string> AddressButtonList = new ObservableCollection<string>();
         private ObservableCollection<string> AddressExtentionList = new ObservableCollection<string>();
         private volatile int recordIndex;
         private bool IsBackOrForwardAction;
@@ -198,15 +200,6 @@ namespace RX_Explorer
 
             try
             {
-                if (AnimationController.Current.IsEnableAnimation)
-                {
-                    Nav.Navigate(typeof(FilePresenter), this, new DrillInNavigationTransitionInfo());
-                }
-                else
-                {
-                    Nav.Navigate(typeof(FilePresenter), this, new SuppressNavigationTransitionInfo());
-                }
-
                 ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Tiles"));
                 ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Details"));
                 ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_List"));
@@ -234,10 +227,7 @@ namespace RX_Explorer
         {
             if (!IsNetworkDevice)
             {
-                if (CommonAccessCollection.GetFilePresenterInstance(this) is FilePresenter Presenter)
-                {
-                    Presenter.AreaWatcher.StartWatchDirectory(Presenter.AreaWatcher.CurrentLocation, SettingControl.IsDisplayHiddenItem);
-                }
+                AreaWatcher.StartWatchDirectory(AreaWatcher.CurrentLocation, SettingControl.IsDisplayHiddenItem);
             }
         }
 
@@ -245,10 +235,7 @@ namespace RX_Explorer
         {
             if (!IsNetworkDevice)
             {
-                if (CommonAccessCollection.GetFilePresenterInstance(this) is FilePresenter Presenter)
-                {
-                    Presenter.AreaWatcher.StopWatchDirectory();
-                }
+                AreaWatcher.StopWatchDirectory();
             }
         }
 
@@ -266,9 +253,9 @@ namespace RX_Explorer
 
             if (IsLoading)
             {
-                if (CommonAccessCollection.GetFilePresenterInstance(this).HasFile.Visibility == Visibility.Visible)
+                if (Presenter.HasFile.Visibility == Visibility.Visible)
                 {
-                    CommonAccessCollection.GetFilePresenterInstance(this).HasFile.Visibility = Visibility.Collapsed;
+                    Presenter.HasFile.Visibility = Visibility.Collapsed;
                 }
 
                 ProBar.IsIndeterminate = true;
@@ -311,13 +298,13 @@ namespace RX_Explorer
                         string RootPath = System.IO.Path.GetPathRoot(Path);
 
                         StorageFolder DriveRootFolder = await StorageFolder.GetFolderFromPathAsync(RootPath);
-                        AddressButtonList.Add(new AddressBlock(DriveRootFolder.DisplayName));
+                        AddressButtonList.Add(DriveRootFolder.DisplayName);
 
                         PathAnalysis Analysis = new PathAnalysis(Path, RootPath);
 
                         while (Analysis.HasNextLevel)
                         {
-                            AddressButtonList.Add(new AddressBlock(Analysis.NextRelativePath()));
+                            AddressButtonList.Add(Analysis.NextRelativePath());
                         }
                     }
                     else
@@ -348,13 +335,13 @@ namespace RX_Explorer
                             string RootPath = System.IO.Path.GetPathRoot(Path);
 
                             StorageFolder DriveRootFolder = await StorageFolder.GetFolderFromPathAsync(RootPath);
-                            AddressButtonList.Add(new AddressBlock(DriveRootFolder.DisplayName));
+                            AddressButtonList.Add(DriveRootFolder.DisplayName);
 
                             PathAnalysis Analysis = new PathAnalysis(Path, RootPath);
 
                             while (Analysis.HasNextLevel)
                             {
-                                AddressButtonList.Add(new AddressBlock(Analysis.NextRelativePath()));
+                                AddressButtonList.Add(Analysis.NextRelativePath());
                             }
                         }
                         else
@@ -370,7 +357,7 @@ namespace RX_Explorer
 
                             foreach (string SubPath in ExceptList)
                             {
-                                AddressButtonList.Add(new AddressBlock(SubPath));
+                                AddressButtonList.Add(SubPath);
                             }
                         }
                     }
@@ -400,8 +387,8 @@ namespace RX_Explorer
                 throw new ArgumentNullException(nameof(Stream), "Argument could not be null");
             }
 
-            CommonAccessCollection.GetFilePresenterInstance(this).FileCollection.Clear();
-            CommonAccessCollection.GetFilePresenterInstance(this).HasFile.Visibility = Visibility.Collapsed;
+            Presenter.FileCollection.Clear();
+            Presenter.HasFile.Visibility = Visibility.Collapsed;
 
             FolderTree.RootNodes.Clear();
 
@@ -416,7 +403,7 @@ namespace RX_Explorer
 
             if (SettingControl.IsDetachTreeViewAndPresenter)
             {
-                await DisplayItemsInFolder(Folder).ConfigureAwait(false);
+                await DisplayItemsInFolder(Folder, true).ConfigureAwait(false);
             }
             else
             {
@@ -450,7 +437,7 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        await DisplayItemsInFolder(TargetNode).ConfigureAwait(false);
+                        await DisplayItemsInFolder(TargetNode, true).ConfigureAwait(false);
                     }
                 }
             }
@@ -458,19 +445,15 @@ namespace RX_Explorer
 
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e?.Parameter is Tuple<TabViewItem, StorageFolder, ThisPC> Parameters)
+            if (e.NavigationMode == NavigationMode.New && e?.Parameter is Tuple<TabViewItem, StorageFolder> Parameters)
             {
                 Application.Current.Suspending += Current_Suspending;
                 Application.Current.Resuming += Current_Resuming;
+                Frame.Navigated += Frame_Navigated;
 
                 if (Parameters.Item1 != null)
                 {
                     TabItem = Parameters.Item1;
-                }
-
-                if (Parameters.Item3 != null)
-                {
-                    CommonAccessCollection.Register(Parameters.Item3, this);
                 }
 
                 if (CommonAccessCollection.HardDeviceList.FirstOrDefault((Item) => Item.Folder.Path == Path.GetPathRoot(Parameters.Item2.Path)) is HardDeviceInfo Info && Info.DriveType == DriveType.Network)
@@ -482,38 +465,51 @@ namespace RX_Explorer
                     IsNetworkDevice = false;
                 }
 
+                AreaWatcher = new StorageAreaWatcher(Presenter.FileCollection, FolderTree);
+                EnterLock = new SemaphoreSlim(1, 1);
+
                 await Initialize(Parameters.Item2).ConfigureAwait(false);
+            }
+        }
+
+        private void Frame_Navigated(object sender, NavigationEventArgs e)
+        {
+            if(e.Content is PhotoViewer)
+            {
+                TabItem.Header = Globalization.GetString("BuildIn_PhotoViewer_Description");
+            }
+            else if(e.Content is PdfReader)
+            {
+                TabItem.Header = Globalization.GetString("BuildIn_PdfReader_Description");
+            }
+            else if(e.Content is MediaPlayer)
+            {
+                TabItem.Header = Globalization.GetString("BuildIn_MediaPlayer_Description");
+            }
+            else if(e.Content is TextViewer)
+            {
+                TabItem.Header = Globalization.GetString("BuildIn_TextViewer_Description");
+            }
+            else if(e.Content is CropperPage)
+            {
+                TabItem.Header = Globalization.GetString("BuildIn_CropperPage_Description");
+            }
+            else if(e.Content is SearchPage)
+            {
+                TabItem.Header = Globalization.GetString("BuildIn_SearchPage_Description");
+            }
+            else
+            {
+                TabItem.Header = CurrentFolder.DisplayName;
             }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            while (Nav.CanGoBack)
+            if (e.NavigationMode == NavigationMode.Back)
             {
-                Nav.GoBack();
+                Dispose();
             }
-
-            AddressButtonList.Clear();
-
-            FolderTree.RootNodes.Clear();
-
-            CommonAccessCollection.GetFilePresenterInstance(this).FileCollection.Clear();
-            CommonAccessCollection.GetFilePresenterInstance(this).HasFile.Visibility = Visibility.Collapsed;
-
-            Application.Current.Suspending -= Current_Suspending;
-            Application.Current.Resuming -= Current_Resuming;
-
-            RecordIndex = 0;
-
-            GoAndBackRecord.Clear();
-
-            IsBackOrForwardAction = false;
-            GoBackRecord.IsEnabled = false;
-            GoForwardRecord.IsEnabled = false;
-            GoParentFolder.IsEnabled = false;
-
-            CurrentNode = null;
-            CurrentFolder = null;
         }
 
         /// <summary>
@@ -668,11 +664,6 @@ namespace RX_Explorer
 
                 if (Node.Content is TreeViewNodeContent Content)
                 {
-                    while (Nav.CurrentSourcePageType != typeof(FilePresenter))
-                    {
-                        Nav.GoBack();
-                    }
-
                     if (!ForceRefresh)
                     {
                         if (Content.Path == CurrentFolder?.Path)
@@ -698,8 +689,6 @@ namespace RX_Explorer
                     }
 
                     CurrentNode = Node;
-
-                    FilePresenter Presenter = CommonAccessCollection.GetFilePresenterInstance(this);
 
                     Presenter.FileCollection.Clear();
 
@@ -750,7 +739,7 @@ namespace RX_Explorer
 
                             for (int i = 0; i < ItemList.Count; i++)
                             {
-                                CommonAccessCollection.GetFilePresenterInstance(this).FileCollection.Add(ItemList[i]);
+                                Presenter.FileCollection.Add(ItemList[i]);
                             }
                         }
                     }
@@ -789,11 +778,6 @@ namespace RX_Explorer
             {
                 AddItemCancellation = new CancellationTokenSource();
 
-                while (Nav.CurrentSourcePageType != typeof(FilePresenter))
-                {
-                    Nav.GoBack();
-                }
-
                 if (!ForceRefresh)
                 {
                     if (Folder.Path == CurrentFolder?.Path)
@@ -819,8 +803,6 @@ namespace RX_Explorer
                 }
 
                 CurrentFolder = Folder;
-
-                FilePresenter Presenter = CommonAccessCollection.GetFilePresenterInstance(this);
 
                 Presenter.FileCollection.Clear();
 
@@ -1251,7 +1233,7 @@ namespace RX_Explorer
                             HasUnrealizedChildren = false
                         });
 
-                        CommonAccessCollection.GetFilePresenterInstance(this).FileCollection.Add(new FileSystemStorageItemBase(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+                        Presenter.FileCollection.Add(new FileSystemStorageItemBase(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
                     }
                 }
             }
@@ -1354,18 +1336,12 @@ namespace RX_Explorer
 
         private async void GlobeSearch_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
-            if (string.IsNullOrWhiteSpace(sender.Text))
+            if (!string.IsNullOrWhiteSpace(sender.Text))
             {
-                if (Nav.CurrentSourcePageType == typeof(SearchPage))
+                if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
                 {
-                    Nav.GoBack();
+                    sender.ItemsSource = await SQLite.Current.GetRelatedSearchHistoryAsync(sender.Text).ConfigureAwait(true);
                 }
-                return;
-            }
-
-            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
-            {
-                sender.ItemsSource = await SQLite.Current.GetRelatedSearchHistoryAsync(sender.Text).ConfigureAwait(true);
             }
         }
 
@@ -1374,12 +1350,6 @@ namespace RX_Explorer
             try
             {
                 SearchFlyout.Hide();
-
-                if (ApplicationData.Current.LocalSettings.Values["LaunchSearchTips"] == null)
-                {
-                    ApplicationData.Current.LocalSettings.Values["LaunchSearchTips"] = true;
-                    SearchTip.IsOpen = true;
-                }
 
                 QueryOptions Options;
                 if (ShallowRadio.IsChecked.GetValueOrDefault())
@@ -1404,22 +1374,15 @@ namespace RX_Explorer
                 Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 100, ThumbnailOptions.ResizeThumbnail);
                 Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.ItemTypeText", "System.ItemNameDisplayWithoutExtension", "System.FileName", "System.Size", "System.DateModified" });
 
-                if (Nav.CurrentSourcePageType.Name != "SearchPage")
-                {
-                    StorageItemQueryResult FileQuery = CurrentFolder.CreateItemQueryWithOptions(Options);
+                StorageItemQueryResult FileQuery = CurrentFolder.CreateItemQueryWithOptions(Options);
 
-                    if (AnimationController.Current.IsEnableAnimation)
-                    {
-                        Nav.Navigate(typeof(SearchPage), new Tuple<FileControl, StorageItemQueryResult>(this, FileQuery), new DrillInNavigationTransitionInfo());
-                    }
-                    else
-                    {
-                        Nav.Navigate(typeof(SearchPage), new Tuple<FileControl, StorageItemQueryResult>(this, FileQuery), new SuppressNavigationTransitionInfo());
-                    }
+                if (AnimationController.Current.IsEnableAnimation)
+                {
+                    Frame.Navigate(typeof(SearchPage), new Tuple<FileControl, StorageItemQueryResult>(this, FileQuery), new DrillInNavigationTransitionInfo());
                 }
                 else
                 {
-                    CommonAccessCollection.GetSearchPageInstance(this).SetSearchTarget = Options;
+                    Frame.Navigate(typeof(SearchPage), new Tuple<FileControl, StorageItemQueryResult>(this, FileQuery), new SuppressNavigationTransitionInfo());
                 }
             }
             catch (Exception ex)
@@ -2051,8 +2014,6 @@ namespace RX_Explorer
         {
             ApplicationData.Current.LocalSettings.Values["FilePresenterDisplayMode"] = ItemDisplayMode.SelectedIndex;
 
-            FilePresenter Presenter = CommonAccessCollection.GetFilePresenterInstance(this);
-
             switch (ItemDisplayMode.SelectedIndex)
             {
                 case 0:
@@ -2127,7 +2088,7 @@ namespace RX_Explorer
 
         private async void AddressButton_Click(object sender, RoutedEventArgs e)
         {
-            string OriginalString = string.Join("\\", AddressButtonList.Take(AddressButtonList.IndexOf(((Button)sender).DataContext as AddressBlock) + 1).Skip(1));
+            string OriginalString = string.Join("\\", AddressButtonList.Take(AddressButtonList.IndexOf(Convert.ToString(((Button)sender).Content)) + 1).Skip(1));
             string ActualString = Path.Combine(Path.GetPathRoot(CurrentFolder.Path), OriginalString);
 
             if (ActualString == CurrentFolder.Path)
@@ -2240,7 +2201,7 @@ namespace RX_Explorer
 
             AddressExtentionList.Clear();
 
-            string OriginalString = string.Join("\\", AddressButtonList.Take(AddressButtonList.IndexOf(Btn.DataContext as AddressBlock) + 1).Skip(1));
+            string OriginalString = string.Join("\\", AddressButtonList.Take(AddressButtonList.IndexOf(Convert.ToString(Btn.FindParentOfType<StackPanel>()?.FindChildOfName<Button>("AddressButton")?.Content)) + 1).Skip(1));
             string ActualString = Path.Combine(Path.GetPathRoot(CurrentFolder.Path), OriginalString);
 
             if (IsNetworkDevice)
@@ -2302,7 +2263,7 @@ namespace RX_Explorer
 
             if (!string.IsNullOrEmpty(e.ClickedItem.ToString()))
             {
-                string OriginalString = string.Join("\\", AddressButtonList.Take(AddressButtonList.IndexOf(AddressExtentionFlyout.Target.DataContext as AddressBlock) + 1).Skip(1));
+                string OriginalString = string.Join("\\", AddressButtonList.Take(AddressButtonList.IndexOf(Convert.ToString(AddressExtentionFlyout.Target.FindParentOfType<StackPanel>()?.FindChildOfName<Button>("AddressButton")?.Content)) + 1).Skip(1));
                 string ActualString = Path.Combine(Path.GetPathRoot(CurrentFolder.Path), OriginalString);
 
                 string TargetPath = Path.Combine(ActualString, e.ClickedItem.ToString());
@@ -2384,7 +2345,7 @@ namespace RX_Explorer
 
         private async void AddressButton_Drop(object sender, DragEventArgs e)
         {
-            string OriginalString = string.Join("\\", AddressButtonList.Take(AddressButtonList.IndexOf(((Button)sender).DataContext as AddressBlock) + 1).Skip(1));
+            string OriginalString = string.Join("\\", AddressButtonList.Take(AddressButtonList.IndexOf(Convert.ToString(((Button)sender).Content)) + 1).Skip(1));
             string ActualPath = Path.Combine(Path.GetPathRoot(CurrentFolder.Path), OriginalString);
 
             bool IsHiddenTarget = false;
@@ -2747,9 +2708,9 @@ namespace RX_Explorer
 
                                                     await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
 
-                                                    if (CommonAccessCollection.GetFilePresenterInstance(this).FileCollection.FirstOrDefault((Item) => Item.Path == Folder.Path) is FileSystemStorageItemBase RemoveItem)
+                                                    if (Presenter.FileCollection.FirstOrDefault((Item) => Item.Path == Folder.Path) is FileSystemStorageItemBase RemoveItem)
                                                     {
-                                                        CommonAccessCollection.GetFilePresenterInstance(this).FileCollection.Remove(RemoveItem);
+                                                        Presenter.FileCollection.Remove(RemoveItem);
                                                     }
 
                                                     if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
@@ -2931,15 +2892,36 @@ namespace RX_Explorer
 
         public void Dispose()
         {
+            AddressButtonList.Clear();
+
+            FolderTree.RootNodes.Clear();
+
+            Presenter.FileCollection.Clear();
+            Presenter.HasFile.Visibility = Visibility.Collapsed;
+
+            Application.Current.Suspending -= Current_Suspending;
+            Application.Current.Resuming -= Current_Resuming;
+            Frame.Navigated -= Frame_Navigated;
+
+            RecordIndex = 0;
+
+            GoAndBackRecord.Clear();
+
+            IsBackOrForwardAction = false;
+            GoBackRecord.IsEnabled = false;
+            GoForwardRecord.IsEnabled = false;
+            GoParentFolder.IsEnabled = false;
+
+            CurrentNode = null;
+            CurrentFolder = null;
+
             AddItemCancellation?.Cancel();
-            AddItemCancellation?.Dispose();
 
             EnterLock.Dispose();
-
-            CommonAccessCollection.GetFilePresenterInstance(this).AreaWatcher.Dispose();
+            AreaWatcher.Dispose();
         }
 
-        private void Nav_PointerWheelChanged(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void Presenter_PointerWheelChanged(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             Frame Frame = sender as Frame;
 

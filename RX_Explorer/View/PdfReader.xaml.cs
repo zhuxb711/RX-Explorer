@@ -19,7 +19,6 @@ namespace RX_Explorer
 {
     public sealed partial class PdfReader : Page
     {
-        private StorageFile PdfFile;
         private ObservableCollection<BitmapImage> PdfCollection;
         private PdfDocument Pdf;
         private int LastPageIndex;
@@ -31,7 +30,6 @@ namespace RX_Explorer
         private double OriginVerticalOffset;
         private Point OriginMousePosition;
         private int LockResource;
-        private Frame FileControlNav;
 
         public PdfReader()
         {
@@ -40,16 +38,13 @@ namespace RX_Explorer
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is Tuple<Frame, StorageFile> Parameters)
+            if (e.Parameter is StorageFile Parameters)
             {
-                FileControlNav = Parameters.Item1;
-                PdfFile = Parameters.Item2;
-
-                await Initialize().ConfigureAwait(false);
+                await Initialize(Parameters).ConfigureAwait(false);
             }
         }
 
-        private async Task Initialize()
+        private async Task Initialize(StorageFile PdfFile)
         {
             LoadingControl.IsLoading = true;
             MainPage.ThisPage.IsAnyTaskRunning = true;
@@ -77,7 +72,7 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        FileControlNav.GoBack();
+                        Frame.GoBack();
                         return;
                     }
                 }
@@ -104,7 +99,7 @@ namespace RX_Explorer
                 };
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                FileControlNav.GoBack();
+                Frame.GoBack();
             }
             finally
             {
@@ -133,7 +128,6 @@ namespace RX_Explorer
                 ExitLocker.WaitOne();
             }).ConfigureAwait(true);
 
-            PdfFile = null;
             LoadQueue.Clear();
             LoadQueue = null;
 

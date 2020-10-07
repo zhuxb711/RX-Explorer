@@ -23,22 +23,6 @@ namespace RX_Explorer
         private StorageItemQueryResult ItemQuery;
         private FileControl FileControlInstance;
 
-        public QueryOptions SetSearchTarget
-        {
-            get
-            {
-                return ItemQuery.GetCurrentQueryOptions();
-            }
-            set
-            {
-                SearchResult.Clear();
-
-                ItemQuery.ApplyNewQueryOptions(value);
-
-                _ = Initialize();
-            }
-        }
-
         public SearchPage()
         {
             InitializeComponent();
@@ -52,8 +36,6 @@ namespace RX_Explorer
             {
                 FileControlInstance = Parameters.Item1;
                 ItemQuery = Parameters.Item2;
-
-                CommonAccessCollection.Register(FileControlInstance, this);
 
                 await Initialize().ConfigureAwait(false);
             }
@@ -131,16 +113,17 @@ namespace RX_Explorer
             {
                 try
                 {
-                    FilePresenter Presenter = CommonAccessCollection.GetFilePresenterInstance(FileControlInstance);
-
                     StorageFolder ParentFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(Item.Path));
+                    FileControl Instance = FileControlInstance;
+                    
+                    Frame.GoBack();
 
-                    await FileControlInstance.OpenTargetFolder(ParentFolder).ConfigureAwait(true);
+                    await Instance.OpenTargetFolder(ParentFolder).ConfigureAwait(true);
 
-                    if (Presenter.FileCollection.FirstOrDefault((SItem) => SItem.Path == Item.Path) is FileSystemStorageItemBase Target)
+                    if (Instance.Presenter.FileCollection.FirstOrDefault((SItem) => SItem.Path == Item.Path) is FileSystemStorageItemBase Target)
                     {
-                        Presenter.ItemPresenter.ScrollIntoViewSmoothly(Target, ScrollIntoViewAlignment.Leading);
-                        Presenter.SelectedItem = Target;
+                        Instance.Presenter.ItemPresenter.ScrollIntoViewSmoothly(Target, ScrollIntoViewAlignment.Leading);
+                        Instance.Presenter.SelectedItem = Target;
                     }
                 }
                 catch

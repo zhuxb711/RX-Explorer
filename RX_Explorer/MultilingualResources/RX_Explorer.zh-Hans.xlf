@@ -876,14 +876,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Copy the full path</source>
           <target state="translated">复制完整路径</target>
         </trans-unit>
-        <trans-unit id="SearchTip.CloseButtonContent" translate="yes" xml:space="preserve">
-          <source>Got it</source>
-          <target state="translated">知道了</target>
-        </trans-unit>
-        <trans-unit id="SearchTip.Subtitle" translate="yes" xml:space="preserve">
-          <source>Clear this search box or click on any folder to exit the search status</source>
-          <target state="translated">清空搜索框或点击任意其他文件夹即可退出搜索页面</target>
-        </trans-unit>
         <trans-unit id="SearchType.Text" translate="yes" xml:space="preserve">
           <source>Type</source>
           <target state="translated">类型</target>
@@ -3315,6 +3307,34 @@ Invalid names include
         <trans-unit id="MulSelect.Label" translate="yes" xml:space="preserve">
           <source>Multi-select</source>
           <target state="translated">多选</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_MultiSelect" translate="yes" xml:space="preserve">
+          <source>Multi-select</source>
+          <target state="translated">多选</target>
+        </trans-unit>
+        <trans-unit id="BuildIn_CropperPage_Description" translate="yes" xml:space="preserve">
+          <source>Built-in picture editor</source>
+          <target state="translated">内置图片编辑器</target>
+        </trans-unit>
+        <trans-unit id="BuildIn_MediaPlayer_Description" translate="yes" xml:space="preserve">
+          <source>Built-in media player</source>
+          <target state="translated">内置媒体播放器</target>
+        </trans-unit>
+        <trans-unit id="BuildIn_PdfReader_Description" translate="yes" xml:space="preserve">
+          <source>Built-in pdf viewer</source>
+          <target state="translated">内置PDF查看器</target>
+        </trans-unit>
+        <trans-unit id="BuildIn_PhotoViewer_Description" translate="yes" xml:space="preserve">
+          <source>Built-in picture viewer</source>
+          <target state="translated">内置图片查看器</target>
+        </trans-unit>
+        <trans-unit id="BuildIn_SearchPage_Description" translate="yes" xml:space="preserve">
+          <source>Searcher</source>
+          <target state="translated">搜索</target>
+        </trans-unit>
+        <trans-unit id="BuildIn_TextViewer_Description" translate="yes" xml:space="preserve">
+          <source>Built-in text editor</source>
+          <target state="translated">内置文本编辑器</target>
         </trans-unit>
       </group>
     </body>
