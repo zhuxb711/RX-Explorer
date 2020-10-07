@@ -2965,6 +2965,41 @@ namespace RX_Explorer
                         });
                     }
                 }
+
+                while (true)
+                {
+                    if (FileCollection.FirstOrDefault((Item) => Item.Path == NewFolder.Path) is FileSystemStorageItemBase NewItem)
+                    {
+                        ItemPresenter.UpdateLayout();
+
+                        ItemPresenter.ScrollIntoViewSmoothly(NewItem);
+
+                        CurrentNameEditItem = NewItem;
+
+                        if ((ItemPresenter.ContainerFromItem(NewItem) as SelectorItem)?.ContentTemplateRoot is FrameworkElement Element)
+                        {
+                            if (Element.FindName("NameLabel") is TextBlock NameLabel)
+                            {
+                                NameLabel.Visibility = Visibility.Collapsed;
+                            }
+
+                            if (Element.FindName("NameEditBox") is TextBox EditBox)
+                            {
+                                EditBox.Text = NewFolder.Name;
+                                EditBox.Visibility = Visibility.Visible;
+                                EditBox.Focus(FocusState.Programmatic);
+                            }
+
+                            FileControlInstance.IsSearchOrPathBoxFocused = true;
+                        }
+
+                        break;
+                    }
+                    else
+                    {
+                        await Task.Delay(500).ConfigureAwait(true);
+                    }
+                }
             }
             catch
             {
