@@ -23,7 +23,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
-using Windows.UI.Xaml.Navigation;
 using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
 using TabView = Microsoft.UI.Xaml.Controls.TabView;
 using TabViewTabCloseRequestedEventArgs = Microsoft.UI.Xaml.Controls.TabViewTabCloseRequestedEventArgs;
@@ -408,24 +407,26 @@ namespace RX_Explorer
                 {
                     await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                     {
-                        for (int j = 0; j < TabViewControl.TabItems.Count; j++)
+                        foreach ((TabViewItem Tab, Frame frame) in TabViewControl.TabItems.Select((Obj) => Obj as TabViewItem).Where((Tab) => Tab.Content is Frame frame && CommonAccessCollection.FrameFileControlDic.ContainsKey(frame) && Path.GetPathRoot(CommonAccessCollection.FrameFileControlDic[frame].CurrentFolder.Path) == Device.Folder.Path).Select((Tab) => (Tab, Tab.Content as Frame)).ToArray())
                         {
-                            if (((TabViewControl.TabItems[j] as TabViewItem)?.Content as Frame)?.Content is FileControl Control && Path.GetPathRoot(Control.CurrentFolder.Path) == Device.Folder.Path)
+                            while (frame.CanGoBack)
                             {
-                                if (TabViewControl.TabItems.Count == 1)
+                                if (frame.Content is FileControl Control)
                                 {
-                                    while (CurrentTabNavigation.CanGoBack)
-                                    {
-                                        CurrentTabNavigation.GoBack();
-                                    }
+                                    Control.Dispose();
+                                    break;
                                 }
                                 else
                                 {
-                                    Control.Dispose();
-
-                                    TabViewControl.TabItems.RemoveAt(j);
+                                    frame.GoBack();
                                 }
                             }
+
+                            Tab.DragEnter -= Item_DragEnter;
+                            Tab.PointerPressed -= Item_PointerPressed;
+
+                            TabViewControl.TabItems.Remove(Tab);
+                            CommonAccessCollection.FrameFileControlDic.Remove(frame);
                         }
 
                         CommonAccessCollection.HardDeviceList.Remove(Device);
@@ -850,6 +851,7 @@ namespace RX_Explorer
             args.Tab.PointerPressed -= Item_PointerPressed;
 
             sender.TabItems.Remove(args.Tab);
+            CommonAccessCollection.FrameFileControlDic.Remove(frame);
 
             if (sender.TabItems.Count == 0)
             {
@@ -947,6 +949,7 @@ namespace RX_Explorer
                     Tab.PointerPressed -= Item_PointerPressed;
 
                     TabViewControl.TabItems.Remove(Tab);
+                    CommonAccessCollection.FrameFileControlDic.Remove(frame);
 
                     if (TabViewControl.TabItems.Count == 0)
                     {
@@ -1010,9 +1013,9 @@ namespace RX_Explorer
                 {
                     TaskBarController.SetText(null);
                 }
-                else if (CurrentTabNavigation.Content is FileControl Control)
+                else
                 {
-                    TaskBarController.SetText(Control.CurrentFolder?.DisplayName);
+                    TaskBarController.SetText(Convert.ToString(Item.Header));
                 }
 
                 MainPage.ThisPage.NavView.IsBackEnabled = CurrentTabNavigation.CanGoBack;
@@ -1028,17 +1031,23 @@ namespace RX_Explorer
         {
             StringBuilder Builder = new StringBuilder("<head>RX-Explorer-TabItem</head>");
 
-            if ((args.Tab.Content as Frame)?.Content is ThisPC)
+            if (args.Tab.Content is Frame frame)
             {
-                Builder.Append("<p>ThisPC||</p>");
-            }
-            else if ((args.Tab.Content as Frame)?.Content is FileControl Control)
-            {
-                Builder.Append($"<p>FileControl||{Control.CurrentFolder.Path}</p>");
-            }
-            else
-            {
-                args.Cancel = true;
+                if (frame.Content is ThisPC)
+                {
+                    Builder.Append("<p>ThisPC||</p>");
+                }
+                else
+                {
+                    if (CommonAccessCollection.FrameFileControlDic.ContainsKey(frame))
+                    {
+                        Builder.Append($"<p>FileControl||{CommonAccessCollection.FrameFileControlDic[frame].CurrentFolder.Path}</p>");
+                    }
+                    else
+                    {
+                        args.Cancel = true;
+                    }
+                }
             }
 
             args.Data.SetHtmlFormat(HtmlFormatHelper.CreateHtmlFormat(Builder.ToString()));
@@ -1067,6 +1076,7 @@ namespace RX_Explorer
                 args.Tab.PointerPressed -= Item_PointerPressed;
 
                 sender.TabItems.Remove(args.Tab);
+                CommonAccessCollection.FrameFileControlDic.Remove(frame);
 
                 if (sender.TabItems.Count == 0)
                 {
@@ -1079,16 +1089,41 @@ namespace RX_Explorer
         {
             if (sender.TabItems.Count > 1)
             {
+                args.Tab.DragEnter -= Item_DragEnter;
+                args.Tab.PointerPressed -= Item_PointerPressed;
+
                 sender.TabItems.Remove(args.Tab);
+
                 sender.UpdateLayout();
 
-                if ((args.Tab.Content as Frame)?.Content is ThisPC)
+                if (args.Tab.Content is Frame frame)
                 {
-                    await Launcher.LaunchUriAsync(new Uri($"rx-explorer:"));
-                }
-                else if ((args.Tab.Content as Frame)?.Content is FileControl Control)
-                {
-                    await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(Control.CurrentFolder.Path)}"));
+                    if (frame.Content is ThisPC)
+                    {
+                        await Launcher.LaunchUriAsync(new Uri($"rx-explorer:"));
+                    }
+                    else
+                    {
+                        if (CommonAccessCollection.FrameFileControlDic.ContainsKey(frame))
+                        {
+                            await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(CommonAccessCollection.FrameFileControlDic[frame].CurrentFolder.Path)}"));
+                        }
+
+                        while (frame.CanGoBack)
+                        {
+                            if (frame.Content is FileControl Control)
+                            {
+                                Control.Dispose();
+                                break;
+                            }
+                            else
+                            {
+                                frame.GoBack();
+                            }
+                        }
+                    }
+
+                    CommonAccessCollection.FrameFileControlDic.Remove(frame);
                 }
             }
         }

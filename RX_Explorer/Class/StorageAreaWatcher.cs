@@ -1,5 +1,7 @@
-﻿using Microsoft.UI.Xaml.Controls;
+﻿using DocumentFormat.OpenXml.Office2010.ExcelAc;
+using Microsoft.UI.Xaml.Controls;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -19,9 +21,9 @@ namespace RX_Explorer.Class
 
         private IntPtr WatchPtr = IntPtr.Zero;
 
-        public string CurrentLocation { get; private set; }
-
         private readonly SemaphoreSlim Locker = new SemaphoreSlim(1, 1);
+
+        public string CurrentLocation { get; private set; }
 
         public bool IsDisplayHiddenItem { get; private set; }
 

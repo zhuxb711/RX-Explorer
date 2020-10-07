@@ -468,6 +468,11 @@ namespace RX_Explorer
                 AreaWatcher = new StorageAreaWatcher(Presenter.FileCollection, FolderTree);
                 EnterLock = new SemaphoreSlim(1, 1);
 
+                if(!CommonAccessCollection.FrameFileControlDic.ContainsKey(Frame))
+                {
+                    CommonAccessCollection.FrameFileControlDic.Add(Frame, this);
+                }
+
                 await Initialize(Parameters.Item2).ConfigureAwait(false);
             }
         }

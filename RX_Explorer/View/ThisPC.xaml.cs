@@ -754,19 +754,26 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabViewControl.TabItems.Select((Tab) => Tab as TabViewItem).Where((Tab) => (Tab.Content as Frame)?.Content is FileControl Control && Control.CurrentFolder.Path == Item.Folder.Path).ToArray())
+                    foreach ((TabViewItem Tab, Frame frame) in TabViewContainer.ThisPage.TabViewControl.TabItems.Select((Obj) => Obj as TabViewItem).Where((Tab) => Tab.Content is Frame frame && CommonAccessCollection.FrameFileControlDic.ContainsKey(frame) && Path.GetPathRoot(CommonAccessCollection.FrameFileControlDic[frame].CurrentFolder?.Path) == Item.Folder.Path).Select((Tab) => (Tab, Tab.Content as Frame)).ToArray())
                     {
-                        Frame frame = Tab.Content as Frame;
-
-                        while (!(frame.Content is ThisPC) && frame.CanGoBack)
+                        while (frame.CanGoBack)
                         {
-                            frame.GoBack();
+                            if (frame.Content is FileControl Control)
+                            {
+                                Control.Dispose();
+                                break;
+                            }
+                            else
+                            {
+                                frame.GoBack();
+                            }
                         }
 
                         Tab.DragEnter -= TabViewContainer.ThisPage.Item_DragEnter;
                         Tab.PointerPressed -= TabViewContainer.ThisPage.Item_PointerPressed;
 
                         TabViewContainer.ThisPage.TabViewControl.TabItems.Remove(Tab);
+                        CommonAccessCollection.FrameFileControlDic.Remove(frame);
                     }
 
                     if (await FullTrustProcessController.Current.EjectPortableDevice(Item.Folder.Path).ConfigureAwait(true))
