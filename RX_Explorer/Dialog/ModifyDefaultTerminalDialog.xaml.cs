@@ -1,5 +1,6 @@
 ﻿using RX_Explorer.Class;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Windows.UI.Xaml;
@@ -10,6 +11,8 @@ namespace RX_Explorer.Dialog
     public sealed partial class ModifyDefaultTerminalDialog : QueueContentDialog
     {
         private ObservableCollection<TerminalProfile> TerminalList;
+
+        private List<TerminalProfile> DeletedProfile = new List<TerminalProfile>();
 
         private TerminalProfile LastSelectedProfile;
 
@@ -88,6 +91,11 @@ namespace RX_Explorer.Dialog
             }
             else
             {
+                foreach (TerminalProfile Profile in DeletedProfile)
+                {
+                    await SQLite.Current.DeleteTerminalProfile(Profile).ConfigureAwait(true);
+                }
+
                 foreach (TerminalProfile Profile in TerminalList)
                 {
                     await SQLite.Current.SetOrModifyTerminalProfile(Profile).ConfigureAwait(true);
@@ -97,11 +105,11 @@ namespace RX_Explorer.Dialog
             Deferral.Complete();
         }
 
-        private async void RemoveProfile_Click(object sender, RoutedEventArgs e)
+        private void RemoveProfile_Click(object sender, RoutedEventArgs e)
         {
             if (ProfileSelector.SelectedItem is TerminalProfile Profile)
             {
-                await SQLite.Current.DeleteTerminalProfile(Profile).ConfigureAwait(true);
+                DeletedProfile.Add(Profile);
 
                 TerminalList.Remove(Profile);
 

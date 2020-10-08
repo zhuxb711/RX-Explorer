@@ -122,7 +122,7 @@ namespace RX_Explorer
 
                     if (Instance.Presenter.FileCollection.FirstOrDefault((SItem) => SItem.Path == Item.Path) is FileSystemStorageItemBase Target)
                     {
-                        Instance.Presenter.ItemPresenter.ScrollIntoViewSmoothly(Target, ScrollIntoViewAlignment.Leading);
+                        Instance.Presenter.ItemPresenter.ScrollIntoView(Target);
                         Instance.Presenter.SelectedItem = Target;
                     }
                 }

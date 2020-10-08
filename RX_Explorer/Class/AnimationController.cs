@@ -1,5 +1,8 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using Windows.ApplicationModel.Core;
 using Windows.Storage;
+using Windows.UI.Core;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Animation;
 
@@ -169,6 +172,7 @@ namespace RX_Explorer.Class
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RepositionTransitions)));
 
                     ApplicationData.Current.LocalSettings.Values["EnableAnimation"] = value;
+                    ApplicationData.Current.SignalDataChanged();
                 }
             }
         }
@@ -177,19 +181,25 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return isDisableStarupAnimation || !isEnableAnimation;
+                return isDisableStartupAnimation || !isEnableAnimation;
             }
             set
             {
-                isDisableStarupAnimation = value;
-                ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"] = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsDisableStartupAnimation)));
+                if (value != isDisableStartupAnimation)
+                {
+                    isDisableStartupAnimation = value;
+
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsDisableStartupAnimation)));
+
+                    ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"] = value;
+                    ApplicationData.Current.SignalDataChanged();
+                }
             }
         }
 
         private bool isEnableAnimation;
 
-        private bool isDisableStarupAnimation;
+        private bool isDisableStartupAnimation;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -210,6 +220,8 @@ namespace RX_Explorer.Class
 
         private AnimationController()
         {
+            ApplicationData.Current.DataChanged += Current_DataChanged;
+
             if (ApplicationData.Current.LocalSettings.Values["EnableAnimation"] is bool Enable)
             {
                 isEnableAnimation = Enable;
@@ -220,15 +232,25 @@ namespace RX_Explorer.Class
                 isEnableAnimation = true;
             }
 
-            if(ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"] is bool StartupAnimation)
+            if (ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"] is bool StartupAnimation)
             {
-                isDisableStarupAnimation = StartupAnimation;
+                isDisableStartupAnimation = StartupAnimation;
             }
             else
             {
                 ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"] = false;
-                isDisableStarupAnimation = false;
+                isDisableStartupAnimation = false;
             }
+        }
+
+        private async void Current_DataChanged(ApplicationData sender, object args)
+        {
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                IsEnableAnimation = Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["EnableAnimation"]);
+
+                IsDisableStartupAnimation = Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["IsDisableStartupAnimation"]);
+            });
         }
     }
 }

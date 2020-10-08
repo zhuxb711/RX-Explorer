@@ -827,6 +827,7 @@ namespace FullTrustProcess
                             string ExcutePath = Convert.ToString(args.Request.Message["ExcutePath"]);
                             string ExcuteParameter = Convert.ToString(args.Request.Message["ExcuteParameter"]);
                             string ExcuteAuthority = Convert.ToString(args.Request.Message["ExcuteAuthority"]);
+                            bool ExcuteCreateNoWindow = Convert.ToBoolean(args.Request.Message["ExcuteCreateNoWindow"]);
 
                             ValueSet Value = new ValueSet();
 
@@ -840,6 +841,7 @@ namespace FullTrustProcess
                                         {
                                             Process.StartInfo.FileName = ExcutePath;
                                             Process.StartInfo.UseShellExecute = false;
+                                            Process.StartInfo.CreateNoWindow = ExcuteCreateNoWindow;
 
                                             if (ExcuteAuthority == "Administrator")
                                             {
@@ -858,6 +860,7 @@ namespace FullTrustProcess
                                             Process.StartInfo.FileName = ExcutePath;
                                             Process.StartInfo.Arguments = ExcuteParameter;
                                             Process.StartInfo.UseShellExecute = false;
+                                            Process.StartInfo.CreateNoWindow = ExcuteCreateNoWindow;
 
                                             if (ExcuteAuthority == "Administrator")
                                             {

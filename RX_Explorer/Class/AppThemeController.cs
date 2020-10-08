@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
+using Windows.ApplicationModel.Core;
 using Windows.Storage;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 
 namespace RX_Explorer.Class
@@ -24,8 +26,11 @@ namespace RX_Explorer.Class
                 if (value != theme)
                 {
                     theme = value;
-                    ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] = Enum.GetName(typeof(ElementTheme), value);
+
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Theme)));
+
+                    ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] = Enum.GetName(typeof(ElementTheme), value);
+                    ApplicationData.Current.SignalDataChanged();
                 }
             }
         }
@@ -54,6 +59,8 @@ namespace RX_Explorer.Class
         /// </summary>
         public AppThemeController()
         {
+            ApplicationData.Current.DataChanged += Current_DataChanged;
+
             if (ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] is string Mode)
             {
                 Theme = (ElementTheme)Enum.Parse(typeof(ElementTheme), Mode);
@@ -63,6 +70,14 @@ namespace RX_Explorer.Class
                 Theme = ElementTheme.Dark;
                 ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] = "Dark";
             }
+        }
+
+        private async void Current_DataChanged(ApplicationData sender, object args)
+        {
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                Theme = (ElementTheme)Enum.Parse(typeof(ElementTheme), Convert.ToString(ApplicationData.Current.LocalSettings.Values["AppFontColorMode"]));
+            });
         }
     }
 }

@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.AppService;
@@ -344,7 +345,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<(string, string, bool, bool)> GetHyperlinkRelatedInformationAsync(string Path)
+        public async Task<(string, string[], bool, bool)> GetHyperlinkRelatedInformationAsync(string Path)
         {
             try
             {
@@ -362,7 +363,7 @@ namespace RX_Explorer.Class
 
                     if (Response.Status == AppServiceResponseStatus.Success && Response.Message.ContainsKey("Success"))
                     {
-                        return (Convert.ToString(Response.Message["TargetPath"]), Convert.ToString(Response.Message["Argument"]), Convert.ToBoolean(Response.Message["RunAs"]), Convert.ToBoolean(Response.Message["IsFile"]));
+                        return (Convert.ToString(Response.Message["TargetPath"]), Regex.Matches(Convert.ToString(Response.Message["Argument"]), "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value).ToArray(), Convert.ToBoolean(Response.Message["RunAs"]), Convert.ToBoolean(Response.Message["IsFile"]));
                     }
                     else
                     {
@@ -539,7 +540,7 @@ namespace RX_Explorer.Class
         /// <param name="Path">程序路径</param>
         /// <param name="Parameters">传递的参数</param>
         /// <returns></returns>
-        public async Task RunAsync(string Path, params string[] Parameters)
+        public async Task RunAsync(string Path, bool RunAsAdmin = false, bool CreateNoWindow = false, params string[] Parameters)
         {
             try
             {
@@ -552,7 +553,8 @@ namespace RX_Explorer.Class
                         {"ExcuteType", ExcuteType_RunExe},
                         {"ExcutePath",Path },
                         {"ExcuteParameter", string.Join(' ', Parameters.Select((Para) => (Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"")) ? $"\"{Para}\"" : Para))},
-                        {"ExcuteAuthority", ExcuteAuthority_Normal}
+                        {"ExcuteAuthority", RunAsAdmin ? ExcuteAuthority_Administrator : ExcuteAuthority_Normal},
+                        {"ExcuteCreateNoWindow", CreateNoWindow }
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -577,57 +579,6 @@ namespace RX_Explorer.Class
             catch
             {
                 Debug.WriteLine("Warning: RunAsync() excute error");
-            }
-            finally
-            {
-                IsNowHasAnyActionExcuting = false;
-            }
-        }
-
-        /// <summary>
-        /// 使用管理员权限启动指定路径的程序，并传递指定的参数
-        /// </summary>
-        /// <param name="Path">程序路径</param>
-        /// <param name="Parameters">传递的参数</param>
-        /// <returns></returns>
-        public async Task RunAsAdministratorAsync(string Path, params string[] Parameters)
-        {
-            try
-            {
-                IsNowHasAnyActionExcuting = true;
-
-                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
-                {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExcuteType", ExcuteType_RunExe},
-                        {"ExcutePath", Path },
-                        {"ExcuteParameter", string.Join(' ', Parameters.Select((Para) => Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"") ? $"\"{Para}\"" : Para))},
-                        {"ExcuteAuthority", ExcuteAuthority_Administrator}
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (!Response.Message.ContainsKey("Success"))
-                    {
-                        if (Response.Message.ContainsKey("Error_Failure"))
-                        {
-                            throw new InvalidOperationException();
-                        }
-                        else
-                        {
-                            throw new Exception();
-                        }
-                    }
-                }
-            }
-            catch (InvalidOperationException)
-            {
-                throw;
-            }
-            catch
-            {
-                Debug.WriteLine("Warning: RunAsAdministratorAsync() excute error");
             }
             finally
             {

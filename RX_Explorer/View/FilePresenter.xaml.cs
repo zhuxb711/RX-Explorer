@@ -320,24 +320,24 @@ namespace RX_Explorer
                                 if (NextIndex < Group.Count - 1)
                                 {
                                     SelectedItem = Group[NextIndex + 1];
-                                    ItemPresenter.ScrollIntoViewSmoothly(SelectedItem);
+                                    ItemPresenter.ScrollIntoView(SelectedItem);
                                 }
                                 else
                                 {
                                     SelectedItem = Group[0];
-                                    ItemPresenter.ScrollIntoViewSmoothly(SelectedItem);
+                                    ItemPresenter.ScrollIntoView(SelectedItem);
                                 }
                             }
                             else
                             {
                                 SelectedItem = Group[0];
-                                ItemPresenter.ScrollIntoViewSmoothly(SelectedItem);
+                                ItemPresenter.ScrollIntoView(SelectedItem);
                             }
                         }
                         else
                         {
                             SelectedItem = Group[0];
-                            ItemPresenter.ScrollIntoViewSmoothly(SelectedItem);
+                            ItemPresenter.ScrollIntoView(SelectedItem);
                         }
                     }
 
@@ -1835,6 +1835,11 @@ namespace RX_Explorer
                                 RunWithSystemAuthority.IsEnabled = true;
                                 break;
                             }
+                        case ".msc":
+                            {
+                                ChooseOtherApp.IsEnabled = false;
+                                break;
+                            }
                     }
                 }
             }
@@ -2961,7 +2966,7 @@ namespace RX_Explorer
                     {
                         ItemPresenter.UpdateLayout();
 
-                        ItemPresenter.ScrollIntoViewSmoothly(NewItem);
+                        ItemPresenter.ScrollIntoView(NewItem);
 
                         CurrentNameEditItem = NewItem;
 
@@ -3132,7 +3137,7 @@ namespace RX_Explorer
             }
         }
 
-        private async Task EnterSelectedItem(FileSystemStorageItemBase ReFile, bool RunAsAdministrator = false)
+        public async Task EnterSelectedItem(FileSystemStorageItemBase ReFile, bool RunAsAdministrator = false)
         {
             await FileControlInstance.CancelAddItemOperation().ConfigureAwait(true);
 
@@ -3196,7 +3201,7 @@ namespace RX_Explorer
                                     Retry:
                                         try
                                         {
-                                            await FullTrustProcessController.Current.RunAsync(Path, File.Path).ConfigureAwait(true);
+                                            await FullTrustProcessController.Current.RunAsync(Path, false, false, File.Path).ConfigureAwait(true);
                                         }
                                         catch (InvalidOperationException)
                                         {
@@ -3320,7 +3325,7 @@ namespace RX_Explorer
                                                 Retry:
                                                     try
                                                     {
-                                                        await FullTrustProcessController.Current.RunAsync(Dialog.SelectedProgram.Path, File.Path).ConfigureAwait(true);
+                                                        await FullTrustProcessController.Current.RunAsync(Dialog.SelectedProgram.Path, false, false, File.Path).ConfigureAwait(true);
                                                     }
                                                     catch (InvalidOperationException)
                                                     {
@@ -3463,7 +3468,7 @@ namespace RX_Explorer
                                             Retry:
                                                 try
                                                 {
-                                                    await FullTrustProcessController.Current.RunAsync(Dialog.SelectedProgram.Path, File.Path).ConfigureAwait(true);
+                                                    await FullTrustProcessController.Current.RunAsync(Dialog.SelectedProgram.Path, false, false, File.Path).ConfigureAwait(true);
                                                 }
                                                 catch (InvalidOperationException)
                                                 {
@@ -3600,26 +3605,51 @@ namespace RX_Explorer
                                         {
                                             if (TabTarget is HyperlinkStorageItem Item)
                                             {
-                                                if (Item.NeedRunAs || RunAsAdministrator)
-                                                {
-                                                    await FullTrustProcessController.Current.RunAsAdministratorAsync(Item.TargetPath, Item.Argument).ConfigureAwait(false);
-                                                }
-                                                else
-                                                {
-                                                    await FullTrustProcessController.Current.RunAsync(Item.TargetPath, Item.Argument).ConfigureAwait(false);
-                                                }
+                                                await FullTrustProcessController.Current.RunAsync(Item.TargetPath, Item.NeedRunAs || RunAsAdministrator, false, Item.Arguments).ConfigureAwait(true);
                                             }
                                             else
                                             {
-                                                if (RunAsAdministrator)
+                                                await FullTrustProcessController.Current.RunAsync(File.Path, RunAsAdministrator).ConfigureAwait(true);
+                                            }
+                                        }
+                                        catch (InvalidOperationException)
+                                        {
+                                            QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
+                                                PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                            };
+
+                                            if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                            {
+                                                if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
                                                 {
-                                                    await FullTrustProcessController.Current.RunAsAdministratorAsync(File.Path).ConfigureAwait(false);
+                                                    goto Retry;
                                                 }
                                                 else
                                                 {
-                                                    await FullTrustProcessController.Current.RunAsync(File.Path).ConfigureAwait(false);
+                                                    QueueContentDialog ErrorDialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                    };
+
+                                                    _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
                                                 }
                                             }
+                                        }
+
+                                        break;
+                                    }
+                                case ".msc":
+                                    {
+                                    Retry:
+                                        try
+                                        {
+                                            await FullTrustProcessController.Current.RunAsync(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe"), false, true, "-Command", File.Path).ConfigureAwait(true);
                                         }
                                         catch (InvalidOperationException)
                                         {
@@ -3729,7 +3759,7 @@ namespace RX_Explorer
                                                 Retry:
                                                     try
                                                     {
-                                                        await FullTrustProcessController.Current.RunAsync(Dialog.SelectedProgram.Path, File.Path).ConfigureAwait(true);
+                                                        await FullTrustProcessController.Current.RunAsync(Dialog.SelectedProgram.Path, false, false, File.Path).ConfigureAwait(true);
                                                     }
                                                     catch (InvalidOperationException)
                                                     {
@@ -3992,7 +4022,7 @@ namespace RX_Explorer
                         Retry:
                             try
                             {
-                                await FullTrustProcessController.Current.RunAsync(Dialog.SelectedProgram.Path, Item.Path).ConfigureAwait(true);
+                                await FullTrustProcessController.Current.RunAsync(Dialog.SelectedProgram.Path, false, false, Item.Path).ConfigureAwait(true);
                             }
                             catch (InvalidOperationException)
                             {
@@ -5876,14 +5906,7 @@ namespace RX_Explorer
             Retry:
                 try
                 {
-                    if (Profile.RunAsAdmin)
-                    {
-                        await FullTrustProcessController.Current.RunAsAdministratorAsync(Profile.Path, Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value == "[CurrentLocation]" ? FileControlInstance.CurrentFolder.Path : Mat.Value).ToArray()).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        await FullTrustProcessController.Current.RunAsync(Profile.Path, Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value == "[CurrentLocation]" ? FileControlInstance.CurrentFolder.Path : Mat.Value).ToArray()).ConfigureAwait(false);
-                    }
+                    await FullTrustProcessController.Current.RunAsync(Profile.Path, Profile.RunAsAdmin, false, Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value == "[CurrentLocation]" ? FileControlInstance.CurrentFolder.Path : Mat.Value).ToArray()).ConfigureAwait(false);
                 }
                 catch (InvalidOperationException)
                 {
@@ -7095,7 +7118,7 @@ namespace RX_Explorer
 
                 if (FileCollection.FirstOrDefault((SItem) => SItem.Path == Item.TargetPath) is FileSystemStorageItemBase Target)
                 {
-                    ItemPresenter.ScrollIntoViewSmoothly(Target, ScrollIntoViewAlignment.Leading);
+                    ItemPresenter.ScrollIntoView(Target);
                     SelectedItem = Target;
                 }
             }

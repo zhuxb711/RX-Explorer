@@ -9,7 +9,7 @@ namespace RX_Explorer.Class
     {
         public string TargetPath { get; private set; }
 
-        public string Argument { get; private set; }
+        public string[] Arguments { get; private set; }
 
         public bool NeedRunAs { get; private set; }
 
@@ -53,7 +53,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    (TargetPath, Argument, NeedRunAs, TargetPathIsFile) = await FullTrustProcessController.Current.GetHyperlinkRelatedInformationAsync(InternalPathString).ConfigureAwait(true);
+                    (TargetPath, Arguments, NeedRunAs, TargetPathIsFile) = await FullTrustProcessController.Current.GetHyperlinkRelatedInformationAsync(InternalPathString).ConfigureAwait(true);
 
                     if (TargetPathIsFile)
                     {

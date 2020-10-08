@@ -468,7 +468,7 @@ namespace RX_Explorer
                 AreaWatcher = new StorageAreaWatcher(Presenter.FileCollection, FolderTree);
                 EnterLock = new SemaphoreSlim(1, 1);
 
-                if(!CommonAccessCollection.FrameFileControlDic.ContainsKey(Frame))
+                if (!CommonAccessCollection.FrameFileControlDic.ContainsKey(Frame))
                 {
                     CommonAccessCollection.FrameFileControlDic.Add(Frame, this);
                 }
@@ -479,27 +479,27 @@ namespace RX_Explorer
 
         private void Frame_Navigated(object sender, NavigationEventArgs e)
         {
-            if(e.Content is PhotoViewer)
+            if (e.Content is PhotoViewer)
             {
                 TabItem.Header = Globalization.GetString("BuildIn_PhotoViewer_Description");
             }
-            else if(e.Content is PdfReader)
+            else if (e.Content is PdfReader)
             {
                 TabItem.Header = Globalization.GetString("BuildIn_PdfReader_Description");
             }
-            else if(e.Content is MediaPlayer)
+            else if (e.Content is MediaPlayer)
             {
                 TabItem.Header = Globalization.GetString("BuildIn_MediaPlayer_Description");
             }
-            else if(e.Content is TextViewer)
+            else if (e.Content is TextViewer)
             {
                 TabItem.Header = Globalization.GetString("BuildIn_TextViewer_Description");
             }
-            else if(e.Content is CropperPage)
+            else if (e.Content is CropperPage)
             {
                 TabItem.Header = Globalization.GetString("BuildIn_CropperPage_Description");
             }
-            else if(e.Content is SearchPage)
+            else if (e.Content is SearchPage)
             {
                 TabItem.Header = Globalization.GetString("BuildIn_SearchPage_Description");
             }
@@ -1448,7 +1448,7 @@ namespace RX_Explorer
             Retry1:
                 try
                 {
-                    await FullTrustProcessController.Current.RunAsAdministratorAsync(ExcutePath, "-NoExit", "-Command", "Set-Location", CurrentFolder.Path).ConfigureAwait(false);
+                    await FullTrustProcessController.Current.RunAsync(ExcutePath, true, false, "-NoExit", "-Command", "Set-Location", CurrentFolder.Path).ConfigureAwait(false);
                 }
                 catch (InvalidOperationException)
                 {
@@ -1490,7 +1490,7 @@ namespace RX_Explorer
             Retry2:
                 try
                 {
-                    await FullTrustProcessController.Current.RunAsAdministratorAsync(ExcutePath, "/k", "cd", "/d", CurrentFolder.Path).ConfigureAwait(false);
+                    await FullTrustProcessController.Current.RunAsync(ExcutePath, true, false, "/k", "cd", "/d", CurrentFolder.Path).ConfigureAwait(false);
                 }
                 catch (InvalidOperationException)
                 {
@@ -1534,7 +1534,7 @@ namespace RX_Explorer
                         {
                             try
                             {
-                                await FullTrustProcessController.Current.RunAsync("wt.exe", "/d", CurrentFolder.Path).ConfigureAwait(false);
+                                await FullTrustProcessController.Current.RunAsync("wt.exe", false, false, "/d", CurrentFolder.Path).ConfigureAwait(false);
                             }
                             catch (InvalidOperationException)
                             {
@@ -1573,23 +1573,32 @@ namespace RX_Explorer
         Retry:
             try
             {
-                string ProtentialPath1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), QueryText.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ? QueryText.ToLower() : $"{QueryText.ToLower()}.exe");
-                string ProtentialPath2 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), QueryText.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ? QueryText.ToLower() : $"{QueryText.ToLower()}.exe");
-                string ProtentialPath3 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), QueryText.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ? QueryText.ToLower() : $"{QueryText.ToLower()}.exe");
+                string ProtentialPath1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), QueryText);
+                string ProtentialPath2 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), QueryText);
+                string ProtentialPath3 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), QueryText);
 
                 if (WIN_Native_API.CheckExist(ProtentialPath1))
                 {
-                    await FullTrustProcessController.Current.RunAsAdministratorAsync(ProtentialPath1).ConfigureAwait(false);
+                    if (WIN_Native_API.GetStorageItems(ProtentialPath1).FirstOrDefault() is FileSystemStorageItemBase Item)
+                    {
+                        await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
+                    }
                     return;
                 }
                 else if (WIN_Native_API.CheckExist(ProtentialPath2))
                 {
-                    await FullTrustProcessController.Current.RunAsAdministratorAsync(ProtentialPath2).ConfigureAwait(false);
+                    if (WIN_Native_API.GetStorageItems(ProtentialPath2).FirstOrDefault() is FileSystemStorageItemBase Item)
+                    {
+                        await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
+                    }
                     return;
                 }
                 else if (WIN_Native_API.CheckExist(ProtentialPath3))
                 {
-                    await FullTrustProcessController.Current.RunAsAdministratorAsync(ProtentialPath3).ConfigureAwait(false);
+                    if (WIN_Native_API.GetStorageItems(ProtentialPath3).FirstOrDefault() is FileSystemStorageItemBase Item)
+                    {
+                        await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
+                    }
                     return;
                 }
             }

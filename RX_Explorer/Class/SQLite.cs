@@ -31,7 +31,10 @@ namespace RX_Explorer.Class
 
             ConnectionPool = new SQLConnectionPool<SqliteConnection>("Filename=RX_Sqlite.db;", 2, 0);
 
-            InitializeDatabase();
+            if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("DatabaseInit"))
+            {
+                InitializeDatabase();
+            }
         }
 
         /// <summary>
@@ -83,6 +86,8 @@ namespace RX_Explorer.Class
             {
                 _ = CreateTable.ExecuteNonQuery();
             }
+
+            ApplicationData.Current.LocalSettings.Values["DatabaseInit"] = true;
         }
 
         public async Task<List<TerminalProfile>> GetAllTerminalProfile()

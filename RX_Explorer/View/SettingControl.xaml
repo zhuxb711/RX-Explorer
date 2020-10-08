@@ -249,7 +249,6 @@
                                   OffContent="禁用"
                                   Name="AutoBoot"
                                   x:Uid="AutoBootOnStartup"
-                                  Toggled="AutoBoot_Toggled"
                                   Margin="0,20,0,0" />
 
                     <StackPanel Margin="0,20,0,0">
@@ -422,10 +421,9 @@
                                     Orientation="Horizontal">
                             <GridView Name="PictureGirdView"
                                       ItemsSource="{x:Bind PictureList}"
-                                      Width="275"
+                                      MaxWidth="275"
                                       VerticalAlignment="Center"
                                       IsRightTapEnabled="True"
-                                      ContextFlyout="{StaticResource PictureFlyout}"
                                       RightTapped="PictureGirdView_RightTapped"
                                       ScrollViewer.HorizontalScrollMode="Enabled"
                                       ScrollViewer.HorizontalScrollBarVisibility="Hidden"

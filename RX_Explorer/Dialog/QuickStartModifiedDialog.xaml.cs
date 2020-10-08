@@ -436,6 +436,7 @@ namespace RX_Explorer.Dialog
                     case QuickStartType.UpdateApp:
                         {
                             Picker.FileTypeFilter.Add(".exe");
+                            Picker.FileTypeFilter.Add(".msc");
                             break;
                         }
                     case QuickStartType.WebSite:

@@ -182,7 +182,14 @@ namespace RX_Explorer
                         Retry:
                             try
                             {
-                                await FullTrustProcessController.Current.RunAsync(Item.Protocol).ConfigureAwait(true);
+                                if (Path.GetExtension(Item.Protocol).ToLower() == ".msc")
+                                {
+                                    await FullTrustProcessController.Current.RunAsync(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe"), false, true, "-Command", Item.Protocol).ConfigureAwait(true);
+                                }
+                                else
+                                {
+                                    await FullTrustProcessController.Current.RunAsync(Item.Protocol).ConfigureAwait(true);
+                                }
                             }
                             catch (InvalidOperationException)
                             {
