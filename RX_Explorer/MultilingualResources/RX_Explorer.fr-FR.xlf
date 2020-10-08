@@ -1384,14 +1384,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Zip Compression Option</source>
           <target state="translated">Options de compression</target>
         </trans-unit>
-        <trans-unit id="ZipDialogCheckBox.Content" translate="yes" xml:space="preserve">
-          <source>Enable Zip encryption</source>
-          <target state="translated">Activer le chiffrement</target>
-        </trans-unit>
-        <trans-unit id="ZipDialogEncryption.Header" translate="yes" xml:space="preserve">
-          <source>Encryption Method</source>
-          <target state="translated">Méthode de chiffrement</target>
-        </trans-unit>
         <trans-unit id="ZipDialogLevel.Header" translate="yes" xml:space="preserve">
           <source>Compression Level</source>
           <target state="translated">Niveau de compression</target>
@@ -1399,14 +1391,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="ZipDialogName.Header" translate="yes" xml:space="preserve">
           <source>FileName</source>
           <target state="translated">Nom de fichier</target>
-        </trans-unit>
-        <trans-unit id="ZipDialogPassword.Header" translate="yes" xml:space="preserve">
-          <source>Password</source>
-          <target state="translated">Mot de passe</target>
-        </trans-unit>
-        <trans-unit id="ZipDialogPassword.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Enter password</source>
-          <target state="translated">Entrez le mot de passe</target>
         </trans-unit>
         <trans-unit id="Zip.Label" translate="yes" xml:space="preserve">
           <source>Compression</source>
@@ -2260,14 +2244,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Package only</source>
           <target state="translated">Archive seulement</target>
         </trans-unit>
-        <trans-unit id="Zip_Dialog_Password_PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Enter decompression password</source>
-          <target state="translated">Entrez le mot de passe pour décompresser</target>
-        </trans-unit>
-        <trans-unit id="Zip_Dialog_Password_Title" translate="yes" xml:space="preserve">
-          <source>Password required</source>
-          <target state="translated">Mot de passe requis</target>
-        </trans-unit>
         <trans-unit id="Common_Dialog_CancelButton" translate="yes" xml:space="preserve">
           <source>Cancel</source>
           <target state="translated">Annuler</target>
@@ -2952,10 +2928,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Remove hidden attributes</source>
           <target state="translated">Supprimer les attributs masqués</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_EnableHiddenItemDisplayWarning_Content" translate="yes" xml:space="preserve">
-          <source>Enable the hidden file display function, improper use may damage your computer.\r\rWhether to continue to enable it?</source>
-          <target state="translated">Activez la fonction d'affichage des fichiers cachés, une mauvaise utilisation peut endommager votre ordinateur. \r\rPour continuer à l'activer?</target>
-        </trans-unit>
         <trans-unit id="Folder_Open_Method_1" translate="yes" xml:space="preserve">
           <source>Double click</source>
           <target state="translated">Double clic</target>
@@ -3335,6 +3307,10 @@ Les noms non valides incluent
         <trans-unit id="BuildIn_TextViewer_Description" translate="yes" xml:space="preserve">
           <source>Built-in text editor</source>
           <target state="translated">Éditeur de texte intégré</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_BingDownloadError_Content" translate="yes" xml:space="preserve">
+          <source>Unable to download Bing image</source>
+          <target state="translated">Impossible de télécharger l'image Bing</target>
         </trans-unit>
       </group>
     </body>

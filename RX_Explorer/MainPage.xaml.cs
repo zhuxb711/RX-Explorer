@@ -29,9 +29,9 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
-using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 using NavigationView = Microsoft.UI.Xaml.Controls.NavigationView;
 using NavigationViewBackRequestedEventArgs = Microsoft.UI.Xaml.Controls.NavigationViewBackRequestedEventArgs;
+using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 using NavigationViewItemInvokedEventArgs = Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs;
 
 namespace RX_Explorer
@@ -79,6 +79,19 @@ namespace RX_Explorer
             }
         }
 
+        private async void Current_DataChanged(ApplicationData sender, object args)
+        {
+            ApplicationData.Current.DataChanged -= Current_DataChanged;
+
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            {
+                if (FindName(nameof(SettingControl)) is SettingControl Control)
+                {
+                    await Control.Initialize().ConfigureAwait(true);
+                }
+            });
+        }
+
         private void MainPage_Activated(object sender, WindowActivatedEventArgs e)
         {
             if (e.WindowActivationState != CoreWindowActivationState.Deactivated)
@@ -89,14 +102,14 @@ namespace RX_Explorer
 
         private async void MainPage_Loaded1(object sender, RoutedEventArgs e)
         {
-            if(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"] is double BlurValue)
+            if (ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"] is float BlurValue)
             {
-                switch(BackgroundController.Current.CurrentType)
+                switch (BackgroundController.Current.CurrentType)
                 {
                     case BackgroundBrushType.BingPicture:
                     case BackgroundBrushType.Picture:
                         {
-                            BackgroundBlur.Amount = BlurValue;
+                            BackgroundBlur.Amount = BlurValue / 5;
                             break;
                         }
                     default:
@@ -163,7 +176,7 @@ namespace RX_Explorer
                 ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] = false;
             }
 
-            if(!ApplicationData.Current.LocalSettings.Values.ContainsKey("AlwaysStartNew"))
+            if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("AlwaysStartNew"))
             {
                 ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] = true;
             }
@@ -311,6 +324,8 @@ namespace RX_Explorer
                 }
 
                 Nav.Navigate(typeof(TabViewContainer), null, new DrillInNavigationTransitionInfo());
+
+                ApplicationData.Current.DataChanged += Current_DataChanged;
 
                 await GetUserInfoAsync().ConfigureAwait(true);
 

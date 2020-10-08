@@ -1045,23 +1045,11 @@
   <data name="ZipDialog.Title" xml:space="preserve">
     <value>Options de compression</value>
   </data>
-  <data name="ZipDialogCheckBox.Content" xml:space="preserve">
-    <value>Activer le chiffrement</value>
-  </data>
-  <data name="ZipDialogEncryption.Header" xml:space="preserve">
-    <value>Méthode de chiffrement</value>
-  </data>
   <data name="ZipDialogLevel.Header" xml:space="preserve">
     <value>Niveau de compression</value>
   </data>
   <data name="ZipDialogName.Header" xml:space="preserve">
     <value>Nom de fichier</value>
-  </data>
-  <data name="ZipDialogPassword.Header" xml:space="preserve">
-    <value>Mot de passe</value>
-  </data>
-  <data name="ZipDialogPassword.PlaceholderText" xml:space="preserve">
-    <value>Entrez le mot de passe</value>
   </data>
   <data name="Zip.Label" xml:space="preserve">
     <value>Compression</value>
@@ -1709,12 +1697,6 @@
   <data name="Zip_Dialog_Level_3" xml:space="preserve">
     <value>Archive seulement</value>
   </data>
-  <data name="Zip_Dialog_Password_PlaceholderText" xml:space="preserve">
-    <value>Entrez le mot de passe pour décompresser</value>
-  </data>
-  <data name="Zip_Dialog_Password_Title" xml:space="preserve">
-    <value>Mot de passe requis</value>
-  </data>
   <data name="Common_Dialog_CancelButton" xml:space="preserve">
     <value>Annuler</value>
   </data>
@@ -2233,9 +2215,6 @@
   <data name="Operate_Text_RemoveHidden" xml:space="preserve">
     <value>Supprimer les attributs masqués</value>
   </data>
-  <data name="QueueDialog_EnableHiddenItemDisplayWarning_Content" xml:space="preserve">
-    <value>Activez la fonction d'affichage des fichiers cachés, une mauvaise utilisation peut endommager votre ordinateur. \r\rPour continuer à l'activer?</value>
-  </data>
   <data name="Folder_Open_Method_1" xml:space="preserve">
     <value>Double clic</value>
   </data>
@@ -2516,5 +2495,8 @@ Les noms non valides incluent
   </data>
   <data name="BuildIn_TextViewer_Description" xml:space="preserve">
     <value>Éditeur de texte intégré</value>
+  </data>
+  <data name="QueueDialog_BingDownloadError_Content" xml:space="preserve">
+    <value>Impossible de télécharger l'image Bing</value>
   </data>
 </root>

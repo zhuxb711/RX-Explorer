@@ -19,7 +19,6 @@
                           Title="Acrylic主题颜色"
                           x:Uid="SettingPageColorPickerTip"
                           Target="{x:Bind AcrylicColor}"
-                          Closed="ColorPickerTeachTip_Closed"
                           HeroContentPlacement="Top">
             <muxc:TeachingTip.HeroContent>
                 <Image Stretch="UniformToFill"

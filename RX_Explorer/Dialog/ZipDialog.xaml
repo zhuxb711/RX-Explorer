@@ -10,43 +10,15 @@
                           CloseButtonText="取消"
                           x:Uid="ZipDialog"
                           PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
-    <local:QueueContentDialog.Resources>
-        <local:ZipCryptConverter x:Key="ZipConverter" />
-    </local:QueueContentDialog.Resources>
 
-    <StackPanel ChildrenTransitions="{x:Bind local:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}">
+    <StackPanel>
         <TextBox Header="文件名"
                  x:Uid="ZipDialogName"
                  Name="FName" />
-        <PasswordBox x:Uid="ZipDialogPassword"
-                     Name="Pass"
-                     Header="密码"
-                     Margin="0,10,0,0"
-                     PlaceholderText="输入加密密码"
-                     Visibility="{x:Bind EnableCryption.IsChecked,Mode=OneWay,Converter={StaticResource ZipConverter}}" />
-        <StackPanel Orientation="Horizontal">
-            <ComboBox x:Uid="ZipDialogLevel"
-                      HorizontalAlignment="Stretch"
-                      Header="压缩等级"
-                      Margin="0,10,0,0"
-                      Width="150"
-                      Name="ZipMethod" />
-            <ComboBox Grid.Column="1"
-                      x:Uid="ZipDialogEncryption"
-                      Name="ZipCryption"
-                      Margin="10,10,0,0"
-                      Visibility="{x:Bind EnableCryption.IsChecked,Mode=OneWay,Converter={StaticResource ZipConverter}}"
-                      Header="加密方法"
-                      Width="150"
-                      HorizontalAlignment="Stretch"
-                      VerticalAlignment="Stretch">
-                <x:String>AES-128</x:String>
-                <x:String>AES-256</x:String>
-            </ComboBox>
-        </StackPanel>
-        <CheckBox x:Uid="ZipDialogCheckBox"
-                  Content="启用Zip加密"
+        <ComboBox x:Uid="ZipDialogLevel"
+                  Header="压缩等级"
                   Margin="0,10,0,0"
-                  Name="EnableCryption" />
+                  Width="150"
+                  Name="ZipMethod" />
     </StackPanel>
 </local:QueueContentDialog>

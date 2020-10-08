@@ -24,27 +24,6 @@ namespace RX_Explorer.Class
     }
 
     /// <summary>
-    /// AES加密密钥长度枚举
-    /// </summary>
-    public enum KeySize
-    {
-        /// <summary>
-        /// 无
-        /// </summary>
-        None = 0,
-
-        /// <summary>
-        /// AES-128bit
-        /// </summary>
-        AES128 = 128,
-
-        /// <summary>
-        /// AES-256bit
-        /// </summary>
-        AES256 = 256
-    }
-
-    /// <summary>
     /// 压缩等级枚举
     /// </summary>
     public enum CompressionLevel

@@ -22,39 +22,46 @@ namespace RX_Explorer.Class
                         return ExistFile;
                     }
 
-                    StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("BingDailyPicture_Cache.jpg", CreationCollisionOption.ReplaceExisting);
+                    StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("BingDailyPicture_Cache.jpg", CreationCollisionOption.GenerateUniqueName);
 
-                    using (Stream TempFileStream = (await TempFile.OpenAsync(FileAccessMode.ReadWrite)).AsStream())
+                    try
                     {
-                        try
+                        using (Stream TempFileStream = (await TempFile.OpenAsync(FileAccessMode.ReadWrite)).AsStream())
                         {
-                            await Task.Run(() =>
+                            try
                             {
-                                HttpWebRequest Request = (HttpWebRequest)WebRequest.Create(new Uri($"https://www.bing.com{Path}"));
-                                using (WebResponse Response = Request.GetResponse())
-                                using (Stream ResponseStream = Response.GetResponseStream())
+                                await Task.Run(() =>
                                 {
-                                    ResponseStream.CopyTo(TempFileStream);
-                                }
-                            }).ConfigureAwait(false);
-                        }
-                        catch
-                        {
-                            return ExistFile;
-                        }
-
-                        using (Stream FileStream = await ExistFile.OpenStreamForReadAsync().ConfigureAwait(false))
-                        {
-                            if (FileStream.ComputeMD5Hash() == TempFileStream.ComputeMD5Hash())
+                                    HttpWebRequest Request = (HttpWebRequest)WebRequest.Create(new Uri($"https://www.bing.com{Path}"));
+                                    using (WebResponse Response = Request.GetResponse())
+                                    using (Stream ResponseStream = Response.GetResponseStream())
+                                    {
+                                        ResponseStream.CopyTo(TempFileStream);
+                                    }
+                                }).ConfigureAwait(false);
+                            }
+                            catch
                             {
                                 return ExistFile;
                             }
+
+                            using (Stream FileStream = await ExistFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                            {
+                                if (FileStream.ComputeMD5Hash() == TempFileStream.ComputeMD5Hash())
+                                {
+                                    return ExistFile;
+                                }
+                            }
                         }
+
+                        await TempFile.MoveAndReplaceAsync(ExistFile);
+
+                        return ExistFile;
                     }
-
-                    await TempFile.MoveAndReplaceAsync(ExistFile);
-
-                    return ExistFile;
+                    finally
+                    {
+                        await TempFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                    }
                 }
                 else
                 {

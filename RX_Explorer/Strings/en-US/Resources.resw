@@ -1162,23 +1162,11 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="ZipDialog.Title" xml:space="preserve">
     <value>Zip Compression Option</value>
   </data>
-  <data name="ZipDialogCheckBox.Content" xml:space="preserve">
-    <value>Enable Zip encryption</value>
-  </data>
-  <data name="ZipDialogEncryption.Header" xml:space="preserve">
-    <value>Encryption Method</value>
-  </data>
   <data name="ZipDialogLevel.Header" xml:space="preserve">
     <value>Compression Level</value>
   </data>
   <data name="ZipDialogName.Header" xml:space="preserve">
     <value>FileName</value>
-  </data>
-  <data name="ZipDialogPassword.Header" xml:space="preserve">
-    <value>Password</value>
-  </data>
-  <data name="ZipDialogPassword.PlaceholderText" xml:space="preserve">
-    <value>Enter password</value>
   </data>
   <data name="Zip.Label" xml:space="preserve">
     <value>Compression</value>
@@ -1839,12 +1827,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="Zip_Dialog_Level_3" xml:space="preserve">
     <value>Package only</value>
   </data>
-  <data name="Zip_Dialog_Password_PlaceholderText" xml:space="preserve">
-    <value>Enter decompression password</value>
-  </data>
-  <data name="Zip_Dialog_Password_Title" xml:space="preserve">
-    <value>Password required</value>
-  </data>
   <data name="Common_Dialog_CancelButton" xml:space="preserve">
     <value>Cancel</value>
   </data>
@@ -2347,9 +2329,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="Operate_Text_RemoveHidden" xml:space="preserve">
     <value>Remove hidden attributes</value>
   </data>
-  <data name="QueueDialog_EnableHiddenItemDisplayWarning_Content" xml:space="preserve">
-    <value>Enable the hidden file display function, improper use may damage your computer.\r\rWhether to continue to enable it?</value>
-  </data>
   <data name="Folder_Open_Method_1" xml:space="preserve">
     <value>Double click</value>
   </data>
@@ -2621,5 +2600,8 @@ Invalid names include
   </data>
   <data name="BuildIn_TextViewer_Description" xml:space="preserve">
     <value>Built-in text editor</value>
+  </data>
+  <data name="QueueDialog_BingDownloadError_Content" xml:space="preserve">
+    <value>Unable to download Bing image</value>
   </data>
 </root>

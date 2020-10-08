@@ -2069,34 +2069,20 @@ namespace RX_Explorer
             }
             else
             {
-                ZipDialog dialog = new ZipDialog(true, Item.DisplayName);
+                ZipDialog dialog = new ZipDialog(Item.DisplayName);
 
                 if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
                     await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
 
-                    if (dialog.IsCryptionEnable)
+                    await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level, (s, e) =>
                     {
-                        await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level, true, dialog.Password, dialog.Key, (s, e) =>
+                        if (FileControlInstance.ProBar.Value < e.ProgressPercentage)
                         {
-                            if (FileControlInstance.ProBar.Value < e.ProgressPercentage)
-                            {
-                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                FileControlInstance.ProBar.Value = e.ProgressPercentage;
-                            }
-                        }).ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level, ProgressHandler: (s, e) =>
-                        {
-                            if (FileControlInstance.ProBar.Value < e.ProgressPercentage)
-                            {
-                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                FileControlInstance.ProBar.Value = e.ProgressPercentage;
-                            }
-                        }).ConfigureAwait(true);
-                    }
+                            FileControlInstance.ProBar.IsIndeterminate = false;
+                            FileControlInstance.ProBar.Value = e.ProgressPercentage;
+                        }
+                    }).ConfigureAwait(true);
 
                     await FileControlInstance.LoadingActivation(false).ConfigureAwait(false);
                 }
@@ -2151,69 +2137,49 @@ namespace RX_Explorer
                 ParentFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(ZFile.Path));
                 StorageFolder NewFolder = await ParentFolder.CreateFolderAsync(Path.GetFileNameWithoutExtension(ZFile.Name), CreationCollisionOption.OpenIfExists);
 
-                using (Stream ZipFileStream = await ZFile.OpenStreamForReadAsync().ConfigureAwait(true))
-                using (ZipFile ZipEntries = new ZipFile(ZipFileStream))
+                using (Stream FileStream = await ZFile.OpenStreamForReadAsync().ConfigureAwait(true))
+                using (ZipInputStream InputZipStream = new ZipInputStream(FileStream))
                 {
-                    if (ZipEntries.Count == 0)
+                    FileStream.Seek(0, SeekOrigin.Begin);
+
+                    InputZipStream.IsStreamOwner = false;
+
+                    while (InputZipStream.GetNextEntry() is ZipEntry Entry)
                     {
-                        return;
-                    }
+                        StorageFile NewFile = null;
 
-                    if (ZipEntries[0].IsCrypted)
-                    {
-                        ZipDialog Dialog = new ZipDialog(false);
-
-                        if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                        if (Entry.Name.Contains("/"))
                         {
-                            ZipEntries.Password = Dialog.Password;
-                        }
-                        else
-                        {
-                            return;
-                        }
-                    }
+                            string[] SplitFolderPath = Entry.Name.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
-                    ZipFileStream.Seek(0, SeekOrigin.Begin);
+                            StorageFolder TempFolder = NewFolder;
 
-                    foreach (ZipEntry Entry in ZipEntries)
-                    {
-                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(ZipFileStream.Position * 100d / ZipFileStream.Length)), null));
-
-                        using (Stream ZipEntryStream = ZipEntries.GetInputStream(Entry))
-                        {
-                            StorageFile NewFile = null;
-
-                            if (Entry.Name.Contains("/"))
+                            for (int i = 0; i < SplitFolderPath.Length - 1; i++)
                             {
-                                string[] SplitFolderPath = Entry.Name.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                                TempFolder = await TempFolder.CreateFolderAsync(SplitFolderPath[i], CreationCollisionOption.OpenIfExists);
+                            }
 
-                                StorageFolder TempFolder = NewFolder;
-
-                                for (int i = 0; i < SplitFolderPath.Length - 1; i++)
-                                {
-                                    TempFolder = await TempFolder.CreateFolderAsync(SplitFolderPath[i], CreationCollisionOption.OpenIfExists);
-                                }
-
-                                if (Entry.Name.Last() == '/')
-                                {
-                                    await TempFolder.CreateFolderAsync(SplitFolderPath.Last(), CreationCollisionOption.OpenIfExists);
-                                    continue;
-                                }
-                                else
-                                {
-                                    NewFile = await TempFolder.CreateFileAsync(SplitFolderPath.Last(), CreationCollisionOption.ReplaceExisting);
-                                }
+                            if (Entry.Name.Last() == '/')
+                            {
+                                await TempFolder.CreateFolderAsync(SplitFolderPath.Last(), CreationCollisionOption.OpenIfExists);
+                                continue;
                             }
                             else
                             {
-                                NewFile = await NewFolder.CreateFileAsync(Entry.Name, CreationCollisionOption.ReplaceExisting);
-                            }
-
-                            using (Stream NewFileStream = await NewFile.OpenStreamForWriteAsync().ConfigureAwait(true))
-                            {
-                                await ZipEntryStream.CopyToAsync(NewFileStream).ConfigureAwait(true);
+                                NewFile = await TempFolder.CreateFileAsync(SplitFolderPath.Last(), CreationCollisionOption.ReplaceExisting);
                             }
                         }
+                        else
+                        {
+                            NewFile = await NewFolder.CreateFileAsync(Entry.Name, CreationCollisionOption.ReplaceExisting);
+                        }
+
+                        using (Stream NewFileStream = await NewFile.OpenStreamForWriteAsync().ConfigureAwait(true))
+                        {
+                            await InputZipStream.CopyToAsync(NewFileStream).ConfigureAwait(true);
+                        }
+
+                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(FileStream.Position * 100d / FileStream.Length)), null));
                     }
                 }
             }
@@ -2254,7 +2220,7 @@ namespace RX_Explorer
         /// <param name="Size">AES加密密钥长度</param>
         /// <param name="Password">密码</param>
         /// <returns>无</returns>
-        private async Task CreateZipAsync(IStorageItem ZipTarget, string NewZipName, int ZipLevel, bool EnableCryption = false, string Password = null, KeySize Size = KeySize.None, ProgressChangedEventHandler ProgressHandler = null)
+        private async Task CreateZipAsync(IStorageItem ZipTarget, string NewZipName, int ZipLevel, ProgressChangedEventHandler ProgressHandler = null)
         {
             try
             {
@@ -2265,56 +2231,32 @@ namespace RX_Explorer
                 {
                     OutputStream.SetLevel(ZipLevel);
                     OutputStream.UseZip64 = UseZip64.Dynamic;
-
-                    if (EnableCryption)
-                    {
-                        OutputStream.Password = Password;
-                    }
+                    OutputStream.IsStreamOwner = false;
 
                     try
                     {
                         if (ZipTarget is StorageFile ZipFile)
                         {
-                            if (EnableCryption)
+
+                            using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(true))
                             {
-                                using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(true))
+                                ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
                                 {
-                                    ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
-                                    {
-                                        DateTime = DateTime.Now,
-                                        AESKeySize = (int)Size,
-                                        IsCrypted = true,
-                                        CompressionMethod = CompressionMethod.Deflated,
-                                        Size = FileStream.Length
-                                    };
+                                    DateTime = DateTime.Now,
+                                    CompressionMethod = CompressionMethod.Deflated,
+                                    Size = FileStream.Length
+                                };
 
-                                    OutputStream.PutNextEntry(NewEntry);
+                                OutputStream.PutNextEntry(NewEntry);
 
-                                    await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
-                                }
-                            }
-                            else
-                            {
-                                using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(true))
-                                {
-                                    ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
-                                    {
-                                        DateTime = DateTime.Now,
-                                        CompressionMethod = CompressionMethod.Deflated,
-                                        Size = FileStream.Length
-                                    };
-
-                                    OutputStream.PutNextEntry(NewEntry);
-
-                                    await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
-                                }
+                                await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
                             }
 
                             ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(100, null));
                         }
                         else if (ZipTarget is StorageFolder ZipFolder)
                         {
-                            await ZipFolderCore(ZipFolder, OutputStream, ZipFolder.Name, EnableCryption, Password, Size, ProgressHandler).ConfigureAwait(true);
+                            await ZipFolderCore(ZipFolder, OutputStream, ZipFolder.Name, ProgressHandler).ConfigureAwait(true);
                         }
 
                         await OutputStream.FlushAsync().ConfigureAwait(true);
@@ -2358,7 +2300,7 @@ namespace RX_Explorer
         /// <param name="Size">AES加密密钥长度</param>
         /// <param name="Password">密码</param>
         /// <returns>无</returns>
-        private async Task CreateZipAsync(IEnumerable<FileSystemStorageItemBase> ZipItemGroup, string NewZipName, int ZipLevel, bool EnableCryption = false, string Password = null, KeySize Size = KeySize.None, ProgressChangedEventHandler ProgressHandler = null)
+        private async Task CreateZipAsync(IEnumerable<FileSystemStorageItemBase> ZipItemGroup, string NewZipName, int ZipLevel, ProgressChangedEventHandler ProgressHandler = null)
         {
             try
             {
@@ -2369,11 +2311,7 @@ namespace RX_Explorer
                 {
                     OutputStream.SetLevel(ZipLevel);
                     OutputStream.UseZip64 = UseZip64.Dynamic;
-
-                    if (EnableCryption)
-                    {
-                        OutputStream.Password = Password;
-                    }
+                    OutputStream.IsStreamOwner = false;
 
                     try
                     {
@@ -2397,39 +2335,18 @@ namespace RX_Explorer
                         {
                             if (await StorageItem.GetStorageItem().ConfigureAwait(true) is StorageFile ZipFile)
                             {
-                                if (EnableCryption)
+                                using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(true))
                                 {
-                                    using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(true))
+                                    ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
                                     {
-                                        ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
-                                        {
-                                            DateTime = DateTime.Now,
-                                            AESKeySize = (int)Size,
-                                            IsCrypted = true,
-                                            CompressionMethod = CompressionMethod.Deflated,
-                                            Size = FileStream.Length
-                                        };
+                                        DateTime = DateTime.Now,
+                                        CompressionMethod = CompressionMethod.Deflated,
+                                        Size = FileStream.Length
+                                    };
 
-                                        OutputStream.PutNextEntry(NewEntry);
+                                    OutputStream.PutNextEntry(NewEntry);
 
-                                        await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
-                                    }
-                                }
-                                else
-                                {
-                                    using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(true))
-                                    {
-                                        ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
-                                        {
-                                            DateTime = DateTime.Now,
-                                            CompressionMethod = CompressionMethod.Deflated,
-                                            Size = FileStream.Length
-                                        };
-
-                                        OutputStream.PutNextEntry(NewEntry);
-
-                                        await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
-                                    }
+                                    await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
                                 }
 
                                 if (TotalSize > 0)
@@ -2442,7 +2359,7 @@ namespace RX_Explorer
                             {
                                 long InnerFolderSixe = Convert.ToInt64(WIN_Native_API.CalculateSize(ZipFolder.Path));
 
-                                await ZipFolderCore(ZipFolder, OutputStream, ZipFolder.Name, EnableCryption, Password, Size, (s, e) =>
+                                await ZipFolderCore(ZipFolder, OutputStream, ZipFolder.Name, (s, e) =>
                                 {
                                     if (TotalSize > 0)
                                     {
@@ -2489,7 +2406,7 @@ namespace RX_Explorer
             }
         }
 
-        private async Task ZipFolderCore(StorageFolder Folder, ZipOutputStream OutputStream, string BaseFolderName, bool EnableCryption = false, string Password = null, KeySize Size = KeySize.None, ProgressChangedEventHandler ProgressHandler = null)
+        private async Task ZipFolderCore(StorageFolder Folder, ZipOutputStream OutputStream, string BaseFolderName, ProgressChangedEventHandler ProgressHandler = null)
         {
             IReadOnlyList<IStorageItem> ItemsCollection = await Folder.GetItemsAsync();
 
@@ -2514,26 +2431,13 @@ namespace RX_Explorer
                     {
                         long InnerFolderSixe = Convert.ToInt64(WIN_Native_API.CalculateSize(InnerFolder.Path));
 
-                        if (EnableCryption)
+                        await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{InnerFolder.Name}", ProgressHandler: (s, e) =>
                         {
-                            await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{InnerFolder.Name}", true, Password, Size, (s, e) =>
+                            if (TotalSize > 0)
                             {
-                                if (TotalSize > 0)
-                                {
-                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * InnerFolderSixe)) * 100d / TotalSize)), null));
-                                }
-                            }).ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{InnerFolder.Name}", ProgressHandler: (s, e) =>
-                            {
-                                if (TotalSize > 0)
-                                {
-                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * InnerFolderSixe)) * 100d / TotalSize)), null));
-                                }
-                            }).ConfigureAwait(true);
-                        }
+                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * InnerFolderSixe)) * 100d / TotalSize)), null));
+                            }
+                        }).ConfigureAwait(true);
 
                         if (TotalSize > 0)
                         {
@@ -2543,45 +2447,21 @@ namespace RX_Explorer
                     }
                     else if (Item is StorageFile InnerFile)
                     {
-                        if (EnableCryption)
+                        using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(true))
                         {
-                            using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(true))
+                            ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/{InnerFile.Name}")
                             {
-                                ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/{InnerFile.Name}")
-                                {
-                                    DateTime = DateTime.Now,
-                                    AESKeySize = (int)Size,
-                                    IsCrypted = true,
-                                    CompressionMethod = CompressionMethod.Deflated,
-                                    Size = FileStream.Length
-                                };
+                                DateTime = DateTime.Now,
+                                CompressionMethod = CompressionMethod.Deflated,
+                                Size = FileStream.Length
+                            };
 
-                                OutputStream.PutNextEntry(NewEntry);
+                            OutputStream.PutNextEntry(NewEntry);
 
-                                await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
+                            await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
 
-                                OutputStream.CloseEntry();
-                            }
+                            OutputStream.CloseEntry();
                         }
-                        else
-                        {
-                            using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(true))
-                            {
-                                ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/{InnerFile.Name}")
-                                {
-                                    DateTime = DateTime.Now,
-                                    CompressionMethod = CompressionMethod.Deflated,
-                                    Size = FileStream.Length
-                                };
-
-                                OutputStream.PutNextEntry(NewEntry);
-
-                                await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
-
-                                OutputStream.CloseEntry();
-                            }
-                        }
-
 
                         if (TotalSize > 0)
                         {
@@ -4309,37 +4189,23 @@ namespace RX_Explorer
                 return;
             }
 
-            ZipDialog dialog = new ZipDialog(true, Item.DisplayName);
+            ZipDialog dialog = new ZipDialog(Item.DisplayName);
 
             if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
             {
                 await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
 
-                if (dialog.IsCryptionEnable)
+                await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level, ProgressHandler: (s, e) =>
                 {
-                    await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level, true, dialog.Password, dialog.Key, (s, e) =>
+                    if (FileControlInstance.ProBar.Value < e.ProgressPercentage)
                     {
-                        if (FileControlInstance.ProBar.Value < e.ProgressPercentage)
-                        {
-                            FileControlInstance.ProBar.IsIndeterminate = false;
-                            FileControlInstance.ProBar.Value = e.ProgressPercentage;
-                        }
-                    }).ConfigureAwait(true);
-                }
-                else
-                {
-                    await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level, ProgressHandler: (s, e) =>
-                    {
-                        if (FileControlInstance.ProBar.Value < e.ProgressPercentage)
-                        {
-                            FileControlInstance.ProBar.IsIndeterminate = false;
-                            FileControlInstance.ProBar.Value = e.ProgressPercentage;
-                        }
-                    }).ConfigureAwait(true);
-                }
-            }
+                        FileControlInstance.ProBar.IsIndeterminate = false;
+                        FileControlInstance.ProBar.Value = e.ProgressPercentage;
+                    }
+                }).ConfigureAwait(true);
 
-            await FileControlInstance.LoadingActivation(false).ConfigureAwait(true);
+                await FileControlInstance.LoadingActivation(false).ConfigureAwait(true);
+            }
         }
 
         private void ViewControl_DragOver(object sender, DragEventArgs e)
@@ -5675,34 +5541,20 @@ namespace RX_Explorer
 
             if (IsCompress)
             {
-                ZipDialog dialog = new ZipDialog(true, Globalization.GetString("Zip_Admin_Name_Text"));
+                ZipDialog dialog = new ZipDialog(Globalization.GetString("Zip_Admin_Name_Text"));
 
                 if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
                     await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
 
-                    if (dialog.IsCryptionEnable)
+                    await CreateZipAsync(SelectedItems, dialog.FileName, (int)dialog.Level, ProgressHandler: (s, e) =>
                     {
-                        await CreateZipAsync(SelectedItems, dialog.FileName, (int)dialog.Level, true, dialog.Password, dialog.Key, (s, e) =>
+                        if (FileControlInstance.ProBar.Value < e.ProgressPercentage)
                         {
-                            if (FileControlInstance.ProBar.Value < e.ProgressPercentage)
-                            {
-                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                FileControlInstance.ProBar.Value = e.ProgressPercentage;
-                            }
-                        }).ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        await CreateZipAsync(SelectedItems, dialog.FileName, (int)dialog.Level, ProgressHandler: (s, e) =>
-                        {
-                            if (FileControlInstance.ProBar.Value < e.ProgressPercentage)
-                            {
-                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                FileControlInstance.ProBar.Value = e.ProgressPercentage;
-                            }
-                        }).ConfigureAwait(true);
-                    }
+                            FileControlInstance.ProBar.IsIndeterminate = false;
+                            FileControlInstance.ProBar.Value = e.ProgressPercentage;
+                        }
+                    }).ConfigureAwait(true);
 
                     await FileControlInstance.LoadingActivation(false).ConfigureAwait(true);
                 }

@@ -74,58 +74,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        /// <summary>
-        /// 将16进制字符串转换成Color对象
-        /// </summary>
-        /// <param name="Hex">十六进制字符串</param>
-        /// <returns></returns>
-        public static Color GetColorFromHexString(this string Hex)
-        {
-            if (string.IsNullOrWhiteSpace(Hex))
-            {
-                throw new ArgumentException("Hex could not be null or empty", nameof(Hex));
-            }
-
-            Hex = Hex.Replace("#", string.Empty);
-
-            bool ExistAlpha = Hex.Length == 8 || Hex.Length == 4;
-            bool IsDoubleHex = Hex.Length == 8 || Hex.Length == 6;
-
-            if (!ExistAlpha && Hex.Length != 6 && Hex.Length != 3)
-            {
-                throw new ArgumentException("Hex is invalid");
-            }
-
-            int n = 0;
-            byte a;
-            int HexCount = IsDoubleHex ? 2 : 1;
-            if (ExistAlpha)
-            {
-                n = HexCount;
-                a = (byte)Convert.ToUInt32(Hex.Substring(0, HexCount), 16);
-                if (!IsDoubleHex)
-                {
-                    a = (byte)(a * 16 + a);
-                }
-            }
-            else
-            {
-                a = 0xFF;
-            }
-
-            var r = (byte)Convert.ToUInt32(Hex.Substring(n, HexCount), 16);
-            var g = (byte)Convert.ToUInt32(Hex.Substring(n + HexCount, HexCount), 16);
-            var b = (byte)Convert.ToUInt32(Hex.Substring(n + (2 * HexCount), HexCount), 16);
-            if (!IsDoubleHex)
-            {
-                r = (byte)(r * 16 + r);
-                g = (byte)(g * 16 + g);
-                b = (byte)(b * 16 + b);
-            }
-
-            return Color.FromArgb(a, r, g, b);
-        }
-
         public static async Task MoveSubFilesAndSubFoldersAsync(this StorageFolder Folder, StorageFolder TargetFolder)
         {
             if (Folder == null)

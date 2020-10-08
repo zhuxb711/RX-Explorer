@@ -1,4 +1,5 @@
-﻿using RX_Explorer.Class;
+﻿using Microsoft.Toolkit.Uwp.Helpers;
+using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
@@ -53,11 +54,15 @@ namespace RX_Explorer
 
         public bool IsOpened { get; private set; }
 
+        private bool HasInit;
+
         private int EnterAndExitLock;
 
         private int BlurChangeLock;
 
         private int UpdateUILock;
+
+        private int LocalSettingLock;
 
         public SettingControl()
         {
@@ -69,9 +74,45 @@ namespace RX_Explorer
 
             EnableQuicklook.IsEnabled = IsQuicklookAvailable;
 
-            Loading += SettingPage_Loading;
             Loaded += SettingPage_Loaded;
-            ApplicationData.Current.DataChanged += Current_DataChanged;
+            Loading += SettingControl_Loading;
+        }
+
+        private async void SettingControl_Loading(FrameworkElement sender, object args)
+        {
+            await Initialize().ConfigureAwait(false);
+        }
+
+        public async Task Initialize()
+        {
+            if (!HasInit)
+            {
+                HasInit = true;
+
+                UIMode.Items.Add(Globalization.GetString("Setting_UIMode_Recommend"));
+                UIMode.Items.Add(Globalization.GetString("Setting_UIMode_SolidColor"));
+                UIMode.Items.Add(Globalization.GetString("Setting_UIMode_Custom"));
+
+                LanguageComboBox.Items.Add("中文(简体)");
+                LanguageComboBox.Items.Add("English (United States)");
+                LanguageComboBox.Items.Add("Français");
+                LanguageComboBox.Items.Add("中文(繁體)");
+
+                FolderOpenMethod.Items.Add(Globalization.GetString("Folder_Open_Method_2"));
+                FolderOpenMethod.Items.Add(Globalization.GetString("Folder_Open_Method_1"));
+
+                CustomFontColor.Items.Add(Globalization.GetString("Font_Color_White"));
+                CustomFontColor.Items.Add(Globalization.GetString("Font_Color_Black"));
+
+                foreach (TerminalProfile Profile in await SQLite.Current.GetAllTerminalProfile().ConfigureAwait(true))
+                {
+                    DefaultTerminal.Items.Add(Profile.Name);
+                }
+
+                await ApplyLocalSetting(false).ConfigureAwait(true);
+
+                ApplicationData.Current.DataChanged += Current_DataChanged;
+            }
         }
 
         private async void Current_DataChanged(ApplicationData sender, object args)
@@ -82,7 +123,19 @@ namespace RX_Explorer
                 {
                     try
                     {
-                        await ApplyLocalSetting().ConfigureAwait(true);
+                        IEnumerable<string> DataBase = (await SQLite.Current.GetAllTerminalProfile().ConfigureAwait(true)).Select((Profile) => Profile.Name);
+
+                        foreach (string NewProfile in DataBase.Except(DefaultTerminal.Items).ToList())
+                        {
+                            DefaultTerminal.Items.Add(NewProfile);
+                        }
+
+                        foreach (string RemoveProfile in DefaultTerminal.Items.Except(DataBase).ToList())
+                        {
+                            DefaultTerminal.Items.Remove(RemoveProfile);
+                        }
+
+                        await ApplyLocalSetting(true).ConfigureAwait(true);
 
                         if (ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is int Index && Index == UIMode.SelectedIndex)
                         {
@@ -132,7 +185,7 @@ namespace RX_Explorer
                                                                 if (PictureList.FirstOrDefault((Picture) => Picture.PictureUri.ToString() == Uri) is BackgroundPicture PictureItem)
                                                                 {
                                                                     PictureGirdView.SelectedItem = PictureItem;
-                                                                    PictureGirdView.ScrollIntoViewSmoothly(PictureItem);
+                                                                    PictureGirdView.ScrollIntoViewSmoothly(PictureItem, ScrollIntoViewAlignment.Leading);
 
                                                                     BitmapImage Bitmap = new BitmapImage();
 
@@ -223,7 +276,7 @@ namespace RX_Explorer
 
                 if (PictureMode.IsChecked.GetValueOrDefault() && PictureGirdView.SelectedItem != null)
                 {
-                    PictureGirdView.ScrollIntoViewSmoothly(PictureGirdView.SelectedItem);
+                    PictureGirdView.ScrollIntoViewSmoothly(PictureGirdView.SelectedItem, ScrollIntoViewAlignment.Leading);
                 }
             }
         }
@@ -290,43 +343,22 @@ namespace RX_Explorer
             Visual.StartAnimationGroup(AnimationGroup);
         }
 
-        private async void SettingPage_Loading(FrameworkElement sender, object args)
+        private async Task ApplyLocalSetting(bool IsRaiseFromDataChanged)
         {
-            UIMode.Items.Add(Globalization.GetString("Setting_UIMode_Recommend"));
-            UIMode.Items.Add(Globalization.GetString("Setting_UIMode_SolidColor"));
-            UIMode.Items.Add(Globalization.GetString("Setting_UIMode_Custom"));
-
-            LanguageComboBox.Items.Add("中文(简体)");
-            LanguageComboBox.Items.Add("English (United States)");
-            LanguageComboBox.Items.Add("Français");
-            LanguageComboBox.Items.Add("中文(繁體)");
-
-            FolderOpenMethod.Items.Add(Globalization.GetString("Folder_Open_Method_2"));
-            FolderOpenMethod.Items.Add(Globalization.GetString("Folder_Open_Method_1"));
-
-            CustomFontColor.Items.Add(Globalization.GetString("Font_Color_White"));
-            CustomFontColor.Items.Add(Globalization.GetString("Font_Color_Black"));
-
-            foreach (TerminalProfile Profile in await SQLite.Current.GetAllTerminalProfile().ConfigureAwait(true))
+            if (Interlocked.Exchange(ref LocalSettingLock, 1) == 0)
             {
-                DefaultTerminal.Items.Add(Profile.Name);
-            }
+                if (!IsRaiseFromDataChanged)
+                {
+                    DisplayHiddenItem.Toggled -= DisplayHiddenItem_Toggled;
+                    TreeViewDetach.Toggled -= TreeViewDetach_Toggled;
+                }
 
-            await ApplyLocalSetting().ConfigureAwait(true);
-        }
-
-        private async Task ApplyLocalSetting()
-        {
-            if (Interlocked.Exchange(ref UpdateUILock, 1) == 0)
-            {
-                DisplayHiddenItem.Toggled -= DisplayHiddenItem_Toggled;
-                UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
-                TreeViewDetach.Toggled -= TreeViewDetach_Toggled;
                 DefaultTerminal.SelectionChanged -= DefaultTerminal_SelectionChanged;
+                UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
                 AutoBoot.Toggled -= AutoBoot_Toggled;
 
                 LanguageComboBox.SelectedIndex = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["LanguageOverride"]);
-                BackgroundBlurSlider.Value = Convert.ToDouble(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
+                BackgroundBlurSlider.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
 
                 switch ((await StartupTask.GetAsync("RXExplorer")).State)
                 {
@@ -418,13 +450,17 @@ namespace RX_Explorer
                     AlwaysLaunchNewArea.Visibility = Visibility.Collapsed;
                 }
 
-                DisplayHiddenItem.Toggled += DisplayHiddenItem_Toggled;
+                if (!IsRaiseFromDataChanged)
+                {
+                    DisplayHiddenItem.Toggled += DisplayHiddenItem_Toggled;
+                    TreeViewDetach.Toggled += TreeViewDetach_Toggled;
+                }
+
                 UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
-                TreeViewDetach.Toggled += TreeViewDetach_Toggled;
                 DefaultTerminal.SelectionChanged += DefaultTerminal_SelectionChanged;
                 AutoBoot.Toggled += AutoBoot_Toggled;
 
-                _ = Interlocked.Exchange(ref UpdateUILock, 0);
+                _ = Interlocked.Exchange(ref LocalSettingLock, 0);
             }
         }
 
@@ -714,7 +750,7 @@ namespace RX_Explorer
 
                                 if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] is string Luminosity)
                                 {
-                                    double Value = Convert.ToDouble(Luminosity);
+                                    double Value = double.Parse(Luminosity);
                                     TintLuminositySlider.Value = Value;
                                     BackgroundController.Current.TintLuminosityOpacity = Value;
                                 }
@@ -726,7 +762,7 @@ namespace RX_Explorer
 
                                 if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] is string Opacity)
                                 {
-                                    double Value = Convert.ToDouble(Opacity);
+                                    double Value = double.Parse(Opacity);
                                     TintOpacitySlider.Value = Value;
                                     BackgroundController.Current.TintOpacity = Value;
                                 }
@@ -734,11 +770,6 @@ namespace RX_Explorer
                                 {
                                     TintOpacitySlider.Value = 0.6;
                                     BackgroundController.Current.TintOpacity = 0.6;
-                                }
-
-                                if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string AcrylicColor)
-                                {
-                                    BackgroundController.Current.AcrylicColor = AcrylicColor.GetColorFromHexString();
                                 }
                             }
 
@@ -769,11 +800,6 @@ namespace RX_Explorer
         private void TintLuminosityQuestion_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             LuminosityTip.IsOpen = true;
-        }
-
-        private void ColorPickerTeachTip_Closed(Microsoft.UI.Xaml.Controls.TeachingTip sender, Microsoft.UI.Xaml.Controls.TeachingTipClosedEventArgs args)
-        {
-            ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] = AcrylicColorPicker.Color.ToString();
         }
 
         private async void Purchase_Click(object sender, RoutedEventArgs e)
@@ -1001,103 +1027,130 @@ namespace RX_Explorer
 
         private void AcrylicMode_Checked(object sender, RoutedEventArgs e)
         {
-            CustomAcrylicArea.Visibility = Visibility.Visible;
-            CustomPictureArea.Visibility = Visibility.Collapsed;
-            GetBingPhotoState.Visibility = Visibility.Collapsed;
-            BackgroundBlurSliderArea.Visibility = Visibility.Collapsed;
-            MainPage.ThisPage.BackgroundBlur.Amount = 0;
-
-            ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.Acrylic);
-
-            BackgroundController.Current.SwitchTo(BackgroundBrushType.Acrylic);
-
-            if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] is string Luminosity)
+            try
             {
-                double Value = Convert.ToDouble(Luminosity);
-                TintLuminositySlider.Value = Value;
-                BackgroundController.Current.TintLuminosityOpacity = Value;
-            }
-            else
-            {
-                TintLuminositySlider.Value = 0.8;
-                BackgroundController.Current.TintLuminosityOpacity = 0.8;
-            }
+                CustomAcrylicArea.Visibility = Visibility.Visible;
+                CustomPictureArea.Visibility = Visibility.Collapsed;
+                GetBingPhotoState.Visibility = Visibility.Collapsed;
+                BackgroundBlurSliderArea.Visibility = Visibility.Collapsed;
+                MainPage.ThisPage.BackgroundBlur.Amount = 0;
 
-            if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] is string Opacity)
-            {
-                double Value = Convert.ToDouble(Opacity);
-                TintOpacitySlider.Value = Value;
-                BackgroundController.Current.TintOpacity = Value;
-            }
-            else
-            {
-                TintOpacitySlider.Value = 0.6;
-                BackgroundController.Current.TintOpacity = 0.6;
-            }
+                ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.Acrylic);
 
-            if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string AcrylicColor)
-            {
-                BackgroundController.Current.AcrylicColor = AcrylicColor.GetColorFromHexString();
-            }
+                BackgroundController.Current.SwitchTo(BackgroundBrushType.Acrylic);
 
-            ApplicationData.Current.SignalDataChanged();
+                if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] is string Luminosity)
+                {
+                    double Value = Convert.ToDouble(Luminosity);
+                    TintLuminositySlider.Value = Value;
+                    BackgroundController.Current.TintLuminosityOpacity = Value;
+                }
+                else
+                {
+                    TintLuminositySlider.Value = 0.8;
+                    BackgroundController.Current.TintLuminosityOpacity = 0.8;
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] is string Opacity)
+                {
+                    double Value = Convert.ToDouble(Opacity);
+                    TintOpacitySlider.Value = Value;
+                    BackgroundController.Current.TintOpacity = Value;
+                }
+                else
+                {
+                    TintOpacitySlider.Value = 0.6;
+                    BackgroundController.Current.TintOpacity = 0.6;
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string AcrylicColor)
+                {
+                    BackgroundController.Current.AcrylicColor = AcrylicColor.ToColor();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in AcrylicMode_Checked, message: {ex.Message}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
         }
 
         private async void PictureMode_Checked(object sender, RoutedEventArgs e)
         {
-            CustomAcrylicArea.Visibility = Visibility.Collapsed;
-            CustomPictureArea.Visibility = Visibility.Visible;
-            GetBingPhotoState.Visibility = Visibility.Collapsed;
-            BackgroundBlurSliderArea.Visibility = Visibility.Visible;
-            MainPage.ThisPage.BackgroundBlur.Amount = Convert.ToDouble(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
-
-            if (PictureList.Count == 0)
+            try
             {
-                foreach (Uri ImageUri in await SQLite.Current.GetBackgroundPictureAsync().ConfigureAwait(true))
-                {
-                    BitmapImage Bitmap = new BitmapImage
-                    {
-                        DecodePixelHeight = 70,
-                        DecodePixelWidth = 70
-                    };
+                CustomAcrylicArea.Visibility = Visibility.Collapsed;
+                CustomPictureArea.Visibility = Visibility.Visible;
+                GetBingPhotoState.Visibility = Visibility.Collapsed;
+                BackgroundBlurSliderArea.Visibility = Visibility.Visible;
+                MainPage.ThisPage.BackgroundBlur.Amount = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]) / 5;
 
-                    try
+                if (PictureList.Count == 0)
+                {
+                    foreach (Uri ImageUri in await SQLite.Current.GetBackgroundPictureAsync().ConfigureAwait(true))
                     {
-                        StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(ImageUri);
+                        BitmapImage Bitmap = new BitmapImage
+                        {
+                            DecodePixelHeight = 70,
+                            DecodePixelWidth = 70
+                        };
+
+                        try
+                        {
+                            StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(ImageUri);
+
+                            using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                            {
+                                await Bitmap.SetSourceAsync(Stream);
+                            }
+
+                            PictureList.Add(new BackgroundPicture(Bitmap, ImageUri));
+                        }
+                        catch
+                        {
+                            await SQLite.Current.DeleteBackgroundPictureAsync(ImageUri).ConfigureAwait(true);
+                        }
+                    }
+                }
+
+                ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.Picture);
+
+                if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string Uri)
+                {
+                    if (PictureList.FirstOrDefault((Picture) => Picture.PictureUri.ToString() == Uri) is BackgroundPicture PictureItem)
+                    {
+                        PictureGirdView.SelectedItem = PictureItem;
+                        PictureGirdView.ScrollIntoViewSmoothly(PictureItem, ScrollIntoViewAlignment.Leading);
+
+                        BitmapImage Bitmap = new BitmapImage();
+
+                        StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(PictureItem.PictureUri);
 
                         using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
                         {
                             await Bitmap.SetSourceAsync(Stream);
                         }
 
-                        PictureList.Add(new BackgroundPicture(Bitmap, ImageUri));
+                        BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureItem.PictureUri);
                     }
-                    catch
+                    else if (PictureList.Count > 0)
                     {
-                        await SQLite.Current.DeleteBackgroundPictureAsync(ImageUri).ConfigureAwait(true);
+                        PictureGirdView.SelectedIndex = 0;
+
+                        BitmapImage Bitmap = new BitmapImage();
+
+                        StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(PictureList.FirstOrDefault().PictureUri);
+
+                        using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                        {
+                            await Bitmap.SetSourceAsync(Stream);
+                        }
+
+                        BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureList.FirstOrDefault().PictureUri);
                     }
-                }
-            }
-
-            ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.Picture);
-
-            if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string Uri)
-            {
-                if (PictureList.FirstOrDefault((Picture) => Picture.PictureUri.ToString() == Uri) is BackgroundPicture PictureItem)
-                {
-                    PictureGirdView.SelectedItem = PictureItem;
-                    PictureGirdView.ScrollIntoViewSmoothly(PictureItem);
-
-                    BitmapImage Bitmap = new BitmapImage();
-
-                    StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(PictureItem.PictureUri);
-
-                    using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
-                    {
-                        await Bitmap.SetSourceAsync(Stream);
-                    }
-
-                    BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureItem.PictureUri);
                 }
                 else if (PictureList.Count > 0)
                 {
@@ -1115,23 +1168,14 @@ namespace RX_Explorer
                     BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureList.FirstOrDefault().PictureUri);
                 }
             }
-            else if (PictureList.Count > 0)
+            catch (Exception ex)
             {
-                PictureGirdView.SelectedIndex = 0;
-
-                BitmapImage Bitmap = new BitmapImage();
-
-                StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(PictureList.FirstOrDefault().PictureUri);
-
-                using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
-                {
-                    await Bitmap.SetSourceAsync(Stream);
-                }
-
-                BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureList.FirstOrDefault().PictureUri);
+                Debug.WriteLine($"Error in PictureMode_Checked, message: {ex.Message}");
             }
-
-            ApplicationData.Current.SignalDataChanged();
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
         }
 
         private async void PictureGirdView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1195,7 +1239,7 @@ namespace RX_Explorer
 
                 PictureList.Add(Picture);
 
-                PictureGirdView.ScrollIntoViewSmoothly(Picture);
+                PictureGirdView.ScrollIntoViewSmoothly(Picture, ScrollIntoViewAlignment.Leading);
                 PictureGirdView.SelectedItem = Picture;
 
                 await SQLite.Current.SetBackgroundPictureAsync(Picture.PictureUri).ConfigureAwait(false);
@@ -1344,7 +1388,7 @@ namespace RX_Explorer
         {
             try
             {
-                BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: "#1E1E1E".GetColorFromHexString());
+                BackgroundController.Current.SwitchTo(BackgroundBrushType.SolidColor, Color: "#1E1E1E".ToColor());
             }
             catch (Exception ex)
             {
@@ -1531,23 +1575,6 @@ namespace RX_Explorer
         {
             try
             {
-                if (DisplayHiddenItem.IsOn)
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                        Content = Globalization.GetString("QueueDialog_EnableHiddenItemDisplayWarning_Content"),
-                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                    };
-
-                    if (await Dialog.ShowAsync().ConfigureAwait(true) != ContentDialogResult.Primary)
-                    {
-                        DisplayHiddenItem.IsOn = false;
-                        return;
-                    }
-                }
-
                 IsDisplayHiddenItem = DisplayHiddenItem.IsOn;
                 ApplicationData.Current.LocalSettings.Values["DisplayHiddenItem"] = IsDisplayHiddenItem;
 
@@ -1687,7 +1714,7 @@ namespace RX_Explorer
                 CustomPictureArea.Visibility = Visibility.Collapsed;
                 GetBingPhotoState.Visibility = Visibility.Visible;
                 BackgroundBlurSliderArea.Visibility = Visibility.Visible;
-                MainPage.ThisPage.BackgroundBlur.Amount = Convert.ToDouble(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
+                MainPage.ThisPage.BackgroundBlur.Amount = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]) / 5;
 
                 if (await BingPictureDownloader.DownloadDailyPicture().ConfigureAwait(true) is StorageFile File)
                 {
@@ -1707,7 +1734,7 @@ namespace RX_Explorer
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = "",
+                        Content = Globalization.GetString("QueueDialog_BingDownloadError_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
@@ -1748,6 +1775,10 @@ namespace RX_Explorer
                 {
                     DefaultTerminal.SelectedIndex = 0;
                 }
+                else
+                {
+                    ApplicationData.Current.SignalDataChanged();
+                }
             }
         }
 
@@ -1757,10 +1788,8 @@ namespace RX_Explorer
             {
                 try
                 {
-                    double BlurValue = e.NewValue / 5;
-
-                    MainPage.ThisPage.BackgroundBlur.Amount = BlurValue;
-                    ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"] = BlurValue;
+                    MainPage.ThisPage.BackgroundBlur.Amount = e.NewValue / 5;
+                    ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"] = Convert.ToSingle(e.NewValue);
                 }
                 catch
                 {
@@ -1768,6 +1797,7 @@ namespace RX_Explorer
                 }
                 finally
                 {
+                    ApplicationData.Current.SignalDataChanged();
                     _ = Interlocked.Exchange(ref BlurChangeLock, 0);
                 }
             }

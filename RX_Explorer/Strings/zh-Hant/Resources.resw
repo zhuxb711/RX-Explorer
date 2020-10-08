@@ -1057,23 +1057,11 @@
   <data name="ZipDialog.Title" xml:space="preserve">
     <value>Zip 壓縮選項</value>
   </data>
-  <data name="ZipDialogCheckBox.Content" xml:space="preserve">
-    <value>啟用Zip加密</value>
-  </data>
-  <data name="ZipDialogEncryption.Header" xml:space="preserve">
-    <value>加密方法</value>
-  </data>
   <data name="ZipDialogLevel.Header" xml:space="preserve">
     <value>壓縮等級</value>
   </data>
   <data name="ZipDialogName.Header" xml:space="preserve">
     <value>檔案名稱</value>
-  </data>
-  <data name="ZipDialogPassword.Header" xml:space="preserve">
-    <value>密碼</value>
-  </data>
-  <data name="ZipDialogPassword.PlaceholderText" xml:space="preserve">
-    <value>輸入密碼</value>
   </data>
   <data name="Zip.Label" xml:space="preserve">
     <value>壓縮</value>
@@ -1728,12 +1716,6 @@
   <data name="Zip_Dialog_Level_3" xml:space="preserve">
     <value>僅封裝格式</value>
   </data>
-  <data name="Zip_Dialog_Password_PlaceholderText" xml:space="preserve">
-    <value>輸入解壓密碼</value>
-  </data>
-  <data name="Zip_Dialog_Password_Title" xml:space="preserve">
-    <value>需要密碼</value>
-  </data>
   <data name="Common_Dialog_CancelButton" xml:space="preserve">
     <value>取消</value>
   </data>
@@ -2236,9 +2218,6 @@
   <data name="Operate_Text_RemoveHidden" xml:space="preserve">
     <value>刪除隱藏的屬性</value>
   </data>
-  <data name="QueueDialog_EnableHiddenItemDisplayWarning_Content" xml:space="preserve">
-    <value>啟用隱藏檔案顯示功能，使用不當可能會損壞電腦。\r\r是否繼續啟用它？</value>
-  </data>
   <data name="Folder_Open_Method_1" xml:space="preserve">
     <value>按兩下</value>
   </data>
@@ -2516,5 +2495,8 @@
   </data>
   <data name="BuildIn_TextViewer_Description" xml:space="preserve">
     <value>內建文字編輯器</value>
+  </data>
+  <data name="QueueDialog_BingDownloadError_Content" xml:space="preserve">
+    <value>無法下載必應圖像</value>
   </data>
 </root>

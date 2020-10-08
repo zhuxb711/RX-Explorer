@@ -1384,14 +1384,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Zip Compression Option</source>
           <target state="translated">Zip压缩选项</target>
         </trans-unit>
-        <trans-unit id="ZipDialogCheckBox.Content" translate="yes" xml:space="preserve">
-          <source>Enable Zip encryption</source>
-          <target state="translated">启用Zip加密</target>
-        </trans-unit>
-        <trans-unit id="ZipDialogEncryption.Header" translate="yes" xml:space="preserve">
-          <source>Encryption Method</source>
-          <target state="translated">加密方式</target>
-        </trans-unit>
         <trans-unit id="ZipDialogLevel.Header" translate="yes" xml:space="preserve">
           <source>Compression Level</source>
           <target state="translated">压缩等级</target>
@@ -1399,14 +1391,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
         <trans-unit id="ZipDialogName.Header" translate="yes" xml:space="preserve">
           <source>FileName</source>
           <target state="translated">文件名</target>
-        </trans-unit>
-        <trans-unit id="ZipDialogPassword.Header" translate="yes" xml:space="preserve">
-          <source>Password</source>
-          <target state="translated">密码</target>
-        </trans-unit>
-        <trans-unit id="ZipDialogPassword.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Enter password</source>
-          <target state="translated">输入加密密码</target>
         </trans-unit>
         <trans-unit id="Zip.Label" translate="yes" xml:space="preserve">
           <source>Compression</source>
@@ -2260,14 +2244,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Package only</source>
           <target state="translated">仅存储</target>
         </trans-unit>
-        <trans-unit id="Zip_Dialog_Password_PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Enter decompression password</source>
-          <target state="translated">请输入解压密码</target>
-        </trans-unit>
-        <trans-unit id="Zip_Dialog_Password_Title" translate="yes" xml:space="preserve">
-          <source>Password required</source>
-          <target state="translated">需要密码</target>
-        </trans-unit>
         <trans-unit id="Common_Dialog_CancelButton" translate="yes" xml:space="preserve">
           <source>Cancel</source>
           <target state="translated">取消</target>
@@ -2952,10 +2928,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Remove hidden attributes</source>
           <target state="translated">尝试移除隐藏属性</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_EnableHiddenItemDisplayWarning_Content" translate="yes" xml:space="preserve">
-          <source>Enable the hidden file display function, improper use may damage your computer.\r\rWhether to continue to enable it?</source>
-          <target state="translated">启用隐藏文件显示功能，使用不当可能会损坏您的计算机\r\r是否继续启用?</target>
-        </trans-unit>
         <trans-unit id="Folder_Open_Method_1" translate="yes" xml:space="preserve">
           <source>Double click</source>
           <target state="translated">双击</target>
@@ -3335,6 +3307,10 @@ Invalid names include
         <trans-unit id="BuildIn_TextViewer_Description" translate="yes" xml:space="preserve">
           <source>Built-in text editor</source>
           <target state="translated">内置文本编辑器</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_BingDownloadError_Content" translate="yes" xml:space="preserve">
+          <source>Unable to download Bing image</source>
+          <target state="translated">无法下载必应图片</target>
         </trans-unit>
       </group>
     </body>
