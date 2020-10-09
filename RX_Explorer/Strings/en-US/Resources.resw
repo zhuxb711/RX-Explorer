@@ -1421,9 +1421,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="Device_Type_1" xml:space="preserve">
     <value>Local drive</value>
   </data>
-  <data name="Device_Type_2" xml:space="preserve">
-    <value>Network drive</value>
-  </data>
   <data name="Device_Type_3" xml:space="preserve">
     <value>Removable drive</value>
   </data>
@@ -2438,9 +2435,6 @@ Invalid names include
   </data>
   <data name="QueueDialog_DropFailure_Content" xml:space="preserve">
     <value>Unable to recognize the dragged file, please try again</value>
-  </data>
-  <data name="QueueDialog_NotAllowInNetwordDevice_Content" xml:space="preserve">
-    <value>This operation is not currently supported on network drives</value>
   </data>
   <data name="QueueDialog_SetWallpaperFailure_Content" xml:space="preserve">
     <value>Unable to set the picture as wallpaper due to an unknown error</value>

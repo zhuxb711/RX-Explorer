@@ -46,7 +46,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 获取Photo的StorageFile对象
         /// </summary>
-        public FileSystemStorageItemBase PhotoFile { get; private set; }
+        public StorageFile PhotoFile { get; private set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -55,7 +55,7 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="ImageSource">缩略图</param>
         /// <param name="File">文件</param>
-        public PhotoDisplaySupport(FileSystemStorageItemBase Item)
+        public PhotoDisplaySupport(StorageFile Item)
         {
             PhotoFile = Item;
         }
@@ -72,20 +72,18 @@ namespace RX_Explorer.Class
 
                 try
                 {
-                    if ((await PhotoFile.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
-                    {
-                        using (IRandomAccessStream Stream = await File.OpenAsync(FileAccessMode.Read))
-                        {
-                            if (BitmapSource == null)
-                            {
-                                BitmapSource = new BitmapImage();
-                            }
 
-                            await BitmapSource.SetSourceAsync(Stream);
+                    using (IRandomAccessStream Stream = await PhotoFile.OpenAsync(FileAccessMode.Read))
+                    {
+                        if (BitmapSource == null)
+                        {
+                            BitmapSource = new BitmapImage();
                         }
 
-                        OnPropertyChanged(nameof(BitmapSource));
+                        await BitmapSource.SetSourceAsync(Stream);
                     }
+
+                    OnPropertyChanged(nameof(BitmapSource));
                 }
                 catch
                 {
@@ -106,17 +104,14 @@ namespace RX_Explorer.Class
 
             try
             {
-                if ((await PhotoFile.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
+                BitmapSource = new BitmapImage();
+
+                using (StorageItemThumbnail ThumbnailStream = await PhotoFile.GetThumbnailAsync(ThumbnailMode.PicturesView))
                 {
-                    BitmapSource = new BitmapImage();
-
-                    using (StorageItemThumbnail ThumbnailStream = await File.GetThumbnailAsync(ThumbnailMode.PicturesView))
-                    {
-                        await BitmapSource.SetSourceAsync(ThumbnailStream);
-                    }
-
-                    OnPropertyChanged(nameof(BitmapSource));
+                    await BitmapSource.SetSourceAsync(ThumbnailStream);
                 }
+
+                OnPropertyChanged(nameof(BitmapSource));
             }
             catch
             {
@@ -130,15 +125,12 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public async Task UpdateImage()
         {
-            if ((await PhotoFile.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
+            using (IRandomAccessStream Stream = await PhotoFile.OpenAsync(FileAccessMode.Read))
             {
-                using (IRandomAccessStream Stream = await File.OpenAsync(FileAccessMode.Read))
-                {
-                    await BitmapSource.SetSourceAsync(Stream);
-                }
-
-                OnPropertyChanged(nameof(BitmapSource));
+                await BitmapSource.SetSourceAsync(Stream);
             }
+
+            OnPropertyChanged(nameof(BitmapSource));
         }
 
         /// <summary>
@@ -147,9 +139,9 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public async Task<SoftwareBitmap> GenerateImageWithRotation()
         {
-            if ((await PhotoFile.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
+            try
             {
-                using (IRandomAccessStream stream = await File.OpenAsync(FileAccessMode.Read))
+                using (IRandomAccessStream stream = await PhotoFile.OpenAsync(FileAccessMode.Read))
                 {
                     BitmapDecoder decoder = await BitmapDecoder.CreateAsync(stream);
 
@@ -187,7 +179,7 @@ namespace RX_Explorer.Class
                     }
                 }
             }
-            else
+            catch
             {
                 return null;
             }

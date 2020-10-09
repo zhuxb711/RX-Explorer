@@ -1304,9 +1304,6 @@
   <data name="Device_Type_1" xml:space="preserve">
     <value>Lecteur local</value>
   </data>
-  <data name="Device_Type_2" xml:space="preserve">
-    <value>Lecteur réseau</value>
-  </data>
   <data name="Device_Type_3" xml:space="preserve">
     <value>Lecteur amovible</value>
   </data>
@@ -2333,9 +2330,6 @@ Les noms non valides incluent
   </data>
   <data name="QueueDialog_DropFailure_Content" xml:space="preserve">
     <value>Impossible de reconnaître le fichier glissé, veuillez réessayer</value>
-  </data>
-  <data name="QueueDialog_NotAllowInNetwordDevice_Content" xml:space="preserve">
-    <value>Cette opération n'est actuellement pas prise en charge sur les lecteurs réseau</value>
   </data>
   <data name="QueueDialog_SetWallpaperFailure_Content" xml:space="preserve">
     <value>Impossible de définir l'image comme fond d'écran en raison d'une erreur inconnue</value>

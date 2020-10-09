@@ -167,49 +167,61 @@
                             LostFocus="AddressBox_LostFocus"
                             QuerySubmitted="AddressBox_QuerySubmitted"
                             TextChanged="AddressBox_TextChanged" />
-            <ScrollViewer HorizontalScrollBarVisibility="Hidden"
-                          HorizontalScrollMode="Enabled"
-                          VerticalScrollMode="Disabled"
-                          VerticalScrollBarVisibility="Hidden"
-                          HorizontalAlignment="Left"
-                          Grid.Column="3"
-                          Margin="5,0,0,0"
-                          Padding="7,0,0,0"
-                          Name="AddressButtonScrollViewer">
-                <muxc:ItemsRepeater ItemsSource="{x:Bind AddressButtonList}">
-                    <muxc:ItemsRepeater.Layout>
-                        <muxc:StackLayout Orientation="Horizontal"
-                                          Spacing="0" />
-                    </muxc:ItemsRepeater.Layout>
-                    <muxc:ItemsRepeater.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="{Binding}"
-                                        VerticalAlignment="Center"
-                                        Name="AddressButton"
-                                        Padding="3,5,3,6"
-                                        Click="AddressButton_Click"
-                                        AllowDrop="True"
-                                        Drop="AddressButton_Drop"
-                                        DragOver="AddressButton_DragOver"
-                                        Background="Transparent" />
-                                <Button Background="Transparent"
-                                        VerticalAlignment="Center"
-                                        HorizontalContentAlignment="Center"
-                                        Padding="3,1,3,5"
-                                        Name="AddressExtention"
-                                        Click="AddressExtention_Click">
-                                    <Button.Content>
-                                        <TextBlock Text="›"
-                                                   FontSize="15"
-                                                   VerticalAlignment="Center" />
-                                    </Button.Content>
-                                </Button>
-                            </StackPanel>
-                        </DataTemplate>
-                    </muxc:ItemsRepeater.ItemTemplate>
-                </muxc:ItemsRepeater>
-            </ScrollViewer>
+
+            <ListView ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                      ScrollViewer.HorizontalScrollMode="Enabled"
+                      ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                      ScrollViewer.VerticalScrollMode="Disabled"
+                      HorizontalAlignment="Left"
+                      Grid.Column="3"
+                      Margin="5,0,0,0"
+                      Padding="7,0,0,0"
+                      SelectionMode="None"
+                      x:Name="AddressButtonContainer"
+                      ItemsSource="{x:Bind AddressButtonList}">
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <ItemsStackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="{Binding}"
+                                    VerticalAlignment="Center"
+                                    Name="AddressButton"
+                                    Padding="3,5,3,6"
+                                    Click="AddressButton_Click"
+                                    AllowDrop="True"
+                                    Drop="AddressButton_Drop"
+                                    DragOver="AddressButton_DragOver"
+                                    Background="Transparent" />
+                            <Button Background="Transparent"
+                                    VerticalAlignment="Center"
+                                    HorizontalContentAlignment="Center"
+                                    Padding="3,1,3,5"
+                                    Name="AddressExtention"
+                                    Click="AddressExtention_Click">
+                                <Button.Content>
+                                    <TextBlock Text="›"
+                                               FontSize="15"
+                                               VerticalAlignment="Center" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Padding"
+                                Value="0" />
+                        <Setter Property="MinWidth"
+                                Value="0" />
+                        <Setter Property="MinHeight"
+                                Value="0" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+            </ListView>
 
             <ComboBox Grid.Column="5"
                       Margin="5,0,5,0"

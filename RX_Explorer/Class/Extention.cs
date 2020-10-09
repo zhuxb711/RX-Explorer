@@ -19,6 +19,7 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
+using Windows.Storage.Search;
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Notifications;
@@ -399,92 +400,6 @@ namespace RX_Explorer.Class
             if (View.ContainerFromNode(Node) is TreeViewItem Item)
             {
                 Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
-            }
-        }
-
-        /// <summary>
-        /// 检查文件是否存在于物理驱动器上
-        /// </summary>
-        /// <param name="Item">存储对象</param>
-        /// <returns></returns>
-        public static async Task<bool> CheckExist(this IStorageItem Item)
-        {
-            if (Item == null)
-            {
-                throw new ArgumentNullException(nameof(Item), "Parameter could not be null");
-            }
-
-            if (Item is StorageFile File)
-            {
-                try
-                {
-                    if ((await File.GetParentAsync()) is StorageFolder ParentFolder)
-                    {
-                        return (await ParentFolder.TryGetItemAsync(File.Name)) != null;
-                    }
-                    else
-                    {
-                        try
-                        {
-                            _ = await StorageFile.GetFileFromPathAsync(File.Path);
-                            return true;
-                        }
-                        catch (Exception)
-                        {
-                            return false;
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    try
-                    {
-                        _ = await StorageFile.GetFileFromPathAsync(File.Path);
-                        return true;
-                    }
-                    catch (Exception)
-                    {
-                        return false;
-                    }
-                }
-            }
-            else if (Item is StorageFolder Folder)
-            {
-                try
-                {
-                    if ((await Folder.GetParentAsync()) is StorageFolder ParenetFolder)
-                    {
-                        return (await ParenetFolder.TryGetItemAsync(Folder.Name)) != null;
-                    }
-                    else
-                    {
-                        try
-                        {
-                            _ = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
-                            return true;
-                        }
-                        catch (Exception)
-                        {
-                            return false;
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    try
-                    {
-                        _ = await StorageFolder.GetFolderFromPathAsync(Folder.Path);
-                        return true;
-                    }
-                    catch (Exception)
-                    {
-                        return false;
-                    }
-                }
-            }
-            else
-            {
-                return false;
             }
         }
 

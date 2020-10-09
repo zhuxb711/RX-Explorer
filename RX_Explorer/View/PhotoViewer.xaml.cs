@@ -64,12 +64,14 @@ namespace RX_Explorer
 
                 Behavior.Attach(Flip);
 
-                List<FileSystemStorageItemBase> FileList = WIN_Native_API.GetStorageItems(Path.GetDirectoryName(SelectedPhotoPath), false, ItemFilters.File).Where((Item) => Item.Type.Equals(".png", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".bmp", StringComparison.OrdinalIgnoreCase)).ToList();
+                List<StorageFile> FileList = new List<StorageFile>();
 
-                int LastSelectIndex = FileList.FindIndex((Photo) => Photo.Path == SelectedPhotoPath);
-                if (LastSelectIndex < 0 || LastSelectIndex >= FileList.Count)
+                foreach (FileSystemStorageItemBase Item in WIN_Native_API.GetStorageItems(Path.GetDirectoryName(SelectedPhotoPath), false, ItemFilters.File).Where((Item) => Item.Type.Equals(".png", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".bmp", StringComparison.OrdinalIgnoreCase)).ToList())
                 {
-                    LastSelectIndex = 0;
+                    if (await Item.GetStorageItem().ConfigureAwait(true) is StorageFile File)
+                    {
+                        FileList.Add(File);
+                    }
                 }
 
                 if (FileList.Count == 0)
@@ -83,29 +85,36 @@ namespace RX_Explorer
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
                     Frame.GoBack();
-                    return;
                 }
-
-                PhotoCollection = new ObservableCollection<PhotoDisplaySupport>(FileList.Select((Item) => new PhotoDisplaySupport(Item)));
-                Flip.ItemsSource = PhotoCollection;
-
-                if (!await PhotoCollection[LastSelectIndex].ReplaceThumbnailBitmapAsync().ConfigureAwait(true))
+                else
                 {
-                    CouldnotLoadTip.Visibility = Visibility.Visible;
-                }
+                    int LastSelectIndex = FileList.FindIndex((Photo) => Photo.Path == SelectedPhotoPath);
+                    if (LastSelectIndex < 0 || LastSelectIndex >= FileList.Count)
+                    {
+                        LastSelectIndex = 0;
+                    }
 
-                for (int i = LastSelectIndex - 5 > 0 ? LastSelectIndex - 5 : 0; i <= (LastSelectIndex + 5 < PhotoCollection.Count - 1 ? LastSelectIndex + 5 : PhotoCollection.Count - 1) && !Cancellation.IsCancellationRequested; i++)
-                {
-                    await PhotoCollection[i].GenerateThumbnailAsync().ConfigureAwait(true);
-                }
+                    PhotoCollection = new ObservableCollection<PhotoDisplaySupport>(FileList.Select((Item) => new PhotoDisplaySupport(Item)));
+                    Flip.ItemsSource = PhotoCollection;
 
-                if (!Cancellation.IsCancellationRequested)
-                {
-                    Flip.SelectedIndex = LastSelectIndex;
-                    Flip.SelectionChanged += Flip_SelectionChanged;
-                    Flip.SelectionChanged += Flip_SelectionChanged1;
+                    if (!await PhotoCollection[LastSelectIndex].ReplaceThumbnailBitmapAsync().ConfigureAwait(true))
+                    {
+                        CouldnotLoadTip.Visibility = Visibility.Visible;
+                    }
 
-                    await EnterAnimation.BeginAsync().ConfigureAwait(true);
+                    for (int i = LastSelectIndex - 5 > 0 ? LastSelectIndex - 5 : 0; i <= (LastSelectIndex + 5 < PhotoCollection.Count - 1 ? LastSelectIndex + 5 : PhotoCollection.Count - 1) && !Cancellation.IsCancellationRequested; i++)
+                    {
+                        await PhotoCollection[i].GenerateThumbnailAsync().ConfigureAwait(true);
+                    }
+
+                    if (!Cancellation.IsCancellationRequested)
+                    {
+                        Flip.SelectedIndex = LastSelectIndex;
+                        Flip.SelectionChanged += Flip_SelectionChanged;
+                        Flip.SelectionChanged += Flip_SelectionChanged1;
+
+                        await EnterAnimation.BeginAsync().ConfigureAwait(true);
+                    }
                 }
             }
             catch (Exception ex)
@@ -275,27 +284,26 @@ namespace RX_Explorer
 
         private async void TranscodeImage_Click(object sender, RoutedEventArgs e)
         {
-            if ((await PhotoCollection[Flip.SelectedIndex].PhotoFile.GetStorageItem().ConfigureAwait(true)) is StorageFile OriginFile)
+            StorageFile OriginFile = PhotoCollection[Flip.SelectedIndex].PhotoFile;
+
+            TranscodeImageDialog Dialog = null;
+            using (IRandomAccessStream OriginStream = await OriginFile.OpenAsync(FileAccessMode.Read))
             {
-                TranscodeImageDialog Dialog = null;
-                using (IRandomAccessStream OriginStream = await OriginFile.OpenAsync(FileAccessMode.Read))
-                {
-                    BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
-                    Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
-                }
+                BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
+                Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
+            }
 
-                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                {
-                    TranscodeLoadingControl.IsLoading = true;
-                    MainPage.ThisPage.IsAnyTaskRunning = true;
+            if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+            {
+                TranscodeLoadingControl.IsLoading = true;
+                MainPage.ThisPage.IsAnyTaskRunning = true;
 
-                    await GeneralTransformer.TranscodeFromImageAsync(OriginFile, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode).ConfigureAwait(true);
+                await GeneralTransformer.TranscodeFromImageAsync(OriginFile, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode).ConfigureAwait(true);
 
-                    await Task.Delay(1000).ConfigureAwait(true);
+                await Task.Delay(1000).ConfigureAwait(true);
 
-                    TranscodeLoadingControl.IsLoading = false;
-                    MainPage.ThisPage.IsAnyTaskRunning = false;
-                }
+                TranscodeLoadingControl.IsLoading = false;
+                MainPage.ThisPage.IsAnyTaskRunning = false;
             }
         }
 
@@ -490,39 +498,36 @@ namespace RX_Explorer
                 {
                     if (Flip.SelectedItem is PhotoDisplaySupport Photo)
                     {
-                        if (await Photo.PhotoFile.GetStorageItem().ConfigureAwait(true) is StorageFile File)
+                        StorageFile TempFile = await Photo.PhotoFile.CopyAsync(ApplicationData.Current.LocalFolder, Photo.PhotoFile.Name, NameCollisionOption.GenerateUniqueName);
+
+                        try
                         {
-                            StorageFile TempFile = await File.CopyAsync(ApplicationData.Current.LocalFolder, File.Name, NameCollisionOption.GenerateUniqueName);
-
-                            try
+                            if (await UserProfilePersonalizationSettings.Current.TrySetWallpaperImageAsync(TempFile))
                             {
-                                if (await UserProfilePersonalizationSettings.Current.TrySetWallpaperImageAsync(TempFile))
+                                QueueContentDialog Dialog = new QueueContentDialog
                                 {
-                                    QueueContentDialog Dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_SetWallpaperSuccess_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_SetWallpaperSuccess_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
 
-                                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
-                                }
-                                else
-                                {
-                                    QueueContentDialog Dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_SetWallpaperFailure_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-
-                                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
-                                }
+                                _ = await Dialog.ShowAsync().ConfigureAwait(false);
                             }
-                            finally
+                            else
                             {
-                                await TempFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_SetWallpaperFailure_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+
+                                _ = await Dialog.ShowAsync().ConfigureAwait(false);
                             }
+                        }
+                        finally
+                        {
+                            await TempFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
                         }
                     }
                 }

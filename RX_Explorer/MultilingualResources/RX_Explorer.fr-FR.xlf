@@ -1727,10 +1727,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Local drive</source>
           <target state="translated">Lecteur local</target>
         </trans-unit>
-        <trans-unit id="Device_Type_2" translate="yes" xml:space="preserve">
-          <source>Network drive</source>
-          <target state="translated">Lecteur réseau</target>
-        </trans-unit>
         <trans-unit id="Device_Type_3" translate="yes" xml:space="preserve">
           <source>Removable drive</source>
           <target state="translated">Lecteur amovible</target>
@@ -3089,10 +3085,6 @@ Les noms non valides incluent
         <trans-unit id="QueueDialog_DropFailure_Content" translate="yes" xml:space="preserve">
           <source>Unable to recognize the dragged file, please try again</source>
           <target state="translated">Impossible de reconnaître le fichier glissé, veuillez réessayer</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_NotAllowInNetwordDevice_Content" translate="yes" xml:space="preserve">
-          <source>This operation is not currently supported on network drives</source>
-          <target state="translated">Cette opération n'est actuellement pas prise en charge sur les lecteurs réseau</target>
         </trans-unit>
         <trans-unit id="QueueDialog_SetWallpaperFailure_Content" translate="yes" xml:space="preserve">
           <source>Unable to set the picture as wallpaper due to an unknown error</source>

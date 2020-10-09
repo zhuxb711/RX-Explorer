@@ -6,6 +6,7 @@ using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -48,18 +49,14 @@ namespace RX_Explorer
             {
                 if (value != null && value.Content is TreeViewNodeContent Content)
                 {
-                    if (!IsNetworkDevice)
-                    {
-                        AreaWatcher.StartWatchDirectory(Content.Path, SettingControl.IsDisplayHiddenItem);
-                    }
+                    AreaWatcher.StartWatchDirectory(Content.Path, SettingControl.IsDisplayHiddenItem);
+                    UpdateAddressButton(Content.Path);
 
                     CurrentPath = Content.Path;
 
                     TaskBarController.SetText(Content.DisplayName);
 
                     FolderTree.SelectNode(value);
-
-                    UpdateAddressButton(Content.Path);
 
                     Presenter.ItemPresenter.Focus(FocusState.Programmatic);
 
@@ -74,7 +71,6 @@ namespace RX_Explorer
                     }
 
                     GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {PlaceText}";
-
                     GoParentFolder.IsEnabled = !FolderTree.RootNodes.Contains(value);
                     GoBackRecord.IsEnabled = RecordIndex > 0;
                     GoForwardRecord.IsEnabled = RecordIndex < GoAndBackRecord.Count - 1;
@@ -105,10 +101,6 @@ namespace RX_Explorer
 
         private StorageAreaWatcher AreaWatcher;
 
-        public bool IsNetworkDevice { get; private set; }
-
-        private CancellationTokenSource AddItemCancellation;
-
         private string CurrentPath { get; set; }
 
         public StorageFolder CurrentFolder
@@ -135,27 +127,13 @@ namespace RX_Explorer
             {
                 if (value != null)
                 {
-                    if (!IsNetworkDevice)
-                    {
-                        AreaWatcher.StartWatchDirectory(value.Path, SettingControl.IsDisplayHiddenItem);
-                    }
-
+                    AreaWatcher.StartWatchDirectory(value.Path, SettingControl.IsDisplayHiddenItem);
                     UpdateAddressButton(value.Path);
-
                     Presenter.ItemPresenter.Focus(FocusState.Programmatic);
 
-                    string PlaceText;
-                    if (value.DisplayName.Length > 22)
-                    {
-                        PlaceText = value.DisplayName.Substring(0, 22) + "...";
-                    }
-                    else
-                    {
-                        PlaceText = value.DisplayName;
-                    }
+                    string PlaceText = value.DisplayName.Length > 15 ? $"{value.DisplayName.Substring(0, 15)}..." : value.DisplayName;
 
                     GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {PlaceText}";
-
                     GoParentFolder.IsEnabled = SettingControl.IsDetachTreeViewAndPresenter ? value.Path != Path.GetPathRoot(value.Path) : value.Path != (FolderTree.RootNodes[0].Content as TreeViewNodeContent)?.Path;
                     GoBackRecord.IsEnabled = RecordIndex > 0;
                     GoForwardRecord.IsEnabled = RecordIndex < GoAndBackRecord.Count - 1;
@@ -186,13 +164,14 @@ namespace RX_Explorer
         }
 
         public bool IsSearchOrPathBoxFocused { get; set; }
-
         private List<string> GoAndBackRecord = new List<string>();
         private ObservableCollection<string> AddressButtonList = new ObservableCollection<string>();
         private ObservableCollection<string> AddressExtentionList = new ObservableCollection<string>();
         private volatile int recordIndex;
         private bool IsBackOrForwardAction;
         private TabViewItem TabItem;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public FileControl()
         {
@@ -225,18 +204,12 @@ namespace RX_Explorer
 
         private void Current_Resuming(object sender, object e)
         {
-            if (!IsNetworkDevice)
-            {
-                AreaWatcher.StartWatchDirectory(AreaWatcher.CurrentLocation, SettingControl.IsDisplayHiddenItem);
-            }
+            AreaWatcher.StartWatchDirectory(AreaWatcher.CurrentLocation, SettingControl.IsDisplayHiddenItem);
         }
 
         private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
         {
-            if (!IsNetworkDevice)
-            {
-                AreaWatcher.StopWatchDirectory();
-            }
+            AreaWatcher.StopWatchDirectory();
         }
 
         /// <summary>
@@ -271,15 +244,6 @@ namespace RX_Explorer
             }
 
             LoadingControl.IsLoading = IsLoading;
-        }
-
-        public Task CancelAddItemOperation()
-        {
-            return Task.Run(() =>
-            {
-                AddItemCancellation?.Cancel();
-                SpinWait.SpinUntil(() => AddItemCancellation == null);
-            });
         }
 
         private async void UpdateAddressButton(string Path)
@@ -368,11 +332,18 @@ namespace RX_Explorer
                 }
                 finally
                 {
-                    AddressButtonScrollViewer.UpdateLayout();
+                    AddressButtonContainer.UpdateLayout();
 
-                    if (AddressButtonScrollViewer.ActualWidth < AddressButtonScrollViewer.ExtentWidth)
+                    while(!AddressButtonContainer.IsLoaded)
                     {
-                        AddressButtonScrollViewer.ChangeView(AddressButtonScrollViewer.ExtentWidth, null, null);
+                        await Task.Delay(500).ConfigureAwait(true);
+                    }
+
+                    ScrollViewer Viewer = AddressButtonContainer.FindChildOfType<ScrollViewer>();
+
+                    if (Viewer.ActualWidth < Viewer.ExtentWidth)
+                    {
+                        Viewer.ChangeView(Viewer.ExtentWidth, null, null);
                     }
 
                     _ = Interlocked.Exchange(ref AddressButtonLockResource, 0);
@@ -391,15 +362,6 @@ namespace RX_Explorer
             Presenter.HasFile.Visibility = Visibility.Collapsed;
 
             FolderTree.RootNodes.Clear();
-
-            if (CommonAccessCollection.HardDeviceList.FirstOrDefault((Item) => Item.Folder.Path == Path.GetPathRoot(Folder.Path)) is HardDeviceInfo Info && Info.DriveType == DriveType.Network)
-            {
-                IsNetworkDevice = true;
-            }
-            else
-            {
-                IsNetworkDevice = false;
-            }
 
             if (SettingControl.IsDetachTreeViewAndPresenter)
             {
@@ -454,15 +416,6 @@ namespace RX_Explorer
                 if (Parameters.Item1 != null)
                 {
                     TabItem = Parameters.Item1;
-                }
-
-                if (CommonAccessCollection.HardDeviceList.FirstOrDefault((Item) => Item.Folder.Path == Path.GetPathRoot(Parameters.Item2.Path)) is HardDeviceInfo Info && Info.DriveType == DriveType.Network)
-                {
-                    IsNetworkDevice = true;
-                }
-                else
-                {
-                    IsNetworkDevice = false;
                 }
 
                 AreaWatcher = new StorageAreaWatcher(Presenter.FileCollection, FolderTree);
@@ -561,55 +514,20 @@ namespace RX_Explorer
             {
                 try
                 {
-                    if (IsNetworkDevice)
+                    List<string> StorageItemPath = WIN_Native_API.GetStorageItemsPath(Content.Path, SettingControl.IsDisplayHiddenItem, ItemFilters.Folder);
+
+                    for (int i = 0; i < StorageItemPath.Count && Node.IsExpanded && Node.CanTraceToRootNode(FolderTree.RootNodes.FirstOrDefault()); i++)
                     {
-                        if (await Content.GetStorageFolderAsync().ConfigureAwait(true) is StorageFolder Folder)
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                         {
-                            QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
+                            TreeViewNode NewNode = new TreeViewNode
                             {
-                                FolderDepth = FolderDepth.Shallow,
-                                IndexerOption = IndexerOption.UseIndexerWhenAvailable,
+                                Content = new TreeViewNodeContent(StorageItemPath[i]),
+                                HasUnrealizedChildren = WIN_Native_API.CheckContainsAnyItem(StorageItemPath[i], ItemFilters.Folder)
                             };
-                            Options.SortOrder.Add(new SortEntry { AscendingOrder = true, PropertyName = "System.FileName" });
 
-                            StorageFolderQueryResult Query = Folder.CreateFolderQueryWithOptions(Options);
-
-                            uint ItemCount = await Query.GetItemCountAsync();
-
-                            for (uint i = 0; i < ItemCount && Node.CanTraceToRootNode(FolderTree.RootNodes.FirstOrDefault()); i += 10)
-                            {
-                                IReadOnlyList<StorageFolder> ItemList = await Query.GetFoldersAsync(i, 10);
-
-                                for (int j = 0; j < ItemList.Count && Node.IsExpanded; j++)
-                                {
-                                    TreeViewNode NewNode = new TreeViewNode
-                                    {
-                                        Content = new TreeViewNodeContent(ItemList[j]),
-                                        HasUnrealizedChildren = (await ItemList[j].GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
-                                    };
-
-                                    Node.Children.Add(NewNode);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        List<string> StorageItemPath = WIN_Native_API.GetStorageItemsPath(Content.Path, SettingControl.IsDisplayHiddenItem, ItemFilters.Folder);
-
-                        for (int i = 0; i < StorageItemPath.Count && Node.IsExpanded && Node.CanTraceToRootNode(FolderTree.RootNodes.FirstOrDefault()); i++)
-                        {
-                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                            {
-                                TreeViewNode NewNode = new TreeViewNode
-                                {
-                                    Content = new TreeViewNodeContent(StorageItemPath[i]),
-                                    HasUnrealizedChildren = WIN_Native_API.CheckContainsAnyItem(StorageItemPath[i], ItemFilters.Folder)
-                                };
-
-                                Node.Children.Add(NewNode);
-                            });
-                        }
+                            Node.Children.Add(NewNode);
+                        });
                     }
                 }
                 catch (Exception ex)
@@ -648,7 +566,6 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    await CancelAddItemOperation().ConfigureAwait(true);
                     await DisplayItemsInFolder(Node).ConfigureAwait(false);
                 }
             }
@@ -665,8 +582,6 @@ namespace RX_Explorer
 
             try
             {
-                AddItemCancellation = new CancellationTokenSource();
-
                 if (Node.Content is TreeViewNodeContent Content)
                 {
                     if (!ForceRefresh)
@@ -699,53 +614,14 @@ namespace RX_Explorer
 
                     if (await Content.GetStorageFolderAsync().ConfigureAwait(true) is StorageFolder Folder)
                     {
-                        if (IsNetworkDevice)
+                        List<FileSystemStorageItemBase> ItemList = SortCollectionGenerator.Current.GetSortedCollection(WIN_Native_API.GetStorageItems(Content.Path, SettingControl.IsDisplayHiddenItem, ItemFilters.File | ItemFilters.Folder));
+
+                        Presenter.HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+                        Presenter.StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", ItemList.Count.ToString());
+
+                        foreach (FileSystemStorageItemBase Item in ItemList)
                         {
-                            QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
-                            {
-                                FolderDepth = FolderDepth.Shallow,
-                                IndexerOption = IndexerOption.UseIndexerWhenAvailable,
-                            };
-                            Options.SortOrder.Add(new SortEntry { AscendingOrder = true, PropertyName = "System.FileName" });
-                            Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.FileName", "System.DateModified", "System.ItemNameDisplay", "System.Size", "System.ItemTypeText" });
-                            Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 100, ThumbnailOptions.UseCurrentScale);
-
-                            StorageItemQueryResult Query = Folder.CreateItemQueryWithOptions(Options);
-
-                            uint ItemCount = await Query.GetItemCountAsync();
-
-                            Presenter.HasFile.Visibility = ItemCount > 0 ? Visibility.Collapsed : Visibility.Visible;
-                            Presenter.StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", ItemCount.ToString());
-
-                            for (uint i = 0; i < ItemCount && !AddItemCancellation.IsCancellationRequested; i += 10)
-                            {
-                                IReadOnlyList<IStorageItem> ItemList = await Query.GetItemsAsync(i, 10);
-
-                                for (int j = 0; j < ItemList.Count && !AddItemCancellation.IsCancellationRequested; j++)
-                                {
-                                    IStorageItem Item = ItemList[j];
-                                    if (Item is StorageFolder ItemFolder)
-                                    {
-                                        Presenter.FileCollection.Add(new FileSystemStorageItemBase(ItemFolder, await ItemFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
-                                    }
-                                    else if (Item is StorageFile ItemFile)
-                                    {
-                                        Presenter.FileCollection.Add(new FileSystemStorageItemBase(ItemFile, await ItemFile.GetSizeRawDataAsync().ConfigureAwait(true), await ItemFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await ItemFile.GetModifiedTimeAsync().ConfigureAwait(true)));
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            List<FileSystemStorageItemBase> ItemList = SortCollectionGenerator.Current.GetSortedCollection(WIN_Native_API.GetStorageItems(Content.Path, SettingControl.IsDisplayHiddenItem, ItemFilters.File | ItemFilters.Folder));
-
-                            Presenter.HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-                            Presenter.StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", ItemList.Count.ToString());
-
-                            for (int i = 0; i < ItemList.Count; i++)
-                            {
-                                Presenter.FileCollection.Add(ItemList[i]);
-                            }
+                            Presenter.FileCollection.Add(Item);
                         }
                     }
                 }
@@ -763,9 +639,6 @@ namespace RX_Explorer
             }
             finally
             {
-                AddItemCancellation.Dispose();
-                AddItemCancellation = null;
-
                 EnterLock.Release();
             }
         }
@@ -781,8 +654,6 @@ namespace RX_Explorer
 
             try
             {
-                AddItemCancellation = new CancellationTokenSource();
-
                 if (!ForceRefresh)
                 {
                     if (Folder.Path == CurrentFolder?.Path)
@@ -811,53 +682,14 @@ namespace RX_Explorer
 
                 Presenter.FileCollection.Clear();
 
-                if (IsNetworkDevice)
+                List<FileSystemStorageItemBase> ItemList = SortCollectionGenerator.Current.GetSortedCollection(WIN_Native_API.GetStorageItems(Folder, SettingControl.IsDisplayHiddenItem, ItemFilters.File | ItemFilters.Folder));
+
+                Presenter.HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+                Presenter.StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", ItemList.Count.ToString());
+
+                for (int i = 0; i < ItemList.Count; i++)
                 {
-                    QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
-                    {
-                        FolderDepth = FolderDepth.Shallow,
-                        IndexerOption = IndexerOption.UseIndexerWhenAvailable,
-                    };
-                    Options.SortOrder.Add(new SortEntry { AscendingOrder = true, PropertyName = "System.FileName" });
-                    Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.FileName", "System.DateModified", "System.ItemNameDisplay", "System.Size", "System.ItemTypeText" });
-                    Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 100, ThumbnailOptions.UseCurrentScale);
-
-                    StorageItemQueryResult Query = Folder.CreateItemQueryWithOptions(Options);
-
-                    uint ItemCount = await Query.GetItemCountAsync();
-
-                    Presenter.HasFile.Visibility = ItemCount > 0 ? Visibility.Collapsed : Visibility.Visible;
-                    Presenter.StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", ItemCount.ToString());
-
-                    for (uint i = 0; i < ItemCount && !AddItemCancellation.IsCancellationRequested; i += 10)
-                    {
-                        IReadOnlyList<IStorageItem> ItemList = await Query.GetItemsAsync(i, 10);
-
-                        for (int j = 0; j < ItemList.Count && !AddItemCancellation.IsCancellationRequested; j++)
-                        {
-                            IStorageItem Item = ItemList[j];
-                            if (Item is StorageFolder ItemFolder)
-                            {
-                                Presenter.FileCollection.Add(new FileSystemStorageItemBase(ItemFolder, await ItemFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
-                            }
-                            else if (Item is StorageFile ItemFile)
-                            {
-                                Presenter.FileCollection.Add(new FileSystemStorageItemBase(ItemFile, await ItemFile.GetSizeRawDataAsync().ConfigureAwait(true), await ItemFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await ItemFile.GetModifiedTimeAsync().ConfigureAwait(true)));
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    List<FileSystemStorageItemBase> ItemList = SortCollectionGenerator.Current.GetSortedCollection(WIN_Native_API.GetStorageItems(Folder, SettingControl.IsDisplayHiddenItem, ItemFilters.File | ItemFilters.Folder));
-
-                    Presenter.HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-                    Presenter.StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", ItemList.Count.ToString());
-
-                    for (int i = 0; i < ItemList.Count; i++)
-                    {
-                        Presenter.FileCollection.Add(ItemList[i]);
-                    }
+                    Presenter.FileCollection.Add(ItemList[i]);
                 }
             }
             catch (Exception ex)
@@ -873,16 +705,13 @@ namespace RX_Explorer
             }
             finally
             {
-                AddItemCancellation.Dispose();
-                AddItemCancellation = null;
-
                 EnterLock.Release();
             }
         }
 
         private async void FolderDelete_Click(object sender, RoutedEventArgs e)
         {
-            if (!await CurrentFolder.CheckExist().ConfigureAwait(true))
+            if (!WIN_Native_API.CheckExist(CurrentFolder.Path))
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -904,25 +733,9 @@ namespace RX_Explorer
                 {
                     await FullTrustProcessController.Current.DeleteAsync(CurrentFolder, true).ConfigureAwait(true);
 
-                    if (IsNetworkDevice)
-                    {
-                        TreeViewNode ParentNode = CurrentNode.Parent;
+                    await DisplayItemsInFolder(CurrentNode.Parent).ConfigureAwait(true);
 
-                        ParentNode.Children.Remove(CurrentNode);
-
-                        if (ParentNode.Children.Count == 0)
-                        {
-                            ParentNode.HasUnrealizedChildren = false;
-                        }
-
-                        await DisplayItemsInFolder(ParentNode).ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        await DisplayItemsInFolder(CurrentNode.Parent).ConfigureAwait(true);
-
-                        await CurrentNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
-                    }
+                    await CurrentNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
                 }
                 catch (FileCaputureException)
                 {
@@ -1003,25 +816,9 @@ namespace RX_Explorer
                     {
                         await FullTrustProcessController.Current.DeleteAsync(CurrentFolder, QueueContenDialog.IsPermanentDelete).ConfigureAwait(true);
 
-                        if (IsNetworkDevice)
-                        {
-                            TreeViewNode ParentNode = CurrentNode.Parent;
+                        await DisplayItemsInFolder(CurrentNode.Parent).ConfigureAwait(true);
 
-                            ParentNode.Children.Remove(CurrentNode);
-
-                            if (ParentNode.Children.Count == 0)
-                            {
-                                ParentNode.HasUnrealizedChildren = false;
-                            }
-
-                            await DisplayItemsInFolder(ParentNode).ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            await DisplayItemsInFolder(CurrentNode.Parent).ConfigureAwait(true);
-
-                            await CurrentNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
-                        }
+                        await CurrentNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
                     }
                     catch (FileCaputureException)
                     {
@@ -1136,7 +933,7 @@ namespace RX_Explorer
 
         private async void FolderRename_Click(object sender, RoutedEventArgs e)
         {
-            if (!await CurrentFolder.CheckExist().ConfigureAwait(true))
+            if (!WIN_Native_API.CheckExist(CurrentFolder.Path))
             {
                 QueueContentDialog ErrorDialog = new QueueContentDialog
                 {
@@ -1211,7 +1008,7 @@ namespace RX_Explorer
 
         private async void CreateFolder_Click(object sender, RoutedEventArgs e)
         {
-            if (!await CurrentFolder.CheckExist().ConfigureAwait(true))
+            if (!WIN_Native_API.CheckExist(CurrentFolder.Path))
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -1226,21 +1023,7 @@ namespace RX_Explorer
 
             try
             {
-                StorageFolder NewFolder = await CurrentFolder.CreateFolderAsync(Globalization.GetString("Create_NewFolder_Admin_Name"), CreationCollisionOption.GenerateUniqueName);
-
-                if (IsNetworkDevice)
-                {
-                    if (CurrentNode.IsExpanded)
-                    {
-                        CurrentNode.Children.Add(new TreeViewNode
-                        {
-                            Content = new TreeViewNodeContent(NewFolder),
-                            HasUnrealizedChildren = false
-                        });
-
-                        Presenter.FileCollection.Add(new FileSystemStorageItemBase(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
-                    }
-                }
+                _ = await CurrentFolder.CreateFolderAsync(Globalization.GetString("Create_NewFolder_Admin_Name"), CreationCollisionOption.GenerateUniqueName);
             }
             catch (UnauthorizedAccessException)
             {
@@ -1261,7 +1044,7 @@ namespace RX_Explorer
 
         private async void FolderAttribute_Click(object sender, RoutedEventArgs e)
         {
-            if (!await CurrentFolder.CheckExist().ConfigureAwait(true))
+            if (!WIN_Native_API.CheckExist(CurrentFolder.Path))
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -1296,7 +1079,7 @@ namespace RX_Explorer
 
         private async void FolderAdd_Click(object sender, RoutedEventArgs e)
         {
-            if (!await CurrentFolder.CheckExist().ConfigureAwait(true))
+            if (!WIN_Native_API.CheckExist(CurrentFolder.Path))
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -1532,6 +1315,7 @@ namespace RX_Explorer
                     case LaunchQuerySupportStatus.Available:
                     case LaunchQuerySupportStatus.NotSupported:
                         {
+                        Retry:
                             try
                             {
                                 await FullTrustProcessController.Current.RunAsync("wt.exe", false, false, "/d", CurrentFolder.Path).ConfigureAwait(false);
@@ -1565,71 +1349,41 @@ namespace RX_Explorer
                                     }
                                 }
                             }
-                            return;
+
+                            break;
                         }
                 }
+
+                return;
             }
 
-        Retry:
-            try
-            {
-                string ProtentialPath1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), QueryText);
-                string ProtentialPath2 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), QueryText);
-                string ProtentialPath3 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), QueryText);
+            string ProtentialPath1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), QueryText);
+            string ProtentialPath2 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), QueryText);
+            string ProtentialPath3 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), QueryText);
 
-                if (WIN_Native_API.CheckExist(ProtentialPath1))
+            if (WIN_Native_API.CheckExist(ProtentialPath1))
+            {
+                if (WIN_Native_API.GetStorageItems(ProtentialPath1).FirstOrDefault() is FileSystemStorageItemBase Item)
                 {
-                    if (WIN_Native_API.GetStorageItems(ProtentialPath1).FirstOrDefault() is FileSystemStorageItemBase Item)
-                    {
-                        await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
-                    }
-                    return;
+                    await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
                 }
-                else if (WIN_Native_API.CheckExist(ProtentialPath2))
-                {
-                    if (WIN_Native_API.GetStorageItems(ProtentialPath2).FirstOrDefault() is FileSystemStorageItemBase Item)
-                    {
-                        await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
-                    }
-                    return;
-                }
-                else if (WIN_Native_API.CheckExist(ProtentialPath3))
-                {
-                    if (WIN_Native_API.GetStorageItems(ProtentialPath3).FirstOrDefault() is FileSystemStorageItemBase Item)
-                    {
-                        await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
-                    }
-                    return;
-                }
+                return;
             }
-            catch (InvalidOperationException)
+            else if (WIN_Native_API.CheckExist(ProtentialPath2))
             {
-                QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                if (WIN_Native_API.GetStorageItems(ProtentialPath2).FirstOrDefault() is FileSystemStorageItemBase Item)
                 {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
-                    PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                };
-
-                if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                {
-                    if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
-                    {
-                        goto Retry;
-                    }
-                    else
-                    {
-                        QueueContentDialog ErrorDialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-
-                        _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                    }
+                    await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
                 }
+                return;
+            }
+            else if (WIN_Native_API.CheckExist(ProtentialPath3))
+            {
+                if (WIN_Native_API.GetStorageItems(ProtentialPath3).FirstOrDefault() is FileSystemStorageItemBase Item)
+                {
+                    await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
+                }
+                return;
             }
 
             try
@@ -1777,46 +1531,53 @@ namespace RX_Explorer
 
         public async void GoParentFolder_Click(object sender, RoutedEventArgs e)
         {
-            await CancelAddItemOperation().ConfigureAwait(true);
-
             if (Interlocked.Exchange(ref NavigateLockResource, 1) == 0)
             {
                 try
                 {
                     if (GoParentFolder.IsEnabled)
                     {
-                        if (WIN_Native_API.CheckIfHidden(Path.GetDirectoryName(CurrentFolder.Path)))
+                        string DirectoryPath = Path.GetDirectoryName(CurrentFolder.Path);
+
+                        if (!string.IsNullOrWhiteSpace(DirectoryPath))
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
+                            if (WIN_Native_API.CheckIfHidden(DirectoryPath))
                             {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_ItemHidden_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_ItemHidden_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
 
-                            _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                                _ = await Dialog.ShowAsync().ConfigureAwait(false);
 
-                            return;
-                        }
+                                return;
+                            }
 
-                        if (SettingControl.IsDetachTreeViewAndPresenter)
-                        {
-                            if ((await CurrentFolder.GetParentAsync()) is StorageFolder ParentFolder)
+                            if (SettingControl.IsDetachTreeViewAndPresenter)
                             {
-                                await DisplayItemsInFolder(ParentFolder).ConfigureAwait(false);
+                                if ((await CurrentFolder.GetParentAsync()) is StorageFolder ParentFolder)
+                                {
+                                    await DisplayItemsInFolder(ParentFolder).ConfigureAwait(false);
+                                }
+                            }
+                            else
+                            {
+                                if ((await CurrentFolder.GetParentAsync()) is StorageFolder ParentFolder)
+                                {
+                                    TreeViewNode ParentNode = await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(ParentFolder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+
+                                    if (ParentFolder != null)
+                                    {
+                                        await DisplayItemsInFolder(ParentNode).ConfigureAwait(false);
+                                    }
+                                }
                             }
                         }
                         else
                         {
-                            if ((await CurrentFolder.GetParentAsync()) is StorageFolder ParentFolder)
-                            {
-                                TreeViewNode ParentNode = await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(ParentFolder.Path, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
-
-                                if (ParentFolder != null)
-                                {
-                                    await DisplayItemsInFolder(ParentNode).ConfigureAwait(false);
-                                }
-                            }
+                            GoParentFolder.IsEnabled = false;
                         }
                     }
                 }
@@ -1829,8 +1590,6 @@ namespace RX_Explorer
 
         public async void GoBackRecord_Click(object sender, RoutedEventArgs e)
         {
-            await CancelAddItemOperation().ConfigureAwait(true);
-
             if (Interlocked.Exchange(ref NavigateLockResource, 1) == 0)
             {
                 string Path = string.Empty;
@@ -1920,8 +1679,6 @@ namespace RX_Explorer
 
         public async void GoForwardRecord_Click(object sender, RoutedEventArgs e)
         {
-            await CancelAddItemOperation().ConfigureAwait(true);
-
             if (Interlocked.Exchange(ref NavigateLockResource, 1) == 0)
             {
                 string Path = string.Empty;
@@ -2019,7 +1776,7 @@ namespace RX_Explorer
                 AddressBox.Text = CurrentFolder.Path;
             }
 
-            AddressButtonScrollViewer.Visibility = Visibility.Collapsed;
+            AddressButtonContainer.Visibility = Visibility.Collapsed;
 
             AddressBox.ItemsSource = await SQLite.Current.GetRelatedPathHistoryAsync().ConfigureAwait(true);
         }
@@ -2097,7 +1854,7 @@ namespace RX_Explorer
         private void AddressBox_LostFocus(object sender, RoutedEventArgs e)
         {
             AddressBox.Text = string.Empty;
-            AddressButtonScrollViewer.Visibility = Visibility.Visible;
+            AddressButtonContainer.Visibility = Visibility.Visible;
         }
 
         private async void AddressButton_Click(object sender, RoutedEventArgs e)
@@ -2218,37 +1975,11 @@ namespace RX_Explorer
             string OriginalString = string.Join("\\", AddressButtonList.Take(AddressButtonList.IndexOf(Convert.ToString(Btn.FindParentOfType<StackPanel>()?.FindChildOfName<Button>("AddressButton")?.Content)) + 1).Skip(1));
             string ActualString = Path.Combine(Path.GetPathRoot(CurrentFolder.Path), OriginalString);
 
-            if (IsNetworkDevice)
+            List<string> ItemList = WIN_Native_API.GetStorageItemsPath(ActualString, SettingControl.IsDisplayHiddenItem, ItemFilters.Folder);
+
+            foreach (string SubFolderName in ItemList.Select((Item) => Path.GetFileName(Item)))
             {
-                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(ActualString);
-
-                QueryOptions Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
-                {
-                    FolderDepth = FolderDepth.Shallow,
-                    IndexerOption = IndexerOption.UseIndexerWhenAvailable,
-                };
-                Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.FileName" });
-                Options.SortOrder.Add(new SortEntry()
-                {
-                    AscendingOrder = true,
-                    PropertyName = "System.FileName"
-                });
-
-                StorageFolderQueryResult Query = Folder.CreateFolderQueryWithOptions(Options);
-
-                foreach (string SubFolderName in (await Query.GetFoldersAsync(0, 100)).Select((SubFolder) => SubFolder.Name))
-                {
-                    AddressExtentionList.Add(SubFolderName);
-                }
-            }
-            else
-            {
-                List<string> ItemList = WIN_Native_API.GetStorageItemsPath(ActualString, SettingControl.IsDisplayHiddenItem, ItemFilters.Folder);
-
-                foreach (string SubFolderName in ItemList.Select((Item) => Path.GetFileName(Item)))
-                {
-                    AddressExtentionList.Add(SubFolderName);
-                }
+                AddressExtentionList.Add(SubFolderName);
             }
 
             if (AddressExtentionList.Count != 0)
@@ -2388,19 +2119,6 @@ namespace RX_Explorer
                 {
                     if (e.DataView.Contains(StandardDataFormats.Html))
                     {
-                        if (IsNetworkDevice)
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_NotAllowInNetwordDevice_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            _ = await Dialog.ShowAsync().ConfigureAwait(false);
-                            return;
-                        }
-
                         string Html = await e.DataView.GetHtmlFormatAsync();
                         string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
 
@@ -2592,54 +2310,18 @@ namespace RX_Explorer
                                 Retry:
                                     try
                                     {
-                                        if (IsNetworkDevice)
+                                        await FullTrustProcessController.Current.CopyAsync(DragItemList, TargetFolder, (s, arg) =>
                                         {
-                                            foreach (IStorageItem DragItem in DragItemList)
+                                            if (ProBar.Value < arg.ProgressPercentage)
                                             {
-                                                if (DragItem is StorageFile File)
-                                                {
-                                                    await File.CopyAsync(TargetFolder, File.Name, NameCollisionOption.GenerateUniqueName);
-                                                }
-                                                else if (DragItem is StorageFolder Folder)
-                                                {
-                                                    StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.GenerateUniqueName);
-
-                                                    await Folder.CopySubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
-
-                                                    if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
-                                                    {
-                                                        if (await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(ActualPath, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path), true).ConfigureAwait(true) is TreeViewNode TargetNode)
-                                                        {
-                                                            TargetNode.HasUnrealizedChildren = true;
-
-                                                            if (TargetNode.IsExpanded)
-                                                            {
-                                                                TargetNode.Children.Add(new TreeViewNode
-                                                                {
-                                                                    Content = new TreeViewNodeContent(NewFolder),
-                                                                    HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
-                                                                });
-                                                            }
-                                                        }
-                                                    }
-                                                }
+                                                ProBar.IsIndeterminate = false;
+                                                ProBar.Value = arg.ProgressPercentage;
                                             }
-                                        }
-                                        else
+                                        }).ConfigureAwait(true);
+
+                                        if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                                         {
-                                            await FullTrustProcessController.Current.CopyAsync(DragItemList, TargetFolder, (s, arg) =>
-                                            {
-                                                if (ProBar.Value < arg.ProgressPercentage)
-                                                {
-                                                    ProBar.IsIndeterminate = false;
-                                                    ProBar.Value = arg.ProgressPercentage;
-                                                }
-                                            }).ConfigureAwait(true);
-
-                                            if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
-                                            {
-                                                await FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
-                                            }
+                                            await FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
                                         }
                                     }
                                     catch (FileNotFoundException)
@@ -2708,69 +2390,18 @@ namespace RX_Explorer
                                 Retry:
                                     try
                                     {
-                                        if (IsNetworkDevice)
+                                        await FullTrustProcessController.Current.MoveAsync(DragItemList, TargetFolder, (s, arg) =>
                                         {
-                                            foreach (IStorageItem DragItem in DragItemList)
+                                            if (ProBar.Value < arg.ProgressPercentage)
                                             {
-                                                if (DragItem is StorageFile File)
-                                                {
-                                                    await File.MoveAsync(TargetFolder, File.Name, NameCollisionOption.GenerateUniqueName);
-                                                }
-                                                else if (DragItem is StorageFolder Folder)
-                                                {
-                                                    StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Folder.Name, CreationCollisionOption.GenerateUniqueName);
-
-                                                    await Folder.MoveSubFilesAndSubFoldersAsync(NewFolder).ConfigureAwait(true);
-
-                                                    if (Presenter.FileCollection.FirstOrDefault((Item) => Item.Path == Folder.Path) is FileSystemStorageItemBase RemoveItem)
-                                                    {
-                                                        Presenter.FileCollection.Remove(RemoveItem);
-                                                    }
-
-                                                    if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
-                                                    {
-                                                        if (CurrentNode.IsExpanded)
-                                                        {
-                                                            if (CurrentNode.Children.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == Folder.Path) is TreeViewNode Node)
-                                                            {
-                                                                CurrentNode.Children.Remove(Node);
-                                                            }
-                                                        }
-
-                                                        CurrentNode.HasUnrealizedChildren = (await CurrentFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0;
-
-                                                        if (await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(ActualPath, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path), true).ConfigureAwait(true) is TreeViewNode TargetNode)
-                                                        {
-                                                            TargetNode.HasUnrealizedChildren = true;
-
-                                                            if (TargetNode.IsExpanded)
-                                                            {
-                                                                TargetNode.Children.Add(new TreeViewNode
-                                                                {
-                                                                    Content = new TreeViewNodeContent(NewFolder),
-                                                                    HasUnrealizedChildren = (await NewFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
-                                                                });
-                                                            }
-                                                        }
-                                                    }
-                                                }
+                                                ProBar.IsIndeterminate = false;
+                                                ProBar.Value = arg.ProgressPercentage;
                                             }
-                                        }
-                                        else
+                                        }).ConfigureAwait(true);
+
+                                        if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                                         {
-                                            await FullTrustProcessController.Current.MoveAsync(DragItemList, TargetFolder, (s, arg) =>
-                                            {
-                                                if (ProBar.Value < arg.ProgressPercentage)
-                                                {
-                                                    ProBar.IsIndeterminate = false;
-                                                    ProBar.Value = arg.ProgressPercentage;
-                                                }
-                                            }).ConfigureAwait(true);
-
-                                            if (!SettingControl.IsDetachTreeViewAndPresenter && ActualPath.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
-                                            {
-                                                await FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
-                                            }
+                                            await FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
                                         }
                                     }
                                     catch (FileNotFoundException)
@@ -2928,8 +2559,6 @@ namespace RX_Explorer
 
             CurrentNode = null;
             CurrentFolder = null;
-
-            AddItemCancellation?.Cancel();
 
             EnterLock.Dispose();
             AreaWatcher.Dispose();

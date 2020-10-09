@@ -33,11 +33,6 @@ namespace RX_Explorer.Dialog
                         DeviceType.Text = Globalization.GetString("Device_Type_1");
                         break;
                     }
-                case DriveType.Network:
-                    {
-                        DeviceType.Text = Globalization.GetString("Device_Type_2");
-                        break;
-                    }
                 case DriveType.Removable:
                     {
                         DeviceType.Text = Globalization.GetString("Device_Type_3");

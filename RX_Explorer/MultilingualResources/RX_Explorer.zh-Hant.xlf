@@ -1743,10 +1743,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Local drive</source>
           <target state="translated">本地磁碟</target>
         </trans-unit>
-        <trans-unit id="Device_Type_2" translate="yes" xml:space="preserve">
-          <source>Network drive</source>
-          <target state="translated" state-qualifier="tm-suggestion">網路磁碟機</target>
-        </trans-unit>
         <trans-unit id="Device_Type_3" translate="yes" xml:space="preserve">
           <source>Removable drive</source>
           <target state="translated">抽取式磁碟機</target>
@@ -3089,10 +3085,6 @@ Invalid names include
         <trans-unit id="QueueDialog_DropFailure_Content" translate="yes" xml:space="preserve">
           <source>Unable to recognize the dragged file, please try again</source>
           <target state="translated">無法識別已拖動的文件，請重試</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_NotAllowInNetwordDevice_Content" translate="yes" xml:space="preserve">
-          <source>This operation is not currently supported on network drives</source>
-          <target state="translated">當前在網絡驅動器上不支持此操作</target>
         </trans-unit>
         <trans-unit id="QueueDialog_SetWallpaperFailure_Content" translate="yes" xml:space="preserve">
           <source>Unable to set the picture as wallpaper due to an unknown error</source>

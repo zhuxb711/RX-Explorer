@@ -471,7 +471,7 @@ namespace RX_Explorer
                     CommonAccessCollection.HardDeviceList.Clear();
 
                     bool AccessError = false;
-                    foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Network || Drives.DriveType == DriveType.Removable)
+                    foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable)
                                                                      .Where((NewItem) => CommonAccessCollection.HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
                     {
                         try
@@ -636,7 +636,7 @@ namespace RX_Explorer
 
             if (Device != null)
             {
-                if (Device.Path == Path.GetPathRoot(Device.Path) && DriveInfo.GetDrives().Where((Drive) => Drive.DriveType == DriveType.Fixed || Drive.DriveType == DriveType.Network || Drive.DriveType == DriveType.Removable).Any((Item) => Item.RootDirectory.FullName == Device.Path))
+                if (Device.Path == Path.GetPathRoot(Device.Path) && DriveInfo.GetDrives().Where((Drive) => Drive.DriveType == DriveType.Fixed || Drive.DriveType == DriveType.Removable).Any((Item) => Item.RootDirectory.FullName == Device.Path))
                 {
                     if (CommonAccessCollection.HardDeviceList.All((Item) => Item.Folder.Path != Device.Path))
                     {

@@ -1304,9 +1304,6 @@
   <data name="Device_Type_1" xml:space="preserve">
     <value>本地驱动器</value>
   </data>
-  <data name="Device_Type_2" xml:space="preserve">
-    <value>网络驱动器</value>
-  </data>
   <data name="Device_Type_3" xml:space="preserve">
     <value>可移动驱动器</value>
   </data>
@@ -2333,9 +2330,6 @@
   </data>
   <data name="QueueDialog_DropFailure_Content" xml:space="preserve">
     <value>无法识别拖动的文件，请重新尝试</value>
-  </data>
-  <data name="QueueDialog_NotAllowInNetwordDevice_Content" xml:space="preserve">
-    <value>暂不支持在网络驱动器中执行此操作</value>
   </data>
   <data name="QueueDialog_SetWallpaperFailure_Content" xml:space="preserve">
     <value>由于出现未知错误，无法将图片设置为壁纸</value>
