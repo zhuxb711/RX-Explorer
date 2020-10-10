@@ -179,6 +179,11 @@
                       SelectionMode="None"
                       x:Name="AddressButtonContainer"
                       ItemsSource="{x:Bind AddressButtonList}">
+                <ListView.ItemContainerTransitions>
+                    <TransitionCollection>
+                        <AddDeleteThemeTransition />
+                    </TransitionCollection>
+                </ListView.ItemContainerTransitions>
                 <ListView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <ItemsStackPanel Orientation="Horizontal" />

@@ -842,6 +842,7 @@ namespace FullTrustProcess
                                             Process.StartInfo.FileName = ExcutePath;
                                             Process.StartInfo.UseShellExecute = false;
                                             Process.StartInfo.CreateNoWindow = ExcuteCreateNoWindow;
+                                            Process.StartInfo.WorkingDirectory = Path.GetDirectoryName(ExcutePath);
 
                                             if (ExcuteAuthority == "Administrator")
                                             {
@@ -861,6 +862,7 @@ namespace FullTrustProcess
                                             Process.StartInfo.Arguments = ExcuteParameter;
                                             Process.StartInfo.UseShellExecute = false;
                                             Process.StartInfo.CreateNoWindow = ExcuteCreateNoWindow;
+                                            Process.StartInfo.WorkingDirectory = Path.GetDirectoryName(ExcutePath);
 
                                             if (ExcuteAuthority == "Administrator")
                                             {

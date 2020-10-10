@@ -3304,6 +3304,10 @@ Les noms non valides incluent
           <source>Unable to download Bing image</source>
           <target state="translated">Impossible de télécharger l'image Bing</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_CanNotDecompressEncrypted_Content" translate="yes" xml:space="preserve">
+          <source>Unable to decompress encrypted compressed file</source>
+          <target state="translated">Impossible de décompresser le fichier compressé chiffré</target>
+        </trans-unit>
       </group>
     </body>
   </file>

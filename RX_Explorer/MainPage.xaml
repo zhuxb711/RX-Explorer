@@ -98,7 +98,7 @@
                            Navigating="Nav_Navigating"
                            Navigated="Nav_Navigated"
                            x:FieldModifier="public"
-                           Grid.Row="1" />
+                           Grid.Row="1"/>
                     <local:SettingControl x:Name="SettingControl"
                                           Visibility="Collapsed"
                                           x:FieldModifier="public"

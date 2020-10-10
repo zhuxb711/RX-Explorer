@@ -55,7 +55,7 @@
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup>
-    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup>

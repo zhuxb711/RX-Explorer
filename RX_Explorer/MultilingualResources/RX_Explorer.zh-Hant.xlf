@@ -3304,6 +3304,10 @@ Invalid names include
           <source>Unable to download Bing image</source>
           <target state="translated">無法下載必應圖像</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_CanNotDecompressEncrypted_Content" translate="yes" xml:space="preserve">
+          <source>Unable to decompress encrypted compressed file</source>
+          <target state="translated">無法解壓縮加密的壓縮文件</target>
+        </trans-unit>
       </group>
     </body>
   </file>

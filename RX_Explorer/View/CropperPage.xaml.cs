@@ -47,7 +47,7 @@ namespace RX_Explorer
             {
                 if (e?.Parameter is PhotoDisplaySupport Item)
                 {
-                    OriginFile = Item.PhotoFile;
+                    OriginFile = (await Item.PhotoFile.GetStorageItem().ConfigureAwait(true)) as StorageFile;
                     OriginImage = await Item.GenerateImageWithRotation().ConfigureAwait(true);
                     OriginBackupImage = SoftwareBitmap.Copy(OriginImage);
 

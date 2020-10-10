@@ -1,4 +1,45 @@
 ﻿*****
+###What's new in Ver.5.4.9.0
+
+#####Feature update
+
+>#####Now you can open .msc files directly
+
+>#####The quick start area allows adding system management tools (.msc files)
+
+>#####All changes made on the settings page will be synchronized to all windows immediately
+
+>#####Removed the Zip component's support for encrypted compression packages
+
+>#####Because the accurate path cannot be obtained and it is difficult to maintain, the network drive support is removed
+
+#####UI update
+
+>#####The rename box is activated by default after creating a new folder
+
+>#####Changed the rendering position of the built-in file viewer
+
+>#####It is now allowed to delete the built-in custom picture background
+
+#####Bug fix
+
+>#####Fixed the problem that the "multiple selection" function could not be used in single-click mode
+
+>#####Fixed some problems when locating the file location from the search interface
+
+>#####Fixed the problem of inconsistent behavior between the system return key and the built-in return key in tablet mode
+
+>#####Fixed the problem that the delete operation cannot be undone by clicking Cancel after deleting the configuration file when editing the terminal configuration file
+
+>#####Fixed the problem that in some cases, the keyboard keys could not scroll to the relevant file position accurately
+
+>#####Fixed the problem that may cause a crash when deleting the currently used terminal configuration file
+
+>#####Fixed the problem that the buttons in the address bar cannot be displayed normally in some cases
+
+>#####Fixed the problem that the .exe file cannot be executed normally in some cases
+
+*****
 ###What's new in Ver.5.4.5.0
 
 #####Feature update

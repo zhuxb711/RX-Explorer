@@ -46,7 +46,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 获取Photo的StorageFile对象
         /// </summary>
-        public StorageFile PhotoFile { get; private set; }
+        public FileSystemStorageItemBase PhotoFile { get; private set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -55,7 +55,7 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="ImageSource">缩略图</param>
         /// <param name="File">文件</param>
-        public PhotoDisplaySupport(StorageFile Item)
+        public PhotoDisplaySupport(FileSystemStorageItemBase Item)
         {
             PhotoFile = Item;
         }
@@ -72,18 +72,20 @@ namespace RX_Explorer.Class
 
                 try
                 {
-
-                    using (IRandomAccessStream Stream = await PhotoFile.OpenAsync(FileAccessMode.Read))
+                    if ((await PhotoFile.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
                     {
-                        if (BitmapSource == null)
+                        using (IRandomAccessStream Stream = await File.OpenAsync(FileAccessMode.Read))
                         {
-                            BitmapSource = new BitmapImage();
+                            if (BitmapSource == null)
+                            {
+                                BitmapSource = new BitmapImage();
+                            }
+
+                            await BitmapSource.SetSourceAsync(Stream);
                         }
 
-                        await BitmapSource.SetSourceAsync(Stream);
+                        OnPropertyChanged(nameof(BitmapSource));
                     }
-
-                    OnPropertyChanged(nameof(BitmapSource));
                 }
                 catch
                 {
@@ -104,14 +106,17 @@ namespace RX_Explorer.Class
 
             try
             {
-                BitmapSource = new BitmapImage();
-
-                using (StorageItemThumbnail ThumbnailStream = await PhotoFile.GetThumbnailAsync(ThumbnailMode.PicturesView))
+                if ((await PhotoFile.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
                 {
-                    await BitmapSource.SetSourceAsync(ThumbnailStream);
-                }
+                    BitmapSource = new BitmapImage();
 
-                OnPropertyChanged(nameof(BitmapSource));
+                    using (StorageItemThumbnail ThumbnailStream = await File.GetThumbnailAsync(ThumbnailMode.PicturesView))
+                    {
+                        await BitmapSource.SetSourceAsync(ThumbnailStream);
+                    }
+
+                    OnPropertyChanged(nameof(BitmapSource));
+                }
             }
             catch
             {
@@ -125,12 +130,15 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public async Task UpdateImage()
         {
-            using (IRandomAccessStream Stream = await PhotoFile.OpenAsync(FileAccessMode.Read))
+            if ((await PhotoFile.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
             {
-                await BitmapSource.SetSourceAsync(Stream);
-            }
+                using (IRandomAccessStream Stream = await File.OpenAsync(FileAccessMode.Read))
+                {
+                    await BitmapSource.SetSourceAsync(Stream);
+                }
 
-            OnPropertyChanged(nameof(BitmapSource));
+                OnPropertyChanged(nameof(BitmapSource));
+            }
         }
 
         /// <summary>
@@ -141,42 +149,49 @@ namespace RX_Explorer.Class
         {
             try
             {
-                using (IRandomAccessStream stream = await PhotoFile.OpenAsync(FileAccessMode.Read))
+                if ((await PhotoFile.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
                 {
-                    BitmapDecoder decoder = await BitmapDecoder.CreateAsync(stream);
-
-                    switch (RotateAngle % 360)
+                    using (IRandomAccessStream stream = await File.OpenAsync(FileAccessMode.Read))
                     {
-                        case 0:
-                            {
-                                return await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
-                            }
-                        case 90:
-                            {
-                                using (SoftwareBitmap Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                        BitmapDecoder decoder = await BitmapDecoder.CreateAsync(stream);
+
+                        switch (RotateAngle % 360)
+                        {
+                            case 0:
                                 {
-                                    return ComputerVisionProvider.RotateEffect(Origin, 90);
+                                    return await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
                                 }
-                            }
-                        case 180:
-                            {
-                                using (SoftwareBitmap Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                            case 90:
                                 {
-                                    return ComputerVisionProvider.RotateEffect(Origin, 180);
+                                    using (SoftwareBitmap Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                                    {
+                                        return ComputerVisionProvider.RotateEffect(Origin, 90);
+                                    }
                                 }
-                            }
-                        case 270:
-                            {
-                                using (SoftwareBitmap Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                            case 180:
                                 {
-                                    return ComputerVisionProvider.RotateEffect(Origin, -90);
+                                    using (SoftwareBitmap Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                                    {
+                                        return ComputerVisionProvider.RotateEffect(Origin, 180);
+                                    }
                                 }
-                            }
-                        default:
-                            {
-                                return null;
-                            }
+                            case 270:
+                                {
+                                    using (SoftwareBitmap Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                                    {
+                                        return ComputerVisionProvider.RotateEffect(Origin, -90);
+                                    }
+                                }
+                            default:
+                                {
+                                    return null;
+                                }
+                        }
                     }
+                }
+                else
+                {
+                    return null;
                 }
             }
             catch

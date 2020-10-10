@@ -1,4 +1,45 @@
 ﻿*****
+###Quoi de neuf dans la version 5.4.9.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Vous pouvez maintenant ouvrir directement les fichiers .msc
+
+>#####La zone de démarrage rapide permet d'ajouter des outils de gestion système (fichiers .msc)
+
+>#####Toutes les modifications effectuées sur la page des paramètres seront immédiatement synchronisées avec toutes les fenêtres
+
+>#####Suppression du support du composant Zip pour les packages de compression chiffrés
+
+>#####Parce que le chemin précis ne peut pas être obtenu et qu'il est difficile à maintenir, la prise en charge du lecteur réseau est supprimée
+
+#####Mise à jour de l'interface utilisateur
+
+>#####La boîte de changement de nom est activée par défaut après la création d'un nouveau dossier
+
+>#####Changement de la position de rendu de la visionneuse de fichiers intégrée
+
+>#####Il est maintenant permis de supprimer l'arrière-plan de l'image personnalisée intégrée
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel la fonction "sélection multiple" ne pouvait pas être utilisée en mode simple clic
+
+>#####Correction de quelques problèmes lors de la localisation de l'emplacement du fichier à partir de l'interface de recherche
+
+>#####Correction du problème de comportement incohérent entre la clé de retour système et la clé de retour intégrée en mode tablette
+
+>#####Correction du problème selon lequel l'opération de suppression ne peut pas être annulée en cliquant sur Annuler après la suppression du fichier de configuration lors de l'édition du fichier de configuration du terminal
+
+>#####Correction du problème qui, dans certains cas, les touches du clavier ne pouvaient pas faire défiler avec précision la position de fichier appropriée
+
+>#####Correction du problème pouvant provoquer un plantage lors de la suppression du fichier de configuration du terminal actuellement utilisé
+
+>#####Correction du problème que les boutons de la barre d'adresse ne peuvent pas être affichés normalement dans certains cas
+
+>#####Correction du problème que le fichier .exe ne peut pas être exécuté normalement dans certains cas
+
+*****
 ###Quoi de neuf dans la version 5.4.5.0
 
 #####Mise à jour des fonctionnalités

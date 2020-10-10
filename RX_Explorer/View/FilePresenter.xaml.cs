@@ -94,7 +94,7 @@ namespace RX_Explorer
         private FileSystemStorageItemBase CurrentNameEditItem;
         private DateTimeOffset LastClickTime;
         private DateTimeOffset LastPressTime;
-        private string LastPressChar;
+        private string LastPressString;
 
         public FileSystemStorageItemBase SelectedItem
         {
@@ -301,9 +301,9 @@ namespace RX_Explorer
                 {
                     string TargetChar = Convert.ToChar((int)Key).ToString();
 
-                    if (LastPressChar != TargetChar && (DateTimeOffset.Now - LastPressTime).TotalMilliseconds < 1000)
+                    if (LastPressString != TargetChar && (DateTimeOffset.Now - LastPressTime).TotalMilliseconds < 1500)
                     {
-                        TargetChar = LastPressChar + TargetChar;
+                        TargetChar = LastPressString + TargetChar;
                     }
 
                     List<FileSystemStorageItemBase> Group = FileCollection.Where((Item) => Item.Name.StartsWith(TargetChar, StringComparison.OrdinalIgnoreCase)).ToList();
@@ -340,7 +340,7 @@ namespace RX_Explorer
                         }
                     }
 
-                    LastPressChar = TargetChar;
+                    LastPressString = TargetChar;
                     LastPressTime = DateTimeOffset.Now;
                 }
                 catch (Exception ex)
@@ -1874,11 +1874,12 @@ namespace RX_Explorer
         private async Task UnZipAsync(StorageFile ZFile, ProgressChangedEventHandler ProgressHandler = null)
         {
             StorageFolder ParentFolder = null;
+            StorageFolder NewFolder = null;
 
             try
             {
                 ParentFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(ZFile.Path));
-                StorageFolder NewFolder = await ParentFolder.CreateFolderAsync(Path.GetFileNameWithoutExtension(ZFile.Name), CreationCollisionOption.OpenIfExists);
+                NewFolder = await ParentFolder.CreateFolderAsync(Path.GetFileNameWithoutExtension(ZFile.Name), CreationCollisionOption.OpenIfExists);
 
                 using (Stream FileStream = await ZFile.OpenStreamForReadAsync().ConfigureAwait(true))
                 using (ZipInputStream InputZipStream = new ZipInputStream(FileStream))
@@ -1889,6 +1890,11 @@ namespace RX_Explorer
 
                     while (InputZipStream.GetNextEntry() is ZipEntry Entry)
                     {
+                        if (!InputZipStream.CanDecompressEntry)
+                        {
+                            throw new NotImplementedException();
+                        }
+
                         StorageFile NewFile = null;
 
                         if (Entry.Name.Contains("/"))
@@ -1928,6 +1934,11 @@ namespace RX_Explorer
             }
             catch (UnauthorizedAccessException)
             {
+                if (NewFolder != null)
+                {
+                    await NewFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
+                }
+
                 QueueContentDialog dialog = new QueueContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
@@ -1941,14 +1952,36 @@ namespace RX_Explorer
                     _ = await Launcher.LaunchFolderAsync(ParentFolder);
                 }
             }
+            catch(NotImplementedException)
+            {
+                if (NewFolder != null)
+                {
+                    await NewFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
+                }
+
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_CanNotDecompressEncrypted_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+            }
             catch (Exception e)
             {
+                if (NewFolder != null)
+                {
+                    await NewFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
+                }
+
                 QueueContentDialog dialog = new QueueContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_DecompressionError_Content") + e.Message,
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
+
                 _ = await dialog.ShowAsync().ConfigureAwait(true);
             }
         }
@@ -1959,10 +1992,7 @@ namespace RX_Explorer
         /// <param name="ZipTarget">待压缩文件</param>
         /// <param name="NewZipName">生成的Zip文件名</param>
         /// <param name="ZipLevel">压缩等级</param>
-        /// <param name="EnableCryption">是否启用加密</param>
-        /// <param name="Size">AES加密密钥长度</param>
-        /// <param name="Password">密码</param>
-        /// <returns>无</returns>
+        /// <param name="ProgressHandler">进度通知</param>
         private async Task CreateZipAsync(IStorageItem ZipTarget, string NewZipName, int ZipLevel, ProgressChangedEventHandler ProgressHandler = null)
         {
             try

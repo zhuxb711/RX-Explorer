@@ -2493,4 +2493,7 @@ Les noms non valides incluent
   <data name="QueueDialog_BingDownloadError_Content" xml:space="preserve">
     <value>Impossible de télécharger l'image Bing</value>
   </data>
+  <data name="QueueDialog_CanNotDecompressEncrypted_Content" xml:space="preserve">
+    <value>Impossible de décompresser le fichier compressé chiffré</value>
+  </data>
 </root>

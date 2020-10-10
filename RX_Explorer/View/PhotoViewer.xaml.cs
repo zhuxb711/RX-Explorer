@@ -64,15 +64,7 @@ namespace RX_Explorer
 
                 Behavior.Attach(Flip);
 
-                List<StorageFile> FileList = new List<StorageFile>();
-
-                foreach (FileSystemStorageItemBase Item in WIN_Native_API.GetStorageItems(Path.GetDirectoryName(SelectedPhotoPath), false, ItemFilters.File).Where((Item) => Item.Type.Equals(".png", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".bmp", StringComparison.OrdinalIgnoreCase)).ToList())
-                {
-                    if (await Item.GetStorageItem().ConfigureAwait(true) is StorageFile File)
-                    {
-                        FileList.Add(File);
-                    }
-                }
+                List<FileSystemStorageItemBase> FileList = WIN_Native_API.GetStorageItems(Path.GetDirectoryName(SelectedPhotoPath), false, ItemFilters.File).Where((Item) => Item.Type.Equals(".png", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".bmp", StringComparison.OrdinalIgnoreCase)).ToList();
 
                 if (FileList.Count == 0)
                 {
@@ -284,26 +276,27 @@ namespace RX_Explorer
 
         private async void TranscodeImage_Click(object sender, RoutedEventArgs e)
         {
-            StorageFile OriginFile = PhotoCollection[Flip.SelectedIndex].PhotoFile;
-
-            TranscodeImageDialog Dialog = null;
-            using (IRandomAccessStream OriginStream = await OriginFile.OpenAsync(FileAccessMode.Read))
+            if ((await PhotoCollection[Flip.SelectedIndex].PhotoFile.GetStorageItem().ConfigureAwait(true)) is StorageFile OriginFile)
             {
-                BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
-                Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
-            }
+                TranscodeImageDialog Dialog = null;
+                using (IRandomAccessStream OriginStream = await OriginFile.OpenAsync(FileAccessMode.Read))
+                {
+                    BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
+                    Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
+                }
 
-            if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-            {
-                TranscodeLoadingControl.IsLoading = true;
-                MainPage.ThisPage.IsAnyTaskRunning = true;
+                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                {
+                    TranscodeLoadingControl.IsLoading = true;
+                    MainPage.ThisPage.IsAnyTaskRunning = true;
 
-                await GeneralTransformer.TranscodeFromImageAsync(OriginFile, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode).ConfigureAwait(true);
+                    await GeneralTransformer.TranscodeFromImageAsync(OriginFile, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode).ConfigureAwait(true);
 
-                await Task.Delay(1000).ConfigureAwait(true);
+                    await Task.Delay(1000).ConfigureAwait(true);
 
-                TranscodeLoadingControl.IsLoading = false;
-                MainPage.ThisPage.IsAnyTaskRunning = false;
+                    TranscodeLoadingControl.IsLoading = false;
+                    MainPage.ThisPage.IsAnyTaskRunning = false;
+                }
             }
         }
 
@@ -498,36 +491,39 @@ namespace RX_Explorer
                 {
                     if (Flip.SelectedItem is PhotoDisplaySupport Photo)
                     {
-                        StorageFile TempFile = await Photo.PhotoFile.CopyAsync(ApplicationData.Current.LocalFolder, Photo.PhotoFile.Name, NameCollisionOption.GenerateUniqueName);
-
-                        try
+                        if (await Photo.PhotoFile.GetStorageItem().ConfigureAwait(true) is StorageFile File)
                         {
-                            if (await UserProfilePersonalizationSettings.Current.TrySetWallpaperImageAsync(TempFile))
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_SetWallpaperSuccess_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
+                            StorageFile TempFile = await File.CopyAsync(ApplicationData.Current.LocalFolder, Photo.PhotoFile.Name, NameCollisionOption.GenerateUniqueName);
 
-                                _ = await Dialog.ShowAsync().ConfigureAwait(false);
-                            }
-                            else
+                            try
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
+                                if (await UserProfilePersonalizationSettings.Current.TrySetWallpaperImageAsync(TempFile))
                                 {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_SetWallpaperFailure_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
+                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_SetWallpaperSuccess_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
 
-                                _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                                }
+                                else
+                                {
+                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_SetWallpaperFailure_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+
+                                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                                }
                             }
-                        }
-                        finally
-                        {
-                            await TempFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                            finally
+                            {
+                                await TempFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                            }
                         }
                     }
                 }
