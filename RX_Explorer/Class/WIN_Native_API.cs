@@ -3,10 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 using FileAttributes = System.IO.FileAttributes;
@@ -329,7 +330,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(Path));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(Path, FINDEX_INFO_LEVELS.FindExInfoBasic, out _, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.GetPathRoot(Path) == Path ? System.IO.Path.Combine(Path, "*") : Path, FINDEX_INFO_LEVELS.FindExInfoBasic, out _, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
 
             try
             {
@@ -358,6 +359,11 @@ namespace RX_Explorer.Class
             if (string.IsNullOrWhiteSpace(Path))
             {
                 throw new ArgumentException("Argument could not be empty", nameof(Path));
+            }
+
+            if (System.IO.Path.GetPathRoot(Path) == Path)
+            {
+                throw new ArgumentException("Unsupport for root directory", nameof(Path));
             }
 
             IntPtr Ptr = FindFirstFileExFromApp(Path, FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
@@ -391,7 +397,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static ulong CalculateSize(string Path)
+        public static ulong CalculateSize(string Path, CancellationToken? CancelToken = null)
         {
             if (string.IsNullOrWhiteSpace(Path))
             {
@@ -412,7 +418,7 @@ namespace RX_Explorer.Class
                         {
                             if (Data.cFileName != "." && Data.cFileName != "..")
                             {
-                                TotalSize += CalculateSize(System.IO.Path.Combine(Path, Data.cFileName));
+                                TotalSize += CalculateSize(System.IO.Path.Combine(Path, Data.cFileName), CancelToken);
                             }
                         }
                         else
@@ -420,7 +426,7 @@ namespace RX_Explorer.Class
                             TotalSize += ((ulong)Data.nFileSizeHigh << 32) + Data.nFileSizeLow;
                         }
                     }
-                    while (FindNextFile(Ptr, out Data));
+                    while (FindNextFile(Ptr, out Data) && !(CancelToken?.IsCancellationRequested).GetValueOrDefault());
 
                     return TotalSize;
                 }
@@ -440,7 +446,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static (uint, uint) CalculateFolderAndFileCount(string Path)
+        public static (uint, uint) CalculateFolderAndFileCount(string Path, CancellationToken? CancelToken = null)
         {
             if (string.IsNullOrWhiteSpace(Path))
             {
@@ -462,7 +468,7 @@ namespace RX_Explorer.Class
                         {
                             if (Data.cFileName != "." && Data.cFileName != "..")
                             {
-                                (uint SubFolderCount, uint SubFileCount) = CalculateFolderAndFileCount(System.IO.Path.Combine(Path, Data.cFileName));
+                                (uint SubFolderCount, uint SubFileCount) = CalculateFolderAndFileCount(System.IO.Path.Combine(Path, Data.cFileName), CancelToken);
                                 FolderCount += ++SubFolderCount;
                                 FileCount += SubFileCount;
                             }
@@ -472,7 +478,7 @@ namespace RX_Explorer.Class
                             FileCount++;
                         }
                     }
-                    while (FindNextFile(Ptr, out Data));
+                    while (FindNextFile(Ptr, out Data) && !(CancelToken?.IsCancellationRequested).GetValueOrDefault());
 
                     return (FolderCount, FileCount);
                 }
@@ -583,6 +589,11 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(PathArray));
             }
 
+            if (PathArray.Any((Item) => Path.GetPathRoot(Item) == Item))
+            {
+                throw new ArgumentException("Unsupport for root directory", nameof(PathArray));
+            }
+
             try
             {
                 List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>(PathArray.Length);
@@ -668,7 +679,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Folder), "Argument could not be null");
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Folder.Path, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(Folder.Path, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
 
             try
             {

@@ -67,11 +67,6 @@ namespace RX_Explorer.Dialog
                 args.Cancel = true;
                 InvalidNameTip.IsOpen = true;
             }
-            else if (string.IsNullOrWhiteSpace(RenameText.Text))
-            {
-                args.Cancel = true;
-                InvalidCharTip.IsOpen = true;
-            }
             else
             {
                 DesireName = RenameText.Text;

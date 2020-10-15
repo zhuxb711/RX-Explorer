@@ -8,7 +8,8 @@
     mc:Ignorable="d"
     x:Uid="AttributeDialog"
     Title="属性"
-    CloseButtonText="确定">
+    CloseButtonText="确定"
+    CloseButtonClick="QueueContentDialog_CloseButtonClick">
 
     <Grid>
         <StackPanel Width="350">

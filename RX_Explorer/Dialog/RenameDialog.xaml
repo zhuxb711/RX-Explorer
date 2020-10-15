@@ -16,9 +16,7 @@
         <controls:TeachingTip x:Name="InvalidNameTip"
                               IsLightDismissEnabled="True"
                               x:Uid="PresentInvalidNameTip"
-                              Target="{x:Bind RenameText}"
-                              Title="错误"
-                              Subtitle="名称不能为空且不能包含无效的名称" />
+                              Target="{x:Bind RenameText}" />
         <controls:TeachingTip x:Name="InvalidCharTip"
                               IsLightDismissEnabled="True"
                               Target="{x:Bind RenameText}"

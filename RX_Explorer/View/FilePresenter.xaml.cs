@@ -139,8 +139,6 @@ namespace RX_Explorer
         {
             CoreWindow.GetForCurrentThread().KeyDown -= Window_KeyDown;
             Dispatcher.AcceleratorKeyActivated -= Dispatcher_AcceleratorKeyActivated;
-
-            FileControlInstance = null;
         }
 
         private void FilePresenter_Loaded(object sender, RoutedEventArgs e)
@@ -148,7 +146,10 @@ namespace RX_Explorer
             CoreWindow.GetForCurrentThread().KeyDown += Window_KeyDown;
             Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
 
-            FileControlInstance = this.FindParentOfType<FileControl>();
+            if (FileControlInstance == null)
+            {
+                FileControlInstance = this.FindParentOfType<FileControl>();
+            }
         }
 
         private void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
@@ -5406,7 +5407,7 @@ namespace RX_Explorer
             {
                 try
                 {
-                    if (string.IsNullOrWhiteSpace(NameEditBox.Text) || !FileSystemItemNameChecker.IsValid(NameEditBox.Text))
+                    if (!FileSystemItemNameChecker.IsValid(NameEditBox.Text))
                     {
                         InvalidNameTip.Target = NameLabel;
                         InvalidNameTip.IsOpen = true;

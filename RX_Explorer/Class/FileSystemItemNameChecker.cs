@@ -16,15 +16,22 @@ namespace RX_Explorer.Class
 
         public static bool IsValid(string Input)
         {
-            char[] InvalidChar = Path.GetInvalidFileNameChars();
-
-            if (Input.Any((Char) => InvalidChar.Contains(Char)) || NotAllowNames.Any((Name) => Input.Contains(Name)))
+            if (string.IsNullOrWhiteSpace(Input))
             {
                 return false;
             }
             else
             {
-                return true;
+                char[] InvalidChar = Path.GetInvalidFileNameChars();
+
+                if (Input.Any((Char) => InvalidChar.Contains(Char)) || NotAllowNames.Any((Name) => Input.Contains(Name)))
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
             }
         }
     }

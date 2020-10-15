@@ -15,8 +15,6 @@
     <local:QueueContentDialog.Resources>
         <controls:TeachingTip x:Name="InvalidInputTip"
                               x:Uid="NewFileDialogInvalidInputTip"
-                              Title="格式不正确"
-                              Subtitle="您所指定的文件类型不符合规范，请重新输入"
                               IsLightDismissEnabled="True"
                               PreferredPlacement="Bottom"
                               Target="{x:Bind Extension}" />

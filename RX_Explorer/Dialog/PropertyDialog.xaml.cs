@@ -1,6 +1,7 @@
 ﻿using RX_Explorer.Class;
 using System;
 using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
@@ -31,6 +32,8 @@ namespace RX_Explorer.Dialog
         private IStorageItem SItem;
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        private CancellationTokenSource Cancellation;
 
         public PropertyDialog(FileSystemStorageItemBase Item)
         {
@@ -195,13 +198,27 @@ namespace RX_Explorer.Dialog
 
                     await Task.Run(() =>
                     {
-                        CalculateFolderAndFileCount(folder);
-                        CalculateFolderSize(folder);
+                        try
+                        {
+                            Cancellation = new CancellationTokenSource();
+
+                            CalculateFolderAndFileCount(folder, Cancellation.Token);
+                            CalculateFolderSize(folder, Cancellation.Token);
+                        }
+                        catch
+                        {
+
+                        }
+                        finally
+                        {
+                            Cancellation.Dispose();
+                            Cancellation = null;
+                        }
                     }).ConfigureAwait(true);
                 }
             }
 
-            JUMP:
+        JUMP:
             OnPropertyChanged();
         }
 
@@ -225,16 +242,16 @@ namespace RX_Explorer.Dialog
             return string.Format("{0:D2}:{1:D2}:{2:D2}", Hour, Minute, Second);
         }
 
-        private void CalculateFolderSize(StorageFolder Folder)
+        private void CalculateFolderSize(StorageFolder Folder, CancellationToken? CancelToken = null)
         {
-            ulong TotalSize = WIN_Native_API.CalculateSize(Folder.Path);
+            ulong TotalSize = WIN_Native_API.CalculateSize(Folder.Path, CancelToken);
 
             FileSize = TotalSize.ToFileSizeDescription() + " (" + TotalSize.ToString("N0") + $" {Globalization.GetString("Device_Capacity_Unit")})";
         }
 
-        private void CalculateFolderAndFileCount(StorageFolder Folder)
+        private void CalculateFolderAndFileCount(StorageFolder Folder, CancellationToken? CancelToken = null)
         {
-            (uint FolderCount, uint FileCount) = WIN_Native_API.CalculateFolderAndFileCount(Folder.Path);
+            (uint FolderCount, uint FileCount) = WIN_Native_API.CalculateFolderAndFileCount(Folder.Path, CancelToken);
 
             Include = $"{FileCount} {Globalization.GetString("FolderInfo_File_Count")} , {FolderCount} {Globalization.GetString("FolderInfo_Folder_Count")}";
         }
@@ -252,6 +269,11 @@ namespace RX_Explorer.Dialog
                 PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(ChangeTime)));
                 PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Include)));
             }
+        }
+
+        private void QueueContentDialog_CloseButtonClick(Windows.UI.Xaml.Controls.ContentDialog sender, Windows.UI.Xaml.Controls.ContentDialogButtonClickEventArgs args)
+        {
+            Cancellation?.Cancel();
         }
     }
 }

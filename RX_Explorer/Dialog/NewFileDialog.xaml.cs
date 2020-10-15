@@ -25,12 +25,7 @@ namespace RX_Explorer.Dialog
 
         private void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            if (string.IsNullOrWhiteSpace(NewFileNameTextBox.Text) || !FileSystemItemNameChecker.IsValid(NewFileNameTextBox.Text))
-            {
-                args.Cancel = true;
-                InvalidNameTip.IsOpen = true;
-            }
-            else
+            if (FileSystemItemNameChecker.IsValid(NewFileNameTextBox.Text))
             {
                 if (string.IsNullOrWhiteSpace(Extension.Text))
                 {
@@ -41,6 +36,11 @@ namespace RX_Explorer.Dialog
                 {
                     NewFileName = NewFileNameTextBox.Text + Regex.Match(Extension.SelectedItem.ToString(), @"\.\w+").Value;
                 }
+            }
+            else
+            {
+                args.Cancel = true;
+                InvalidNameTip.IsOpen = true;
             }
         }
 
