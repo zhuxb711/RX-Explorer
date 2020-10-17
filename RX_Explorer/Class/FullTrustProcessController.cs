@@ -240,7 +240,11 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        Debug.WriteLine(Response.Message["Error"]);
+                        if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                        {
+                            await LogTracer.LogAsync(Convert.ToString(ErrorMessage)).ConfigureAwait(true);
+                        }
+
                         return false;
                     }
                 }
@@ -249,9 +253,9 @@ namespace RX_Explorer.Class
                     throw new NoResponseException();
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                Debug.WriteLine("Warning: CreateLink() throw an error");
+                await LogTracer.LogAsync(ex, $"{nameof(CreateLink)} throw an error").ConfigureAwait(true);
                 return false;
             }
             finally
@@ -290,9 +294,9 @@ namespace RX_Explorer.Class
                     throw new NoResponseException();
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                Debug.WriteLine("Warning: GetVariablePath() throw an error");
+                await LogTracer.LogAsync(ex, $"{nameof(GetVariablePath)} throw an error").ConfigureAwait(true);
                 return string.Empty;
             }
             finally
@@ -375,9 +379,9 @@ namespace RX_Explorer.Class
                     throw new NoResponseException();
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                Debug.WriteLine("Warning: GetHyperlinkRelatedInformationAsync() throw an error");
+                await LogTracer.LogAsync(ex, $"{nameof(GetHyperlinkRelatedInformationAsync)} throw an error").ConfigureAwait(true);
                 throw;
             }
             finally
@@ -415,9 +419,9 @@ namespace RX_Explorer.Class
                     return false;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                Debug.WriteLine("Warning: InterceptWindowsPlusE() excute error");
+                await LogTracer.LogAsync(ex, $"{nameof(InterceptWindowsPlusE)} throw an error").ConfigureAwait(true);
                 return false;
             }
             finally
@@ -455,9 +459,9 @@ namespace RX_Explorer.Class
                     return false;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                Debug.WriteLine("Warning: InterceptWindowsPlusE() excute error");
+                await LogTracer.LogAsync(ex, $"{nameof(RestoreWindowsPlusE)} throw an error").ConfigureAwait(true);
                 return false;
             }
             finally
@@ -496,9 +500,9 @@ namespace RX_Explorer.Class
                     return false;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                Debug.WriteLine("Warning: RemoveHiddenAttribute() excute error");
+                await LogTracer.LogAsync(ex, $"{nameof(RemoveHiddenAttribute)} throw an error").ConfigureAwait(true);
                 return false;
             }
             finally
@@ -524,9 +528,9 @@ namespace RX_Explorer.Class
                     await Connection.SendMessageAsync(Value);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                Debug.WriteLine("Warning: RequestCreateNewPipeLine() excute error");
+                await LogTracer.LogAsync(ex, $"{nameof(RequestCreateNewPipeLine)} throw an error").ConfigureAwait(true);
             }
             finally
             {
@@ -576,9 +580,9 @@ namespace RX_Explorer.Class
             {
                 throw;
             }
-            catch
+            catch (Exception ex)
             {
-                Debug.WriteLine("Warning: RunAsync() excute error");
+                await LogTracer.LogAsync(ex, $"{nameof(RunAsync)} throw an error").ConfigureAwait(true);
             }
             finally
             {
@@ -603,9 +607,9 @@ namespace RX_Explorer.Class
                     await Connection.SendMessageAsync(Value);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                Debug.WriteLine("Warning: ViewWithQuicklookAsync() excute error");
+                await LogTracer.LogAsync(ex, $"{nameof(ViewWithQuicklookAsync)} throw an error").ConfigureAwait(true);
             }
             finally
             {

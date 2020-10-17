@@ -1,7 +1,6 @@
 ﻿using Microsoft.Win32.SafeHandles;
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Text;
@@ -115,9 +114,9 @@ namespace RX_Explorer.Class
                     return false;
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Debug.WriteLine(e.Message);
+                await LogTracer.LogAsync(ex, $"{nameof(CreateNewNamedPipeAsync)} throw an error").ConfigureAwait(true);
                 return false;
             }
         }

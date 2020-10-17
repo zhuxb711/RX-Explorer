@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -13,9 +15,9 @@ namespace RX_Explorer.Class
     /// <summary>
     /// 提供对错误的捕获和记录，以及蓝屏的导向
     /// </summary>
-    public static class ExceptionTracer
+    public static class LogTracer
     {
-        private static readonly AutoResetEvent Locker = new AutoResetEvent(true);
+        private static readonly SemaphoreSlim Locker = new SemaphoreSlim(1, 1);
 
         /// <summary>
         /// 请求进入蓝屏状态
@@ -31,19 +33,16 @@ namespace RX_Explorer.Class
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 string[] MessageSplit;
+
                 try
                 {
-                    if (string.IsNullOrEmpty(Ex.Message))
+                    if (string.IsNullOrWhiteSpace(Ex.Message))
                     {
                         MessageSplit = Array.Empty<string>();
                     }
                     else
                     {
-                        MessageSplit = Ex.Message.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-                        for (int i = 0; i < MessageSplit.Length; i++)
-                        {
-                            MessageSplit[i] = "        " + MessageSplit[i];
-                        }
+                        MessageSplit = Ex.Message.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
                     }
                 }
                 catch
@@ -52,19 +51,16 @@ namespace RX_Explorer.Class
                 }
 
                 string[] StackTraceSplit;
+
                 try
                 {
-                    if (string.IsNullOrEmpty(Ex.StackTrace))
+                    if (string.IsNullOrWhiteSpace(Ex.StackTrace))
                     {
                         StackTraceSplit = Array.Empty<string>();
                     }
                     else
                     {
-                        StackTraceSplit = Ex.StackTrace.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-                        for (int i = 0; i < StackTraceSplit.Length; i++)
-                        {
-                            StackTraceSplit[i] = "        " + StackTraceSplit[i].TrimStart();
-                        }
+                        StackTraceSplit = Ex.StackTrace.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
                     }
                 }
                 catch
@@ -81,7 +77,6 @@ namespace RX_Explorer.Class
                         {Environment.NewLine}Exception: {Ex.GetType().Name}
                         {Environment.NewLine}Message:
                         {Environment.NewLine}{(MessageSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, MessageSplit))}
-                        {Environment.NewLine}Source：{(string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source)}
                         {Environment.NewLine}StackTrace：{Environment.NewLine}{(StackTraceSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, StackTraceSplit))}
                         {Environment.NewLine}------------------------------------{Environment.NewLine}";
 
@@ -100,7 +95,6 @@ namespace RX_Explorer.Class
                         {Environment.NewLine}Exception: {Ex.GetType().Name}
                         {Environment.NewLine}Message:
                         {Environment.NewLine}{(MessageSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, MessageSplit))}
-                        {Environment.NewLine}Source：{(string.IsNullOrEmpty(Ex.Source) ? "Unknown" : Ex.Source)}
                         {Environment.NewLine}StackTrace：{Environment.NewLine}{(StackTraceSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, StackTraceSplit))}
                         {Environment.NewLine}------------------------------------{Environment.NewLine}";
 
@@ -114,14 +108,59 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="Ex">错误</param>
         /// <returns></returns>
-        public static async Task LogAsync(Exception Ex)
+        public static async Task LogAsync(Exception Ex, string AdditionalComment = null)
         {
             if (Ex == null)
             {
                 throw new ArgumentNullException(nameof(Ex), "Exception could not be null");
             }
 
-            await LogAsync(Ex.Message + Environment.NewLine + Ex.StackTrace).ConfigureAwait(false);
+            string[] MessageSplit;
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(Ex.Message))
+                {
+                    MessageSplit = Array.Empty<string>();
+                }
+                else
+                {
+                    MessageSplit = Ex.Message.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
+                }
+            }
+            catch
+            {
+                MessageSplit = Array.Empty<string>();
+            }
+
+            string[] StackTraceSplit;
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(Ex.StackTrace))
+                {
+                    StackTraceSplit = Array.Empty<string>();
+                }
+                else
+                {
+                    StackTraceSplit = Ex.StackTrace.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
+                }
+            }
+            catch
+            {
+                StackTraceSplit = Array.Empty<string>();
+            }
+
+            string Message = @$"{Environment.NewLine}------------------------------------
+                                {Environment.NewLine}AdditionalComment: {AdditionalComment ?? "<Empty>"}
+                                {Environment.NewLine}------------------------------------
+                                {Environment.NewLine}Exception: {Ex.GetType().Name}
+                                {Environment.NewLine}Message:
+                                {Environment.NewLine}{(MessageSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, MessageSplit))}
+                                {Environment.NewLine}StackTrace：{Environment.NewLine}{(StackTraceSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, StackTraceSplit))}
+                                {Environment.NewLine}------------------------------------{Environment.NewLine}";
+
+            await LogAsync(Message).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -131,34 +170,21 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public static async Task LogAsync(string Message)
         {
-            await Task.Run(() =>
-            {
-                Locker.WaitOne();
-            }).ConfigureAwait(false);
+            await Locker.WaitAsync().ConfigureAwait(false);
 
-            string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-            
-            if (!string.IsNullOrEmpty(DesktopPath))
+            try
             {
-                try
-                {
-                    StorageFolder DesktopFolder = await StorageFolder.GetFolderFromPathAsync(DesktopPath);
-                    StorageFile TempFile = await DesktopFolder.CreateFileAsync("RX_Error_Message.txt", CreationCollisionOption.OpenIfExists);
-                    await FileIO.AppendTextAsync(TempFile, Message + Environment.NewLine);
-                }
-                catch
-                {
-                    StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("RX_Error_Message.txt", CreationCollisionOption.OpenIfExists);
-                    await FileIO.AppendTextAsync(TempFile, Message + Environment.NewLine);
-                }
+                StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("RX_Error_Log.txt", CreationCollisionOption.OpenIfExists);
+                await FileIO.AppendTextAsync(TempFile, $"{Environment.NewLine}{Message}{Environment.NewLine}", Windows.Storage.Streams.UnicodeEncoding.Utf16LE);
             }
-            else
+            catch (Exception ex)
             {
-                StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("RX_Error_Message.txt", CreationCollisionOption.OpenIfExists);
-                await FileIO.AppendTextAsync(TempFile, Message + Environment.NewLine);
+                Debug.WriteLine($"Error in writing log file: {ex.Message}");
             }
-
-            Locker.Set();
+            finally
+            {
+                Locker.Release();
+            }
         }
     }
 }

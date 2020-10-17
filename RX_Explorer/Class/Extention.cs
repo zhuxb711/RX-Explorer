@@ -1,11 +1,11 @@
 ﻿using Force.Crc32;
 using Google.Cloud.Translation.V2;
 using Microsoft.Toolkit.Uwp.Notifications;
+using Microsoft.Win32.SafeHandles;
 using NetworkAccess;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -19,8 +19,6 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
-using Windows.Storage.Search;
-using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
@@ -44,6 +42,25 @@ namespace RX_Explorer.Class
                     (SizeRaw / 1048576d < 1024 ? Math.Round(SizeRaw / 1048576d, 2).ToString("0.00") + " MB" :
                     (SizeRaw / 1073741824d < 1024 ? Math.Round(SizeRaw / 1073741824d, 2).ToString("0.00") + " GB" :
                     Math.Round(SizeRaw / 1099511627776d, 2).ToString() + " TB"));
+        }
+
+        /// <summary>
+        /// 请求锁定文件并拒绝其他任何读写访问(独占锁)
+        /// </summary>
+        /// <param name="Item">文件</param>
+        /// <param name="Handle">Safe句柄，Dispose该对象可以解除锁定</param>
+        /// <returns>操作是否正确完成</returns>
+        public static SafeFileHandle LockAndBlockAccess(this IStorageItem Item)
+        {
+            IntPtr ComInterface = Marshal.GetComInterfaceForObject(Item, typeof(IUknownInterface.IStorageItemHandleAccess));
+            IUknownInterface.IStorageItemHandleAccess StorageHandleAccess = (IUknownInterface.IStorageItemHandleAccess)Marshal.GetObjectForIUnknown(ComInterface);
+
+            const uint READ_FLAG = 0x120089;
+            const uint WRITE_FLAG = 0x120116;
+
+            StorageHandleAccess.Create(READ_FLAG | WRITE_FLAG, 0, 0, IntPtr.Zero, out IntPtr handle);
+
+            return new SafeFileHandle(handle, true);
         }
 
         public static IEnumerable<T> OrderByLikeFileSystem<T>(this IEnumerable<T> Input, Func<T, string> GetString, SortDirection Direction)
@@ -154,7 +171,6 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    Debug.WriteLine($"Could not found the root node, return false");
                     return false;
                 }
             }

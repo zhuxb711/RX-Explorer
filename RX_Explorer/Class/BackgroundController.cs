@@ -1,7 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.Helpers;
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
@@ -301,57 +300,64 @@ namespace RX_Explorer.Class
 
         public async Task Initialize()
         {
-            switch (CurrentType)
+            try
             {
-                case BackgroundBrushType.Picture:
-                    {
-                        string UriString = Convert.ToString(ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"]);
+                switch (CurrentType)
+                {
+                    case BackgroundBrushType.Picture:
+                        {
+                            string UriString = Convert.ToString(ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"]);
 
-                        if (!string.IsNullOrEmpty(UriString))
+                            if (!string.IsNullOrEmpty(UriString))
+                            {
+                                BitmapImage Bitmap = new BitmapImage();
+
+                                StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(UriString));
+
+                                using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                                {
+                                    await Bitmap.SetSourceAsync(Stream);
+                                }
+
+                                PictureBackgroundBrush.ImageSource = Bitmap;
+
+                                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
+                            }
+                            else
+                            {
+                                await LogTracer.LogAsync("UriString is empty, BackgroundController.Initialize is not finished").ConfigureAwait(true);
+                            }
+
+                            break;
+                        }
+
+                    case BackgroundBrushType.BingPicture:
                         {
                             BitmapImage Bitmap = new BitmapImage();
 
-                            StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(UriString));
-
-                            using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                            if (await BingPictureDownloader.DownloadDailyPicture().ConfigureAwait(true) is StorageFile ImageFile)
                             {
-                                await Bitmap.SetSourceAsync(Stream);
+                                using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                                {
+                                    await Bitmap.SetSourceAsync(Stream);
+                                }
+
+                                BingPictureBursh.ImageSource = Bitmap;
+
+                                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
+                            }
+                            else
+                            {
+                                await LogTracer.LogAsync("Download Bing picture failed, BackgroundController.Initialize is not finished").ConfigureAwait(true);
                             }
 
-                            PictureBackgroundBrush.ImageSource = Bitmap;
-
-                            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
+                            break;
                         }
-                        else
-                        {
-                            Debug.WriteLine("UriString is empty, BackgroundController.Initialize is not finished");
-                        }
-
-                        break;
-                    }
-
-                case BackgroundBrushType.BingPicture:
-                    {
-                        BitmapImage Bitmap = new BitmapImage();
-
-                        if (await BingPictureDownloader.DownloadDailyPicture().ConfigureAwait(true) is StorageFile ImageFile)
-                        {
-                            using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
-                            {
-                                await Bitmap.SetSourceAsync(Stream);
-                            }
-
-                            BingPictureBursh.ImageSource = Bitmap;
-
-                            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
-                        }
-                        else
-                        {
-                            Debug.WriteLine("Download Bing picture failed, BackgroundController.Initialize is not finished");
-                        }
-
-                        break;
-                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await LogTracer.LogAsync(ex, "Exception happend when loading image for background").ConfigureAwait(true);
             }
         }
 
@@ -453,14 +459,9 @@ namespace RX_Explorer.Class
             {
                 case BackgroundBrushType.Picture:
                     {
-                        if (ImageUri == null)
-                        {
-                            throw new ArgumentNullException(nameof(ImageUri), "if parameter: 'Type' is BackgroundBrushType.Picture, parameter: 'ImageUri' could not be null");
-                        }
-
                         PictureBackgroundBrush.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), "if parameter: 'Type' is BackgroundBrushType.Picture, parameter: 'Background' could not be null");
 
-                        ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = ImageUri.ToString();
+                        ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = ImageUri?.ToString();
 
                         break;
                     }

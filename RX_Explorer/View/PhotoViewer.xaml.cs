@@ -111,7 +111,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                ExceptionTracer.RequestBlueScreen(ex);
+                LogTracer.RequestBlueScreen(ex);
             }
             finally
             {
@@ -468,7 +468,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                ExceptionTracer.RequestBlueScreen(ex);
+                LogTracer.RequestBlueScreen(ex);
             }
         }
 

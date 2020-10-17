@@ -229,6 +229,10 @@ namespace RX_Explorer
 
                                                                 BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureList.FirstOrDefault().PictureUri);
                                                             }
+                                                            else
+                                                            {
+                                                                BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, new BitmapImage());
+                                                            }
                                                         }
                                                         else
                                                         {
@@ -245,7 +249,7 @@ namespace RX_Explorer
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"Error in Current_DataChanged, message: {ex.Message}");
+                        await LogTracer.LogAsync(ex, $"Error in Current_DataChanged").ConfigureAwait(true);
                     }
                     finally
                     {
@@ -498,7 +502,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                await LogTracer.LogAsync(ex).ConfigureAwait(true);
             }
             finally
             {
@@ -657,7 +661,7 @@ namespace RX_Explorer
             }
         }
 
-        private void UIMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void UIMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             try
             {
@@ -779,7 +783,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in UIMode_SelectionChanged, message: {ex.Message}");
+                await LogTracer.LogAsync(ex, $"Error in {nameof(UIMode_SelectionChanged)}").ConfigureAwait(true);
             }
             finally
             {
@@ -1025,7 +1029,7 @@ namespace RX_Explorer
             ApplicationData.Current.SignalDataChanged();
         }
 
-        private void AcrylicMode_Checked(object sender, RoutedEventArgs e)
+        private async void AcrylicMode_Checked(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -1070,7 +1074,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in AcrylicMode_Checked, message: {ex.Message}");
+                await LogTracer.LogAsync(ex, $"Error in {nameof(AcrylicMode_Checked)}").ConfigureAwait(true);
             }
             finally
             {
@@ -1167,10 +1171,14 @@ namespace RX_Explorer
 
                     BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureList.FirstOrDefault().PictureUri);
                 }
+                else
+                {
+                    BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, new BitmapImage());
+                }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in PictureMode_Checked, message: {ex.Message}");
+                await LogTracer.LogAsync(ex, $"Error in {nameof(PictureMode_Checked)}").ConfigureAwait(true);
             }
             finally
             {
@@ -1197,7 +1205,7 @@ namespace RX_Explorer
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"Error in PictureGirdView_SelectionChanged, message: {ex.Message}");
+                    await LogTracer.LogAsync(ex, $"Error in {nameof(PictureGirdView_SelectionChanged)}").ConfigureAwait(true);
                 }
                 finally
                 {
@@ -1238,7 +1246,7 @@ namespace RX_Explorer
                 BackgroundPicture Picture = new BackgroundPicture(Bitmap, new Uri($"ms-appdata:///local/CustomImageFolder/{CopyedFile.Name}"));
 
                 PictureList.Add(Picture);
-
+                PictureGirdView.UpdateLayout();
                 PictureGirdView.ScrollIntoViewSmoothly(Picture, ScrollIntoViewAlignment.Leading);
                 PictureGirdView.SelectedItem = Picture;
 
@@ -1259,7 +1267,13 @@ namespace RX_Explorer
                 await SQLite.Current.DeleteBackgroundPictureAsync(Picture.PictureUri).ConfigureAwait(true);
 
                 PictureList.Remove(Picture);
+                PictureGirdView.UpdateLayout();
                 PictureGirdView.SelectedIndex = PictureList.Count - 1;
+
+                if (PictureList.Count == 0)
+                {
+                    BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, new BitmapImage());
+                }
             }
         }
 
@@ -1321,7 +1335,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in AutoBoot_Toggled, message: {ex.Message}");
+                await LogTracer.LogAsync(ex, $"Error in {nameof(AutoBoot_Toggled)}").ConfigureAwait(true);
             }
             finally
             {
@@ -1329,7 +1343,7 @@ namespace RX_Explorer
             }
         }
 
-        private void EnablePreLaunch_Toggled(object sender, RoutedEventArgs e)
+        private async void EnablePreLaunch_Toggled(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -1339,7 +1353,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in EnablePreLaunch_Toggled, message: {ex.Message}");
+                await LogTracer.LogAsync(ex, $"Error in {nameof(EnablePreLaunch_Toggled)}").ConfigureAwait(true);
             }
             finally
             {
@@ -1352,7 +1366,7 @@ namespace RX_Explorer
             PreLaunchTip.IsOpen = true;
         }
 
-        private void SolidColor_FollowSystem_Checked(object sender, RoutedEventArgs e)
+        private async void SolidColor_FollowSystem_Checked(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -1360,7 +1374,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in SolidColor_FollowSystem_Checked, message: {ex.Message}");
+                await LogTracer.LogAsync(ex, $"Error in {nameof(SolidColor_FollowSystem_Checked)}").ConfigureAwait(true);
             }
             finally
             {
@@ -1384,7 +1398,7 @@ namespace RX_Explorer
             }
         }
 
-        private void SolidColor_Black_Checked(object sender, RoutedEventArgs e)
+        private async void SolidColor_Black_Checked(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -1392,7 +1406,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in SolidColor_Black_Checked, message: {ex.Message}");
+                await LogTracer.LogAsync(ex, $"Error in {nameof(SolidColor_Black_Checked)}").ConfigureAwait(true);
             }
             finally
             {
@@ -1456,7 +1470,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in TreeViewDetach_Toggled, message: {ex.Message}");
+                await LogTracer.LogAsync(ex, $"Error in {nameof(TreeViewDetach_Toggled)}").ConfigureAwait(true);
             }
             finally
             {
@@ -1485,7 +1499,7 @@ namespace RX_Explorer
             ApplicationData.Current.SignalDataChanged();
         }
 
-        private void LanguageComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void LanguageComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             try
             {
@@ -1543,7 +1557,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in LanguageComboBox_SelectionChanged, message: {ex.Message}");
+                await LogTracer.LogAsync(ex, $"Error in {nameof(LanguageComboBox_SelectionChanged)}").ConfigureAwait(true);
             }
             finally
             {
@@ -1590,7 +1604,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in DisplayHiddenItem_Toggled, message: {ex.Message}");
+                await LogTracer.LogAsync(ex, $"Error in {nameof(DisplayHiddenItem_Toggled)}").ConfigureAwait(true);
             }
             finally
             {
@@ -1695,9 +1709,9 @@ namespace RX_Explorer
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                Debug.WriteLine("Error happend when Enable/Disable Win+E");
+                await LogTracer.LogAsync(ex, "Error happend when Enable/Disable Win+E").ConfigureAwait(true);
             }
             finally
             {
@@ -1745,7 +1759,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in BingPictureMode_Checked, message: {ex.Message}");
+                await LogTracer.LogAsync(ex, $"Error in {nameof(BingPictureMode_Checked)}").ConfigureAwait(true);
             }
             finally
             {
@@ -1782,7 +1796,7 @@ namespace RX_Explorer
             }
         }
 
-        private void BackgroundBlurSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        private async void BackgroundBlurSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         {
             if (Interlocked.Exchange(ref BlurChangeLock, 1) == 0)
             {
@@ -1791,9 +1805,9 @@ namespace RX_Explorer
                     MainPage.ThisPage.BackgroundBlur.Amount = e.NewValue / 5;
                     ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"] = Convert.ToSingle(e.NewValue);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    Debug.WriteLine("Change BackgroundBlur failed");
+                    await LogTracer.LogAsync(ex, "Change BackgroundBlur failed").ConfigureAwait(true);
                 }
                 finally
                 {

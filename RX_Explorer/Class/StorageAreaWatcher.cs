@@ -1,9 +1,6 @@
-﻿using DocumentFormat.OpenXml.Office2010.ExcelAc;
-using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.UI.Xaml.Controls;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,7 +24,7 @@ namespace RX_Explorer.Class
 
         public bool IsDisplayHiddenItem { get; private set; }
 
-        public void StartWatchDirectory(string Path,bool IsDisplayHiddenItem)
+        public void StartWatchDirectory(string Path, bool IsDisplayHiddenItem)
         {
             this.IsDisplayHiddenItem = IsDisplayHiddenItem;
 
@@ -67,9 +64,9 @@ namespace RX_Explorer.Class
                             await Item.Update().ConfigureAwait(false);
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        Debug.WriteLine("StorageAreaWatcher: Modify item to collection failed");
+                        await LogTracer.LogAsync(ex, $"{nameof(StorageAreaWatcher)}: Modify item to collection failed").ConfigureAwait(true);
                     }
                     finally
                     {
@@ -130,16 +127,16 @@ namespace RX_Explorer.Class
                                     StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(NewPath);
                                     (Node.Content as TreeViewNodeContent).Update(Folder);
                                 }
-                                catch
+                                catch (Exception ex)
                                 {
-                                    Debug.WriteLine("Error happened when try to rename folder in Treeview");
+                                    await LogTracer.LogAsync(ex, "Error happened when try to rename folder in Treeview").ConfigureAwait(true);
                                 }
                             }
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        Debug.WriteLine("StorageAreaWatcher: Rename item to collection failed");
+                        await LogTracer.LogAsync(ex, $"{nameof(StorageAreaWatcher)}: Rename item to collection failed").ConfigureAwait(true);
                     }
                     finally
                     {
@@ -169,9 +166,9 @@ namespace RX_Explorer.Class
                             await TreeView.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        Debug.WriteLine("StorageAreaWatcher: Remove item to collection failed");
+                        await LogTracer.LogAsync(ex, $"{nameof(StorageAreaWatcher)}: Remove item to collection failed").ConfigureAwait(true);
                     }
                     finally
                     {
@@ -205,9 +202,9 @@ namespace RX_Explorer.Class
                             }
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        Debug.WriteLine("StorageAreaWatcher: Add item to collection failed");
+                        await LogTracer.LogAsync(ex, $"{nameof(StorageAreaWatcher)}: Add item to collection failed").ConfigureAwait(true);
                     }
                     finally
                     {

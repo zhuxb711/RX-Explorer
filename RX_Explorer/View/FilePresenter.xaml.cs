@@ -2,13 +2,13 @@
 using HtmlAgilityPack;
 using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.Win32.SafeHandles;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -42,7 +42,7 @@ namespace RX_Explorer
     {
         public ObservableCollection<FileSystemStorageItemBase> FileCollection { get; private set; }
 
-        private FileControl FileControlInstance;
+        public FileControl Container { get; set; }
 
         private int DropLock;
 
@@ -145,11 +145,6 @@ namespace RX_Explorer
         {
             CoreWindow.GetForCurrentThread().KeyDown += Window_KeyDown;
             Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
-
-            if (FileControlInstance == null)
-            {
-                FileControlInstance = this.FindParentOfType<FileControl>();
-            }
         }
 
         private void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
@@ -160,12 +155,12 @@ namespace RX_Explorer
                 {
                     case VirtualKey.Left:
                         {
-                            FileControlInstance.GoBackRecord_Click(null, null);
+                            Container.GoBackRecord_Click(null, null);
                             break;
                         }
                     case VirtualKey.Right:
                         {
-                            FileControlInstance.GoForwardRecord_Click(null, null);
+                            Container.GoForwardRecord_Click(null, null);
                             break;
                         }
                 }
@@ -179,7 +174,7 @@ namespace RX_Explorer
 
             bool HasHiddenItem = SelectedItems.Any((Item) => Item is HiddenStorageItem);
 
-            if (!FileControlInstance.IsSearchOrPathBoxFocused && !QueueContentDialog.IsRunningOrWaiting && !MainPage.ThisPage.IsAnyTaskRunning)
+            if (!Container.IsSearchOrPathBoxFocused && !QueueContentDialog.IsRunningOrWaiting && !MainPage.ThisPage.IsAnyTaskRunning)
             {
                 args.Handled = true;
 
@@ -217,12 +212,12 @@ namespace RX_Explorer
                         }
                     case VirtualKey.Back:
                         {
-                            FileControlInstance.GoBackRecord_Click(null, null);
+                            Container.GoBackRecord_Click(null, null);
                             break;
                         }
                     case VirtualKey.L when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                         {
-                            FileControlInstance.AddressBox.Focus(FocusState.Programmatic);
+                            Container.AddressBox.Focus(FocusState.Programmatic);
                             break;
                         }
                     case VirtualKey.V when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
@@ -252,7 +247,7 @@ namespace RX_Explorer
                         }
                     case VirtualKey.F when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                         {
-                            FileControlInstance.GlobeSearch.Focus(FocusState.Programmatic);
+                            Container.GlobeSearch.Focus(FocusState.Programmatic);
                             break;
                         }
                     case VirtualKey.N when ShiftState.HasFlag(CoreVirtualKeyStates.Down) && CtrlState.HasFlag(CoreVirtualKeyStates.Down):
@@ -265,9 +260,9 @@ namespace RX_Explorer
                             await Ctrl_Z_Click().ConfigureAwait(false);
                             break;
                         }
-                    case VirtualKey.E when ShiftState.HasFlag(CoreVirtualKeyStates.Down) && FileControlInstance.CurrentFolder != null:
+                    case VirtualKey.E when ShiftState.HasFlag(CoreVirtualKeyStates.Down) && Container.CurrentFolder != null:
                         {
-                            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                            _ = await Launcher.LaunchFolderAsync(Container.CurrentFolder);
                             break;
                         }
                     case VirtualKey.T when ShiftState.HasFlag(CoreVirtualKeyStates.Down):
@@ -346,7 +341,7 @@ namespace RX_Explorer
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"Error happened in NavigateToStorageItem: {ex.Message}");
+                    _ = LogTracer.LogAsync(ex, $"{nameof(NavigateToStorageItem)} throw an exception");
                 }
             }
         }
@@ -376,7 +371,7 @@ namespace RX_Explorer
         {
             if (OperationRecorder.Current.Value.Count > 0)
             {
-                await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Undoing")).ConfigureAwait(true);
+                await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Undoing")).ConfigureAwait(true);
 
                 try
                 {
@@ -388,7 +383,7 @@ namespace RX_Explorer
                         {
                             case "Move":
                                 {
-                                    if (FileControlInstance.CurrentFolder.Path == Path.GetDirectoryName(SplitGroup[3]))
+                                    if (Container.CurrentFolder.Path == Path.GetDirectoryName(SplitGroup[3]))
                                     {
                                         StorageFolder OriginFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(SplitGroup[0]));
 
@@ -400,21 +395,21 @@ namespace RX_Explorer
                                                     {
                                                         await FullTrustProcessController.Current.MoveAsync(SplitGroup[3], OriginFolder, (s, arg) =>
                                                         {
-                                                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                            if (Container.ProBar.Value < arg.ProgressPercentage)
                                                             {
-                                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                                Container.ProBar.IsIndeterminate = false;
+                                                                Container.ProBar.Value = arg.ProgressPercentage;
                                                             }
                                                         }, true).ConfigureAwait(true);
                                                     }
-                                                    else if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
+                                                    else if ((await Container.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
                                                     {
                                                         await FullTrustProcessController.Current.MoveAsync(File, OriginFolder, (s, arg) =>
                                                         {
-                                                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                            if (Container.ProBar.Value < arg.ProgressPercentage)
                                                             {
-                                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                                Container.ProBar.IsIndeterminate = false;
+                                                                Container.ProBar.Value = arg.ProgressPercentage;
                                                             }
                                                         }, true).ConfigureAwait(true);
                                                     }
@@ -427,14 +422,14 @@ namespace RX_Explorer
                                                 }
                                             case "Folder":
                                                 {
-                                                    if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFolder Folder)
+                                                    if ((await Container.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFolder Folder)
                                                     {
                                                         await FullTrustProcessController.Current.MoveAsync(Folder, OriginFolder, (s, arg) =>
                                                         {
-                                                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                            if (Container.ProBar.Value < arg.ProgressPercentage)
                                                             {
-                                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                                Container.ProBar.IsIndeterminate = false;
+                                                                Container.ProBar.Value = arg.ProgressPercentage;
                                                             }
                                                         }, true).ConfigureAwait(true);
                                                     }
@@ -447,7 +442,7 @@ namespace RX_Explorer
                                                 }
                                         }
                                     }
-                                    else if (FileControlInstance.CurrentFolder.Path == Path.GetDirectoryName(SplitGroup[0]))
+                                    else if (Container.CurrentFolder.Path == Path.GetDirectoryName(SplitGroup[0]))
                                     {
                                         switch (SplitGroup[2])
                                         {
@@ -455,12 +450,12 @@ namespace RX_Explorer
                                                 {
                                                     if (Path.GetExtension(SplitGroup[3]) == ".lnk")
                                                     {
-                                                        await FullTrustProcessController.Current.MoveAsync(SplitGroup[3], FileControlInstance.CurrentFolder, (s, arg) =>
+                                                        await FullTrustProcessController.Current.MoveAsync(SplitGroup[3], Container.CurrentFolder, (s, arg) =>
                                                         {
-                                                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                            if (Container.ProBar.Value < arg.ProgressPercentage)
                                                             {
-                                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                                Container.ProBar.IsIndeterminate = false;
+                                                                Container.ProBar.Value = arg.ProgressPercentage;
                                                             }
                                                         }, true).ConfigureAwait(true);
                                                     }
@@ -470,12 +465,12 @@ namespace RX_Explorer
 
                                                         if ((await TargetFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
                                                         {
-                                                            await FullTrustProcessController.Current.MoveAsync(File, FileControlInstance.CurrentFolder, (s, arg) =>
+                                                            await FullTrustProcessController.Current.MoveAsync(File, Container.CurrentFolder, (s, arg) =>
                                                             {
-                                                                if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                                if (Container.ProBar.Value < arg.ProgressPercentage)
                                                                 {
-                                                                    FileControlInstance.ProBar.IsIndeterminate = false;
-                                                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                                    Container.ProBar.IsIndeterminate = false;
+                                                                    Container.ProBar.Value = arg.ProgressPercentage;
                                                                 }
                                                             }, true).ConfigureAwait(true);
                                                         }
@@ -491,12 +486,12 @@ namespace RX_Explorer
                                                 {
                                                     StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(SplitGroup[3]);
 
-                                                    await FullTrustProcessController.Current.MoveAsync(Folder, FileControlInstance.CurrentFolder, (s, arg) =>
+                                                    await FullTrustProcessController.Current.MoveAsync(Folder, Container.CurrentFolder, (s, arg) =>
                                                     {
-                                                        if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                        if (Container.ProBar.Value < arg.ProgressPercentage)
                                                         {
-                                                            FileControlInstance.ProBar.IsIndeterminate = false;
-                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            Container.ProBar.IsIndeterminate = false;
+                                                            Container.ProBar.Value = arg.ProgressPercentage;
                                                         }
                                                     }, true).ConfigureAwait(true);
 
@@ -516,10 +511,10 @@ namespace RX_Explorer
                                                     {
                                                         await FullTrustProcessController.Current.MoveAsync(SplitGroup[3], OriginFolder, (s, arg) =>
                                                         {
-                                                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                            if (Container.ProBar.Value < arg.ProgressPercentage)
                                                             {
-                                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                                Container.ProBar.IsIndeterminate = false;
+                                                                Container.ProBar.Value = arg.ProgressPercentage;
                                                             }
                                                         }, true).ConfigureAwait(true);
                                                     }
@@ -529,10 +524,10 @@ namespace RX_Explorer
 
                                                         await FullTrustProcessController.Current.MoveAsync(File, OriginFolder, (s, arg) =>
                                                         {
-                                                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                            if (Container.ProBar.Value < arg.ProgressPercentage)
                                                             {
-                                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                                Container.ProBar.IsIndeterminate = false;
+                                                                Container.ProBar.Value = arg.ProgressPercentage;
                                                             }
                                                         }, true).ConfigureAwait(true);
                                                     }
@@ -545,16 +540,16 @@ namespace RX_Explorer
 
                                                     await FullTrustProcessController.Current.MoveAsync(Folder, OriginFolder, (s, arg) =>
                                                     {
-                                                        if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                        if (Container.ProBar.Value < arg.ProgressPercentage)
                                                         {
-                                                            FileControlInstance.ProBar.IsIndeterminate = false;
-                                                            FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                            Container.ProBar.IsIndeterminate = false;
+                                                            Container.ProBar.Value = arg.ProgressPercentage;
                                                         }
                                                     }, true).ConfigureAwait(true);
 
                                                     if (!SettingControl.IsDetachTreeViewAndPresenter)
                                                     {
-                                                        await FileControlInstance.FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                                        await Container.FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
                                                     }
 
                                                     break;
@@ -566,7 +561,7 @@ namespace RX_Explorer
                                 }
                             case "Copy":
                                 {
-                                    if (FileControlInstance.CurrentFolder.Path == Path.GetDirectoryName(SplitGroup[3]))
+                                    if (Container.CurrentFolder.Path == Path.GetDirectoryName(SplitGroup[3]))
                                     {
                                         switch (SplitGroup[2])
                                         {
@@ -576,21 +571,21 @@ namespace RX_Explorer
                                                     {
                                                         await FullTrustProcessController.Current.DeleteAsync(SplitGroup[3], true, (s, arg) =>
                                                         {
-                                                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                            if (Container.ProBar.Value < arg.ProgressPercentage)
                                                             {
-                                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                                Container.ProBar.IsIndeterminate = false;
+                                                                Container.ProBar.Value = arg.ProgressPercentage;
                                                             }
                                                         }, true).ConfigureAwait(true);
                                                     }
-                                                    else if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
+                                                    else if ((await Container.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
                                                     {
                                                         await FullTrustProcessController.Current.DeleteAsync(File, true, (s, arg) =>
                                                         {
-                                                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                            if (Container.ProBar.Value < arg.ProgressPercentage)
                                                             {
-                                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                                Container.ProBar.IsIndeterminate = false;
+                                                                Container.ProBar.Value = arg.ProgressPercentage;
                                                             }
                                                         }, true).ConfigureAwait(true);
                                                     }
@@ -603,14 +598,14 @@ namespace RX_Explorer
                                                 }
                                             case "Folder":
                                                 {
-                                                    if ((await FileControlInstance.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFolder Folder)
+                                                    if ((await Container.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFolder Folder)
                                                     {
                                                         await FullTrustProcessController.Current.DeleteAsync(Folder, true, (s, arg) =>
                                                         {
-                                                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                            if (Container.ProBar.Value < arg.ProgressPercentage)
                                                             {
-                                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                                Container.ProBar.IsIndeterminate = false;
+                                                                Container.ProBar.Value = arg.ProgressPercentage;
                                                             }
                                                         }, true).ConfigureAwait(true);
                                                     }
@@ -623,16 +618,16 @@ namespace RX_Explorer
                                     {
                                         await FullTrustProcessController.Current.DeleteAsync(SplitGroup[3], true, (s, arg) =>
                                         {
-                                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                            if (Container.ProBar.Value < arg.ProgressPercentage)
                                             {
-                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                Container.ProBar.IsIndeterminate = false;
+                                                Container.ProBar.Value = arg.ProgressPercentage;
                                             }
                                         }, true).ConfigureAwait(true);
 
                                         if (!SettingControl.IsDetachTreeViewAndPresenter)
                                         {
-                                            await FileControlInstance.FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                            await Container.FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
                                         }
                                     }
                                     break;
@@ -678,7 +673,7 @@ namespace RX_Explorer
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
 
-                await FileControlInstance.LoadingActivation(false).ConfigureAwait(false);
+                await Container.LoadingActivation(false).ConfigureAwait(false);
             }
         }
 
@@ -757,22 +752,22 @@ namespace RX_Explorer
 
                     if (Package.RequestedOperation.HasFlag(DataPackageOperation.Move))
                     {
-                        if (ItemList.Select((Item) => Item.Path).All((Item) => Path.GetDirectoryName(Item) == FileControlInstance.CurrentFolder.Path))
+                        if (ItemList.Select((Item) => Item.Path).All((Item) => Path.GetDirectoryName(Item) == Container.CurrentFolder.Path))
                         {
                             return;
                         }
 
-                        await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
+                        await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
 
                     Retry:
                         try
                         {
-                            await FullTrustProcessController.Current.MoveAsync(ItemList, FileControlInstance.CurrentFolder, (s, arg) =>
+                            await FullTrustProcessController.Current.MoveAsync(ItemList, Container.CurrentFolder, (s, arg) =>
                             {
-                                if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                if (Container.ProBar.Value < arg.ProgressPercentage)
                                 {
-                                    FileControlInstance.ProBar.IsIndeterminate = false;
-                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                    Container.ProBar.IsIndeterminate = false;
+                                    Container.ProBar.Value = arg.ProgressPercentage;
                                 }
                             }).ConfigureAwait(true);
                         }
@@ -841,17 +836,17 @@ namespace RX_Explorer
                     }
                     else if (Package.RequestedOperation.HasFlag(DataPackageOperation.Copy))
                     {
-                        await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
+                        await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
 
                     Retry:
                         try
                         {
-                            await FullTrustProcessController.Current.CopyAsync(ItemList, FileControlInstance.CurrentFolder, (s, arg) =>
+                            await FullTrustProcessController.Current.CopyAsync(ItemList, Container.CurrentFolder, (s, arg) =>
                             {
-                                if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                if (Container.ProBar.Value < arg.ProgressPercentage)
                                 {
-                                    FileControlInstance.ProBar.IsIndeterminate = false;
-                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                    Container.ProBar.IsIndeterminate = false;
+                                    Container.ProBar.Value = arg.ProgressPercentage;
                                 }
                             }).ConfigureAwait(true);
                         }
@@ -925,22 +920,22 @@ namespace RX_Explorer
 
                         if (Package.RequestedOperation.HasFlag(DataPackageOperation.Move))
                         {
-                            if (LinkItemsPath.All((Item) => Path.GetDirectoryName(Item) == FileControlInstance.CurrentFolder.Path))
+                            if (LinkItemsPath.All((Item) => Path.GetDirectoryName(Item) == Container.CurrentFolder.Path))
                             {
                                 return;
                             }
 
-                            await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
+                            await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
 
                         Retry:
                             try
                             {
-                                await FullTrustProcessController.Current.MoveAsync(LinkItemsPath, FileControlInstance.CurrentFolder.Path, (s, arg) =>
+                                await FullTrustProcessController.Current.MoveAsync(LinkItemsPath, Container.CurrentFolder.Path, (s, arg) =>
                                 {
-                                    if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                    if (Container.ProBar.Value < arg.ProgressPercentage)
                                     {
-                                        FileControlInstance.ProBar.IsIndeterminate = false;
-                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                        Container.ProBar.IsIndeterminate = false;
+                                        Container.ProBar.Value = arg.ProgressPercentage;
                                     }
                                 }).ConfigureAwait(true);
                             }
@@ -1010,17 +1005,17 @@ namespace RX_Explorer
                         }
                         else if (Package.RequestedOperation.HasFlag(DataPackageOperation.Copy))
                         {
-                            await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
+                            await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
 
                         Retry:
                             try
                             {
-                                await FullTrustProcessController.Current.CopyAsync(LinkItemsPath, FileControlInstance.CurrentFolder.Path, (s, arg) =>
+                                await FullTrustProcessController.Current.CopyAsync(LinkItemsPath, Container.CurrentFolder.Path, (s, arg) =>
                                 {
-                                    if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                    if (Container.ProBar.Value < arg.ProgressPercentage)
                                     {
-                                        FileControlInstance.ProBar.IsIndeterminate = false;
-                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                        Container.ProBar.IsIndeterminate = false;
+                                        Container.ProBar.Value = arg.ProgressPercentage;
                                     }
                                 }).ConfigureAwait(true);
                             }
@@ -1090,7 +1085,7 @@ namespace RX_Explorer
             }
             finally
             {
-                await FileControlInstance.LoadingActivation(false).ConfigureAwait(true);
+                await Container.LoadingActivation(false).ConfigureAwait(true);
                 FileCollection.Where((Item) => Item.ThumbnailOpacity != 1d).ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.Normal));
             }
         }
@@ -1165,17 +1160,17 @@ namespace RX_Explorer
 
                 if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down))
                 {
-                    await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting")).ConfigureAwait(true);
+                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting")).ConfigureAwait(true);
 
                 Retry:
                     try
                     {
                         await FullTrustProcessController.Current.DeleteAsync(PathList, true, (s, arg) =>
                         {
-                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                            if (Container.ProBar.Value < arg.ProgressPercentage)
                             {
-                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                Container.ProBar.IsIndeterminate = false;
+                                Container.ProBar.Value = arg.ProgressPercentage;
                             }
                         }).ConfigureAwait(true);
                     }
@@ -1189,7 +1184,7 @@ namespace RX_Explorer
                         };
                         _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                        await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(true);
+                        await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(true);
                     }
                     catch (FileCaputureException)
                     {
@@ -1243,7 +1238,7 @@ namespace RX_Explorer
                         _ = await dialog.ShowAsync().ConfigureAwait(true);
                     }
 
-                    await FileControlInstance.LoadingActivation(false).ConfigureAwait(false);
+                    await Container.LoadingActivation(false).ConfigureAwait(false);
                 }
                 else
                 {
@@ -1251,17 +1246,17 @@ namespace RX_Explorer
 
                     if ((await QueueContenDialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
-                        await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting")).ConfigureAwait(true);
+                        await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting")).ConfigureAwait(true);
 
                     Retry:
                         try
                         {
                             await FullTrustProcessController.Current.DeleteAsync(PathList, QueueContenDialog.IsPermanentDelete, (s, arg) =>
                             {
-                                if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                if (Container.ProBar.Value < arg.ProgressPercentage)
                                 {
-                                    FileControlInstance.ProBar.IsIndeterminate = false;
-                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                    Container.ProBar.IsIndeterminate = false;
+                                    Container.ProBar.Value = arg.ProgressPercentage;
                                 }
                             }).ConfigureAwait(true);
                         }
@@ -1275,7 +1270,7 @@ namespace RX_Explorer
                             };
                             _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(true);
+                            await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(true);
                         }
                         catch (FileCaputureException)
                         {
@@ -1329,7 +1324,7 @@ namespace RX_Explorer
                             _ = await dialog.ShowAsync().ConfigureAwait(true);
                         }
 
-                        await FileControlInstance.LoadingActivation(false).ConfigureAwait(false);
+                        await Container.LoadingActivation(false).ConfigureAwait(false);
                     }
                 }
             }
@@ -1433,7 +1428,7 @@ namespace RX_Explorer
 
                             if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                             {
-                                _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                                _ = await Launcher.LaunchFolderAsync(Container.CurrentFolder);
                             }
                         }
                     }
@@ -1457,7 +1452,7 @@ namespace RX_Explorer
                 };
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
                 return;
             }
 
@@ -1628,7 +1623,7 @@ namespace RX_Explorer
             if ((e.OriginalSource as FrameworkElement)?.DataContext == null)
             {
                 SelectedItem = null;
-                FileControlInstance.IsSearchOrPathBoxFocused = false;
+                Container.IsSearchOrPathBoxFocused = false;
             }
             else if (e.GetCurrentPoint(null).Properties.IsMiddleButtonPressed)
             {
@@ -1792,24 +1787,24 @@ namespace RX_Explorer
                 };
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
                 return;
             }
 
             if (Item.FileType == ".zip")
             {
-                await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
+                await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
 
                 await UnZipAsync(Item, (s, e) =>
                 {
-                    if (FileControlInstance.ProBar.Value < e.ProgressPercentage)
+                    if (Container.ProBar.Value < e.ProgressPercentage)
                     {
-                        FileControlInstance.ProBar.IsIndeterminate = false;
-                        FileControlInstance.ProBar.Value = e.ProgressPercentage;
+                        Container.ProBar.IsIndeterminate = false;
+                        Container.ProBar.Value = e.ProgressPercentage;
                     }
                 }).ConfigureAwait(true);
 
-                await FileControlInstance.LoadingActivation(false).ConfigureAwait(true);
+                await Container.LoadingActivation(false).ConfigureAwait(true);
             }
             else
             {
@@ -1817,18 +1812,18 @@ namespace RX_Explorer
 
                 if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
+                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
 
                     await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level, (s, e) =>
                     {
-                        if (FileControlInstance.ProBar.Value < e.ProgressPercentage)
+                        if (Container.ProBar.Value < e.ProgressPercentage)
                         {
-                            FileControlInstance.ProBar.IsIndeterminate = false;
-                            FileControlInstance.ProBar.Value = e.ProgressPercentage;
+                            Container.ProBar.IsIndeterminate = false;
+                            Container.ProBar.Value = e.ProgressPercentage;
                         }
                     }).ConfigureAwait(true);
 
-                    await FileControlInstance.LoadingActivation(false).ConfigureAwait(false);
+                    await Container.LoadingActivation(false).ConfigureAwait(false);
                 }
             }
         }
@@ -1847,7 +1842,7 @@ namespace RX_Explorer
                 return;
             }
 
-            await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
+            await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
 
             long Step = 0;
 
@@ -1864,7 +1859,7 @@ namespace RX_Explorer
                 }
             }
 
-            await FileControlInstance.LoadingActivation(false).ConfigureAwait(true);
+            await Container.LoadingActivation(false).ConfigureAwait(true);
         }
 
         /// <summary>
@@ -1882,7 +1877,8 @@ namespace RX_Explorer
                 ParentFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(ZFile.Path));
                 NewFolder = await ParentFolder.CreateFolderAsync(Path.GetFileNameWithoutExtension(ZFile.Name), CreationCollisionOption.OpenIfExists);
 
-                using (Stream FileStream = await ZFile.OpenStreamForReadAsync().ConfigureAwait(true))
+                using (SafeFileHandle NewFileLockHandle = ZFile.LockAndBlockAccess())
+                using (FileStream FileStream = new FileStream(NewFileLockHandle, FileAccess.ReadWrite))
                 using (ZipInputStream InputZipStream = new ZipInputStream(FileStream))
                 {
                     FileStream.Seek(0, SeekOrigin.Begin);
@@ -1953,7 +1949,7 @@ namespace RX_Explorer
                     _ = await Launcher.LaunchFolderAsync(ParentFolder);
                 }
             }
-            catch(NotImplementedException)
+            catch (NotImplementedException)
             {
                 if (NewFolder != null)
                 {
@@ -1998,53 +1994,40 @@ namespace RX_Explorer
         {
             try
             {
-                StorageFile Newfile = await FileControlInstance.CurrentFolder.CreateFileAsync(NewZipName, CreationCollisionOption.GenerateUniqueName);
+                StorageFile Newfile = await Container.CurrentFolder.CreateFileAsync(NewZipName, CreationCollisionOption.GenerateUniqueName);
 
-                using (Stream NewFileStream = await Newfile.OpenStreamForWriteAsync().ConfigureAwait(true))
+                using (SafeFileHandle NewFileLockHandle = Newfile.LockAndBlockAccess())
+                using (FileStream NewFileStream = new FileStream(NewFileLockHandle, FileAccess.ReadWrite))
                 using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
                 {
                     OutputStream.SetLevel(ZipLevel);
                     OutputStream.UseZip64 = UseZip64.Dynamic;
                     OutputStream.IsStreamOwner = false;
 
-                    try
+                    if (ZipTarget is StorageFile ZipFile)
                     {
-                        if (ZipTarget is StorageFile ZipFile)
+                        using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(true))
                         {
-
-                            using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(true))
+                            ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
                             {
-                                ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
-                                {
-                                    DateTime = DateTime.Now,
-                                    CompressionMethod = CompressionMethod.Deflated,
-                                    Size = FileStream.Length
-                                };
+                                DateTime = DateTime.Now,
+                                CompressionMethod = CompressionMethod.Deflated,
+                                Size = FileStream.Length
+                            };
 
-                                OutputStream.PutNextEntry(NewEntry);
+                            OutputStream.PutNextEntry(NewEntry);
 
-                                await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
-                            }
-
-                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(100, null));
-                        }
-                        else if (ZipTarget is StorageFolder ZipFolder)
-                        {
-                            await ZipFolderCore(ZipFolder, OutputStream, ZipFolder.Name, ProgressHandler).ConfigureAwait(true);
+                            await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
                         }
 
-                        await OutputStream.FlushAsync().ConfigureAwait(true);
+                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(100, null));
                     }
-                    catch (Exception e)
+                    else if (ZipTarget is StorageFolder ZipFolder)
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_CompressionError_Content") + e.Message,
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                        await ZipFolderCore(ZipFolder, OutputStream, ZipFolder.Name, ProgressHandler).ConfigureAwait(true);
                     }
+
+                    await OutputStream.FlushAsync().ConfigureAwait(true);
                 }
             }
             catch (UnauthorizedAccessException)
@@ -2059,8 +2042,18 @@ namespace RX_Explorer
 
                 if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                 {
-                    _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                    _ = await Launcher.LaunchFolderAsync(Container.CurrentFolder);
                 }
+            }
+            catch (Exception e)
+            {
+                QueueContentDialog dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_CompressionError_Content") + e.Message,
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+                _ = await dialog.ShowAsync().ConfigureAwait(true);
             }
         }
 
@@ -2078,9 +2071,10 @@ namespace RX_Explorer
         {
             try
             {
-                StorageFile Newfile = await FileControlInstance.CurrentFolder.CreateFileAsync(NewZipName, CreationCollisionOption.GenerateUniqueName);
+                StorageFile Newfile = await Container.CurrentFolder.CreateFileAsync(NewZipName, CreationCollisionOption.GenerateUniqueName);
 
-                using (Stream NewFileStream = await Newfile.OpenStreamForWriteAsync().ConfigureAwait(true))
+                using (SafeFileHandle NewFileLockHandle = Newfile.LockAndBlockAccess())
+                using (FileStream NewFileStream = new FileStream(NewFileLockHandle, FileAccess.ReadWrite))
                 using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
                 {
                     OutputStream.SetLevel(ZipLevel);
@@ -2175,7 +2169,7 @@ namespace RX_Explorer
 
                 if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                 {
-                    _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                    _ = await Launcher.LaunchFolderAsync(Container.CurrentFolder);
                 }
             }
         }
@@ -2257,13 +2251,13 @@ namespace RX_Explorer
             }
             else if (e.OriginalSource is Grid)
             {
-                if (Path.IsPathRooted(FileControlInstance.CurrentFolder.Path))
+                if (Path.IsPathRooted(Container.CurrentFolder.Path))
                 {
                     MainPage.ThisPage.NavView_BackRequested(null, null);
                 }
                 else
                 {
-                    FileControlInstance.GoParentFolder_Click(null, null);
+                    Container.GoParentFolder_Click(null, null);
                 }
             }
         }
@@ -2284,7 +2278,7 @@ namespace RX_Explorer
                     };
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                    await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
                     return;
                 }
 
@@ -2319,7 +2313,7 @@ namespace RX_Explorer
                             {
                                 try
                                 {
-                                    StorageFile DestinationFile = await FileControlInstance.CurrentFolder.CreateFileAsync(Source.DisplayName + "." + dialog.MediaTranscodeEncodingProfile.ToLower(), CreationCollisionOption.GenerateUniqueName);
+                                    StorageFile DestinationFile = await Container.CurrentFolder.CreateFileAsync(Source.DisplayName + "." + dialog.MediaTranscodeEncodingProfile.ToLower(), CreationCollisionOption.GenerateUniqueName);
 
                                     await GeneralTransformer.TranscodeFromAudioOrVideoAsync(Source, DestinationFile, dialog.MediaTranscodeEncodingProfile, dialog.MediaTranscodeQuality, dialog.SpeedUp).ConfigureAwait(true);
                                 }
@@ -2335,7 +2329,7 @@ namespace RX_Explorer
 
                                     if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                     {
-                                        _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                                        _ = await Launcher.LaunchFolderAsync(Container.CurrentFolder);
                                     }
                                 }
                             }
@@ -2357,11 +2351,11 @@ namespace RX_Explorer
 
                             if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                             {
-                                await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Transcoding")).ConfigureAwait(true);
+                                await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Transcoding")).ConfigureAwait(true);
 
                                 await GeneralTransformer.TranscodeFromImageAsync(Source, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode).ConfigureAwait(true);
 
-                                await FileControlInstance.LoadingActivation(false).ConfigureAwait(true);
+                                await Container.LoadingActivation(false).ConfigureAwait(true);
                             }
                             break;
                         }
@@ -2374,7 +2368,7 @@ namespace RX_Explorer
             Restore();
 
             StorageFolder Device = (await SelectedItem.GetStorageItem().ConfigureAwait(true)) as StorageFolder;
-            
+
             if (!WIN_Native_API.CheckExist(Device.Path))
             {
                 QueueContentDialog dialog = new QueueContentDialog
@@ -2385,7 +2379,7 @@ namespace RX_Explorer
                 };
                 _ = await dialog.ShowAsync().ConfigureAwait(true);
 
-                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
                 return;
             }
 
@@ -2457,7 +2451,7 @@ namespace RX_Explorer
                 };
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
             }
         }
 
@@ -2488,14 +2482,14 @@ namespace RX_Explorer
         {
             Restore();
 
-            _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+            _ = await Launcher.LaunchFolderAsync(Container.CurrentFolder);
         }
 
         private async void ParentProperty_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
-            if (!WIN_Native_API.CheckExist(FileControlInstance.CurrentFolder.Path))
+            if (!WIN_Native_API.CheckExist(Container.CurrentFolder.Path))
             {
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
@@ -2507,22 +2501,22 @@ namespace RX_Explorer
                 return;
             }
 
-            if (FileControlInstance.CurrentFolder.Path == Path.GetPathRoot(FileControlInstance.CurrentFolder.Path))
+            if (Container.CurrentFolder.Path == Path.GetPathRoot(Container.CurrentFolder.Path))
             {
-                if (CommonAccessCollection.HardDeviceList.FirstOrDefault((Device) => Device.Name == FileControlInstance.CurrentFolder.DisplayName) is HardDeviceInfo Info)
+                if (CommonAccessCollection.HardDeviceList.FirstOrDefault((Device) => Device.Name == Container.CurrentFolder.DisplayName) is HardDeviceInfo Info)
                 {
                     DeviceInfoDialog dialog = new DeviceInfoDialog(Info);
                     _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
-                    PropertyDialog Dialog = new PropertyDialog(FileControlInstance.CurrentFolder);
+                    PropertyDialog Dialog = new PropertyDialog(Container.CurrentFolder);
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
             }
             else
             {
-                PropertyDialog Dialog = new PropertyDialog(FileControlInstance.CurrentFolder);
+                PropertyDialog Dialog = new PropertyDialog(Container.CurrentFolder);
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
             }
         }
@@ -2558,7 +2552,7 @@ namespace RX_Explorer
                     };
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                    await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
                     return;
                 }
 
@@ -2584,7 +2578,7 @@ namespace RX_Explorer
         {
             Restore();
 
-            if (!WIN_Native_API.CheckExist(FileControlInstance.CurrentFolder.Path))
+            if (!WIN_Native_API.CheckExist(Container.CurrentFolder.Path))
             {
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
@@ -2599,7 +2593,7 @@ namespace RX_Explorer
 
             try
             {
-                StorageFolder NewFolder = await FileControlInstance.CurrentFolder.CreateFolderAsync(Globalization.GetString("Create_NewFolder_Admin_Name"), CreationCollisionOption.GenerateUniqueName);
+                StorageFolder NewFolder = await Container.CurrentFolder.CreateFolderAsync(Globalization.GetString("Create_NewFolder_Admin_Name"), CreationCollisionOption.GenerateUniqueName);
 
                 while (true)
                 {
@@ -2625,7 +2619,7 @@ namespace RX_Explorer
                                 EditBox.Focus(FocusState.Programmatic);
                             }
 
-                            FileControlInstance.IsSearchOrPathBoxFocused = true;
+                            Container.IsSearchOrPathBoxFocused = true;
                         }
 
                         break;
@@ -2648,7 +2642,7 @@ namespace RX_Explorer
 
                 if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                 {
-                    _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                    _ = await Launcher.LaunchFolderAsync(Container.CurrentFolder);
                 }
             }
         }
@@ -2717,7 +2711,7 @@ namespace RX_Explorer
                     };
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                    await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
                     return;
                 }
 
@@ -2740,9 +2734,9 @@ namespace RX_Explorer
 
             try
             {
-                if (WIN_Native_API.CheckExist(FileControlInstance.CurrentFolder.Path))
+                if (WIN_Native_API.CheckExist(Container.CurrentFolder.Path))
                 {
-                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(true);
+                    await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(true);
                 }
                 else
                 {
@@ -2756,15 +2750,15 @@ namespace RX_Explorer
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                Debug.WriteLine("ItemPresenter refresh failured");
+                await LogTracer.LogAsync(ex, $"{nameof(Refresh_Click)} throw an exception").ConfigureAwait(true);
             }
         }
 
         private async void ViewControl_ItemClick(object sender, ItemClickEventArgs e)
         {
-            FileControlInstance.IsSearchOrPathBoxFocused = false;
+            Container.IsSearchOrPathBoxFocused = false;
 
             if (!SettingControl.IsDoubleClickEnable && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple && e.ClickedItem is FileSystemStorageItemBase ReFile)
             {
@@ -2810,7 +2804,7 @@ namespace RX_Explorer
                             };
                             _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                            await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
                             return;
                         }
 
@@ -2903,11 +2897,11 @@ namespace RX_Explorer
                                                         {
                                                             if (AnimationController.Current.IsEnableAnimation)
                                                             {
-                                                                FileControlInstance.Frame.Navigate(typeof(PhotoViewer), File.Path, new DrillInNavigationTransitionInfo());
+                                                                Container.Frame.Navigate(typeof(PhotoViewer), File.Path, new DrillInNavigationTransitionInfo());
                                                             }
                                                             else
                                                             {
-                                                                FileControlInstance.Frame.Navigate(typeof(PhotoViewer), File.Path, new SuppressNavigationTransitionInfo());
+                                                                Container.Frame.Navigate(typeof(PhotoViewer), File.Path, new SuppressNavigationTransitionInfo());
                                                             }
                                                             break;
                                                         }
@@ -2923,11 +2917,11 @@ namespace RX_Explorer
                                                         {
                                                             if (AnimationController.Current.IsEnableAnimation)
                                                             {
-                                                                FileControlInstance.Frame.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
+                                                                Container.Frame.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
                                                             }
                                                             else
                                                             {
-                                                                FileControlInstance.Frame.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
+                                                                Container.Frame.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
                                                             }
                                                             break;
                                                         }
@@ -2935,11 +2929,11 @@ namespace RX_Explorer
                                                         {
                                                             if (AnimationController.Current.IsEnableAnimation)
                                                             {
-                                                                FileControlInstance.Frame.Navigate(typeof(TextViewer), File, new DrillInNavigationTransitionInfo());
+                                                                Container.Frame.Navigate(typeof(TextViewer), File, new DrillInNavigationTransitionInfo());
                                                             }
                                                             else
                                                             {
-                                                                FileControlInstance.Frame.Navigate(typeof(TextViewer), File, new SuppressNavigationTransitionInfo());
+                                                                Container.Frame.Navigate(typeof(TextViewer), File, new SuppressNavigationTransitionInfo());
                                                             }
                                                             break;
                                                         }
@@ -2947,11 +2941,11 @@ namespace RX_Explorer
                                                         {
                                                             if (AnimationController.Current.IsEnableAnimation)
                                                             {
-                                                                FileControlInstance.Frame.Navigate(typeof(PdfReader), File, new DrillInNavigationTransitionInfo());
+                                                                Container.Frame.Navigate(typeof(PdfReader), File, new DrillInNavigationTransitionInfo());
                                                             }
                                                             else
                                                             {
-                                                                FileControlInstance.Frame.Navigate(typeof(PdfReader), File, new SuppressNavigationTransitionInfo());
+                                                                Container.Frame.Navigate(typeof(PdfReader), File, new SuppressNavigationTransitionInfo());
                                                             }
                                                             break;
                                                         }
@@ -3046,11 +3040,11 @@ namespace RX_Explorer
                                                     {
                                                         if (AnimationController.Current.IsEnableAnimation)
                                                         {
-                                                            FileControlInstance.Frame.Navigate(typeof(PhotoViewer), File.Path, new DrillInNavigationTransitionInfo());
+                                                            Container.Frame.Navigate(typeof(PhotoViewer), File.Path, new DrillInNavigationTransitionInfo());
                                                         }
                                                         else
                                                         {
-                                                            FileControlInstance.Frame.Navigate(typeof(PhotoViewer), File.Path, new SuppressNavigationTransitionInfo());
+                                                            Container.Frame.Navigate(typeof(PhotoViewer), File.Path, new SuppressNavigationTransitionInfo());
                                                         }
                                                         break;
                                                     }
@@ -3066,11 +3060,11 @@ namespace RX_Explorer
                                                     {
                                                         if (AnimationController.Current.IsEnableAnimation)
                                                         {
-                                                            FileControlInstance.Frame.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
+                                                            Container.Frame.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
                                                         }
                                                         else
                                                         {
-                                                            FileControlInstance.Frame.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
+                                                            Container.Frame.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
                                                         }
                                                         break;
                                                     }
@@ -3078,11 +3072,11 @@ namespace RX_Explorer
                                                     {
                                                         if (AnimationController.Current.IsEnableAnimation)
                                                         {
-                                                            FileControlInstance.Frame.Navigate(typeof(TextViewer), File, new DrillInNavigationTransitionInfo());
+                                                            Container.Frame.Navigate(typeof(TextViewer), File, new DrillInNavigationTransitionInfo());
                                                         }
                                                         else
                                                         {
-                                                            FileControlInstance.Frame.Navigate(typeof(TextViewer), File, new SuppressNavigationTransitionInfo());
+                                                            Container.Frame.Navigate(typeof(TextViewer), File, new SuppressNavigationTransitionInfo());
                                                         }
                                                         break;
                                                     }
@@ -3090,11 +3084,11 @@ namespace RX_Explorer
                                                     {
                                                         if (AnimationController.Current.IsEnableAnimation)
                                                         {
-                                                            FileControlInstance.Frame.Navigate(typeof(PdfReader), File, new DrillInNavigationTransitionInfo());
+                                                            Container.Frame.Navigate(typeof(PdfReader), File, new DrillInNavigationTransitionInfo());
                                                         }
                                                         else
                                                         {
-                                                            FileControlInstance.Frame.Navigate(typeof(PdfReader), File, new SuppressNavigationTransitionInfo());
+                                                            Container.Frame.Navigate(typeof(PdfReader), File, new SuppressNavigationTransitionInfo());
                                                         }
                                                         break;
                                                     }
@@ -3184,11 +3178,11 @@ namespace RX_Explorer
                                     {
                                         if (AnimationController.Current.IsEnableAnimation)
                                         {
-                                            FileControlInstance.Frame.Navigate(typeof(PhotoViewer), File.Path, new DrillInNavigationTransitionInfo());
+                                            Container.Frame.Navigate(typeof(PhotoViewer), File.Path, new DrillInNavigationTransitionInfo());
                                         }
                                         else
                                         {
-                                            FileControlInstance.Frame.Navigate(typeof(PhotoViewer), File.Path, new SuppressNavigationTransitionInfo());
+                                            Container.Frame.Navigate(typeof(PhotoViewer), File.Path, new SuppressNavigationTransitionInfo());
                                         }
                                         break;
                                     }
@@ -3204,11 +3198,11 @@ namespace RX_Explorer
                                     {
                                         if (AnimationController.Current.IsEnableAnimation)
                                         {
-                                            FileControlInstance.Frame.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
+                                            Container.Frame.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
                                         }
                                         else
                                         {
-                                            FileControlInstance.Frame.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
+                                            Container.Frame.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
                                         }
                                         break;
                                     }
@@ -3216,11 +3210,11 @@ namespace RX_Explorer
                                     {
                                         if (AnimationController.Current.IsEnableAnimation)
                                         {
-                                            FileControlInstance.Frame.Navigate(typeof(TextViewer), File, new DrillInNavigationTransitionInfo());
+                                            Container.Frame.Navigate(typeof(TextViewer), File, new DrillInNavigationTransitionInfo());
                                         }
                                         else
                                         {
-                                            FileControlInstance.Frame.Navigate(typeof(TextViewer), File, new SuppressNavigationTransitionInfo());
+                                            Container.Frame.Navigate(typeof(TextViewer), File, new SuppressNavigationTransitionInfo());
                                         }
                                         break;
                                     }
@@ -3228,11 +3222,11 @@ namespace RX_Explorer
                                     {
                                         if (AnimationController.Current.IsEnableAnimation)
                                         {
-                                            FileControlInstance.Frame.Navigate(typeof(PdfReader), File, new DrillInNavigationTransitionInfo());
+                                            Container.Frame.Navigate(typeof(PdfReader), File, new DrillInNavigationTransitionInfo());
                                         }
                                         else
                                         {
-                                            FileControlInstance.Frame.Navigate(typeof(PdfReader), File, new SuppressNavigationTransitionInfo());
+                                            Container.Frame.Navigate(typeof(PdfReader), File, new SuppressNavigationTransitionInfo());
                                         }
                                         break;
                                     }
@@ -3337,11 +3331,11 @@ namespace RX_Explorer
                                                         {
                                                             if (AnimationController.Current.IsEnableAnimation)
                                                             {
-                                                                FileControlInstance.Frame.Navigate(typeof(PhotoViewer), File.Path, new DrillInNavigationTransitionInfo());
+                                                                Container.Frame.Navigate(typeof(PhotoViewer), File.Path, new DrillInNavigationTransitionInfo());
                                                             }
                                                             else
                                                             {
-                                                                FileControlInstance.Frame.Navigate(typeof(PhotoViewer), File.Path, new SuppressNavigationTransitionInfo());
+                                                                Container.Frame.Navigate(typeof(PhotoViewer), File.Path, new SuppressNavigationTransitionInfo());
                                                             }
                                                             break;
                                                         }
@@ -3357,11 +3351,11 @@ namespace RX_Explorer
                                                         {
                                                             if (AnimationController.Current.IsEnableAnimation)
                                                             {
-                                                                FileControlInstance.Frame.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
+                                                                Container.Frame.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
                                                             }
                                                             else
                                                             {
-                                                                FileControlInstance.Frame.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
+                                                                Container.Frame.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
                                                             }
                                                             break;
                                                         }
@@ -3369,11 +3363,11 @@ namespace RX_Explorer
                                                         {
                                                             if (AnimationController.Current.IsEnableAnimation)
                                                             {
-                                                                FileControlInstance.Frame.Navigate(typeof(TextViewer), File, new DrillInNavigationTransitionInfo());
+                                                                Container.Frame.Navigate(typeof(TextViewer), File, new DrillInNavigationTransitionInfo());
                                                             }
                                                             else
                                                             {
-                                                                FileControlInstance.Frame.Navigate(typeof(TextViewer), File, new SuppressNavigationTransitionInfo());
+                                                                Container.Frame.Navigate(typeof(TextViewer), File, new SuppressNavigationTransitionInfo());
                                                             }
                                                             break;
                                                         }
@@ -3381,11 +3375,11 @@ namespace RX_Explorer
                                                         {
                                                             if (AnimationController.Current.IsEnableAnimation)
                                                             {
-                                                                FileControlInstance.Frame.Navigate(typeof(PdfReader), File, new DrillInNavigationTransitionInfo());
+                                                                Container.Frame.Navigate(typeof(PdfReader), File, new DrillInNavigationTransitionInfo());
                                                             }
                                                             else
                                                             {
-                                                                FileControlInstance.Frame.Navigate(typeof(PdfReader), File, new SuppressNavigationTransitionInfo());
+                                                                Container.Frame.Navigate(typeof(PdfReader), File, new SuppressNavigationTransitionInfo());
                                                             }
                                                             break;
                                                         }
@@ -3479,40 +3473,40 @@ namespace RX_Explorer
                             };
                             _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                            await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                            await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
                             return;
                         }
 
-                        if (Folder.Path.StartsWith((FileControlInstance.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
+                        if (Folder.Path.StartsWith((Container.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                         {
                             if (SettingControl.IsDetachTreeViewAndPresenter)
                             {
-                                await FileControlInstance.DisplayItemsInFolder(Folder).ConfigureAwait(true);
+                                await Container.DisplayItemsInFolder(Folder).ConfigureAwait(true);
                             }
                             else
                             {
-                                if (FileControlInstance.CurrentNode == null)
+                                if (Container.CurrentNode == null)
                                 {
-                                    FileControlInstance.CurrentNode = FileControlInstance.FolderTree.RootNodes[0];
+                                    Container.CurrentNode = Container.FolderTree.RootNodes[0];
                                 }
 
-                                TreeViewNode TargetNode = await FileControlInstance.FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(Folder.Path, (FileControlInstance.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+                                TreeViewNode TargetNode = await Container.FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(Folder.Path, (Container.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
 
                                 if (TargetNode != null)
                                 {
-                                    await FileControlInstance.DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
+                                    await Container.DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
                                 }
                             }
                         }
                         else
                         {
-                            await FileControlInstance.OpenTargetFolder(Folder).ConfigureAwait(true);
+                            await Container.OpenTargetFolder(Folder).ConfigureAwait(true);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"EnterSelectedItem error: {ex.Message}");
+                    await LogTracer.LogAsync(ex, $"{nameof(EnterSelectedItem)} throw an exception").ConfigureAwait(true);
                 }
                 finally
                 {
@@ -3543,7 +3537,7 @@ namespace RX_Explorer
                 VideoEditDialog Dialog = new VideoEditDialog(File);
                 if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    StorageFile ExportFile = await FileControlInstance.CurrentFolder.CreateFileAsync($"{File.DisplayName} - {Globalization.GetString("Crop_Image_Name_Tail")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
+                    StorageFile ExportFile = await Container.CurrentFolder.CreateFileAsync($"{File.DisplayName} - {Globalization.GetString("Crop_Image_Name_Tail")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
 
                     await GeneralTransformer.GenerateCroppedVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding, Dialog.TrimmingPreference).ConfigureAwait(true);
                 }
@@ -3573,7 +3567,7 @@ namespace RX_Explorer
                 VideoMergeDialog Dialog = new VideoMergeDialog(Item);
                 if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    StorageFile ExportFile = await FileControlInstance.CurrentFolder.CreateFileAsync($"{Item.DisplayName} - {Globalization.GetString("Merge_Image_Name_Tail")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
+                    StorageFile ExportFile = await Container.CurrentFolder.CreateFileAsync($"{Item.DisplayName} - {Globalization.GetString("Merge_Image_Name_Tail")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
 
                     await GeneralTransformer.GenerateMergeVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding).ConfigureAwait(true);
                 }
@@ -3600,11 +3594,11 @@ namespace RX_Explorer
                                 {
                                     if (AnimationController.Current.IsEnableAnimation)
                                     {
-                                        FileControlInstance.Frame.Navigate(typeof(PhotoViewer), Item.Path, new DrillInNavigationTransitionInfo());
+                                        Container.Frame.Navigate(typeof(PhotoViewer), Item.Path, new DrillInNavigationTransitionInfo());
                                     }
                                     else
                                     {
-                                        FileControlInstance.Frame.Navigate(typeof(PhotoViewer), Item.Path, new SuppressNavigationTransitionInfo());
+                                        Container.Frame.Navigate(typeof(PhotoViewer), Item.Path, new SuppressNavigationTransitionInfo());
                                     }
                                     break;
                                 }
@@ -3620,11 +3614,11 @@ namespace RX_Explorer
                                 {
                                     if (AnimationController.Current.IsEnableAnimation)
                                     {
-                                        FileControlInstance.Frame.Navigate(typeof(MediaPlayer), Item, new DrillInNavigationTransitionInfo());
+                                        Container.Frame.Navigate(typeof(MediaPlayer), Item, new DrillInNavigationTransitionInfo());
                                     }
                                     else
                                     {
-                                        FileControlInstance.Frame.Navigate(typeof(MediaPlayer), Item, new SuppressNavigationTransitionInfo());
+                                        Container.Frame.Navigate(typeof(MediaPlayer), Item, new SuppressNavigationTransitionInfo());
                                     }
                                     break;
                                 }
@@ -3632,11 +3626,11 @@ namespace RX_Explorer
                                 {
                                     if (AnimationController.Current.IsEnableAnimation)
                                     {
-                                        FileControlInstance.Frame.Navigate(typeof(TextViewer), Item, new DrillInNavigationTransitionInfo());
+                                        Container.Frame.Navigate(typeof(TextViewer), Item, new DrillInNavigationTransitionInfo());
                                     }
                                     else
                                     {
-                                        FileControlInstance.Frame.Navigate(typeof(TextViewer), Item, new SuppressNavigationTransitionInfo());
+                                        Container.Frame.Navigate(typeof(TextViewer), Item, new SuppressNavigationTransitionInfo());
                                     }
                                     break;
                                 }
@@ -3644,11 +3638,11 @@ namespace RX_Explorer
                                 {
                                     if (AnimationController.Current.IsEnableAnimation)
                                     {
-                                        FileControlInstance.Frame.Navigate(typeof(PdfReader), Item, new DrillInNavigationTransitionInfo());
+                                        Container.Frame.Navigate(typeof(PdfReader), Item, new DrillInNavigationTransitionInfo());
                                     }
                                     else
                                     {
-                                        FileControlInstance.Frame.Navigate(typeof(PdfReader), Item, new SuppressNavigationTransitionInfo());
+                                        Container.Frame.Navigate(typeof(PdfReader), Item, new SuppressNavigationTransitionInfo());
                                     }
                                     break;
                                 }
@@ -3877,17 +3871,17 @@ namespace RX_Explorer
                     {
                         case ".zip":
                             {
-                                _ = await SpecialTypeGenerator.Current.CreateZipAsync(FileControlInstance.CurrentFolder, Dialog.NewFileName).ConfigureAwait(true) ?? throw new UnauthorizedAccessException();
+                                _ = await SpecialTypeGenerator.Current.CreateZipAsync(Container.CurrentFolder, Dialog.NewFileName).ConfigureAwait(true) ?? throw new UnauthorizedAccessException();
                                 break;
                             }
                         case ".rtf":
                             {
-                                _ = await SpecialTypeGenerator.Current.CreateRtfAsync(FileControlInstance.CurrentFolder, Dialog.NewFileName).ConfigureAwait(true) ?? throw new UnauthorizedAccessException();
+                                _ = await SpecialTypeGenerator.Current.CreateRtfAsync(Container.CurrentFolder, Dialog.NewFileName).ConfigureAwait(true) ?? throw new UnauthorizedAccessException();
                                 break;
                             }
                         case ".xlsx":
                             {
-                                _ = await SpecialTypeGenerator.Current.CreateExcelAsync(FileControlInstance.CurrentFolder, Dialog.NewFileName).ConfigureAwait(true) ?? throw new UnauthorizedAccessException();
+                                _ = await SpecialTypeGenerator.Current.CreateExcelAsync(Container.CurrentFolder, Dialog.NewFileName).ConfigureAwait(true) ?? throw new UnauthorizedAccessException();
                                 break;
                             }
                         case ".lnk":
@@ -3895,7 +3889,7 @@ namespace RX_Explorer
                                 LinkOptionsDialog dialog = new LinkOptionsDialog();
                                 if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                 {
-                                    if (!await FullTrustProcessController.Current.CreateLink(Path.Combine(FileControlInstance.CurrentFolder.Path, Dialog.NewFileName), dialog.Path, dialog.Description, dialog.Argument).ConfigureAwait(true))
+                                    if (!await FullTrustProcessController.Current.CreateLink(Path.Combine(Container.CurrentFolder.Path, Dialog.NewFileName), dialog.Path, dialog.Description, dialog.Argument).ConfigureAwait(true))
                                     {
                                         throw new UnauthorizedAccessException();
                                     }
@@ -3905,7 +3899,7 @@ namespace RX_Explorer
                             }
                         default:
                             {
-                                _ = await FileControlInstance.CurrentFolder.CreateFileAsync(Dialog.NewFileName, CreationCollisionOption.GenerateUniqueName) ?? throw new UnauthorizedAccessException();
+                                _ = await Container.CurrentFolder.CreateFileAsync(Dialog.NewFileName, CreationCollisionOption.GenerateUniqueName) ?? throw new UnauthorizedAccessException();
                                 break;
                             }
                     }
@@ -3922,7 +3916,7 @@ namespace RX_Explorer
 
                     if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                        _ = await Launcher.LaunchFolderAsync(Container.CurrentFolder);
                     }
                 }
             }
@@ -3944,7 +3938,7 @@ namespace RX_Explorer
                 };
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
                 return;
             }
 
@@ -3952,18 +3946,18 @@ namespace RX_Explorer
 
             if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
             {
-                await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
+                await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
 
                 await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level, ProgressHandler: (s, e) =>
                 {
-                    if (FileControlInstance.ProBar.Value < e.ProgressPercentage)
+                    if (Container.ProBar.Value < e.ProgressPercentage)
                     {
-                        FileControlInstance.ProBar.IsIndeterminate = false;
-                        FileControlInstance.ProBar.Value = e.ProgressPercentage;
+                        Container.ProBar.IsIndeterminate = false;
+                        Container.ProBar.Value = e.ProgressPercentage;
                     }
                 }).ConfigureAwait(true);
 
-                await FileControlInstance.LoadingActivation(false).ConfigureAwait(true);
+                await Container.LoadingActivation(false).ConfigureAwait(true);
             }
         }
 
@@ -3974,12 +3968,12 @@ namespace RX_Explorer
                 if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                 {
                     e.AcceptedOperation = DataPackageOperation.Copy;
-                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {FileControlInstance.CurrentFolder.DisplayName}";
+                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {Container.CurrentFolder.DisplayName}";
                 }
                 else
                 {
                     e.AcceptedOperation = DataPackageOperation.Move;
-                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {FileControlInstance.CurrentFolder.DisplayName}";
+                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {Container.CurrentFolder.DisplayName}";
                 }
 
                 e.DragUIOverride.IsContentVisible = true;
@@ -4021,17 +4015,17 @@ namespace RX_Explorer
                                 {
                                     case DataPackageOperation.Copy:
                                         {
-                                            await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
+                                            await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
 
                                         Retry:
                                             try
                                             {
                                                 await FullTrustProcessController.Current.CopyAsync(LinkItemsPath, TargetFolder.Path, (s, arg) =>
                                                 {
-                                                    if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                    if (Container.ProBar.Value < arg.ProgressPercentage)
                                                     {
-                                                        FileControlInstance.ProBar.IsIndeterminate = false;
-                                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                        Container.ProBar.IsIndeterminate = false;
+                                                        Container.ProBar.Value = arg.ProgressPercentage;
                                                     }
                                                 }).ConfigureAwait(true);
                                             }
@@ -4091,17 +4085,17 @@ namespace RX_Explorer
                                         }
                                     case DataPackageOperation.Move:
                                         {
-                                            await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
+                                            await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
 
                                         Retry:
                                             try
                                             {
                                                 await FullTrustProcessController.Current.MoveAsync(LinkItemsPath, TargetFolder.Path, (s, arg) =>
                                                 {
-                                                    if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                    if (Container.ProBar.Value < arg.ProgressPercentage)
                                                     {
-                                                        FileControlInstance.ProBar.IsIndeterminate = false;
-                                                        FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                        Container.ProBar.IsIndeterminate = false;
+                                                        Container.ProBar.Value = arg.ProgressPercentage;
                                                     }
                                                 }).ConfigureAwait(true);
                                             }
@@ -4200,23 +4194,23 @@ namespace RX_Explorer
                             {
                                 case DataPackageOperation.Copy:
                                     {
-                                        await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
+                                        await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
 
                                     Retry:
                                         try
                                         {
                                             await FullTrustProcessController.Current.CopyAsync(DragItemList, TargetFolder, (s, arg) =>
                                             {
-                                                if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                if (Container.ProBar.Value < arg.ProgressPercentage)
                                                 {
-                                                    FileControlInstance.ProBar.IsIndeterminate = false;
-                                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                    Container.ProBar.IsIndeterminate = false;
+                                                    Container.ProBar.Value = arg.ProgressPercentage;
                                                 }
                                             }).ConfigureAwait(true);
 
                                             if (!SettingControl.IsDetachTreeViewAndPresenter)
                                             {
-                                                await FileControlInstance.FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                                await Container.FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
                                             }
                                         }
                                         catch (FileNotFoundException)
@@ -4275,17 +4269,17 @@ namespace RX_Explorer
                                     }
                                 case DataPackageOperation.Move:
                                     {
-                                        await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
+                                        await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
 
                                     Retry:
                                         try
                                         {
                                             await FullTrustProcessController.Current.MoveAsync(DragItemList, TargetFolder, (s, arg) =>
                                             {
-                                                if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                if (Container.ProBar.Value < arg.ProgressPercentage)
                                                 {
-                                                    FileControlInstance.ProBar.IsIndeterminate = false;
-                                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                    Container.ProBar.IsIndeterminate = false;
+                                                    Container.ProBar.Value = arg.ProgressPercentage;
                                                 }
                                             }).ConfigureAwait(true);
                                         }
@@ -4373,7 +4367,7 @@ namespace RX_Explorer
                 {
                     e.Handled = true;
                     Deferral.Complete();
-                    await FileControlInstance.LoadingActivation(false).ConfigureAwait(true);
+                    await Container.LoadingActivation(false).ConfigureAwait(true);
 
                     _ = Interlocked.Exchange(ref DropLock, 0);
                 }
@@ -4519,23 +4513,23 @@ namespace RX_Explorer
                             HtmlNodeCollection BodyNode = Document.DocumentNode.SelectNodes("/p");
                             List<string> LinkItemsPath = BodyNode.Select((Node) => Node.InnerText).ToList();
 
-                            StorageFolder TargetFolder = FileControlInstance.CurrentFolder;
+                            StorageFolder TargetFolder = Container.CurrentFolder;
 
                             switch (e.AcceptedOperation)
                             {
                                 case DataPackageOperation.Copy:
                                     {
-                                        await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
+                                        await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
 
                                     Retry:
                                         try
                                         {
                                             await FullTrustProcessController.Current.CopyAsync(LinkItemsPath, TargetFolder.Path, (s, arg) =>
                                             {
-                                                if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                if (Container.ProBar.Value < arg.ProgressPercentage)
                                                 {
-                                                    FileControlInstance.ProBar.IsIndeterminate = false;
-                                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                    Container.ProBar.IsIndeterminate = false;
+                                                    Container.ProBar.Value = arg.ProgressPercentage;
                                                 }
                                             }).ConfigureAwait(true);
                                         }
@@ -4600,17 +4594,17 @@ namespace RX_Explorer
                                             return;
                                         }
 
-                                        await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
+                                        await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
 
                                     Retry:
                                         try
                                         {
                                             await FullTrustProcessController.Current.MoveAsync(LinkItemsPath, TargetFolder.Path, (s, arg) =>
                                             {
-                                                if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                                if (Container.ProBar.Value < arg.ProgressPercentage)
                                                 {
-                                                    FileControlInstance.ProBar.IsIndeterminate = false;
-                                                    FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                    Container.ProBar.IsIndeterminate = false;
+                                                    Container.ProBar.Value = arg.ProgressPercentage;
                                                 }
                                             }).ConfigureAwait(true);
                                         }
@@ -4687,7 +4681,7 @@ namespace RX_Explorer
                     {
                         List<IStorageItem> DragItemList = (await e.DataView.GetStorageItemsAsync()).ToList();
 
-                        StorageFolder TargetFolder = FileControlInstance.CurrentFolder;
+                        StorageFolder TargetFolder = Container.CurrentFolder;
 
                         if (DragItemList.Contains(TargetFolder))
                         {
@@ -4706,17 +4700,17 @@ namespace RX_Explorer
                         {
                             case DataPackageOperation.Copy:
                                 {
-                                    await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
+                                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
 
                                 Retry:
                                     try
                                     {
                                         await FullTrustProcessController.Current.CopyAsync(DragItemList, TargetFolder, (s, arg) =>
                                         {
-                                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                            if (Container.ProBar.Value < arg.ProgressPercentage)
                                             {
-                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                Container.ProBar.IsIndeterminate = false;
+                                                Container.ProBar.Value = arg.ProgressPercentage;
                                             }
                                         }).ConfigureAwait(true);
                                     }
@@ -4781,17 +4775,17 @@ namespace RX_Explorer
                                         return;
                                     }
 
-                                    await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
+                                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
 
                                 Retry:
                                     try
                                     {
                                         await FullTrustProcessController.Current.MoveAsync(DragItemList, TargetFolder, (s, arg) =>
                                         {
-                                            if (FileControlInstance.ProBar.Value < arg.ProgressPercentage)
+                                            if (Container.ProBar.Value < arg.ProgressPercentage)
                                             {
-                                                FileControlInstance.ProBar.IsIndeterminate = false;
-                                                FileControlInstance.ProBar.Value = arg.ProgressPercentage;
+                                                Container.ProBar.IsIndeterminate = false;
+                                                Container.ProBar.Value = arg.ProgressPercentage;
                                             }
                                         }).ConfigureAwait(true);
                                     }
@@ -4877,7 +4871,7 @@ namespace RX_Explorer
                 {
                     e.Handled = true;
                     Deferral.Complete();
-                    await FileControlInstance.LoadingActivation(false).ConfigureAwait(true);
+                    await Container.LoadingActivation(false).ConfigureAwait(true);
                     _ = Interlocked.Exchange(ref ViewDropLock, 0);
                 }
             }
@@ -5042,7 +5036,7 @@ namespace RX_Explorer
                         };
                         _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                        await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                        await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
                         return;
                     }
                 }
@@ -5060,7 +5054,7 @@ namespace RX_Explorer
                         };
                         _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                        await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(false);
+                        await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
                         return;
                     }
                 }
@@ -5104,28 +5098,28 @@ namespace RX_Explorer
 
                 if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
+                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
 
                     await CreateZipAsync(SelectedItems, dialog.FileName, (int)dialog.Level, ProgressHandler: (s, e) =>
                     {
-                        if (FileControlInstance.ProBar.Value < e.ProgressPercentage)
+                        if (Container.ProBar.Value < e.ProgressPercentage)
                         {
-                            FileControlInstance.ProBar.IsIndeterminate = false;
-                            FileControlInstance.ProBar.Value = e.ProgressPercentage;
+                            Container.ProBar.IsIndeterminate = false;
+                            Container.ProBar.Value = e.ProgressPercentage;
                         }
                     }).ConfigureAwait(true);
 
-                    await FileControlInstance.LoadingActivation(false).ConfigureAwait(true);
+                    await Container.LoadingActivation(false).ConfigureAwait(true);
                 }
             }
             else
             {
                 await UnZipAsync(SelectedItems, (s, e) =>
                 {
-                    if (FileControlInstance.ProBar.Value < e.ProgressPercentage)
+                    if (Container.ProBar.Value < e.ProgressPercentage)
                     {
-                        FileControlInstance.ProBar.IsIndeterminate = false;
-                        FileControlInstance.ProBar.Value = e.ProgressPercentage;
+                        Container.ProBar.IsIndeterminate = false;
+                        Container.ProBar.Value = e.ProgressPercentage;
                     }
                 }).ConfigureAwait(true);
             }
@@ -5139,7 +5133,7 @@ namespace RX_Explorer
             {
                 try
                 {
-                    await FileControlInstance.LoadingActivation(true, Globalization.GetString("Progress_Tip_Unlock")).ConfigureAwait(true);
+                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Unlock")).ConfigureAwait(true);
 
                     if (await FullTrustProcessController.Current.TryUnlockFileOccupy(Item.Path).ConfigureAwait(true))
                     {
@@ -5195,7 +5189,7 @@ namespace RX_Explorer
                 }
                 finally
                 {
-                    await FileControlInstance.LoadingActivation(false).ConfigureAwait(false);
+                    await Container.LoadingActivation(false).ConfigureAwait(false);
                 }
             }
         }
@@ -5262,12 +5256,12 @@ namespace RX_Explorer
                     };
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(true);
+                    await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(true);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                Debug.WriteLine("Error: CalculateHash failed");
+                await LogTracer.LogAsync(ex, "Error: CalculateHash failed").ConfigureAwait(true);
             }
             finally
             {
@@ -5317,7 +5311,7 @@ namespace RX_Explorer
             Retry:
                 try
                 {
-                    await FullTrustProcessController.Current.RunAsync(Profile.Path, Profile.RunAsAdmin, false, Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value == "[CurrentLocation]" ? FileControlInstance.CurrentFolder.Path : Mat.Value).ToArray()).ConfigureAwait(false);
+                    await FullTrustProcessController.Current.RunAsync(Profile.Path, Profile.RunAsAdmin, false, Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value == "[CurrentLocation]" ? Container.CurrentFolder.Path : Mat.Value).ToArray()).ConfigureAwait(false);
                 }
                 catch (InvalidOperationException)
                 {
@@ -5390,7 +5384,7 @@ namespace RX_Explorer
                                 EditBox.Focus(FocusState.Programmatic);
                             }
 
-                            FileControlInstance.IsSearchOrPathBoxFocused = true;
+                            Container.IsSearchOrPathBoxFocused = true;
                         }
                     }
 
@@ -5493,7 +5487,7 @@ namespace RX_Explorer
 
                     if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        _ = await Launcher.LaunchFolderAsync(FileControlInstance.CurrentFolder);
+                        _ = await Launcher.LaunchFolderAsync(Container.CurrentFolder);
                     }
                 }
                 finally
@@ -5504,7 +5498,7 @@ namespace RX_Explorer
 
                     LastClickTime = DateTimeOffset.MaxValue;
 
-                    FileControlInstance.IsSearchOrPathBoxFocused = false;
+                    Container.IsSearchOrPathBoxFocused = false;
                 }
             }
         }
@@ -6388,7 +6382,7 @@ namespace RX_Explorer
 
                 StorageFolder ParentFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(Item.TargetPath));
 
-                await FileControlInstance.OpenTargetFolder(ParentFolder).ConfigureAwait(true);
+                await Container.OpenTargetFolder(ParentFolder).ConfigureAwait(true);
 
                 if (FileCollection.FirstOrDefault((SItem) => SItem.Path == Item.TargetPath) is FileSystemStorageItemBase Target)
                 {
@@ -6404,9 +6398,9 @@ namespace RX_Explorer
 
             try
             {
-                if (WIN_Native_API.CheckExist(FileControlInstance.CurrentFolder.Path))
+                if (WIN_Native_API.CheckExist(Container.CurrentFolder.Path))
                 {
-                    await FileControlInstance.DisplayItemsInFolder(FileControlInstance.CurrentFolder, true).ConfigureAwait(true);
+                    await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(true);
                 }
                 else
                 {
@@ -6419,9 +6413,9 @@ namespace RX_Explorer
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                Debug.WriteLine("ItemPresenter refresh failured");
+                await LogTracer.LogAsync(ex, "Refresh ItemPresenter failed").ConfigureAwait(true);
             }
             finally
             {

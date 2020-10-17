@@ -4,7 +4,6 @@ using RX_Explorer.Class;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -333,7 +332,7 @@ namespace RX_Explorer
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 if (CreateNewTab() is TabViewItem Item)
                 {
@@ -348,7 +347,7 @@ namespace RX_Explorer
                     TabViewControl.SelectedItem = Item;
                 }
 
-                Debug.WriteLine("Error happened when try to create a new tab");
+                await LogTracer.LogAsync(ex, "Error happened when try to create a new tab").ConfigureAwait(true);
             }
         }
 
@@ -389,9 +388,9 @@ namespace RX_Explorer
                     {
                         PortableDevice.Add(StorageDevice.FromId(Device.Id));
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        Debug.WriteLine($"Error happened when get storagefolder from {Device.Name}");
+                        await LogTracer.LogAsync(ex, $"Error happened when get storagefolder from {Device.Name}").ConfigureAwait(true);
                     }
                 }
 
@@ -433,9 +432,9 @@ namespace RX_Explorer
                     });
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                Debug.WriteLine($"Error happened when remove device from HardDeviceList");
+                await LogTracer.LogAsync(ex, $"Error happened when remove device from HardDeviceList").ConfigureAwait(true);
             }
         }
 
@@ -520,18 +519,9 @@ namespace RX_Explorer
 
             if (MainPage.ThisPage.IsPathActivate)
             {
-                try
-                {
-                    await CreateNewTabAndOpenTargetFolder(MainPage.ThisPage.ActivatePath).ConfigureAwait(true);
-                }
-                catch
-                {
-                    Debug.WriteLine("ActivatePath is not exist, activate action stop");
-                }
-                finally
-                {
-                    MainPage.ThisPage.IsPathActivate = false;
-                }
+                await CreateNewTabAndOpenTargetFolder(MainPage.ThisPage.ActivatePath).ConfigureAwait(true);
+
+                MainPage.ThisPage.IsPathActivate = false;
             }
             else
             {
@@ -826,7 +816,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                ExceptionTracer.RequestBlueScreen(ex);
+                LogTracer.RequestBlueScreen(ex);
             }
         }
 
@@ -1221,9 +1211,9 @@ namespace RX_Explorer
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                Debug.WriteLine("Error happened when try to drop a tab");
+                await LogTracer.LogAsync(ex, "Error happened when try to drop a tab").ConfigureAwait(true);
             }
             finally
             {

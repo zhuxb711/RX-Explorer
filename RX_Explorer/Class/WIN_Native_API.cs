@@ -251,7 +251,7 @@ namespace RX_Explorer.Class
                         }
                         catch (Exception e)
                         {
-                            Debug.WriteLine("Exception happened when watching directory. Message: " + e.Message);
+                            _ = LogTracer.LogAsync("Exception happened when watching directory. Message: " + e.Message);
                         }
                         finally
                         {
@@ -363,7 +363,7 @@ namespace RX_Explorer.Class
 
             if (System.IO.Path.GetPathRoot(Path) == Path)
             {
-                throw new ArgumentException("Unsupport for root directory", nameof(Path));
+                return false;
             }
 
             IntPtr Ptr = FindFirstFileExFromApp(Path, FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);

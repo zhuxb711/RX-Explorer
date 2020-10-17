@@ -115,7 +115,7 @@ namespace RX_Explorer
                 {
                     StorageFolder ParentFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(Item.Path));
                     FileControl Instance = FileControlInstance;
-                    
+
                     Frame.GoBack();
 
                     await Instance.OpenTargetFolder(ParentFolder).ConfigureAwait(true);

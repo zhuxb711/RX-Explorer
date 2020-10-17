@@ -265,9 +265,9 @@ namespace RX_Explorer
                     Clipboard.Flush();
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                Debug.WriteLine("Error happened when Flush Clipboard");
+                await LogTracer.LogAsync(ex, "Error happened when Flush Clipboard").ConfigureAwait(true);
             }
 
             Deferral.Complete();
@@ -341,7 +341,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                ExceptionTracer.RequestBlueScreen(ex);
+                LogTracer.RequestBlueScreen(ex);
             }
         }
 
@@ -734,7 +734,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                ExceptionTracer.RequestBlueScreen(ex);
+                LogTracer.RequestBlueScreen(ex);
             }
         }
 

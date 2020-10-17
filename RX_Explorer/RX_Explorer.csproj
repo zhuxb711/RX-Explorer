@@ -164,6 +164,7 @@
     <Compile Include="Class\Exception.cs" />
     <Compile Include="Class\HiddenStorageItem.cs" />
     <Compile Include="Class\HyperlinkStorageItem.cs" />
+    <Compile Include="Class\IUknownInterface.cs" />
     <Compile Include="Class\OperationRecorder.cs" />
     <Compile Include="Class\PipeLineController.cs" />
     <Compile Include="Class\RecycleStorageItem.cs" />
@@ -229,7 +230,7 @@
       <DependentUpon>WhatIsNew.xaml</DependentUpon>
     </Compile>
     <Compile Include="Class\FullTrustProcessController.cs" />
-    <Compile Include="Class\ExceptionTracer.cs" />
+    <Compile Include="Class\LogTracer.cs" />
     <Compile Include="Class\ProgramPickerItem.cs" />
     <Compile Include="Class\Extention.cs" />
     <Compile Include="Class\FeedBackItem.cs" />

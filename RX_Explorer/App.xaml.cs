@@ -67,7 +67,7 @@ namespace RX_Explorer
         {
             if (!e.IsTerminating && e.ExceptionObject is Exception ex)
             {
-                ExceptionTracer.RequestBlueScreen(ex);
+                LogTracer.RequestBlueScreen(ex);
             }
         }
 
@@ -121,7 +121,7 @@ namespace RX_Explorer
 
         private void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
         {
-            ExceptionTracer.RequestBlueScreen(e.Exception);
+            LogTracer.RequestBlueScreen(e.Exception);
             e.Handled = true;
         }
 
@@ -263,7 +263,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                ExceptionTracer.RequestBlueScreen(ex);
+                LogTracer.RequestBlueScreen(ex);
             }
         }
     }
