@@ -1,4 +1,33 @@
 ﻿*****
+###Quoi de neuf dans la version 5.5.2.0
+
+#####Mise à jour des fonctionnalités
+
+>#####La compression et la décompression monopoliseront les fichiers requis et interdiront tout accès, évitant ainsi le crash causé par le mouvement ou la modification des fichiers
+
+>#####Le journal peut maintenant être exporté sur la page d'erreur pour l'analyse des erreurs
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Refaire la page de crash
+
+>#####Résolution du problème de traduction dans l'invite de mise à jour
+
+#####Optimisation des performances
+
+>#####Accélère le calcul de la taille du dossier et du nombre de fichiers
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel l'opération sous le répertoire racine de la lettre de lecteur n'est pas valide et le fichier n'existe pas
+
+>#####Correction du problème que la page de propriétés du dossier ne peut pas arrêter de compter le nombre de sous-dossiers et sous-fichiers dans le temps après la fermeture
+
+>#####Correction du problème selon lequel les noms illégaux peuvent ne pas être bloqués correctement lors du changement de nom, ce qui peut provoquer un plantage
+
+>#####Correction du problème pouvant provoquer un plantage au prochain démarrage après la suppression de toutes les images personnalisées
+
+*****
 ###Quoi de neuf dans la version 5.4.9.0
 
 #####Mise à jour des fonctionnalités

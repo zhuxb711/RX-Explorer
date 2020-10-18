@@ -776,6 +776,10 @@
       <Project>{5bc5b5aa-53f4-4437-95b3-261f790ae373}</Project>
       <Name>ComputerVision</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MaintenanceTask\MaintenanceTask.csproj">
+      <Project>{62f0700f-394a-43de-92fd-fcfe063069d3}</Project>
+      <Name>MaintenanceTask</Name>
+    </ProjectReference>
     <ProjectReference Include="..\OpenDirectoryExt\OpenDirectoryExt.vcxproj">
       <Project>{db5f5aa6-13b4-458a-a6a9-e29238adae06}</Project>
       <Name>OpenDirectoryExt</Name>

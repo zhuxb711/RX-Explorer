@@ -229,48 +229,15 @@ namespace RX_Explorer
         {
             await Launcher.LaunchUriAsync(new Uri("ms-settings:privacy-broadfilesystemaccess"));
 
-            ToastContent Content = new ToastContent()
-            {
-                Scenario = ToastScenario.Reminder,
+            ToastContentBuilder Builder = new ToastContentBuilder()
+                                          .SetToastScenario(ToastScenario.Reminder)
+                                          .AddText(Globalization.GetString("Toast_BroadFileSystemAccess_Text_1"))
+                                          .AddText(Globalization.GetString("Toast_BroadFileSystemAccess_Text_2"))
+                                          .AddText(Globalization.GetString("Toast_BroadFileSystemAccess_Text_3"))
+                                          .AddButton(Globalization.GetString("Toast_BroadFileSystemAccess_ActionButton_1"), ToastActivationType.Foreground, "Restart")
+                                          .AddButton(new ToastButtonDismiss());
 
-                Visual = new ToastVisual()
-                {
-                    BindingGeneric = new ToastBindingGeneric()
-                    {
-                        Children =
-                            {
-                                new AdaptiveText()
-                                {
-                                    Text = Globalization.GetString("Toast_BroadFileSystemAccess_Text_1")
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = Globalization.GetString("Toast_BroadFileSystemAccess_Text_2")
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = Globalization.GetString("Toast_BroadFileSystemAccess_Text_3")
-                                }
-                            }
-                    }
-                },
-
-                Actions = new ToastActionsCustom
-                {
-                    Buttons =
-                        {
-                            new ToastButton(Globalization.GetString("Toast_BroadFileSystemAccess_ActionButton_1"),"Restart")
-                            {
-                                ActivationType =ToastActivationType.Foreground
-                            },
-                            new ToastButtonDismiss(Globalization.GetString("Toast_BroadFileSystemAccess_ActionButton_2"))
-                        }
-                }
-            };
-
-            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Builder.GetToastContent().GetXml()));
 
             await ApplicationView.GetForCurrentView().TryConsolidateAsync();
         }

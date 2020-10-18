@@ -68,114 +68,56 @@ namespace UpdateCheckBackgroundTask
         {
             if (ApplicationData.Current.LocalSettings.Values["LanguageOverride"] is int LanguageIndex)
             {
+                ToastNotificationManager.History.Clear();
+
                 switch (LanguageIndex)
                 {
                     case 0:
                         {
-
-                            ToastContent Content = new ToastContent()
-                            {
-                                Scenario = ToastScenario.Default,
-                                Launch = "ms-windows-store://pdp/?productid=9N88QBQKF2RS",
-                                Visual = new ToastVisual()
-                                {
-                                    BindingGeneric = new ToastBindingGeneric()
-                                    {
-                                        Children =
-                                        {
-                                            new AdaptiveText()
-                                            {
-                                                Text = "针对RX文件管理器的更新已发布！"
-                                            },
-
-                                            new AdaptiveText()
-                                            {
-                                                Text = "包含最新的功能和改进"
-                                            },
-
-                                            new AdaptiveText()
-                                            {
-                                                Text = "点击以立即更新"
-                                            }
-                                        }
-                                    }
-                                },
-                                ActivationType = ToastActivationType.Protocol
-                            };
-                            ToastNotificationManager.History.Clear();
-                            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+                            ToastContentBuilder Builder = new ToastContentBuilder()
+                                                          .SetToastScenario(ToastScenario.Default)
+                                                          .AddToastActivationInfo("ms-windows-store://pdp/?productid=9N88QBQKF2RS", ToastActivationType.Protocol)
+                                                          .AddText("针对RX文件管理器的更新已发布!", AdaptiveTextStyle.Title)
+                                                          .AddText("包含最新的功能和改进", AdaptiveTextStyle.Subtitle)
+                                                          .AddText("点击以立即更新", AdaptiveTextStyle.Subtitle);
+                            
+                            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Builder.GetToastContent().GetXml()));
                             break;
                         }
                     case 1:
                         {
+                            ToastContentBuilder Builder = new ToastContentBuilder()
+                                                          .SetToastScenario(ToastScenario.Default)
+                                                          .AddToastActivationInfo("ms-windows-store://pdp/?productid=9N88QBQKF2RS", ToastActivationType.Protocol)
+                                                          .AddText("An update for the RX-Explorer is available!", AdaptiveTextStyle.Title)
+                                                          .AddText("Includes the latest features and improvements", AdaptiveTextStyle.Subtitle)
+                                                          .AddText("Click to update now", AdaptiveTextStyle.Subtitle);
 
-                            ToastContent Content = new ToastContent()
-                            {
-                                Scenario = ToastScenario.Default,
-                                Launch = "ms-windows-store://pdp/?productid=9N88QBQKF2RS",
-                                Visual = new ToastVisual()
-                                {
-                                    BindingGeneric = new ToastBindingGeneric()
-                                    {
-                                        Children =
-                                        {
-                                            new AdaptiveText()
-                                            {
-                                                Text = "An update for the RX Explorer is available!"
-                                            },
-
-                                            new AdaptiveText()
-                                            {
-                                                Text = "Includes the latest features and improvements"
-                                            },
-
-                                            new AdaptiveText()
-                                            {
-                                                Text = "Click to update now"
-                                            }
-                                        }
-                                    }
-                                },
-                                ActivationType = ToastActivationType.Protocol
-                            };
-                            ToastNotificationManager.History.Clear();
-                            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+                            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Builder.GetToastContent().GetXml()));
                             break;
                         }
                     case 2:
                         {
+                            ToastContentBuilder Builder = new ToastContentBuilder()
+                                                          .SetToastScenario(ToastScenario.Default)
+                                                          .AddToastActivationInfo("ms-windows-store://pdp/?productid=9N88QBQKF2RS", ToastActivationType.Protocol)
+                                                          .AddText("Une mise à jour pour RX Explorer est disponible!", AdaptiveTextStyle.Title)
+                                                          .AddText("Comprend les dernières fonctionnalités et améliorations", AdaptiveTextStyle.Subtitle)
+                                                          .AddText("Cliquez pour mettre à jour maintenant", AdaptiveTextStyle.Subtitle);
 
-                            ToastContent Content = new ToastContent()
-                            {
-                                Scenario = ToastScenario.Default,
-                                Launch = "ms-windows-store://pdp/?productid=9N88QBQKF2RS",
-                                Visual = new ToastVisual()
-                                {
-                                    BindingGeneric = new ToastBindingGeneric()
-                                    {
-                                        Children =
-                                        {
-                                            new AdaptiveText()
-                                            {
-                                                Text = "Une mise à jour pour RX Explorer est disponible!"
-                                            },
+                            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Builder.GetToastContent().GetXml()));
+                            break;
+                        }
+                    case 3:
+                        {
+                            ToastContentBuilder Builder = new ToastContentBuilder()
+                                                          .SetToastScenario(ToastScenario.Default)
+                                                          .AddToastActivationInfo("ms-windows-store://pdp/?productid=9N88QBQKF2RS", ToastActivationType.Protocol)
+                                                          .AddText("RX檔案管家的更新已發布!", AdaptiveTextStyle.Title)
+                                                          .AddText("包括最新功能和改進", AdaptiveTextStyle.Subtitle)
+                                                          .AddText("點擊立即更新", AdaptiveTextStyle.Subtitle);
 
-                                            new AdaptiveText()
-                                            {
-                                                Text = "Comprend les dernières fonctionnalités et améliorations"
-                                            },
-
-                                            new AdaptiveText()
-                                            {
-                                                Text = "Cliquez pour mettre à jour maintenant"
-                                            }
-                                        }
-                                    }
-                                },
-                                ActivationType = ToastActivationType.Protocol
-                            };
-                            ToastNotificationManager.History.Clear();
-                            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+                            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Builder.GetToastContent().GetXml()));
                             break;
                         }
                 }

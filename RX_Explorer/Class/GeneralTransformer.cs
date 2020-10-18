@@ -115,15 +115,16 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public static Task GenerateCroppedVideoFromOriginAsync(StorageFile DestinationFile, MediaComposition Composition, MediaEncodingProfile EncodingProfile, MediaTrimmingPreference TrimmingPreference)
         {
-            return Task.Factory.StartNew((ob) =>
+            return Task.Factory.StartNew((obj) =>
             {
                 IsAnyTransformTaskRunning = true;
 
                 AVTranscodeCancellation = new CancellationTokenSource();
 
-                var Para = (ValueTuple<StorageFile, MediaComposition, MediaEncodingProfile, MediaTrimmingPreference>)ob;
+                var Para = (ValueTuple<StorageFile, MediaComposition, MediaEncodingProfile, MediaTrimmingPreference>)obj;
 
                 SendUpdatableToastWithProgressForCropVideo(Para.Item1);
+
                 Progress<double> CropVideoProgress = new Progress<double>((CurrentValue) =>
                 {
                     string Tag = "CropVideoNotification";

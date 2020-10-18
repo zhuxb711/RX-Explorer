@@ -397,7 +397,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static ulong CalculateSize(string Path, CancellationToken? CancelToken = null)
+        public static ulong CalculateSize(string Path, CancellationToken CancelToken = default)
         {
             if (string.IsNullOrWhiteSpace(Path))
             {
@@ -426,7 +426,7 @@ namespace RX_Explorer.Class
                             TotalSize += ((ulong)Data.nFileSizeHigh << 32) + Data.nFileSizeLow;
                         }
                     }
-                    while (FindNextFile(Ptr, out Data) && !(CancelToken?.IsCancellationRequested).GetValueOrDefault());
+                    while (FindNextFile(Ptr, out Data) && !CancelToken.IsCancellationRequested);
 
                     return TotalSize;
                 }
@@ -446,7 +446,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static (uint, uint) CalculateFolderAndFileCount(string Path, CancellationToken? CancelToken = null)
+        public static (uint, uint) CalculateFolderAndFileCount(string Path, CancellationToken CancelToken = default)
         {
             if (string.IsNullOrWhiteSpace(Path))
             {
@@ -478,7 +478,7 @@ namespace RX_Explorer.Class
                             FileCount++;
                         }
                     }
-                    while (FindNextFile(Ptr, out Data) && !(CancelToken?.IsCancellationRequested).GetValueOrDefault());
+                    while (FindNextFile(Ptr, out Data) && !CancelToken.IsCancellationRequested);
 
                     return (FolderCount, FileCount);
                 }

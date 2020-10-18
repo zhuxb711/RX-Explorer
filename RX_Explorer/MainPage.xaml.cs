@@ -200,35 +200,18 @@ namespace RX_Explorer
             {
                 ToastNotificationManager.History.Remove("EnterBackgroundTips");
 
-                ToastContent Content = new ToastContent()
-                {
-                    Scenario = ToastScenario.Alarm,
-                    Launch = "EnterBackgroundTips",
-                    Visual = new ToastVisual()
-                    {
-                        BindingGeneric = new ToastBindingGeneric()
-                        {
-                            Children =
-                                {
-                                    new AdaptiveText()
-                                    {
-                                        Text = Globalization.GetString("Toast_EnterBackground_Text_1")
-                                    },
+                ToastContentBuilder Builder = new ToastContentBuilder()
+                                              .SetToastScenario(ToastScenario.Alarm)
+                                              .AddToastActivationInfo("EnterBackgroundTips", ToastActivationType.Foreground)
+                                              .AddText(Globalization.GetString("Toast_EnterBackground_Text_1"))
+                                              .AddText(Globalization.GetString("Toast_EnterBackground_Text_2"))
+                                              .AddText(Globalization.GetString("Toast_EnterBackground_Text_3"));
 
-                                    new AdaptiveText()
-                                    {
-                                        Text = Globalization.GetString("Toast_EnterBackground_Text_2")
-                                    },
-
-                                    new AdaptiveText()
-                                    {
-                                        Text = Globalization.GetString("Toast_EnterBackground_Text_3")
-                                    }
-                                }
-                        }
-                    },
-                };
-                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()) { Tag = "EnterBackgroundTips", Priority = ToastNotificationPriority.High });
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Builder.GetToastContent().GetXml()) 
+                { 
+                    Tag = "EnterBackgroundTips", 
+                    Priority = ToastNotificationPriority.High 
+                });
             }
         }
 

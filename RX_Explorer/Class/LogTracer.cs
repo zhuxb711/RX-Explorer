@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -18,6 +19,8 @@ namespace RX_Explorer.Class
     public static class LogTracer
     {
         private static readonly SemaphoreSlim Locker = new SemaphoreSlim(1, 1);
+
+        private static readonly string UniqueName = $"Log_GeneratedTime[{DateTime.Now:yyyy-MM-dd HH-mm-ss.fff}].txt";
 
         /// <summary>
         /// 请求进入蓝屏状态
@@ -68,19 +71,26 @@ namespace RX_Explorer.Class
                     StackTraceSplit = Array.Empty<string>();
                 }
 
+                StringBuilder Builder = new StringBuilder()
+                                        .AppendLine($"Version: {string.Join('.', Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}")
+                                        .AppendLine()
+                                        .AppendLine("The following is the error message:")
+                                        .AppendLine("------------------------------------")
+                                        .AppendLine()
+                                        .AppendLine($"Exception: {Ex.GetType().Name}")
+                                        .AppendLine()
+                                        .AppendLine("Message:")
+                                        .AppendLine(MessageSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, MessageSplit))
+                                        .AppendLine()
+                                        .AppendLine("StackTrace:")
+                                        .AppendLine(StackTraceSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, StackTraceSplit))
+                                        .AppendLine()
+                                        .AppendLine("------------------------------------")
+                                        .AppendLine();
+
                 if (Window.Current.Content is Frame rootFrame)
                 {
-                    string Message =
-                    @$"Version: {string.Join('.', Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}
-                        {Environment.NewLine}The following is the error message:
-                        {Environment.NewLine}------------------------------------
-                        {Environment.NewLine}Exception: {Ex.GetType().Name}
-                        {Environment.NewLine}Message:
-                        {Environment.NewLine}{(MessageSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, MessageSplit))}
-                        {Environment.NewLine}StackTrace：{Environment.NewLine}{(StackTraceSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, StackTraceSplit))}
-                        {Environment.NewLine}------------------------------------{Environment.NewLine}";
-
-                    rootFrame.Navigate(typeof(BlueScreen), Message);
+                    rootFrame.Navigate(typeof(BlueScreen), Builder.ToString());
                 }
                 else
                 {
@@ -88,25 +98,26 @@ namespace RX_Explorer.Class
 
                     Window.Current.Content = Frame;
 
-                    string Message =
-                    @$"Version: {string.Join('.', Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision)}
-                        {Environment.NewLine}The following is the error message:
-                        {Environment.NewLine}------------------------------------
-                        {Environment.NewLine}Exception: {Ex.GetType().Name}
-                        {Environment.NewLine}Message:
-                        {Environment.NewLine}{(MessageSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, MessageSplit))}
-                        {Environment.NewLine}StackTrace：{Environment.NewLine}{(StackTraceSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, StackTraceSplit))}
-                        {Environment.NewLine}------------------------------------{Environment.NewLine}";
-
-                    Frame.Navigate(typeof(BlueScreen), Message);
+                    Frame.Navigate(typeof(BlueScreen), Builder.ToString());
                 }
             });
+
+            await LogAsync(Ex, "UnhandleException").ConfigureAwait(false);
+        }
+
+        public static async Task ExportLog(StorageFile ExportFile)
+        {
+            if (await ApplicationData.Current.TemporaryFolder.TryGetItemAsync(UniqueName) is StorageFile InnerFile)
+            {
+                await InnerFile.CopyAndReplaceAsync(ExportFile);
+            }
         }
 
         /// <summary>
         /// 记录错误
         /// </summary>
         /// <param name="Ex">错误</param>
+        /// <param name="AdditionalComment">附加信息</param>
         /// <returns></returns>
         public static async Task LogAsync(Exception Ex, string AdditionalComment = null)
         {
@@ -151,16 +162,21 @@ namespace RX_Explorer.Class
                 StackTraceSplit = Array.Empty<string>();
             }
 
-            string Message = @$"{Environment.NewLine}------------------------------------
-                                {Environment.NewLine}AdditionalComment: {AdditionalComment ?? "<Empty>"}
-                                {Environment.NewLine}------------------------------------
-                                {Environment.NewLine}Exception: {Ex.GetType().Name}
-                                {Environment.NewLine}Message:
-                                {Environment.NewLine}{(MessageSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, MessageSplit))}
-                                {Environment.NewLine}StackTrace：{Environment.NewLine}{(StackTraceSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, StackTraceSplit))}
-                                {Environment.NewLine}------------------------------------{Environment.NewLine}";
+            StringBuilder Builder = new StringBuilder()
+                                    .AppendLine("------------------------------------")
+                                    .AppendLine($"AdditionalComment: {AdditionalComment ?? "<Empty>"}")
+                                    .AppendLine($"------------------------------------")
+                                    .AppendLine()
+                                    .AppendLine($"Exception: {Ex.GetType().Name}")
+                                    .AppendLine()
+                                    .AppendLine("Message:")
+                                    .AppendLine(MessageSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, MessageSplit))
+                                    .AppendLine("StackTrace:")
+                                    .AppendLine(StackTraceSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, StackTraceSplit))
+                                    .AppendLine()
+                                    .AppendLine("------------------------------------");
 
-            await LogAsync(Message).ConfigureAwait(false);
+            await LogAsync(Builder.ToString()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -174,8 +190,8 @@ namespace RX_Explorer.Class
 
             try
             {
-                StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("RX_Error_Log.txt", CreationCollisionOption.OpenIfExists);
-                await FileIO.AppendTextAsync(TempFile, $"{Environment.NewLine}{Message}{Environment.NewLine}", Windows.Storage.Streams.UnicodeEncoding.Utf16LE);
+                StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync(UniqueName, CreationCollisionOption.ReplaceExisting);
+                await FileIO.AppendTextAsync(TempFile, $"{Message}{Environment.NewLine}", Windows.Storage.Streams.UnicodeEncoding.Utf16LE);
             }
             catch (Exception ex)
             {

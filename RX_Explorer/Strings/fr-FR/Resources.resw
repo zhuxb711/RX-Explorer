@@ -127,7 +127,7 @@
     <value>Fermer</value>
   </data>
   <data name="CrashText.Text" xml:space="preserve">
-    <value>RX s'est arrêté accidentellement...(￣▽￣)/</value>
+    <value>Crashed accidentellement...(╯‵□′)╯︵┻━┻</value>
   </data>
   <data name="CropperPageAlphaSlider.Header" xml:space="preserve">
     <value>Contraste</value>
@@ -1364,9 +1364,6 @@
   <data name="Common_Dialog_WarningTitle" xml:space="preserve">
     <value>Avertissement</value>
   </data>
-  <data name="Crash_Screenshot_Send_Text" xml:space="preserve">
-    <value>Capture d'écran avant le crash (S'il vous plaît envoyez la en pièce jointe par mail)</value>
-  </data>
   <data name="CropperPage_Custom_Text" xml:space="preserve">
     <value>Personnalisé</value>
   </data>
@@ -2495,5 +2492,8 @@ Les noms non valides incluent
   </data>
   <data name="QueueDialog_CanNotDecompressEncrypted_Content" xml:space="preserve">
     <value>Impossible de décompresser le fichier compressé chiffré</value>
+  </data>
+  <data name="ExportLog.Content" xml:space="preserve">
+    <value>Exporter le journal des erreurs</value>
   </data>
 </root>

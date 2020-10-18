@@ -1,4 +1,33 @@
 ﻿*****
+###What's new in Ver.5.5.2.0
+
+#####Feature update
+
+>#####Both compression and decompression will monopolize the required files and deny any access, avoiding the crash caused by file movement or change
+
+>#####The log can now be exported on the error page for error analysis
+
+#####UI update
+
+>#####Redo the crash page
+
+>#####Solved the translation problem in the update prompt
+
+#####Performance optimization
+
+>#####Speeds up the calculation of folder size and number of files
+
+#####Bug fix
+
+>#####Fixed the problem that the operation under the root directory of the drive letter is invalid and the file does not exist
+
+>#####Fixed the problem that the folder property page cannot stop counting the number of subfolders and subfiles in time after closing
+
+>#####Fixed the problem that illegal names may not be blocked correctly when renaming, which may cause a crash
+
+>#####Fixed the problem that may cause a crash at the next startup after deleting all custom pictures
+
+*****
 ###What's new in Ver.5.4.9.0
 
 #####Feature update

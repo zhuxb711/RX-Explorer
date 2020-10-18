@@ -805,36 +805,14 @@ namespace RX_Explorer
         {
             ToastNotificationManager.History.Remove("MergeVideoNotification");
 
-            ToastContent Content = new ToastContent()
-            {
-                Scenario = ToastScenario.Default,
-                Launch = "Transcode",
-                Visual = new ToastVisual()
-                {
-                    BindingGeneric = new ToastBindingGeneric()
-                    {
-                        Children =
-                            {
-                                new AdaptiveText()
-                                {
-                                    Text = Globalization.GetString("Eject_Toast_Text_1")
-                                },
+            ToastContentBuilder Builder = new ToastContentBuilder()
+                                          .SetToastScenario(ToastScenario.Default)
+                                          .AddToastActivationInfo("Transcode", ToastActivationType.Foreground)
+                                          .AddText(Globalization.GetString("Eject_Toast_Text_1"))
+                                          .AddText(Globalization.GetString("Eject_Toast_Text_2"))
+                                          .AddText(Globalization.GetString("Eject_Toast_Text_3"));
 
-                                new AdaptiveText()
-                                {
-                                   Text = Globalization.GetString("Eject_Toast_Text_2")
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = Globalization.GetString("Eject_Toast_Text_3")
-                                }
-                            }
-                    }
-                }
-            };
-
-            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Builder.GetToastContent().GetXml()));
         }
 
         private async void AddQuickStartWeb_Click(object sender, RoutedEventArgs e)

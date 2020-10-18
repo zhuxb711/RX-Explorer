@@ -127,7 +127,7 @@
     <value>結束</value>
   </data>
   <data name="CrashText.Text" xml:space="preserve">
-    <value>RX 檔案總管意外崩潰...(￣▽￣)/</value>
+    <value>檔案總管意外崩潰...(╯‵□′)╯︵┻━┻</value>
   </data>
   <data name="CropperPageAlphaSlider.Header" xml:space="preserve">
     <value>對比</value>
@@ -1376,9 +1376,6 @@
   <data name="Common_Dialog_WarningTitle" xml:space="preserve">
     <value>警告</value>
   </data>
-  <data name="Crash_Screenshot_Send_Text" xml:space="preserve">
-    <value>崩潰前的螢幕截圖（請透過電子郵件附件發送）</value>
-  </data>
   <data name="CropperPage_Custom_Text" xml:space="preserve">
     <value>自訂 </value>
   </data>
@@ -2495,5 +2492,8 @@
   </data>
   <data name="QueueDialog_CanNotDecompressEncrypted_Content" xml:space="preserve">
     <value>無法解壓縮加密的壓縮文件</value>
+  </data>
+  <data name="ExportLog.Content" xml:space="preserve">
+    <value>導出錯誤日誌</value>
   </data>
 </root>

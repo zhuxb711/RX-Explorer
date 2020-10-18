@@ -1005,38 +1005,18 @@ namespace RX_Explorer.Class
 
                             if (!ToastNotificationManager.History.GetHistory().Any((Toast) => Toast.Tag == "DelayLoadNotification"))
                             {
-                                ToastContent Content = new ToastContent()
-                                {
-                                    Scenario = ToastScenario.Default,
-                                    Launch = "Transcode",
-                                    Visual = new ToastVisual()
-                                    {
-                                        BindingGeneric = new ToastBindingGeneric()
-                                        {
-                                            Children =
-                                                {
-                                                    new AdaptiveText()
-                                                    {
-                                                        Text = Globalization.GetString("DelayLoadNotification_Title")
-                                                    },
+                                ToastContentBuilder Builder = new ToastContentBuilder()
+                                                              .SetToastScenario(ToastScenario.Default)
+                                                              .AddToastActivationInfo("Transcode", ToastActivationType.Foreground)
+                                                              .AddText(Globalization.GetString("DelayLoadNotification_Title"))
+                                                              .AddText(Globalization.GetString("DelayLoadNotification_Content_1"))
+                                                              .AddText(Globalization.GetString("DelayLoadNotification_Content_2"));
 
-                                                    new AdaptiveText()
-                                                    {
-                                                       Text = Globalization.GetString("DelayLoadNotification_Content_1")
-                                                    },
-
-                                                    new AdaptiveText()
-                                                    {
-                                                        Text = Globalization.GetString("DelayLoadNotification_Content_2")
-                                                    }
-                                                }
-                                        }
-                                    }
-                                };
-                                ToastNotification Notification = new ToastNotification(Content.GetXml())
+                                ToastNotification Notification = new ToastNotification(Builder.GetToastContent().GetXml())
                                 {
                                     Tag = "DelayLoadNotification"
                                 };
+
                                 ToastNotificationManager.CreateToastNotifier().Show(Notification);
                             }
 

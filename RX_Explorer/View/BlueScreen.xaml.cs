@@ -1,5 +1,9 @@
-﻿using System;
+﻿using RX_Explorer.Class;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -13,16 +17,6 @@ namespace RX_Explorer
         {
             InitializeComponent();
             Window.Current.SetTitleBar(TitleBar);
-
-#if !DEBUG
-            Loaded += BlueScreen_Loaded;
-#endif
-        }
-
-        private async void BlueScreen_Loaded(object sender, RoutedEventArgs e)
-        {
-            await Task.Delay(5000).ConfigureAwait(true);
-            await SendEmailAsync(Message.Text).ConfigureAwait(false);
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -33,14 +27,24 @@ namespace RX_Explorer
             }
         }
 
-        private async Task SendEmailAsync(string messageBody)
-        {
-            _ = await Launcher.LaunchUriAsync(new Uri("mailto:zrfcfgs@outlook.com?subject=BugReport&body=" + Uri.EscapeDataString(messageBody)));
-        }
-
         private async void Report_Click(object sender, RoutedEventArgs e)
         {
-            await SendEmailAsync(Message.Text).ConfigureAwait(false);
+            _ = await Launcher.LaunchUriAsync(new Uri("mailto:zrfcfgs@outlook.com?subject=BugReport&body=" + Uri.EscapeDataString(Message.Text)));
+        }
+
+        private async void ExportLog_Click(object sender, RoutedEventArgs e)
+        {
+            FileSavePicker Picker = new FileSavePicker
+            {
+                SuggestedFileName = "Export_Error_Log.txt",
+                SuggestedStartLocation = PickerLocationId.Desktop
+            };
+            Picker.FileTypeChoices.Add(Globalization.GetString("File_Type_TXT_Description"), new List<string> { ".txt" });
+
+            if (await Picker.PickSaveFileAsync() is StorageFile PickedFile)
+            {
+                await LogTracer.ExportLog(PickedFile).ConfigureAwait(false);
+            }
         }
     }
 }

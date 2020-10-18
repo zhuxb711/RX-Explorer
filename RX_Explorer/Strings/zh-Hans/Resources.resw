@@ -127,7 +127,7 @@
     <value>退出</value>
   </data>
   <data name="CrashText.Text" xml:space="preserve">
-    <value>RX 不小心崩溃了...(￣▽￣)/</value>
+    <value>不小心崩溃了...(╯‵□′)╯︵┻━┻</value>
   </data>
   <data name="CropperPageAlphaSlider.Header" xml:space="preserve">
     <value>对比度</value>
@@ -1364,9 +1364,6 @@
   <data name="Common_Dialog_WarningTitle" xml:space="preserve">
     <value>警告</value>
   </data>
-  <data name="Crash_Screenshot_Send_Text" xml:space="preserve">
-    <value>崩溃前屏幕截图(请作为邮件附件发送)</value>
-  </data>
   <data name="CropperPage_Custom_Text" xml:space="preserve">
     <value>自定义</value>
   </data>
@@ -2495,5 +2492,8 @@
   </data>
   <data name="QueueDialog_CanNotDecompressEncrypted_Content" xml:space="preserve">
     <value>无法解压已加密的压缩包</value>
+  </data>
+  <data name="ExportLog.Content" xml:space="preserve">
+    <value>导出错误日志</value>
   </data>
 </root>

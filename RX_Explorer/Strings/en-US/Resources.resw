@@ -232,7 +232,7 @@
     <value>Exit</value>
   </data>
   <data name="CrashText.Text" xml:space="preserve">
-    <value>RX Crashed Accidentally...(￣▽￣)/</value>
+    <value>Crashed accidentally...(╯‵□′)╯︵┻━┻</value>
   </data>
   <data name="CropperPageAlphaSlider.Header" xml:space="preserve">
     <value>Contrast</value>
@@ -1481,9 +1481,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="Common_Dialog_WarningTitle" xml:space="preserve">
     <value>Warning</value>
   </data>
-  <data name="Crash_Screenshot_Send_Text" xml:space="preserve">
-    <value>Screenshot before the crash (Please send as an email attachment)</value>
-  </data>
   <data name="CropperPage_Custom_Text" xml:space="preserve">
     <value>Custom</value>
   </data>
@@ -2600,5 +2597,8 @@ Invalid names include
   </data>
   <data name="QueueDialog_CanNotDecompressEncrypted_Content" xml:space="preserve">
     <value>Unable to decompress encrypted compressed file</value>
+  </data>
+  <data name="ExportLog.Content" xml:space="preserve">
+    <value>Export error log</value>
   </data>
 </root>

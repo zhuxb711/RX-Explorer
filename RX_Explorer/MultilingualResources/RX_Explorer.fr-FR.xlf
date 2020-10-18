@@ -159,8 +159,8 @@
           <target state="translated">Fermer</target>
         </trans-unit>
         <trans-unit id="CrashText.Text" translate="yes" xml:space="preserve">
-          <source>RX Crashed Accidentally...(￣▽￣)/</source>
-          <target state="translated">RX s'est arrêté accidentellement...(￣▽￣)/</target>
+          <source>Crashed accidentally...(╯‵□′)╯︵┻━┻</source>
+          <target state="translated">Crashed accidentellement...(╯‵□′)╯︵┻━┻</target>
         </trans-unit>
         <trans-unit id="CropperPageAlphaSlider.Header" translate="yes" xml:space="preserve">
           <source>Contrast</source>
@@ -1806,10 +1806,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Warning</source>
           <target state="translated">Avertissement</target>
         </trans-unit>
-        <trans-unit id="Crash_Screenshot_Send_Text" translate="yes" xml:space="preserve">
-          <source>Screenshot before the crash (Please send as an email attachment)</source>
-          <target state="translated">Capture d'écran avant le crash (S'il vous plaît envoyez la en pièce jointe par mail)</target>
-        </trans-unit>
         <trans-unit id="CropperPage_Custom_Text" translate="yes" xml:space="preserve">
           <source>Custom</source>
           <target state="translated">Personnalisé</target>
@@ -3307,6 +3303,10 @@ Les noms non valides incluent
         <trans-unit id="QueueDialog_CanNotDecompressEncrypted_Content" translate="yes" xml:space="preserve">
           <source>Unable to decompress encrypted compressed file</source>
           <target state="translated">Impossible de décompresser le fichier compressé chiffré</target>
+        </trans-unit>
+        <trans-unit id="ExportLog.Content" translate="yes" xml:space="preserve">
+          <source>Export error log</source>
+          <target state="translated">Exporter le journal des erreurs</target>
         </trans-unit>
       </group>
     </body>

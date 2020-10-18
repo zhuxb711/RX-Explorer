@@ -1,6 +1,7 @@
 ﻿using RX_Explorer.Class;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -196,25 +197,37 @@ namespace RX_Explorer.Dialog
 
                     OnPropertyChanged();
 
-                    await Task.Run(() =>
+                    try
                     {
-                        try
-                        {
-                            Cancellation = new CancellationTokenSource();
+                        Cancellation = new CancellationTokenSource();
 
-                            CalculateFolderAndFileCount(folder, Cancellation.Token);
-                            CalculateFolderSize(folder, Cancellation.Token);
-                        }
-                        catch
+                        Task CountTask = CalculateFolderAndFileCount(folder, Cancellation.Token).ContinueWith((task) =>
                         {
+                            Include = task.Result;
+                            PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Include)));
+                        }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
 
-                        }
-                        finally
+                        Task SizeTask = CalculateFolderSize(folder, Cancellation.Token).ContinueWith((task) =>
                         {
-                            Cancellation.Dispose();
-                            Cancellation = null;
-                        }
-                    }).ConfigureAwait(true);
+                            FileSize = task.Result;
+                            PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(FileSize)));
+                        }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
+
+                        await Task.WhenAll(CountTask, SizeTask).ConfigureAwait(true);
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        Debug.WriteLine($"{nameof(CalculateFolderAndFileCount)} and {nameof(CalculateFolderSize)} have been canceled");
+                    }
+                    catch (Exception ex)
+                    {
+                        await LogTracer.LogAsync(ex, $"{nameof(CalculateFolderAndFileCount)} and {nameof(CalculateFolderSize)} threw an exception").ConfigureAwait(true);
+                    }
+                    finally
+                    {
+                        Cancellation.Dispose();
+                        Cancellation = null;
+                    }
                 }
             }
 
@@ -242,18 +255,32 @@ namespace RX_Explorer.Dialog
             return string.Format("{0:D2}:{1:D2}:{2:D2}", Hour, Minute, Second);
         }
 
-        private void CalculateFolderSize(StorageFolder Folder, CancellationToken? CancelToken = null)
+        private async Task<string> CalculateFolderSize(StorageFolder Folder, CancellationToken CancelToken = default)
         {
-            ulong TotalSize = WIN_Native_API.CalculateSize(Folder.Path, CancelToken);
+            ulong TotalSize = await Task.Run(() => WIN_Native_API.CalculateSize(Folder.Path, CancelToken), CancelToken).ConfigureAwait(false);
 
-            FileSize = TotalSize.ToFileSizeDescription() + " (" + TotalSize.ToString("N0") + $" {Globalization.GetString("Device_Capacity_Unit")})";
+            if (CancelToken.IsCancellationRequested)
+            {
+                throw new TaskCanceledException($"{nameof(CalculateFolderSize)} was canceled");
+            }
+            else
+            {
+                return $"{TotalSize.ToFileSizeDescription()} ({TotalSize:N0} {Globalization.GetString("Device_Capacity_Unit")})";
+            }
         }
 
-        private void CalculateFolderAndFileCount(StorageFolder Folder, CancellationToken? CancelToken = null)
+        private async Task<string> CalculateFolderAndFileCount(StorageFolder Folder, CancellationToken CancelToken = default)
         {
-            (uint FolderCount, uint FileCount) = WIN_Native_API.CalculateFolderAndFileCount(Folder.Path, CancelToken);
+            (uint FolderCount, uint FileCount) = await Task.Run(() => WIN_Native_API.CalculateFolderAndFileCount(Folder.Path, CancelToken), CancelToken).ConfigureAwait(false);
 
-            Include = $"{FileCount} {Globalization.GetString("FolderInfo_File_Count")} , {FolderCount} {Globalization.GetString("FolderInfo_Folder_Count")}";
+            if (Cancellation.IsCancellationRequested)
+            {
+                throw new TaskCanceledException($"{nameof(CalculateFolderAndFileCount)} was canceled");
+            }
+            else
+            {
+                return $"{FileCount} {Globalization.GetString("FolderInfo_File_Count")} , {FolderCount} {Globalization.GetString("FolderInfo_Folder_Count")}";
+            }
         }
 
         public void OnPropertyChanged()
