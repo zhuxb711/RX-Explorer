@@ -78,6 +78,7 @@ jobs:
         configuration: '$(buildConfiguration)'
         maximumCpuCount: true
         msbuildArchitecture: 'x64'
+        clean: true
 
     - task: ArchiveFiles@2
       inputs:
