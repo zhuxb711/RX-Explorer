@@ -562,10 +562,6 @@
           <source>Launch Faster</source>
           <target state="translated">启动更快速</target>
         </trans-unit>
-        <trans-unit id="PinToLibrary.Label" translate="yes" xml:space="preserve">
-          <source>Pin to homepage</source>
-          <target state="translated">固定至主界面</target>
-        </trans-unit>
         <trans-unit id="ProgramPickerDialog.CloseButtonText" translate="yes" xml:space="preserve">
           <source>Cancel</source>
           <target state="translated">取消</target>
@@ -2013,10 +2009,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
         <trans-unit id="Operate_Text_Paste" translate="yes" xml:space="preserve">
           <source>Paste</source>
           <target state="translated">粘贴</target>
-        </trans-unit>
-        <trans-unit id="Operate_Text_PinToHome" translate="yes" xml:space="preserve">
-          <source>Pin to homepage</source>
-          <target state="translated">固定至主界面</target>
         </trans-unit>
         <trans-unit id="Operate_Text_Property" translate="yes" xml:space="preserve">
           <source>Property</source>

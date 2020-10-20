@@ -2536,44 +2536,6 @@ namespace RX_Explorer
             ((TextBox)sender).SelectAll();
         }
 
-        private async void AddToLibray_Click(object sender, RoutedEventArgs e)
-        {
-            Restore();
-
-            if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFolder folder)
-            {
-                if (!WIN_Native_API.CheckExist(folder.Path))
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-
-                    await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
-                    return;
-                }
-
-                if (CommonAccessCollection.LibraryFolderList.Any((Folder) => Folder.Folder.Path == folder.Path))
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                        Content = Globalization.GetString("QueueDialog_RepeatAddToHomePage_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(folder, await folder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibraryType.UserCustom));
-                    await SQLite.Current.SetLibraryPathAsync(folder.Path, LibraryType.UserCustom).ConfigureAwait(false);
-                }
-            }
-        }
-
         private async void CreateFolder_Click(object sender, RoutedEventArgs e)
         {
             Restore();
@@ -6029,6 +5991,8 @@ namespace RX_Explorer
                                 Flyout = ShareFlyout
                             });
 
+                            BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
+
                             AppBarButton CompressionButton = new AppBarButton
                             {
                                 Icon = new SymbolIcon(Symbol.Bookmarks),
@@ -6082,13 +6046,7 @@ namespace RX_Explorer
                             CompressionButton.Click += CompressFolder_Click;
                             BottomCommandBar.SecondaryCommands.Add(CompressionButton);
 
-                            AppBarButton PinButton = new AppBarButton
-                            {
-                                Icon = new SymbolIcon(Symbol.Add),
-                                Label = Globalization.GetString("Operate_Text_PinToHome")
-                            };
-                            PinButton.Click += AddToLibray_Click;
-                            BottomCommandBar.SecondaryCommands.Add(PinButton);
+                            BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
 
                             AppBarButton PropertyButton = new AppBarButton
                             {
@@ -6324,14 +6282,6 @@ namespace RX_Explorer
 
                     BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
 
-                    AppBarButton PropertyButton = new AppBarButton
-                    {
-                        Icon = new SymbolIcon(Symbol.Tag),
-                        Label = Globalization.GetString("Operate_Text_Property")
-                    };
-                    PropertyButton.Click += ParentProperty_Click;
-                    BottomCommandBar.SecondaryCommands.Add(PropertyButton);
-
                     AppBarButton WinExButton = new AppBarButton
                     {
                         Icon = new FontIcon { Glyph = "\uEC50" },
@@ -6347,6 +6297,16 @@ namespace RX_Explorer
                     };
                     TerminalButton.Click += OpenInTerminal_Click;
                     BottomCommandBar.SecondaryCommands.Add(TerminalButton);
+
+                    BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
+
+                    AppBarButton PropertyButton = new AppBarButton
+                    {
+                        Icon = new SymbolIcon(Symbol.Tag),
+                        Label = Globalization.GetString("Operate_Text_Property")
+                    };
+                    PropertyButton.Click += ParentProperty_Click;
+                    BottomCommandBar.SecondaryCommands.Add(PropertyButton);
                 }
             }
         }

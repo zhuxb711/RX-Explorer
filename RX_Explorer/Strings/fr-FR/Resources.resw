@@ -429,9 +429,6 @@
   <data name="PinTip.Title" xml:space="preserve">
     <value>Lancement rapide</value>
   </data>
-  <data name="PinToLibrary.Label" xml:space="preserve">
-    <value>Epingler à la page d'accueil</value>
-  </data>
   <data name="ProgramPickerDialog.CloseButtonText" xml:space="preserve">
     <value>Annuler</value>
   </data>
@@ -1522,9 +1519,6 @@
   </data>
   <data name="Operate_Text_Paste" xml:space="preserve">
     <value>Coller</value>
-  </data>
-  <data name="Operate_Text_PinToHome" xml:space="preserve">
-    <value>Epingler à la page d'accueil</value>
   </data>
   <data name="Operate_Text_Property" xml:space="preserve">
     <value>Propriété</value>

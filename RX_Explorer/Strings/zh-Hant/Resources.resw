@@ -438,9 +438,6 @@
   <data name="PinTip.Title" xml:space="preserve">
     <value>快速啟動</value>
   </data>
-  <data name="PinToLibrary.Label" xml:space="preserve">
-    <value>固定在主頁</value>
-  </data>
   <data name="ProgramPickerDialog.CloseButtonText" xml:space="preserve">
     <value>取消</value>
   </data>
@@ -1534,9 +1531,6 @@
   </data>
   <data name="Operate_Text_Paste" xml:space="preserve">
     <value>貼上</value>
-  </data>
-  <data name="Operate_Text_PinToHome" xml:space="preserve">
-    <value>固定在主頁</value>
   </data>
   <data name="Operate_Text_Property" xml:space="preserve">
     <value>內容</value>

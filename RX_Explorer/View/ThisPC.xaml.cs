@@ -417,7 +417,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    LibraryGrid.ContextFlyout = null;
+                    LibraryGrid.ContextFlyout = LibraryEmptyFlyout;
                 }
             }
         }
@@ -854,6 +854,35 @@ namespace RX_Explorer
             foreach (LibraryFolder Item in CommonAccessCollection.LibraryFolderList)
             {
                 await SQLite.Current.SetLibraryPathAsync(Item.Folder.Path, Item.Type).ConfigureAwait(true);
+            }
+        }
+
+        private async void AddLibraryButton_Click(object sender, RoutedEventArgs e)
+        {
+            FolderPicker Picker = new FolderPicker
+            {
+                ViewMode = PickerViewMode.List,
+                SuggestedStartLocation = PickerLocationId.ComputerFolder
+            };
+            Picker.FileTypeFilter.Add("*");
+
+            if (await Picker.PickSingleFolderAsync() is StorageFolder folder)
+            {
+                if (CommonAccessCollection.LibraryFolderList.Any((Folder) => Folder.Folder.Path == folder.Path))
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                        Content = Globalization.GetString("QueueDialog_RepeatAddToHomePage_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                }
+                else
+                {
+                    CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(folder, await folder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibraryType.UserCustom));
+                    await SQLite.Current.SetLibraryPathAsync(folder.Path, LibraryType.UserCustom).ConfigureAwait(false);
+                }
             }
         }
     }

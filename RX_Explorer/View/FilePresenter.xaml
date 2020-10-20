@@ -372,11 +372,6 @@
                               x:Uid="Zip"
                               Name="CompressFolder"
                               Click="CompressFolder_Click" />
-                <AppBarButton Icon="Add"
-                              Label="固定至主界面"
-                              x:Uid="PinToLibrary"
-                              x:Name="AddToLibray"
-                              Click="AddToLibray_Click" />
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Label="属性"

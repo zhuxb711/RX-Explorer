@@ -27,6 +27,7 @@
                               Click="AppDelete_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
+        
         <muxc:CommandBarFlyout x:Name="WebFlyout"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
@@ -42,6 +43,7 @@
                               Click="WebDelete_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
+        
         <muxc:CommandBarFlyout x:Name="AppEmptyFlyout"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
@@ -52,6 +54,7 @@
                               Click="AddQuickStartApp_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
+        
         <muxc:CommandBarFlyout x:Name="WebEmptyFlyout"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
@@ -62,6 +65,18 @@
                               Click="AddQuickStartWeb_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
+
+        <muxc:CommandBarFlyout x:Name="LibraryEmptyFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="Add"
+                              Label="添加"
+                              x:Uid="QuickStartAddButton"
+                              x:Name="AddLibraryButton"
+                              Click="AddLibraryButton_Click" />
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
+
         <muxc:CommandBarFlyout x:Name="LibraryFlyout"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
@@ -70,7 +85,6 @@
                               x:Uid="LibraryOpenButton"
                               Click="OpenLibrary_Click"
                               x:Name="OpenLibrary" />
-                <AppBarSeparator />
                 <AppBarButton Icon="Cancel"
                               Name="RemovePin"
                               x:Uid="LibraryCancelButton"

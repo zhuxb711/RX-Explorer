@@ -1364,46 +1364,95 @@ namespace RX_Explorer
 
             if (WIN_Native_API.CheckExist(ProtentialPath1))
             {
+                if (!SettingControl.IsDetachTreeViewAndPresenter && !SettingControl.IsDisplayHiddenItem)
+                {
+                    PathAnalysis Analysis = new PathAnalysis(ProtentialPath2, string.Empty);
+                    while (Analysis.HasNextLevel)
+                    {
+                        if (WIN_Native_API.CheckIfHidden(Analysis.NextFullPath()))
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_NeedOpenHiddenSwitch_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                            return;
+                        }
+                    }
+                }
+
                 if (WIN_Native_API.GetStorageItems(ProtentialPath1).FirstOrDefault() is FileSystemStorageItemBase Item)
                 {
                     await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
                 }
+
                 return;
             }
             else if (WIN_Native_API.CheckExist(ProtentialPath2))
             {
+                if (!SettingControl.IsDetachTreeViewAndPresenter && !SettingControl.IsDisplayHiddenItem)
+                {
+                    PathAnalysis Analysis = new PathAnalysis(ProtentialPath2, string.Empty);
+                    while (Analysis.HasNextLevel)
+                    {
+                        if (WIN_Native_API.CheckIfHidden(Analysis.NextFullPath()))
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_NeedOpenHiddenSwitch_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                            return;
+                        }
+                    }
+                }
+
                 if (WIN_Native_API.GetStorageItems(ProtentialPath2).FirstOrDefault() is FileSystemStorageItemBase Item)
                 {
                     await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
                 }
+
                 return;
             }
             else if (WIN_Native_API.CheckExist(ProtentialPath3))
             {
+                if (!SettingControl.IsDetachTreeViewAndPresenter && !SettingControl.IsDisplayHiddenItem)
+                {
+                    PathAnalysis Analysis = new PathAnalysis(ProtentialPath3, string.Empty);
+                    while (Analysis.HasNextLevel)
+                    {
+                        if (WIN_Native_API.CheckIfHidden(Analysis.NextFullPath()))
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_NeedOpenHiddenSwitch_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                            return;
+                        }
+                    }
+                }
+
                 if (WIN_Native_API.GetStorageItems(ProtentialPath3).FirstOrDefault() is FileSystemStorageItemBase Item)
                 {
                     await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
                 }
+
                 return;
             }
 
             try
             {
                 QueryText = await CommonEnvironmentVariables.ReplaceVariableAndGetActualPath(QueryText).ConfigureAwait(true);
-
-                if (WIN_Native_API.CheckIfHidden(QueryText))
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_ItemHidden_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
-
-                    return;
-                }
 
                 if (!SettingControl.IsDetachTreeViewAndPresenter && !SettingControl.IsDisplayHiddenItem)
                 {

@@ -543,9 +543,6 @@
   <data name="PinTip.Title" xml:space="preserve">
     <value>Launch Faster</value>
   </data>
-  <data name="PinToLibrary.Label" xml:space="preserve">
-    <value>Pin to homepage</value>
-  </data>
   <data name="ProgramPickerDialog.CloseButtonText" xml:space="preserve">
     <value>Cancel</value>
   </data>
@@ -1639,9 +1636,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="Operate_Text_Paste" xml:space="preserve">
     <value>Paste</value>
-  </data>
-  <data name="Operate_Text_PinToHome" xml:space="preserve">
-    <value>Pin to homepage</value>
   </data>
   <data name="Operate_Text_Property" xml:space="preserve">
     <value>Property</value>
