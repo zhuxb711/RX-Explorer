@@ -3300,6 +3300,18 @@ Invalid names include
           <source>Export error log</source>
           <target state="translated">导出错误日志</target>
         </trans-unit>
+        <trans-unit id="Common_Dialog_SwitchButton" translate="yes" xml:space="preserve">
+          <source>Switch</source>
+          <target state="translated">切换</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_AutoDetectBlackColor_Content" translate="yes" xml:space="preserve">
+          <source>It is detected that you have switched the dark background. To ensure the clarity of the text, whether to change the font color to white?</source>
+          <target state="translated">检测到您切换了深色的背景，为保证文字的清晰度，是否将字体颜色更改为白色?</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_AutoDetectWhiteColor_Content" translate="yes" xml:space="preserve">
+          <source>It is detected that you have switched the light background, to ensure the clarity of the text, whether to change the font color to black?</source>
+          <target state="translated">检测到您切换了浅色的背景，为保证文字的清晰度，是否将字体颜色更改为黑色?</target>
+        </trans-unit>
       </group>
     </body>
   </file>

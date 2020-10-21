@@ -517,7 +517,7 @@ namespace RX_Explorer.Class
                     {
                         FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
 
-                        if (!Attribute.HasFlag(FileAttributes.ReparsePoint) && (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden)))
+                        if (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden))
                         {
                             if (Attribute.HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
                             {
@@ -608,46 +608,43 @@ namespace RX_Explorer.Class
                         {
                             FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
 
-                            if (!Attribute.HasFlag(FileAttributes.ReparsePoint))
+                            if (Attribute.HasFlag(FileAttributes.Directory))
                             {
-                                if (Attribute.HasFlag(FileAttributes.Directory))
-                                {
-                                    if (Data.cFileName != "." && Data.cFileName != "..")
-                                    {
-                                        FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
-                                        DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
-
-                                        if (Attribute.HasFlag(FileAttributes.Hidden))
-                                        {
-                                            Result.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, Path, ModifiedTime));
-                                        }
-                                        else
-                                        {
-                                            Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, Path, ModifiedTime));
-                                        }
-                                    }
-                                }
-                                else
+                                if (Data.cFileName != "." && Data.cFileName != "..")
                                 {
                                     FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
                                     DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
 
                                     if (Attribute.HasFlag(FileAttributes.Hidden))
                                     {
-                                        Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, Path, ModifiedTime));
+                                        Result.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, Path, ModifiedTime));
                                     }
                                     else
                                     {
-                                        if (!Data.cFileName.EndsWith(".url"))
+                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, Path, ModifiedTime));
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
+                                DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
+
+                                if (Attribute.HasFlag(FileAttributes.Hidden))
+                                {
+                                    Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, Path, ModifiedTime));
+                                }
+                                else
+                                {
+                                    if (!Data.cFileName.EndsWith(".url"))
+                                    {
+                                        if (Data.cFileName.EndsWith(".lnk"))
                                         {
-                                            if (Data.cFileName.EndsWith(".lnk"))
-                                            {
-                                                Result.Add(new HyperlinkStorageItem(Data, Path, ModifiedTime));
-                                            }
-                                            else
-                                            {
-                                                Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, Path, ModifiedTime));
-                                            }
+                                            Result.Add(new HyperlinkStorageItem(Data, Path, ModifiedTime));
+                                        }
+                                        else
+                                        {
+                                            Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, Path, ModifiedTime));
                                         }
                                     }
                                 }
@@ -691,7 +688,7 @@ namespace RX_Explorer.Class
                     {
                         FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
 
-                        if (!Attribute.HasFlag(FileAttributes.ReparsePoint) && (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden)))
+                        if (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden))
                         {
                             if (Attribute.HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
                             {
@@ -775,7 +772,7 @@ namespace RX_Explorer.Class
                     {
                         FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
 
-                        if (!Attribute.HasFlag(FileAttributes.ReparsePoint) && (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden)))
+                        if (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden))
                         {
                             if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
                             {

@@ -6,7 +6,6 @@ using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -23,7 +22,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Animation;
-using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using RefreshContainer = Microsoft.UI.Xaml.Controls.RefreshContainer;
 using TreeView = Microsoft.UI.Xaml.Controls.TreeView;
@@ -170,36 +168,27 @@ namespace RX_Explorer
         private bool IsBackOrForwardAction;
         private TabViewItem TabItem;
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public FileControl()
         {
             InitializeComponent();
 
-            try
+            Presenter.Container = this;
+
+            ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Tiles"));
+            ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Details"));
+            ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_List"));
+            ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Large_Icon"));
+            ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Medium_Icon"));
+            ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Small_Icon"));
+
+            if (ApplicationData.Current.LocalSettings.Values["FilePresenterDisplayMode"] is int Index)
             {
-                Presenter.Container = this;
-
-                ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Tiles"));
-                ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Details"));
-                ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_List"));
-                ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Large_Icon"));
-                ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Medium_Icon"));
-                ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Small_Icon"));
-
-                if (ApplicationData.Current.LocalSettings.Values["FilePresenterDisplayMode"] is int Index)
-                {
-                    ItemDisplayMode.SelectedIndex = Index;
-                }
-                else
-                {
-                    ApplicationData.Current.LocalSettings.Values["FilePresenterDisplayMode"] = 1;
-                    ItemDisplayMode.SelectedIndex = 1;
-                }
+                ItemDisplayMode.SelectedIndex = Index;
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.RequestBlueScreen(ex);
+                ApplicationData.Current.LocalSettings.Values["FilePresenterDisplayMode"] = 1;
+                ItemDisplayMode.SelectedIndex = 1;
             }
         }
 
@@ -533,7 +522,7 @@ namespace RX_Explorer
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.RequestBlueScreen(ex);
+                    await LogTracer.LogAsync(ex, $"An error was threw in {nameof(FillTreeNode)}").ConfigureAwait(true);
                 }
                 finally
                 {
@@ -915,13 +904,11 @@ namespace RX_Explorer
                         {
                             FolderDelete.IsEnabled = false;
                             FolderRename.IsEnabled = false;
-                            FolderAdd.IsEnabled = false;
                         }
                         else
                         {
                             FolderDelete.IsEnabled = true;
                             FolderRename.IsEnabled = true;
-                            FolderAdd.IsEnabled = true;
                         }
                     }
                 }
@@ -1078,39 +1065,6 @@ namespace RX_Explorer
             }
         }
 
-        private async void FolderAdd_Click(object sender, RoutedEventArgs e)
-        {
-            if (!WIN_Native_API.CheckExist(CurrentFolder.Path))
-            {
-                QueueContentDialog dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
-
-                return;
-            }
-
-            if (CommonAccessCollection.LibraryFolderList.Any((Folder) => Folder.Folder.Path == CurrentFolder.Path))
-            {
-                QueueContentDialog dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                    Content = Globalization.GetString("QueueDialog_RepeatAddToHomePage_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
-            }
-            else
-            {
-                BitmapImage Thumbnail = await CurrentFolder.GetThumbnailBitmapAsync().ConfigureAwait(true);
-                CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(CurrentFolder, Thumbnail, LibraryType.UserCustom));
-                await SQLite.Current.SetLibraryPathAsync(CurrentFolder.Path, LibraryType.UserCustom).ConfigureAwait(false);
-            }
-        }
-
         private async void GlobeSearch_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
             if (string.IsNullOrWhiteSpace(args.QueryText))
@@ -1134,7 +1088,7 @@ namespace RX_Explorer
             }
         }
 
-        private void SearchConfirm_Click(object sender, RoutedEventArgs e)
+        private async void SearchConfirm_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -1176,7 +1130,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                LogTracer.RequestBlueScreen(ex);
+                await LogTracer.LogAsync(ex, "An error was threw when navigating to search page").ConfigureAwait(true);
             }
         }
 
@@ -1362,7 +1316,7 @@ namespace RX_Explorer
             string ProtentialPath2 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), QueryText);
             string ProtentialPath3 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), QueryText);
 
-            if (WIN_Native_API.CheckExist(ProtentialPath1))
+            if (ProtentialPath1 != QueryText && WIN_Native_API.CheckExist(ProtentialPath1))
             {
                 if (!SettingControl.IsDetachTreeViewAndPresenter && !SettingControl.IsDisplayHiddenItem)
                 {
@@ -1387,11 +1341,16 @@ namespace RX_Explorer
                 if (WIN_Native_API.GetStorageItems(ProtentialPath1).FirstOrDefault() is FileSystemStorageItemBase Item)
                 {
                     await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
+
+                    if (Item.StorageType == StorageItemTypes.Folder)
+                    {
+                        await SQLite.Current.SetPathHistoryAsync(Item.Path).ConfigureAwait(true);
+                    }
                 }
 
                 return;
             }
-            else if (WIN_Native_API.CheckExist(ProtentialPath2))
+            else if (ProtentialPath2 != QueryText && WIN_Native_API.CheckExist(ProtentialPath2))
             {
                 if (!SettingControl.IsDetachTreeViewAndPresenter && !SettingControl.IsDisplayHiddenItem)
                 {
@@ -1416,11 +1375,16 @@ namespace RX_Explorer
                 if (WIN_Native_API.GetStorageItems(ProtentialPath2).FirstOrDefault() is FileSystemStorageItemBase Item)
                 {
                     await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
+
+                    if (Item.StorageType == StorageItemTypes.Folder)
+                    {
+                        await SQLite.Current.SetPathHistoryAsync(Item.Path).ConfigureAwait(true);
+                    }
                 }
 
                 return;
             }
-            else if (WIN_Native_API.CheckExist(ProtentialPath3))
+            else if (ProtentialPath3 != QueryText && WIN_Native_API.CheckExist(ProtentialPath3))
             {
                 if (!SettingControl.IsDetachTreeViewAndPresenter && !SettingControl.IsDisplayHiddenItem)
                 {
@@ -1445,6 +1409,11 @@ namespace RX_Explorer
                 if (WIN_Native_API.GetStorageItems(ProtentialPath3).FirstOrDefault() is FileSystemStorageItemBase Item)
                 {
                     await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
+
+                    if (Item.StorageType == StorageItemTypes.Folder)
+                    {
+                        await SQLite.Current.SetPathHistoryAsync(Item.Path).ConfigureAwait(true);
+                    }
                 }
 
                 return;
@@ -2569,13 +2538,11 @@ namespace RX_Explorer
                     {
                         FolderDelete.IsEnabled = false;
                         FolderRename.IsEnabled = false;
-                        FolderAdd.IsEnabled = false;
                     }
                     else
                     {
                         FolderDelete.IsEnabled = true;
                         FolderRename.IsEnabled = true;
-                        FolderAdd.IsEnabled = true;
                     }
                 }
                 else

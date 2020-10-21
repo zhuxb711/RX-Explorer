@@ -111,7 +111,8 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                LogTracer.RequestBlueScreen(ex);
+                CouldnotLoadTip.Visibility = Visibility.Visible;
+                await LogTracer.LogAsync(ex, "An error was threw when initialize PhotoViewer").ConfigureAwait(true);
             }
             finally
             {
@@ -453,7 +454,7 @@ namespace RX_Explorer
             }
         }
 
-        private void Adjust_Click(object sender, RoutedEventArgs e)
+        private async void Adjust_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -468,7 +469,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                LogTracer.RequestBlueScreen(ex);
+                await LogTracer.LogAsync(ex, "An error was threw when navigating to CropperPage").ConfigureAwait(false);
             }
         }
 

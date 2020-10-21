@@ -2490,4 +2490,13 @@ Les noms non valides incluent
   <data name="ExportLog.Content" xml:space="preserve">
     <value>Exporter le journal des erreurs</value>
   </data>
+  <data name="Common_Dialog_SwitchButton" xml:space="preserve">
+    <value>Changer</value>
+  </data>
+  <data name="QueueDialog_AutoDetectBlackColor_Content" xml:space="preserve">
+    <value>Il est détecté que vous avez changé le fond sombre. Pour assurer la clarté du texte, faut-il changer la couleur de la police en blanc?</value>
+  </data>
+  <data name="QueueDialog_AutoDetectWhiteColor_Content" xml:space="preserve">
+    <value>Il est détecté que vous avez changé le fond clair, pour assurer la clarté du texte, que ce soit pour changer la couleur de la police en noir?</value>
+  </data>
 </root>

@@ -2490,4 +2490,13 @@
   <data name="ExportLog.Content" xml:space="preserve">
     <value>導出錯誤日誌</value>
   </data>
+  <data name="Common_Dialog_SwitchButton" xml:space="preserve">
+    <value>交換</value>
+  </data>
+  <data name="QueueDialog_AutoDetectBlackColor_Content" xml:space="preserve">
+    <value>檢測到您切換了深色背景，為了確保文本的清晰度，是否將字體顏色更改為白色？</value>
+  </data>
+  <data name="QueueDialog_AutoDetectWhiteColor_Content" xml:space="preserve">
+    <value>檢測到您切換了淺色背景，為了確保文本的清晰度，是否將字體顏色更改為黑色？</value>
+  </data>
 </root>

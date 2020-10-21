@@ -557,8 +557,9 @@ namespace RX_Explorer
                     {
                         IReadOnlyList<User> UserList = await User.FindAllAsync();
 
-                        UserDataPaths DataPath = UserList.Count > 1 ? UserDataPaths.GetForUser(UserList[0]) : UserDataPaths.GetDefault();
-
+                        UserDataPaths DataPath = UserList.FirstOrDefault((User) => User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && User.Type == UserType.LocalUser) is User CurrentUser
+                                                 ? UserDataPaths.GetForUser(CurrentUser)
+                                                 : UserDataPaths.GetDefault();
                         try
                         {
                             if (!string.IsNullOrEmpty(DataPath.Downloads))
@@ -591,18 +592,20 @@ namespace RX_Explorer
                                 await SQLite.Current.SetLibraryPathAsync(DataPath.Music, LibraryType.Music).ConfigureAwait(true);
                             }
 
-                            if (!string.IsNullOrEmpty(DataPath.Profile))
+                            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("OneDrive")))
                             {
-                                await SQLite.Current.SetLibraryPathAsync(Path.Combine(DataPath.Profile, "OneDrive"), LibraryType.OneDrive).ConfigureAwait(true);
+                                await SQLite.Current.SetLibraryPathAsync(Environment.GetEnvironmentVariable("OneDrive"), LibraryType.OneDrive).ConfigureAwait(true);
                             }
                         }
-                        catch
+                        catch (Exception ex)
                         {
-
+                            await LogTracer.LogAsync(ex, "An error was threw when getting library folder (In initialize)").ConfigureAwait(true);
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        await LogTracer.LogAsync(ex, "An error was threw when try to get 'UserDataPath' (In initialize)").ConfigureAwait(true);
+
                         string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
                         if (!string.IsNullOrEmpty(DesktopPath))
                         {
@@ -633,10 +636,10 @@ namespace RX_Explorer
                             await SQLite.Current.SetLibraryPathAsync(MusicPath, LibraryType.Music).ConfigureAwait(true);
                         }
 
-                        string ProfilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-                        if (!string.IsNullOrEmpty(ProfilePath))
+                        string OneDrivePath = Environment.GetEnvironmentVariable("OneDrive");
+                        if (!string.IsNullOrEmpty(OneDrivePath))
                         {
-                            await SQLite.Current.SetLibraryPathAsync(Path.Combine(ProfilePath, "OneDrive"), LibraryType.OneDrive).ConfigureAwait(true);
+                            await SQLite.Current.SetLibraryPathAsync(OneDrivePath, LibraryType.OneDrive).ConfigureAwait(true);
                         }
                     }
                     finally
@@ -650,8 +653,9 @@ namespace RX_Explorer
                     {
                         IReadOnlyList<User> UserList = await User.FindAllAsync();
 
-                        UserDataPaths DataPath = UserList.Count > 1 ? UserDataPaths.GetForUser(UserList[0]) : UserDataPaths.GetDefault();
-
+                        UserDataPaths DataPath = UserList.FirstOrDefault((User) => User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && User.Type == UserType.LocalUser) is User CurrentUser
+                                                 ? UserDataPaths.GetForUser(CurrentUser)
+                                                 : UserDataPaths.GetDefault();
                         try
                         {
                             if (!string.IsNullOrEmpty(DataPath.Downloads))
@@ -684,18 +688,20 @@ namespace RX_Explorer
                                 await SQLite.Current.UpdateLibraryAsync(DataPath.Music, LibraryType.Music).ConfigureAwait(true);
                             }
 
-                            if (!string.IsNullOrEmpty(DataPath.Profile))
+                            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("OneDrive")))
                             {
-                                await SQLite.Current.UpdateLibraryAsync(Path.Combine(DataPath.Profile, "OneDrive"), LibraryType.OneDrive).ConfigureAwait(true);
+                                await SQLite.Current.UpdateLibraryAsync(Environment.GetEnvironmentVariable("OneDrive"), LibraryType.OneDrive).ConfigureAwait(true);
                             }
                         }
-                        catch
+                        catch (Exception ex)
                         {
-
+                            await LogTracer.LogAsync(ex, "An error was threw when getting library folder (Not in initialize)").ConfigureAwait(true);
                         }
                     }
-                    catch
+                    catch(Exception ex)
                     {
+                        await LogTracer.LogAsync(ex, "An error was threw when try to get 'UserDataPath' (Not in initialize)").ConfigureAwait(true);
+
                         string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
                         if (!string.IsNullOrEmpty(DesktopPath))
                         {
@@ -726,10 +732,10 @@ namespace RX_Explorer
                             await SQLite.Current.UpdateLibraryAsync(MusicPath, LibraryType.Music).ConfigureAwait(true);
                         }
 
-                        string ProfilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-                        if (!string.IsNullOrEmpty(ProfilePath))
+                        string OneDrivePath = Environment.GetEnvironmentVariable("OneDrive");
+                        if (!string.IsNullOrEmpty(OneDrivePath))
                         {
-                            await SQLite.Current.UpdateLibraryAsync(Path.Combine(ProfilePath, "OneDrive"), LibraryType.OneDrive).ConfigureAwait(true);
+                            await SQLite.Current.UpdateLibraryAsync(OneDrivePath, LibraryType.OneDrive).ConfigureAwait(true);
                         }
                     }
                 }

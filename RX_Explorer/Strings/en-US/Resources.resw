@@ -2595,4 +2595,13 @@ Invalid names include
   <data name="ExportLog.Content" xml:space="preserve">
     <value>Export error log</value>
   </data>
+  <data name="Common_Dialog_SwitchButton" xml:space="preserve">
+    <value>Switch</value>
+  </data>
+  <data name="QueueDialog_AutoDetectBlackColor_Content" xml:space="preserve">
+    <value>It is detected that you have switched the dark background. To ensure the clarity of the text, whether to change the font color to white?</value>
+  </data>
+  <data name="QueueDialog_AutoDetectWhiteColor_Content" xml:space="preserve">
+    <value>It is detected that you have switched the light background, to ensure the clarity of the text, whether to change the font color to black?</value>
+  </data>
 </root>

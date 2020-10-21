@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.Helpers;
+﻿using ComputerVision;
+using Microsoft.Toolkit.Uwp.Helpers;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using System;
@@ -13,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
+using Windows.Graphics.Imaging;
 using Windows.Services.Store;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -34,9 +36,9 @@ namespace RX_Explorer
 {
     public sealed partial class SettingControl : UserControl
     {
-        private ObservableCollection<FeedBackItem> FeedBackCollection = new ObservableCollection<FeedBackItem>();
+        private readonly ObservableCollection<FeedBackItem> FeedBackCollection;
 
-        private ObservableCollection<BackgroundPicture> PictureList = new ObservableCollection<BackgroundPicture>();
+        private readonly ObservableCollection<BackgroundPicture> PictureList;
 
         private readonly string UserName = ApplicationData.Current.LocalSettings.Values["SystemUserName"].ToString();
 
@@ -73,6 +75,12 @@ namespace RX_Explorer
             EmptyFeedBack.Text = Globalization.GetString("Progress_Tip_Loading");
 
             EnableQuicklook.IsEnabled = IsQuicklookAvailable;
+
+            PictureList = new ObservableCollection<BackgroundPicture>();
+            PictureGirdView.ItemsSource = PictureList;
+
+            FeedBackCollection = new ObservableCollection<FeedBackItem>();
+            FeedBackList.ItemsSource = FeedBackCollection;
 
             Loaded += SettingPage_Loaded;
             Loading += SettingControl_Loading;
@@ -185,49 +193,15 @@ namespace RX_Explorer
                                                                 if (PictureList.FirstOrDefault((Picture) => Picture.PictureUri.ToString() == Uri) is BackgroundPicture PictureItem)
                                                                 {
                                                                     PictureGirdView.SelectedItem = PictureItem;
-                                                                    PictureGirdView.ScrollIntoViewSmoothly(PictureItem, ScrollIntoViewAlignment.Leading);
-
-                                                                    BitmapImage Bitmap = new BitmapImage();
-
-                                                                    StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(PictureItem.PictureUri);
-
-                                                                    using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
-                                                                    {
-                                                                        await Bitmap.SetSourceAsync(Stream);
-                                                                    }
-
-                                                                    BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureItem.PictureUri);
                                                                 }
                                                                 else if (PictureList.Count > 0)
                                                                 {
                                                                     PictureGirdView.SelectedIndex = 0;
-
-                                                                    BitmapImage Bitmap = new BitmapImage();
-
-                                                                    StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(PictureList.FirstOrDefault().PictureUri);
-
-                                                                    using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
-                                                                    {
-                                                                        await Bitmap.SetSourceAsync(Stream);
-                                                                    }
-
-                                                                    BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureList.FirstOrDefault().PictureUri);
                                                                 }
                                                             }
                                                             else if (PictureList.Count > 0)
                                                             {
                                                                 PictureGirdView.SelectedIndex = 0;
-
-                                                                BitmapImage Bitmap = new BitmapImage();
-
-                                                                StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(PictureList.FirstOrDefault().PictureUri);
-
-                                                                using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
-                                                                {
-                                                                    await Bitmap.SetSourceAsync(Stream);
-                                                                }
-
-                                                                BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureList.FirstOrDefault().PictureUri);
                                                             }
                                                             else
                                                             {
@@ -1098,8 +1072,8 @@ namespace RX_Explorer
                     {
                         BitmapImage Bitmap = new BitmapImage
                         {
-                            DecodePixelHeight = 70,
-                            DecodePixelWidth = 70
+                            DecodePixelHeight = 90,
+                            DecodePixelWidth = 160
                         };
 
                         try
@@ -1113,8 +1087,9 @@ namespace RX_Explorer
 
                             PictureList.Add(new BackgroundPicture(Bitmap, ImageUri));
                         }
-                        catch
+                        catch (Exception ex)
                         {
+                            await LogTracer.LogAsync(ex, "Error when loading background pictures, the file might lost").ConfigureAwait(true);
                             await SQLite.Current.DeleteBackgroundPictureAsync(ImageUri).ConfigureAwait(true);
                         }
                     }
@@ -1127,7 +1102,6 @@ namespace RX_Explorer
                     if (PictureList.FirstOrDefault((Picture) => Picture.PictureUri.ToString() == Uri) is BackgroundPicture PictureItem)
                     {
                         PictureGirdView.SelectedItem = PictureItem;
-                        PictureGirdView.ScrollIntoViewSmoothly(PictureItem, ScrollIntoViewAlignment.Leading);
 
                         BitmapImage Bitmap = new BitmapImage();
 
@@ -1192,16 +1166,55 @@ namespace RX_Explorer
             {
                 try
                 {
-                    BitmapImage Bitmap = new BitmapImage();
-
                     StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(Picture.PictureUri);
 
                     using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
                     {
+                        BitmapImage Bitmap = new BitmapImage();
                         await Bitmap.SetSourceAsync(Stream);
-                    }
 
-                    BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, Picture.PictureUri);
+                        BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, Picture.PictureUri);
+
+                        PictureGirdView.ScrollIntoViewSmoothly(Picture, ScrollIntoViewAlignment.Leading);
+
+                        BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(Stream);
+
+                        using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                        {
+                            float Brightness = ComputerVisionProvider.DetectAvgBrightness(SBitmap);
+
+                            if (Brightness <= 127 && CustomFontColor.SelectedIndex == 1)
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                    Content = Globalization.GetString("QueueDialog_AutoDetectBlackColor_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_SwitchButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
+
+                                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                {
+                                    CustomFontColor.SelectedIndex = 0;
+                                }
+                            }
+                            else if (Brightness > 127 && CustomFontColor.SelectedIndex == 0)
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                    Content = Globalization.GetString("QueueDialog_AutoDetectWhiteColor_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_SwitchButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
+
+                                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                {
+                                    CustomFontColor.SelectedIndex = 1;
+                                }
+                            }
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -1234,8 +1247,8 @@ namespace RX_Explorer
 
                 BitmapImage Bitmap = new BitmapImage()
                 {
-                    DecodePixelWidth = 70,
-                    DecodePixelHeight = 70
+                    DecodePixelHeight = 90,
+                    DecodePixelWidth = 160
                 };
 
                 using (IRandomAccessStream Stream = await CopyedFile.OpenAsync(FileAccessMode.Read))
@@ -1247,7 +1260,6 @@ namespace RX_Explorer
 
                 PictureList.Add(Picture);
                 PictureGirdView.UpdateLayout();
-                PictureGirdView.ScrollIntoViewSmoothly(Picture, ScrollIntoViewAlignment.Leading);
                 PictureGirdView.SelectedItem = Picture;
 
                 await SQLite.Current.SetBackgroundPictureAsync(Picture.PictureUri).ConfigureAwait(false);

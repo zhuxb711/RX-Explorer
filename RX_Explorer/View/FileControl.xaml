@@ -75,11 +75,6 @@
                               x:Uid="FileControlRenameFolder"
                               Name="FolderRename"
                               Click="FolderRename_Click" />
-                <AppBarButton Icon="Add"
-                              x:Name="FolderAdd"
-                              Label="固定至主界面"
-                              x:Uid="PinToLibrary"
-                              Click="FolderAdd_Click" />
                 <AppBarButton Icon="Tag"
                               Label="属性"
                               x:Uid="FileControlAttribute"

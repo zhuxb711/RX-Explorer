@@ -3300,6 +3300,18 @@ Les noms non valides incluent
           <source>Export error log</source>
           <target state="translated">Exporter le journal des erreurs</target>
         </trans-unit>
+        <trans-unit id="Common_Dialog_SwitchButton" translate="yes" xml:space="preserve">
+          <source>Switch</source>
+          <target state="translated">Changer</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_AutoDetectBlackColor_Content" translate="yes" xml:space="preserve">
+          <source>It is detected that you have switched the dark background. To ensure the clarity of the text, whether to change the font color to white?</source>
+          <target state="translated">Il est détecté que vous avez changé le fond sombre. Pour assurer la clarté du texte, faut-il changer la couleur de la police en blanc?</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_AutoDetectWhiteColor_Content" translate="yes" xml:space="preserve">
+          <source>It is detected that you have switched the light background, to ensure the clarity of the text, whether to change the font color to black?</source>
+          <target state="translated">Il est détecté que vous avez changé le fond clair, pour assurer la clarté du texte, que ce soit pour changer la couleur de la police en noir?</target>
+        </trans-unit>
       </group>
     </body>
   </file>

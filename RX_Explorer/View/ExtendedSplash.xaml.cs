@@ -106,7 +106,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                LogTracer.RequestBlueScreen(ex);
+                await LogTracer.LogAsync(ex, "An error was threw when dismissing extendedsplash ").ConfigureAwait(false);
             }
         }
 
@@ -120,7 +120,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                LogTracer.RequestBlueScreen(ex);
+                _ = LogTracer.LogAsync(ex, "An error was threw when dismissing extendedsplash ").ConfigureAwait(false);
             }
         }
 
@@ -191,7 +191,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                LogTracer.RequestBlueScreen(ex);
+                await LogTracer.LogAsync(ex, "An error was threw when dismissing extendedsplash ").ConfigureAwait(false);
             }
         }
 

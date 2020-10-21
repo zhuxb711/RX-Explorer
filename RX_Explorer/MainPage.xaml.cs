@@ -5,7 +5,6 @@ using RX_Explorer.Dialog;
 using RX_Explorer.View;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -207,10 +206,10 @@ namespace RX_Explorer
                                               .AddText(Globalization.GetString("Toast_EnterBackground_Text_2"))
                                               .AddText(Globalization.GetString("Toast_EnterBackground_Text_3"));
 
-                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Builder.GetToastContent().GetXml()) 
-                { 
-                    Tag = "EnterBackgroundTips", 
-                    Priority = ToastNotificationPriority.High 
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Builder.GetToastContent().GetXml())
+                {
+                    Tag = "EnterBackgroundTips",
+                    Priority = ToastNotificationPriority.High
                 });
             }
         }
@@ -439,7 +438,7 @@ namespace RX_Explorer
             }
             catch (Exception e)
             {
-                Debug.WriteLine($"Error happened in RegisterBackgroundTaskAsync, Message: {e.Message}");
+                await LogTracer.LogAsync(e, $"An error was threw in {nameof(RegisterBackgroundTaskAsync)}").ConfigureAwait(true);
             }
         }
 
@@ -717,7 +716,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                LogTracer.RequestBlueScreen(ex);
+                await LogTracer.LogAsync(ex, "An error was threw when navigating between NavigationView item").ConfigureAwait(false);
             }
         }
 

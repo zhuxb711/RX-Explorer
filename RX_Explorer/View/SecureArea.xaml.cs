@@ -354,14 +354,7 @@ namespace RX_Explorer
 
         private static void GoBack()
         {
-            try
-            {
-                MainPage.ThisPage.Nav.Navigate(typeof(TabViewContainer), null, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
-            }
-            catch (Exception ex)
-            {
-                LogTracer.RequestBlueScreen(ex);
-            }
+            MainPage.ThisPage.Nav.Navigate(typeof(TabViewContainer), null, new DrillInNavigationTransitionInfo());
         }
 
         private async Task StartLoadFile()

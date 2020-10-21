@@ -419,7 +419,6 @@
                                     Name="CustomPictureArea"
                                     Orientation="Horizontal">
                             <GridView Name="PictureGirdView"
-                                      ItemsSource="{x:Bind PictureList}"
                                       MaxWidth="275"
                                       VerticalAlignment="Center"
                                       IsRightTapEnabled="True"
@@ -658,7 +657,6 @@
                     </StackPanel>
                     <ListView Margin="0,10,0,0"
                               Name="FeedBackList"
-                              ItemsSource="{x:Bind FeedBackCollection}"
                               Visibility="Collapsed"
                               MaxHeight="620"
                               SelectionMode="None"

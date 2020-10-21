@@ -61,7 +61,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                LogTracer.RequestBlueScreen(ex);
+                await LogTracer.LogAsync(ex, "An error was threw when initializing CropperPage").ConfigureAwait(false);
             }
         }
 

@@ -18,6 +18,26 @@ namespace ComputerVision
             void GetBuffer(out byte* buffer, out uint capacity);
         }
 
+        public static float DetectAvgBrightness(SoftwareBitmap Input)
+        {
+            using (Mat inputMat = Input.SoftwareBitmapToMat())
+            using (Mat BGRMat = new Mat(inputMat.Rows, inputMat.Cols, MatType.CV_8UC3))
+            {
+                Cv2.CvtColor(inputMat, BGRMat, ColorConversionCodes.BGRA2BGR);
+
+                using(Mat HSVMat = new Mat(BGRMat.Rows, BGRMat.Cols, MatType.CV_8UC3))
+                {
+                    Cv2.CvtColor(BGRMat, HSVMat, ColorConversionCodes.BGR2HSV);
+
+                    using (Mat VChannel = HSVMat.ExtractChannel(2))
+                    {
+                        Scalar Mean = Cv2.Mean(VChannel);
+                        return Convert.ToSingle(Mean.Val0);
+                    }
+                }
+            }
+        }
+
         public static SoftwareBitmap ExtendImageBorder(SoftwareBitmap Input, Color Colors, int Top, int Left, int Right, int Bottom)
         {
             using (Mat inputMat = Input.SoftwareBitmapToMat())
@@ -527,7 +547,7 @@ namespace ComputerVision
             {
                 Cv2.CvtColor(inputMat, tempMat, ColorConversionCodes.BGRA2GRAY);
                 Cv2.Threshold(tempMat, tempMat, 100, 255, ThresholdTypes.Binary);
-                
+
                 using (Mat Hie = new Mat(tempMat.Size(), tempMat.Type()))
                 {
                     Cv2.FindContours(tempMat, out Mat[] Result, Hie, RetrievalModes.External, ContourApproximationModes.ApproxNone);
