@@ -3312,6 +3312,10 @@ Les noms non valides incluent
           <source>It is detected that you have switched the light background, to ensure the clarity of the text, whether to change the font color to black?</source>
           <target state="translated">Il est détecté que vous avez changé le fond clair, pour assurer la clarté du texte, que ce soit pour changer la couleur de la police en noir?</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_NoLogTip_Content" translate="yes" xml:space="preserve">
+          <source>There is no log file to export</source>
+          <target state="translated">Il n'y a pas de fichier journal à exporter</target>
+        </trans-unit>
       </group>
     </body>
   </file>

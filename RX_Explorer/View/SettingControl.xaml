@@ -602,9 +602,15 @@
                     <Button Style="{ThemeResource ButtonRevealStyle}"
                             Margin="0,20,0,0"
                             x:Uid="SettingSystemInfo"
-                            Content="查看系统信息"
+                            Content="系统信息"
                             Name="SystemInfoButton"
                             Click="SystemInfoButton_Click" />
+                    <Button Style="{ThemeResource ButtonRevealStyle}"
+                            Margin="0,20,0,0"
+                            x:Uid="ExportLog"
+                            Name="ExportLog"
+                            Content="导出错误日志"
+                            Click="ExportLog_Click" />
                     <Button Style="{ThemeResource ButtonRevealStyle}"
                             x:Name="Purchase"
                             Margin="0,20,0,0"

@@ -1183,7 +1183,7 @@ namespace RX_Explorer
                         {
                             float Brightness = ComputerVisionProvider.DetectAvgBrightness(SBitmap);
 
-                            if (Brightness <= 127 && CustomFontColor.SelectedIndex == 1)
+                            if (Brightness <= 100 && CustomFontColor.SelectedIndex == 1)
                             {
                                 QueueContentDialog Dialog = new QueueContentDialog
                                 {
@@ -1198,7 +1198,7 @@ namespace RX_Explorer
                                     CustomFontColor.SelectedIndex = 0;
                                 }
                             }
-                            else if (Brightness > 127 && CustomFontColor.SelectedIndex == 0)
+                            else if (Brightness > 156 && CustomFontColor.SelectedIndex == 0)
                             {
                                 QueueContentDialog Dialog = new QueueContentDialog
                                 {
@@ -1844,6 +1844,34 @@ namespace RX_Explorer
         private void AnimationSwitch_Toggled(object sender, RoutedEventArgs e)
         {
             ExceptAnimationArea.Visibility = AnimationSwitch.IsOn ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private async void ExportLog_Click(object sender, RoutedEventArgs e)
+        {
+            if ((await LogTracer.GetLogCount().ConfigureAwait(true)) > 0)
+            {
+                FolderPicker Picker = new FolderPicker
+                {
+                    SuggestedStartLocation = PickerLocationId.Desktop
+                };
+                Picker.FileTypeFilter.Add("*");
+
+                if (await Picker.PickSingleFolderAsync() is StorageFolder PickedFolder)
+                {
+                    await LogTracer.ExportAllLog(PickedFolder, DateTime.Now.AddDays(-3)).ConfigureAwait(false);
+                }
+            }
+            else
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                    Content = Globalization.GetString("QueueDialog_NoLogTip_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+            }
         }
     }
 }

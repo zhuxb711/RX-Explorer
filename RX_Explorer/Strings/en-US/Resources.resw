@@ -2604,4 +2604,7 @@ Invalid names include
   <data name="QueueDialog_AutoDetectWhiteColor_Content" xml:space="preserve">
     <value>It is detected that you have switched the light background, to ensure the clarity of the text, whether to change the font color to black?</value>
   </data>
+  <data name="QueueDialog_NoLogTip_Content" xml:space="preserve">
+    <value>There is no log file to export</value>
+  </data>
 </root>

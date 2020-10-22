@@ -2499,4 +2499,7 @@
   <data name="QueueDialog_AutoDetectWhiteColor_Content" xml:space="preserve">
     <value>檢測到您切換了淺色背景，為了確保文本的清晰度，是否將字體顏色更改為黑色？</value>
   </data>
+  <data name="QueueDialog_NoLogTip_Content" xml:space="preserve">
+    <value>沒有要導出的日誌文件</value>
+  </data>
 </root>

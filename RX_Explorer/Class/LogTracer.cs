@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -107,9 +109,47 @@ namespace RX_Explorer.Class
 
         public static async Task ExportLog(StorageFile ExportFile)
         {
-            if (await ApplicationData.Current.TemporaryFolder.TryGetItemAsync(UniqueName) is StorageFile InnerFile)
+            try
             {
-                await InnerFile.CopyAndReplaceAsync(ExportFile);
+                if (await ApplicationData.Current.TemporaryFolder.TryGetItemAsync(UniqueName) is StorageFile InnerFile)
+                {
+                    await InnerFile.CopyAndReplaceAsync(ExportFile);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"An error was threw in {nameof(ExportLog)}, message: {ex.Message}");
+            }
+        }
+
+        public static async Task<ushort> GetLogCount()
+        {
+            try
+            {
+                return Convert.ToUInt16((await ApplicationData.Current.TemporaryFolder.GetFilesAsync()).Select((Item) => Regex.Match(Item.Name, @"(?<=\[)(.+)(?=\])")).Where((Mat) => Mat.Success && DateTime.TryParseExact(Mat.Value, "yyyy-MM-dd HH-mm-ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out _)).Count());
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"An error was threw in {nameof(GetLogCount)}, message: {ex.Message}");
+                return 0;
+            }
+        }
+
+        public static async Task ExportAllLog(StorageFolder ExportFolder, DateTime LaterThan)
+        {
+            try
+            {
+                foreach (StorageFile File in from StorageFile File in await ApplicationData.Current.TemporaryFolder.GetFilesAsync()
+                                             let Mat = Regex.Match(File.Name, @"(?<=\[)(.+)(?=\])")
+                                             where Mat.Success && DateTime.TryParseExact(Mat.Value, "yyyy-MM-dd HH-mm-ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime Date) && Date > LaterThan
+                                             select File)
+                {
+                    await File.CopyAsync(ExportFolder);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"An error was threw in {nameof(ExportAllLog)}, message: {ex.Message}");
             }
         }
 

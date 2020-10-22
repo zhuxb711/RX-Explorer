@@ -3312,6 +3312,10 @@ Invalid names include
           <source>It is detected that you have switched the light background, to ensure the clarity of the text, whether to change the font color to black?</source>
           <target state="translated">檢測到您切換了淺色背景，為了確保文本的清晰度，是否將字體顏色更改為黑色？</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_NoLogTip_Content" translate="yes" xml:space="preserve">
+          <source>There is no log file to export</source>
+          <target state="translated">沒有要導出的日誌文件</target>
+        </trans-unit>
       </group>
     </body>
   </file>

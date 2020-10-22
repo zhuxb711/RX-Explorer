@@ -2499,4 +2499,7 @@ Les noms non valides incluent
   <data name="QueueDialog_AutoDetectWhiteColor_Content" xml:space="preserve">
     <value>Il est détecté que vous avez changé le fond clair, pour assurer la clarté du texte, que ce soit pour changer la couleur de la police en noir?</value>
   </data>
+  <data name="QueueDialog_NoLogTip_Content" xml:space="preserve">
+    <value>Il n'y a pas de fichier journal à exporter</value>
+  </data>
 </root>
