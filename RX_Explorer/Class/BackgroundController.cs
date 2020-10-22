@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.Helpers;
+﻿using Microsoft.Graphics.Canvas.Effects;
+using Microsoft.Toolkit.Uwp.Helpers;
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
@@ -6,9 +7,11 @@ using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI;
+using Windows.UI.Composition;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -23,6 +26,35 @@ namespace RX_Explorer.Class
         /// 亚克力背景刷
         /// </summary>
         private readonly AcrylicBrush AcrylicBackgroundBrush;
+
+        private CompositionEffectBrush CompositionAcrylicBrush;
+
+        private bool isCompositionAcrylicEnabled;
+        public bool IsCompositionAcrylicEnabled
+        {
+            get
+            {
+                return isCompositionAcrylicEnabled;
+            }
+            set
+            {
+                if (isCompositionAcrylicEnabled != value)
+                {
+                    if (value)
+                    {
+                        EnableCompositionAcrylic();
+                    }
+                    else
+                    {
+                        DisableCompositionAcrylic();
+                    }
+
+                    isCompositionAcrylicEnabled = value;
+
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsCompositionAcrylicEnabled)));
+                }
+            }
+        }
 
         /// <summary>
         /// 图片背景刷
@@ -230,6 +262,11 @@ namespace RX_Explorer.Class
                                 }
                             }
 
+                            if (ApplicationData.Current.LocalSettings.Values["PreventFallBack"] is bool IsPrevent)
+                            {
+                                IsCompositionAcrylicEnabled = IsPrevent;
+                            }
+
                             if (ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] is string SubMode)
                             {
                                 CurrentType = (BackgroundBrushType)Enum.Parse(typeof(BackgroundBrushType), SubMode);
@@ -361,6 +398,60 @@ namespace RX_Explorer.Class
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:丢失范围之前释放对象", Justification = "<挂起>")]
+        private void EnableCompositionAcrylic()
+        {
+            if (CompositionAcrylicBrush == null)
+            {
+                Visual ElementVisual = ElementCompositionPreview.GetElementVisual(MainPage.ThisPage.CompositorAcrylicBackground);
+                Compositor VisualCompositor = ElementVisual.Compositor;
+
+                CompositionBackdropBrush BackdropBrush = VisualCompositor.CreateHostBackdropBrush();
+
+                float AcrylicAmount = Convert.ToSingle(AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintLuminosityOpacityProperty));
+
+                GaussianBlurEffect BlurEffect = new GaussianBlurEffect()
+                {
+                    BlurAmount = 10f,
+                    BorderMode = EffectBorderMode.Hard,
+                    Optimization = EffectOptimization.Balanced,
+                    Source = new ArithmeticCompositeEffect
+                    {
+                        Name = "Mix",
+                        MultiplyAmount = 0,
+                        Source1 = new CompositionEffectSourceParameter("backdropBrush"),
+                        Source2 = new ColorSourceEffect
+                        {
+                            Name = "Tint",
+                            Color = (Color)AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintColorProperty)
+                        },
+                        Source1Amount = 1 - AcrylicAmount,
+                        Source2Amount = AcrylicAmount
+                    }
+                };
+
+                CompositionAcrylicBrush = VisualCompositor.CreateEffectFactory(BlurEffect, new[] { "Mix.Source1Amount", "Mix.Source2Amount", "Tint.Color" }).CreateBrush();
+                CompositionAcrylicBrush.SetSourceParameter("backdropBrush", BackdropBrush);
+
+                SpriteVisual SpVisual = VisualCompositor.CreateSpriteVisual();
+                SpVisual.Brush = CompositionAcrylicBrush;
+
+                ElementCompositionPreview.SetElementChildVisual(MainPage.ThisPage.CompositorAcrylicBackground, SpVisual);
+                ExpressionAnimation bindSizeAnimation = VisualCompositor.CreateExpressionAnimation("ElementVisual.Size");
+                bindSizeAnimation.SetReferenceParameter("ElementVisual", ElementVisual);
+                SpVisual.StartAnimation("Size", bindSizeAnimation);
+            }
+        }
+
+        private void DisableCompositionAcrylic()
+        {
+            if (CompositionAcrylicBrush != null)
+            {
+                CompositionAcrylicBrush.Dispose();
+                CompositionAcrylicBrush = null;
+            }
+        }
+
         /// <summary>
         /// 提供颜色透明度的值
         /// </summary>
@@ -372,7 +463,9 @@ namespace RX_Explorer.Class
             }
             set
             {
-                if (AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintOpacityProperty) is double CurrentValue && CurrentValue != 1 - value)
+                double CurrentValue = Convert.ToDouble(AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintOpacityProperty));
+
+                if (CurrentValue != 1 - value)
                 {
                     AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintOpacityProperty, 1 - value);
                     ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] = Convert.ToString(value);
@@ -389,17 +482,37 @@ namespace RX_Explorer.Class
         {
             get
             {
-                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903))
+                if (IsCompositionAcrylicEnabled)
                 {
-                    return 1 - Convert.ToDouble(AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintLuminosityOpacityProperty));
+                    if (CompositionAcrylicBrush.Properties.TryGetScalar("Mix.Source1Amount", out float Value) == CompositionGetValueStatus.Succeeded)
+                    {
+                        return Value;
+                    }
+                    else
+                    {
+                        return 0;
+                    }
                 }
                 else
                 {
-                    return 0;
+                    if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903))
+                    {
+                        return 1 - Convert.ToDouble(AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintLuminosityOpacityProperty));
+                    }
+                    else
+                    {
+                        return 0;
+                    }
                 }
             }
             set
             {
+                if (IsCompositionAcrylicEnabled)
+                {
+                    CompositionAcrylicBrush.Properties.InsertScalar("Mix.Source1Amount", Convert.ToSingle(value));
+                    CompositionAcrylicBrush.Properties.InsertScalar("Mix.Source2Amount", 1 - Convert.ToSingle(value));
+                }
+
                 if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903))
                 {
                     if (value == -1)
@@ -413,7 +526,9 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        if (AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintLuminosityOpacityProperty) is double CurrentValue && CurrentValue != 1 - value)
+                        double CurrentValue = Convert.ToDouble(AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintLuminosityOpacityProperty));
+
+                        if (CurrentValue != 1 - value)
                         {
                             AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintLuminosityOpacityProperty, 1 - value);
                             ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] = Convert.ToString(value);
@@ -432,10 +547,32 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return (Color)AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintColorProperty);
+                if (IsCompositionAcrylicEnabled)
+                {
+                    if (CompositionAcrylicBrush.Properties.TryGetColor("Tint.Color", out Color Value) == CompositionGetValueStatus.Succeeded)
+                    {
+                        return Value;
+                    }
+                    else
+                    {
+                        return Colors.DimGray;
+                    }
+                }
+                else
+                {
+                    return (Color)AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintColorProperty);
+                }
             }
             set
             {
+                if (IsCompositionAcrylicEnabled)
+                {
+                    if (CompositionAcrylicBrush.Properties.TryGetColor("Tint.Color", out Color Value) == CompositionGetValueStatus.Succeeded && Value.ToHex() != value.ToHex())
+                    {
+                        CompositionAcrylicBrush.Properties.InsertColor("Tint.Color", value);
+                    }
+                }
+
                 if (AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintColorProperty) is Color CurrentColor && CurrentColor.ToHex() != value.ToHex())
                 {
                     AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintColorProperty, value);

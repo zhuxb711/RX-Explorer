@@ -776,10 +776,10 @@
     <value>Couleur de l'acrylique</value>
   </data>
   <data name="SettingPageLuminosityTip.Title" xml:space="preserve">
-    <value>Transmittance de l'arrière-plan</value>
+    <value>Transmission acrylique</value>
   </data>
   <data name="SettingPageLuminosityTipText1.Text" xml:space="preserve">
-    <value>La transmittance du fond détermine le pourcentage de lumière qui peut traverser le fond du thème acrylique. Plus la valeur est faible, plus le rapport de couleur du thème acrylique est élevé, et plus le pourcentage de lumière provenant de l'arrière-plan est élevé. Cette fonctionnalité n'est pas disponible pour les versions antérieures à Win10-1903.</value>
+    <value>La transmission de l'acrylique détermine la quantité de lumière de l'arrière-plan autorisée à traverser le matériau acrylique de l'application. Plus la valeur est petite, plus le rapport de couleurs du thème Acrylique est élevé et plus le pourcentage de lumière provenant de l'arrière-plan est élevé. Cette fonctionnalité n'est pas disponible dans les versions inférieures à Win10-1903.</value>
   </data>
   <data name="SettingPageLuminosityTipText2.Text" xml:space="preserve">
     <value>L'ajustement de cette valeur peut entraîner un contenu peu clair ou non reconnu</value>
@@ -2501,5 +2501,14 @@ Les noms non valides incluent
   </data>
   <data name="QueueDialog_NoLogTip_Content" xml:space="preserve">
     <value>Il n'y a pas de fichier journal à exporter</value>
+  </data>
+  <data name="PreventFallBack.Content" xml:space="preserve">
+    <value>Empêche l'acrylique d'entrer en mode d'économie d'énergie</value>
+  </data>
+  <data name="SettingPagePreventFallbackTip.Subtitle" xml:space="preserve">
+    <value>Le fait de cocher cette option peut empêcher Windows de désactiver l'effet acrylique lorsque vous n'utilisez pas cette application. Dans ce mode, seule la transmittance Acrylique peut être ajustée et la transparence de la couleur Acrylique n'est pas disponible. Remarque: l'activation de cette option peut réduire la durée de vie de la batterie et le calcul de la lumière continue augmentera la charge sur le processeur.</value>
+  </data>
+  <data name="SettingPagePreventFallbackTip.Title" xml:space="preserve">
+    <value>Mode d'économie d'énergie acrylique</value>
   </data>
 </root>

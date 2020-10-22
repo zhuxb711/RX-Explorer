@@ -176,7 +176,17 @@ namespace RX_Explorer
                                             {
                                                 case BackgroundBrushType.Acrylic:
                                                     {
-                                                        AcrylicMode.IsChecked = true;
+                                                        if (AcrylicMode.IsChecked.GetValueOrDefault())
+                                                        {
+                                                            if (ApplicationData.Current.LocalSettings.Values["PreventFallBack"] is bool IsPrevent)
+                                                            {
+                                                                PreventFallBack.IsChecked = IsPrevent;
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            AcrylicMode.IsChecked = true;
+                                                        }
                                                         break;
                                                     }
                                                 case BackgroundBrushType.BingPicture:
@@ -336,7 +346,8 @@ namespace RX_Explorer
                 AutoBoot.Toggled -= AutoBoot_Toggled;
 
                 LanguageComboBox.SelectedIndex = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["LanguageOverride"]);
-                BackgroundBlurSlider.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
+                BackgroundBlurSlider1.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
+                BackgroundBlurSlider2.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
 
                 switch ((await StartupTask.GetAsync("RXExplorer")).State)
                 {
@@ -654,9 +665,11 @@ namespace RX_Explorer
                             SolidColor_White.IsChecked = null;
                             SolidColor_FollowSystem.IsChecked = null;
                             SolidColor_Black.IsChecked = null;
+                            PreventFallBack.IsChecked = null;
                             CustomFontColor.IsEnabled = false;
                             MainPage.ThisPage.BackgroundBlur.Amount = 0;
 
+                            BackgroundController.Current.IsCompositionAcrylicEnabled = false;
                             BackgroundController.Current.SwitchTo(BackgroundBrushType.Acrylic);
                             BackgroundController.Current.TintOpacity = 0.6;
                             BackgroundController.Current.TintLuminosityOpacity = -1;
@@ -670,9 +683,12 @@ namespace RX_Explorer
 
                             AcrylicMode.IsChecked = null;
                             PictureMode.IsChecked = null;
+                            PreventFallBack.IsChecked = null;
                             BingPictureMode.IsChecked = null;
                             CustomFontColor.IsEnabled = false;
                             MainPage.ThisPage.BackgroundBlur.Amount = 0;
+
+                            BackgroundController.Current.IsCompositionAcrylicEnabled = false;
 
                             if (ApplicationData.Current.LocalSettings.Values["SolidColorType"] is string ColorType)
                             {
@@ -1010,7 +1026,9 @@ namespace RX_Explorer
                 CustomAcrylicArea.Visibility = Visibility.Visible;
                 CustomPictureArea.Visibility = Visibility.Collapsed;
                 GetBingPhotoState.Visibility = Visibility.Collapsed;
-                BackgroundBlurSliderArea.Visibility = Visibility.Collapsed;
+                BackgroundBlurSliderArea1.Visibility = Visibility.Collapsed;
+                BackgroundBlurSliderArea2.Visibility = Visibility.Collapsed;
+
                 MainPage.ThisPage.BackgroundBlur.Amount = 0;
 
                 ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.Acrylic);
@@ -1045,6 +1063,17 @@ namespace RX_Explorer
                 {
                     BackgroundController.Current.AcrylicColor = AcrylicColor.ToColor();
                 }
+
+                PreventFallBack.IsChecked = null;
+
+                if (ApplicationData.Current.LocalSettings.Values["PreventFallBack"] is bool IsPrevent)
+                {
+                    PreventFallBack.IsChecked = IsPrevent;
+                }
+                else
+                {
+                    PreventFallBack.IsChecked = false;
+                }
             }
             catch (Exception ex)
             {
@@ -1063,7 +1092,11 @@ namespace RX_Explorer
                 CustomAcrylicArea.Visibility = Visibility.Collapsed;
                 CustomPictureArea.Visibility = Visibility.Visible;
                 GetBingPhotoState.Visibility = Visibility.Collapsed;
-                BackgroundBlurSliderArea.Visibility = Visibility.Visible;
+                BackgroundBlurSliderArea1.Visibility = Visibility.Collapsed;
+                BackgroundBlurSliderArea2.Visibility = Visibility.Visible;
+
+                BackgroundController.Current.IsCompositionAcrylicEnabled = false;
+
                 MainPage.ThisPage.BackgroundBlur.Amount = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]) / 5;
 
                 if (PictureList.Count == 0)
@@ -1153,6 +1186,56 @@ namespace RX_Explorer
             catch (Exception ex)
             {
                 await LogTracer.LogAsync(ex, $"Error in {nameof(PictureMode_Checked)}").ConfigureAwait(true);
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private async void BingPictureMode_Checked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                CustomAcrylicArea.Visibility = Visibility.Collapsed;
+                CustomPictureArea.Visibility = Visibility.Collapsed;
+                GetBingPhotoState.Visibility = Visibility.Visible;
+                BackgroundBlurSliderArea1.Visibility = Visibility.Visible;
+                BackgroundBlurSliderArea2.Visibility = Visibility.Collapsed;
+                MainPage.ThisPage.BackgroundBlur.Amount = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]) / 5;
+
+                BackgroundController.Current.IsCompositionAcrylicEnabled = false;
+
+                if (await BingPictureDownloader.DownloadDailyPicture().ConfigureAwait(true) is StorageFile File)
+                {
+                    ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.BingPicture);
+
+                    BitmapImage Bitmap = new BitmapImage();
+
+                    using (IRandomAccessStream FileStream = await File.OpenAsync(FileAccessMode.Read))
+                    {
+                        await Bitmap.SetSourceAsync(FileStream);
+                    }
+
+                    BackgroundController.Current.SwitchTo(BackgroundBrushType.BingPicture, Bitmap);
+                }
+                else
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_BingDownloadError_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                }
+
+                GetBingPhotoState.Visibility = Visibility.Collapsed;
+            }
+            catch (Exception ex)
+            {
+                await LogTracer.LogAsync(ex, $"Error in {nameof(BingPictureMode_Checked)}").ConfigureAwait(true);
             }
             finally
             {
@@ -1732,53 +1815,6 @@ namespace RX_Explorer
             }
         }
 
-        private async void BingPictureMode_Checked(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                CustomAcrylicArea.Visibility = Visibility.Collapsed;
-                CustomPictureArea.Visibility = Visibility.Collapsed;
-                GetBingPhotoState.Visibility = Visibility.Visible;
-                BackgroundBlurSliderArea.Visibility = Visibility.Visible;
-                MainPage.ThisPage.BackgroundBlur.Amount = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]) / 5;
-
-                if (await BingPictureDownloader.DownloadDailyPicture().ConfigureAwait(true) is StorageFile File)
-                {
-                    ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.BingPicture);
-
-                    BitmapImage Bitmap = new BitmapImage();
-
-                    using (IRandomAccessStream FileStream = await File.OpenAsync(FileAccessMode.Read))
-                    {
-                        await Bitmap.SetSourceAsync(FileStream);
-                    }
-
-                    BackgroundController.Current.SwitchTo(BackgroundBrushType.BingPicture, Bitmap);
-                }
-                else
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_BingDownloadError_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
-
-                GetBingPhotoState.Visibility = Visibility.Collapsed;
-            }
-            catch (Exception ex)
-            {
-                await LogTracer.LogAsync(ex, $"Error in {nameof(BingPictureMode_Checked)}").ConfigureAwait(true);
-            }
-            finally
-            {
-                ApplicationData.Current.SignalDataChanged();
-            }
-        }
-
         private async void ModifyTerminal_Tapped(object sender, TappedRoutedEventArgs e)
         {
             ModifyDefaultTerminalDialog Dialog = new ModifyDefaultTerminalDialog();
@@ -1872,6 +1908,53 @@ namespace RX_Explorer
 
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
             }
+        }
+
+        private async void PreventFallBack_Checked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                TintOpacityArea.Visibility = Visibility.Collapsed;
+                CustomUIAreaLine.Y2 = 170;
+
+                BackgroundController.Current.IsCompositionAcrylicEnabled = true;
+
+                ApplicationData.Current.LocalSettings.Values["PreventFallBack"] = true;
+            }
+            catch (Exception ex)
+            {
+                await LogTracer.LogAsync(ex, $"An error was threw when checking {PreventFallBack}").ConfigureAwait(true);
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private async void PreventFallBack_Unchecked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                TintOpacityArea.Visibility = Visibility.Visible;
+                CustomUIAreaLine.Y2 = 240;
+
+                BackgroundController.Current.IsCompositionAcrylicEnabled = false;
+
+                ApplicationData.Current.LocalSettings.Values["PreventFallBack"] = false;
+            }
+            catch (Exception ex)
+            {
+                await LogTracer.LogAsync(ex, $"An error was threw when unchecking {PreventFallBack}").ConfigureAwait(true);
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
+        }
+
+        private void PreventFallBackQuestion_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            PreventFallbackTip.IsOpen = true;
         }
     }
 }

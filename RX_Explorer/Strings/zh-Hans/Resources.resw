@@ -776,10 +776,10 @@
     <value>Acrylic主题色</value>
   </data>
   <data name="SettingPageLuminosityTip.Title" xml:space="preserve">
-    <value>背景透光度</value>
+    <value>Acrylic透光度</value>
   </data>
   <data name="SettingPageLuminosityTipText1.Text" xml:space="preserve">
-    <value>背景透光度决定了允许多少来自背景的光通过App的亚克力材质，此值越小表示Acrylic主题色占比越高，越大表示来自背景的光线占比越高。此功能在Win10-1903以下版本中不可用。</value>
+    <value>Acrylic透光度决定了允许多少来自背景的光通过App的亚克力材质，此值越小表示Acrylic主题色占比越高，越大表示来自背景的光线占比越高。此功能在Win10-1903以下版本中不可用。</value>
   </data>
   <data name="SettingPageLuminosityTipText2.Text" xml:space="preserve">
     <value>调整此值可能导致内容不清晰或无法识别</value>
@@ -2501,5 +2501,14 @@
   </data>
   <data name="QueueDialog_NoLogTip_Content" xml:space="preserve">
     <value>暂无任何日志文件可供导出哦</value>
+  </data>
+  <data name="PreventFallBack.Content" xml:space="preserve">
+    <value>防止Acrylic进入省电模式</value>
+  </data>
+  <data name="SettingPagePreventFallbackTip.Subtitle" xml:space="preserve">
+    <value>选中该选项可以防止Windows系统在您不使用本应用时关闭Acrylic效果，此模式下仅允许调节Acrylic透光度，Acrylic颜色透明度不可用。注意: 开启此选项可能会导致电池续航缩短，并且持续的光线计算将增加CPU的负担</value>
+  </data>
+  <data name="SettingPagePreventFallbackTip.Title" xml:space="preserve">
+    <value>Acrylic省电模式</value>
   </data>
 </root>

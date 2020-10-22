@@ -1037,12 +1037,12 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">透明主題顏色</target>
         </trans-unit>
         <trans-unit id="SettingPageLuminosityTip.Title" translate="yes" xml:space="preserve">
-          <source>Background transmittance</source>
-          <target state="translated">背景透明度</target>
+          <source>Acrylic transmittance</source>
+          <target state="translated">Acrylic透明度</target>
         </trans-unit>
         <trans-unit id="SettingPageLuminosityTipText1.Text" translate="yes" xml:space="preserve">
-          <source>The background transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.This feature is not available in versions below Win10-1903.</source>
-          <target state="translated">背景透明度決定了背景透光度。 數值越小，透明主題比例越高，背景透光度的比例越高。此功能在Win10-1903以下的版本中不可用。</target>
+          <source>Acrylic transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.This feature is not available in versions below Win10-1903.</source>
+          <target state="translated">Acrylic透明度決定了背景透光度。 數值越小，透明主題比例越高，背景透光度的比例越高。此功能在Win10-1903以下的版本中不可用。</target>
         </trans-unit>
         <trans-unit id="SettingPageLuminosityTipText2.Text" translate="yes" xml:space="preserve">
           <source>Adjusting this value may result in unclear or unrecognized content</source>
@@ -3315,6 +3315,18 @@ Invalid names include
         <trans-unit id="QueueDialog_NoLogTip_Content" translate="yes" xml:space="preserve">
           <source>There is no log file to export</source>
           <target state="translated">沒有要導出的日誌文件</target>
+        </trans-unit>
+        <trans-unit id="PreventFallBack.Content" translate="yes" xml:space="preserve">
+          <source>Prevent acrylic from entering power saving mode</source>
+          <target state="translated">防止Acrylic進入省電模式</target>
+        </trans-unit>
+        <trans-unit id="SettingPagePreventFallbackTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>Checking this option can prevent the Windows from turning off the Acrylic effect when you are not using this application. In this mode, only the Acrylic transmittance is allowed to be adjusted, and the Acrylic color transparency is not available. Note: Turning on this option may shorten battery life, and continuous light calculation will increase the burden on the CPU</source>
+          <target state="translated">不使用此應用程序時，選中此選項可以防止Windows關閉亞克力效果。 在此模式下，僅允許調整丙烯酸透射率，而丙烯酸顏色透明度不可用。 注意：打開此選項可能會縮短電池壽命，並且連續的光線計算會增加CPU的負擔</target>
+        </trans-unit>
+        <trans-unit id="SettingPagePreventFallbackTip.Title" translate="yes" xml:space="preserve">
+          <source>Acrylic power saving mode</source>
+          <target state="translated">Acrylic節電模式</target>
         </trans-unit>
       </group>
     </body>

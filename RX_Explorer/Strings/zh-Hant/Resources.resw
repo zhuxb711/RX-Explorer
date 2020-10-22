@@ -785,10 +785,10 @@
     <value>透明主題顏色</value>
   </data>
   <data name="SettingPageLuminosityTip.Title" xml:space="preserve">
-    <value>背景透明度</value>
+    <value>Acrylic透明度</value>
   </data>
   <data name="SettingPageLuminosityTipText1.Text" xml:space="preserve">
-    <value>背景透明度決定了背景透光度。 數值越小，透明主題比例越高，背景透光度的比例越高。此功能在Win10-1903以下的版本中不可用。</value>
+    <value>Acrylic透明度決定了背景透光度。 數值越小，透明主題比例越高，背景透光度的比例越高。此功能在Win10-1903以下的版本中不可用。</value>
   </data>
   <data name="SettingPageLuminosityTipText2.Text" xml:space="preserve">
     <value>調整此數值可能會導致內容不清楚或無法清晰識別</value>
@@ -2501,5 +2501,14 @@
   </data>
   <data name="QueueDialog_NoLogTip_Content" xml:space="preserve">
     <value>沒有要導出的日誌文件</value>
+  </data>
+  <data name="PreventFallBack.Content" xml:space="preserve">
+    <value>防止Acrylic進入省電模式</value>
+  </data>
+  <data name="SettingPagePreventFallbackTip.Subtitle" xml:space="preserve">
+    <value>不使用此應用程序時，選中此選項可以防止Windows關閉亞克力效果。 在此模式下，僅允許調整丙烯酸透射率，而丙烯酸顏色透明度不可用。 注意：打開此選項可能會縮短電池壽命，並且連續的光線計算會增加CPU的負擔</value>
+  </data>
+  <data name="SettingPagePreventFallbackTip.Title" xml:space="preserve">
+    <value>Acrylic節電模式</value>
   </data>
 </root>

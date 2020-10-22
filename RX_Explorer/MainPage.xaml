@@ -8,10 +8,10 @@
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       xmlns:media="using:Microsoft.Toolkit.Uwp.UI.Media"
       mc:Ignorable="d"
-      RequestedTheme="{x:Bind Cla:AppThemeController.Current.Theme,Mode=OneWay}"
-      Background="{x:Bind Cla:BackgroundController.Current.BackgroundBrush,Mode=OneWay}">
+      RequestedTheme="{x:Bind Cla:AppThemeController.Current.Theme,Mode=OneWay}">
 
     <Page.Resources>
+        <Cla:InverseBooleanConverter x:Key="InverseConverter" />
         <muxc:TeachingTip x:Name="PinTip"
                           x:Uid="PinTip"
                           Grid.Row="1"
@@ -47,11 +47,25 @@
             <RowDefinition Height="30" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Grid.Background>
-            <media:BackdropBlurBrush x:Name="BackgroundBlur"
-                                     x:FieldModifier="public" />
-        </Grid.Background>
 
+        <Grid Grid.RowSpan="2"
+              Name="CompositorAcrylicBackground"
+              x:FieldModifier="public"
+              Visibility="{x:Bind Cla:BackgroundController.Current.IsCompositionAcrylicEnabled, Mode=OneWay}"/>
+
+        <Grid Grid.RowSpan="2"
+              Name="NormalAcrylicBackground"
+              x:FieldModifier="public"
+              Visibility="{x:Bind Cla:BackgroundController.Current.IsCompositionAcrylicEnabled, Mode=OneWay, Converter={StaticResource InverseConverter}}"
+              Background="{x:Bind Cla:BackgroundController.Current.BackgroundBrush,Mode=OneWay}" />
+
+        <Grid Grid.RowSpan="2">
+            <Grid.Background>
+                <media:BackdropBlurBrush x:Name="BackgroundBlur"
+                                         x:FieldModifier="public" />
+            </Grid.Background>
+        </Grid>
+        
         <Border x:Name="TitleBar"
                 Background="Transparent"
                 HorizontalAlignment="Stretch"
