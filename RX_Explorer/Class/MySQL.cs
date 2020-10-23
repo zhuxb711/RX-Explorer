@@ -7,7 +7,6 @@ using System.Data;
 using System.Data.Common;
 using System.Runtime.InteropServices;
 using System.Security;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Storage;
@@ -213,8 +212,9 @@ namespace RX_Explorer.Class
                             }
                             return true;
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
+                            await LogTracer.LogAsync(ex, $"An error was threw in {nameof(UpdateFeedBackVoteAsync)}").ConfigureAwait(true);
                             return false;
                         }
                     }
@@ -254,8 +254,9 @@ namespace RX_Explorer.Class
                         }
                         return true;
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        await LogTracer.LogAsync(ex, $"An error was threw in {nameof(UpdateFeedBackAsync)}").ConfigureAwait(true);
                         return false;
                     }
                 }
@@ -289,8 +290,9 @@ namespace RX_Explorer.Class
 
                             return true;
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
+                            await LogTracer.LogAsync(ex, $"An error was threw in {nameof(DeleteFeedBackAsync)}").ConfigureAwait(true);
                             return false;
                         }
                     }
@@ -334,8 +336,9 @@ namespace RX_Explorer.Class
                             }
                             return true;
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
+                            await LogTracer.LogAsync(ex, $"An error was threw in {nameof(SetFeedBackAsync)}").ConfigureAwait(true);
                             return false;
                         }
                     }

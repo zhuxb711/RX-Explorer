@@ -161,7 +161,7 @@ namespace RX_Explorer
         }
 
         public bool IsSearchOrPathBoxFocused { get; set; }
-        private List<string> GoAndBackRecord = new List<string>();
+        private List<ValueTuple<string, string>> GoAndBackRecord = new List<ValueTuple<string, string>>();
         private ObservableCollection<string> AddressButtonList = new ObservableCollection<string>();
         private ObservableCollection<string> AddressExtentionList = new ObservableCollection<string>();
         private volatile int recordIndex;
@@ -593,7 +593,19 @@ namespace RX_Explorer
                             GoAndBackRecord.RemoveRange(RecordIndex + 1, GoAndBackRecord.Count - RecordIndex - 1);
                         }
 
-                        GoAndBackRecord.Add(Content.Path);
+                        if (GoAndBackRecord.Count > 0)
+                        {
+                            if (Path.GetDirectoryName((Node.Content as TreeViewNodeContent)?.Path) == GoAndBackRecord[GoAndBackRecord.Count - 1].Item1)
+                            {
+                                GoAndBackRecord[GoAndBackRecord.Count - 1] = (GoAndBackRecord[GoAndBackRecord.Count - 1].Item1, (Node.Content as TreeViewNodeContent)?.Path);
+                            }
+                            else
+                            {
+                                GoAndBackRecord[GoAndBackRecord.Count - 1] = (GoAndBackRecord[GoAndBackRecord.Count - 1].Item1, Presenter.SelectedItems.Count > 1 ? string.Empty : (Presenter.SelectedItem?.Path ?? string.Empty));
+                            }
+                        }
+
+                        GoAndBackRecord.Add((Content.Path, string.Empty));
 
                         RecordIndex = GoAndBackRecord.Count - 1;
                     }
@@ -663,7 +675,19 @@ namespace RX_Explorer
                         GoAndBackRecord.RemoveRange(RecordIndex + 1, GoAndBackRecord.Count - RecordIndex - 1);
                     }
 
-                    GoAndBackRecord.Add(Folder.Path);
+                    if (GoAndBackRecord.Count > 0)
+                    {
+                        if (Path.GetDirectoryName(Folder.Path) == GoAndBackRecord[GoAndBackRecord.Count - 1].Item1)
+                        {
+                            GoAndBackRecord[GoAndBackRecord.Count - 1] = (GoAndBackRecord[GoAndBackRecord.Count - 1].Item1, Folder.Path);
+                        }
+                        else
+                        {
+                            GoAndBackRecord[GoAndBackRecord.Count - 1] = (GoAndBackRecord[GoAndBackRecord.Count - 1].Item1, Presenter.SelectedItems.Count > 1 ? string.Empty : (Presenter.SelectedItem?.Path ?? string.Empty));
+                        }
+                    }
+
+                    GoAndBackRecord.Add((Folder.Path, string.Empty));
 
                     RecordIndex = GoAndBackRecord.Count - 1;
                 }
@@ -1556,7 +1580,8 @@ namespace RX_Explorer
                 {
                     if (GoParentFolder.IsEnabled)
                     {
-                        string DirectoryPath = Path.GetDirectoryName(CurrentFolder.Path);
+                        string CurrentFolderPath = CurrentFolder.Path;
+                        string DirectoryPath = Path.GetDirectoryName(CurrentFolderPath);
 
                         if (!string.IsNullOrWhiteSpace(DirectoryPath))
                         {
@@ -1593,6 +1618,12 @@ namespace RX_Explorer
                                     }
                                 }
                             }
+
+                            if (Presenter.FileCollection.Where((Item) => Item.StorageType == StorageItemTypes.Folder).FirstOrDefault((Item) => Item.Path == CurrentFolderPath) is FileSystemStorageItemBase Folder)
+                            {
+                                Presenter.SelectedItem = Folder;
+                                Presenter.ItemPresenter.ScrollIntoView(Folder, ScrollIntoViewAlignment.Leading);
+                            }
                         }
                         else
                         {
@@ -1612,12 +1643,15 @@ namespace RX_Explorer
             if (Interlocked.Exchange(ref NavigateLockResource, 1) == 0)
             {
                 string Path = string.Empty;
+                string SelectedPath = string.Empty;
 
                 try
                 {
                     if (GoBackRecord.IsEnabled)
                     {
-                        Path = GoAndBackRecord[--RecordIndex];
+                        GoAndBackRecord[RecordIndex] = (GoAndBackRecord[RecordIndex].Item1, Presenter.SelectedItems.Count > 1 ? string.Empty : (Presenter.SelectedItem?.Path ?? string.Empty));
+
+                        (Path, SelectedPath) = GoAndBackRecord[--RecordIndex];
 
                         if (WIN_Native_API.CheckIfHidden(Path))
                         {
@@ -1631,6 +1665,8 @@ namespace RX_Explorer
                             _ = await Dialog.ShowAsync().ConfigureAwait(false);
 
                             _ = Interlocked.Exchange(ref NavigateLockResource, 0);
+
+                            RecordIndex++;
                             return;
                         }
 
@@ -1675,6 +1711,11 @@ namespace RX_Explorer
                             }
                         }
 
+                        if (!string.IsNullOrEmpty(SelectedPath) && Presenter.FileCollection.FirstOrDefault((Item) => Item.Path == SelectedPath) is FileSystemStorageItemBase Item)
+                        {
+                            Presenter.SelectedItem = Item;
+                            Presenter.ItemPresenter.ScrollIntoView(Folder, ScrollIntoViewAlignment.Leading);
+                        }
                     }
                 }
                 catch (Exception)
@@ -1701,12 +1742,15 @@ namespace RX_Explorer
             if (Interlocked.Exchange(ref NavigateLockResource, 1) == 0)
             {
                 string Path = string.Empty;
+                string SelectedPath = string.Empty;
 
                 try
                 {
                     if (GoForwardRecord.IsEnabled)
                     {
-                        Path = GoAndBackRecord[++RecordIndex];
+                        GoAndBackRecord[RecordIndex] = (GoAndBackRecord[RecordIndex].Item1, Presenter.SelectedItems.Count > 1 ? string.Empty : (Presenter.SelectedItem?.Path ?? string.Empty));
+
+                        (Path, SelectedPath) = GoAndBackRecord[++RecordIndex];
 
                         if (WIN_Native_API.CheckIfHidden(Path))
                         {
@@ -1721,9 +1765,9 @@ namespace RX_Explorer
 
                             _ = Interlocked.Exchange(ref NavigateLockResource, 0);
 
+                            RecordIndex--;
                             return;
                         }
-
 
                         StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
 
@@ -1764,6 +1808,12 @@ namespace RX_Explorer
 
                                 await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(true);
                             }
+                        }
+
+                        if (!string.IsNullOrEmpty(SelectedPath) && Presenter.FileCollection.FirstOrDefault((Item) => Item.Path == SelectedPath) is FileSystemStorageItemBase Item)
+                        {
+                            Presenter.SelectedItem = Item;
+                            Presenter.ItemPresenter.ScrollIntoView(Folder, ScrollIntoViewAlignment.Leading);
                         }
                     }
                 }
