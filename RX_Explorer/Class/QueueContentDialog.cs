@@ -12,10 +12,9 @@ namespace RX_Explorer.Class
     /// </summary>
     public class QueueContentDialog : ContentDialog
     {
-        private static readonly AutoResetEvent Locker = new AutoResetEvent(true);
+        private static readonly SemaphoreSlim Locker = new SemaphoreSlim(1, 1);
 
-        private static int WaitCount;
-
+        private static volatile int WaitCount;
 
         /// <summary>
         /// 指示当前是否存在正处于弹出状态的ContentDialog
@@ -34,20 +33,19 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public new async Task<ContentDialogResult> ShowAsync()
         {
-            _ = Interlocked.Increment(ref WaitCount);
-
-            await Task.Run(() =>
+            try
             {
-                Locker.WaitOne();
-            }).ConfigureAwait(true);
+                _ = Interlocked.Increment(ref WaitCount);
 
-            ContentDialogResult Result = await base.ShowAsync();
+                await Locker.WaitAsync().ConfigureAwait(true);
 
-            _ = Interlocked.Decrement(ref WaitCount);
-
-            Locker.Set();
-
-            return Result;
+                return await base.ShowAsync();
+            }
+            finally
+            {
+                Locker.Release();
+                _ = Interlocked.Decrement(ref WaitCount);
+            }
         }
 
         /// <summary>

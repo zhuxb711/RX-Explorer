@@ -108,7 +108,7 @@
                 <AppBarButton Icon="Tag"
                               x:Uid="FileAttribute"
                               Label="属性"
-                              Click="Attribute_Click" />
+                              Click="FileProperty_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
 
@@ -281,7 +281,7 @@
                               Name="Attribute"
                               x:Uid="FileAttribute"
                               Label="属性"
-                              Click="Attribute_Click" />
+                              Click="FileProperty_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
 

@@ -173,14 +173,19 @@ namespace RX_Explorer
             CoreVirtualKeyStates ShiftState = sender.GetKeyState(VirtualKey.Shift);
 
             bool HasHiddenItem = SelectedItems.Any((Item) => Item is HiddenStorageItem);
+            bool IsCommandBarFlyoutOpened = FileFlyout.IsOpen || FolderFlyout.IsOpen || EmptyFlyout.IsOpen || MixedFlyout.IsOpen || HiddenItemFlyout.IsOpen || LnkItemFlyout.IsOpen;
 
-            if (!Container.IsSearchOrPathBoxFocused && !QueueContentDialog.IsRunningOrWaiting && !MainPage.ThisPage.IsAnyTaskRunning)
+            if (!Container.IsSearchOrPathBoxFocused && !QueueContentDialog.IsRunningOrWaiting && !MainPage.ThisPage.IsAnyTaskRunning && !IsCommandBarFlyoutOpened)
             {
                 args.Handled = true;
 
                 if (!CtrlState.HasFlag(CoreVirtualKeyStates.Down) && !ShiftState.HasFlag(CoreVirtualKeyStates.Down))
                 {
-                    NavigateToStorageItem(args.VirtualKey);
+                    if (args.VirtualKey >= VirtualKey.A && args.VirtualKey <= VirtualKey.Z)
+                    {
+                        NavigateToStorageItem(args.VirtualKey);
+                        return;
+                    }
                 }
 
                 switch (args.VirtualKey)
@@ -285,43 +290,81 @@ namespace RX_Explorer
                             ItemOpen_Click(null, null);
                             break;
                         }
+                    case VirtualKey.Up:
+                    case VirtualKey.Down:
+                        {
+                            if (SelectedItem is FileSystemStorageItemBase Context)
+                            {
+                                if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
+                                {
+                                    if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
+                                    {
+                                        MixZip.IsEnabled = false;
+                                    }
+                                    else
+                                    {
+                                        MixZip.IsEnabled = true;
+                                    }
+
+                                    ItemPresenter.ContextFlyout = MixedFlyout;
+                                }
+                                else
+                                {
+                                    if (Context is HiddenStorageItem)
+                                    {
+                                        ItemPresenter.ContextFlyout = HiddenItemFlyout;
+                                    }
+                                    else if (Context is HyperlinkStorageItem)
+                                    {
+                                        ItemPresenter.ContextFlyout = LnkItemFlyout;
+                                    }
+                                    else
+                                    {
+                                        ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                ItemPresenter.ContextFlyout = EmptyFlyout;
+                            }
+
+                            break;
+                        }
+                    default:
+                        {
+                            args.Handled = false;
+                            break;
+                        }
                 }
             }
         }
 
         private void NavigateToStorageItem(VirtualKey Key)
         {
-            if (Key >= VirtualKey.A && Key <= VirtualKey.Z)
+            try
             {
-                try
+                string TargetChar = Convert.ToChar((int)Key).ToString();
+
+                if (LastPressString != TargetChar && (DateTimeOffset.Now - LastPressTime).TotalMilliseconds < 1500)
                 {
-                    string TargetChar = Convert.ToChar((int)Key).ToString();
+                    TargetChar = LastPressString + TargetChar;
+                }
 
-                    if (LastPressString != TargetChar && (DateTimeOffset.Now - LastPressTime).TotalMilliseconds < 1500)
+                List<FileSystemStorageItemBase> Group = FileCollection.Where((Item) => Item.Name.StartsWith(TargetChar, StringComparison.OrdinalIgnoreCase)).ToList();
+
+                if (Group.Count > 0)
+                {
+                    if (SelectedItem != null)
                     {
-                        TargetChar = LastPressString + TargetChar;
-                    }
-
-                    List<FileSystemStorageItemBase> Group = FileCollection.Where((Item) => Item.Name.StartsWith(TargetChar, StringComparison.OrdinalIgnoreCase)).ToList();
-
-                    if (Group.Count > 0)
-                    {
-                        if (SelectedItem != null)
+                        if (Group.Any((Item) => Item == SelectedItem))
                         {
-                            if (Group.Any((Item) => Item == SelectedItem))
-                            {
-                                int NextIndex = Group.IndexOf(SelectedItem);
+                            int NextIndex = Group.IndexOf(SelectedItem);
 
-                                if (NextIndex < Group.Count - 1)
-                                {
-                                    SelectedItem = Group[NextIndex + 1];
-                                    ItemPresenter.ScrollIntoView(SelectedItem);
-                                }
-                                else
-                                {
-                                    SelectedItem = Group[0];
-                                    ItemPresenter.ScrollIntoView(SelectedItem);
-                                }
+                            if (NextIndex < Group.Count - 1)
+                            {
+                                SelectedItem = Group[NextIndex + 1];
+                                ItemPresenter.ScrollIntoView(SelectedItem);
                             }
                             else
                             {
@@ -335,14 +378,19 @@ namespace RX_Explorer
                             ItemPresenter.ScrollIntoView(SelectedItem);
                         }
                     }
+                    else
+                    {
+                        SelectedItem = Group[0];
+                        ItemPresenter.ScrollIntoView(SelectedItem);
+                    }
+                }
 
-                    LastPressString = TargetChar;
-                    LastPressTime = DateTimeOffset.Now;
-                }
-                catch (Exception ex)
-                {
-                    _ = LogTracer.LogAsync(ex, $"{nameof(NavigateToStorageItem)} throw an exception");
-                }
+                LastPressString = TargetChar;
+                LastPressTime = DateTimeOffset.Now;
+            }
+            catch (Exception ex)
+            {
+                _ = LogTracer.LogAsync(ex, $"{nameof(NavigateToStorageItem)} throw an exception");
             }
         }
 
@@ -1763,7 +1811,7 @@ namespace RX_Explorer
             e.Handled = true;
         }
 
-        private async void Attribute_Click(object sender, RoutedEventArgs e)
+        private async void FileProperty_Click(object sender, RoutedEventArgs e)
         {
             Restore();
 
@@ -5359,7 +5407,7 @@ namespace RX_Explorer
         {
             TextBox NameEditBox = (TextBox)sender;
 
-            if ((NameEditBox.Parent as FrameworkElement).FindName("NameLabel") is TextBlock NameLabel && CurrentNameEditItem != null)
+            if ((NameEditBox?.Parent as FrameworkElement)?.FindName("NameLabel") is TextBlock NameLabel && CurrentNameEditItem != null)
             {
                 try
                 {
@@ -6009,7 +6057,7 @@ namespace RX_Explorer
                                 Icon = new SymbolIcon(Symbol.Tag),
                                 Label = Globalization.GetString("Operate_Text_Property")
                             };
-                            PropertyButton.Click += Attribute_Click;
+                            PropertyButton.Click += FileProperty_Click;
                             BottomCommandBar.SecondaryCommands.Add(PropertyButton);
                         }
                         else
