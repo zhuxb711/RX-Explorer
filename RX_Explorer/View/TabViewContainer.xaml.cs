@@ -174,6 +174,51 @@ namespace RX_Explorer
                             }
                             break;
                         }
+                    case VirtualKey.Enter:
+                        {
+                            if (PC.DeviceGrid.SelectedItem is HardDeviceInfo Device)
+                            {
+                                if (string.IsNullOrEmpty(Device.Folder.Path))
+                                {
+                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                        Content = Globalization.GetString("QueueDialog_MTP_CouldNotAccess_Content"),
+                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                    };
+
+                                    if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                                    {
+                                        await Launcher.LaunchFolderAsync(Device.Folder);
+                                    }
+                                }
+                                else
+                                {
+                                    if (AnimationController.Current.IsEnableAnimation)
+                                    {
+                                        CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabViewControl.SelectedItem as TabViewItem, Device.Folder), new DrillInNavigationTransitionInfo());
+                                    }
+                                    else
+                                    {
+                                        CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabViewControl.SelectedItem as TabViewItem, Device.Folder), new SuppressNavigationTransitionInfo());
+                                    }
+                                }
+                            }
+                            else if (PC.LibraryGrid.SelectedItem is LibraryFolder Library)
+                            {
+                                if (AnimationController.Current.IsEnableAnimation)
+                                {
+                                    CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabViewControl.SelectedItem as TabViewItem, Library.Folder), new DrillInNavigationTransitionInfo());
+                                }
+                                else
+                                {
+                                    CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabViewControl.SelectedItem as TabViewItem, Library.Folder), new SuppressNavigationTransitionInfo());
+                                }
+                            }
+
+                            break;
+                        }
                     case VirtualKey.F5:
                         {
                             PC.Refresh_Click(null, null);
@@ -698,7 +743,7 @@ namespace RX_Explorer
                             await LogTracer.LogAsync(ex, "An error was threw when getting library folder (Not in initialize)").ConfigureAwait(true);
                         }
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         await LogTracer.LogAsync(ex, "An error was threw when try to get 'UserDataPath' (Not in initialize)").ConfigureAwait(true);
 

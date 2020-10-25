@@ -326,7 +326,7 @@ namespace RX_Explorer
                             }
                             else
                             {
-                                ItemPresenter.ContextFlyout = EmptyFlyout;
+                                SelectedItem = FileCollection.FirstOrDefault();
                             }
 
                             break;
