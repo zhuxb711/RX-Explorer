@@ -2,7 +2,9 @@
 using System.ComponentModel;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
+using Windows.UI;
 using Windows.UI.Core;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 
 namespace RX_Explorer.Class
@@ -26,6 +28,8 @@ namespace RX_Explorer.Class
                 if (value != theme)
                 {
                     theme = value;
+
+                    UpdateTitleBarButton();
 
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Theme)));
 
@@ -78,6 +82,20 @@ namespace RX_Explorer.Class
             {
                 Theme = (ElementTheme)Enum.Parse(typeof(ElementTheme), Convert.ToString(ApplicationData.Current.LocalSettings.Values["AppFontColorMode"]));
             });
+        }
+
+        private void UpdateTitleBarButton()
+        {
+            ApplicationViewTitleBar titleBar = ApplicationView.GetForCurrentView().TitleBar;
+
+            if (Theme == ElementTheme.Dark)
+            {
+                titleBar.ButtonForegroundColor = Colors.White;
+            }
+            else
+            {
+                titleBar.ButtonForegroundColor = Colors.Black;
+            }
         }
     }
 }

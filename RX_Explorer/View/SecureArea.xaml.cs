@@ -3,6 +3,7 @@ using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
@@ -432,65 +433,73 @@ namespace RX_Explorer
 
             IReadOnlyList<StorageFile> FileList = await Picker.PickMultipleFilesAsync();
 
-            ActivateLoading(true, true);
-
-            Cancellation = new CancellationTokenSource();
-
-            try
+            if (FileList.Count > 0)
             {
-                foreach (StorageFile File in FileList)
+                ActivateLoading(true, true);
+
+                Cancellation = new CancellationTokenSource();
+
+                try
                 {
-                    if ((await File.EncryptAsync(SecureFolder, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true)) is StorageFile EncryptedFile)
+                    foreach (StorageFile File in FileList)
                     {
-                        var Size = await EncryptedFile.GetSizeRawDataAsync().ConfigureAwait(true);
-                        var Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
-                        var ModifiedTime = await EncryptedFile.GetModifiedTimeAsync().ConfigureAwait(true);
-                        SecureCollection.Add(new FileSystemStorageItemBase(EncryptedFile, Size, Thumbnail, ModifiedTime));
-                    }
-                    else
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
+                        if ((await File.EncryptAsync(SecureFolder, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true)) is StorageFile EncryptedFile)
                         {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                        break;
+                            var Size = await EncryptedFile.GetSizeRawDataAsync().ConfigureAwait(true);
+                            var Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
+                            var ModifiedTime = await EncryptedFile.GetModifiedTimeAsync().ConfigureAwait(true);
+                            SecureCollection.Add(new FileSystemStorageItemBase(EncryptedFile, Size, Thumbnail, ModifiedTime));
+                        }
+                        else
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                            break;
+                        }
                     }
                 }
-            }
-            catch (TaskCanceledException)
-            {
+                catch (TaskCanceledException)
+                {
+                    Debug.WriteLine("Import items to SecureArea have been cancelled");
+                }
+                catch (Exception ex)
+                {
+                    await LogTracer.LogAsync(ex, "An error was threw when importing file").ConfigureAwait(true);
+                }
+                finally
+                {
+                    Cancellation.Dispose();
+                    Cancellation = null;
 
+                    await Task.Delay(1500).ConfigureAwait(true);
+                    ActivateLoading(false);
+                }
             }
-            finally
-            {
-                Cancellation.Dispose();
-                Cancellation = null;
-            }
-
-            await Task.Delay(1500).ConfigureAwait(true);
-            ActivateLoading(false);
         }
 
         private async void Grid_Drop(object sender, DragEventArgs e)
         {
-            if (e.DataView.Contains(StandardDataFormats.StorageItems))
+            IReadOnlyList<IStorageItem> Items = await e.DataView.GetStorageItemsAsync();
+
+            if (Items.Any((Item) => Item.IsOfType(StorageItemTypes.Folder)))
             {
-                IReadOnlyList<IStorageItem> Items = await e.DataView.GetStorageItemsAsync();
-
-                if (Items.Any((Item) => Item.IsOfType(StorageItemTypes.Folder)))
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                        Content = Globalization.GetString("QueueDialog_SecureAreaImportFiliter_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
+                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                    Content = Globalization.GetString("QueueDialog_SecureAreaImportFiliter_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
 
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+            }
+
+            if (Items.Any((Item) => Item.IsOfType(StorageItemTypes.File)))
+            {
                 ActivateLoading(true, true);
 
                 Cancellation = new CancellationTokenSource();
@@ -521,7 +530,11 @@ namespace RX_Explorer
                 }
                 catch (TaskCanceledException)
                 {
-
+                    Debug.WriteLine("Import items to SecureArea have been cancelled");
+                }
+                catch (Exception ex)
+                {
+                    await LogTracer.LogAsync(ex, "An error was threw when importing file").ConfigureAwait(true);
                 }
                 finally
                 {
@@ -534,10 +547,13 @@ namespace RX_Explorer
             }
         }
 
-        private void SecureGridView_DragEnter(object sender, DragEventArgs e)
+        private async void SecureGridView_DragEnter(object sender, DragEventArgs e)
         {
-            e.AcceptedOperation = DataPackageOperation.Copy;
-            e.DragUIOverride.Caption = Globalization.GetString("Drag_Tip_ReleaseToAdd");
+            if (e.DataView.Contains(StandardDataFormats.StorageItems))
+            {
+                e.AcceptedOperation = DataPackageOperation.Copy;
+                e.DragUIOverride.Caption = Globalization.GetString("Drag_Tip_ReleaseToAdd");
+            }
         }
 
         private void SecureGridView_SelectionChanged(object sender, SelectionChangedEventArgs e)

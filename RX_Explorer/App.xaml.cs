@@ -132,11 +132,11 @@ namespace RX_Explorer
         /// <param name="e">有关启动请求和过程的详细信息。</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
+            ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
+            TitleBar.ButtonBackgroundColor = Colors.Transparent;
+            TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
             CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
-            var viewTitleBar = ApplicationView.GetForCurrentView().TitleBar;
-            viewTitleBar.ButtonBackgroundColor = Colors.Transparent;
-            viewTitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-            viewTitleBar.ButtonForegroundColor = (Color)Resources["SystemBaseHighColor"];
 
             if (!(Window.Current.Content is Frame) && !(Window.Current.Content is ExtendedSplash))
             {
@@ -162,11 +162,11 @@ namespace RX_Explorer
 
         protected override void OnActivated(IActivatedEventArgs args)
         {
+            ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
+            TitleBar.ButtonBackgroundColor = Colors.Transparent;
+            TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
             CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
-            var viewTitleBar = ApplicationView.GetForCurrentView().TitleBar;
-            viewTitleBar.ButtonBackgroundColor = Colors.Transparent;
-            viewTitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-            viewTitleBar.ButtonForegroundColor = (Color)Resources["SystemBaseHighColor"];
 
             if (args is CommandLineActivatedEventArgs CmdArgs)
             {
@@ -239,11 +239,11 @@ namespace RX_Explorer
             {
                 if (args.Verb == "USBArrival")
                 {
+                    ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
+                    TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                    TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
                     CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
-                    var viewTitleBar = ApplicationView.GetForCurrentView().TitleBar;
-                    viewTitleBar.ButtonBackgroundColor = Colors.Transparent;
-                    viewTitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-                    viewTitleBar.ButtonForegroundColor = (Color)Resources["SystemBaseHighColor"];
 
                     if (Window.Current.Content is Frame mainPageFrame)
                     {
