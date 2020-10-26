@@ -33,6 +33,10 @@
 
 >#####Fixed the problem that the disk drive interface could not be entered with the Enter key
 
+>#####Fixed the problem that the minimize, maximize, and close buttons in the upper right corner do not change with the font color
+
+>#####Fixed some problems in the Security Area
+
 *****
 ###What's new in Ver.5.5.2.0
 

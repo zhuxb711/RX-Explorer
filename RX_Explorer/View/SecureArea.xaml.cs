@@ -547,7 +547,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void SecureGridView_DragEnter(object sender, DragEventArgs e)
+        private void SecureGridView_DragEnter(object sender, DragEventArgs e)
         {
             if (e.DataView.Contains(StandardDataFormats.StorageItems))
             {

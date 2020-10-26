@@ -33,6 +33,10 @@
 
 >#####Correction du problème selon lequel l'interface du lecteur de disque ne pouvait pas être entrée avec la touche Entrée
 
+>#####Correction du problème suivant: les boutons de réduction, d'agrandissement et de fermeture dans le coin supérieur droit ne changent pas avec la couleur de la police
+
+>#####Correction de quelques problèmes dans la zone de sécurité
+
 *****
 ###Quoi de neuf dans la version 5.5.2.0
 
