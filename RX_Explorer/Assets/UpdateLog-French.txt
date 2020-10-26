@@ -1,4 +1,39 @@
 ﻿*****
+###Quoi de neuf dans la version 5.5.6.0
+
+##### Mise à jour des fonctionnalités
+
+>#####Lors du changement de l'arrière-plan personnalisé, la luminosité sera détectée et une invite pour changer la couleur de la police apparaîtra
+
+>#####Les effets acryliques ##### offrent désormais des options pour conserver l'effet après avoir perdu le focus de la fenêtre
+
+>#####Nouveau bouton du journal des erreurs d'exportation sur la page des paramètres
+
+#####Mise à jour de l'interface utilisateur
+
+>#####«Dossiers et bibliothèques» peut maintenant cliquer avec le bouton droit pour ajouter des dossiers
+
+>#####Mise à jour de la disposition de l'interface utilisateur de la page des paramètres
+
+>#####Lorsque vous revenez au répertoire précédent ou utilisez les boutons de navigation pour avancer et reculer, le fichier ou le dossier précédemment sélectionné sera mis en surbrillance
+
+#####Correction d'un bug
+
+>#####Correction du problème de ne pas pouvoir accéder au dossier OneDrive
+
+>#####Correction du problème selon lequel le dossier OneDrive peut ne pas être détecté automatiquement
+
+>#####Correction du problème selon lequel l'enregistrement d'historique pouvait ne pas être enregistré correctement lors de la saisie du chemin directement dans la barre d'adresse
+
+>#####Correction des problèmes de performances pouvant exister lors de la synchronisation des paramètres entre plusieurs processus
+
+>#####Correction du problème du ratio de vignettes déséquilibré de l'arrière-plan personnalisé
+
+>#####Correction du problème que le menu contextuel ouvert avec le clavier ne correspond pas au type de fichier, ce qui provoquera un crash
+
+>#####Correction du problème selon lequel l'interface du lecteur de disque ne pouvait pas être entrée avec la touche Entrée
+
+*****
 ###Quoi de neuf dans la version 5.5.2.0
 
 #####Mise à jour des fonctionnalités

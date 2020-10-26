@@ -1,4 +1,39 @@
 ﻿*****
+###What's new in Ver.5.5.6.0
+
+#####Feature update
+
+>#####When changing the custom background, the brightness will be detected and a prompt to switch the font color will pop up
+
+>#####Acrylic effects now provide options to maintain the effect after losing window focus
+
+>#####New export error log button on the settings page
+
+#####UI update
+
+>#####"Folders and Libraries" can now right-click to add folders
+
+>#####Updated the UI layout of the settings page
+
+>#####When you return to the previous directory or use the navigation buttons to move forward and backward, the previously selected file or folder will be highlighted
+
+#####Bug fix
+
+>#####Fixed the problem of not being able to access the OneDrive folder
+
+>#####Fixed the problem that the OneDrive folder may not be detected automatically
+
+>#####Fixed the problem that the history record may not be saved correctly when entering the path directly in the address bar
+
+>#####Fixed the performance problems that may exist when synchronizing settings between multiple processes
+
+>#####Fixed the problem of imbalanced thumbnail ratio of custom background
+
+>#####Fixed the problem that the right-click menu opened with the keyboard does not match the file type, which will cause a crash
+
+>#####Fixed the problem that the disk drive interface could not be entered with the Enter key
+
+*****
 ###What's new in Ver.5.5.2.0
 
 #####Feature update

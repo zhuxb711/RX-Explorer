@@ -173,9 +173,8 @@ namespace RX_Explorer
             CoreVirtualKeyStates ShiftState = sender.GetKeyState(VirtualKey.Shift);
 
             bool HasHiddenItem = SelectedItems.Any((Item) => Item is HiddenStorageItem);
-            bool IsCommandBarFlyoutOpened = FileFlyout.IsOpen || FolderFlyout.IsOpen || EmptyFlyout.IsOpen || MixedFlyout.IsOpen || HiddenItemFlyout.IsOpen || LnkItemFlyout.IsOpen;
 
-            if (!Container.IsSearchOrPathBoxFocused && !QueueContentDialog.IsRunningOrWaiting && !MainPage.ThisPage.IsAnyTaskRunning && !IsCommandBarFlyoutOpened)
+            if (!Container.IsSearchOrPathBoxFocused && !QueueContentDialog.IsRunningOrWaiting && !MainPage.ThisPage.IsAnyTaskRunning)
             {
                 args.Handled = true;
 
@@ -6370,6 +6369,19 @@ namespace RX_Explorer
             {
                 if (!SettingControl.IsDetachTreeViewAndPresenter && !SettingControl.IsDisplayHiddenItem)
                 {
+                    if (string.IsNullOrWhiteSpace(Item.TargetPath))
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                        return;
+                    }
+
                     PathAnalysis Analysis = new PathAnalysis(Item.TargetPath, string.Empty);
                     while (Analysis.HasNextLevel)
                     {
