@@ -453,21 +453,6 @@
   <data name="ProgramPickerDialogUseAsAdmin.Content" xml:space="preserve">
     <value>一律使用此程式來開啟檔案</value>
   </data>
-  <data name="PreLaunchHeader.Text" xml:space="preserve">
-    <value>使用預啟動技術</value>
-  </data>
-  <data name="PreLaunchSwitch.OnContent" xml:space="preserve">
-    <value>啟用</value>
-  </data>
-  <data name="PreLaunchSwitch.OffContent" xml:space="preserve">
-    <value>停用</value>
-  </data>
-  <data name="PreLaunchTip.Title" xml:space="preserve">
-    <value>預啟動技術</value>
-  </data>
-  <data name="PreLaunchTip.Subtitle" xml:space="preserve">
-    <value>開啟預啟動技術後，Windows將根據您的使用情況自動決定是否在效能充足預啟動RX 檔案總管。 如果Windows已預先啟動RX 檔案總管，則將大幅提升啟動速度</value>
-  </data>
   <data name="QRText.Header" xml:space="preserve">
     <value>複製此連接至瀏覽器進行下載</value>
   </data>
@@ -2510,5 +2495,20 @@
   </data>
   <data name="SettingPagePreventFallbackTip.Title" xml:space="preserve">
     <value>Acrylic節電模式</value>
+  </data>
+  <data name="ExtendedSplashLoadingBingText.Text" xml:space="preserve">
+    <value>正在更新Bing壁紙...</value>
+  </data>
+  <data name="FileLoadMode.Header" xml:space="preserve">
+    <value>圖標加載方式</value>
+  </data>
+  <data name="LoadMode_FileAndFolder_Text" xml:space="preserve">
+    <value>加載文件夾和文件的圖標(較慢)</value>
+  </data>
+  <data name="LoadMode_None_Text" xml:space="preserve">
+    <value>不要加載任何圖標(更快)</value>
+  </data>
+  <data name="LoadMode_OnlyFile_Text" xml:space="preserve">
+    <value>僅加載文件圖標(平衡)</value>
   </data>
 </root>

@@ -444,21 +444,6 @@
   <data name="ProgramPickerDialogUseAsAdmin.Content" xml:space="preserve">
     <value>Toujours utiliser cette application pour ouvrir ce type de fichier</value>
   </data>
-  <data name="PreLaunchHeader.Text" xml:space="preserve">
-    <value>Permettre la technologie de pré-lancement</value>
-  </data>
-  <data name="PreLaunchSwitch.OnContent" xml:space="preserve">
-    <value>Activer</value>
-  </data>
-  <data name="PreLaunchSwitch.OffContent" xml:space="preserve">
-    <value>Désactiver</value>
-  </data>
-  <data name="PreLaunchTip.Title" xml:space="preserve">
-    <value>Technologie de pré-lancement</value>
-  </data>
-  <data name="PreLaunchTip.Subtitle" xml:space="preserve">
-    <value>Quand la technologie de pré-lancement est activée, Windows va automatiquement décider quand pré-lancer RX Explorateur selon les ressources système disponibles et votre usage. Cela permet un chargement beaucoup plus rapide de RX Explorateur.</value>
-  </data>
   <data name="QRText.Header" xml:space="preserve">
     <value>Copier ce lien vers votre navigateur pour télécharger</value>
   </data>
@@ -2510,5 +2495,20 @@ Les noms non valides incluent
   </data>
   <data name="SettingPagePreventFallbackTip.Title" xml:space="preserve">
     <value>Mode d'économie d'énergie acrylique</value>
+  </data>
+  <data name="ExtendedSplashLoadingBingText.Text" xml:space="preserve">
+    <value>Mise à jour du fond d'écran Bing ...</value>
+  </data>
+  <data name="FileLoadMode.Header" xml:space="preserve">
+    <value>Mode de chargement des icônes</value>
+  </data>
+  <data name="LoadMode_FileAndFolder_Text" xml:space="preserve">
+    <value>Charger les icônes pour les dossiers et les fichiers (plus lent)</value>
+  </data>
+  <data name="LoadMode_None_Text" xml:space="preserve">
+    <value>Ne chargez aucune icône (plus rapidement)</value>
+  </data>
+  <data name="LoadMode_OnlyFile_Text" xml:space="preserve">
+    <value>Icône de chargement de fichier uniquement (équilibrée)</value>
   </data>
 </root>

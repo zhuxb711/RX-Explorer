@@ -163,14 +163,38 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public async Task LoadMoreProperty()
         {
-            if (StorageType == StorageItemTypes.File && Inner_Thumbnail == null && await GetStorageItem().ConfigureAwait(false) is IStorageItem Item)
+            if (Inner_Thumbnail == null && await GetStorageItem().ConfigureAwait(false) is IStorageItem Item)
             {
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                switch (SettingControl.ContentLoadMode)
                 {
-                    Thumbnail = await Item.GetThumbnailBitmapAsync().ConfigureAwait(true);
-                    OnPropertyChanged(nameof(Thumbnail));
-                    OnPropertyChanged(nameof(DisplayType));
-                });
+                    case LoadMode.None:
+                        {
+                            break;
+                        }
+                    case LoadMode.OnlyFile:
+                        {
+                            if (StorageType == StorageItemTypes.File)
+                            {
+                                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                                {
+                                    Thumbnail = await Item.GetThumbnailBitmapAsync().ConfigureAwait(true);
+                                    OnPropertyChanged(nameof(Thumbnail));
+                                    OnPropertyChanged(nameof(DisplayType));
+                                });
+                            }
+                            break;
+                        }
+                    case LoadMode.FileAndFolder:
+                        {
+                            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                            {
+                                Thumbnail = await Item.GetThumbnailBitmapAsync().ConfigureAwait(true);
+                                OnPropertyChanged(nameof(Thumbnail));
+                                OnPropertyChanged(nameof(DisplayType));
+                            });
+                            break;
+                        }
+                }
             }
         }
 
@@ -218,7 +242,11 @@ namespace RX_Explorer.Class
 
                 SizeRaw = await File.GetSizeRawDataAsync().ConfigureAwait(true);
                 ModifiedTimeRaw = await File.GetModifiedTimeAsync().ConfigureAwait(true);
-                Thumbnail = await File.GetThumbnailBitmapAsync().ConfigureAwait(true);
+
+                if (SettingControl.ContentLoadMode != LoadMode.None)
+                {
+                    Thumbnail = await File.GetThumbnailBitmapAsync().ConfigureAwait(true);
+                }
             }
             catch
             {
@@ -229,6 +257,11 @@ namespace RX_Explorer.Class
                     StorageType = StorageItemTypes.Folder;
 
                     ModifiedTimeRaw = await Folder.GetModifiedTimeAsync().ConfigureAwait(true);
+
+                    if (SettingControl.ContentLoadMode == LoadMode.FileAndFolder)
+                    {
+                        Thumbnail = await Folder.GetThumbnailBitmapAsync().ConfigureAwait(true);
+                    }
                 }
                 catch
                 {

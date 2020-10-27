@@ -54,6 +54,39 @@ namespace RX_Explorer
 
         public static bool IsDisplayHiddenItem { get; set; }
 
+        public static LoadMode ContentLoadMode
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["FileLoadMode"] is int SelectedIndex)
+                {
+                    switch (SelectedIndex)
+                    {
+                        case 0:
+                            {
+                                return LoadMode.None;
+                            }
+                        case 1:
+                            {
+                                return LoadMode.OnlyFile;
+                            }
+                        case 2:
+                            {
+                                return LoadMode.FileAndFolder;
+                            }
+                        default:
+                            {
+                                return LoadMode.Unknown;
+                            }
+                    }
+                }
+                else
+                {
+                    return LoadMode.OnlyFile;
+                }
+            }
+        }
+
         public bool IsOpened { get; private set; }
 
         private bool HasInit;
@@ -111,6 +144,10 @@ namespace RX_Explorer
 
                 CustomFontColor.Items.Add(Globalization.GetString("Font_Color_White"));
                 CustomFontColor.Items.Add(Globalization.GetString("Font_Color_Black"));
+
+                FileLoadMode.Items.Add(Globalization.GetString("LoadMode_None_Text"));
+                FileLoadMode.Items.Add(Globalization.GetString("LoadMode_OnlyFile_Text"));
+                FileLoadMode.Items.Add(Globalization.GetString("LoadMode_FileAndFolder_Text"));
 
                 foreach (TerminalProfile Profile in await SQLite.Current.GetAllTerminalProfile().ConfigureAwait(true))
                 {
@@ -339,6 +376,7 @@ namespace RX_Explorer
                 {
                     DisplayHiddenItem.Toggled -= DisplayHiddenItem_Toggled;
                     TreeViewDetach.Toggled -= TreeViewDetach_Toggled;
+                    FileLoadMode.SelectionChanged -= FileLoadMode_SelectionChanged;
                 }
 
                 DefaultTerminal.SelectionChanged -= DefaultTerminal_SelectionChanged;
@@ -401,11 +439,6 @@ namespace RX_Explorer
                     FolderOpenMethod.SelectedIndex = 1;
                 }
 
-                if (ApplicationData.Current.LocalSettings.Values["EnablePreLaunch"] is bool PreLaunch)
-                {
-                    EnablePreLaunch.IsOn = PreLaunch;
-                }
-
                 if (ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] is bool IsDetach)
                 {
                     TreeViewDetach.IsOn = !IsDetach;
@@ -439,10 +472,20 @@ namespace RX_Explorer
                     AlwaysLaunchNewArea.Visibility = Visibility.Collapsed;
                 }
 
+                if (ApplicationData.Current.LocalSettings.Values["FileLoadMode"] is int SelectedIndex)
+                {
+                    FileLoadMode.SelectedIndex = SelectedIndex;
+                }
+                else
+                {
+                    FileLoadMode.SelectedIndex = 1;
+                }
+
                 if (!IsRaiseFromDataChanged)
                 {
                     DisplayHiddenItem.Toggled += DisplayHiddenItem_Toggled;
                     TreeViewDetach.Toggled += TreeViewDetach_Toggled;
+                    FileLoadMode.SelectionChanged += FileLoadMode_SelectionChanged;
                 }
 
                 UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
@@ -450,6 +493,27 @@ namespace RX_Explorer
                 AutoBoot.Toggled += AutoBoot_Toggled;
 
                 _ = Interlocked.Exchange(ref LocalSettingLock, 0);
+            }
+        }
+
+        private async void FileLoadMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                ApplicationData.Current.LocalSettings.Values["FileLoadMode"] = FileLoadMode.SelectedIndex;
+
+                if (TabViewContainer.CurrentTabNavigation?.Content is FileControl Control && Control.CurrentFolder != null)
+                {
+                    await Control.DisplayItemsInFolder(Control.CurrentFolder, true).ConfigureAwait(true);
+                }
+            }
+            catch(Exception ex)
+            {
+                await LogTracer.LogAsync(ex, $"An error was threw in {nameof(FileLoadMode_SelectionChanged)}").ConfigureAwait(true);
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
             }
         }
 
@@ -520,25 +584,27 @@ namespace RX_Explorer
         private async void ClearUp_Click(object sender, RoutedEventArgs e)
         {
             ResetDialog Dialog = new ResetDialog();
+
             if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
             {
                 if (Dialog.IsClearSecureFolder)
                 {
-                    SQLite.Current.Dispose();
-                    MySQL.Current.Dispose();
                     try
                     {
+                        SQLite.Current.Dispose();
+                        MySQL.Current.Dispose();
+                        FullTrustProcessController.Current.Dispose();
+
                         await ApplicationData.Current.ClearAsync();
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
                         ApplicationData.Current.LocalSettings.Values.Clear();
-                        await ApplicationData.Current.LocalFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
-                        await ApplicationData.Current.TemporaryFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
-                        await ApplicationData.Current.LocalCacheFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
+                        await LogTracer.LogAsync(ex, $"{nameof(ClearUp_Click)} threw an exception").ConfigureAwait(true);
                     }
 
                     Window.Current.Activate();
+
                     switch (await CoreApplication.RequestRestartAsync(string.Empty))
                     {
                         case AppRestartFailureReason.InvalidUser:
@@ -602,20 +668,20 @@ namespace RX_Explorer
                         }
                     }
 
-                    SQLite.Current.Dispose();
-                    MySQL.Current.Dispose();
                     try
                     {
-                        ApplicationData.Current.LocalSettings.Values.Clear();
+                        SQLite.Current.Dispose();
+                        MySQL.Current.Dispose();
+                        FullTrustProcessController.Current.Dispose();
+
                         await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Local);
                         await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Temporary);
                         await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Roaming);
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        await ApplicationData.Current.LocalFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
-                        await ApplicationData.Current.TemporaryFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
-                        await ApplicationData.Current.RoamingFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
+                        ApplicationData.Current.LocalSettings.Values.Clear();
+                        await LogTracer.LogAsync(ex, $"{nameof(ClearUp_Click)} threw an exception").ConfigureAwait(true);
                     }
 
                     await Task.Delay(1000).ConfigureAwait(true);
@@ -626,6 +692,7 @@ namespace RX_Explorer
                     await Task.Delay(1000).ConfigureAwait(true);
 
                     Window.Current.Activate();
+
                     switch (await CoreApplication.RequestRestartAsync(string.Empty))
                     {
                         case AppRestartFailureReason.InvalidUser:
@@ -1436,29 +1503,6 @@ namespace RX_Explorer
             {
                 ApplicationData.Current.SignalDataChanged();
             }
-        }
-
-        private async void EnablePreLaunch_Toggled(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                ApplicationData.Current.LocalSettings.Values["EnablePreLaunch"] = EnablePreLaunch.IsOn;
-
-                CoreApplication.EnablePrelaunch(EnablePreLaunch.IsOn);
-            }
-            catch (Exception ex)
-            {
-                await LogTracer.LogAsync(ex, $"Error in {nameof(EnablePreLaunch_Toggled)}").ConfigureAwait(true);
-            }
-            finally
-            {
-                ApplicationData.Current.SignalDataChanged();
-            }
-        }
-
-        private void PreLaunchQuestion_Tapped(object sender, TappedRoutedEventArgs e)
-        {
-            PreLaunchTip.IsOpen = true;
         }
 
         private async void SolidColor_FollowSystem_Checked(object sender, RoutedEventArgs e)

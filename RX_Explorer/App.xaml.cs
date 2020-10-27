@@ -132,6 +132,8 @@ namespace RX_Explorer
         /// <param name="e">有关启动请求和过程的详细信息。</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
+            CoreApplication.EnablePrelaunch(false);
+
             ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
             TitleBar.ButtonBackgroundColor = Colors.Transparent;
             TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
@@ -140,21 +142,14 @@ namespace RX_Explorer
 
             if (!(Window.Current.Content is Frame) && !(Window.Current.Content is ExtendedSplash))
             {
-                if (e.PrelaunchActivated)
+                if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("EnablePreLaunch"))
                 {
-                    _ = new ExtendedSplash(e.SplashScreen, true);
+                    CoreApplication.EnablePrelaunch(true);
+                    ApplicationData.Current.LocalSettings.Values["EnablePreLaunch"] = true;
                 }
-                else
-                {
-                    if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("EnablePreLaunch"))
-                    {
-                        CoreApplication.EnablePrelaunch(true);
-                        ApplicationData.Current.LocalSettings.Values["EnablePreLaunch"] = true;
-                    }
 
-                    ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen);
-                    Window.Current.Content = extendedSplash;
-                }
+                ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen);
+                Window.Current.Content = extendedSplash;
             }
 
             Window.Current.Activate();
@@ -201,7 +196,7 @@ namespace RX_Explorer
 
                     if (Arguments.Length > 1 && !Path.Contains("{20D04FE0-3AEA-1069-A2D8-08002B30309D}"))
                     {
-                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, false, $"PathActivate||{Path}");
+                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, $"PathActivate||{Path}");
                         Window.Current.Content = extendedSplash;
                     }
                     else
@@ -215,7 +210,7 @@ namespace RX_Explorer
             {
                 if (!string.IsNullOrWhiteSpace(ProtocalArgs.Uri.LocalPath))
                 {
-                    ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, false, $"PathActivate||{ProtocalArgs.Uri.LocalPath}");
+                    ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, $"PathActivate||{ProtocalArgs.Uri.LocalPath}");
                     Window.Current.Content = extendedSplash;
                 }
                 else
@@ -254,7 +249,7 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, false, $"PathActivate||{args.Files[0].Path}");
+                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, $"PathActivate||{args.Files[0].Path}");
                         Window.Current.Content = extendedSplash;
                     }
 

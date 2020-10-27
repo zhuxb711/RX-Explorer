@@ -2,6 +2,14 @@
 
 namespace RX_Explorer.Class
 {
+    public enum LoadMode
+    {
+        None = 0,
+        OnlyFile = 1,
+        FileAndFolder = 2,
+        Unknown = 4
+    }
+
     public enum ThumbnailStatus
     {
         Normal = 0,

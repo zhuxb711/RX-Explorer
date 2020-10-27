@@ -125,8 +125,8 @@ namespace RX_Explorer.Class
                 {
                     if (Connection != null)
                     {
-                        Connection.Dispose();
                         Connection.RequestReceived -= Connection_RequestReceived;
+                        Connection.Dispose();
                     }
 
                     Connection = new AppServiceConnection

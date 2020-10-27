@@ -78,14 +78,6 @@
             </StackPanel>
         </muxc:TeachingTip>
 
-        <muxc:TeachingTip x:Name="PreLaunchTip"
-                          IsLightDismissEnabled="True"
-                          PreferredPlacement="TopRight"
-                          x:Uid="PreLaunchTip"
-                          Target="{x:Bind PreLaunchQuestion}"
-                          Title="预加载技术"
-                          Subtitle="启用预加载技术时，Windows将根据您的使用情况自动决定是否在系统资源足够的时候对RX文件管理器进行预加载。若RX文件管理器已提前由Windows加载，则将大幅度提高启动速度" />
-
         <muxc:TeachingTip x:Name="QuicklookTip"
                           IsLightDismissEnabled="True"
                           PreferredPlacement="TopRight"
@@ -259,25 +251,6 @@
 
                     <StackPanel Margin="0,20,0,0">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="使用预加载技术"
-                                       x:Uid="PreLaunchHeader" />
-                            <Viewbox Margin="10,0,0,0"
-                                     Height="15"
-                                     VerticalAlignment="Bottom">
-                                <FontIcon Glyph="&#xE9CE;"
-                                          Name="PreLaunchQuestion"
-                                          Tapped="PreLaunchQuestion_Tapped" />
-                            </Viewbox>
-                        </StackPanel>
-                        <ToggleSwitch OnContent="启用"
-                                      OffContent="禁用"
-                                      x:Uid="PreLaunchSwitch"
-                                      Name="EnablePreLaunch"
-                                      Toggled="EnablePreLaunch_Toggled" />
-                    </StackPanel>
-
-                    <StackPanel Margin="0,20,0,0">
-                        <StackPanel Orientation="Horizontal">
                             <TextBlock Text="QuickLook预览"
                                        x:Uid="QuicklookHeader" />
                             <Viewbox Margin="10,0,0,0"
@@ -317,6 +290,13 @@
                                   Checked="AlwaysLaunchNew_Checked"
                                   Unchecked="AlwaysLaunchNew_Unchecked" />
                     </StackPanel>
+
+                    <ComboBox Header="图标加载模式"
+                              Margin="0,20,0,0"
+                              MinWidth="150"
+                              x:Uid="FileLoadMode"
+                              Name="FileLoadMode"
+                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
 
                     <StackPanel Orientation="Horizontal"
                                 Margin="0,20,0,0">

@@ -582,26 +582,6 @@
           <source>Use this app to open this type of file by default</source>
           <target state="translated">Toujours utiliser cette application pour ouvrir ce type de fichier</target>
         </trans-unit>
-        <trans-unit id="PreLaunchHeader.Text" translate="yes" xml:space="preserve">
-          <source>Enable prelaunch technology</source>
-          <target state="translated">Permettre la technologie de pré-lancement</target>
-        </trans-unit>
-        <trans-unit id="PreLaunchSwitch.OnContent" translate="yes" xml:space="preserve">
-          <source>Enable</source>
-          <target state="translated">Activer</target>
-        </trans-unit>
-        <trans-unit id="PreLaunchSwitch.OffContent" translate="yes" xml:space="preserve">
-          <source>Disable</source>
-          <target state="translated">Désactiver</target>
-        </trans-unit>
-        <trans-unit id="PreLaunchTip.Title" translate="yes" xml:space="preserve">
-          <source>Pre-launching technology</source>
-          <target state="translated">Technologie de pré-lancement</target>
-        </trans-unit>
-        <trans-unit id="PreLaunchTip.Subtitle" translate="yes" xml:space="preserve">
-          <source>When preload technology is enabled, Windows will automatically decide whether to preload the RX Explorer when system resources are sufficient based on your usage. If the RX Explorer has been loaded by Windows in advance, it will greatly improve the startup speed</source>
-          <target state="translated">Quand la technologie de pré-lancement est activée, Windows va automatiquement décider quand pré-lancer RX Explorateur selon les ressources système disponibles et votre usage. Cela permet un chargement beaucoup plus rapide de RX Explorateur.</target>
-        </trans-unit>
         <trans-unit id="QRText.Header" translate="yes" xml:space="preserve">
           <source>Copy this link to your browser to download</source>
           <target state="translated">Copier ce lien vers votre navigateur pour télécharger</target>
@@ -3327,6 +3307,26 @@ Les noms non valides incluent
         <trans-unit id="SettingPagePreventFallbackTip.Title" translate="yes" xml:space="preserve">
           <source>Acrylic power saving mode</source>
           <target state="translated">Mode d'économie d'énergie acrylique</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplashLoadingBingText.Text" translate="yes" xml:space="preserve">
+          <source>Updating Bing wallpaper...</source>
+          <target state="translated">Mise à jour du fond d'écran Bing ...</target>
+        </trans-unit>
+        <trans-unit id="FileLoadMode.Header" translate="yes" xml:space="preserve">
+          <source>Icon loading mode</source>
+          <target state="translated">Mode de chargement des icônes</target>
+        </trans-unit>
+        <trans-unit id="LoadMode_FileAndFolder_Text" translate="yes" xml:space="preserve">
+          <source>Load icons for folders and files (slower)</source>
+          <target state="translated">Charger les icônes pour les dossiers et les fichiers (plus lent)</target>
+        </trans-unit>
+        <trans-unit id="LoadMode_None_Text" translate="yes" xml:space="preserve">
+          <source>Do not load any icons (faster)</source>
+          <target state="translated">Ne chargez aucune icône (plus rapidement)</target>
+        </trans-unit>
+        <trans-unit id="LoadMode_OnlyFile_Text" translate="yes" xml:space="preserve">
+          <source>Load file icon only (balanced)</source>
+          <target state="translated">Icône de chargement de fichier uniquement (équilibrée)</target>
         </trans-unit>
       </group>
     </body>

@@ -65,6 +65,8 @@ namespace RX_Explorer
 
             try
             {
+                BackgroundController.Current.SetAcrylicEffectPresenter(CompositorAcrylicBackground);
+
                 ToastNotificationManager.History.Clear();
             }
             catch (Exception)
@@ -297,8 +299,6 @@ namespace RX_Explorer
                     {typeof(SecureArea),Globalization.GetString("MainPage_PageDictionary_SecureArea_Label") },
                     {typeof(RecycleBin),Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label") }
                 };
-
-                await BackgroundController.Current.Initialize().ConfigureAwait(true);
 
                 if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903) && !AnimationController.Current.IsDisableStartupAnimation && !IsPathActivate)
                 {

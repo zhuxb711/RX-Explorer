@@ -29,6 +29,10 @@ namespace RX_Explorer.Class
 
         private CompositionEffectBrush CompositionAcrylicBrush;
 
+        private event EventHandler CompositionAcrylicPresenterWasSetEvent;
+
+        private UIElement CompositionAcrylicPresenter;
+
         private bool isCompositionAcrylicEnabled;
         public bool IsCompositionAcrylicEnabled
         {
@@ -118,6 +122,8 @@ namespace RX_Explorer.Class
         public event PropertyChangedEventHandler PropertyChanged;
 
         private readonly UISettings UIS;
+
+        private bool IsInitialized;
 
         /// <summary>
         /// 获取背景控制器的实例
@@ -262,14 +268,14 @@ namespace RX_Explorer.Class
                                 }
                             }
 
-                            if (ApplicationData.Current.LocalSettings.Values["PreventFallBack"] is bool IsPrevent)
-                            {
-                                IsCompositionAcrylicEnabled = IsPrevent;
-                            }
-
                             if (ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] is string SubMode)
                             {
                                 CurrentType = (BackgroundBrushType)Enum.Parse(typeof(BackgroundBrushType), SubMode);
+
+                                if (CurrentType == BackgroundBrushType.Acrylic && ApplicationData.Current.LocalSettings.Values["PreventFallBack"] is bool IsPrevent)
+                                {
+                                    IsCompositionAcrylicEnabled = IsPrevent;
+                                }
                             }
 
                             break;
@@ -337,119 +343,162 @@ namespace RX_Explorer.Class
 
         public async Task Initialize()
         {
-            try
+            if (!IsInitialized)
             {
-                switch (CurrentType)
+                try
                 {
-                    case BackgroundBrushType.Picture:
-                        {
-                            string UriString = Convert.ToString(ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"]);
+                    switch (CurrentType)
+                    {
+                        case BackgroundBrushType.Picture:
+                            {
+                                string UriString = Convert.ToString(ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"]);
 
-                            if (!string.IsNullOrEmpty(UriString))
+                                if (!string.IsNullOrEmpty(UriString))
+                                {
+                                    BitmapImage Bitmap = new BitmapImage();
+
+                                    StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(UriString));
+
+                                    using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                                    {
+                                        await Bitmap.SetSourceAsync(Stream);
+                                    }
+
+                                    PictureBackgroundBrush.ImageSource = Bitmap;
+
+                                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
+                                }
+                                else
+                                {
+                                    await LogTracer.LogAsync("UriString is empty, BackgroundController.Initialize is not finished").ConfigureAwait(true);
+                                }
+
+                                break;
+                            }
+
+                        case BackgroundBrushType.BingPicture:
                             {
                                 BitmapImage Bitmap = new BitmapImage();
 
-                                StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(UriString));
-
-                                using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                                if (await BingPictureDownloader.DownloadDailyPicture().ConfigureAwait(true) is StorageFile ImageFile)
                                 {
-                                    await Bitmap.SetSourceAsync(Stream);
+                                    using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                                    {
+                                        await Bitmap.SetSourceAsync(Stream);
+                                    }
+
+                                    BingPictureBursh.ImageSource = Bitmap;
+
+                                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
+                                }
+                                else
+                                {
+                                    await LogTracer.LogAsync("Download Bing picture failed, BackgroundController.Initialize is not finished").ConfigureAwait(true);
                                 }
 
-                                PictureBackgroundBrush.ImageSource = Bitmap;
-
-                                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
+                                break;
                             }
-                            else
-                            {
-                                await LogTracer.LogAsync("UriString is empty, BackgroundController.Initialize is not finished").ConfigureAwait(true);
-                            }
-
-                            break;
-                        }
-
-                    case BackgroundBrushType.BingPicture:
-                        {
-                            BitmapImage Bitmap = new BitmapImage();
-
-                            if (await BingPictureDownloader.DownloadDailyPicture().ConfigureAwait(true) is StorageFile ImageFile)
-                            {
-                                using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
-                                {
-                                    await Bitmap.SetSourceAsync(Stream);
-                                }
-
-                                BingPictureBursh.ImageSource = Bitmap;
-
-                                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
-                            }
-                            else
-                            {
-                                await LogTracer.LogAsync("Download Bing picture failed, BackgroundController.Initialize is not finished").ConfigureAwait(true);
-                            }
-
-                            break;
-                        }
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                await LogTracer.LogAsync(ex, "Exception happend when loading image for background").ConfigureAwait(true);
+                catch (Exception ex)
+                {
+                    await LogTracer.LogAsync(ex, "Exception happend when loading image for background").ConfigureAwait(true);
+                }
+                finally
+                {
+                    IsInitialized = true;
+                }
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:丢失范围之前释放对象", Justification = "<挂起>")]
         private void EnableCompositionAcrylic()
         {
             if (CompositionAcrylicBrush == null)
             {
-                Visual ElementVisual = ElementCompositionPreview.GetElementVisual(MainPage.ThisPage.CompositorAcrylicBackground);
-                Compositor VisualCompositor = ElementVisual.Compositor;
+                CompositionAcrylicPresenterWasSetEvent += BackgroundController_AcrylicPresenterWasSet;
 
-                CompositionBackdropBrush BackdropBrush = VisualCompositor.CreateHostBackdropBrush();
-
-                float AcrylicAmount = Convert.ToSingle(AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintLuminosityOpacityProperty));
-
-                GaussianBlurEffect BlurEffect = new GaussianBlurEffect()
+                if (CompositionAcrylicPresenter != null)
                 {
-                    BlurAmount = 10f,
-                    BorderMode = EffectBorderMode.Hard,
-                    Optimization = EffectOptimization.Balanced,
-                    Source = new ArithmeticCompositeEffect
-                    {
-                        Name = "Mix",
-                        MultiplyAmount = 0,
-                        Source1 = new CompositionEffectSourceParameter("backdropBrush"),
-                        Source2 = new ColorSourceEffect
-                        {
-                            Name = "Tint",
-                            Color = (Color)AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintColorProperty)
-                        },
-                        Source1Amount = 1 - AcrylicAmount,
-                        Source2Amount = AcrylicAmount
-                    }
-                };
-
-                CompositionAcrylicBrush = VisualCompositor.CreateEffectFactory(BlurEffect, new[] { "Mix.Source1Amount", "Mix.Source2Amount", "Tint.Color" }).CreateBrush();
-                CompositionAcrylicBrush.SetSourceParameter("backdropBrush", BackdropBrush);
-
-                SpriteVisual SpVisual = VisualCompositor.CreateSpriteVisual();
-                SpVisual.Brush = CompositionAcrylicBrush;
-
-                ElementCompositionPreview.SetElementChildVisual(MainPage.ThisPage.CompositorAcrylicBackground, SpVisual);
-                ExpressionAnimation bindSizeAnimation = VisualCompositor.CreateExpressionAnimation("ElementVisual.Size");
-                bindSizeAnimation.SetReferenceParameter("ElementVisual", ElementVisual);
-                SpVisual.StartAnimation("Size", bindSizeAnimation);
+                    CompositionAcrylicPresenterWasSetEvent?.Invoke(this, null);
+                }
             }
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:丢失范围之前释放对象", Justification = "<挂起>")]
+        private void BackgroundController_AcrylicPresenterWasSet(object sender, EventArgs e)
+        {
+            Visual ElementVisual = ElementCompositionPreview.GetElementVisual(CompositionAcrylicPresenter);
+            Compositor VisualCompositor = ElementVisual.Compositor;
+
+            CompositionBackdropBrush BackdropBrush = VisualCompositor.CreateHostBackdropBrush();
+
+            float AcrylicAmount;
+
+            if (double.TryParse(Convert.ToString(ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"]), out double TintLuminosity))
+            {
+                AcrylicAmount = Convert.ToSingle(TintLuminosity);
+            }
+            else
+            {
+                AcrylicAmount = 0.8f;
+            }
+
+            GaussianBlurEffect BlurEffect = new GaussianBlurEffect()
+            {
+                BlurAmount = 10f,
+                BorderMode = EffectBorderMode.Hard,
+                Optimization = EffectOptimization.Balanced,
+                Source = new ArithmeticCompositeEffect
+                {
+                    Name = "Mix",
+                    MultiplyAmount = 0,
+                    Source1 = new CompositionEffectSourceParameter("backdropBrush"),
+                    Source2 = new ColorSourceEffect
+                    {
+                        Name = "Tint",
+                        Color = (Color)AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintColorProperty)
+                    },
+                    Source1Amount = AcrylicAmount,
+                    Source2Amount = 1 - AcrylicAmount
+                }
+            };
+
+            CompositionAcrylicBrush = VisualCompositor.CreateEffectFactory(BlurEffect, new[] { "Mix.Source1Amount", "Mix.Source2Amount", "Tint.Color" }).CreateBrush();
+            CompositionAcrylicBrush.SetSourceParameter("backdropBrush", BackdropBrush);
+
+            SpriteVisual SpVisual = VisualCompositor.CreateSpriteVisual();
+            SpVisual.Brush = CompositionAcrylicBrush;
+
+            ElementCompositionPreview.SetElementChildVisual(CompositionAcrylicPresenter, SpVisual);
+            ExpressionAnimation bindSizeAnimation = VisualCompositor.CreateExpressionAnimation("ElementVisual.Size");
+            bindSizeAnimation.SetReferenceParameter("ElementVisual", ElementVisual);
+            SpVisual.StartAnimation("Size", bindSizeAnimation);
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TintLuminosityOpacity)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AcrylicColor)));
         }
 
         private void DisableCompositionAcrylic()
         {
             if (CompositionAcrylicBrush != null)
             {
+                CompositionAcrylicPresenterWasSetEvent -= BackgroundController_AcrylicPresenterWasSet;
+
                 CompositionAcrylicBrush.Dispose();
                 CompositionAcrylicBrush = null;
             }
+        }
+
+        public void SetAcrylicEffectPresenter(UIElement Element)
+        {
+            if (Element == null)
+            {
+                throw new ArgumentNullException(nameof(Element), "Argument could not be null");
+            }
+
+            CompositionAcrylicPresenter = Element;
+
+            CompositionAcrylicPresenterWasSetEvent?.Invoke(this, null);
         }
 
         /// <summary>
@@ -484,9 +533,16 @@ namespace RX_Explorer.Class
             {
                 if (IsCompositionAcrylicEnabled)
                 {
-                    if (CompositionAcrylicBrush.Properties.TryGetScalar("Mix.Source1Amount", out float Value) == CompositionGetValueStatus.Succeeded)
+                    if (CompositionAcrylicBrush != null)
                     {
-                        return Value;
+                        if (CompositionAcrylicBrush.Properties.TryGetScalar("Mix.Source1Amount", out float Value) == CompositionGetValueStatus.Succeeded)
+                        {
+                            return Value;
+                        }
+                        else
+                        {
+                            return 0;
+                        }
                     }
                     else
                     {
@@ -507,7 +563,7 @@ namespace RX_Explorer.Class
             }
             set
             {
-                if (IsCompositionAcrylicEnabled)
+                if (IsCompositionAcrylicEnabled && CompositionAcrylicBrush != null)
                 {
                     CompositionAcrylicBrush.Properties.InsertScalar("Mix.Source1Amount", Convert.ToSingle(value));
                     CompositionAcrylicBrush.Properties.InsertScalar("Mix.Source2Amount", 1 - Convert.ToSingle(value));
@@ -549,9 +605,16 @@ namespace RX_Explorer.Class
             {
                 if (IsCompositionAcrylicEnabled)
                 {
-                    if (CompositionAcrylicBrush.Properties.TryGetColor("Tint.Color", out Color Value) == CompositionGetValueStatus.Succeeded)
+                    if (CompositionAcrylicBrush != null)
                     {
-                        return Value;
+                        if (CompositionAcrylicBrush.Properties.TryGetColor("Tint.Color", out Color Value) == CompositionGetValueStatus.Succeeded)
+                        {
+                            return Value;
+                        }
+                        else
+                        {
+                            return Colors.DimGray;
+                        }
                     }
                     else
                     {
@@ -565,7 +628,7 @@ namespace RX_Explorer.Class
             }
             set
             {
-                if (IsCompositionAcrylicEnabled)
+                if (IsCompositionAcrylicEnabled && CompositionAcrylicBrush != null)
                 {
                     if (CompositionAcrylicBrush.Properties.TryGetColor("Tint.Color", out Color Value) == CompositionGetValueStatus.Succeeded && Value.ToHex() != value.ToHex())
                     {

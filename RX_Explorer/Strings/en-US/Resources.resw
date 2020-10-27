@@ -558,21 +558,6 @@
   <data name="ProgramPickerDialogUseAsAdmin.Content" xml:space="preserve">
     <value>Use this app to open this type of file by default</value>
   </data>
-  <data name="PreLaunchHeader.Text" xml:space="preserve">
-    <value>Enable prelaunch technology</value>
-  </data>
-  <data name="PreLaunchSwitch.OnContent" xml:space="preserve">
-    <value>Enable</value>
-  </data>
-  <data name="PreLaunchSwitch.OffContent" xml:space="preserve">
-    <value>Disable</value>
-  </data>
-  <data name="PreLaunchTip.Title" xml:space="preserve">
-    <value>Pre-launching technology</value>
-  </data>
-  <data name="PreLaunchTip.Subtitle" xml:space="preserve">
-    <value>When preload technology is enabled, Windows will automatically decide whether to preload the RX Explorer when system resources are sufficient based on your usage. If the RX Explorer has been loaded by Windows in advance, it will greatly improve the startup speed</value>
-  </data>
   <data name="QRText.Header" xml:space="preserve">
     <value>Copy this link to your browser to download</value>
   </data>
@@ -2615,5 +2600,20 @@ Invalid names include
   </data>
   <data name="SettingPagePreventFallbackTip.Title" xml:space="preserve">
     <value>Acrylic power saving mode</value>
+  </data>
+  <data name="ExtendedSplashLoadingBingText.Text" xml:space="preserve">
+    <value>Updating Bing wallpaper...</value>
+  </data>
+  <data name="FileLoadMode.Header" xml:space="preserve">
+    <value>Icon loading mode</value>
+  </data>
+  <data name="LoadMode_FileAndFolder_Text" xml:space="preserve">
+    <value>Load icons for folders and files (slower)</value>
+  </data>
+  <data name="LoadMode_None_Text" xml:space="preserve">
+    <value>Do not load any icons (faster)</value>
+  </data>
+  <data name="LoadMode_OnlyFile_Text" xml:space="preserve">
+    <value>Load file icon only (balanced)</value>
   </data>
 </root>

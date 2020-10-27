@@ -444,21 +444,6 @@
   <data name="ProgramPickerDialogUseAsAdmin.Content" xml:space="preserve">
     <value>默认使用此应用打开该类型文件</value>
   </data>
-  <data name="PreLaunchHeader.Text" xml:space="preserve">
-    <value>使用预加载技术</value>
-  </data>
-  <data name="PreLaunchSwitch.OnContent" xml:space="preserve">
-    <value>启用</value>
-  </data>
-  <data name="PreLaunchSwitch.OffContent" xml:space="preserve">
-    <value>禁用</value>
-  </data>
-  <data name="PreLaunchTip.Title" xml:space="preserve">
-    <value>预加载技术</value>
-  </data>
-  <data name="PreLaunchTip.Subtitle" xml:space="preserve">
-    <value>启用预加载技术时，Windows将根据您的使用情况自动决定是否在系统资源足够的时候对RX文件管理器进行预加载。若RX文件管理器已提前由Windows加载，则将大幅度提高启动速度</value>
-  </data>
   <data name="QRText.Header" xml:space="preserve">
     <value>复制此链接至浏览器即可下载</value>
   </data>
@@ -2510,5 +2495,20 @@
   </data>
   <data name="SettingPagePreventFallbackTip.Title" xml:space="preserve">
     <value>Acrylic省电模式</value>
+  </data>
+  <data name="ExtendedSplashLoadingBingText.Text" xml:space="preserve">
+    <value>正在更新必应壁纸...</value>
+  </data>
+  <data name="FileLoadMode.Header" xml:space="preserve">
+    <value>图标加载模式</value>
+  </data>
+  <data name="LoadMode_FileAndFolder_Text" xml:space="preserve">
+    <value>加载文件夹和文件的图标(较慢)</value>
+  </data>
+  <data name="LoadMode_None_Text" xml:space="preserve">
+    <value>不加载任何图标(较快)</value>
+  </data>
+  <data name="LoadMode_OnlyFile_Text" xml:space="preserve">
+    <value>仅加载文件图标(平衡)</value>
   </data>
 </root>

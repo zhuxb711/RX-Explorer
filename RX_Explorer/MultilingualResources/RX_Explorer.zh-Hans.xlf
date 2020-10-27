@@ -582,26 +582,6 @@
           <source>Use this app to open this type of file by default</source>
           <target state="translated">默认使用此应用打开该类型文件</target>
         </trans-unit>
-        <trans-unit id="PreLaunchHeader.Text" translate="yes" xml:space="preserve">
-          <source>Enable prelaunch technology</source>
-          <target state="translated">使用预加载技术</target>
-        </trans-unit>
-        <trans-unit id="PreLaunchSwitch.OnContent" translate="yes" xml:space="preserve">
-          <source>Enable</source>
-          <target state="translated">启用</target>
-        </trans-unit>
-        <trans-unit id="PreLaunchSwitch.OffContent" translate="yes" xml:space="preserve">
-          <source>Disable</source>
-          <target state="translated">禁用</target>
-        </trans-unit>
-        <trans-unit id="PreLaunchTip.Title" translate="yes" xml:space="preserve">
-          <source>Pre-launching technology</source>
-          <target state="translated">预加载技术</target>
-        </trans-unit>
-        <trans-unit id="PreLaunchTip.Subtitle" translate="yes" xml:space="preserve">
-          <source>When preload technology is enabled, Windows will automatically decide whether to preload the RX Explorer when system resources are sufficient based on your usage. If the RX Explorer has been loaded by Windows in advance, it will greatly improve the startup speed</source>
-          <target state="translated">启用预加载技术时，Windows将根据您的使用情况自动决定是否在系统资源足够的时候对RX文件管理器进行预加载。若RX文件管理器已提前由Windows加载，则将大幅度提高启动速度</target>
-        </trans-unit>
         <trans-unit id="QRText.Header" translate="yes" xml:space="preserve">
           <source>Copy this link to your browser to download</source>
           <target state="translated">复制此链接至浏览器即可下载</target>
@@ -3327,6 +3307,26 @@ Invalid names include
         <trans-unit id="SettingPagePreventFallbackTip.Title" translate="yes" xml:space="preserve">
           <source>Acrylic power saving mode</source>
           <target state="translated">Acrylic省电模式</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplashLoadingBingText.Text" translate="yes" xml:space="preserve">
+          <source>Updating Bing wallpaper...</source>
+          <target state="translated">正在更新必应壁纸...</target>
+        </trans-unit>
+        <trans-unit id="FileLoadMode.Header" translate="yes" xml:space="preserve">
+          <source>Icon loading mode</source>
+          <target state="translated">图标加载模式</target>
+        </trans-unit>
+        <trans-unit id="LoadMode_FileAndFolder_Text" translate="yes" xml:space="preserve">
+          <source>Load icons for folders and files (slower)</source>
+          <target state="translated">加载文件夹和文件的图标(较慢)</target>
+        </trans-unit>
+        <trans-unit id="LoadMode_None_Text" translate="yes" xml:space="preserve">
+          <source>Do not load any icons (faster)</source>
+          <target state="translated">不加载任何图标(较快)</target>
+        </trans-unit>
+        <trans-unit id="LoadMode_OnlyFile_Text" translate="yes" xml:space="preserve">
+          <source>Load file icon only (balanced)</source>
+          <target state="translated">仅加载文件图标(平衡)</target>
         </trans-unit>
       </group>
     </body>
