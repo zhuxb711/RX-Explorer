@@ -49,7 +49,7 @@ namespace RX_Explorer
 
         public bool IsAnyTaskRunning { get; set; }
 
-        public MainPage()
+        public MainPage(object Parameter)
         {
             InitializeComponent();
             ThisPage = this;
@@ -63,20 +63,40 @@ namespace RX_Explorer
             SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += MainPage_CloseRequested;
             SystemNavigationManager.GetForCurrentView().BackRequested += MainPage_BackRequested;
 
-            try
-            {
-                BackgroundController.Current.SetAcrylicEffectPresenter(CompositorAcrylicBackground);
-
-                ToastNotificationManager.History.Clear();
-            }
-            catch (Exception)
-            {
-
-            }
+            BackgroundController.Current.SetAcrylicEffectPresenter(CompositorAcrylicBackground);
 
             if (Package.Current.IsDevelopmentMode)
             {
                 AppName.Text += " (Development Mode)";
+            }
+
+            if (Parameter is Tuple<Rect, string> RSParamter)
+            {
+                string[] Paras = RSParamter.Item2.Split("||");
+
+                switch (Paras[0])
+                {
+                    case "PathActivate":
+                        {
+                            IsPathActivate = true;
+                            ActivatePath = Paras[1];
+                            break;
+                        }
+                }
+
+                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903) && !AnimationController.Current.IsDisableStartupAnimation && !IsPathActivate)
+                {
+                    EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, RSParamter.Item1);
+                    EntranceEffectProvider.PrepareEntranceEffect();
+                }
+            }
+            else if (Parameter is Rect RectParameter)
+            {
+                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903) && !AnimationController.Current.IsDisableStartupAnimation && !IsPathActivate)
+                {
+                    EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, RectParameter);
+                    EntranceEffectProvider.PrepareEntranceEffect();
+                }
             }
         }
 
@@ -257,37 +277,6 @@ namespace RX_Explorer
             Deferral.Complete();
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            if (e?.Parameter is Tuple<string, Rect> Parameter)
-            {
-                string[] Paras = Parameter.Item1.Split("||");
-                switch (Paras[0])
-                {
-                    case "PathActivate":
-                        {
-                            IsPathActivate = true;
-                            ActivatePath = Paras[1];
-                            break;
-                        }
-                }
-
-                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903) && !AnimationController.Current.IsDisableStartupAnimation && !IsPathActivate)
-                {
-                    EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, Parameter.Item2);
-                    EntranceEffectProvider.PrepareEntranceEffect();
-                }
-            }
-            else if (e.Parameter is Rect SplashRect)
-            {
-                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903) && !AnimationController.Current.IsDisableStartupAnimation && !IsPathActivate)
-                {
-                    EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, SplashRect);
-                    EntranceEffectProvider.PrepareEntranceEffect();
-                }
-            }
-        }
-
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
             try
@@ -300,12 +289,15 @@ namespace RX_Explorer
                     {typeof(RecycleBin),Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label") }
                 };
 
-                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903) && !AnimationController.Current.IsDisableStartupAnimation && !IsPathActivate)
-                {
-                    EntranceEffectProvider.StartEntranceEffect();
-                }
+                Nav.Navigate(typeof(TabViewContainer), null, new SuppressNavigationTransitionInfo());
 
-                Nav.Navigate(typeof(TabViewContainer), null, new DrillInNavigationTransitionInfo());
+                await Dispatcher.RunIdleAsync((obj) =>
+                {
+                    if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903) && !AnimationController.Current.IsDisableStartupAnimation && !IsPathActivate)
+                    {
+                        EntranceEffectProvider.StartEntranceEffect();
+                    }
+                });
 
                 ApplicationData.Current.DataChanged += Current_DataChanged;
 

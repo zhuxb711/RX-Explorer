@@ -1,5 +1,4 @@
 ﻿using Microsoft.Graphics.Canvas;
-using Microsoft.Graphics.Canvas.Text;
 using Microsoft.Graphics.Canvas.UI.Composition;
 using System;
 using System.Diagnostics;
@@ -10,26 +9,28 @@ using Windows.Graphics.DirectX;
 using Windows.UI;
 using Windows.UI.Composition;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Hosting;
 
 namespace AnimationEffectProvider
 {
     public class EntranceAnimationEffect
     {
-        private readonly Page BasePage;
+        private readonly FrameworkElement BasePage;
 
-        private readonly UIElement UIToShow;
+        private readonly FrameworkElement UIToShow;
 
         private readonly Rect SplashScreenRect;
 
+        private readonly float ScaleFactor;
+
         public event EventHandler AnimationCompleted;
 
-        public EntranceAnimationEffect(Page BasePage, UIElement UIToShow, Rect SplashScreenRect)
+        public EntranceAnimationEffect(FrameworkElement BasePage, FrameworkElement UIToShow, Rect SplashScreenRect, float ScaleFactor = 20f)
         {
             this.UIToShow = UIToShow;
             this.BasePage = BasePage;
             this.SplashScreenRect = SplashScreenRect;
+            this.ScaleFactor = ScaleFactor;
             SurfaceLoader.Initialize(ElementCompositionPreview.GetElementVisual(BasePage).Compositor);
         }
 
@@ -37,29 +38,28 @@ namespace AnimationEffectProvider
         {
             try
             {
-                Compositor compositor = ElementCompositionPreview.GetElementVisual(BasePage).Compositor;
-                Vector2 windowSize = new Vector2((float)Window.Current.Bounds.Width, (float)Window.Current.Bounds.Height);
+                Compositor BaseCompositor = ElementCompositionPreview.GetElementVisual(BasePage).Compositor;
+                Vector2 WindowSize = new Vector2(Convert.ToSingle(Window.Current.Bounds.Width), Convert.ToSingle(Window.Current.Bounds.Height));
 
-                //1.创建ContainerVisual实例填充背景色和图片；
-                //2.设置中心缩放
-                ContainerVisual cv = compositor.CreateContainerVisual();
-                cv.Size = windowSize;
-                cv.CenterPoint = new Vector3(windowSize.X, windowSize.Y, 0) * 0.5f;
-                ElementCompositionPreview.SetElementChildVisual(BasePage, cv);
+                ContainerVisual Visual = BaseCompositor.CreateContainerVisual();
+                Visual.Size = WindowSize;
+                Visual.CenterPoint = new Vector3(WindowSize.X, WindowSize.Y, 0) * 0.5f;
+                ElementCompositionPreview.SetElementChildVisual(BasePage, Visual);
 
-                //创建sprite的背景色为APP的主题色
-                SpriteVisual backgroundSprite = compositor.CreateSpriteVisual();
-                backgroundSprite.Size = windowSize;
-                backgroundSprite.Brush = compositor.CreateColorBrush((Color)Application.Current.Resources["SystemAccentColor"]);
-                cv.Children.InsertAtBottom(backgroundSprite);
+                SpriteVisual BackgroundSprite = BaseCompositor.CreateSpriteVisual();
+                BackgroundSprite.Size = WindowSize;
+                BackgroundSprite.Brush = BaseCompositor.CreateColorBrush((Color)Application.Current.Resources["SystemAccentColor"]);
 
-                //创建包含初始屏图像的sprite的尺寸和位置
-                CompositionDrawingSurface surface = await SurfaceLoader.LoadFromUri(new Uri("ms-appx:///Assets/SplashScreen.png"));
-                SpriteVisual imageSprite = compositor.CreateSpriteVisual();
-                imageSprite.Brush = compositor.CreateSurfaceBrush(surface);
-                imageSprite.Offset = new Vector3((float)SplashScreenRect.X, (float)SplashScreenRect.Y, 0f);
-                imageSprite.Size = new Vector2((float)SplashScreenRect.Width, (float)SplashScreenRect.Height);
-                cv.Children.InsertAtTop(imageSprite);
+                Visual.Children.InsertAtBottom(BackgroundSprite);
+
+                CompositionDrawingSurface ImageDrawingSurface = await SurfaceLoader.LoadFromUri(new Uri("ms-appx:///Assets/SplashScreen.png"));
+
+                SpriteVisual ImageSprite = BaseCompositor.CreateSpriteVisual();
+                ImageSprite.Brush = BaseCompositor.CreateSurfaceBrush(ImageDrawingSurface);
+                ImageSprite.Offset = new Vector3(Convert.ToSingle(SplashScreenRect.X), Convert.ToSingle(SplashScreenRect.Y), 0f);
+                ImageSprite.Size = new Vector2(Convert.ToSingle(SplashScreenRect.Width), Convert.ToSingle(SplashScreenRect.Height));
+
+                Visual.Children.InsertAtTop(ImageSprite);
             }
             catch (Exception ex)
             {
@@ -71,51 +71,43 @@ namespace AnimationEffectProvider
         {
             try
             {
-                ContainerVisual container = (ContainerVisual)ElementCompositionPreview.GetElementChildVisual(BasePage);
-                Compositor compositor = container.Compositor;
+                TimeSpan AnimationDuration = TimeSpan.FromMilliseconds(1200);
 
-                // 设置缩放和动画
-                const float ScaleFactor = 20f;
-                TimeSpan duration = TimeSpan.FromMilliseconds(800);
-                LinearEasingFunction linearEase = compositor.CreateLinearEasingFunction();
-                CubicBezierEasingFunction easeInOut = compositor.CreateCubicBezierEasingFunction(new Vector2(.38f, 0f), new Vector2(.45f, 1f));
+                ContainerVisual Container = (ContainerVisual)ElementCompositionPreview.GetElementChildVisual(BasePage);
 
-                // 创建淡出动画
-                ScalarKeyFrameAnimation fadeOutAnimation = compositor.CreateScalarKeyFrameAnimation();
-                fadeOutAnimation.InsertKeyFrame(1, 0);
-                fadeOutAnimation.Duration = duration;
+                ScalarKeyFrameAnimation FadeOutAnimation = Container.Compositor.CreateScalarKeyFrameAnimation();
+                FadeOutAnimation.InsertKeyFrame(1, 0);
+                FadeOutAnimation.Duration = AnimationDuration;
 
-                // Grid的动画
-                Vector2KeyFrameAnimation scaleUpGridAnimation = compositor.CreateVector2KeyFrameAnimation();
-                scaleUpGridAnimation.InsertKeyFrame(0.1f, new Vector2(1 / ScaleFactor, 1 / ScaleFactor));
-                scaleUpGridAnimation.InsertKeyFrame(1, new Vector2(1, 1));
-                scaleUpGridAnimation.Duration = duration;
+                Vector2KeyFrameAnimation ScaleUIAnimation = Container.Compositor.CreateVector2KeyFrameAnimation();
+                ScaleUIAnimation.InsertKeyFrame(0.1f, new Vector2(1 / ScaleFactor, 1 / ScaleFactor));
+                ScaleUIAnimation.InsertKeyFrame(1, new Vector2(1, 1));
+                ScaleUIAnimation.Duration = AnimationDuration;
 
-                // 初始屏动画
-                Vector2KeyFrameAnimation scaleUpSplashAnimation = compositor.CreateVector2KeyFrameAnimation();
-                scaleUpSplashAnimation.InsertKeyFrame(0, new Vector2(1, 1));
-                scaleUpSplashAnimation.InsertKeyFrame(1, new Vector2(ScaleFactor, ScaleFactor));
-                scaleUpSplashAnimation.Duration = duration;
+                Vector2KeyFrameAnimation ScaleSplashAnimation = Container.Compositor.CreateVector2KeyFrameAnimation();
+                ScaleSplashAnimation.InsertKeyFrame(0, new Vector2(1, 1));
+                ScaleSplashAnimation.InsertKeyFrame(1, new Vector2(ScaleFactor, ScaleFactor));
+                ScaleSplashAnimation.Duration = AnimationDuration;
 
-                // 设置Grid的中心缩放视觉
-                Visual gridVisual = ElementCompositionPreview.GetElementVisual(UIToShow);
-                gridVisual.Size = UIToShow.ActualSize;
-                gridVisual.CenterPoint = new Vector3(gridVisual.Size.X, gridVisual.Size.Y, 0) * .5f;
+                Visual UIVisual = ElementCompositionPreview.GetElementVisual(UIToShow);
+                UIVisual.Size = new Vector2((float)UIToShow.ActualWidth, (float)UIToShow.ActualHeight);
+                UIVisual.CenterPoint = new Vector3(UIVisual.Size.X, UIVisual.Size.Y, 0) * 0.5f;
 
-                // 创建一个视觉组，当改组所有视觉执行完后不再显示
-                CompositionScopedBatch batch = compositor.CreateScopedBatch(CompositionBatchTypes.Animation);
 
-                container.StartAnimation("Opacity", fadeOutAnimation);
-                container.StartAnimation("Scale.XY", scaleUpSplashAnimation);
-                gridVisual.StartAnimation("Scale.XY", scaleUpGridAnimation);
+                CompositionScopedBatch BatchAnimation = Container.Compositor.CreateScopedBatch(CompositionBatchTypes.Animation);
 
-                batch.Completed += (s, a) =>
+                Container.StartAnimation("Opacity", FadeOutAnimation);
+                Container.StartAnimation("Scale.XY", ScaleSplashAnimation);
+                UIVisual.StartAnimation("Scale.XY", ScaleUIAnimation);
+
+                BatchAnimation.Completed += (s, a) =>
                 {
                     ElementCompositionPreview.SetElementChildVisual(BasePage, null);
                     SurfaceLoader.Uninitialize();
                     AnimationCompleted?.Invoke(this, null);
                 };
-                batch.End();
+
+                BatchAnimation.End();
             }
             catch (Exception ex)
             {
@@ -166,27 +158,17 @@ namespace AnimationEffectProvider
 
         static public async Task<CompositionDrawingSurface> LoadFromUri(Uri uri)
         {
-            return await LoadFromUri(uri, Size.Empty);
-        }
+            CanvasBitmap CBitmap = await CanvasBitmap.LoadAsync(_canvasDevice, uri);
 
-        static public async Task<CompositionDrawingSurface> LoadFromUri(Uri uri, Size sizeTarget)
-        {
-            CanvasBitmap bitmap = await CanvasBitmap.LoadAsync(_canvasDevice, uri);
-            Size sizeSource = bitmap.Size;
+            CompositionDrawingSurface DrawingSurface = _compositionDevice.CreateDrawingSurface(CBitmap.Size, DirectXPixelFormat.B8G8R8A8UIntNormalized, DirectXAlphaMode.Premultiplied);
 
-            if (sizeTarget.IsEmpty)
+            using (CanvasDrawingSession DraingSession = CanvasComposition.CreateDrawingSession(DrawingSurface))
             {
-                sizeTarget = sizeSource;
+                DraingSession.Clear(Color.FromArgb(0, 0, 0, 0));
+                DraingSession.DrawImage(CBitmap, new Rect(0, 0, CBitmap.Size.Width, CBitmap.Size.Height));
             }
 
-            CompositionDrawingSurface surface = _compositionDevice.CreateDrawingSurface(sizeTarget, DirectXPixelFormat.B8G8R8A8UIntNormalized, DirectXAlphaMode.Premultiplied);
-            using (var ds = CanvasComposition.CreateDrawingSession(surface))
-            {
-                ds.Clear(Color.FromArgb(0, 0, 0, 0));
-                ds.DrawImage(bitmap, new Rect(0, 0, sizeTarget.Width, sizeTarget.Height), new Rect(0, 0, sizeSource.Width, sizeSource.Height));
-            }
-
-            return surface;
+            return DrawingSurface;
         }
     }
 }

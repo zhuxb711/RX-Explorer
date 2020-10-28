@@ -11,7 +11,7 @@ namespace RX_Explorer.Class
     {
         public static async Task<StorageFile> DownloadDailyPicture()
         {
-            string Path = await GetDailyPhotoPath().ConfigureAwait(true);
+            string Path = await GetDailyPhotoPath().ConfigureAwait(false);
 
             try
             {
@@ -30,15 +30,13 @@ namespace RX_Explorer.Class
                         {
                             try
                             {
-                                await Task.Run(() =>
+                                HttpWebRequest Request = (HttpWebRequest)WebRequest.Create(new Uri($"https://www.bing.com{Path}"));
+
+                                using (WebResponse Response = await Request.GetResponseAsync().ConfigureAwait(false))
+                                using (Stream ResponseStream = Response.GetResponseStream())
                                 {
-                                    HttpWebRequest Request = (HttpWebRequest)WebRequest.Create(new Uri($"https://www.bing.com{Path}"));
-                                    using (WebResponse Response = Request.GetResponse())
-                                    using (Stream ResponseStream = Response.GetResponseStream())
-                                    {
-                                        ResponseStream.CopyTo(TempFileStream);
-                                    }
-                                }).ConfigureAwait(false);
+                                    await ResponseStream.CopyToAsync(TempFileStream).ConfigureAwait(false);
+                                }
                             }
                             catch
                             {
@@ -52,9 +50,13 @@ namespace RX_Explorer.Class
                                     return ExistFile;
                                 }
                             }
-                        }
 
-                        await TempFile.MoveAndReplaceAsync(ExistFile);
+                            using (StorageStreamTransaction Transaction = await ExistFile.OpenTransactedWriteAsync())
+                            {
+                                await TempFileStream.CopyToAsync(Transaction.Stream.AsStreamForWrite()).ConfigureAwait(false);
+                                await Transaction.CommitAsync();
+                            }
+                        }
 
                         return ExistFile;
                     }
@@ -72,17 +74,16 @@ namespace RX_Explorer.Class
 
                     StorageFile BingDailyPictureFile = await ApplicationData.Current.LocalFolder.CreateFileAsync("BingDailyPicture.jpg", CreationCollisionOption.ReplaceExisting);
 
-                    using (Stream FileStream = await BingDailyPictureFile.OpenStreamForWriteAsync().ConfigureAwait(false))
+                    using (StorageStreamTransaction Transaction = await BingDailyPictureFile.OpenTransactedWriteAsync())
                     {
-                        await Task.Run(() =>
+                        HttpWebRequest Request = (HttpWebRequest)WebRequest.Create(new Uri($"https://www.bing.com{Path}"));
+
+                        using (WebResponse Response = await Request.GetResponseAsync().ConfigureAwait(false))
+                        using (Stream ResponseStream = Response.GetResponseStream())
                         {
-                            HttpWebRequest Request = (HttpWebRequest)WebRequest.Create(new Uri($"https://www.bing.com{Path}"));
-                            using (WebResponse Response = Request.GetResponse())
-                            using (Stream ResponseStream = Response.GetResponseStream())
-                            {
-                                ResponseStream.CopyTo(FileStream);
-                            }
-                        }).ConfigureAwait(false);
+                            await ResponseStream.CopyToAsync(Transaction.Stream.AsStreamForWrite()).ConfigureAwait(false);
+                            await Transaction.CommitAsync();
+                        }
                     }
 
                     return BingDailyPictureFile;

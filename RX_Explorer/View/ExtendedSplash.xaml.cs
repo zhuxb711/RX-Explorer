@@ -89,16 +89,18 @@ namespace RX_Explorer
 
                     await BackgroundController.Current.Initialize().ConfigureAwait(true);
 
-                    Frame rootFrame = new Frame();
-                    Window.Current.Content = rootFrame;
+                    Frame RootFrame = new Frame();
+                    Window.Current.Content = RootFrame;
 
                     if (string.IsNullOrEmpty(ActivateParameter))
                     {
-                        rootFrame.Navigate(typeof(MainPage), Splash.ImageLocation);
+                        MainPage Main = new MainPage(Splash.ImageLocation);
+                        RootFrame.Content = Main;
                     }
                     else
                     {
-                        rootFrame.Navigate(typeof(MainPage), new Tuple<string, Rect>(ActivateParameter, Splash.ImageLocation));
+                        MainPage Main = new MainPage(new Tuple<Rect, string>(Splash.ImageLocation, ActivateParameter));
+                        RootFrame.Content = Main;
                     }
                 });
             }

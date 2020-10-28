@@ -231,7 +231,7 @@ namespace RX_Explorer.Class
             try
             {
                 StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync(UniqueName, CreationCollisionOption.ReplaceExisting);
-                await FileIO.AppendTextAsync(TempFile, $"{Message}{Environment.NewLine}", Windows.Storage.Streams.UnicodeEncoding.Utf16LE);
+                await FileIO.AppendTextAsync(TempFile, $"{Message}{Environment.NewLine}");
             }
             catch (Exception ex)
             {
