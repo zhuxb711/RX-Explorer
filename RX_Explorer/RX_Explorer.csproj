@@ -705,7 +705,7 @@
       <Version>1.11.26</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers">
-      <Version>3.3.0</Version>
+      <Version>3.3.1</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -736,7 +736,7 @@
       <Version>6.1.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
-      <Version>2.5.0-prerelease.200923002</Version>
+      <Version>2.5.0-prerelease.201027002</Version>
     </PackageReference>
     <PackageReference Include="MSTest.TestFramework">
       <Version>2.1.2</Version>

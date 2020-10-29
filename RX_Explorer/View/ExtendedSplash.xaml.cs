@@ -82,7 +82,7 @@ namespace RX_Explorer
             {
                 await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                 {
-                    if (BackgroundController.Current.CurrentType == BackgroundBrushType.BingPicture)
+                    if (BackgroundController.Current.CurrentType == BackgroundBrushType.BingPicture && await BingPictureDownloader.CheckIfNeedToUpdate().ConfigureAwait(true))
                     {
                         LoadingBingArea.Visibility = Visibility.Visible;
                     }

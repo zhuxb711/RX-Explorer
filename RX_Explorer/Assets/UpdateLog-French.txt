@@ -1,4 +1,29 @@
 ﻿*****
+###Quoi de neuf dans la version 5.5.8.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Ajout d'un paramètre permettant aux utilisateurs de décider de charger eux-mêmes l'icône d'un fichier ou d'un dossier, en équilibrant la relation entre la vitesse de lecture et les besoins personnalisés
+
+>#####Suppression de la "technologie de pré-chargement", cette technologie ne peut pas offrir suffisamment d'avantages en termes de vitesse de démarrage
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Optimisation de l'effet d'animation au démarrage pour éviter le problème de blocage
+
+>#####Tous les calculs de taille de fichier ou de dossier ne conserveront qu'une décimale
+
+>#####Si vous utilisez le papier peint Bing comme arrière-plan, vous devez attendre la fin de la mise à jour avant de pouvoir accéder à l'interface principale
+
+#####Correction d'un bug
+
+>#####Correction du problème de ne pas pouvoir passer correctement en mode "Recommander"
+
+>#####Correction de quelques problèmes lors de la mise à jour des fonds d'écran Bing, et amélioration des performances et de la fiabilité. Ce problème peut faire en sorte que l'arrière-plan devienne noir de manière inattendue
+
+>#####Correction du problème selon lequel la barre de progression ne disparaissait pas lors de la définition de l'erreur de fond d'écran Bing dans certains cas
+
+*****
 ###Quoi de neuf dans la version 5.5.6.0
 
 ##### Mise à jour des fonctionnalités

@@ -71,7 +71,7 @@ namespace AnimationEffectProvider
         {
             try
             {
-                TimeSpan AnimationDuration = TimeSpan.FromMilliseconds(1200);
+                TimeSpan AnimationDuration = TimeSpan.FromMilliseconds(1000);
 
                 ContainerVisual Container = (ContainerVisual)ElementCompositionPreview.GetElementChildVisual(BasePage);
 

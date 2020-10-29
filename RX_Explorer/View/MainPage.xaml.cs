@@ -291,13 +291,13 @@ namespace RX_Explorer
 
                 Nav.Navigate(typeof(TabViewContainer), null, new SuppressNavigationTransitionInfo());
 
-                await Dispatcher.RunIdleAsync((obj) =>
+                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903) && !AnimationController.Current.IsDisableStartupAnimation && !IsPathActivate)
                 {
-                    if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903) && !AnimationController.Current.IsDisableStartupAnimation && !IsPathActivate)
+                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                     {
                         EntranceEffectProvider.StartEntranceEffect();
-                    }
-                });
+                    });
+                }
 
                 ApplicationData.Current.DataChanged += Current_DataChanged;
 

@@ -422,33 +422,29 @@ namespace RX_Explorer
 
         private void Frame_Navigated(object sender, NavigationEventArgs e)
         {
-            if (e.Content is PhotoViewer)
+            switch (e.Content)
             {
-                TabItem.Header = Globalization.GetString("BuildIn_PhotoViewer_Description");
-            }
-            else if (e.Content is PdfReader)
-            {
-                TabItem.Header = Globalization.GetString("BuildIn_PdfReader_Description");
-            }
-            else if (e.Content is MediaPlayer)
-            {
-                TabItem.Header = Globalization.GetString("BuildIn_MediaPlayer_Description");
-            }
-            else if (e.Content is TextViewer)
-            {
-                TabItem.Header = Globalization.GetString("BuildIn_TextViewer_Description");
-            }
-            else if (e.Content is CropperPage)
-            {
-                TabItem.Header = Globalization.GetString("BuildIn_CropperPage_Description");
-            }
-            else if (e.Content is SearchPage)
-            {
-                TabItem.Header = Globalization.GetString("BuildIn_SearchPage_Description");
-            }
-            else
-            {
-                TabItem.Header = CurrentFolder.DisplayName;
+                case PhotoViewer _:
+                    TabItem.Header = Globalization.GetString("BuildIn_PhotoViewer_Description");
+                    break;
+                case PdfReader _:
+                    TabItem.Header = Globalization.GetString("BuildIn_PdfReader_Description");
+                    break;
+                case MediaPlayer _:
+                    TabItem.Header = Globalization.GetString("BuildIn_MediaPlayer_Description");
+                    break;
+                case TextViewer _:
+                    TabItem.Header = Globalization.GetString("BuildIn_TextViewer_Description");
+                    break;
+                case CropperPage _:
+                    TabItem.Header = Globalization.GetString("BuildIn_CropperPage_Description");
+                    break;
+                case SearchPage _:
+                    TabItem.Header = Globalization.GetString("BuildIn_SearchPage_Description");
+                    break;
+                default:
+                    TabItem.Header = CurrentFolder?.DisplayName;
+                    break;
             }
         }
 

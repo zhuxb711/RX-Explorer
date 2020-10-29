@@ -1273,7 +1273,7 @@ namespace RX_Explorer
 
                 BackgroundController.Current.IsCompositionAcrylicEnabled = false;
 
-                if (await BingPictureDownloader.DownloadDailyPicture().ConfigureAwait(true) is StorageFile File)
+                if (await BingPictureDownloader.UpdateBingPicture().ConfigureAwait(true) is StorageFile File)
                 {
                     ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.BingPicture);
 
@@ -1297,15 +1297,24 @@ namespace RX_Explorer
 
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
-
-                GetBingPhotoState.Visibility = Visibility.Collapsed;
             }
             catch (Exception ex)
             {
                 await LogTracer.LogAsync(ex, $"Error in {nameof(BingPictureMode_Checked)}").ConfigureAwait(true);
+
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_BingDownloadError_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
             }
             finally
             {
+                GetBingPhotoState.Visibility = Visibility.Collapsed;
+
                 ApplicationData.Current.SignalDataChanged();
             }
         }

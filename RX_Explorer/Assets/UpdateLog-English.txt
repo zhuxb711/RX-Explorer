@@ -1,4 +1,29 @@
 ﻿*****
+###What's new in Ver.5.5.8.0
+
+#####Feature update
+
+>#####Added a setting to allow users to decide whether to load the icon of a file or folder by themselves, balancing the relationship between reading speed and personalized needs
+
+>#####Removed "Pre-loading technology", this technology can not provide enough advantages in startup speed
+
+#####UI update
+
+>#####Optimized the animation effect at startup to avoid the problem of stuck
+
+>#####All file or folder size calculations will only keep 1 decimal place
+
+>#####If you use Bing wallpaper as the background, you need to wait for the update to complete before you can enter the main interface
+
+#####Bug fix
+
+>#####Fixed the problem of not being able to switch to "Recommend" mode correctly
+
+>#####Fixed some problems when updating Bing wallpapers, and improves performance and reliability. This issue may cause the background to turn black unexpectedly
+
+>#####Fixed the problem that the progress bar would not disappear when setting the Bing wallpaper error in some cases
+
+*****
 ###What's new in Ver.5.5.6.0
 
 #####Feature update

@@ -38,10 +38,10 @@ namespace RX_Explorer.Class
     {
         public static string ToFileSizeDescription(this ulong SizeRaw)
         {
-            return SizeRaw / 1024d < 1024 ? Math.Round(SizeRaw / 1024d, 2).ToString("0.00") + " KB" :
-                    (SizeRaw / 1048576d < 1024 ? Math.Round(SizeRaw / 1048576d, 2).ToString("0.00") + " MB" :
-                    (SizeRaw / 1073741824d < 1024 ? Math.Round(SizeRaw / 1073741824d, 2).ToString("0.00") + " GB" :
-                    Math.Round(SizeRaw / 1099511627776d, 2).ToString() + " TB"));
+            return SizeRaw / 1024d < 1024 ? Math.Round(SizeRaw / 1024d, 1, MidpointRounding.AwayFromZero).ToString("0.0") + " KB" :
+                   (SizeRaw / 1048576d < 1024 ? Math.Round(SizeRaw / 1048576d, 1, MidpointRounding.AwayFromZero).ToString("0.0") + " MB" :
+                   (SizeRaw / 1073741824d < 1024 ? Math.Round(SizeRaw / 1073741824d, 1, MidpointRounding.AwayFromZero).ToString("0.0") + " GB" :
+                   Math.Round(SizeRaw / 1099511627776d, 1, MidpointRounding.AwayFromZero).ToString("0.0") + " TB"));
         }
 
         /// <summary>
@@ -1115,6 +1115,7 @@ namespace RX_Explorer.Class
                 {
                     _ = builder.Append(hash[i].ToString("x2"));
                 }
+
                 return builder.ToString();
             }
         }

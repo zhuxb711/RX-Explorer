@@ -293,6 +293,8 @@ namespace RX_Explorer.Class
                 };
 
                 CurrentType = BackgroundBrushType.Acrylic;
+
+                ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] = 0.6;
             }
         }
 
@@ -380,7 +382,7 @@ namespace RX_Explorer.Class
                             {
                                 BitmapImage Bitmap = new BitmapImage();
 
-                                if (await BingPictureDownloader.DownloadDailyPicture().ConfigureAwait(true) is StorageFile ImageFile)
+                                if (await BingPictureDownloader.UpdateBingPicture().ConfigureAwait(true) is StorageFile ImageFile)
                                 {
                                     using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
                                     {
@@ -573,12 +575,8 @@ namespace RX_Explorer.Class
                 {
                     if (value == -1)
                     {
-                        if (AcrylicBackgroundBrush.GetValue(AcrylicBrush.TintLuminosityOpacityProperty) != null)
-                        {
-                            AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintLuminosityOpacityProperty, null);
-                            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TintLuminosityOpacity)));
-                            ApplicationData.Current.SignalDataChanged();
-                        }
+                        AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintLuminosityOpacityProperty, null);
+                        ApplicationData.Current.LocalSettings.Values.Remove("BackgroundTintLuminosity");
                     }
                     else
                     {
@@ -588,6 +586,7 @@ namespace RX_Explorer.Class
                         {
                             AcrylicBackgroundBrush.SetValue(AcrylicBrush.TintLuminosityOpacityProperty, 1 - value);
                             ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] = Convert.ToString(value);
+
                             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TintLuminosityOpacity)));
                             ApplicationData.Current.SignalDataChanged();
                         }
