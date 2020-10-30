@@ -7,7 +7,7 @@ namespace RX_Explorer.Class
 {
     public sealed class SortCollectionGenerator
     {
-        private readonly static object Locker = new object();
+        private static readonly object Locker = new object();
 
         private static SortCollectionGenerator Instance;
 
@@ -28,9 +28,9 @@ namespace RX_Explorer.Class
 
         public void ModifySortWay(SortTarget? SortTarget = null, SortDirection? SortDirection = null)
         {
-            if (SortTarget == Class.SortTarget.OriginPath)
+            if (SortTarget == Class.SortTarget.OriginPath || SortTarget == Class.SortTarget.Path)
             {
-                throw new NotSupportedException("OriginPath is not allow in this class");
+                throw new NotSupportedException("SortTarget.Path and SortTarget.OriginPath is not allow in this method");
             }
 
             if (SortTarget.HasValue)
@@ -80,6 +80,12 @@ namespace RX_Explorer.Class
                             ? new List<T>(FolderList.OrderBy((Item) => Item.SizeRaw).Concat(FileList.OrderBy((Item) => Item.SizeRaw)))
                             : new List<T>(FileList.OrderByDescending((Item) => Item.SizeRaw).Concat(FolderList.OrderByDescending((Item) => Item.SizeRaw)));
                     }
+                case SortTarget.Path:
+                    {
+                        return TempDirection == SortDirection.Ascending
+                            ? new List<T>(FolderList.OrderBy((Item) => Item.Path).Concat(FileList.OrderBy((Item) => Item.SizeRaw)))
+                            : new List<T>(FileList.OrderByDescending((Item) => Item.Path).Concat(FolderList.OrderByDescending((Item) => Item.SizeRaw)));
+                    }
                 default:
                     {
                         if (typeof(T) == typeof(RecycleStorageItem))
@@ -98,7 +104,7 @@ namespace RX_Explorer.Class
 
         public int SearchInsertLocation<T>(ICollection<T> InputCollection, T SearchTarget) where T : FileSystemStorageItemBase
         {
-            if(InputCollection == null)
+            if (InputCollection == null)
             {
                 throw new ArgumentNullException(nameof(InputCollection), "Argument could not be null");
             }
@@ -114,7 +120,7 @@ namespace RX_Explorer.Class
                     {
                         if (SortDirection == SortDirection.Ascending)
                         {
-                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.Name.CompareTo(SearchTarget.Name) > 0);
+                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Name, SearchTarget.Name, StringComparison.Ordinal) > 0);
 
                             if (SearchResult == default)
                             {
@@ -142,7 +148,7 @@ namespace RX_Explorer.Class
                         else
                         {
                             //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
-                            int Index = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.Name.CompareTo(SearchTarget.Name) < 0).Index;
+                            int Index = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Name, SearchTarget.Name, StringComparison.Ordinal) < 0).Index;
 
                             if (SearchTarget.StorageType == StorageItemTypes.Folder)
                             {
@@ -156,7 +162,7 @@ namespace RX_Explorer.Class
                     {
                         if (SortDirection == SortDirection.Ascending)
                         {
-                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.Type.CompareTo(SearchTarget.Type) > 0);
+                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Type, SearchTarget.Type, StringComparison.Ordinal) > 0);
 
                             if (SearchResult == default)
                             {
@@ -184,7 +190,7 @@ namespace RX_Explorer.Class
                         else
                         {
                             //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
-                            int Index = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.Type.CompareTo(SearchTarget.Type) < 0).Index;
+                            int Index = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Type, SearchTarget.Type, StringComparison.Ordinal) < 0).Index;
 
                             if (SearchTarget.StorageType == StorageItemTypes.Folder)
                             {
@@ -198,9 +204,9 @@ namespace RX_Explorer.Class
                     {
                         if (SortDirection == SortDirection.Ascending)
                         {
-                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.ModifiedTimeRaw.CompareTo(SearchTarget.ModifiedTimeRaw) > 0);
+                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => DateTimeOffset.Compare(Value.Item.ModifiedTimeRaw, SearchTarget.ModifiedTimeRaw) > 0);
 
-                            if(SearchResult == default)
+                            if (SearchResult == default)
                             {
                                 if (SearchTarget.StorageType == StorageItemTypes.File)
                                 {
@@ -226,7 +232,7 @@ namespace RX_Explorer.Class
                         else
                         {
                             //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
-                            int Index = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.ModifiedTimeRaw.CompareTo(SearchTarget.ModifiedTimeRaw) < 0).Index;
+                            int Index = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => DateTimeOffset.Compare(Value.Item.ModifiedTimeRaw, SearchTarget.ModifiedTimeRaw) < 0).Index;
 
                             if (SearchTarget.StorageType == StorageItemTypes.Folder)
                             {

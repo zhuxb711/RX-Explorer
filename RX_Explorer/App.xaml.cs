@@ -155,7 +155,7 @@ namespace RX_Explorer
             Window.Current.Activate();
         }
 
-        protected override void OnActivated(IActivatedEventArgs args)
+        protected async override void OnActivated(IActivatedEventArgs args)
         {
             ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
             TitleBar.ButtonBackgroundColor = Colors.Transparent;
@@ -177,16 +177,16 @@ namespace RX_Explorer
 
                             if (Path.Contains("{20D04FE0-3AEA-1069-A2D8-08002B30309D}"))
                             {
-                                _ = tabViewContainer.CreateNewTabAndOpenTargetFolder(string.Empty);
+                                await tabViewContainer.CreateNewTabAndOpenTargetFolder(string.Empty).ConfigureAwait(true);
                             }
                             else
                             {
-                                _ = tabViewContainer.CreateNewTabAndOpenTargetFolder(Path);
+                                await tabViewContainer.CreateNewTabAndOpenTargetFolder(Path).ConfigureAwait(true);
                             }
                         }
                         else
                         {
-                            _ = tabViewContainer.CreateNewTabAndOpenTargetFolder(string.Empty);
+                            await tabViewContainer.CreateNewTabAndOpenTargetFolder(string.Empty).ConfigureAwait(true);
                         }
                     }
                 }

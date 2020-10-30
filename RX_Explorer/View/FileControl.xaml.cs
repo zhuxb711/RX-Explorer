@@ -1114,38 +1114,13 @@ namespace RX_Explorer
             {
                 SearchFlyout.Hide();
 
-                QueryOptions Options;
-                if (ShallowRadio.IsChecked.GetValueOrDefault())
-                {
-                    Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
-                    {
-                        FolderDepth = FolderDepth.Shallow,
-                        IndexerOption = IndexerOption.UseIndexerWhenAvailable,
-                        ApplicationSearchFilter = "System.FileName:*" + GlobeSearch.Text + "*"
-                    };
-                }
-                else
-                {
-                    Options = new QueryOptions(CommonFolderQuery.DefaultQuery)
-                    {
-                        FolderDepth = FolderDepth.Deep,
-                        IndexerOption = IndexerOption.UseIndexerWhenAvailable,
-                        ApplicationSearchFilter = "System.FileName:*" + GlobeSearch.Text + "*"
-                    };
-                }
-
-                Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 100, ThumbnailOptions.ResizeThumbnail);
-                Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.ItemTypeText", "System.ItemNameDisplayWithoutExtension", "System.FileName", "System.Size", "System.DateModified" });
-
-                StorageItemQueryResult FileQuery = CurrentFolder.CreateItemQueryWithOptions(Options);
-
                 if (AnimationController.Current.IsEnableAnimation)
                 {
-                    Frame.Navigate(typeof(SearchPage), new Tuple<FileControl, StorageItemQueryResult>(this, FileQuery), new DrillInNavigationTransitionInfo());
+                    Frame.Navigate(typeof(SearchPage), new Tuple<FileControl, bool>(this, ShallowRadio.IsChecked.GetValueOrDefault()), new DrillInNavigationTransitionInfo());
                 }
                 else
                 {
-                    Frame.Navigate(typeof(SearchPage), new Tuple<FileControl, StorageItemQueryResult>(this, FileQuery), new SuppressNavigationTransitionInfo());
+                    Frame.Navigate(typeof(SearchPage), new Tuple<FileControl, bool>(this, ShallowRadio.IsChecked.GetValueOrDefault()), new SuppressNavigationTransitionInfo());
                 }
             }
             catch (Exception ex)
@@ -1167,6 +1142,7 @@ namespace RX_Explorer
         private async void GlobeSearch_GotFocus(object sender, RoutedEventArgs e)
         {
             IsSearchOrPathBoxFocused = true;
+
             if (string.IsNullOrEmpty(GlobeSearch.Text))
             {
                 GlobeSearch.ItemsSource = await SQLite.Current.GetRelatedSearchHistoryAsync(string.Empty).ConfigureAwait(true);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
@@ -54,19 +55,16 @@ namespace RX_Explorer.Class
                     }
                 }
             }
-            set
-            {
-                Inner_Thumbnail = value;
-            }
+            set => Inner_Thumbnail = value;
         }
 
         protected BitmapImage Inner_Thumbnail { get; set; }
 
-        protected readonly static BitmapImage Const_Folder_Image = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
+        protected static readonly BitmapImage Const_Folder_Image = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
 
-        protected readonly static BitmapImage Const_File_White_Image = new BitmapImage(new Uri("ms-appx:///Assets/Page_Solid_White.png"));
+        protected static readonly BitmapImage Const_File_White_Image = new BitmapImage(new Uri("ms-appx:///Assets/Page_Solid_White.png"));
 
-        protected readonly static BitmapImage Const_File_Black_Image = new BitmapImage(new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
+        protected static readonly BitmapImage Const_File_Black_Image = new BitmapImage(new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
 
         /// <summary>
         /// 初始化FileSystemStorageItem对象
@@ -312,7 +310,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return ModifiedTimeRaw.ToString("F");
+                    return ModifiedTimeRaw.ToString("G");
                 }
             }
         }
@@ -327,13 +325,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 获取文件的路径
         /// </summary>
-        public virtual string Path
-        {
-            get
-            {
-                return StorageItem == null ? InternalPathString : StorageItem.Path;
-            }
-        }
+        public virtual string Path => StorageItem == null ? InternalPathString : StorageItem.Path;
 
         /// <summary>
         /// 获取文件大小描述
@@ -361,13 +353,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 获取文件的完整文件名(包括后缀)
         /// </summary>
-        public virtual string Name
-        {
-            get
-            {
-                return StorageItem == null ? System.IO.Path.GetFileName(InternalPathString) : StorageItem.Name;
-            }
-        }
+        public virtual string Name => StorageItem == null ? System.IO.Path.GetFileName(InternalPathString) : StorageItem.Name;
 
         /// <summary>
         /// 获取文件类型描述

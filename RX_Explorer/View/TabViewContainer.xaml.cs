@@ -570,16 +570,7 @@ namespace RX_Explorer
             }
             else
             {
-                if (CreateNewTab() is TabViewItem TabItem)
-                {
-                    //预览版TabView在没有子Item时会崩溃，此方案作为临时解决方案
-                    if (TabViewControl == null)
-                    {
-                        _ = FindName(nameof(TabViewControl));
-                    }
-
-                    TabViewControl.TabItems.Add(TabItem);
-                }
+                await CreateNewTabAndOpenTargetFolder(string.Empty).ConfigureAwait(true);
             }
 
             try
@@ -1059,7 +1050,7 @@ namespace RX_Explorer
                     TaskBarController.SetText(Convert.ToString(Item.Header));
                 }
 
-                MainPage.ThisPage.NavView.IsBackEnabled = CurrentTabNavigation.CanGoBack;
+                MainPage.ThisPage.NavView.IsBackEnabled = (MainPage.ThisPage.SettingControl?.IsOpened).GetValueOrDefault() || CurrentTabNavigation.CanGoBack;
             }
         }
 

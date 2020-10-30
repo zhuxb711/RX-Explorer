@@ -28,7 +28,8 @@ namespace RX_Explorer.Class
         Type = 1,
         ModifiedTime = 2,
         Size = 4,
-        OriginPath = 8
+        OriginPath = 8,
+        Path = 16
     }
 
     /// <summary>

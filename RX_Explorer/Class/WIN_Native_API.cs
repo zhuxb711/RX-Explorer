@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -297,7 +298,7 @@ namespace RX_Explorer.Class
                                     return true;
                                 }
                             }
-                            else if (Filter.HasFlag(ItemFilters.File) && !Data.cFileName.EndsWith(".url"))
+                            else if (Filter.HasFlag(ItemFilters.File) && !Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                             {
                                 return true;
                             }
@@ -498,6 +499,109 @@ namespace RX_Explorer.Class
             }
         }
 
+        public static List<FileSystemStorageItemBase> Search(string FolderPath, string TargetName, bool SearchInSubFolders = false, bool IncludeHiddenItem = false, CancellationToken CancelToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(FolderPath))
+            {
+                throw new ArgumentException("Argument could not be empty", nameof(FolderPath));
+            }
+
+            if (string.IsNullOrEmpty(TargetName))
+            {
+                throw new ArgumentException("Argument could not be empty", nameof(TargetName));
+            }
+
+            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+
+            List<FileSystemStorageItemBase> SearchResult = new List<FileSystemStorageItemBase>();
+
+            try
+            {
+                if (Ptr.ToInt64() != -1)
+                {
+                    do
+                    {
+                        FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
+
+                        if (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden))
+                        {
+                            if (Attribute.HasFlag(FileAttributes.Directory))
+                            {
+                                if (Data.cFileName != "." && Data.cFileName != "..")
+                                {
+                                    string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
+
+                                    if (Regex.IsMatch(Data.cFileName, @$".*{TargetName}.*", RegexOptions.IgnoreCase))
+                                    {
+                                        FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
+                                        DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
+
+                                        if (Attribute.HasFlag(FileAttributes.Hidden))
+                                        {
+                                            SearchResult.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, CurrentDataPath, ModifiedTime));
+                                        }
+                                        else
+                                        {
+                                            SearchResult.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, CurrentDataPath, ModifiedTime));
+                                        }
+                                    }
+
+                                    if (SearchInSubFolders)
+                                    {
+                                        SearchResult.AddRange(Search(CurrentDataPath, TargetName, true, IncludeHiddenItem, CancelToken));
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (Regex.IsMatch(Data.cFileName, @$".*{TargetName}.*", RegexOptions.IgnoreCase))
+                                {
+                                    string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
+
+                                    FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
+                                    DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
+
+                                    if (Attribute.HasFlag(FileAttributes.Hidden))
+                                    {
+                                        SearchResult.Add(new HiddenStorageItem(Data, StorageItemTypes.File, CurrentDataPath, ModifiedTime));
+                                    }
+                                    else
+                                    {
+                                        if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                SearchResult.Add(new HyperlinkStorageItem(Data, CurrentDataPath, ModifiedTime));
+                                            }
+                                            else
+                                            {
+                                                SearchResult.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, CurrentDataPath, ModifiedTime));
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    while (FindNextFile(Ptr, out Data) && !CancelToken.IsCancellationRequested);
+
+                    return SearchResult;
+                }
+                else
+                {
+                    return SearchResult;
+                }
+            }
+            catch
+            {
+                return SearchResult;
+            }
+            finally
+            {
+                FindClose(Ptr);
+            }
+        }
+
         public static List<FileSystemStorageItemBase> GetStorageItems(string Path, bool IncludeHiddenItem, ItemFilters Filter)
         {
             if (string.IsNullOrWhiteSpace(Path))
@@ -547,9 +651,9 @@ namespace RX_Explorer.Class
                                 }
                                 else
                                 {
-                                    if (!Data.cFileName.EndsWith(".url"))
+                                    if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        if (Data.cFileName.EndsWith(".lnk"))
+                                        if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
                                         {
                                             Result.Add(new HyperlinkStorageItem(Data, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime));
                                         }
@@ -636,9 +740,9 @@ namespace RX_Explorer.Class
                                 }
                                 else
                                 {
-                                    if (!Data.cFileName.EndsWith(".url"))
+                                    if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        if (Data.cFileName.EndsWith(".lnk"))
+                                        if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
                                         {
                                             Result.Add(new HyperlinkStorageItem(Data, Path, ModifiedTime));
                                         }
@@ -699,11 +803,11 @@ namespace RX_Explorer.Class
 
                                     if (Attribute.HasFlag(FileAttributes.Hidden))
                                     {
-                                        Result.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime));
+                                        Result.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, Path.Combine(Folder.Path, Data.cFileName), ModifiedTime));
                                     }
                                     else
                                     {
-                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime));
+                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, Path.Combine(Folder.Path, Data.cFileName), ModifiedTime));
                                     }
                                 }
                             }
@@ -714,19 +818,19 @@ namespace RX_Explorer.Class
 
                                 if (Attribute.HasFlag(FileAttributes.Hidden))
                                 {
-                                    Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime));
+                                    Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, Path.Combine(Folder.Path, Data.cFileName), ModifiedTime));
                                 }
                                 else
                                 {
-                                    if (!Data.cFileName.EndsWith(".url"))
+                                    if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        if (Data.cFileName.EndsWith(".lnk"))
+                                        if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
                                         {
-                                            Result.Add(new HyperlinkStorageItem(Data, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime));
+                                            Result.Add(new HyperlinkStorageItem(Data, Path.Combine(Folder.Path, Data.cFileName), ModifiedTime));
                                         }
                                         else
                                         {
-                                            Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, System.IO.Path.Combine(Folder.Path, Data.cFileName), ModifiedTime));
+                                            Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, Path.Combine(Folder.Path, Data.cFileName), ModifiedTime));
                                         }
                                     }
                                 }

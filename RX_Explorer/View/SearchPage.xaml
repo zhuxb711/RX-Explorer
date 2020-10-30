@@ -9,61 +9,131 @@
       mc:Ignorable="d"
       NavigationCacheMode="Required"
       Background="Transparent">
+    <Page.Resources>
+        <muxc:CommandBarFlyout x:Name="SearchCommandFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
+                <AppBarButton x:Uid="SearchLocation"
+                              x:Name="Location"
+                              Label="打开所在位置"
+                              Click="Location_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                                  Glyph="&#xF133;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton Icon="Copy"
+                              x:Name="CopyPath"
+                              Label="复制完整路径"
+                              x:Uid="SearchCopyPath"
+                              Click="CopyPath_Click" />
+                <AppBarButton Icon="Tag"
+                              x:Uid="SearchProperties"
+                              Label="属性"
+                              Click="Attribute_Click" />
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
+    </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="50" />
+            <RowDefinition Height="40" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <TextBlock Margin="10,10,0,0"
-                   Text="搜索结果"
+        <TextBlock Text="搜索结果"
                    x:Uid="SearchResult"
-                   FontSize="22" />
-        <ListView Margin="10"
-                  Grid.Row="1"
+                   FontSize="16" 
+                   VerticalAlignment="Center"
+                   Padding="10,0,10,0"/>
+        <ListView Grid.Row="1"
+                  Padding="10,0,10,0"
                   Name="SearchResultList"
                   x:FieldModifier="public"
                   Grid.RowSpan="2"
                   IsHoldingEnabled="True"
                   ShowsScrollingPlaceholders="False"
+                  ContainerContentChanging="SearchResultList_ContainerContentChanging"
                   Holding="SearchResultList_Holding"
-                  RightTapped="SearchResultList_RightTapped"
-                  SelectionChanged="SearchResultList_SelectionChanged">
+                  RightTapped="SearchResultList_RightTapped">
             <ListView.HeaderTemplate>
                 <DataTemplate>
-                    <Grid Height="25">
+                    <Grid Height="35">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="4*" />
+                            <ColumnDefinition Width="3*" />
                             <ColumnDefinition Width="2*" />
                             <ColumnDefinition Width="1.5*" />
-                            <ColumnDefinition Width="1.5*" />
-                            <ColumnDefinition Width="3*" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="名称"
-                                   x:Uid="SearchName"
-                                   FontSize="14"
-                                   TextTrimming="CharacterEllipsis"
-                                   Grid.Column="0" />
-                        <TextBlock Text="修改日期"
-                                   x:Uid="SearchModified"
-                                   FontSize="14"
-                                   TextTrimming="CharacterEllipsis"
-                                   Grid.Column="1" />
-                        <TextBlock Text="类型"
-                                   x:Uid="SearchType"
-                                   FontSize="14"
-                                   TextTrimming="CharacterEllipsis"
-                                   Grid.Column="2" />
-                        <TextBlock Text="大小"
-                                   x:Uid="SearchSize"
-                                   FontSize="14"
-                                   TextTrimming="CharacterEllipsis"
-                                   Grid.Column="3" />
-                        <TextBlock Text="路径"
-                                   x:Uid="SearchPath"
-                                   FontSize="14"
-                                   TextTrimming="CharacterEllipsis"
-                                   Grid.Column="4" />
+                        <Button HorizontalContentAlignment="Left"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                x:Name="ListHeaderName"
+                                Click="ListHeaderName_Click"
+                                Background="{StaticResource ElementAcrylicBrush}"
+                                Style="{StaticResource ListHeaderButtonStyle}">
+                            <TextBlock Text="名称"
+                                       FontSize="14"
+                                       x:Uid="SearchName"
+                                       VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis" />
+                        </Button>
+                        <Button HorizontalContentAlignment="Left"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                Grid.Column="1"
+                                x:Name="ListHeaderPath"
+                                Click="ListHeaderPath_Click"
+                                Background="{StaticResource ElementAcrylicBrush}"
+                                Style="{StaticResource ListHeaderButtonStyle}">
+                            <TextBlock Text="路径"
+                                       FontSize="14"
+                                       x:Uid="SearchPath"
+                                       VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis" />
+                        </Button>
+                        <Button HorizontalContentAlignment="Left"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                Grid.Column="2"
+                                x:Name="ListHeaderModifyDate"
+                                Click="ListHeaderModifyDate_Click"
+                                Background="{StaticResource ElementAcrylicBrush}"
+                                Style="{StaticResource ListHeaderButtonStyle}">
+                            <TextBlock Text="修改日期"
+                                       FontSize="14"
+                                       x:Uid="SearchModified"
+                                       VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis" />
+                        </Button>
+                        <Button HorizontalContentAlignment="Left"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                Grid.Column="3"
+                                x:Name="ListHeaderType"
+                                Click="ListHeaderType_Click"
+                                Background="{StaticResource ElementAcrylicBrush}"
+                                Style="{StaticResource ListHeaderButtonStyle}">
+                            <TextBlock Text="类型"
+                                       FontSize="14"
+                                       x:Uid="SearchType"
+                                       VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis" />
+                        </Button>
+                        <Button HorizontalContentAlignment="Left"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                Grid.Column="4"
+                                x:Name="ListHeaderSize"
+                                Click="ListHeaderSize_Click"
+                                Background="{StaticResource ElementAcrylicBrush}"
+                                Style="{StaticResource ListHeaderButtonStyle}">
+                            <TextBlock Text="大小"
+                                       FontSize="14"
+                                       x:Uid="SearchSize"
+                                       VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis" />
+                        </Button>
                     </Grid>
                 </DataTemplate>
             </ListView.HeaderTemplate>
@@ -80,10 +150,10 @@
                     <Grid HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="4*" />
+                            <ColumnDefinition Width="3*" />
                             <ColumnDefinition Width="2*" />
                             <ColumnDefinition Width="1.5*" />
-                            <ColumnDefinition Width="1.5*" />
-                            <ColumnDefinition Width="3*" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -93,7 +163,7 @@
                             <Image VerticalAlignment="Center"
                                    HorizontalAlignment="Center"
                                    Stretch="Uniform"
-                                   Source="{x:Bind Thumbnail}"
+                                   Source="{x:Bind Thumbnail,Mode=OneWay}"
                                    x:Phase="1"
                                    Height="30"
                                    Width="30" />
@@ -106,76 +176,49 @@
                                        TextTrimming="CharacterEllipsis" />
                         </Grid>
                         <TextBlock VerticalAlignment="Center"
-                                   Margin="0,0,10,0"
-                                   FontSize="15"
+                                   FontSize="14"
+                                   Text="{x:Bind Path}"
                                    x:Phase="0"
+                                   Padding="10,0,0,0"
+                                   ToolTipService.ToolTip="{x:Bind Path}"
+                                   TextTrimming="CharacterEllipsis"
+                                   Grid.Column="1" />
+                        <TextBlock VerticalAlignment="Center"
+                                   FontSize="14"
+                                   x:Phase="0"
+                                   Padding="10,0,0,0"
                                    Text="{x:Bind ModifiedTime}"
                                    ToolTipService.ToolTip="{x:Bind ModifiedTime}"
-                                   Grid.Column="1"
-                                   TextTrimming="CharacterEllipsis" />
-                        <TextBlock VerticalAlignment="Center"
-                                   FontSize="15"
-                                   Margin="0,0,10,0"
-                                   x:Phase="1"
-                                   Text="{x:Bind DisplayType}"
-                                   ToolTipService.ToolTip="{x:Bind DisplayType}"
                                    Grid.Column="2"
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"
-                                   FontSize="15"
-                                   Margin="0,0,10,0"
+                                   FontSize="14"
+                                   Padding="10,0,0,0"
+                                   x:Phase="1"
+                                   Text="{x:Bind DisplayType,Mode=OneWay}"
+                                   ToolTipService.ToolTip="{x:Bind DisplayType,Mode=OneWay}"
+                                   Grid.Column="3"
+                                   TextTrimming="CharacterEllipsis" />
+                        <TextBlock VerticalAlignment="Center"
+                                   FontSize="14"
+                                   Padding="10,0,0,0"
                                    Text="{x:Bind Size}"
                                    x:Phase="0"
                                    ToolTipService.ToolTip="{x:Bind Size}"
-                                   TextTrimming="CharacterEllipsis"
-                                   Grid.Column="3" />
-                        <TextBlock VerticalAlignment="Center"
-                                   FontSize="15"
-                                   Text="{x:Bind Path}"
-                                   x:Phase="0"
-                                   ToolTipService.ToolTip="{x:Bind Path}"
                                    TextTrimming="CharacterEllipsis"
                                    Grid.Column="4" />
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
-            <ListView.ContextFlyout>
-                <muxc:CommandBarFlyout x:Name="SearchCommandFlyout"
-                                       Placement="RightEdgeAlignedTop">
-                    <muxc:CommandBarFlyout.SecondaryCommands>
-                        <AppBarButton x:Uid="SearchLocation"
-                                      x:Name="Location"
-                                      Label="打开所在位置"
-                                      Click="Location_Click">
-                            <AppBarButton.Icon>
-                                <FontIcon FontFamily="Segoe MDL2 Assets"
-                                          Glyph="&#xF133;" />
-                            </AppBarButton.Icon>
-                        </AppBarButton>
-                        <AppBarButton Icon="Copy"
-                                      x:Name="CopyPath"
-                                      Label="复制完整路径"
-                                      IsEnabled="{x:Bind Location.IsEnabled,Mode=OneWay}"
-                                      x:Uid="SearchCopyPath"
-                                      Click="CopyPath_Click" />
-                        <AppBarButton Icon="Tag"
-                                      x:Uid="SearchProperties"
-                                      Label="属性"
-                                      IsEnabled="{x:Bind Location.IsEnabled,Mode=OneWay}"
-                                      Click="Attribute_Click" />
-                    </muxc:CommandBarFlyout.SecondaryCommands>
-                </muxc:CommandBarFlyout>
-            </ListView.ContextFlyout>
         </ListView>
         <TextBlock Name="HasItem"
-                   x:FieldModifier="public"
                    Visibility="Collapsed"
                    x:Uid="SearchHasItem"
                    Text="无法搜索到任何文件"
                    Grid.Row="1"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
-                   FontSize="22" />
+                   FontSize="15" />
 
         <controls:Loading x:Name="LoadingControl"
                           IsLoading="False"

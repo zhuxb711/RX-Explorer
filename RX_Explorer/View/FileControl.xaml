@@ -243,10 +243,10 @@
                             UpdateTextOnSelect="True"
                             Margin="0,0,5,0">
                 <FlyoutBase.AttachedFlyout>
-                    <Flyout Placement="BottomEdgeAlignedLeft"
+                    <Flyout Placement="BottomEdgeAlignedRight"
                             x:Name="SearchFlyout"
                             Opened="SearchFlyout_Opened">
-                        <StackPanel MinWidth="220">
+                        <StackPanel MinWidth="240">
                             <RadioButton Name="ShallowRadio"
                                          x:Uid="SearchFlyoutShallowRadio"
                                          Content="仅搜索当前目录(较快)"
@@ -263,12 +263,14 @@
                                         Orientation="Horizontal"
                                         HorizontalAlignment="Right">
                                 <Button Content="搜索"
+                                        MinWidth="60"
                                         x:Uid="SearchFlyoutConfirm"
                                         Name="SearchConfirm"
                                         Click="SearchConfirm_Click" />
                                 <Button Content="取消"
                                         x:Uid="SearchFlyoutCancel"
                                         Name="SearchCancel"
+                                        MinWidth="60"
                                         Margin="10,0,0,0"
                                         Click="SearchCancel_Click" />
                             </StackPanel>

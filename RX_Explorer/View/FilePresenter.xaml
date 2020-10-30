@@ -634,8 +634,8 @@
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
                        Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
                        Height="55"
-                       Width="55" 
-                       x:Phase="1"/>
+                       Width="55"
+                       x:Phase="1" />
                 <StackPanel Orientation="Vertical"
                             VerticalAlignment="Top"
                             Margin="5,0,0,0">
@@ -708,7 +708,7 @@
                        Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
                        Height="140"
                        Width="180"
-                       x:Phase="1"/>
+                       x:Phase="1" />
                 <TextBlock Text="{x:Bind Name,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            FontSize="15"
@@ -731,8 +731,8 @@
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
                        Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
                        Height="80"
-                       Width="120" 
-                       x:Phase="1"/>
+                       Width="120"
+                       x:Phase="1" />
                 <TextBlock Text="{x:Bind Name,Mode=OneWay}"
                            FontSize="14"
                            ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
@@ -749,13 +749,14 @@
                       x:FieldModifier="public">
             <Grid Height="35">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="5*" />
-                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="6*" />
+                    <ColumnDefinition Width="2.5*" />
+                    <ColumnDefinition Width="2*" />
                     <ColumnDefinition Width="1.5*" />
-                    <ColumnDefinition Width="1.5*" />
-                    <ColumnDefinition MinWidth="50" />
+                    <ColumnDefinition MinWidth="50"
+                                      Width="*" />
                 </Grid.ColumnDefinitions>
-                <Button HorizontalContentAlignment="Left"
+                <Button HorizontalContentAlignment="Stretch"
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
                         IsDoubleTapEnabled="True"
@@ -765,13 +766,25 @@
                         Click="ListHeaderName_Click"
                         Background="{StaticResource ElementAcrylicBrush}"
                         Style="{StaticResource ListHeaderButtonStyle}">
-                    <TextBlock Text="名称"
-                               FontSize="14"
-                               x:Uid="SearchName"
-                               VerticalAlignment="Center"
-                               TextTrimming="CharacterEllipsis" />
+                    <RelativePanel>
+                        <TextBlock Text="名称"
+                                   FontSize="14"
+                                   x:Uid="SearchName"
+                                   TextTrimming="CharacterEllipsis"
+                                   RelativePanel.LeftOf="SortIndicator1"
+                                   RelativePanel.AlignLeftWithPanel="True"
+                                   RelativePanel.AlignVerticalCenterWithPanel="True" />
+                        <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                 RelativePanel.AlignVerticalCenterWithPanel="True"
+                                 x:Name="SortIndicator1"
+                                 Height="12"
+                                 Width="12">
+                            <FontIcon FontFamily="Segoe MDL2 Assets"
+                                      Glyph="&#xF0AE;" />
+                        </Viewbox>
+                    </RelativePanel>
                 </Button>
-                <Button HorizontalContentAlignment="Left"
+                <Button HorizontalContentAlignment="Stretch"
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
                         IsDoubleTapEnabled="True"
@@ -781,14 +794,26 @@
                         Click="ListHeaderModifiedTime_Click"
                         Background="{StaticResource ElementAcrylicBrush}"
                         Style="{StaticResource ListHeaderButtonStyle}">
-                    <TextBlock Text="修改日期"
-                               FontSize="14"
-                               x:Uid="SearchModified"
-                               VerticalAlignment="Center"
-                               TextTrimming="CharacterEllipsis" />
+                    <RelativePanel>
+                        <TextBlock Text="修改日期"
+                                   FontSize="14"
+                                   x:Uid="SearchModified"
+                                   TextTrimming="CharacterEllipsis"
+                                   RelativePanel.LeftOf="SortIndicator2"
+                                   RelativePanel.AlignLeftWithPanel="True"
+                                   RelativePanel.AlignVerticalCenterWithPanel="True" />
+                        <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                 RelativePanel.AlignVerticalCenterWithPanel="True"
+                                 x:Name="SortIndicator2"
+                                 Height="12"
+                                 Width="12">
+                            <FontIcon FontFamily="Segoe MDL2 Assets"
+                                      Glyph="&#xF0AE;" />
+                        </Viewbox>
+                    </RelativePanel>
                 </Button>
                 <Button Grid.Column="2"
-                        HorizontalContentAlignment="Left"
+                        HorizontalContentAlignment="Stretch"
                         IsDoubleTapEnabled="True"
                         DoubleTapped="ListHeader_DoubleTapped"
                         HorizontalAlignment="Stretch"
@@ -797,13 +822,25 @@
                         Click="ListHeaderType_Click"
                         Background="{StaticResource ElementAcrylicBrush}"
                         Style="{StaticResource ListHeaderButtonStyle}">
-                    <TextBlock Text="类型"
-                               FontSize="14"
-                               x:Uid="SearchType"
-                               VerticalAlignment="Center"
-                               TextTrimming="CharacterEllipsis" />
+                    <RelativePanel>
+                        <TextBlock Text="类型"
+                                   FontSize="14"
+                                   x:Uid="SearchType"
+                                   TextTrimming="CharacterEllipsis"
+                                   RelativePanel.LeftOf="SortIndicator3"
+                                   RelativePanel.AlignLeftWithPanel="True"
+                                   RelativePanel.AlignVerticalCenterWithPanel="True" />
+                        <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                 RelativePanel.AlignVerticalCenterWithPanel="True"
+                                 x:Name="SortIndicator3"
+                                 Height="12"
+                                 Width="12">
+                            <FontIcon FontFamily="Segoe MDL2 Assets"
+                                      Glyph="&#xF0AE;" />
+                        </Viewbox>
+                    </RelativePanel>
                 </Button>
-                <Button HorizontalContentAlignment="Left"
+                <Button HorizontalContentAlignment="Stretch"
                         HorizontalAlignment="Stretch"
                         IsDoubleTapEnabled="True"
                         DoubleTapped="ListHeader_DoubleTapped"
@@ -813,11 +850,23 @@
                         Click="ListHeaderSize_Click"
                         Background="{StaticResource ElementAcrylicBrush}"
                         Style="{StaticResource ListHeaderButtonStyle}">
-                    <TextBlock Text="大小"
-                               FontSize="14"
-                               x:Uid="SearchSize"
-                               VerticalAlignment="Center"
-                               TextTrimming="CharacterEllipsis" />
+                    <RelativePanel>
+                        <TextBlock Text="大小"
+                                   FontSize="14"
+                                   x:Uid="SearchSize"
+                                   TextTrimming="CharacterEllipsis"
+                                   RelativePanel.LeftOf="SortIndicator4"
+                                   RelativePanel.AlignLeftWithPanel="True"
+                                   RelativePanel.AlignVerticalCenterWithPanel="True" />
+                        <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                 RelativePanel.AlignVerticalCenterWithPanel="True"
+                                 x:Name="SortIndicator4"
+                                 Height="12"
+                                 Width="12">
+                            <FontIcon FontFamily="Segoe MDL2 Assets"
+                                      Glyph="&#xF0AE;" />
+                        </Viewbox>
+                    </RelativePanel>
                 </Button>
                 <Button VerticalAlignment="Stretch"
                         HorizontalAlignment="Stretch"
@@ -834,11 +883,12 @@
                       x:FieldModifier="public">
             <Grid HorizontalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="5*" />
-                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="6*" />
+                    <ColumnDefinition Width="2.5*" />
+                    <ColumnDefinition Width="2*" />
                     <ColumnDefinition Width="1.5*" />
-                    <ColumnDefinition Width="1.5*" />
-                    <ColumnDefinition MinWidth="50" />
+                    <ColumnDefinition MinWidth="50"
+                                      Width="*" />
                 </Grid.ColumnDefinitions>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -876,7 +926,7 @@
                 </Grid>
                 <TextBlock VerticalAlignment="Center"
                            FontSize="14"
-                           Padding="8,0,0,0"
+                           Padding="10,0,0,0"
                            HorizontalAlignment="Left"
                            Text="{x:Bind ModifiedTime,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind ModifiedTime,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
@@ -886,7 +936,7 @@
                            PointerPressed="GetFocus_PointerPressed" />
                 <TextBlock VerticalAlignment="Center"
                            FontSize="14"
-                           Padding="8,0,0,0"
+                           Padding="10,0,0,0"
                            HorizontalAlignment="Left"
                            Text="{x:Bind DisplayType,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind DisplayType,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
@@ -896,7 +946,7 @@
                            PointerPressed="GetFocus_PointerPressed" />
                 <TextBlock VerticalAlignment="Center"
                            FontSize="14"
-                           Padding="8,0,0,0"
+                           Padding="10,0,0,0"
                            HorizontalAlignment="Left"
                            Text="{x:Bind Size,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind Size,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"

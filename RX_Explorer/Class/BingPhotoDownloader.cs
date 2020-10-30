@@ -146,7 +146,7 @@ namespace RX_Explorer.Class
             {
                 QueryOptions Options = new QueryOptions
                 {
-                    ApplicationSearchFilter = "BingDailyPicture_Cache*",
+                    ApplicationSearchFilter = "System.FileName:BingDailyPicture_Cache*",
                     FolderDepth = FolderDepth.Shallow,
                     IndexerOption = IndexerOption.UseIndexerWhenAvailable
                 };
