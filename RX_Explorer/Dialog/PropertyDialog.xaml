@@ -12,7 +12,7 @@
     CloseButtonClick="QueueContentDialog_CloseButtonClick">
 
     <Grid>
-        <StackPanel Width="350">
+        <StackPanel Width="380">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="90" />
