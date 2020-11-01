@@ -74,9 +74,7 @@ namespace RX_Explorer
 
         private async void Save_Click(object sender, RoutedEventArgs e)
         {
-            StorageFolder Folder = await SFile.GetParentAsync();
-            StorageFile NewFile = await Folder.CreateFileAsync(SFile.Name, CreationCollisionOption.ReplaceExisting);
-            await FileIO.WriteTextAsync(NewFile, Text.Text);
+            await FileIO.WriteTextAsync(SFile, Text.Text);
 
             Frame.GoBack();
         }

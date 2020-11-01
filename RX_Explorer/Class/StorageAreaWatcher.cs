@@ -101,7 +101,7 @@ namespace RX_Explorer.Class
                                 await OlderItem.Replace(NewPath).ConfigureAwait(true);
                             }
                         }
-                        else
+                        else if (CurrentCollection.All((Item) => Item.Path != NewPath))
                         {
                             if (WIN_Native_API.GetStorageItems(NewPath).FirstOrDefault() is FileSystemStorageItemBase Item)
                             {
@@ -122,15 +122,8 @@ namespace RX_Explorer.Class
                         {
                             if (await TreeView.RootNodes[0].GetChildNodeAsync(new PathAnalysis(OldPath, (TreeView.RootNodes[0].Content as TreeViewNodeContent).Path), true).ConfigureAwait(true) is TreeViewNode Node)
                             {
-                                try
-                                {
-                                    StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(NewPath);
-                                    (Node.Content as TreeViewNodeContent).Update(Folder);
-                                }
-                                catch (Exception ex)
-                                {
-                                    await LogTracer.LogAsync(ex, "Error happened when try to rename folder in Treeview").ConfigureAwait(true);
-                                }
+                                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(NewPath);
+                                (Node.Content as TreeViewNodeContent).Update(Folder);
                             }
                         }
                     }
@@ -188,7 +181,7 @@ namespace RX_Explorer.Class
                     {
                         await Locker.WaitAsync().ConfigureAwait(true);
 
-                        if (WIN_Native_API.GetStorageItems(Path).FirstOrDefault() is FileSystemStorageItemBase NewItem)
+                        if (CurrentCollection.All((Item) => Item.Path != Path) && WIN_Native_API.GetStorageItems(Path).FirstOrDefault() is FileSystemStorageItemBase NewItem)
                         {
                             await NewItem.LoadMoreProperty().ConfigureAwait(true);
 

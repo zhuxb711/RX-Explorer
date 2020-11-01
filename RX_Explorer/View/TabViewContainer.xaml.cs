@@ -156,7 +156,7 @@ namespace RX_Explorer
 
         private async void TabViewContainer_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
-            if (!QueueContentDialog.IsRunningOrWaiting && CurrentTabNavigation.Content is ThisPC PC)
+            if (!QueueContentDialog.IsRunningOrWaiting && CurrentTabNavigation?.Content is ThisPC PC)
             {
                 args.Handled = true;
 
