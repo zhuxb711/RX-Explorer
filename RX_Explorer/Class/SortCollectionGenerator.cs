@@ -44,6 +44,8 @@ namespace RX_Explorer.Class
                 this.SortDirection = SortDirection.Value;
                 ApplicationData.Current.LocalSettings.Values["CollectionSortDirection"] = Enum.GetName(typeof(SortDirection), SortDirection);
             }
+
+            SortIndicatorController.SetIndicatorStatus(this.SortTarget, this.SortDirection);
         }
 
         public List<T> GetSortedCollection<T>(ICollection<T> InputCollection, SortTarget? Target, SortDirection? Direction) where T : FileSystemStorageItemBase

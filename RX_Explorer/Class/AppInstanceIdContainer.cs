@@ -18,8 +18,7 @@ namespace RX_Explorer.Class
 
                 if (!string.IsNullOrEmpty(SavedInfo))
                 {
-                    List<string> Collection = JsonConvert.DeserializeObject<List<string>>(SavedInfo);
-                    return Collection.LastOrDefault();
+                    return JsonConvert.DeserializeObject<List<string>>(SavedInfo).LastOrDefault();
                 }
                 else
                 {

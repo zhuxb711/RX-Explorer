@@ -82,10 +82,10 @@ namespace RX_Explorer.Class
                                         .AppendLine($"Exception: {Ex.GetType().Name}")
                                         .AppendLine()
                                         .AppendLine("Message:")
-                                        .AppendLine(MessageSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, MessageSplit))
+                                        .AppendLine(MessageSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, MessageSplit))
                                         .AppendLine()
                                         .AppendLine("StackTrace:")
-                                        .AppendLine(StackTraceSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, StackTraceSplit))
+                                        .AppendLine(StackTraceSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, StackTraceSplit))
                                         .AppendLine()
                                         .AppendLine("------------------------------------")
                                         .AppendLine();
@@ -210,9 +210,9 @@ namespace RX_Explorer.Class
                                     .AppendLine($"Exception: {Ex.GetType().Name}")
                                     .AppendLine()
                                     .AppendLine("Message:")
-                                    .AppendLine(MessageSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, MessageSplit))
+                                    .AppendLine(MessageSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, MessageSplit))
                                     .AppendLine("StackTrace:")
-                                    .AppendLine(StackTraceSplit.Length == 0 ? "Unknown" : string.Join(Environment.NewLine, StackTraceSplit))
+                                    .AppendLine(StackTraceSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, StackTraceSplit))
                                     .AppendLine()
                                     .AppendLine("------------------------------------");
 

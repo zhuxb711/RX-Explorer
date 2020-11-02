@@ -14,7 +14,6 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Foundation;
 using Windows.Storage;
-using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
 using Windows.System;
 using Windows.UI.Core;
@@ -38,10 +37,7 @@ namespace RX_Explorer
 
         public TreeViewNode CurrentNode
         {
-            get
-            {
-                return currentnode;
-            }
+            get => currentnode;
             set
             {
                 if (value != null && value.Content is TreeViewNodeContent Content)
@@ -74,7 +70,7 @@ namespace RX_Explorer
 
                     if (TabItem != null)
                     {
-                        TabItem.Header = Content.DisplayName;
+                        TabItem.Header = string.IsNullOrEmpty(Content.DisplayName) ? $"<{Globalization.GetString("UnknownText")}>" : Content.DisplayName;
                     }
                 }
 
@@ -137,7 +133,7 @@ namespace RX_Explorer
 
                     if (TabItem != null)
                     {
-                        TabItem.Header = value.DisplayName;
+                        TabItem.Header = string.IsNullOrEmpty(value.DisplayName) ? $"<{Globalization.GetString("UnknownText")}>" : value.DisplayName;
                     }
                 }
 
@@ -150,14 +146,8 @@ namespace RX_Explorer
 
         private int RecordIndex
         {
-            get
-            {
-                return recordIndex;
-            }
-            set
-            {
-                recordIndex = value;
-            }
+            get => recordIndex;
+            set => recordIndex = value;
         }
 
         public bool IsSearchOrPathBoxFocused { get; set; }
@@ -395,28 +385,42 @@ namespace RX_Explorer
             }
         }
 
-        protected async override void OnNavigatedTo(NavigationEventArgs e)
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.NavigationMode == NavigationMode.New && e?.Parameter is Tuple<TabViewItem, StorageFolder> Parameters)
+            if (Interlocked.Exchange(ref NavigateLockResource, 1) == 0)
             {
-                Application.Current.Suspending += Current_Suspending;
-                Application.Current.Resuming += Current_Resuming;
-                Frame.Navigated += Frame_Navigated;
-
-                if (Parameters.Item1 != null)
+                try
                 {
-                    TabItem = Parameters.Item1;
+                    if (e.NavigationMode == NavigationMode.New && e?.Parameter is Tuple<TabViewItem, StorageFolder> Parameters)
+                    {
+                        Application.Current.Suspending += Current_Suspending;
+                        Application.Current.Resuming += Current_Resuming;
+                        Frame.Navigated += Frame_Navigated;
+
+                        if (Parameters.Item1 != null)
+                        {
+                            TabItem = Parameters.Item1;
+                        }
+
+                        AreaWatcher = new StorageAreaWatcher(Presenter.FileCollection, FolderTree);
+                        EnterLock = new SemaphoreSlim(1, 1);
+
+                        if (!CommonAccessCollection.FrameFileControlDic.ContainsKey(Frame))
+                        {
+                            CommonAccessCollection.FrameFileControlDic.Add(Frame, this);
+                        }
+
+                        await Initialize(Parameters.Item2).ConfigureAwait(false);
+                    }
                 }
-
-                AreaWatcher = new StorageAreaWatcher(Presenter.FileCollection, FolderTree);
-                EnterLock = new SemaphoreSlim(1, 1);
-
-                if (!CommonAccessCollection.FrameFileControlDic.ContainsKey(Frame))
+                catch (Exception ex)
                 {
-                    CommonAccessCollection.FrameFileControlDic.Add(Frame, this);
+                    await LogTracer.LogAsync(ex).ConfigureAwait(true);
                 }
-
-                await Initialize(Parameters.Item2).ConfigureAwait(false);
+                finally
+                {
+                    _ = Interlocked.Exchange(ref NavigateLockResource, 0);
+                }
             }
         }
 
@@ -443,16 +447,29 @@ namespace RX_Explorer
                     TabItem.Header = Globalization.GetString("BuildIn_SearchPage_Description");
                     break;
                 default:
-                    TabItem.Header = CurrentFolder?.DisplayName;
+                    TabItem.Header = string.IsNullOrEmpty(CurrentFolder?.DisplayName) ? $"<{Globalization.GetString("UnknownText")}>" : CurrentFolder?.DisplayName;
                     break;
             }
         }
 
-        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        protected override async void OnNavigatedFrom(NavigationEventArgs e)
         {
             if (e.NavigationMode == NavigationMode.Back)
             {
-                Dispose();
+                try
+                {
+                    await Task.Run(() => SpinWait.SpinUntil(() => Interlocked.Exchange(ref NavigateLockResource, 1) == 0)).ConfigureAwait(true);
+
+                    Dispose();
+                }
+                catch (Exception ex)
+                {
+                    await LogTracer.LogAsync(ex).ConfigureAwait(true);
+                }
+                finally
+                {
+                    _ = Interlocked.Exchange(ref NavigateLockResource, 0);
+                }
             }
         }
 
@@ -1839,6 +1856,7 @@ namespace RX_Explorer
                     {
                         Presenter.ItemPresenter = (Presenter.FindName("ListViewRefreshContainer") as RefreshContainer)?.Content as ListViewBase;
 
+                        Presenter.ListViewControl.Header = SortIndicatorController.CreateNewInstance();
                         Presenter.ListViewControl.HeaderTemplate = Presenter.ListHeaderDataTemplate;
                         Presenter.ListViewControl.ItemTemplate = Presenter.ListViewDetailDataTemplate;
                         Presenter.ListViewControl.ItemsSource = Presenter.FileCollection;
@@ -2601,6 +2619,11 @@ namespace RX_Explorer
 
             EnterLock.Dispose();
             AreaWatcher.Dispose();
+
+            if (Presenter.ListViewControl?.Header is SortIndicatorController Instance)
+            {
+                SortIndicatorController.RemoveInstance(Instance);
+            }
         }
 
         private void Presenter_PointerWheelChanged(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)

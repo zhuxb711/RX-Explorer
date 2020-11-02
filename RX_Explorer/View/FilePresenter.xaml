@@ -746,7 +746,8 @@
         </DataTemplate>
 
         <DataTemplate x:Name="ListHeaderDataTemplate"
-                      x:FieldModifier="public">
+                      x:FieldModifier="public"
+                      x:DataType="Cls:SortIndicatorController">
             <Grid Height="35">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="6*" />
@@ -778,10 +779,9 @@
                                  RelativePanel.AlignVerticalCenterWithPanel="True"
                                  x:Name="SortIndicator1"
                                  Height="12"
-                                 Width="12">
-                            <FontIcon FontFamily="Segoe MDL2 Assets"
-                                      Glyph="&#xF0AE;" />
-                        </Viewbox>
+                                 Width="12"
+                                 Child="{x:Bind Indicator1Icon,Mode=OneWay}"
+                                 Visibility="{x:Bind Indicator1Visibility,Mode=OneWay}" />
                     </RelativePanel>
                 </Button>
                 <Button HorizontalContentAlignment="Stretch"
@@ -806,10 +806,9 @@
                                  RelativePanel.AlignVerticalCenterWithPanel="True"
                                  x:Name="SortIndicator2"
                                  Height="12"
-                                 Width="12">
-                            <FontIcon FontFamily="Segoe MDL2 Assets"
-                                      Glyph="&#xF0AE;" />
-                        </Viewbox>
+                                 Width="12"
+                                 Child="{x:Bind Indicator2Icon,Mode=OneWay}"
+                                 Visibility="{x:Bind Indicator2Visibility,Mode=OneWay}" />
                     </RelativePanel>
                 </Button>
                 <Button Grid.Column="2"
@@ -834,10 +833,9 @@
                                  RelativePanel.AlignVerticalCenterWithPanel="True"
                                  x:Name="SortIndicator3"
                                  Height="12"
-                                 Width="12">
-                            <FontIcon FontFamily="Segoe MDL2 Assets"
-                                      Glyph="&#xF0AE;" />
-                        </Viewbox>
+                                 Width="12"
+                                 Child="{x:Bind Indicator3Icon,Mode=OneWay}"
+                                 Visibility="{x:Bind Indicator3Visibility,Mode=OneWay}" />
                     </RelativePanel>
                 </Button>
                 <Button HorizontalContentAlignment="Stretch"
@@ -862,10 +860,9 @@
                                  RelativePanel.AlignVerticalCenterWithPanel="True"
                                  x:Name="SortIndicator4"
                                  Height="12"
-                                 Width="12">
-                            <FontIcon FontFamily="Segoe MDL2 Assets"
-                                      Glyph="&#xF0AE;" />
-                        </Viewbox>
+                                 Width="12"
+                                 Child="{x:Bind Indicator4Icon,Mode=OneWay}"
+                                 Visibility="{x:Bind Indicator4Visibility,Mode=OneWay}" />
                     </RelativePanel>
                 </Button>
                 <Button VerticalAlignment="Stretch"

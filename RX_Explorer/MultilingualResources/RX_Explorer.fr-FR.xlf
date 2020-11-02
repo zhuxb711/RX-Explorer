@@ -450,14 +450,6 @@
           <source>Tips</source>
           <target state="translated">Astuces</target>
         </trans-unit>
-        <trans-unit id="MergeDialogEncodingProfile.Text" translate="yes" xml:space="preserve">
-          <source>Encoding config</source>
-          <target state="translated">Configuration de l'encodage</target>
-        </trans-unit>
-        <trans-unit id="MergeDialogEncodingQuality.Text" translate="yes" xml:space="preserve">
-          <source>Quality</source>
-          <target state="translated">Qualité</target>
-        </trans-unit>
         <trans-unit id="MergeDialogPickClip.Content" translate="yes" xml:space="preserve">
           <source>Select a clip</source>
           <target state="translated">Sélectionner un clip</target>
@@ -1315,18 +1307,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="VideoEditDialogText1.Text" translate="yes" xml:space="preserve">
           <source>Crop</source>
           <target state="translated">Recadrer</target>
-        </trans-unit>
-        <trans-unit id="VideoEditDialogText2.Text" translate="yes" xml:space="preserve">
-          <source>Output encoding config</source>
-          <target state="translated">Configuration du codage de sortie</target>
-        </trans-unit>
-        <trans-unit id="VideoEditDialogText3.Text" translate="yes" xml:space="preserve">
-          <source>Output quality</source>
-          <target state="translated">Qualité de sortie</target>
-        </trans-unit>
-        <trans-unit id="VideoEditDialogText4.Text" translate="yes" xml:space="preserve">
-          <source>Crop accuracy</source>
-          <target state="translated">Précision du recadrage</target>
         </trans-unit>
         <trans-unit id="VideoEditDialogUseSameProfile.Text" translate="yes" xml:space="preserve">
           <source>Use the same encoding configuration as the source video</source>
@@ -3327,6 +3307,26 @@ Les noms non valides incluent
         <trans-unit id="LoadMode_OnlyFile_Text" translate="yes" xml:space="preserve">
           <source>Load file icon only (balanced)</source>
           <target state="translated">Icône de chargement de fichier uniquement (équilibrée)</target>
+        </trans-unit>
+        <trans-unit id="VideoEditDialogText2.Header" translate="yes" xml:space="preserve">
+          <source>Output encoding config</source>
+          <target state="translated">Config d'encodage de sortie</target>
+        </trans-unit>
+        <trans-unit id="VideoEditDialogText3.Header" translate="yes" xml:space="preserve">
+          <source>Output quality</source>
+          <target state="translated">Qualité de sortie</target>
+        </trans-unit>
+        <trans-unit id="VideoEditDialogText4.Header" translate="yes" xml:space="preserve">
+          <source>Crop accuracy</source>
+          <target state="translated">Précision des cultures</target>
+        </trans-unit>
+        <trans-unit id="MergeDialogEncodingProfile.Header" translate="yes" xml:space="preserve">
+          <source>Encoding config</source>
+          <target state="translated">Configuration d'encodage</target>
+        </trans-unit>
+        <trans-unit id="MergeDialogEncodingQuality.Header" translate="yes" xml:space="preserve">
+          <source>Quality</source>
+          <target state="translated">Qualité</target>
         </trans-unit>
       </group>
     </body>

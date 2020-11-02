@@ -13,17 +13,10 @@ using Windows.UI.Xaml.Controls;
 
 namespace RX_Explorer
 {
-    /// <summary>
-    /// 提供特定于应用程序的行为，以补充默认的应用程序类。
-    /// </summary>
     sealed partial class App : Application
     {
         bool IsInBackgroundMode;
 
-        /// <summary>
-        /// 初始化单一实例应用程序对象。这是执行的创作代码的第一行，
-        /// 已执行，逻辑上等同于 main() 或 WinMain()。
-        /// </summary>
         public App()
         {
             InitializeComponent();
@@ -44,7 +37,7 @@ namespace RX_Explorer
             AppInstanceIdContainer.RegisterCurrentId(AppInstanceIdContainer.CurrentId);
         }
 
-        protected async override void OnWindowCreated(WindowCreatedEventArgs args)
+        protected override async void OnWindowCreated(WindowCreatedEventArgs args)
         {
             if (await FullTrustProcessController.Current.CheckQuicklookIsAvaliableAsync().ConfigureAwait(true))
             {
@@ -155,7 +148,7 @@ namespace RX_Explorer
             Window.Current.Activate();
         }
 
-        protected async override void OnActivated(IActivatedEventArgs args)
+        protected override async void OnActivated(IActivatedEventArgs args)
         {
             ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
             TitleBar.ButtonBackgroundColor = Colors.Transparent;

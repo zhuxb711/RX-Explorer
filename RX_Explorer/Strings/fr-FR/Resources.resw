@@ -345,12 +345,6 @@
   <data name="MergeDialogEmptyTip.Title" xml:space="preserve">
     <value>Astuces</value>
   </data>
-  <data name="MergeDialogEncodingProfile.Text" xml:space="preserve">
-    <value>Configuration de l'encodage</value>
-  </data>
-  <data name="MergeDialogEncodingQuality.Text" xml:space="preserve">
-    <value>Qualité</value>
-  </data>
   <data name="MergeDialogPickClip.Content" xml:space="preserve">
     <value>Sélectionner un clip</value>
   </data>
@@ -993,15 +987,6 @@
   </data>
   <data name="VideoEditDialogText1.Text" xml:space="preserve">
     <value>Recadrer</value>
-  </data>
-  <data name="VideoEditDialogText2.Text" xml:space="preserve">
-    <value>Configuration du codage de sortie</value>
-  </data>
-  <data name="VideoEditDialogText3.Text" xml:space="preserve">
-    <value>Qualité de sortie</value>
-  </data>
-  <data name="VideoEditDialogText4.Text" xml:space="preserve">
-    <value>Précision du recadrage</value>
   </data>
   <data name="VideoEditDialogUseSameProfile.Text" xml:space="preserve">
     <value>Utiliser le même encodage que la vidéo source</value>
@@ -2510,5 +2495,20 @@ Les noms non valides incluent
   </data>
   <data name="LoadMode_OnlyFile_Text" xml:space="preserve">
     <value>Icône de chargement de fichier uniquement (équilibrée)</value>
+  </data>
+  <data name="VideoEditDialogText2.Header" xml:space="preserve">
+    <value>Config d'encodage de sortie</value>
+  </data>
+  <data name="VideoEditDialogText3.Header" xml:space="preserve">
+    <value>Qualité de sortie</value>
+  </data>
+  <data name="VideoEditDialogText4.Header" xml:space="preserve">
+    <value>Précision des cultures</value>
+  </data>
+  <data name="MergeDialogEncodingProfile.Header" xml:space="preserve">
+    <value>Configuration d'encodage</value>
+  </data>
+  <data name="MergeDialogEncodingQuality.Header" xml:space="preserve">
+    <value>Qualité</value>
   </data>
 </root>

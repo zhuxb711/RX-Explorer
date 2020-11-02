@@ -354,12 +354,6 @@
   <data name="MergeDialogEmptyTip.Title" xml:space="preserve">
     <value>小提示</value>
   </data>
-  <data name="MergeDialogEncodingProfile.Text" xml:space="preserve">
-    <value>編碼配置</value>
-  </data>
-  <data name="MergeDialogEncodingQuality.Text" xml:space="preserve">
-    <value>品質</value>
-  </data>
   <data name="MergeDialogPickClip.Content" xml:space="preserve">
     <value>擷取一個片段</value>
   </data>
@@ -1005,15 +999,6 @@
   </data>
   <data name="VideoEditDialogText1.Text" xml:space="preserve">
     <value>裁剪</value>
-  </data>
-  <data name="VideoEditDialogText2.Text" xml:space="preserve">
-    <value>輸出編碼配置</value>
-  </data>
-  <data name="VideoEditDialogText3.Text" xml:space="preserve">
-    <value>輸出品質</value>
-  </data>
-  <data name="VideoEditDialogText4.Text" xml:space="preserve">
-    <value>裁剪精準度</value>
   </data>
   <data name="VideoEditDialogUseSameProfile.Text" xml:space="preserve">
     <value>使用與源視頻相同的編碼配置</value>
@@ -2510,5 +2495,20 @@
   </data>
   <data name="LoadMode_OnlyFile_Text" xml:space="preserve">
     <value>僅加載文件圖標(平衡)</value>
+  </data>
+  <data name="VideoEditDialogText2.Header" xml:space="preserve">
+    <value>輸出編碼配置</value>
+  </data>
+  <data name="VideoEditDialogText3.Header" xml:space="preserve">
+    <value>輸出質量</value>
+  </data>
+  <data name="VideoEditDialogText4.Header" xml:space="preserve">
+    <value>修剪精度</value>
+  </data>
+  <data name="MergeDialogEncodingProfile.Header" xml:space="preserve">
+    <value>編碼配置</value>
+  </data>
+  <data name="MergeDialogEncodingQuality.Header" xml:space="preserve">
+    <value>質量</value>
   </data>
 </root>

@@ -26,7 +26,7 @@ namespace RX_Explorer
 
             if (activatedArgs is CommandLineActivatedEventArgs CmdActivate)
             {
-                if (CmdActivate.Operation.Arguments.StartsWith("RX-Explorer.exe"))
+                if (CmdActivate.Operation.Arguments.StartsWith("RX-Explorer.exe", StringComparison.OrdinalIgnoreCase))
                 {
                     if (AppInstance.RecommendedInstance != null)
                     {

@@ -17,9 +17,11 @@ using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.System;
 using Windows.UI.Core;
+using Windows.UI.Input;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
@@ -113,10 +115,7 @@ namespace RX_Explorer
                     return true;
                 }
             }
-            set
-            {
-                ApplicationData.Current.LocalSettings.Values["LibraryExpanderIsExpand"] = value;
-            }
+            set => ApplicationData.Current.LocalSettings.Values["LibraryExpanderIsExpand"] = value;
         }
 
         public static bool DeviceExpanderIsExpand
@@ -133,10 +132,7 @@ namespace RX_Explorer
                     return true;
                 }
             }
-            set
-            {
-                ApplicationData.Current.LocalSettings.Values["DeviceExpanderIsExpand"] = value;
-            }
+            set => ApplicationData.Current.LocalSettings.Values["DeviceExpanderIsExpand"] = value;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -451,26 +447,9 @@ namespace RX_Explorer
                 {
                     await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                     {
-                        foreach ((TabViewItem Tab, Frame frame) in TabViewControl.TabItems.Select((Obj) => Obj as TabViewItem).Where((Tab) => Tab.Content is Frame frame && CommonAccessCollection.FrameFileControlDic.ContainsKey(frame) && Path.GetPathRoot(CommonAccessCollection.FrameFileControlDic[frame].CurrentFolder.Path) == Device.Folder.Path).Select((Tab) => (Tab, Tab.Content as Frame)).ToArray())
+                        foreach (TabViewItem Tab in TabViewControl.TabItems.Select((Obj) => Obj as TabViewItem).Where((Tab) => Tab.Content is Frame frame && CommonAccessCollection.FrameFileControlDic.ContainsKey(frame) && Path.GetPathRoot(CommonAccessCollection.FrameFileControlDic[frame].CurrentFolder.Path) == Device.Folder.Path).ToArray())
                         {
-                            while (frame.CanGoBack)
-                            {
-                                if (frame.Content is FileControl Control)
-                                {
-                                    Control.Dispose();
-                                    break;
-                                }
-                                else
-                                {
-                                    frame.GoBack();
-                                }
-                            }
-
-                            Tab.DragEnter -= Item_DragEnter;
-                            Tab.PointerPressed -= Item_PointerPressed;
-
-                            TabViewControl.TabItems.Remove(Tab);
-                            CommonAccessCollection.FrameFileControlDic.Remove(frame);
+                            CleanUpAndRemoveTabItem(Tab);
                         }
 
                         CommonAccessCollection.HardDeviceList.Remove(Device);
@@ -864,26 +843,7 @@ namespace RX_Explorer
 
         private async void TabViewControl_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
         {
-            Frame frame = args.Tab.Content as Frame;
-
-            while (frame.CanGoBack)
-            {
-                if (frame.Content is FileControl Control)
-                {
-                    Control.Dispose();
-                    break;
-                }
-                else
-                {
-                    frame.GoBack();
-                }
-            }
-
-            args.Tab.DragEnter -= Item_DragEnter;
-            args.Tab.PointerPressed -= Item_PointerPressed;
-
-            sender.TabItems.Remove(args.Tab);
-            CommonAccessCollection.FrameFileControlDic.Remove(frame);
+            CleanUpAndRemoveTabItem(args.Tab);
 
             if (sender.TabItems.Count == 0)
             {
@@ -962,26 +922,7 @@ namespace RX_Explorer
             {
                 if (sender is TabViewItem Tab)
                 {
-                    Frame frame = Tab.Content as Frame;
-
-                    while (frame.CanGoBack)
-                    {
-                        if (frame.Content is FileControl Control)
-                        {
-                            Control.Dispose();
-                            break;
-                        }
-                        else
-                        {
-                            frame.GoBack();
-                        }
-                    }
-
-                    Tab.DragEnter -= Item_DragEnter;
-                    Tab.PointerPressed -= Item_PointerPressed;
-
-                    TabViewControl.TabItems.Remove(Tab);
-                    CommonAccessCollection.FrameFileControlDic.Remove(frame);
+                    CleanUpAndRemoveTabItem(Tab);
 
                     if (TabViewControl.TabItems.Count == 0)
                     {
@@ -993,7 +934,7 @@ namespace RX_Explorer
 
         public async void Item_DragEnter(object sender, DragEventArgs e)
         {
-            var Deferral = e.GetDeferral();
+            DragOperationDeferral Deferral = e.GetDeferral();
 
             try
             {
@@ -1089,26 +1030,7 @@ namespace RX_Explorer
         {
             if (args.DropResult == DataPackageOperation.Link)
             {
-                Frame frame = args.Tab.Content as Frame;
-
-                while (frame.CanGoBack)
-                {
-                    if (frame.Content is FileControl Control)
-                    {
-                        Control.Dispose();
-                        break;
-                    }
-                    else
-                    {
-                        frame.GoBack();
-                    }
-                }
-
-                args.Tab.DragEnter -= Item_DragEnter;
-                args.Tab.PointerPressed -= Item_PointerPressed;
-
-                sender.TabItems.Remove(args.Tab);
-                CommonAccessCollection.FrameFileControlDic.Remove(frame);
+                CleanUpAndRemoveTabItem(args.Tab);
 
                 if (sender.TabItems.Count == 0)
                 {
@@ -1121,13 +1043,6 @@ namespace RX_Explorer
         {
             if (sender.TabItems.Count > 1)
             {
-                args.Tab.DragEnter -= Item_DragEnter;
-                args.Tab.PointerPressed -= Item_PointerPressed;
-
-                sender.TabItems.Remove(args.Tab);
-
-                sender.UpdateLayout();
-
                 if (args.Tab.Content is Frame frame)
                 {
                     if (frame.Content is ThisPC)
@@ -1140,29 +1055,16 @@ namespace RX_Explorer
                         {
                             await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(CommonAccessCollection.FrameFileControlDic[frame].CurrentFolder.Path)}"));
                         }
-
-                        while (frame.CanGoBack)
-                        {
-                            if (frame.Content is FileControl Control)
-                            {
-                                Control.Dispose();
-                                break;
-                            }
-                            else
-                            {
-                                frame.GoBack();
-                            }
-                        }
                     }
-
-                    CommonAccessCollection.FrameFileControlDic.Remove(frame);
                 }
+
+                CleanUpAndRemoveTabItem(args.Tab);
             }
         }
 
         private async void TabViewControl_TabStripDragOver(object sender, DragEventArgs e)
         {
-            var Deferral = e.GetDeferral();
+            DragOperationDeferral Deferral = e.GetDeferral();
 
             try
             {
@@ -1194,7 +1096,7 @@ namespace RX_Explorer
 
         private async void TabViewControl_TabStripDrop(object sender, DragEventArgs e)
         {
-            var Deferral = e.GetDeferral();
+            DragOperationDeferral Deferral = e.GetDeferral();
 
             try
             {
@@ -1261,6 +1163,32 @@ namespace RX_Explorer
             {
                 Deferral.Complete();
             }
+        }
+
+        private void CleanUpAndRemoveTabItem(TabViewItem Tab)
+        {
+            if (Tab.Content is Frame frame)
+            {
+                while (frame.CanGoBack)
+                {
+                    if (frame.Content is FileControl Control)
+                    {
+                        Control.Dispose();
+                        break;
+                    }
+                    else
+                    {
+                        frame.GoBack();
+                    }
+                }
+
+                CommonAccessCollection.FrameFileControlDic.Remove(frame);
+            }
+
+            Tab.DragEnter -= Item_DragEnter;
+            Tab.PointerPressed -= Item_PointerPressed;
+
+            TabViewControl.TabItems.Remove(Tab);
         }
     }
 }
