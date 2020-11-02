@@ -1,6 +1,7 @@
 ﻿using RX_Explorer.Class;
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
@@ -118,11 +119,6 @@ namespace RX_Explorer
             e.Handled = true;
         }
 
-        /// <summary>
-        /// 在应用程序由最终用户正常启动时进行调用。
-        /// 将在启动应用程序以打开特定文件等情况下使用。
-        /// </summary>
-        /// <param name="e">有关启动请求和过程的详细信息。</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
             CoreApplication.EnablePrelaunch(false);
@@ -160,26 +156,26 @@ namespace RX_Explorer
             {
                 string[] Arguments = CmdArgs.Operation.Arguments.Split(" ", StringSplitOptions.RemoveEmptyEntries);
 
-                if (Window.Current.Content is Frame mainPageFrame)
+                if (Window.Current.Content is Frame frame)
                 {
-                    if (mainPageFrame.Content is MainPage mainPage && mainPage.Nav.Content is TabViewContainer tabViewContainer)
+                    if (frame.Content is MainPage Main && Main.Nav.Content is TabViewContainer TabContainer)
                     {
                         if (Arguments.Length > 1)
                         {
                             string Path = string.Join(" ", Arguments.Skip(1));
 
-                            if (Path.Contains("{20D04FE0-3AEA-1069-A2D8-08002B30309D}"))
+                            if (Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase))
                             {
-                                await tabViewContainer.CreateNewTabAndOpenTargetFolder(string.Empty).ConfigureAwait(true);
+                                await TabContainer.CreateNewTabAndOpenTargetFolder(string.Empty).ConfigureAwait(true);
                             }
                             else
                             {
-                                await tabViewContainer.CreateNewTabAndOpenTargetFolder(Path).ConfigureAwait(true);
+                                await TabContainer.CreateNewTabAndOpenTargetFolder(Path).ConfigureAwait(true);
                             }
                         }
                         else
                         {
-                            await tabViewContainer.CreateNewTabAndOpenTargetFolder(string.Empty).ConfigureAwait(true);
+                            await TabContainer.CreateNewTabAndOpenTargetFolder(string.Empty).ConfigureAwait(true);
                         }
                     }
                 }
@@ -187,7 +183,7 @@ namespace RX_Explorer
                 {
                     string Path = string.Join(" ", Arguments.Skip(1));
 
-                    if (Arguments.Length > 1 && !Path.Contains("{20D04FE0-3AEA-1069-A2D8-08002B30309D}"))
+                    if (Arguments.Length > 1 && !Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase))
                     {
                         ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, $"PathActivate||{Path}");
                         Window.Current.Content = extendedSplash;

@@ -35,6 +35,11 @@ namespace RX_Explorer.Class
             }
         }
 
+        private SpecialTypeGenerator()
+        {
+
+        }
+
         public async Task<StorageFile> CreateZipAsync(StorageFolder TargetFolder, string Name)
         {
             if (TargetFolder == null)
