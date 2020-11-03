@@ -112,7 +112,7 @@ namespace RX_Explorer
             catch (Exception ex)
             {
                 CouldnotLoadTip.Visibility = Visibility.Visible;
-                await LogTracer.LogAsync(ex, "An error was threw when initialize PhotoViewer").ConfigureAwait(true);
+                LogTracer.Log(ex, "An error was threw when initialize PhotoViewer");
             }
             finally
             {
@@ -469,7 +469,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, "An error was threw when navigating to CropperPage").ConfigureAwait(false);
+                LogTracer.Log(ex, "An error was threw when navigating to CropperPage");
             }
         }
 

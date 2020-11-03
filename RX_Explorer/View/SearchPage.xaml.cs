@@ -88,7 +88,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"An error was threw in {nameof(Initialize)}").ConfigureAwait(true);
+                LogTracer.Log(ex, $"An error was threw in {nameof(Initialize)}");
             }
             finally
             {
@@ -127,7 +127,7 @@ namespace RX_Explorer
                 }
                 catch (Exception ex)
                 {
-                    await LogTracer.LogAsync(ex, $"An error was threw in {nameof(Location_Click)}").ConfigureAwait(true);
+                    LogTracer.Log(ex, $"An error was threw in {nameof(Location_Click)}");
 
                     QueueContentDialog dialog = new QueueContentDialog
                     {

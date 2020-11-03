@@ -308,7 +308,7 @@ namespace RX_Explorer
                 }
                 catch (Exception ex)
                 {
-                    await LogTracer.LogAsync(ex, $"{nameof(UpdateAddressButton)} throw an exception").ConfigureAwait(true);
+                    LogTracer.Log(ex, $"{ nameof(UpdateAddressButton)} throw an exception");
                 }
                 finally
                 {
@@ -415,7 +415,7 @@ namespace RX_Explorer
                 }
                 catch (Exception ex)
                 {
-                    await LogTracer.LogAsync(ex).ConfigureAwait(true);
+                    LogTracer.Log(ex);
                 }
                 finally
                 {
@@ -426,30 +426,16 @@ namespace RX_Explorer
 
         private void Frame_Navigated(object sender, NavigationEventArgs e)
         {
-            switch (e.Content)
+            TabItem.Header = e.Content switch
             {
-                case PhotoViewer _:
-                    TabItem.Header = Globalization.GetString("BuildIn_PhotoViewer_Description");
-                    break;
-                case PdfReader _:
-                    TabItem.Header = Globalization.GetString("BuildIn_PdfReader_Description");
-                    break;
-                case MediaPlayer _:
-                    TabItem.Header = Globalization.GetString("BuildIn_MediaPlayer_Description");
-                    break;
-                case TextViewer _:
-                    TabItem.Header = Globalization.GetString("BuildIn_TextViewer_Description");
-                    break;
-                case CropperPage _:
-                    TabItem.Header = Globalization.GetString("BuildIn_CropperPage_Description");
-                    break;
-                case SearchPage _:
-                    TabItem.Header = Globalization.GetString("BuildIn_SearchPage_Description");
-                    break;
-                default:
-                    TabItem.Header = string.IsNullOrEmpty(CurrentFolder?.DisplayName) ? $"<{Globalization.GetString("UnknownText")}>" : CurrentFolder?.DisplayName;
-                    break;
-            }
+                PhotoViewer _ => Globalization.GetString("BuildIn_PhotoViewer_Description"),
+                PdfReader _ => Globalization.GetString("BuildIn_PdfReader_Description"),
+                MediaPlayer _ => Globalization.GetString("BuildIn_MediaPlayer_Description"),
+                TextViewer _ => Globalization.GetString("BuildIn_TextViewer_Description"),
+                CropperPage _ => Globalization.GetString("BuildIn_CropperPage_Description"),
+                SearchPage _ => Globalization.GetString("BuildIn_SearchPage_Description"),
+                _ => string.IsNullOrEmpty(CurrentFolder?.DisplayName) ? $"<{Globalization.GetString("UnknownText")}>" : CurrentFolder?.DisplayName,
+            };
         }
 
         protected override async void OnNavigatedFrom(NavigationEventArgs e)
@@ -464,7 +450,7 @@ namespace RX_Explorer
                 }
                 catch (Exception ex)
                 {
-                    await LogTracer.LogAsync(ex).ConfigureAwait(true);
+                    LogTracer.Log(ex);
                 }
                 finally
                 {
@@ -535,7 +521,7 @@ namespace RX_Explorer
                 }
                 catch (Exception ex)
                 {
-                    await LogTracer.LogAsync(ex, $"An error was threw in {nameof(FillTreeNode)}").ConfigureAwait(true);
+                    LogTracer.Log(ex, $"An error was threw in { nameof(FillTreeNode)}");
                 }
                 finally
                 {
@@ -1125,7 +1111,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void SearchConfirm_Click(object sender, RoutedEventArgs e)
+        private void SearchConfirm_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -1142,7 +1128,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, "An error was threw when navigating to search page").ConfigureAwait(true);
+                LogTracer.Log(ex, "An error was threw when navigating to search page");
             }
         }
 

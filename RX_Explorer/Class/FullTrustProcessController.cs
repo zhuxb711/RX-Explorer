@@ -242,7 +242,7 @@ namespace RX_Explorer.Class
                     {
                         if (Response.Message.TryGetValue("Error", out object ErrorMessage))
                         {
-                            await LogTracer.LogAsync(Convert.ToString(ErrorMessage)).ConfigureAwait(true);
+                            LogTracer.Log(Convert.ToString(ErrorMessage));
                         }
 
                         return false;
@@ -255,7 +255,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"{nameof(CreateLink)} throw an error").ConfigureAwait(true);
+                LogTracer.Log(ex, $"{ nameof(CreateLink)} throw an error");
                 return false;
             }
             finally
@@ -296,7 +296,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"{nameof(GetVariablePath)} throw an error").ConfigureAwait(true);
+                LogTracer.Log(ex, $"{ nameof(GetVariablePath)} throw an error");
                 return string.Empty;
             }
             finally
@@ -381,7 +381,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"{nameof(GetHyperlinkRelatedInformationAsync)} throw an error").ConfigureAwait(true);
+                LogTracer.Log(ex, $"{ nameof(GetHyperlinkRelatedInformationAsync)} throw an error");
                 throw;
             }
             finally
@@ -421,7 +421,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"{nameof(InterceptWindowsPlusE)} throw an error").ConfigureAwait(true);
+                LogTracer.Log(ex, $"{ nameof(InterceptWindowsPlusE)} throw an error");
                 return false;
             }
             finally
@@ -461,7 +461,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"{nameof(RestoreWindowsPlusE)} throw an error").ConfigureAwait(true);
+                LogTracer.Log(ex, $"{ nameof(RestoreWindowsPlusE)} throw an error");
                 return false;
             }
             finally
@@ -502,7 +502,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"{nameof(RemoveHiddenAttribute)} throw an error").ConfigureAwait(true);
+                LogTracer.Log(ex, $"{ nameof(RemoveHiddenAttribute)} throw an error");
                 return false;
             }
             finally
@@ -530,7 +530,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"{nameof(RequestCreateNewPipeLine)} throw an error").ConfigureAwait(true);
+                LogTracer.Log(ex, $"{ nameof(RequestCreateNewPipeLine)} throw an error");
             }
             finally
             {
@@ -571,7 +571,7 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            throw new Exception();
+                            throw new Exception("Execute failed");
                         }
                     }
                 }
@@ -582,7 +582,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"{nameof(RunAsync)} throw an error").ConfigureAwait(true);
+                LogTracer.Log(ex, $"{ nameof(RunAsync)} throw an error");
             }
             finally
             {
@@ -609,7 +609,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"{nameof(ViewWithQuicklookAsync)} throw an error").ConfigureAwait(true);
+                LogTracer.Log(ex, $"{nameof(ViewWithQuicklookAsync)} throw an error");
             }
             finally
             {

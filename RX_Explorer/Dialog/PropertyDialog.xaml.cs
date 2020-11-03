@@ -1,7 +1,6 @@
 ﻿using RX_Explorer.Class;
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -218,11 +217,11 @@ namespace RX_Explorer.Dialog
                     }
                     catch (TaskCanceledException)
                     {
-                        Debug.WriteLine($"{nameof(CalculateFolderAndFileCount)} and {nameof(CalculateFolderSize)} have been canceled");
+                        LogTracer.Log($"{nameof(CalculateFolderAndFileCount)} and {nameof(CalculateFolderSize)} have been canceled");
                     }
                     catch (Exception ex)
                     {
-                        await LogTracer.LogAsync(ex, $"{nameof(CalculateFolderAndFileCount)} and {nameof(CalculateFolderSize)} threw an exception").ConfigureAwait(true);
+                        LogTracer.Log(ex, $"{ nameof(CalculateFolderAndFileCount)} and { nameof(CalculateFolderSize)} threw an exception");
                     }
                     finally
                     {

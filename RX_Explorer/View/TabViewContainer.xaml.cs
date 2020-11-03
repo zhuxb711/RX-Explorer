@@ -388,7 +388,7 @@ namespace RX_Explorer
                     TabViewControl.SelectedItem = Item;
                 }
 
-                await LogTracer.LogAsync(ex, "Error happened when try to create a new tab").ConfigureAwait(true);
+                LogTracer.Log(ex, "Error happened when try to create a new tab");
             }
         }
 
@@ -431,7 +431,7 @@ namespace RX_Explorer
                     }
                     catch (Exception ex)
                     {
-                        await LogTracer.LogAsync(ex, $"Error happened when get storagefolder from {Device.Name}").ConfigureAwait(true);
+                        LogTracer.Log(ex, $"Error happened when get storagefolder from {Device.Name}");
                     }
                 }
 
@@ -458,7 +458,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"Error happened when remove device from HardDeviceList").ConfigureAwait(true);
+                LogTracer.Log(ex, $"Error happened when remove device from HardDeviceList");
             }
         }
 
@@ -614,12 +614,12 @@ namespace RX_Explorer
                         }
                         catch (Exception ex)
                         {
-                            await LogTracer.LogAsync(ex, "An error was threw when getting library folder (In initialize)").ConfigureAwait(true);
+                            LogTracer.Log(ex, "An error was threw when getting library folder (In initialize)");
                         }
                     }
                     catch (Exception ex)
                     {
-                        await LogTracer.LogAsync(ex, "An error was threw when try to get 'UserDataPath' (In initialize)").ConfigureAwait(true);
+                        LogTracer.Log(ex, "An error was threw when try to get 'UserDataPath' (In initialize)");
 
                         string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
                         if (!string.IsNullOrEmpty(DesktopPath))
@@ -710,12 +710,12 @@ namespace RX_Explorer
                         }
                         catch (Exception ex)
                         {
-                            await LogTracer.LogAsync(ex, "An error was threw when getting library folder (Not in initialize)").ConfigureAwait(true);
+                            LogTracer.Log(ex, "An error was threw when getting library folder (Not in initialize)");
                         }
                     }
                     catch (Exception ex)
                     {
-                        await LogTracer.LogAsync(ex, "An error was threw when try to get 'UserDataPath' (Not in initialize)").ConfigureAwait(true);
+                        LogTracer.Log(ex, "An error was threw when try to get 'UserDataPath' (Not in initialize)");
 
                         string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
                         if (!string.IsNullOrEmpty(DesktopPath))
@@ -837,7 +837,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                LogTracer.RequestBlueScreen(ex);
+                LogTracer.LeadToBlueScreen(ex);
             }
         }
 
@@ -1157,7 +1157,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, "Error happened when try to drop a tab").ConfigureAwait(true);
+                LogTracer.Log(ex, "Error happened when try to drop a tab");
             }
             finally
             {

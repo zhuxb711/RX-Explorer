@@ -214,7 +214,7 @@ namespace RX_Explorer.Class
                         }
                         catch (Exception ex)
                         {
-                            await LogTracer.LogAsync(ex, $"An error was threw in {nameof(UpdateFeedBackVoteAsync)}").ConfigureAwait(true);
+                            LogTracer.Log(ex, $"An error was threw in {nameof(UpdateFeedBackVoteAsync)}");
                             return false;
                         }
                     }
@@ -256,7 +256,7 @@ namespace RX_Explorer.Class
                     }
                     catch (Exception ex)
                     {
-                        await LogTracer.LogAsync(ex, $"An error was threw in {nameof(UpdateFeedBackAsync)}").ConfigureAwait(true);
+                        LogTracer.Log(ex, $"An error was threw in { nameof(UpdateFeedBackAsync)}");
                         return false;
                     }
                 }
@@ -292,7 +292,7 @@ namespace RX_Explorer.Class
                         }
                         catch (Exception ex)
                         {
-                            await LogTracer.LogAsync(ex, $"An error was threw in {nameof(DeleteFeedBackAsync)}").ConfigureAwait(true);
+                            LogTracer.Log(ex, $"An error was threw in { nameof(DeleteFeedBackAsync)}");
                             return false;
                         }
                     }
@@ -338,7 +338,7 @@ namespace RX_Explorer.Class
                         }
                         catch (Exception ex)
                         {
-                            await LogTracer.LogAsync(ex, $"An error was threw in {nameof(SetFeedBackAsync)}").ConfigureAwait(true);
+                            LogTracer.Log(ex, $"An error was threw in { nameof(SetFeedBackAsync)}");
                             return false;
                         }
                     }

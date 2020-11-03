@@ -43,7 +43,7 @@ namespace RX_Explorer
 
             if (await Picker.PickSaveFileAsync() is StorageFile PickedFile)
             {
-                await LogTracer.ExportLog(PickedFile).ConfigureAwait(false);
+                await LogTracer.ExportLogAsync(PickedFile).ConfigureAwait(false);
             }
         }
     }

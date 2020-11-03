@@ -3,7 +3,6 @@ using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
@@ -272,7 +271,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                LogTracer.RequestBlueScreen(ex);
+                LogTracer.LeadToBlueScreen(ex);
             }
         }
 
@@ -463,13 +462,13 @@ namespace RX_Explorer
                         }
                     }
                 }
-                catch (TaskCanceledException)
+                catch (TaskCanceledException cancelException)
                 {
-                    Debug.WriteLine("Import items to SecureArea have been cancelled");
+                    LogTracer.Log(cancelException, "Import items to SecureArea have been cancelled");
                 }
                 catch (Exception ex)
                 {
-                    await LogTracer.LogAsync(ex, "An error was threw when importing file").ConfigureAwait(true);
+                    LogTracer.Log(ex, "An error was threw when importing file");
                 }
                 finally
                 {
@@ -528,13 +527,13 @@ namespace RX_Explorer
                         }
                     }
                 }
-                catch (TaskCanceledException)
+                catch (TaskCanceledException cancelException)
                 {
-                    Debug.WriteLine("Import items to SecureArea have been cancelled");
+                    LogTracer.Log(cancelException, "Import items to SecureArea have been cancelled");
                 }
                 catch (Exception ex)
                 {
-                    await LogTracer.LogAsync(ex, "An error was threw when importing file").ConfigureAwait(true);
+                    LogTracer.Log(ex, "An error was threw when importing file");
                 }
                 finally
                 {

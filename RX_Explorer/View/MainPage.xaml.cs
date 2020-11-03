@@ -201,6 +201,8 @@ namespace RX_Explorer
             {
                 ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] = true;
             }
+
+            throw new Exception();
         }
 
         private void MainPage_BackRequested(object sender, BackRequestedEventArgs e)
@@ -271,7 +273,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, "Error happened when Flush Clipboard").ConfigureAwait(true);
+                LogTracer.Log(ex, "Error happened when Flush Clipboard");
             }
 
             Deferral.Complete();
@@ -315,7 +317,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                LogTracer.RequestBlueScreen(ex);
+                LogTracer.Log(ex);
             }
         }
 
@@ -430,7 +432,7 @@ namespace RX_Explorer
             }
             catch (Exception e)
             {
-                await LogTracer.LogAsync(e, $"An error was threw in {nameof(RegisterBackgroundTaskAsync)}").ConfigureAwait(true);
+                LogTracer.Log(e, $"An error was threw in {nameof(RegisterBackgroundTaskAsync)}");
             }
         }
 
@@ -708,7 +710,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, "An error was threw when navigating between NavigationView item").ConfigureAwait(false);
+                LogTracer.Log(ex, "An error was threw when navigating between NavigationView item");
             }
         }
 

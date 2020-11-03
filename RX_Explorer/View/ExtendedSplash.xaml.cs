@@ -106,7 +106,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, "An error was threw when dismissing extendedsplash ").ConfigureAwait(false);
+                LogTracer.Log(ex, "An error was threw when dismissing extendedsplash ");
             }
         }
 
@@ -161,7 +161,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, "An error was threw when dismissing extendedsplash ").ConfigureAwait(false);
+                LogTracer.Log(ex, "An error was threw when dismissing extendedsplash ");
             }
         }
 

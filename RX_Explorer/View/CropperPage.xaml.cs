@@ -61,7 +61,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, "An error was threw when initializing CropperPage").ConfigureAwait(false);
+                LogTracer.Log(ex, "An error was threw when initializing CropperPage");
             }
         }
 

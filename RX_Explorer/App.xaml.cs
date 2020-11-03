@@ -48,6 +48,8 @@ namespace RX_Explorer
             {
                 SettingControl.IsQuicklookAvailable = false;
             }
+
+            await LogTracer.Initialize().ConfigureAwait(false);
         }
 
         private void App_Suspending(object sender, SuspendingEventArgs e)
@@ -61,7 +63,7 @@ namespace RX_Explorer
         {
             if (!e.IsTerminating && e.ExceptionObject is Exception ex)
             {
-                LogTracer.RequestBlueScreen(ex);
+                LogTracer.LeadToBlueScreen(ex);
             }
         }
 
@@ -115,7 +117,7 @@ namespace RX_Explorer
 
         private void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
         {
-            LogTracer.RequestBlueScreen(e.Exception);
+            LogTracer.LeadToBlueScreen(e.Exception);
             e.Handled = true;
         }
 
@@ -219,35 +221,28 @@ namespace RX_Explorer
 
         protected override void OnFileActivated(FileActivatedEventArgs args)
         {
-            try
+            if (args.Verb == "USBArrival")
             {
-                if (args.Verb == "USBArrival")
+                ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
+                TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
+                CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
+
+                if (Window.Current.Content is Frame mainPageFrame)
                 {
-                    ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
-                    TitleBar.ButtonBackgroundColor = Colors.Transparent;
-                    TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-
-                    CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
-
-                    if (Window.Current.Content is Frame mainPageFrame)
+                    if (mainPageFrame.Content is MainPage mainPage && mainPage.Nav.Content is TabViewContainer tabViewContainer)
                     {
-                        if (mainPageFrame.Content is MainPage mainPage && mainPage.Nav.Content is TabViewContainer tabViewContainer)
-                        {
-                            _ = tabViewContainer.CreateNewTabAndOpenTargetFolder(args.Files[0].Path);
-                        }
+                        _ = tabViewContainer.CreateNewTabAndOpenTargetFolder(args.Files[0].Path);
                     }
-                    else
-                    {
-                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, $"PathActivate||{args.Files[0].Path}");
-                        Window.Current.Content = extendedSplash;
-                    }
-
-                    Window.Current.Activate();
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.RequestBlueScreen(ex);
+                else
+                {
+                    ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, $"PathActivate||{args.Files[0].Path}");
+                    Window.Current.Content = extendedSplash;
+                }
+
+                Window.Current.Activate();
             }
         }
     }

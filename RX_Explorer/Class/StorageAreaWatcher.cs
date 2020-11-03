@@ -66,7 +66,7 @@ namespace RX_Explorer.Class
                     }
                     catch (Exception ex)
                     {
-                        await LogTracer.LogAsync(ex, $"{nameof(StorageAreaWatcher)}: Modify item to collection failed").ConfigureAwait(true);
+                        LogTracer.Log(ex, $"{ nameof(StorageAreaWatcher)}: Modify item to collection failed");
                     }
                     finally
                     {
@@ -129,7 +129,7 @@ namespace RX_Explorer.Class
                     }
                     catch (Exception ex)
                     {
-                        await LogTracer.LogAsync(ex, $"{nameof(StorageAreaWatcher)}: Rename item to collection failed").ConfigureAwait(true);
+                        LogTracer.Log(ex, $"{ nameof(StorageAreaWatcher)}: Rename item to collection failed");
                     }
                     finally
                     {
@@ -161,7 +161,7 @@ namespace RX_Explorer.Class
                     }
                     catch (Exception ex)
                     {
-                        await LogTracer.LogAsync(ex, $"{nameof(StorageAreaWatcher)}: Remove item to collection failed").ConfigureAwait(true);
+                        LogTracer.Log(ex, $"{ nameof(StorageAreaWatcher)}: Remove item to collection failed");
                     }
                     finally
                     {
@@ -197,7 +197,7 @@ namespace RX_Explorer.Class
                     }
                     catch (Exception ex)
                     {
-                        await LogTracer.LogAsync(ex, $"{nameof(StorageAreaWatcher)}: Add item to collection failed").ConfigureAwait(true);
+                        LogTracer.Log(ex, $"{ nameof(StorageAreaWatcher)}: Add item to collection failed");
                     }
                     finally
                     {

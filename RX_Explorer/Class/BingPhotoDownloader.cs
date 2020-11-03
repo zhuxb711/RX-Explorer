@@ -170,7 +170,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"An error was threw in {nameof(CheckIfNeedToUpdate)}").ConfigureAwait(false);
+                LogTracer.Log(ex, $"An error was threw in {nameof(CheckIfNeedToUpdate)}");
                 return true;
             }
         }

@@ -141,11 +141,11 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, "An error was threw when entering device").ConfigureAwait(false);
+                LogTracer.Log(ex, "An error was threw when entering device");
             }
         }
 
-        private async void LibraryGrid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        private void LibraryGrid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
             try
             {
@@ -163,7 +163,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, "An error was threw when entering library folder").ConfigureAwait(false);
+                LogTracer.Log(ex, "An error was threw when entering library folder");
             }
         }
 
@@ -372,7 +372,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, "An error was threw when entering device").ConfigureAwait(false);
+                LogTracer.Log(ex, "An error was threw when entering device");
             }
         }
 
@@ -422,7 +422,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void OpenLibrary_Click(object sender, RoutedEventArgs e)
+        private void OpenLibrary_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -440,7 +440,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, "An error was threw when entering library folder").ConfigureAwait(false);
+                LogTracer.Log(ex, "An error was threw when entering library folder");
             }
         }
 
@@ -595,11 +595,11 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, "An error was threw when entering device").ConfigureAwait(false);
+                LogTracer.Log(ex, "An error was threw when entering device");
             }
         }
 
-        private async void LibraryGrid_ItemClick(object sender, ItemClickEventArgs e)
+        private void LibraryGrid_ItemClick(object sender, ItemClickEventArgs e)
         {
             try
             {
@@ -619,7 +619,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, "An error was threw when entering library folder").ConfigureAwait(false);
+                LogTracer.Log(ex, "An error was threw when entering library folder");
             }
         }
 

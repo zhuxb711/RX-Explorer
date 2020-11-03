@@ -252,7 +252,7 @@ namespace RX_Explorer.Class
                         }
                         catch (Exception e)
                         {
-                            _ = LogTracer.LogAsync("Exception happened when watching directory. Message: " + e.Message);
+                            LogTracer.Log("Exception happened when watching directory. Message: " + e.Message);
                         }
                         finally
                         {
@@ -310,7 +310,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    Debug.WriteLine(new Win32Exception(Marshal.GetLastWin32Error()).Message);
+                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
                     return false;
                 }
             }
@@ -341,7 +341,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    Debug.WriteLine(new Win32Exception(Marshal.GetLastWin32Error()).Message);
+                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
                     return false;
                 }
             }
@@ -384,7 +384,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    Debug.WriteLine(new Win32Exception(Marshal.GetLastWin32Error()).Message);
+                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
                     return false;
                 }
             }
@@ -433,7 +433,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    Debug.WriteLine(new Win32Exception(Marshal.GetLastWin32Error()).Message);
+                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
                     return 0;
                 }
             }
@@ -485,7 +485,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    Debug.WriteLine(new Win32Exception(Marshal.GetLastWin32Error()).Message);
+                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
                     return (0, 0);
                 }
             }
@@ -672,7 +672,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    Debug.WriteLine(new Win32Exception(Marshal.GetLastWin32Error()).Message);
+                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
                     return new List<FileSystemStorageItemBase>();
                 }
             }
@@ -756,7 +756,7 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            Debug.WriteLine(new Win32Exception(Marshal.GetLastWin32Error()).Message);
+                            LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
                         }
                     }
                     finally
@@ -843,7 +843,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    Debug.WriteLine(new Win32Exception(Marshal.GetLastWin32Error()).Message);
+                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
                     return new List<FileSystemStorageItemBase>();
                 }
             }
@@ -897,7 +897,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    Debug.WriteLine(new Win32Exception(Marshal.GetLastWin32Error()).Message);
+                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
                     return new List<string>();
                 }
             }

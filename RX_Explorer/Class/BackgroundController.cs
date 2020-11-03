@@ -372,7 +372,7 @@ namespace RX_Explorer.Class
                                 }
                                 else
                                 {
-                                    await LogTracer.LogAsync("UriString is empty, BackgroundController.Initialize is not finished").ConfigureAwait(true);
+                                    LogTracer.Log("UriString is empty, BackgroundController.Initialize is not finished");
                                 }
 
                                 break;
@@ -395,7 +395,7 @@ namespace RX_Explorer.Class
                                 }
                                 else
                                 {
-                                    await LogTracer.LogAsync("Download Bing picture failed, BackgroundController.Initialize is not finished").ConfigureAwait(true);
+                                    LogTracer.Log("Download Bing picture failed, BackgroundController.Initialize is not finished");
                                 }
 
                                 break;
@@ -404,7 +404,7 @@ namespace RX_Explorer.Class
                 }
                 catch (Exception ex)
                 {
-                    await LogTracer.LogAsync(ex, "Exception happend when loading image for background").ConfigureAwait(true);
+                    LogTracer.Log(ex, "Exception happend when loading image for background");
                 }
                 finally
                 {

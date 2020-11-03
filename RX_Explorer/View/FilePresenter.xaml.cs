@@ -389,7 +389,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                _ = LogTracer.LogAsync(ex, $"{nameof(NavigateToStorageItem)} throw an exception");
+                LogTracer.Log(ex, $"{nameof(NavigateToStorageItem)} throw an exception");
             }
         }
 
@@ -2761,7 +2761,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"{nameof(Refresh_Click)} throw an exception").ConfigureAwait(true);
+                LogTracer.Log(ex, $"{ nameof(Refresh_Click)} throw an exception");
             }
         }
 
@@ -3515,7 +3515,7 @@ namespace RX_Explorer
                 }
                 catch (Exception ex)
                 {
-                    await LogTracer.LogAsync(ex, $"{nameof(EnterSelectedItem)} throw an exception").ConfigureAwait(true);
+                    LogTracer.Log(ex, $"{ nameof(EnterSelectedItem)} throw an exception");
                 }
                 finally
                 {
@@ -5270,7 +5270,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, "Error: CalculateHash failed").ConfigureAwait(true);
+                LogTracer.Log(ex, "Error: CalculateHash failed");
             }
             finally
             {
@@ -6435,7 +6435,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, "Refresh ItemPresenter failed").ConfigureAwait(true);
+                LogTracer.Log(ex, "Refresh ItemPresenter failed");
             }
             finally
             {

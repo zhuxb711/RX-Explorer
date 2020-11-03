@@ -1,6 +1,9 @@
-﻿using System;
+﻿using Microsoft.Win32.SafeHandles;
+using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -20,16 +23,33 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class LogTracer
     {
-        private static readonly SemaphoreSlim Locker = new SemaphoreSlim(1, 1);
-
         private static readonly string UniqueName = $"Log_GeneratedTime[{DateTime.Now:yyyy-MM-dd HH-mm-ss.fff}].txt";
+
+        private static readonly ConcurrentQueue<string> LogQueue = new ConcurrentQueue<string>();
+
+        private static readonly Thread BackgroundProcessThread = new Thread(LogProcessThread)
+        {
+            IsBackground = true,
+            Priority = ThreadPriority.BelowNormal
+        };
+
+        private static readonly AutoResetEvent Locker = new AutoResetEvent(false);
+
+        private static StorageFile LogFile;
+
+        private static bool ExitSignal;
 
         /// <summary>
         /// 请求进入蓝屏状态
         /// </summary>
         /// <param name="Ex">错误内容</param>
-        public static async void RequestBlueScreen(Exception Ex)
+        public static async void LeadToBlueScreen(Exception Ex)
         {
+            if (LogFile == null)
+            {
+                throw new InvalidOperationException($"{nameof(Initialize)} should be executed first");
+            }
+
             if (Ex == null)
             {
                 throw new ArgumentNullException(nameof(Ex), "Exception could not be null");
@@ -104,11 +124,18 @@ namespace RX_Explorer.Class
                 }
             });
 
-            await LogAsync(Ex, "UnhandleException").ConfigureAwait(false);
+            ExitSignal = true;
+
+            Log(Ex, "UnhandleException");
         }
 
-        public static async Task ExportLog(StorageFile ExportFile)
+        public static async Task ExportLogAsync(StorageFile ExportFile)
         {
+            if (LogFile == null)
+            {
+                throw new InvalidOperationException($"{nameof(Initialize)} should be executed first");
+            }
+
             try
             {
                 if (await ApplicationData.Current.TemporaryFolder.TryGetItemAsync(UniqueName) is StorageFile InnerFile)
@@ -118,25 +145,35 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"An error was threw in {nameof(ExportLog)}, message: {ex.Message}");
+                Debug.WriteLine($"An error was threw in {nameof(ExportLogAsync)}, message: {ex.Message}");
             }
         }
 
-        public static async Task<ushort> GetLogCount()
+        public static async Task<ushort> GetLogCountAsync()
         {
+            if (LogFile == null)
+            {
+                throw new InvalidOperationException($"{nameof(Initialize)} should be executed first");
+            }
+
             try
             {
                 return Convert.ToUInt16((await ApplicationData.Current.TemporaryFolder.GetFilesAsync()).Select((Item) => Regex.Match(Item.Name, @"(?<=\[)(.+)(?=\])")).Where((Mat) => Mat.Success && DateTime.TryParseExact(Mat.Value, "yyyy-MM-dd HH-mm-ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out _)).Count());
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"An error was threw in {nameof(GetLogCount)}, message: {ex.Message}");
+                Debug.WriteLine($"An error was threw in {nameof(GetLogCountAsync)}, message: {ex.Message}");
                 return 0;
             }
         }
 
-        public static async Task ExportAllLog(StorageFolder ExportFolder, DateTime LaterThan)
+        public static async Task ExportAllLogAsync(StorageFolder ExportFolder, DateTime LaterThan)
         {
+            if (LogFile == null)
+            {
+                throw new InvalidOperationException($"{nameof(Initialize)} should be executed first");
+            }
+
             try
             {
                 foreach (StorageFile File in from StorageFile File in await ApplicationData.Current.TemporaryFolder.GetFilesAsync()
@@ -149,7 +186,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"An error was threw in {nameof(ExportAllLog)}, message: {ex.Message}");
+                Debug.WriteLine($"An error was threw in {nameof(ExportAllLogAsync)}, message: {ex.Message}");
             }
         }
 
@@ -159,8 +196,13 @@ namespace RX_Explorer.Class
         /// <param name="Ex">错误</param>
         /// <param name="AdditionalComment">附加信息</param>
         /// <returns></returns>
-        public static async Task LogAsync(Exception Ex, string AdditionalComment = null)
+        public static void Log(Exception Ex, string AdditionalComment = null)
         {
+            if (LogFile == null)
+            {
+                throw new InvalidOperationException($"{nameof(Initialize)} should be executed first");
+            }
+
             if (Ex == null)
             {
                 throw new ArgumentNullException(nameof(Ex), "Exception could not be null");
@@ -216,7 +258,7 @@ namespace RX_Explorer.Class
                                     .AppendLine()
                                     .AppendLine("------------------------------------");
 
-            await LogAsync(Builder.ToString()).ConfigureAwait(false);
+            Log(Builder.ToString());
         }
 
         /// <summary>
@@ -224,22 +266,56 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="Message">错误消息</param>
         /// <returns></returns>
-        public static async Task LogAsync(string Message)
+        public static void Log(string Message)
         {
-            await Locker.WaitAsync().ConfigureAwait(false);
+            if (LogFile == null)
+            {
+                throw new InvalidOperationException($"{nameof(Initialize)} should be executed first");
+            }
 
-            try
+            LogQueue.Enqueue(Message);
+
+            if (BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.WaitSleepJoin))
             {
-                StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync(UniqueName, CreationCollisionOption.ReplaceExisting);
-                await FileIO.AppendTextAsync(TempFile, $"{Message}{Environment.NewLine}");
+                Locker.Set();
             }
-            catch (Exception ex)
+        }
+
+        public static async Task Initialize()
+        {
+            LogFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync(UniqueName, CreationCollisionOption.ReplaceExisting);
+            BackgroundProcessThread.Start();
+        }
+
+        private static void LogProcessThread()
+        {
+            while (!ExitSignal)
             {
-                Debug.WriteLine($"Error in writing log file: {ex.Message}");
-            }
-            finally
-            {
-                Locker.Release();
+                try
+                {
+                    if (LogQueue.IsEmpty)
+                    {
+                        Locker.WaitOne();
+                    }
+
+                    using (SafeFileHandle Handle = LogFile.LockAndBlockAccess())
+                    using (FileStream LogFileStream = new FileStream(Handle, FileAccess.ReadWrite))
+                    {
+                        LogFileStream.Seek(0, SeekOrigin.End);
+
+                        using (StreamWriter Writer = new StreamWriter(LogFileStream, Encoding.Unicode, 1024, true))
+                        {
+                            while (LogQueue.TryDequeue(out string LogItem))
+                            {
+                                Writer.WriteLine(LogItem);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error in writing log file: {ex.Message}");
+                }
             }
         }
     }

@@ -5,7 +5,6 @@ using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -270,7 +269,7 @@ namespace RX_Explorer
                     }
                     catch (Exception ex)
                     {
-                        await LogTracer.LogAsync(ex, $"Error in Current_DataChanged").ConfigureAwait(true);
+                        LogTracer.Log(ex, $"Error in Current_DataChanged");
                     }
                     finally
                     {
@@ -507,9 +506,9 @@ namespace RX_Explorer
                     await Control.DisplayItemsInFolder(Control.CurrentFolder, true).ConfigureAwait(true);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"An error was threw in {nameof(FileLoadMode_SelectionChanged)}").ConfigureAwait(true);
+                LogTracer.Log(ex, $"An error was threw in {nameof(FileLoadMode_SelectionChanged)}");
             }
             finally
             {
@@ -551,7 +550,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex).ConfigureAwait(true);
+                LogTracer.Log(ex);
             }
             finally
             {
@@ -600,7 +599,7 @@ namespace RX_Explorer
                     catch (Exception ex)
                     {
                         ApplicationData.Current.LocalSettings.Values.Clear();
-                        await LogTracer.LogAsync(ex, $"{nameof(ClearUp_Click)} threw an exception").ConfigureAwait(true);
+                        LogTracer.Log(ex, $"{ nameof(ClearUp_Click)} threw an exception");
                     }
 
                     Window.Current.Activate();
@@ -681,7 +680,7 @@ namespace RX_Explorer
                     catch (Exception ex)
                     {
                         ApplicationData.Current.LocalSettings.Values.Clear();
-                        await LogTracer.LogAsync(ex, $"{nameof(ClearUp_Click)} threw an exception").ConfigureAwait(true);
+                        LogTracer.Log(ex, $"{nameof(ClearUp_Click)} threw an exception");
                     }
 
                     await Task.Delay(1000).ConfigureAwait(true);
@@ -713,7 +712,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void UIMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void UIMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             try
             {
@@ -840,7 +839,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"Error in {nameof(UIMode_SelectionChanged)}").ConfigureAwait(true);
+                LogTracer.Log(ex, $"Error in {nameof(UIMode_SelectionChanged)}");
             }
             finally
             {
@@ -1086,7 +1085,7 @@ namespace RX_Explorer
             ApplicationData.Current.SignalDataChanged();
         }
 
-        private async void AcrylicMode_Checked(object sender, RoutedEventArgs e)
+        private void AcrylicMode_Checked(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -1144,7 +1143,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"Error in {nameof(AcrylicMode_Checked)}").ConfigureAwait(true);
+                LogTracer.Log(ex, $"Error in {nameof(AcrylicMode_Checked)}");
             }
             finally
             {
@@ -1189,7 +1188,7 @@ namespace RX_Explorer
                         }
                         catch (Exception ex)
                         {
-                            await LogTracer.LogAsync(ex, "Error when loading background pictures, the file might lost").ConfigureAwait(true);
+                            LogTracer.Log(ex, "Error when loading background pictures, the file might lost");
                             await SQLite.Current.DeleteBackgroundPictureAsync(ImageUri).ConfigureAwait(true);
                         }
                     }
@@ -1252,7 +1251,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"Error in {nameof(PictureMode_Checked)}").ConfigureAwait(true);
+                LogTracer.Log(ex, $"Error in {nameof(PictureMode_Checked)}");
             }
             finally
             {
@@ -1300,7 +1299,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"Error in {nameof(BingPictureMode_Checked)}").ConfigureAwait(true);
+                LogTracer.Log(ex, $"Error in {nameof(BingPictureMode_Checked)}");
 
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
@@ -1377,7 +1376,7 @@ namespace RX_Explorer
                 }
                 catch (Exception ex)
                 {
-                    await LogTracer.LogAsync(ex, $"Error in {nameof(PictureGirdView_SelectionChanged)}").ConfigureAwait(true);
+                    LogTracer.Log(ex, $"Error in {nameof(PictureGirdView_SelectionChanged)}");
                 }
                 finally
                 {
@@ -1506,7 +1505,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"Error in {nameof(AutoBoot_Toggled)}").ConfigureAwait(true);
+                LogTracer.Log(ex, $"Error in {nameof(AutoBoot_Toggled)}");
             }
             finally
             {
@@ -1514,7 +1513,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void SolidColor_FollowSystem_Checked(object sender, RoutedEventArgs e)
+        private void SolidColor_FollowSystem_Checked(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -1522,7 +1521,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"Error in {nameof(SolidColor_FollowSystem_Checked)}").ConfigureAwait(true);
+                LogTracer.Log(ex, $"Error in {nameof(SolidColor_FollowSystem_Checked)}");
             }
             finally
             {
@@ -1538,7 +1537,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in SolidColor_White_Checked, message: {ex.Message}");
+                LogTracer.Log(ex, $"Error in {nameof(SolidColor_White_Checked)}");
             }
             finally
             {
@@ -1546,7 +1545,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void SolidColor_Black_Checked(object sender, RoutedEventArgs e)
+        private void SolidColor_Black_Checked(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -1554,7 +1553,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"Error in {nameof(SolidColor_Black_Checked)}").ConfigureAwait(true);
+                LogTracer.Log(ex, $"Error in {nameof(SolidColor_Black_Checked)}");
             }
             finally
             {
@@ -1618,7 +1617,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"Error in {nameof(TreeViewDetach_Toggled)}").ConfigureAwait(true);
+                LogTracer.Log(ex, $"Error in {nameof(TreeViewDetach_Toggled)}");
             }
             finally
             {
@@ -1647,7 +1646,7 @@ namespace RX_Explorer
             ApplicationData.Current.SignalDataChanged();
         }
 
-        private async void LanguageComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void LanguageComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             try
             {
@@ -1705,7 +1704,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"Error in {nameof(LanguageComboBox_SelectionChanged)}").ConfigureAwait(true);
+                LogTracer.Log(ex, $"Error in {nameof(LanguageComboBox_SelectionChanged)}");
             }
             finally
             {
@@ -1752,7 +1751,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"Error in {nameof(DisplayHiddenItem_Toggled)}").ConfigureAwait(true);
+                LogTracer.Log(ex, $"Error in {nameof(DisplayHiddenItem_Toggled)}");
             }
             finally
             {
@@ -1859,7 +1858,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, "Error happend when Enable/Disable Win+E").ConfigureAwait(true);
+                LogTracer.Log(ex, "Error happend when Enable/Disable Win+E");
             }
             finally
             {
@@ -1897,7 +1896,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void BackgroundBlurSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        private void BackgroundBlurSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         {
             if (Interlocked.Exchange(ref BlurChangeLock, 1) == 0)
             {
@@ -1908,7 +1907,7 @@ namespace RX_Explorer
                 }
                 catch (Exception ex)
                 {
-                    await LogTracer.LogAsync(ex, "Change BackgroundBlur failed").ConfigureAwait(true);
+                    LogTracer.Log(ex, "Change BackgroundBlur failed");
                 }
                 finally
                 {
@@ -1937,7 +1936,7 @@ namespace RX_Explorer
 
         private async void ExportLog_Click(object sender, RoutedEventArgs e)
         {
-            if ((await LogTracer.GetLogCount().ConfigureAwait(true)) > 0)
+            if ((await LogTracer.GetLogCountAsync().ConfigureAwait(true)) > 0)
             {
                 FolderPicker Picker = new FolderPicker
                 {
@@ -1947,7 +1946,7 @@ namespace RX_Explorer
 
                 if (await Picker.PickSingleFolderAsync() is StorageFolder PickedFolder)
                 {
-                    await LogTracer.ExportAllLog(PickedFolder, DateTime.Now.AddDays(-3)).ConfigureAwait(false);
+                    await LogTracer.ExportAllLogAsync(PickedFolder, DateTime.Now.AddDays(-3)).ConfigureAwait(false);
                 }
             }
             else
@@ -1963,7 +1962,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void PreventFallBack_Checked(object sender, RoutedEventArgs e)
+        private void PreventFallBack_Checked(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -1976,7 +1975,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"An error was threw when checking {PreventFallBack}").ConfigureAwait(true);
+                LogTracer.Log(ex, $"An error was threw when checking {PreventFallBack}");
             }
             finally
             {
@@ -1984,7 +1983,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void PreventFallBack_Unchecked(object sender, RoutedEventArgs e)
+        private void PreventFallBack_Unchecked(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -1997,7 +1996,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"An error was threw when unchecking {PreventFallBack}").ConfigureAwait(true);
+                LogTracer.Log(ex, $"An error was threw when unchecking {PreventFallBack}");
             }
             finally
             {

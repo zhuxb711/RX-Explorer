@@ -116,7 +116,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                await LogTracer.LogAsync(ex, $"{nameof(CreateNewNamedPipeAsync)} throw an error").ConfigureAwait(true);
+                LogTracer.Log(ex, $"{ nameof(CreateNewNamedPipeAsync)} throw an error");
                 return false;
             }
         }
