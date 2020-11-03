@@ -17,11 +17,9 @@ using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.System;
 using Windows.UI.Core;
-using Windows.UI.Input;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
@@ -338,17 +336,17 @@ namespace RX_Explorer
 
                                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                                    //预览版TabView在没有子Item时会崩溃，此方案作为临时解决方案
-                                    if (TabViewControl == null)
+                                    if (CreateNewTab() is TabViewItem EmptyItem)
                                     {
-                                        _ = FindName(nameof(TabViewControl));
-
-                                        if (CreateNewTab() is TabViewItem EmptyItem)
+                                        //预览版TabView在没有子Item时会崩溃，此方案作为临时解决方案
+                                        if (TabViewControl == null)
                                         {
-                                            TabViewControl.TabItems.Insert(Index, EmptyItem);
-                                            TabViewControl.UpdateLayout();
-                                            TabViewControl.SelectedItem = EmptyItem;
+                                            _ = FindName(nameof(TabViewControl));
                                         }
+
+                                        TabViewControl.TabItems.Insert(Index, EmptyItem);
+                                        TabViewControl.UpdateLayout();
+                                        TabViewControl.SelectedItem = EmptyItem;
                                     }
 
                                     return;

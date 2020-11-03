@@ -45,11 +45,6 @@ namespace RX_Explorer.Class
         /// <param name="Ex">错误内容</param>
         public static async void LeadToBlueScreen(Exception Ex)
         {
-            if (LogFile == null)
-            {
-                throw new InvalidOperationException($"{nameof(Initialize)} should be executed first");
-            }
-
             if (Ex == null)
             {
                 throw new ArgumentNullException(nameof(Ex), "Exception could not be null");
@@ -131,11 +126,6 @@ namespace RX_Explorer.Class
 
         public static async Task ExportLogAsync(StorageFile ExportFile)
         {
-            if (LogFile == null)
-            {
-                throw new InvalidOperationException($"{nameof(Initialize)} should be executed first");
-            }
-
             try
             {
                 if (await ApplicationData.Current.TemporaryFolder.TryGetItemAsync(UniqueName) is StorageFile InnerFile)
@@ -151,11 +141,6 @@ namespace RX_Explorer.Class
 
         public static async Task<ushort> GetLogCountAsync()
         {
-            if (LogFile == null)
-            {
-                throw new InvalidOperationException($"{nameof(Initialize)} should be executed first");
-            }
-
             try
             {
                 return Convert.ToUInt16((await ApplicationData.Current.TemporaryFolder.GetFilesAsync()).Select((Item) => Regex.Match(Item.Name, @"(?<=\[)(.+)(?=\])")).Where((Mat) => Mat.Success && DateTime.TryParseExact(Mat.Value, "yyyy-MM-dd HH-mm-ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out _)).Count());
@@ -169,11 +154,6 @@ namespace RX_Explorer.Class
 
         public static async Task ExportAllLogAsync(StorageFolder ExportFolder, DateTime LaterThan)
         {
-            if (LogFile == null)
-            {
-                throw new InvalidOperationException($"{nameof(Initialize)} should be executed first");
-            }
-
             try
             {
                 foreach (StorageFile File in from StorageFile File in await ApplicationData.Current.TemporaryFolder.GetFilesAsync()
@@ -198,11 +178,6 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public static void Log(Exception Ex, string AdditionalComment = null)
         {
-            if (LogFile == null)
-            {
-                throw new InvalidOperationException($"{nameof(Initialize)} should be executed first");
-            }
-
             if (Ex == null)
             {
                 throw new ArgumentNullException(nameof(Ex), "Exception could not be null");
@@ -268,11 +243,6 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public static void Log(string Message)
         {
-            if (LogFile == null)
-            {
-                throw new InvalidOperationException($"{nameof(Initialize)} should be executed first");
-            }
-
             LogQueue.Enqueue(Message);
 
             if (BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.WaitSleepJoin))
@@ -283,7 +253,7 @@ namespace RX_Explorer.Class
 
         public static async Task Initialize()
         {
-            LogFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync(UniqueName, CreationCollisionOption.ReplaceExisting);
+            LogFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync(UniqueName, CreationCollisionOption.GenerateUniqueName);
             BackgroundProcessThread.Start();
         }
 

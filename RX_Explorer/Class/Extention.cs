@@ -265,7 +265,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        while (true)
+                        for (int i = 0; i < 10; i++)
                         {
                             if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path == NextPathLevel) is TreeViewNode TargetNode)
                             {
@@ -273,9 +273,11 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                await Task.Delay(200).ConfigureAwait(true);
+                                await Task.Delay(300).ConfigureAwait(true);
                             }
                         }
+
+                        return null;
                     }
                 }
             }
@@ -300,7 +302,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        while (true)
+                        for (int i = 0; i < 10; i++)
                         {
                             if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path == NextPathLevel) is TreeViewNode TargetNode)
                             {
@@ -308,9 +310,11 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                await Task.Delay(200).ConfigureAwait(true);
+                                await Task.Delay(300).ConfigureAwait(true);
                             }
                         }
+
+                        return null;
                     }
                 }
             }

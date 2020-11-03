@@ -2095,6 +2095,7 @@ namespace RX_Explorer
                     if (TargetPath.StartsWith((FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
                     {
                         TreeViewNode TargetNode = await FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(TargetPath, (FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
+                        
                         if (TargetNode != null)
                         {
                             await DisplayItemsInFolder(TargetNode).ConfigureAwait(true);

@@ -1,12 +1,9 @@
 ﻿#include "pch.h"
 #include "OpenDirectoryExtension.h"
 #include <wil/filesystem.h>
-//#include <filesystem>
-//#include <fmt/core.h>
 #include "resource.h"
 
-static constexpr std::wstring_view VerbDisplayName{ L"Open in RX Explorer" };
-static constexpr std::wstring_view VerbDevBuildDisplayName{ L"Open in RX Explorer (Development Mode)" };
+static constexpr std::wstring_view VerbDisplayName{ L"Open in RX-Explorer" };
 static constexpr std::wstring_view VerbName{ L"RxExplorerOpenHere" };
 
 // This code is aggressively copied from

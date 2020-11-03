@@ -201,8 +201,6 @@ namespace RX_Explorer
             {
                 ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] = true;
             }
-
-            throw new Exception();
         }
 
         private void MainPage_BackRequested(object sender, BackRequestedEventArgs e)

@@ -42,7 +42,7 @@ namespace RX_Explorer.Class
             if (string.IsNullOrEmpty(CurrentPath))
             {
                 string[] Split = FullPath.Split("\\", StringSplitOptions.RemoveEmptyEntries);
-                Split[0] = Split[0] + "\\";
+                Split[0] = $"{Split[0]}\\";
                 PathQueue = new Queue<string>(Split);
                 HasNextLevel = true;
             }
@@ -71,10 +71,12 @@ namespace RX_Explorer.Class
             if (PathQueue.Count != 0)
             {
                 CurrentLevel = Path.Combine(CurrentLevel, PathQueue.Dequeue());
+                
                 if (PathQueue.Count == 0)
                 {
                     HasNextLevel = false;
                 }
+                
                 return CurrentLevel;
             }
             else

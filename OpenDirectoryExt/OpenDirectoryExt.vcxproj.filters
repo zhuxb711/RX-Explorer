@@ -12,9 +12,9 @@
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Class.cpp" />
-    <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="OpenDirectoryExtension.cpp" />
+    <ClCompile Include="Generated Files\module.g.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -30,9 +30,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="readme.txt" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">
