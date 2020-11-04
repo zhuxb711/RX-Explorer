@@ -1,6 +1,6 @@
 # RX文件管理器
 
-[![Build Status](https://dev.azure.com/zhuxb711/RX-Explorer/_apis/build/status/zhuxb711.RX-Explorer?branchName=master)](https://dev.azure.com/zhuxb711/RX-Explorer/_build/latest?definitionId=1&branchName=master) [![GitHub license](https://img.shields.io/github/license/zhuxb711/RX-Explorer?label=License)](https://github.com/zhuxb711/RX-Explorer/blob/master/LICENSE) [![GitHub issues](https://img.shields.io/github/issues/zhuxb711/RX-Explorer?color=orange&label=Issues)](https://github.com/zhuxb711/RX-Explorer/issues)
+[![Build Status](https://dev.azure.com/zhuxb711/RX-Explorer/_apis/build/status/zhuxb711.RX-Explorer?branchName=master)](https://dev.azure.com/zhuxb711/RX-Explorer/_build/latest?definitionId=1&branchName=master) [![GitHub license](https://img.shields.io/github/license/zhuxb711/RX-Explorer?color=%2340C0D0)](https://github.com/zhuxb711/RX-Explorer/blob/master/LICENSE) [![GitHub issues](https://img.shields.io/github/issues/zhuxb711/RX-Explorer?color=orange&label=Issues)](https://github.com/zhuxb711/RX-Explorer/issues)
 
 一款完全免费无广告的文件管理器。
 
@@ -14,7 +14,7 @@ Microsoft Store下载链接: https://www.microsoft.com/store/productId/9N88QBQKF
 
 # RX Explorer
 
-[![Build Status](https://dev.azure.com/zhuxb711/RX-Explorer/_apis/build/status/zhuxb711.RX-Explorer?branchName=master)](https://dev.azure.com/zhuxb711/RX-Explorer/_build/latest?definitionId=1&branchName=master) [![GitHub license](https://img.shields.io/github/license/zhuxb711/RX-Explorer?label=License)](https://github.com/zhuxb711/RX-Explorer/blob/master/LICENSE) [![GitHub issues](https://img.shields.io/github/issues/zhuxb711/RX-Explorer?color=orange&label=Issues)](https://github.com/zhuxb711/RX-Explorer/issues)
+[![Build Status](https://dev.azure.com/zhuxb711/RX-Explorer/_apis/build/status/zhuxb711.RX-Explorer?branchName=master)](https://dev.azure.com/zhuxb711/RX-Explorer/_build/latest?definitionId=1&branchName=master) [![GitHub license](https://img.shields.io/github/license/zhuxb711/RX-Explorer?color=%2340C0D0)](https://github.com/zhuxb711/RX-Explorer/blob/master/LICENSE) [![GitHub issues](https://img.shields.io/github/issues/zhuxb711/RX-Explorer?color=orange&label=Issues)](https://github.com/zhuxb711/RX-Explorer/issues)
 
 A completely free and ad-free explorer.
 
