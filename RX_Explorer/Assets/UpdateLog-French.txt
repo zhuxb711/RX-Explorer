@@ -1,4 +1,45 @@
 ﻿*****
+###Quoi de neuf dans la version 5.6.0.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Ajouter une flèche de tri
+
+>#####Nouvelle fonction de tri sur la page de recherche
+
+#####Amélioration des performances
+
+>#####Vitesse de recherche améliorée et grandement améliorée
+
+>#####Amélioration de la conception du bug tracker, maintenant cela n'affectera plus négativement la réactivité de l'interface UI
+
+#####Mise à jour de l'interface utilisateur
+
+>#####La date de modification dans la "Liste détaillée" sera désormais encore simplifiée
+
+>#####Modification du rapport de largeur de chaque colonne dans "Liste détaillée"
+
+>#####La taille du texte dans la fonction de recherche a été améliorée
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel la tâche de recherche ne sera pas annulée lors de la sortie de la page de recherche avant la fin de la recherche
+
+>#####Correction du problème selon lequel l'utilisation de Win + E pour ouvrir une nouvelle page à onglet lorsque vous êtes sur la page des paramètres peut entraîner l'échec du bouton de retour
+
+>#####Correction du problème de limitation du clip vidéo et de la page de fusion vidéo à une fenêtre trop petite
+
+>#####Correction du problème d'affichage de plusieurs fichiers identiques dans certains cas
+
+>#####Correction du problème selon lequel le fait d'appuyer sur n'importe quelle touche au démarrage pouvait provoquer un crash
+
+>#####Correction du problème pouvant provoquer un crash inattendu dans certains cas, le message d'erreur est "erreur de paramètre"
+
+>#####Correction du problème de retard pouvant survenir lors de l'utilisation de Win + E pour démarrer, le problème est causé par de fausses hypothèses
+
+>#####Correction du problème qui, dans certains cas, l'arborescence du répertoire de fichiers ne peut pas trouver le dossier correspondant pendant l'expansion, l'interface utilisateur finira par ne plus répondre
+
+*****
 ###Quoi de neuf dans la version 5.5.8.0
 
 #####Mise à jour des fonctionnalités

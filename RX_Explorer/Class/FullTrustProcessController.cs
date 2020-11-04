@@ -165,8 +165,9 @@ namespace RX_Explorer.Class
                     return IsConnected = false;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"An unexpected error was threw in {nameof(ConnectToFullTrustExcutorAsync)}");
                 return IsConnected = false;
             }
         }
@@ -202,11 +203,13 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
+                    LogTracer.Log($"{nameof(SwitchToAdminMode)}: Failed to connect AppService ");
                     return false;
                 }
             }
-            catch
+            catch(Exception ex)
             {
+                LogTracer.Log(ex, $"{ nameof(SwitchToAdminMode)} throw an error");
                 return false;
             }
             finally
@@ -234,23 +237,32 @@ namespace RX_Explorer.Class
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
-                    if (Response.Status == AppServiceResponseStatus.Success && Response.Message.ContainsKey("Success"))
+                    if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        return true;
+                        if (Response.Message.ContainsKey("Success"))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(CreateLink)}, message: {ErrorMessage}");
+                            }
+
+                            return false;
+                        }
                     }
                     else
                     {
-                        if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                        {
-                            LogTracer.Log(Convert.ToString(ErrorMessage));
-                        }
-
+                        LogTracer.Log($"AppServiceResponse in {nameof(CreateLink)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         return false;
                     }
                 }
                 else
                 {
-                    throw new NoResponseException();
+                    LogTracer.Log($"{nameof(CreateLink)}: Failed to connect AppService ");
+                    return false;
                 }
             }
             catch (Exception ex)
@@ -280,18 +292,32 @@ namespace RX_Explorer.Class
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
-                    if (Response.Status == AppServiceResponseStatus.Success && Response.Message.ContainsKey("Success"))
+                    if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        return Convert.ToString(Response.Message["Success"]);
+                        if (Response.Message.TryGetValue("Success", out object Result))
+                        {
+                            return Convert.ToString(Result);
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(GetVariablePath)}, message: {ErrorMessage}");
+                            }
+
+                            return string.Empty;
+                        }
                     }
                     else
                     {
+                        LogTracer.Log($"AppServiceResponse in {nameof(GetVariablePath)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         return string.Empty;
                     }
                 }
                 else
                 {
-                    throw new NoResponseException();
+                    LogTracer.Log($"{nameof(GetVariablePath)}: Failed to connect AppService ");
+                    return string.Empty;
                 }
             }
             catch (Exception ex)
@@ -324,22 +350,34 @@ namespace RX_Explorer.Class
 
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        if (Response.Message.ContainsKey("Error_Occupied"))
+                        if (Response.Message.TryGetValue("Error_Occupied", out object ErrorMessage1))
                         {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage1}");
+
                             throw new FileLoadException();
                         }
-                        else if (Response.Message.ContainsKey("Error_Failure"))
+                        else if (Response.Message.TryGetValue("Error_Failure", out object ErrorMessage2))
                         {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage2}");
+
+                            throw new InvalidOperationException();
+                        }
+                        else if (Response.Message.TryGetValue("Error", out object ErrorMessage3))
+                        {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage3}");
+
                             throw new InvalidOperationException();
                         }
                     }
                     else
                     {
+                        LogTracer.Log($"AppServiceResponse in {nameof(RenameAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         throw new NoResponseException();
                     }
                 }
                 else
                 {
+                    LogTracer.Log($"{nameof(RenameAsync)}: Failed to connect AppService ");
                     throw new NoResponseException();
                 }
             }
@@ -365,24 +403,34 @@ namespace RX_Explorer.Class
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
-                    if (Response.Status == AppServiceResponseStatus.Success && Response.Message.ContainsKey("Success"))
+                    if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        return (Convert.ToString(Response.Message["TargetPath"]), Regex.Matches(Convert.ToString(Response.Message["Argument"]), "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value).ToArray(), Convert.ToBoolean(Response.Message["RunAs"]), Convert.ToBoolean(Response.Message["IsFile"]));
+                        if (Response.Message.ContainsKey("Success"))
+                        {
+                            return (Convert.ToString(Response.Message["TargetPath"]), Regex.Matches(Convert.ToString(Response.Message["Argument"]), "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value).ToArray(), Convert.ToBoolean(Response.Message["RunAs"]), Convert.ToBoolean(Response.Message["IsFile"]));
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(GetHyperlinkRelatedInformationAsync)}, message: {ErrorMessage}");
+                            }
+
+                            throw new InvalidOperationException();
+                        }
                     }
                     else
                     {
-                        throw new InvalidOperationException(Response.Message.ContainsKey("Error") ? Convert.ToString(Response.Message["Error"]) : "Communication failure");
+                        LogTracer.Log($"AppServiceResponse in {nameof(GetHyperlinkRelatedInformationAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+
+                        throw new NoResponseException();
                     }
                 }
                 else
                 {
+                    LogTracer.Log($"{nameof(GetHyperlinkRelatedInformationAsync)}: Failed to connect AppService");
                     throw new NoResponseException();
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{ nameof(GetHyperlinkRelatedInformationAsync)} throw an error");
-                throw;
             }
             finally
             {
@@ -405,23 +453,37 @@ namespace RX_Explorer.Class
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
-                    if (Response.Message.ContainsKey("Success"))
+                    if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        return true;
+                        if (Response.Message.ContainsKey("Success"))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(InterceptWindowsPlusE)}, message: {ErrorMessage}");
+                            }
+
+                            return false;
+                        }
                     }
                     else
                     {
+                        LogTracer.Log($"AppServiceResponse in {nameof(InterceptWindowsPlusE)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         return false;
                     }
                 }
                 else
                 {
+                    LogTracer.Log($"{nameof(InterceptWindowsPlusE)}: Failed to connect AppService");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{ nameof(InterceptWindowsPlusE)} throw an error");
+                LogTracer.Log(ex, $"{nameof(InterceptWindowsPlusE)} throw an error");
                 return false;
             }
             finally
@@ -445,23 +507,38 @@ namespace RX_Explorer.Class
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
-                    if (Response.Message.ContainsKey("Success"))
+                    if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        return true;
+                        if (Response.Message.ContainsKey("Success"))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(RestoreWindowsPlusE)}, message: {ErrorMessage}");
+                            }
+
+                            return false;
+                        }
                     }
                     else
                     {
+                        LogTracer.Log($"AppServiceResponse in {nameof(RestoreWindowsPlusE)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+
                         return false;
                     }
                 }
                 else
                 {
+                    LogTracer.Log($"{nameof(RestoreWindowsPlusE)}: Failed to connect AppService");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{ nameof(RestoreWindowsPlusE)} throw an error");
+                LogTracer.Log(ex, $"{nameof(RestoreWindowsPlusE)} throw an error");
                 return false;
             }
             finally
@@ -486,23 +563,37 @@ namespace RX_Explorer.Class
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
-                    if (Response.Message.ContainsKey("Success"))
+                    if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        return true;
+                        if (Response.Message.ContainsKey("Success"))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(RemoveHiddenAttribute)}, message: {ErrorMessage}");
+                            }
+
+                            return false;
+                        }
                     }
                     else
                     {
+                        LogTracer.Log($"AppServiceResponse in {nameof(RemoveHiddenAttribute)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         return false;
                     }
                 }
                 else
                 {
+                    LogTracer.Log($"{nameof(RemoveHiddenAttribute)}: Failed to connect AppService");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{ nameof(RemoveHiddenAttribute)} throw an error");
+                LogTracer.Log(ex, $"{nameof(RemoveHiddenAttribute)} throw an error");
                 return false;
             }
             finally
@@ -527,10 +618,14 @@ namespace RX_Explorer.Class
 
                     await Connection.SendMessageAsync(Value);
                 }
+                else
+                {
+                    LogTracer.Log($"{nameof(RequestCreateNewPipeLine)}: Failed to connect AppService");
+                }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{ nameof(RequestCreateNewPipeLine)} throw an error");
+                LogTracer.Log(ex, $"{nameof(RequestCreateNewPipeLine)} throw an error");
             }
             finally
             {
@@ -563,17 +658,27 @@ namespace RX_Explorer.Class
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
-                    if (!Response.Message.ContainsKey("Success"))
+                    if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        if (Response.Message.ContainsKey("Error_Failure"))
+                        if (Response.Message.TryGetValue("Error_Failure", out object ErrorMessage1))
                         {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(RunAsync)}, message: {ErrorMessage1}");
+
                             throw new InvalidOperationException();
                         }
-                        else
+                        else if (Response.Message.TryGetValue("Error", out object ErrorMessage2))
                         {
-                            throw new Exception("Execute failed");
+                            LogTracer.Log($"An unexpected error was threw in {nameof(RunAsync)}, message: {ErrorMessage2}");
                         }
                     }
+                    else
+                    {
+                        LogTracer.Log($"AppServiceResponse in {nameof(RunAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                    }
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(RunAsync)}: Failed to connect AppService");
                 }
             }
             catch (InvalidOperationException)
@@ -582,7 +687,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{ nameof(RunAsync)} throw an error");
+                LogTracer.Log(ex, $"{nameof(RunAsync)} throw an error");
             }
             finally
             {
@@ -605,6 +710,10 @@ namespace RX_Explorer.Class
                     };
 
                     await Connection.SendMessageAsync(Value);
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(ViewWithQuicklookAsync)}: Failed to connect AppService");
                 }
             }
             catch (Exception ex)
@@ -632,22 +741,37 @@ namespace RX_Explorer.Class
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
-                    if (Response.Status == AppServiceResponseStatus.Success && !Response.Message.ContainsKey("Error"))
+                    if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        return Convert.ToBoolean(Response.Message["Check_QuicklookIsAvaliable_Result"]);
+                        if (Response.Message.TryGetValue("Check_QuicklookIsAvaliable_Result", out object Result))
+                        {
+                            return Convert.ToBoolean(Result);
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(CheckQuicklookIsAvaliableAsync)}, message: {ErrorMessage}");
+                            }
+
+                            return false;
+                        }
                     }
                     else
                     {
+                        LogTracer.Log($"AppServiceResponse in {nameof(CheckQuicklookIsAvaliableAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         return false;
                     }
                 }
                 else
                 {
+                    LogTracer.Log($"{nameof(CheckQuicklookIsAvaliableAsync)}: Failed to connect AppService");
                     return false;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"{nameof(CheckQuicklookIsAvaliableAsync)} throw an error");
                 return false;
             }
             finally
@@ -672,22 +796,37 @@ namespace RX_Explorer.Class
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
-                    if (Response.Status == AppServiceResponseStatus.Success && !Response.Message.ContainsKey("Error"))
+                    if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        return Convert.ToString(Response.Message["Associate_Result"]);
+                        if (Response.Message.TryGetValue("Associate_Result", out object Result))
+                        {
+                            return Convert.ToString(Result);
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(GetAssociateFromPathAsync)}, message: {ErrorMessage}");
+                            }
+
+                            return string.Empty;
+                        }
                     }
                     else
                     {
+                        LogTracer.Log($"AppServiceResponse in {nameof(GetAssociateFromPathAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         return string.Empty;
                     }
                 }
                 else
                 {
+                    LogTracer.Log($"{nameof(GetAssociateFromPathAsync)}: Failed to connect AppService");
                     return string.Empty;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"{nameof(GetAssociateFromPathAsync)} throw an error");
                 return string.Empty;
             }
             finally
@@ -710,22 +849,38 @@ namespace RX_Explorer.Class
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-                    if (Response.Status == AppServiceResponseStatus.Success && !Response.Message.ContainsKey("Error"))
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        return Convert.ToBoolean(Response.Message["RecycleBinItems_Clear_Result"]);
+                        if (Response.Message.TryGetValue("RecycleBinItems_Clear_Result", out object Result))
+                        {
+                            return Convert.ToBoolean(Result);
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(EmptyRecycleBinAsync)}, message: {ErrorMessage}");
+                            }
+
+                            return false;
+                        }
                     }
                     else
                     {
+                        LogTracer.Log($"AppServiceResponse in {nameof(EmptyRecycleBinAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         return false;
                     }
                 }
                 else
                 {
+                    LogTracer.Log($"{nameof(EmptyRecycleBinAsync)}: Failed to connect AppService");
                     return false;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"{nameof(EmptyRecycleBinAsync)} throw an error");
                 return false;
             }
             finally
@@ -749,31 +904,46 @@ namespace RX_Explorer.Class
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
-                    if (Response.Status == AppServiceResponseStatus.Success && !Response.Message.ContainsKey("Error") && !string.IsNullOrEmpty(Convert.ToString(Response.Message["RecycleBinItems_Json_Result"])))
+                    if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        List<Dictionary<string, string>> Items = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(Convert.ToString(Response.Message["RecycleBinItems_Json_Result"]));
-                        List<RecycleStorageItem> Result = new List<RecycleStorageItem>(Items.Count);
-
-                        foreach (Dictionary<string, string> PropertyDic in Items)
+                        if (Response.Message.TryGetValue("RecycleBinItems_Json_Result", out object Result))
                         {
-                            FileSystemStorageItemBase Item = WIN_Native_API.GetStorageItems(PropertyDic["ActualPath"]).FirstOrDefault();
-                            Result.Add(new RecycleStorageItem(Item, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
-                        }
+                            List<Dictionary<string, string>> JsonList = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(Convert.ToString(Result));
+                            List<RecycleStorageItem> RecycleItems = new List<RecycleStorageItem>(JsonList.Count);
 
-                        return Result;
+                            foreach (Dictionary<string, string> PropertyDic in JsonList)
+                            {
+                                FileSystemStorageItemBase Item = WIN_Native_API.GetStorageItems(PropertyDic["ActualPath"]).FirstOrDefault();
+                                RecycleItems.Add(new RecycleStorageItem(Item, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
+                            }
+
+                            return RecycleItems;
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(GetRecycleBinItemsAsync)}, message: {ErrorMessage}");
+                            }
+
+                            return new List<RecycleStorageItem>(0);
+                        }
                     }
                     else
                     {
+                        LogTracer.Log($"AppServiceResponse in {nameof(GetRecycleBinItemsAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         return new List<RecycleStorageItem>(0);
                     }
                 }
                 else
                 {
+                    LogTracer.Log($"{nameof(GetRecycleBinItemsAsync)}: Failed to connect AppService");
                     return new List<RecycleStorageItem>(0);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, $"{nameof(GetRecycleBinItemsAsync)} throw an error");
                 return new List<RecycleStorageItem>(0);
             }
             finally
@@ -797,32 +967,48 @@ namespace RX_Explorer.Class
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        if (Response.Message.ContainsKey("Error_Failure"))
+                        if (Response.Message.ContainsKey("Success"))
                         {
+                            return true;
+                        }
+                        if (Response.Message.TryGetValue("Error_Failure", out object ErrorMessage1))
+                        {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(TryUnlockFileOccupy)}, message: {ErrorMessage1}");
                             return false;
                         }
-                        else if (Response.Message.ContainsKey("Error_NotOccupy"))
+                        else if (Response.Message.TryGetValue("Error_NotOccupy", out object ErrorMessage2))
                         {
-                            throw new UnlockException("The file is not occupied");
+                            LogTracer.Log($"An unexpected error was threw in {nameof(TryUnlockFileOccupy)}, message: {ErrorMessage2}");
+                            throw new UnlockException();
                         }
-                        else if (Response.Message.ContainsKey("Error_NotFoundOrNotFile"))
+                        else if (Response.Message.TryGetValue("Error_NotFoundOrNotFile", out object ErrorMessage3))
                         {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(TryUnlockFileOccupy)}, message: {ErrorMessage3}");
                             throw new FileNotFoundException();
+                        }
+                        else if (Response.Message.TryGetValue("Error", out object ErrorMessage4))
+                        {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(TryUnlockFileOccupy)}, message: {ErrorMessage4}");
+                            return false;
                         }
                         else
                         {
-                            return true;
+                            LogTracer.Log($"An unexpected error was threw in {nameof(TryUnlockFileOccupy)}");
+                            return false;
                         }
                     }
                     else
                     {
+                        LogTracer.Log($"AppServiceResponse in {nameof(TryUnlockFileOccupy)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         throw new NoResponseException();
                     }
                 }
                 else
                 {
+                    LogTracer.Log($"{nameof(TryUnlockFileOccupy)}: Failed to connect AppService");
                     throw new NoResponseException();
                 }
             }
@@ -873,30 +1059,41 @@ namespace RX_Explorer.Class
                                 OperationRecorder.Current.Value.Push(JsonConvert.DeserializeObject<List<string>>(Convert.ToString(value)));
                             }
                         }
-                        else if (MessageTask.Result.Message.ContainsKey("Error_NotFound"))
+                        else if (MessageTask.Result.Message.TryGetValue("Error_NotFound", out object ErrorMessage1))
                         {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage1}");
                             throw new FileNotFoundException();
                         }
-                        else if (MessageTask.Result.Message.ContainsKey("Error_Failure"))
+                        else if (MessageTask.Result.Message.TryGetValue("Error_Failure", out object ErrorMessage2))
                         {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage2}");
                             throw new InvalidOperationException("Fail to delete item");
                         }
-                        else if (MessageTask.Result.Message.ContainsKey("Error_Capture"))
+                        else if (MessageTask.Result.Message.TryGetValue("Error_Capture", out object ErrorMessage3))
                         {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage3}");
                             throw new FileCaputureException();
+                        }
+                        else if (MessageTask.Result.Message.TryGetValue("Error", out object ErrorMessage4))
+                        {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}, message: {ErrorMessage4}");
+                            throw new Exception();
                         }
                         else
                         {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(DeleteAsync)}");
                             throw new Exception("Unknown reason");
                         }
                     }
                     else
                     {
+                        LogTracer.Log($"AppServiceResponse in {nameof(DeleteAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), MessageTask.Result.Status)}");
                         throw new NoResponseException();
                     }
                 }
                 else
                 {
+                    LogTracer.Log($"{nameof(DeleteAsync)}: Failed to connect AppService");
                     throw new NoResponseException();
                 }
             }
@@ -1029,30 +1226,41 @@ namespace RX_Explorer.Class
                                 OperationRecorder.Current.Value.Push(JsonConvert.DeserializeObject<List<string>>(Convert.ToString(value)));
                             }
                         }
-                        else if (MessageTask.Result.Message.ContainsKey("Error_NotFound"))
+                        else if (MessageTask.Result.Message.TryGetValue("Error_NotFound", out object ErrorMessage1))
                         {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage1}");
                             throw new FileNotFoundException();
                         }
-                        else if (MessageTask.Result.Message.ContainsKey("Error_Failure"))
+                        else if (MessageTask.Result.Message.TryGetValue("Error_Failure", out object ErrorMessage2))
                         {
-                            throw new InvalidOperationException("Fail to move item");
+                            LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage2}");
+                            throw new InvalidOperationException();
                         }
-                        else if (MessageTask.Result.Message.ContainsKey("Error_Capture"))
+                        else if (MessageTask.Result.Message.TryGetValue("Error_Capture", out object ErrorMessage3))
                         {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage3}");
                             throw new FileCaputureException();
+                        }
+                        else if (MessageTask.Result.Message.TryGetValue("Error", out object ErrorMessage4))
+                        {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}, message: {ErrorMessage4}");
+                            throw new Exception();
                         }
                         else
                         {
-                            throw new Exception("Unknown reason");
+                            LogTracer.Log($"An unexpected error was threw in {nameof(MoveAsync)}");
+                            throw new Exception();
                         }
                     }
                     else
                     {
+                        LogTracer.Log($"AppServiceResponse in {nameof(MoveAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), MessageTask.Result.Status)}");
                         throw new NoResponseException();
                     }
                 }
                 else
                 {
+                    LogTracer.Log($"{nameof(MoveAsync)}: Failed to connect AppService");
                     throw new NoResponseException();
                 }
             }
@@ -1223,26 +1431,36 @@ namespace RX_Explorer.Class
                                 OperationRecorder.Current.Value.Push(JsonConvert.DeserializeObject<List<string>>(Convert.ToString(value)));
                             }
                         }
-                        else if (MessageTask.Result.Message.ContainsKey("Error_NotFound"))
+                        else if (MessageTask.Result.Message.TryGetValue("Error_NotFound", out object ErrorMessage1))
                         {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage1}");
                             throw new FileNotFoundException();
                         }
-                        else if (MessageTask.Result.Message.ContainsKey("Error_Failure"))
+                        else if (MessageTask.Result.Message.TryGetValue("Error_Failure", out object ErrorMessage2))
                         {
-                            throw new InvalidOperationException("Fail to copy item");
+                            LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage2}");
+                            throw new InvalidOperationException();
+                        }
+                        else if (MessageTask.Result.Message.TryGetValue("Error", out object ErrorMessage3))
+                        {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}, message: {ErrorMessage3}");
+                            throw new InvalidOperationException();
                         }
                         else
                         {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(CopyAsync)}");
                             throw new Exception("Unknown reason");
                         }
                     }
                     else
                     {
+                        LogTracer.Log($"AppServiceResponse in {nameof(CopyAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), MessageTask.Result.Status)}");
                         throw new NoResponseException();
                     }
                 }
                 else
                 {
+                    LogTracer.Log($"{nameof(CopyAsync)}: Failed to connect AppService");
                     throw new NoResponseException();
                 }
             }
@@ -1329,21 +1547,36 @@ namespace RX_Explorer.Class
                     ValueSet Value = new ValueSet
                     {
                         {"ExcuteType", ExcuteType_Restore_RecycleItem},
-                        {"ExcutePath", Path},
+                        {"ExcutePath", Path}
                     };
+
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        return Convert.ToBoolean(Response.Message["Restore_Result"]);
+                        if (Response.Message.TryGetValue("Restore_Result", out object Result))
+                        {
+                            return Convert.ToBoolean(Result);
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(RestoreItemInRecycleBinAsync)}, message: {ErrorMessage}");
+                            }
+
+                            return false;
+                        }
                     }
                     else
                     {
+                        LogTracer.Log($"AppServiceResponse in {nameof(RestoreItemInRecycleBinAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         return false;
                     }
                 }
                 else
                 {
+                    LogTracer.Log($"{nameof(RestoreItemInRecycleBinAsync)}: Failed to connect AppService");
                     return false;
                 }
             }
@@ -1375,24 +1608,40 @@ namespace RX_Explorer.Class
                         {"ExcuteType", ExcuteType_Delete_RecycleItem},
                         {"ExcutePath", Path},
                     };
+
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        return Convert.ToBoolean(Response.Message["Delete_Result"]);
+                        if (Response.Message.TryGetValue("Delete_Result", out object Result))
+                        {
+                            return Convert.ToBoolean(Result);
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(DeleteItemInRecycleBinAsync)}, message: {ErrorMessage}");
+                            }
+
+                            return false;
+                        }
                     }
                     else
                     {
+                        LogTracer.Log($"AppServiceResponse in {nameof(DeleteItemInRecycleBinAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         return false;
                     }
                 }
                 else
                 {
+                    LogTracer.Log($"{nameof(DeleteItemInRecycleBinAsync)}: Failed to connect AppService");
                     return false;
                 }
             }
-            catch
+            catch(Exception ex)
             {
+                LogTracer.Log(ex, $"{nameof(DeleteItemInRecycleBinAsync)} throw an error");
                 return false;
             }
             finally
@@ -1424,20 +1673,35 @@ namespace RX_Explorer.Class
 
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        return Convert.ToBoolean(Response.Message["EjectResult"]);
+                        if (Response.Message.TryGetValue("EjectResult", out object Result))
+                        {
+                            return Convert.ToBoolean(Result);
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(EjectPortableDevice)}, message: {ErrorMessage}");
+                            }
+
+                            return false;
+                        }
                     }
                     else
                     {
+                        LogTracer.Log($"AppServiceResponse in {nameof(EjectPortableDevice)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         return false;
                     }
                 }
                 else
                 {
+                    LogTracer.Log($"{nameof(EjectPortableDevice)}: Failed to connect AppService");
                     return false;
                 }
             }
-            catch
+            catch(Exception ex)
             {
+                LogTracer.Log(ex, $"{nameof(EjectPortableDevice)} throw an error");
                 return false;
             }
             finally

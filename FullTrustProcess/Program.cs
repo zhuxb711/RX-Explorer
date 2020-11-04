@@ -82,7 +82,7 @@ namespace FullTrustProcess
                 }
                 catch
                 {
-
+                    Debug.WriteLine("Error when dispose PipeLine");
                 }
 
                 PipeServers.Clear();
@@ -123,17 +123,12 @@ namespace FullTrustProcess
                             string LinkDesc = Convert.ToString(args.Request.Message["LinkDesc"]);
                             string LinkArgument = Convert.ToString(args.Request.Message["LinkArgument"]);
 
-                            ValueSet Value = new ValueSet();
+                            ShellLink.Create(LinkPath, LinkTarget, description: LinkDesc, arguments: LinkArgument).Dispose();
 
-                            try
+                            ValueSet Value = new ValueSet
                             {
-                                ShellLink.Create(LinkPath, LinkTarget, description: LinkDesc, arguments: LinkArgument).Dispose();
-                                Value.Add("Success", string.Empty);
-                            }
-                            catch (Exception e)
-                            {
-                                Value.Add("Error", e.Message);
-                            }
+                                { "Success", string.Empty }
+                            };
 
                             await args.Request.SendResponseAsync(Value);
 
@@ -141,12 +136,20 @@ namespace FullTrustProcess
                         }
                     case "Excute_GetVariable_Path":
                         {
+                            ValueSet Value = new ValueSet();
+
                             string Variable = Convert.ToString(args.Request.Message["Variable"]);
 
-                            ValueSet Value = new ValueSet
+                            string Env = Environment.GetEnvironmentVariable(Variable);
+
+                            if (string.IsNullOrEmpty(Env))
                             {
-                                {"Success", Environment.GetEnvironmentVariable(Variable)}
-                            };
+                                Value.Add("Error", "Could not found EnvironmentVariable");
+                            }
+                            else
+                            {
+                                Value.Add("Success", Env);
+                            }
 
                             await args.Request.SendResponseAsync(Value);
 
@@ -180,7 +183,7 @@ namespace FullTrustProcess
                                     }
                                     else
                                     {
-                                        Value.Add("Error_Failure", "Error happened when rename");
+                                        Value.Add("Error_Failure", "No Modify Permission");
                                     }
                                 }
                             }
@@ -201,20 +204,13 @@ namespace FullTrustProcess
 
                             if (File.Exists(ExcutePath))
                             {
-                                try
+                                using (ShellLink Link = new ShellLink(ExcutePath))
                                 {
-                                    using (ShellLink Link = new ShellLink(ExcutePath))
-                                    {
-                                        Value.Add("Success", string.Empty);
-                                        Value.Add("TargetPath", Link.TargetPath);
-                                        Value.Add("Argument", Link.Arguments);
-                                        Value.Add("RunAs", Link.RunAsAdministrator);
-                                        Value.Add("IsFile", File.Exists(Link.TargetPath));
-                                    }
-                                }
-                                catch (Exception e)
-                                {
-                                    Value.Add("Error", e.Message);
+                                    Value.Add("Success", string.Empty);
+                                    Value.Add("TargetPath", Link.TargetPath);
+                                    Value.Add("Argument", Link.Arguments);
+                                    Value.Add("RunAs", Link.RunAsAdministrator);
+                                    Value.Add("IsFile", File.Exists(Link.TargetPath));
                                 }
                             }
                             else
@@ -230,43 +226,36 @@ namespace FullTrustProcess
                         {
                             ValueSet Value = new ValueSet();
 
-                            try
+                            string[] EnvironmentVariables = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.User).Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+
+                            if (EnvironmentVariables.Where((Var) => Var.Contains("WindowsApps")).Select((Var) => Path.Combine(Var, "RX-Explorer.exe")).FirstOrDefault((Path) => File.Exists(Path)) is string AliasLocation)
                             {
-                                string[] EnvironmentVariables = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.User).Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+                                StorageFile InterceptFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Intercept_WIN_E.reg"));
+                                StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("Intercept_WIN_E_Temp.reg", CreationCollisionOption.ReplaceExisting);
 
-                                if (EnvironmentVariables.Where((Var) => Var.Contains("WindowsApps")).Select((Var) => Path.Combine(Var, "RX-Explorer.exe")).FirstOrDefault((Path) => File.Exists(Path)) is string AliasLocation)
+                                using (Stream FileStream = await InterceptFile.OpenStreamForReadAsync().ConfigureAwait(true))
+                                using (StreamReader Reader = new StreamReader(FileStream))
                                 {
-                                    StorageFile InterceptFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Intercept_WIN_E.reg"));
-                                    StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("Intercept_WIN_E_Temp.reg", CreationCollisionOption.ReplaceExisting);
+                                    string Content = await Reader.ReadToEndAsync().ConfigureAwait(true);
 
-                                    using (Stream FileStream = await InterceptFile.OpenStreamForReadAsync().ConfigureAwait(true))
-                                    using (StreamReader Reader = new StreamReader(FileStream))
+                                    using (Stream TempStream = await TempFile.OpenStreamForWriteAsync())
+                                    using (StreamWriter Writer = new StreamWriter(TempStream, Encoding.Unicode))
                                     {
-                                        string Content = await Reader.ReadToEndAsync().ConfigureAwait(true);
-
-                                        using (Stream TempStream = await TempFile.OpenStreamForWriteAsync())
-                                        using (StreamWriter Writer = new StreamWriter(TempStream, Encoding.Unicode))
-                                        {
-                                            await Writer.WriteAsync(Content.Replace("<FillActualAliasPathInHere>", $"{AliasLocation.Replace(@"\", @"\\")} %1"));
-                                        }
+                                        await Writer.WriteAsync(Content.Replace("<FillActualAliasPathInHere>", $"{AliasLocation.Replace(@"\", @"\\")} %1"));
                                     }
-
-                                    using (Process Process = Process.Start(TempFile.Path))
-                                    {
-                                        SetWindowsZPosition(Process);
-                                        Process.WaitForExit();
-                                    }
-
-                                    Value.Add("Success", string.Empty);
                                 }
-                                else
+
+                                using (Process Process = Process.Start(TempFile.Path))
                                 {
-                                    Value.Add("Error", "Alias file is not exists");
+                                    SetWindowsZPosition(Process);
+                                    Process.WaitForExit();
                                 }
+
+                                Value.Add("Success", string.Empty);
                             }
-                            catch (Exception e)
+                            else
                             {
-                                Value.Add("Error", e.Message);
+                                Value.Add("Error", "Alias file is not exists");
                             }
 
                             await args.Request.SendResponseAsync(Value);
@@ -275,24 +264,18 @@ namespace FullTrustProcess
                         }
                     case "Excute_Restore_Win_E":
                         {
-                            ValueSet Value = new ValueSet();
+                            StorageFile RestoreFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Restore_WIN_E.reg"));
 
-                            try
+                            using (Process Process = Process.Start(RestoreFile.Path))
                             {
-                                StorageFile RestoreFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Restore_WIN_E.reg"));
-
-                                using (Process Process = Process.Start(RestoreFile.Path))
-                                {
-                                    SetWindowsZPosition(Process);
-                                    Process.WaitForExit();
-                                }
-
-                                Value.Add("Success", string.Empty);
+                                SetWindowsZPosition(Process);
+                                Process.WaitForExit();
                             }
-                            catch (Exception e)
+
+                            ValueSet Value = new ValueSet
                             {
-                                Value.Add("Error", e.Message);
-                            }
+                                { "Success", string.Empty }
+                            };
 
                             await args.Request.SendResponseAsync(Value);
 
@@ -300,28 +283,22 @@ namespace FullTrustProcess
                         }
                     case "Excute_RemoveHiddenAttribute":
                         {
-                            ValueSet Value = new ValueSet();
-
                             string ExcutePath = Convert.ToString(args.Request.Message["ExcutePath"]);
 
-                            try
+                            if (File.Exists(ExcutePath))
                             {
-                                if (File.Exists(ExcutePath))
-                                {
-                                    File.SetAttributes(ExcutePath, File.GetAttributes(ExcutePath) & ~FileAttributes.Hidden);
-                                }
-                                else if (Directory.Exists(ExcutePath))
-                                {
-                                    DirectoryInfo Info = new DirectoryInfo(ExcutePath);
-                                    Info.Attributes &= ~FileAttributes.Hidden;
-                                }
+                                File.SetAttributes(ExcutePath, File.GetAttributes(ExcutePath) & ~FileAttributes.Hidden);
+                            }
+                            else if (Directory.Exists(ExcutePath))
+                            {
+                                DirectoryInfo Info = new DirectoryInfo(ExcutePath);
+                                Info.Attributes &= ~FileAttributes.Hidden;
+                            }
 
-                                Value.Add("Success", string.Empty);
-                            }
-                            catch (Exception e)
+                            ValueSet Value = new ValueSet
                             {
-                                Value.Add("Error_RemoveAttributeFailure", e.Message);
-                            }
+                                { "Success", string.Empty }
+                            };
 
                             await args.Request.SendResponseAsync(Value);
 
@@ -369,6 +346,7 @@ namespace FullTrustProcess
                             }
 
                             await args.Request.SendResponseAsync(Value);
+
                             break;
                         }
                     case "Excute_Quicklook":
@@ -388,10 +366,11 @@ namespace FullTrustProcess
 
                             ValueSet Result = new ValueSet
                             {
-                                {"Check_QuicklookIsAvaliable_Result",IsSuccess }
+                                {"Check_QuicklookIsAvaliable_Result", IsSuccess }
                             };
 
                             await args.Request.SendResponseAsync(Result);
+
                             break;
                         }
                     case "Excute_Get_Associate":
@@ -405,6 +384,7 @@ namespace FullTrustProcess
                             };
 
                             await args.Request.SendResponseAsync(Result);
+
                             break;
                         }
                     case "Excute_Get_RecycleBinItems":
@@ -412,9 +392,10 @@ namespace FullTrustProcess
                             ValueSet Result = new ValueSet();
 
                             string RecycleItemResult = RecycleBinController.GenerateRecycleItemsByJson();
+                            
                             if (string.IsNullOrEmpty(RecycleItemResult))
                             {
-                                Result.Add("Error", "Unknown reason");
+                                Result.Add("Error", "Could not get recycle items");
                             }
                             else
                             {
@@ -422,22 +403,18 @@ namespace FullTrustProcess
                             }
 
                             await args.Request.SendResponseAsync(Result);
+
                             break;
                         }
                     case "Excute_Empty_RecycleBin":
                         {
-                            ValueSet Result = new ValueSet();
-
-                            try
+                            ValueSet Result = new ValueSet
                             {
-                                Result.Add("RecycleBinItems_Clear_Result", RecycleBinController.EmptyRecycleBin());
-                            }
-                            catch (Exception e)
-                            {
-                                Result.Add("Error", e.Message);
-                            }
+                                { "RecycleBinItems_Clear_Result", RecycleBinController.EmptyRecycleBin() }
+                            };
 
                             await args.Request.SendResponseAsync(Result);
+
                             break;
                         }
                     case "Excute_Restore_RecycleItem":
@@ -512,6 +489,7 @@ namespace FullTrustProcess
                             }
 
                             await args.Request.SendResponseAsync(Value);
+
                             break;
                         }
                     case "Excute_Copy":
@@ -917,11 +895,11 @@ namespace FullTrustProcess
                         }
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 ValueSet Value = new ValueSet
                 {
-                    {"Error","An exception occurred while processing the instruction" }
+                    {"Error", ex.Message}
                 };
 
                 await args.Request.SendResponseAsync(Value);

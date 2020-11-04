@@ -1,4 +1,45 @@
 ﻿*****
+###What's new in Ver.5.6.0.0
+
+#####Feature update
+
+>#####Add sorting arrow
+
+>#####New sorting function on search page
+
+#####Performance improvement
+
+>#####Improved and greatly improved search speed
+
+>#####Improved the design of the bug tracker, now it will no longer negatively affect the responsiveness of the UI interface
+
+#####UI update
+
+>#####The modified date in the "Detailed List" will now be further simplified
+
+>#####Changed the width ratio of each column in "Detailed List"
+
+>#####The text size in the search function has been improved
+
+#####Bug fix
+
+>#####Fixed the problem that the search task will not be cancelled when exiting the search page before the search is complete
+
+>#####Fixed the problem that using Win+E to open a new tab page when you are on the settings page may cause the back button to fail
+
+>#####Fixed the problem that the video clip and video merge page may be limited to a too small window
+
+>#####Fixed the problem that multiple identical files may be displayed in some cases
+
+>#####Fixed the problem that pressing any key at startup may cause a crash
+
+>#####Fixed the problem that may cause unexpected crash in some cases, the error message is "parameter error"
+
+>#####Fixed the delay problem that may occur when using Win+E to start, the problem is caused by some wrong assumptions
+
+>#####Fixed the problem that in some cases the file directory tree cannot find the corresponding folder during expansion, the UI will eventually become unresponsive
+
+*****
 ###What's new in Ver.5.5.8.0
 
 #####Feature update
