@@ -39,6 +39,12 @@
 
 >#####Fixed the problem that in some cases the file directory tree cannot find the corresponding folder during expansion, the UI will eventually become unresponsive
 
+>#####Fixed the problem that the solid color background mode may not set the font color correctly in some cases
+
+>#####Fixed the problem that after changing the font to black in custom mode, it will automatically change to white when re-entering the setting page next time
+
+>#####Fixed the problem that the .exe file that requires administrator rights cannot be started
+
 *****
 ###What's new in Ver.5.5.8.0
 

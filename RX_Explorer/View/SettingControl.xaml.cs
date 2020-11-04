@@ -740,6 +740,9 @@ namespace RX_Explorer
                             BackgroundController.Current.TintOpacity = 0.6;
                             BackgroundController.Current.TintLuminosityOpacity = -1;
                             BackgroundController.Current.AcrylicColor = Colors.LightSlateGray;
+
+                            AppThemeController.Current.Theme = ElementTheme.Dark;
+
                             break;
                         }
                     case 1:

@@ -785,10 +785,6 @@
       <Project>{db5f5aa6-13b4-458a-a6a9-e29238adae06}</Project>
       <Name>OpenDirectoryExt</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SQLConnectionPoolProvider\SQLConnectionPoolProvider.csproj">
-      <Project>{48d8d03d-e12c-433c-a9d9-a4311e12fb78}</Project>
-      <Name>SQLConnectionPoolProvider</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SystemInformationProvider\SystemInformationProvider.vcxproj">
       <Project>{b7beef6e-1f7f-43b6-a1ec-f447b3f995df}</Project>
       <Name>SystemInformationProvider</Name>

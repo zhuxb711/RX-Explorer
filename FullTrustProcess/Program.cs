@@ -802,6 +802,7 @@ namespace FullTrustProcess
                         }
                     case "Excute_RunExe":
                         {
+                            Debugger.Launch();
                             string ExcutePath = Convert.ToString(args.Request.Message["ExcutePath"]);
                             string ExcuteParameter = Convert.ToString(args.Request.Message["ExcuteParameter"]);
                             string ExcuteAuthority = Convert.ToString(args.Request.Message["ExcuteAuthority"]);
@@ -818,7 +819,7 @@ namespace FullTrustProcess
                                         using (Process Process = new Process())
                                         {
                                             Process.StartInfo.FileName = ExcutePath;
-                                            Process.StartInfo.UseShellExecute = false;
+                                            Process.StartInfo.UseShellExecute = true;
                                             Process.StartInfo.CreateNoWindow = ExcuteCreateNoWindow;
                                             Process.StartInfo.WorkingDirectory = Path.GetDirectoryName(ExcutePath);
 
@@ -838,7 +839,7 @@ namespace FullTrustProcess
                                         {
                                             Process.StartInfo.FileName = ExcutePath;
                                             Process.StartInfo.Arguments = ExcuteParameter;
-                                            Process.StartInfo.UseShellExecute = false;
+                                            Process.StartInfo.UseShellExecute = true;
                                             Process.StartInfo.CreateNoWindow = ExcuteCreateNoWindow;
                                             Process.StartInfo.WorkingDirectory = Path.GetDirectoryName(ExcutePath);
 

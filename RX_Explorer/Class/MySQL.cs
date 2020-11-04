@@ -1,6 +1,5 @@
 ﻿using MySqlConnector;
 using NetworkAccess;
-using SQLConnectionPoolProvider;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -22,9 +21,9 @@ namespace RX_Explorer.Class
 
         private bool IsDisposed;
 
-        private SQLConnectionPool<MySqlConnection> ConnectionPool;
-
         private static readonly object Locker = new object();
+
+        private MySqlConnection Connection;
 
         /// <summary>
         /// 提供对MySQL实例的访问
@@ -52,7 +51,7 @@ namespace RX_Explorer.Class
 
                 try
                 {
-                    ConnectionPool = new SQLConnectionPool<MySqlConnection>($"{AccessCredential}CharSet=utf8mb4;Database=FeedBackDataBase;", 2, 1);
+                    Connection = new MySqlConnection($"{AccessCredential}CharSet=utf8mb4;Database=FeedBackDataBase;");
                 }
                 finally
                 {
@@ -75,12 +74,10 @@ namespace RX_Explorer.Class
         /// 从数据库连接池中获取连接对象
         /// </summary>
         /// <returns></returns>
-        public async Task<SQLConnection> GetConnectionFromPoolAsync()
+        public async Task<bool> MakeConnectionUseable()
         {
-            SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false);
-
             #region MySQL数据库存储过程和触发器初始化代码，仅首次运行时需要
-            //if (Connection.IsConnected)
+            //if (await Connection.PingAsync().ConfigureAwait(false))
             //{
             //    StringBuilder Builder = new StringBuilder();
             //    Builder.AppendLine("Create Table If Not Exists FeedBackTable (UserName Text Not Null, Title Text Not Null, Suggestion Text Not Null, LikeNum Text Not Null, DislikeNum Text Not Null, UserID Text Not Null, GUID Text Not Null);")
@@ -140,14 +137,27 @@ namespace RX_Explorer.Class
             //           .AppendLine("End If;")
             //           .AppendLine("End If;")
             //           .AppendLine("End;");
-            //    using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>(Builder.ToString()))
+            //    using (MySqlCommand Command = new MySqlCommand(Builder.ToString(), Connection))
             //    {
-            //        _ = Command.ExecuteNonQuery();
+            //        await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             //    }
             //}
             #endregion
 
-            return Connection;
+            try
+            {
+                if (!await Connection.PingAsync().ConfigureAwait(false))
+                {
+                    await Connection.CloseAsync().ConfigureAwait(false);
+                    await Connection.OpenAsync().ConfigureAwait(false);
+                }
+
+                return Connection.State == ConnectionState.Open;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         /// <summary>
@@ -156,33 +166,32 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public async IAsyncEnumerable<FeedBackItem> GetAllFeedBackAsync()
         {
-            using (SQLConnection Connection = await GetConnectionFromPoolAsync().ConfigureAwait(false))
+            if (await MakeConnectionUseable().ConfigureAwait(false))
             {
-                if (Connection.IsConnected)
+                using (MySqlCommand Command = new MySqlCommand("GetFeedBackProcedure", Connection))
                 {
-                    using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("GetFeedBackProcedure", CommandType.StoredProcedure))
+                    Command.CommandType = CommandType.StoredProcedure;
+                    Command.Parameters.AddWithValue("Para", ApplicationData.Current.LocalSettings.Values["SystemUserID"].ToString());
+
+                    using (DbDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
                     {
-                        _ = Command.Parameters.AddWithValue("Para", ApplicationData.Current.LocalSettings.Values["SystemUserID"].ToString());
-                        using (DbDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
+                        while (await Reader.ReadAsync().ConfigureAwait(false))
                         {
-                            while (await Reader.ReadAsync().ConfigureAwait(false))
+                            if (Reader["Behavior"].ToString() != "NULL")
                             {
-                                if (Reader["Behavior"].ToString() != "NULL")
-                                {
-                                    yield return new FeedBackItem(Reader["UserName"].ToString(), Reader["Title"].ToString(), Reader["Suggestion"].ToString(), Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString(), Reader["Behavior"].ToString());
-                                }
-                                else
-                                {
-                                    yield return new FeedBackItem(Reader["UserName"].ToString(), Reader["Title"].ToString(), Reader["Suggestion"].ToString(), Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString());
-                                }
+                                yield return new FeedBackItem(Reader["UserName"].ToString(), Reader["Title"].ToString(), Reader["Suggestion"].ToString(), Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString(), Reader["Behavior"].ToString());
+                            }
+                            else
+                            {
+                                yield return new FeedBackItem(Reader["UserName"].ToString(), Reader["Title"].ToString(), Reader["Suggestion"].ToString(), Reader["LikeNum"].ToString(), Reader["DislikeNum"].ToString(), Reader["UserID"].ToString(), Reader["GUID"].ToString());
                             }
                         }
                     }
                 }
-                else
-                {
-                    yield break;
-                }
+            }
+            else
+            {
+                yield break;
             }
         }
 
@@ -195,33 +204,31 @@ namespace RX_Explorer.Class
         {
             if (Item != null)
             {
-                using (SQLConnection Connection = await GetConnectionFromPoolAsync().ConfigureAwait(false))
+                if (await MakeConnectionUseable().ConfigureAwait(false))
                 {
-                    if (Connection.IsConnected)
+                    try
                     {
-                        try
+                        using (MySqlCommand Command = new MySqlCommand("UpdateFeedBackVoteProcedure", Connection))
                         {
-                            using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("UpdateFeedBackVoteProcedure", CommandType.StoredProcedure))
-                            {
-                                _ = Command.Parameters.AddWithValue("LNum", Item.LikeNum);
-                                _ = Command.Parameters.AddWithValue("DNum", Item.DislikeNum);
-                                _ = Command.Parameters.AddWithValue("Beh", Item.UserVoteAction);
-                                _ = Command.Parameters.AddWithValue("GID", Item.GUID);
-                                _ = Command.Parameters.AddWithValue("UID", ApplicationData.Current.LocalSettings.Values["SystemUserID"].ToString());
-                                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
-                            }
-                            return true;
+                            Command.CommandType = CommandType.StoredProcedure;
+                            Command.Parameters.AddWithValue("LNum", Item.LikeNum);
+                            Command.Parameters.AddWithValue("DNum", Item.DislikeNum);
+                            Command.Parameters.AddWithValue("Beh", Item.UserVoteAction);
+                            Command.Parameters.AddWithValue("GID", Item.GUID);
+                            Command.Parameters.AddWithValue("UID", ApplicationData.Current.LocalSettings.Values["SystemUserID"].ToString());
+                            await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
                         }
-                        catch (Exception ex)
-                        {
-                            LogTracer.Log(ex, $"An error was threw in {nameof(UpdateFeedBackVoteAsync)}");
-                            return false;
-                        }
+                        return true;
                     }
-                    else
+                    catch (Exception ex)
                     {
+                        LogTracer.Log(ex, $"An error was threw in {nameof(UpdateFeedBackVoteAsync)}");
                         return false;
                     }
+                }
+                else
+                {
+                    return false;
                 }
             }
             else
@@ -239,31 +246,29 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public async Task<bool> UpdateFeedBackAsync(string Title, string Suggestion, string Guid)
         {
-            using (SQLConnection Connection = await GetConnectionFromPoolAsync().ConfigureAwait(false))
+            if (await MakeConnectionUseable().ConfigureAwait(false))
             {
-                if (Connection.IsConnected)
+                try
                 {
-                    try
+                    using (MySqlCommand Command = new MySqlCommand("Update FeedBackTable Set Title=@NewTitle, Suggestion=@NewSuggestion Where GUID=@GUID", Connection))
                     {
-                        using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("Update FeedBackTable Set Title=@NewTitle, Suggestion=@NewSuggestion Where GUID=@GUID"))
-                        {
-                            _ = Command.Parameters.AddWithValue("@NewTitle", Title);
-                            _ = Command.Parameters.AddWithValue("@NewSuggestion", Suggestion);
-                            _ = Command.Parameters.AddWithValue("@GUID", Guid);
-                            _ = Command.ExecuteNonQuery();
-                        }
-                        return true;
+                        Command.Parameters.AddWithValue("@NewTitle", Title);
+                        Command.Parameters.AddWithValue("@NewSuggestion", Suggestion);
+                        Command.Parameters.AddWithValue("@GUID", Guid);
+                        await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
                     }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, $"An error was threw in { nameof(UpdateFeedBackAsync)}");
-                        return false;
-                    }
+
+                    return true;
                 }
-                else
+                catch (Exception ex)
                 {
+                    LogTracer.Log(ex, $"An error was threw in { nameof(UpdateFeedBackAsync)}");
                     return false;
                 }
+            }
+            else
+            {
+                return false;
             }
         }
 
@@ -276,30 +281,27 @@ namespace RX_Explorer.Class
         {
             if (Item != null)
             {
-                using (SQLConnection Connection = await GetConnectionFromPoolAsync().ConfigureAwait(false))
+                if (await MakeConnectionUseable().ConfigureAwait(false))
                 {
-                    if (Connection.IsConnected)
+                    try
                     {
-                        try
+                        using (MySqlCommand Command = new MySqlCommand("Delete From FeedBackTable Where GUID=@GUID", Connection))
                         {
-                            using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("Delete From FeedBackTable Where GUID=@GUID"))
-                            {
-                                _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                                _ = Command.ExecuteNonQuery();
-                            }
+                            Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                            await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                        }
 
-                            return true;
-                        }
-                        catch (Exception ex)
-                        {
-                            LogTracer.Log(ex, $"An error was threw in { nameof(DeleteFeedBackAsync)}");
-                            return false;
-                        }
+                        return true;
                     }
-                    else
+                    catch (Exception ex)
                     {
+                        LogTracer.Log(ex, $"An error was threw in { nameof(DeleteFeedBackAsync)}");
                         return false;
                     }
+                }
+                else
+                {
+                    return false;
                 }
             }
             else
@@ -317,35 +319,33 @@ namespace RX_Explorer.Class
         {
             if (Item != null)
             {
-                using (SQLConnection Connection = await GetConnectionFromPoolAsync().ConfigureAwait(false))
+                if (await MakeConnectionUseable().ConfigureAwait(false))
                 {
-                    if (Connection.IsConnected)
+                    try
                     {
-                        try
+                        using (MySqlCommand Command = new MySqlCommand("Insert Into FeedBackTable Values (@UserName,@Title,@Suggestion,@Like,@Dislike,@UserID,@GUID)", Connection))
                         {
-                            using (MySqlCommand Command = Connection.CreateDbCommandFromConnection<MySqlCommand>("Insert Into FeedBackTable Values (@UserName,@Title,@Suggestion,@Like,@Dislike,@UserID,@GUID)"))
-                            {
-                                _ = Command.Parameters.AddWithValue("@UserName", Item.UserName);
-                                _ = Command.Parameters.AddWithValue("@Title", Item.Title);
-                                _ = Command.Parameters.AddWithValue("@Suggestion", Item.Suggestion);
-                                _ = Command.Parameters.AddWithValue("@Like", Item.LikeNum);
-                                _ = Command.Parameters.AddWithValue("@Dislike", Item.DislikeNum);
-                                _ = Command.Parameters.AddWithValue("@UserID", Item.UserID);
-                                _ = Command.Parameters.AddWithValue("@GUID", Item.GUID);
-                                _ = Command.ExecuteNonQuery();
-                            }
-                            return true;
+                            Command.Parameters.AddWithValue("@UserName", Item.UserName);
+                            Command.Parameters.AddWithValue("@Title", Item.Title);
+                            Command.Parameters.AddWithValue("@Suggestion", Item.Suggestion);
+                            Command.Parameters.AddWithValue("@Like", Item.LikeNum);
+                            Command.Parameters.AddWithValue("@Dislike", Item.DislikeNum);
+                            Command.Parameters.AddWithValue("@UserID", Item.UserID);
+                            Command.Parameters.AddWithValue("@GUID", Item.GUID);
+                            await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
                         }
-                        catch (Exception ex)
-                        {
-                            LogTracer.Log(ex, $"An error was threw in { nameof(SetFeedBackAsync)}");
-                            return false;
-                        }
+
+                        return true;
                     }
-                    else
+                    catch (Exception ex)
                     {
+                        LogTracer.Log(ex, $"An error was threw in { nameof(SetFeedBackAsync)}");
                         return false;
                     }
+                }
+                else
+                {
+                    return false;
                 }
             }
             else
@@ -363,8 +363,8 @@ namespace RX_Explorer.Class
             {
                 IsDisposed = true;
 
-                ConnectionPool.Dispose();
-                ConnectionPool = null;
+                Connection.Dispose();
+                Connection = null;
                 Instance = null;
 
                 GC.SuppressFinalize(this);

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Data.Sqlite;
-using SQLConnectionPoolProvider;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,7 +17,7 @@ namespace RX_Explorer.Class
         private bool IsDisposed;
         private static readonly object Locker = new object();
         private volatile static SQLite SQL;
-        private SQLConnectionPool<SqliteConnection> ConnectionPool;
+        private SqliteConnection Connection;
 
         /// <summary>
         /// 初始化SQLite的实例
@@ -29,7 +28,8 @@ namespace RX_Explorer.Class
             SQLitePCL.raw.sqlite3_win32_set_directory(1, ApplicationData.Current.LocalFolder.Path);
             SQLitePCL.raw.sqlite3_win32_set_directory(2, ApplicationData.Current.TemporaryFolder.Path);
 
-            ConnectionPool = new SQLConnectionPool<SqliteConnection>("Filename=RX_Sqlite.db;", 2, 0);
+            Connection = new SqliteConnection("Filename=RX_Sqlite.db;");
+            Connection.Open();
 
             if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("DatabaseInit"))
             {
@@ -81,10 +81,10 @@ namespace RX_Explorer.Class
                                 Insert Or Ignore Into ProgramPicker Values ('.*', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\notepad.exe")}');
                                 Insert Or Ignore Into TerminalProfile Values ('Powershell', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe")}', '-NoExit -Command Set-Location [CurrentLocation]', 'True');
                                 Insert Or Ignore Into TerminalProfile Values ('CMD', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe")}', '/k cd /d [CurrentLocation]', 'True');";
-            using (SQLConnection Connection = ConnectionPool.GetConnectionFromDataBasePoolAsync().Result)
-            using (SqliteCommand CreateTable = Connection.CreateDbCommandFromConnection<SqliteCommand>(Command))
+
+            using (SqliteCommand CreateTable = new SqliteCommand(Command, Connection))
             {
-                _ = CreateTable.ExecuteNonQuery();
+                CreateTable.ExecuteNonQuery();
             }
 
             ApplicationData.Current.LocalSettings.Values["DatabaseInit"] = true;
@@ -94,8 +94,7 @@ namespace RX_Explorer.Class
         {
             List<TerminalProfile> Result = new List<TerminalProfile>();
 
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From TerminalProfile"))
+            using (SqliteCommand Command = new SqliteCommand("Select * From TerminalProfile", Connection))
             using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
             {
                 while (Reader.Read())
@@ -109,10 +108,9 @@ namespace RX_Explorer.Class
 
         public async Task<TerminalProfile> GetTerminalProfileByName(string Name)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From TerminalProfile Where Name = @Name"))
+            using (SqliteCommand Command = new SqliteCommand("Select * From TerminalProfile Where Name = @Name", Connection))
             {
-                _ = Command.Parameters.AddWithValue("@Name", Name);
+                Command.Parameters.AddWithValue("@Name", Name);
 
                 using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
                 {
@@ -135,11 +133,10 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Profile), "Argument could not be null");
             }
 
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From TerminalProfile Where Name = @Name"))
+            using (SqliteCommand Command = new SqliteCommand("Delete From TerminalProfile Where Name = @Name", Connection))
             {
-                _ = Command.Parameters.AddWithValue("@Name", Profile.Name);
-                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.Parameters.AddWithValue("@Name", Profile.Name);
+                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
@@ -150,43 +147,46 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Profile), "Argument could not be null");
             }
 
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select Count(*) From TerminalProfile Where Name = @Name"))
+            int Count = 0;
+
+            using (SqliteCommand Command = new SqliteCommand("Select Count(*) From TerminalProfile Where Name = @Name", Connection))
             {
-                _ = Command.Parameters.AddWithValue("@Name", Profile.Name);
-                if (Convert.ToInt32(await Command.ExecuteScalarAsync().ConfigureAwait(false)) > 0)
+                Command.Parameters.AddWithValue("@Name", Profile.Name);
+                Count = Convert.ToInt32(await Command.ExecuteScalarAsync().ConfigureAwait(false));
+            }
+
+            if (Count > 0)
+            {
+                using (SqliteCommand UpdateCommand = new SqliteCommand("Update TerminalProfile Set Path = @Path, Argument = @Argument, RunAsAdmin = @RunAsAdmin Where Name = @Name", Connection))
                 {
-                    using (SqliteCommand UpdateCommand = Connection.CreateDbCommandFromConnection<SqliteCommand>("Update TerminalProfile Set Path = @Path, Argument = @Argument, RunAsAdmin = @RunAsAdmin Where Name = @Name"))
-                    {
-                        _ = UpdateCommand.Parameters.AddWithValue("@Name", Profile.Name);
-                        _ = UpdateCommand.Parameters.AddWithValue("@Path", Profile.Path);
-                        _ = UpdateCommand.Parameters.AddWithValue("@Argument", Profile.Argument);
-                        _ = UpdateCommand.Parameters.AddWithValue("@RunAsAdmin", Convert.ToString(Profile.RunAsAdmin));
-                        _ = await UpdateCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
-                    }
-                }
-                else
-                {
-                    using (SqliteCommand AddCommand = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into TerminalProfile Values (@Name,@Path,@Argument,@RunAsAdmin)"))
-                    {
-                        _ = AddCommand.Parameters.AddWithValue("@Name", Profile.Name);
-                        _ = AddCommand.Parameters.AddWithValue("@Path", Profile.Path);
-                        _ = AddCommand.Parameters.AddWithValue("@Argument", Profile.Argument);
-                        _ = AddCommand.Parameters.AddWithValue("@RunAsAdmin", Convert.ToString(Profile.RunAsAdmin));
-                        _ = await AddCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
-                    }
+                    UpdateCommand.Parameters.AddWithValue("@Name", Profile.Name);
+                    UpdateCommand.Parameters.AddWithValue("@Path", Profile.Path);
+                    UpdateCommand.Parameters.AddWithValue("@Argument", Profile.Argument);
+                    UpdateCommand.Parameters.AddWithValue("@RunAsAdmin", Convert.ToString(Profile.RunAsAdmin));
+                    await UpdateCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
             }
+            else
+            {
+                using (SqliteCommand AddCommand = new SqliteCommand("Insert Into TerminalProfile Values (@Name,@Path,@Argument,@RunAsAdmin)", Connection))
+                {
+                    AddCommand.Parameters.AddWithValue("@Name", Profile.Name);
+                    AddCommand.Parameters.AddWithValue("@Path", Profile.Path);
+                    AddCommand.Parameters.AddWithValue("@Argument", Profile.Argument);
+                    AddCommand.Parameters.AddWithValue("@RunAsAdmin", Convert.ToString(Profile.RunAsAdmin));
+                    await AddCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                }
+            }
+
         }
 
         public async Task SetProgramPickerRecordAsync(string FileType, string Path)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Or Ignore Into ProgramPicker Values (@FileType,@Path)"))
+            using (SqliteCommand Command = new SqliteCommand("Insert Or Ignore Into ProgramPicker Values (@FileType,@Path)", Connection))
             {
-                _ = Command.Parameters.AddWithValue("@FileType", FileType);
-                _ = Command.Parameters.AddWithValue("@Path", Path);
-                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.Parameters.AddWithValue("@FileType", FileType);
+                Command.Parameters.AddWithValue("@Path", Path);
+                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
@@ -194,10 +194,9 @@ namespace RX_Explorer.Class
         {
             List<string> Result = new List<string>();
 
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From ProgramPicker Where FileType = @FileType Or FileType = '.*'"))
+            using (SqliteCommand Command = new SqliteCommand("Select * From ProgramPicker Where FileType = @FileType Or FileType = '.*'", Connection))
             {
-                _ = Command.Parameters.AddWithValue("@FileType", FileType);
+                Command.Parameters.AddWithValue("@FileType", FileType);
 
                 using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
                 {
@@ -215,12 +214,11 @@ namespace RX_Explorer.Class
 
         public async Task DeleteProgramPickerRecordAsync(string FileType, string Path)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From ProgramPicker Where FileType = @FileType And Path = @Path"))
+            using (SqliteCommand Command = new SqliteCommand("Delete From ProgramPicker Where FileType = @FileType And Path = @Path", Connection))
             {
-                _ = Command.Parameters.AddWithValue("@FileType", FileType);
-                _ = Command.Parameters.AddWithValue("@Path", Path);
-                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.Parameters.AddWithValue("@FileType", FileType);
+                Command.Parameters.AddWithValue("@Path", Path);
+                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
@@ -233,11 +231,10 @@ namespace RX_Explorer.Class
         {
             if (uri != null)
             {
-                using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-                using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Into BackgroundPicture Values (@FileName)"))
+                using (SqliteCommand Command = new SqliteCommand("Insert Into BackgroundPicture Values (@FileName)", Connection))
                 {
-                    _ = Command.Parameters.AddWithValue("@FileName", uri.ToString());
-                    _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    Command.Parameters.AddWithValue("@FileName", uri.ToString());
+                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
             }
             else
@@ -253,8 +250,8 @@ namespace RX_Explorer.Class
         public async Task<List<Uri>> GetBackgroundPictureAsync()
         {
             List<Uri> list = new List<Uri>();
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From BackgroundPicture"))
+
+            using (SqliteCommand Command = new SqliteCommand("Select * From BackgroundPicture", Connection))
             using (SqliteDataReader query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
             {
                 while (query.Read())
@@ -262,6 +259,7 @@ namespace RX_Explorer.Class
                     list.Add(new Uri(query[0].ToString()));
                 }
             }
+
             return list;
         }
 
@@ -274,11 +272,10 @@ namespace RX_Explorer.Class
         {
             if (uri != null)
             {
-                using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-                using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From BackgroundPicture Where FileName=@FileName"))
+                using (SqliteCommand Command = new SqliteCommand("Delete From BackgroundPicture Where FileName=@FileName", Connection))
                 {
-                    _ = Command.Parameters.AddWithValue("@FileName", uri.ToString());
-                    _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    Command.Parameters.AddWithValue("@FileName", uri.ToString());
+                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
             }
             else
@@ -294,8 +291,8 @@ namespace RX_Explorer.Class
         public async Task<List<(string, LibraryType)>> GetLibraryPathAsync()
         {
             List<(string, LibraryType)> list = new List<(string, LibraryType)>();
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From Library"))
+
+            using (SqliteCommand Command = new SqliteCommand("Select * From Library", Connection))
             using (SqliteDataReader query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
             {
                 while (query.Read())
@@ -303,6 +300,7 @@ namespace RX_Explorer.Class
                     list.Add((query[0].ToString(), (LibraryType)Enum.Parse(typeof(LibraryType), query[1].ToString())));
                 }
             }
+
             return list;
         }
 
@@ -313,11 +311,10 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public async Task DeleteLibraryAsync(string Path)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From Library Where Path = @Path"))
+            using (SqliteCommand Command = new SqliteCommand("Delete From Library Where Path = @Path", Connection))
             {
-                _ = Command.Parameters.AddWithValue("@Path", Path);
-                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.Parameters.AddWithValue("@Path", Path);
+                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
@@ -328,11 +325,10 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public async Task SetPathHistoryAsync(string Path)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Or Ignore Into PathHistory Values (@Para)"))
+            using (SqliteCommand Command = new SqliteCommand("Insert Or Ignore Into PathHistory Values (@Para)", Connection))
             {
-                _ = Command.Parameters.AddWithValue("@Para", Path);
-                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.Parameters.AddWithValue("@Para", Path);
+                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
@@ -344,8 +340,8 @@ namespace RX_Explorer.Class
         public async Task<List<string>> GetRelatedPathHistoryAsync()
         {
             List<string> PathList = new List<string>();
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From PathHistory"))
+
+            using (SqliteCommand Command = new SqliteCommand("Select * From PathHistory", Connection))
             using (SqliteDataReader query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
             {
                 while (query.Read())
@@ -363,23 +359,21 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public async Task SetLibraryPathAsync(string Path, LibraryType Type)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Or Ignore Into Library Values (@Path,@Type)"))
+            using (SqliteCommand Command = new SqliteCommand("Insert Or Ignore Into Library Values (@Path,@Type)", Connection))
             {
-                _ = Command.Parameters.AddWithValue("@Path", Path);
-                _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(LibraryType), Type));
-                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.Parameters.AddWithValue("@Path", Path);
+                Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(LibraryType), Type));
+                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
         public async Task UpdateLibraryAsync(string NewPath, LibraryType Type)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Update Library Set Path=@NewPath Where Type=@Type"))
+            using (SqliteCommand Command = new SqliteCommand("Update Library Set Path=@NewPath Where Type=@Type", Connection))
             {
-                _ = Command.Parameters.AddWithValue("@NewPath", NewPath);
-                _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(LibraryType), Type));
-                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.Parameters.AddWithValue("@NewPath", NewPath);
+                Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(LibraryType), Type));
+                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
@@ -390,11 +384,10 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public async Task SetSearchHistoryAsync(string SearchText)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Or Ignore Into SearchHistory Values (@Para)"))
+            using (SqliteCommand Command = new SqliteCommand("Insert Or Ignore Into SearchHistory Values (@Para)", Connection))
             {
-                _ = Command.Parameters.AddWithValue("@Para", SearchText);
-                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.Parameters.AddWithValue("@Para", SearchText);
+                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
@@ -408,14 +401,13 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public async Task SetQuickStartItemAsync(string Name, string FullPath, string Protocal, QuickStartType Type)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Insert Or Ignore Into QuickStart Values (@Name,@Path,@Protocal,@Type)"))
+            using (SqliteCommand Command = new SqliteCommand("Insert Or Ignore Into QuickStart Values (@Name,@Path,@Protocal,@Type)", Connection))
             {
-                _ = Command.Parameters.AddWithValue("@Name", Name);
-                _ = Command.Parameters.AddWithValue("@Path", FullPath);
-                _ = Command.Parameters.AddWithValue("@Protocal", Protocal);
-                _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
-                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.Parameters.AddWithValue("@Name", Name);
+                Command.Parameters.AddWithValue("@Path", FullPath);
+                Command.Parameters.AddWithValue("@Protocal", Protocal);
+                Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
+                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
@@ -430,65 +422,59 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public async Task UpdateQuickStartItemAsync(string OldName, string NewName, string FullPath, string Protocal, QuickStartType Type)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
+            using (SqliteCommand Command = new SqliteCommand("Select Count(*) From QuickStart Where Name=@OldName", Connection))
             {
-                using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select Count(*) From QuickStart Where Name=@OldName"))
-                {
-                    _ = Command.Parameters.AddWithValue("@OldName", OldName);
+                Command.Parameters.AddWithValue("@OldName", OldName);
 
-                    if (Convert.ToInt32(await Command.ExecuteScalarAsync().ConfigureAwait(false)) == 0)
-                    {
-                        return;
-                    }
+                if (Convert.ToInt32(await Command.ExecuteScalarAsync().ConfigureAwait(false)) == 0)
+                {
+                    return;
                 }
+            }
 
-                if (FullPath != null)
+            if (FullPath != null)
+            {
+                using (SqliteCommand Command = new SqliteCommand("Update QuickStart Set Name=@NewName, FullPath=@Path, Protocal=@Protocal Where Name=@OldName And Type=@Type", Connection))
                 {
-                    using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Update QuickStart Set Name=@NewName, FullPath=@Path, Protocal=@Protocal Where Name=@OldName And Type=@Type"))
-                    {
-                        _ = Command.Parameters.AddWithValue("@OldName", OldName);
-                        _ = Command.Parameters.AddWithValue("@Path", FullPath);
-                        _ = Command.Parameters.AddWithValue("@NewName", NewName);
-                        _ = Command.Parameters.AddWithValue("@Protocal", Protocal);
-                        _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
-                        _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
-                    }
+                    Command.Parameters.AddWithValue("@OldName", OldName);
+                    Command.Parameters.AddWithValue("@Path", FullPath);
+                    Command.Parameters.AddWithValue("@NewName", NewName);
+                    Command.Parameters.AddWithValue("@Protocal", Protocal);
+                    Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
+                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
-                else
+            }
+            else
+            {
+                using (SqliteCommand Command = new SqliteCommand("Update QuickStart Set Name=@NewName, Protocal=@Protocal Where Name=@OldName And Type=@Type", Connection))
                 {
-                    using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Update QuickStart Set Name=@NewName, Protocal=@Protocal Where Name=@OldName And Type=@Type"))
-                    {
-                        _ = Command.Parameters.AddWithValue("@OldName", OldName);
-                        _ = Command.Parameters.AddWithValue("@NewName", NewName);
-                        _ = Command.Parameters.AddWithValue("@Protocal", Protocal);
-                        _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
-                        _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
-                    }
+                    Command.Parameters.AddWithValue("@OldName", OldName);
+                    Command.Parameters.AddWithValue("@NewName", NewName);
+                    Command.Parameters.AddWithValue("@Protocal", Protocal);
+                    Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
+                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
             }
         }
 
         public async Task UpdateQuickStartItemAsync(string FullPath, string NewName, QuickStartType Type)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
+            using (SqliteCommand Command = new SqliteCommand("Select Count(*) From QuickStart Where FullPath=@FullPath", Connection))
             {
-                using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select Count(*) From QuickStart Where FullPath=@FullPath"))
-                {
-                    _ = Command.Parameters.AddWithValue("@FullPath", FullPath);
+                Command.Parameters.AddWithValue("@FullPath", FullPath);
 
-                    if (Convert.ToInt32(await Command.ExecuteScalarAsync().ConfigureAwait(false)) == 0)
-                    {
-                        return;
-                    }
-                }
-
-                using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Update QuickStart Set Name=@NewName Where FullPath=@FullPath And Type=@Type"))
+                if (Convert.ToInt32(await Command.ExecuteScalarAsync().ConfigureAwait(false)) == 0)
                 {
-                    _ = Command.Parameters.AddWithValue("@FullPath", FullPath);
-                    _ = Command.Parameters.AddWithValue("@NewName", NewName);
-                    _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
-                    _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    return;
                 }
+            }
+
+            using (SqliteCommand Command = new SqliteCommand("Update QuickStart Set Name=@NewName Where FullPath=@FullPath And Type=@Type", Connection))
+            {
+                Command.Parameters.AddWithValue("@FullPath", FullPath);
+                Command.Parameters.AddWithValue("@NewName", NewName);
+                Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
+                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
@@ -501,13 +487,12 @@ namespace RX_Explorer.Class
         {
             if (Item != null)
             {
-                using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-                using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From QuickStart Where Name = @Name And FullPath = @FullPath And Type=@Type"))
+                using (SqliteCommand Command = new SqliteCommand("Delete From QuickStart Where Name = @Name And FullPath = @FullPath And Type=@Type", Connection))
                 {
-                    _ = Command.Parameters.AddWithValue("@Name", Item.DisplayName);
-                    _ = Command.Parameters.AddWithValue("@FullPath", Item.RelativePath);
-                    _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Item.Type));
-                    _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    Command.Parameters.AddWithValue("@Name", Item.DisplayName);
+                    Command.Parameters.AddWithValue("@FullPath", Item.RelativePath);
+                    Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Item.Type));
+                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
             }
             else
@@ -518,11 +503,10 @@ namespace RX_Explorer.Class
 
         public async Task DeleteQuickStartItemAsync(QuickStartType Type)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From QuickStart Where Type=@Type"))
+            using (SqliteCommand Command = new SqliteCommand("Delete From QuickStart Where Type=@Type", Connection))
             {
-                _ = Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
-                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
+                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
@@ -532,28 +516,45 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public async Task<List<KeyValuePair<QuickStartType, QuickStartItem>>> GetQuickStartItemAsync()
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(true))
+            List<Tuple<string, string, string>> ErrorList = new List<Tuple<string, string, string>>();
+            List<KeyValuePair<QuickStartType, QuickStartItem>> Result = new List<KeyValuePair<QuickStartType, QuickStartItem>>();
+
+            using (SqliteCommand Command = new SqliteCommand("Select * From QuickStart", Connection))
+            using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(true))
             {
-                List<Tuple<string, string, string>> ErrorList = new List<Tuple<string, string, string>>();
-                List<KeyValuePair<QuickStartType, QuickStartItem>> Result = new List<KeyValuePair<QuickStartType, QuickStartItem>>();
-
-                using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From QuickStart"))
-                using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(true))
+                while (Reader.Read())
                 {
-                    while (Reader.Read())
+                    try
                     {
-                        try
+                        if (Convert.ToString(Reader[1]).StartsWith("ms-appx"))
                         {
-                            if (Convert.ToString(Reader[1]).StartsWith("ms-appx"))
-                            {
-                                StorageFile BitmapFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(Reader[1].ToString()));
+                            StorageFile BitmapFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(Reader[1].ToString()));
 
+                            BitmapImage Bitmap = new BitmapImage();
+
+                            using (IRandomAccessStream Stream = await BitmapFile.OpenAsync(FileAccessMode.Read))
+                            {
+                                await Bitmap.SetSourceAsync(Stream);
+                            }
+
+                            if ((QuickStartType)Enum.Parse(typeof(QuickStartType), Reader[3].ToString()) == QuickStartType.Application)
+                            {
+                                Result.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.Application, new QuickStartItem(Bitmap, Convert.ToString(Reader[2]), QuickStartType.Application, Reader[1].ToString(), Reader[0].ToString())));
+                            }
+                            else
+                            {
+                                Result.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.WebSite, new QuickStartItem(Bitmap, Convert.ToString(Reader[2]), QuickStartType.WebSite, Reader[1].ToString(), Reader[0].ToString())));
+                            }
+                        }
+                        else
+                        {
+                            StorageFile ImageFile = await StorageFile.GetFileFromPathAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, Convert.ToString(Reader[1])));
+
+                            using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                            {
                                 BitmapImage Bitmap = new BitmapImage();
 
-                                using (IRandomAccessStream Stream = await BitmapFile.OpenAsync(FileAccessMode.Read))
-                                {
-                                    await Bitmap.SetSourceAsync(Stream);
-                                }
+                                await Bitmap.SetSourceAsync(Stream);
 
                                 if ((QuickStartType)Enum.Parse(typeof(QuickStartType), Reader[3].ToString()) == QuickStartType.Application)
                                 {
@@ -564,47 +565,27 @@ namespace RX_Explorer.Class
                                     Result.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.WebSite, new QuickStartItem(Bitmap, Convert.ToString(Reader[2]), QuickStartType.WebSite, Reader[1].ToString(), Reader[0].ToString())));
                                 }
                             }
-                            else
-                            {
-                                StorageFile ImageFile = await StorageFile.GetFileFromPathAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, Convert.ToString(Reader[1])));
-
-                                using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
-                                {
-                                    BitmapImage Bitmap = new BitmapImage();
-
-                                    await Bitmap.SetSourceAsync(Stream);
-
-                                    if ((QuickStartType)Enum.Parse(typeof(QuickStartType), Reader[3].ToString()) == QuickStartType.Application)
-                                    {
-                                        Result.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.Application, new QuickStartItem(Bitmap, Convert.ToString(Reader[2]), QuickStartType.Application, Reader[1].ToString(), Reader[0].ToString())));
-                                    }
-                                    else
-                                    {
-                                        Result.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.WebSite, new QuickStartItem(Bitmap, Convert.ToString(Reader[2]), QuickStartType.WebSite, Reader[1].ToString(), Reader[0].ToString())));
-                                    }
-                                }
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            ErrorList.Add(new Tuple<string, string, string>(Convert.ToString(Reader[0]), Convert.ToString(Reader[1]), Convert.ToString(Reader[3])));
                         }
                     }
-                }
-
-                foreach (var ErrorItem in ErrorList)
-                {
-                    using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Delete From QuickStart Where Name = @Name And FullPath = @FullPath And Type=@Type"))
+                    catch (Exception)
                     {
-                        _ = Command.Parameters.AddWithValue("@Name", ErrorItem.Item1);
-                        _ = Command.Parameters.AddWithValue("@FullPath", ErrorItem.Item2);
-                        _ = Command.Parameters.AddWithValue("@Type", ErrorItem.Item3);
-                        _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(true);
+                        ErrorList.Add(new Tuple<string, string, string>(Convert.ToString(Reader[0]), Convert.ToString(Reader[1]), Convert.ToString(Reader[3])));
                     }
                 }
-
-                return Result;
             }
+
+            foreach (var ErrorItem in ErrorList)
+            {
+                using (SqliteCommand Command = new SqliteCommand("Delete From QuickStart Where Name = @Name And FullPath = @FullPath And Type=@Type", Connection))
+                {
+                    Command.Parameters.AddWithValue("@Name", ErrorItem.Item1);
+                    Command.Parameters.AddWithValue("@FullPath", ErrorItem.Item2);
+                    Command.Parameters.AddWithValue("@Type", ErrorItem.Item3);
+                    await Command.ExecuteNonQueryAsync().ConfigureAwait(true);
+                }
+            }
+
+            return Result;
         }
 
         /// <summary>
@@ -615,10 +596,11 @@ namespace RX_Explorer.Class
         public async Task<List<string>> GetRelatedSearchHistoryAsync(string Target)
         {
             List<string> HistoryList = new List<string>();
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>("Select * From SearchHistory Where SearchText Like @Target"))
+
+            using (SqliteCommand Command = new SqliteCommand("Select * From SearchHistory Where SearchText Like @Target", Connection))
             {
-                _ = Command.Parameters.AddWithValue("@Target", "%" + Target + "%");
+                Command.Parameters.AddWithValue("@Target", "%" + Target + "%");
+
                 using (SqliteDataReader query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
                 {
                     while (query.Read())
@@ -637,10 +619,9 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public async Task ClearTableAsync(string TableName)
         {
-            using (SQLConnection Connection = await ConnectionPool.GetConnectionFromDataBasePoolAsync().ConfigureAwait(false))
-            using (SqliteCommand Command = Connection.CreateDbCommandFromConnection<SqliteCommand>($"Delete From {TableName}"))
+            using (SqliteCommand Command = new SqliteCommand($"Delete From {TableName}", Connection))
             {
-                _ = await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
@@ -653,8 +634,8 @@ namespace RX_Explorer.Class
             {
                 IsDisposed = true;
 
-                ConnectionPool.Dispose();
-                ConnectionPool = null;
+                Connection.Dispose();
+                Connection = null;
                 SQL = null;
 
                 GC.SuppressFinalize(this);

@@ -180,6 +180,7 @@ namespace RX_Explorer.Class
                             };
 
                             CurrentType = BackgroundBrushType.Acrylic;
+
                             break;
                         }
                     case 1:
@@ -192,16 +193,16 @@ namespace RX_Explorer.Class
                                 FallbackColor = Colors.DimGray
                             };
 
-                            CurrentType = BackgroundBrushType.SolidColor;
-
                             if (SolidColorBackgroundBrush.Color == Colors.White && AppThemeController.Current.Theme == ElementTheme.Dark)
                             {
                                 AppThemeController.Current.Theme = ElementTheme.Light;
                             }
-                            else if (SolidColorBackgroundBrush.Color == Colors.Black && AppThemeController.Current.Theme == ElementTheme.Light)
+                            else if (SolidColorBackgroundBrush.Color == "#1E1E1E".ToColor() && AppThemeController.Current.Theme == ElementTheme.Light)
                             {
                                 AppThemeController.Current.Theme = ElementTheme.Dark;
                             }
+
+                            CurrentType = BackgroundBrushType.SolidColor;
 
                             break;
                         }
@@ -323,7 +324,7 @@ namespace RX_Explorer.Class
         {
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.High, () =>
             {
-                if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("SolidColorType"))
+                if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("SolidColorType") && CurrentType == BackgroundBrushType.SolidColor)
                 {
                     if (UIS.GetColorValue(UIColorType.Background) == Colors.White)
                     {
@@ -700,7 +701,6 @@ namespace RX_Explorer.Class
                     }
                 case BackgroundBrushType.Acrylic:
                     {
-                        AppThemeController.Current.Theme = ElementTheme.Dark;
                         break;
                     }
             }

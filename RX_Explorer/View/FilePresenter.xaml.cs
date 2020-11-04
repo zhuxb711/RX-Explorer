@@ -3717,11 +3717,12 @@ namespace RX_Explorer
                                 {
                                     if (!await Launcher.LaunchFileAsync(Item))
                                     {
-                                        LauncherOptions options = new LauncherOptions
+                                        LauncherOptions Options = new LauncherOptions
                                         {
                                             DisplayApplicationPicker = true
                                         };
-                                        _ = await Launcher.LaunchFileAsync(Item, options);
+
+                                        _ = await Launcher.LaunchFileAsync(Item, Options);
                                     }
                                 }
                             }

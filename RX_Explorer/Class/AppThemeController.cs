@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Toolkit.Uwp.Helpers;
+using System;
 using System.ComponentModel;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
@@ -34,6 +35,7 @@ namespace RX_Explorer.Class
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Theme)));
 
                     ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] = Enum.GetName(typeof(ElementTheme), value);
+
                     ApplicationData.Current.SignalDataChanged();
                 }
             }
@@ -94,7 +96,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                titleBar.ButtonForegroundColor = Colors.Black;
+                titleBar.ButtonForegroundColor = "#1E1E1E".ToColor();
             }
         }
     }

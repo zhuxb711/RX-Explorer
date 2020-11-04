@@ -39,6 +39,12 @@
 
 >#####Correction du problème qui, dans certains cas, l'arborescence du répertoire de fichiers ne peut pas trouver le dossier correspondant pendant l'expansion, l'interface utilisateur finira par ne plus répondre
 
+>#####Correction du problème selon lequel le mode d'arrière-plan de couleur unie pouvait ne pas définir correctement la couleur de la police dans certains cas
+
+>#####Correction du problème qu'après avoir changé la police en noir en mode personnalisé, elle passera automatiquement au blanc lors de la prochaine saisie de la page de configuration
+
+>#####Correction du problème selon lequel le fichier .exe qui nécessite des droits d'administrateur ne peut pas être démarré
+
 *****
 ###Quoi de neuf dans la version 5.5.8.0
 
