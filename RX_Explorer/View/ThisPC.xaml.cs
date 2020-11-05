@@ -32,6 +32,21 @@ namespace RX_Explorer
         public ThisPC()
         {
             InitializeComponent();
+            Loaded += ThisPC_Loaded;
+        }
+
+        private void ThisPC_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] is bool Enable)
+            {
+                LeftSideCol.Width = Enable ? new GridLength(2.5, GridUnitType.Star) : new GridLength(0);
+            }
+            else
+            {
+                ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = true;
+
+                LeftSideCol.Width = new GridLength(2.5, GridUnitType.Star);
+            }
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)

@@ -162,8 +162,6 @@ namespace RX_Explorer
         {
             InitializeComponent();
 
-            Presenter.Container = this;
-
             ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Tiles"));
             ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Details"));
             ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_List"));
@@ -179,6 +177,21 @@ namespace RX_Explorer
             {
                 ApplicationData.Current.LocalSettings.Values["FilePresenterDisplayMode"] = 1;
                 ItemDisplayMode.SelectedIndex = 1;
+            }
+
+            Loaded += FileControl_Loaded;
+        }
+
+        private void FileControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] is bool Enable)
+            {
+                TreeViewGridCol.Width = Enable ? new GridLength(0) : new GridLength(2, GridUnitType.Star);
+            }
+            else
+            {
+                ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] = false;
+                TreeViewGridCol.Width = new GridLength(2, GridUnitType.Star);
             }
         }
 
@@ -401,6 +414,8 @@ namespace RX_Explorer
                         {
                             TabItem = Parameters.Item1;
                         }
+
+                        Presenter.Container = this;
 
                         AreaWatcher = new StorageAreaWatcher(Presenter.FileCollection, FolderTree);
                         EnterLock = new SemaphoreSlim(1, 1);
@@ -2606,6 +2621,9 @@ namespace RX_Explorer
 
             EnterLock.Dispose();
             AreaWatcher.Dispose();
+
+            TabItem = null;
+            Presenter.Container = null;
 
             if (Presenter.ListViewControl?.Header is SortIndicatorController Instance)
             {

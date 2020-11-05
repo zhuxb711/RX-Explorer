@@ -28,7 +28,7 @@ using TabViewTabCloseRequestedEventArgs = Microsoft.UI.Xaml.Controls.TabViewTabC
 
 namespace RX_Explorer
 {
-    public sealed partial class TabViewContainer : Page, INotifyPropertyChanged
+    public sealed partial class TabViewContainer : Page
     {
         private int LockResource;
 
@@ -37,103 +37,6 @@ namespace RX_Explorer
         private readonly DeviceWatcher PortalDeviceWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
 
         public static TabViewContainer ThisPage { get; private set; }
-
-        public GridLength LeftSideLength
-        {
-            get
-            {
-                if (ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] is bool Enable)
-                {
-                    return Enable ? new GridLength(2.5, GridUnitType.Star) : new GridLength(0);
-                }
-                else
-                {
-                    ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = true;
-
-                    return new GridLength(2.5, GridUnitType.Star);
-                }
-            }
-            set
-            {
-                if (value.Value == 0)
-                {
-                    ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = false;
-                }
-                else
-                {
-                    ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = true;
-                }
-
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LeftSideLength)));
-            }
-        }
-
-        public GridLength TreeViewLength
-        {
-            get
-            {
-                if (ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] is bool Enable)
-                {
-                    return Enable ? new GridLength(0) : new GridLength(2, GridUnitType.Star);
-                }
-                else
-                {
-                    ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] = false;
-                    return new GridLength(2, GridUnitType.Star);
-                }
-            }
-            set
-            {
-                if (value.Value == 0)
-                {
-                    ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] = true;
-                    SettingControl.IsDetachTreeViewAndPresenter = true;
-                }
-                else
-                {
-                    ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] = false;
-                    SettingControl.IsDetachTreeViewAndPresenter = false;
-                }
-
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TreeViewLength)));
-            }
-        }
-
-        public static bool LibraryExpanderIsExpand
-        {
-            get
-            {
-                if (ApplicationData.Current.LocalSettings.Values["LibraryExpanderIsExpand"] is bool IsExpand)
-                {
-                    return IsExpand;
-                }
-                else
-                {
-                    ApplicationData.Current.LocalSettings.Values["LibraryExpanderIsExpand"] = true;
-                    return true;
-                }
-            }
-            set => ApplicationData.Current.LocalSettings.Values["LibraryExpanderIsExpand"] = value;
-        }
-
-        public static bool DeviceExpanderIsExpand
-        {
-            get
-            {
-                if (ApplicationData.Current.LocalSettings.Values["DeviceExpanderIsExpand"] is bool IsExpand)
-                {
-                    return IsExpand;
-                }
-                else
-                {
-                    ApplicationData.Current.LocalSettings.Values["DeviceExpanderIsExpand"] = true;
-                    return true;
-                }
-            }
-            set => ApplicationData.Current.LocalSettings.Values["DeviceExpanderIsExpand"] = value;
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public TabViewContainer()
         {
@@ -843,6 +746,10 @@ namespace RX_Explorer
         {
             CleanUpAndRemoveTabItem(args.Tab);
 
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+
             if (sender.TabItems.Count == 0)
             {
                 await ApplicationView.GetForCurrentView().TryConsolidateAsync();
@@ -1185,6 +1092,7 @@ namespace RX_Explorer
 
             Tab.DragEnter -= Item_DragEnter;
             Tab.PointerPressed -= Item_PointerPressed;
+            Tab.Content = null;
 
             TabViewControl.TabItems.Remove(Tab);
         }

@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -139,29 +140,64 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task<ushort> GetLogCountAsync()
+        public static async Task<bool> CheckHasAnyLogAvailableAsync()
         {
             try
             {
-                return Convert.ToUInt16((await ApplicationData.Current.TemporaryFolder.GetFilesAsync()).Select((Item) => Regex.Match(Item.Name, @"(?<=\[)(.+)(?=\])")).Where((Mat) => Mat.Success && DateTime.TryParseExact(Mat.Value, "yyyy-MM-dd HH-mm-ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out _)).Count());
+                foreach (StorageFile LogFile in from StorageFile File in await ApplicationData.Current.TemporaryFolder.GetFilesAsync()
+                                                let Mat = Regex.Match(File.Name, @"(?<=\[)(.+)(?=\])")
+                                                where Mat.Success && DateTime.TryParseExact(Mat.Value, "yyyy-MM-dd HH-mm-ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime _)
+                                                select File)
+                {
+                    BasicProperties Properties = await LogFile.GetBasicPropertiesAsync();
+
+                    if (Properties.Size > 0)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"An error was threw in {nameof(GetLogCountAsync)}, message: {ex.Message}");
-                return 0;
+                Debug.WriteLine($"An error was threw in {nameof(CheckHasAnyLogAvailableAsync)}, message: {ex.Message}");
+                return false;
             }
         }
 
-        public static async Task ExportAllLogAsync(StorageFolder ExportFolder, DateTime LaterThan)
+        public static async Task ExportAllLogAsync(StorageFile ExportFile)
         {
             try
             {
-                foreach (StorageFile File in from StorageFile File in await ApplicationData.Current.TemporaryFolder.GetFilesAsync()
-                                             let Mat = Regex.Match(File.Name, @"(?<=\[)(.+)(?=\])")
-                                             where Mat.Success && DateTime.TryParseExact(Mat.Value, "yyyy-MM-dd HH-mm-ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime Date) && Date > LaterThan
-                                             select File)
+                using (Stream ExportStream = await ExportFile.OpenStreamForWriteAsync().ConfigureAwait(false))
                 {
-                    await File.CopyAsync(ExportFolder);
+                    foreach ((DateTime LogDate, StorageFile LogFile) in from StorageFile File in await ApplicationData.Current.TemporaryFolder.GetFilesAsync()
+                                                                        let Mat = Regex.Match(File.Name, @"(?<=\[)(.+)(?=\])")
+                                                                        where Mat.Success && DateTime.TryParseExact(Mat.Value, "yyyy-MM-dd HH-mm-ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime Date)
+                                                                        let LogDate = DateTime.ParseExact(Mat.Value, "yyyy-MM-dd HH-mm-ss.fff", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal)
+                                                                        orderby LogDate ascending
+                                                                        select (LogDate, File))
+                    {
+                        BasicProperties Properties = await LogFile.GetBasicPropertiesAsync();
+
+                        if (Properties.Size > 0)
+                        {
+                            using (StreamWriter Writer = new StreamWriter(ExportStream, Encoding.Unicode, 1024, true))
+                            {
+                                Writer.WriteLine("*************************");
+                                Writer.WriteLine($"LogDate: {LogDate:G}");
+                                Writer.WriteLine("*************************");
+                            }
+
+                            using (Stream LogFileStream = await LogFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                            {
+                                await LogFileStream.CopyToAsync(ExportStream).ConfigureAwait(false);
+                            }
+
+                            ExportStream.Seek(0, SeekOrigin.End);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -231,7 +267,8 @@ namespace RX_Explorer.Class
                                     .AppendLine("StackTrace:")
                                     .AppendLine(StackTraceSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, StackTraceSplit))
                                     .AppendLine()
-                                    .AppendLine("------------------------------------");
+                                    .AppendLine("------------------------------------")
+                                    .AppendLine();
 
             Log(Builder.ToString());
         }
@@ -279,6 +316,8 @@ namespace RX_Explorer.Class
                             {
                                 Writer.WriteLine(LogItem);
                             }
+
+                            Writer.Flush();
                         }
                     }
                 }

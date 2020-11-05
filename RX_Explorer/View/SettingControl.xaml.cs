@@ -1,5 +1,6 @@
 ﻿using ComputerVision;
 using Microsoft.Toolkit.Uwp.Helpers;
+using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using System;
@@ -85,6 +86,41 @@ namespace RX_Explorer
                 }
             }
         }
+
+        public static bool LibraryExpanderIsExpand
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["LibraryExpanderIsExpand"] is bool IsExpand)
+                {
+                    return IsExpand;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["LibraryExpanderIsExpand"] = true;
+                    return true;
+                }
+            }
+            set => ApplicationData.Current.LocalSettings.Values["LibraryExpanderIsExpand"] = value;
+        }
+
+        public static bool DeviceExpanderIsExpand
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["DeviceExpanderIsExpand"] is bool IsExpand)
+                {
+                    return IsExpand;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["DeviceExpanderIsExpand"] = true;
+                    return true;
+                }
+            }
+            set => ApplicationData.Current.LocalSettings.Values["DeviceExpanderIsExpand"] = value;
+        }
+
 
         public bool IsOpened { get; private set; }
 
@@ -501,9 +537,12 @@ namespace RX_Explorer
             {
                 ApplicationData.Current.LocalSettings.Values["FileLoadMode"] = FileLoadMode.SelectedIndex;
 
-                if (TabViewContainer.CurrentTabNavigation?.Content is FileControl Control && Control.CurrentFolder != null)
+                foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabViewControl.TabItems)
                 {
-                    await Control.DisplayItemsInFolder(Control.CurrentFolder, true).ConfigureAwait(true);
+                    if ((Tab.Content as Frame)?.Content is FileControl Control && Control.CurrentFolder != null)
+                    {
+                        await Control.DisplayItemsInFolder(Control.CurrentFolder, true).ConfigureAwait(true);
+                    }
                 }
             }
             catch (Exception ex)
@@ -630,7 +669,7 @@ namespace RX_Explorer
                     StorageFolder SecureFolder = await ApplicationData.Current.LocalCacheFolder.CreateFolderAsync("SecureFolder", CreationCollisionOption.OpenIfExists);
                     string FileEncryptionAesKey = KeyGenerator.GetMD5FromKey(CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword"), 16);
 
-                    foreach (var Item in await SecureFolder.GetFilesAsync())
+                    foreach (StorageFile Item in await SecureFolder.GetFilesAsync())
                     {
                         try
                         {
@@ -1084,7 +1123,16 @@ namespace RX_Explorer
 
         private void OpenLeftArea_Toggled(object sender, RoutedEventArgs e)
         {
-            TabViewContainer.ThisPage.LeftSideLength = OpenLeftArea.IsOn ? new GridLength(300) : new GridLength(0);
+            ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = OpenLeftArea.IsOn;
+
+            foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabViewControl.TabItems)
+            {
+                if ((Tab.Content as Frame)?.Content is ThisPC PC)
+                {
+                    PC.LeftSideCol.Width = OpenLeftArea.IsOn ? new GridLength(2.5, GridUnitType.Star) : new GridLength(0);
+                }
+            }
+
             ApplicationData.Current.SignalDataChanged();
         }
 
@@ -1593,30 +1641,35 @@ namespace RX_Explorer
         {
             try
             {
-                if (TabViewContainer.CurrentTabNavigation?.Content is FileControl Control && Control.CurrentFolder != null)
+                ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] = IsDetachTreeViewAndPresenter = !TreeViewDetach.IsOn;
+
+                foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabViewControl.TabItems)
                 {
-                    if (TreeViewDetach.IsOn)
+                    if ((Tab.Content as Frame)?.Content is FileControl Control && Control.CurrentFolder != null)
                     {
-                        Control.FolderTree.RootNodes.Clear();
-
-                        TreeViewNode RootNode = new TreeViewNode
+                        if (TreeViewDetach.IsOn)
                         {
-                            Content = new TreeViewNodeContent(Control.CurrentFolder),
-                            IsExpanded = false,
-                            HasUnrealizedChildren = (await Control.CurrentFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
-                        };
+                            Control.FolderTree.RootNodes.Clear();
 
-                        Control.FolderTree.RootNodes.Add(RootNode);
+                            TreeViewNode RootNode = new TreeViewNode
+                            {
+                                Content = new TreeViewNodeContent(Control.CurrentFolder),
+                                IsExpanded = false,
+                                HasUnrealizedChildren = (await Control.CurrentFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
+                            };
 
-                        await Control.DisplayItemsInFolder(RootNode, true).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        Control.GoParentFolder.IsEnabled = Control.CurrentFolder.Path != Path.GetPathRoot(Control.CurrentFolder.Path);
+                            Control.FolderTree.RootNodes.Add(RootNode);
+
+                            await Control.DisplayItemsInFolder(RootNode, true).ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            Control.GoParentFolder.IsEnabled = Control.CurrentFolder.Path != Path.GetPathRoot(Control.CurrentFolder.Path);
+                        }
+
+                        Control.TreeViewGridCol.Width = TreeViewDetach.IsOn ? new GridLength(2, GridUnitType.Star) : new GridLength(0);
                     }
                 }
-
-                TabViewContainer.ThisPage.TreeViewLength = TreeViewDetach.IsOn ? new GridLength(2, GridUnitType.Star) : new GridLength(0);
             }
             catch (Exception ex)
             {
@@ -1742,13 +1795,16 @@ namespace RX_Explorer
                 IsDisplayHiddenItem = DisplayHiddenItem.IsOn;
                 ApplicationData.Current.LocalSettings.Values["DisplayHiddenItem"] = IsDisplayHiddenItem;
 
-                if (TabViewContainer.CurrentTabNavigation?.Content is FileControl Control && Control.CurrentFolder != null)
+                foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabViewControl.TabItems)
                 {
-                    await Control.DisplayItemsInFolder(Control.CurrentFolder, true).ConfigureAwait(true);
-
-                    if (!IsDetachTreeViewAndPresenter)
+                    if ((Tab.Content as Frame)?.Content is FileControl Control && Control.CurrentFolder != null)
                     {
-                        await Control.FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(false);
+                        await Control.DisplayItemsInFolder(Control.CurrentFolder, true).ConfigureAwait(true);
+
+                        if (!IsDetachTreeViewAndPresenter)
+                        {
+                            await Control.FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(false);
+                        }
                     }
                 }
             }
@@ -1939,17 +1995,18 @@ namespace RX_Explorer
 
         private async void ExportLog_Click(object sender, RoutedEventArgs e)
         {
-            if ((await LogTracer.GetLogCountAsync().ConfigureAwait(true)) > 0)
+            if (await LogTracer.CheckHasAnyLogAvailableAsync().ConfigureAwait(true))
             {
-                FolderPicker Picker = new FolderPicker
+                FileSavePicker Picker = new FileSavePicker
                 {
+                    SuggestedFileName = "Export_LastThreeDay_Error_Log.txt",
                     SuggestedStartLocation = PickerLocationId.Desktop
                 };
-                Picker.FileTypeFilter.Add("*");
+                Picker.FileTypeChoices.Add(Globalization.GetString("File_Type_TXT_Description"), new List<string> { ".txt" });
 
-                if (await Picker.PickSingleFolderAsync() is StorageFolder PickedFolder)
+                if (await Picker.PickSaveFileAsync() is StorageFile PickedFile)
                 {
-                    await LogTracer.ExportAllLogAsync(PickedFolder, DateTime.Now.AddDays(-3)).ConfigureAwait(false);
+                    await LogTracer.ExportAllLogAsync(PickedFile).ConfigureAwait(false);
                 }
             }
             else

@@ -164,7 +164,8 @@
           PointerPressed="Grid_PointerPressed">
         <Grid.ColumnDefinitions>
             <ColumnDefinition MaxWidth="300"
-                              Width="{x:Bind local:TabViewContainer.ThisPage.LeftSideLength,Mode=OneWay}" />
+                              x:Name="LeftSideCol"
+                              x:FieldModifier="public"/>
             <ColumnDefinition Width="5*" />
         </Grid.ColumnDefinitions>
         <Grid Margin="10,4,10,10">
@@ -292,7 +293,7 @@
                                    VerticalAlignment="Stretch"
                                    AllowFocusOnInteraction="False"
                                    Background="Transparent"
-                                   IsExpanded="{x:Bind local:TabViewContainer.LibraryExpanderIsExpand,Mode=TwoWay}"
+                                   IsExpanded="{x:Bind local:SettingControl.LibraryExpanderIsExpand, Mode=TwoWay}"
                                    Collapsed="LibraryExpander_Collapsed"
                                    ExpandDirection="Down"
                                    HorizontalContentAlignment="Stretch"
@@ -373,7 +374,7 @@
                                    Background="Transparent"
                                    VerticalAlignment="Stretch"
                                    HorizontalContentAlignment="Stretch"
-                                   IsExpanded="{x:Bind local:TabViewContainer.DeviceExpanderIsExpand,Mode=TwoWay}"
+                                   IsExpanded="{x:Bind local:SettingControl.DeviceExpanderIsExpand,Mode=TwoWay}"
                                    ExpandDirection="Down"
                                    Collapsed="DeviceExpander_Collapsed"
                                    VerticalContentAlignment="Top"

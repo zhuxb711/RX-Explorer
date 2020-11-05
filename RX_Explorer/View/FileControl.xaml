@@ -283,7 +283,7 @@
               Margin="0,5,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition x:Name="TreeViewGridCol"
-                                  Width="{x:Bind local:TabViewContainer.ThisPage.TreeViewLength,Mode=OneWay}" />
+                                  x:FieldModifier="public"/>
                 <ColumnDefinition Width="{x:Bind TreeViewGridCol.Width,Mode=OneWay,Converter={StaticResource Converter}}" />
                 <ColumnDefinition Width="6.5*" />
             </Grid.ColumnDefinitions>
@@ -332,7 +332,7 @@
                                    HorizontalAlignment="Center"
                                    ResizeBehavior="BasedOnAlignment"
                                    ResizeDirection="Auto"
-                                   Grid.Column="1" />
+                                   Grid.Column="1"/>
         </Grid>
         <controls:Loading x:Name="LoadingControl"
                           IsLoading="False"

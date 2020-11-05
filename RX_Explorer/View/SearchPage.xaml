@@ -7,7 +7,7 @@
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d"
-      NavigationCacheMode="Required"
+      NavigationCacheMode="Enabled"
       Background="Transparent">
     <Page.Resources>
         <muxc:CommandBarFlyout x:Name="SearchCommandFlyout"
