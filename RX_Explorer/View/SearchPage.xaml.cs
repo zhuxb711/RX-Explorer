@@ -18,7 +18,7 @@ namespace RX_Explorer
     public sealed partial class SearchPage : Page
     {
         private readonly ObservableCollection<FileSystemStorageItemBase> SearchResult = new ObservableCollection<FileSystemStorageItemBase>();
-        private FileControl FileControlInstance;
+        private WeakReference<FileControl> WeakToFileControl;
         private CancellationTokenSource Cancellation;
         private readonly Dictionary<SortTarget, SortDirection> SortMap = new Dictionary<SortTarget, SortDirection>
         {
@@ -38,9 +38,9 @@ namespace RX_Explorer
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e?.Parameter is Tuple<FileControl, bool> Parameters)
+            if (e?.Parameter is Tuple<WeakReference<FileControl>, bool> Parameters)
             {
-                FileControlInstance = Parameters.Item1;
+                WeakToFileControl = Parameters.Item1;
 
                 await Initialize(Parameters.Item2).ConfigureAwait(false);
             }
@@ -57,31 +57,34 @@ namespace RX_Explorer
             {
                 Cancellation = new CancellationTokenSource();
 
-                string CurrentPath = FileControlInstance.CurrentFolder.Path;
-                string SearchTarget = FileControlInstance.GlobeSearch.Text;
-
-                List<FileSystemStorageItemBase> SearchItems = await Task.Run(() => WIN_Native_API.Search(CurrentPath, SearchTarget, !SearchShallow, SettingControl.IsDisplayHiddenItem, Cancellation.Token)).ConfigureAwait(true);
-
-                await Task.Delay(500).ConfigureAwait(true);
-
-                LoadingControl.IsLoading = false;
-
-                if (Cancellation.IsCancellationRequested)
+                if (WeakToFileControl.TryGetTarget(out FileControl Control))
                 {
-                    HasItem.Visibility = Visibility.Visible;
-                    SearchResultList.Visibility = Visibility.Collapsed;
-                }
-                else
-                {
-                    if (SearchItems.Count == 0)
+                    string CurrentPath = Control.CurrentFolder.Path;
+                    string SearchTarget = Control.GlobeSearch.Text;
+
+                    List<FileSystemStorageItemBase> SearchItems = await Task.Run(() => WIN_Native_API.Search(CurrentPath, SearchTarget, !SearchShallow, SettingControl.IsDisplayHiddenItem, Cancellation.Token)).ConfigureAwait(true);
+
+                    await Task.Delay(500).ConfigureAwait(true);
+
+                    LoadingControl.IsLoading = false;
+
+                    if (Cancellation.IsCancellationRequested)
                     {
                         HasItem.Visibility = Visibility.Visible;
+                        SearchResultList.Visibility = Visibility.Collapsed;
                     }
                     else
                     {
-                        foreach (FileSystemStorageItemBase Item in SortCollectionGenerator.Current.GetSortedCollection(SearchItems))
+                        if (SearchItems.Count == 0)
                         {
-                            SearchResult.Add(Item);
+                            HasItem.Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            foreach (FileSystemStorageItemBase Item in SortCollectionGenerator.Current.GetSortedCollection(SearchItems))
+                            {
+                                SearchResult.Add(Item);
+                            }
                         }
                     }
                 }
@@ -103,7 +106,6 @@ namespace RX_Explorer
         {
             Cancellation?.Cancel();
             SearchResult.Clear();
-            FileControlInstance = null;
         }
 
         private async void Location_Click(object sender, RoutedEventArgs e)
@@ -113,16 +115,18 @@ namespace RX_Explorer
                 try
                 {
                     StorageFolder ParentFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(Item.Path));
-                    FileControl Instance = FileControlInstance;
 
-                    Frame.GoBack();
-
-                    await Instance.OpenTargetFolder(ParentFolder).ConfigureAwait(true);
-
-                    if (Instance.Presenter.FileCollection.FirstOrDefault((SItem) => SItem.Path == Item.Path) is FileSystemStorageItemBase Target)
+                    if (WeakToFileControl.TryGetTarget(out FileControl Control))
                     {
-                        Instance.Presenter.ItemPresenter.ScrollIntoView(Target);
-                        Instance.Presenter.SelectedItem = Target;
+                        Frame.GoBack();
+
+                        await Control.OpenTargetFolder(ParentFolder).ConfigureAwait(true);
+
+                        if (Control.Presenter.FileCollection.FirstOrDefault((SItem) => SItem.Path == Item.Path) is FileSystemStorageItemBase Target)
+                        {
+                            Control.Presenter.ItemPresenter.ScrollIntoView(Target);
+                            Control.Presenter.SelectedItem = Target;
+                        }
                     }
                 }
                 catch (Exception ex)

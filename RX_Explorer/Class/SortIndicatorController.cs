@@ -30,7 +30,7 @@ namespace RX_Explorer.Class
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private static List<SortIndicatorController> CurrentInstance = new List<SortIndicatorController>();
+        private static readonly List<SortIndicatorController> CurrentInstance = new List<SortIndicatorController>();
 
         public static SortIndicatorController CreateNewInstance()
         {

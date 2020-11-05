@@ -25,7 +25,8 @@ namespace RX_Explorer
 {
     public sealed partial class ThisPC : Page
     {
-        private TabViewItem TabItem;
+        private WeakReference<TabViewItem> WeakToTabItem;
+
         private QuickStartItem CurrentSelectedItem;
         private int LockResource;
 
@@ -51,10 +52,14 @@ namespace RX_Explorer
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e?.Parameter is TabViewItem Parameters)
+            if (e?.Parameter is WeakReference<TabViewItem> Parameters)
             {
-                TabItem = Parameters;
-                TabItem.Header = Globalization.GetString("MainPage_PageDictionary_ThisPC_Label");
+                WeakToTabItem = Parameters;
+
+                if (WeakToTabItem.TryGetTarget(out TabViewItem Tab))
+                {
+                    Tab.Header = Globalization.GetString("MainPage_PageDictionary_ThisPC_Label");
+                }
             }
         }
 
@@ -145,11 +150,11 @@ namespace RX_Explorer
                     {
                         if (AnimationController.Current.IsEnableAnimation)
                         {
-                            Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Device.Folder), new DrillInNavigationTransitionInfo());
+                            Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Device.Folder), new DrillInNavigationTransitionInfo());
                         }
                         else
                         {
-                            Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Device.Folder), new SuppressNavigationTransitionInfo());
+                            Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Device.Folder), new SuppressNavigationTransitionInfo());
                         }
                     }
                 }
@@ -168,11 +173,11 @@ namespace RX_Explorer
                 {
                     if (AnimationController.Current.IsEnableAnimation)
                     {
-                        Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Library.Folder), new DrillInNavigationTransitionInfo());
+                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Library.Folder), new DrillInNavigationTransitionInfo());
                     }
                     else
                     {
-                        Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Library.Folder), new SuppressNavigationTransitionInfo());
+                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Library.Folder), new SuppressNavigationTransitionInfo());
                     }
                 }
             }
@@ -376,11 +381,11 @@ namespace RX_Explorer
                     {
                         if (AnimationController.Current.IsEnableAnimation)
                         {
-                            Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Device.Folder), new DrillInNavigationTransitionInfo());
+                            Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Device.Folder), new DrillInNavigationTransitionInfo());
                         }
                         else
                         {
-                            Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Device.Folder), new SuppressNavigationTransitionInfo());
+                            Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Device.Folder), new SuppressNavigationTransitionInfo());
                         }
                     }
                 }
@@ -445,11 +450,11 @@ namespace RX_Explorer
                 {
                     if (AnimationController.Current.IsEnableAnimation)
                     {
-                        Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Library.Folder), new DrillInNavigationTransitionInfo());
+                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Library.Folder), new DrillInNavigationTransitionInfo());
                     }
                     else
                     {
-                        Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Library.Folder), new SuppressNavigationTransitionInfo());
+                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Library.Folder), new SuppressNavigationTransitionInfo());
                     }
                 }
             }
@@ -599,11 +604,11 @@ namespace RX_Explorer
                     {
                         if (AnimationController.Current.IsEnableAnimation)
                         {
-                            Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Device.Folder), new DrillInNavigationTransitionInfo());
+                            Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Device.Folder), new DrillInNavigationTransitionInfo());
                         }
                         else
                         {
-                            Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Device.Folder), new SuppressNavigationTransitionInfo());
+                            Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Device.Folder), new SuppressNavigationTransitionInfo());
                         }
                     }
                 }
@@ -624,11 +629,11 @@ namespace RX_Explorer
                 {
                     if (AnimationController.Current.IsEnableAnimation)
                     {
-                        Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Library.Folder), new DrillInNavigationTransitionInfo());
+                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Library.Folder), new DrillInNavigationTransitionInfo());
                     }
                     else
                     {
-                        Frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabItem, Library.Folder), new SuppressNavigationTransitionInfo());
+                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Library.Folder), new SuppressNavigationTransitionInfo());
                     }
                 }
             }

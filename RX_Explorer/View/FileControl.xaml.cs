@@ -156,11 +156,29 @@ namespace RX_Explorer
         private ObservableCollection<string> AddressExtentionList = new ObservableCollection<string>();
         private volatile int recordIndex;
         private bool IsBackOrForwardAction;
-        private TabViewItem TabItem;
+
+        private TabViewItem TabItem
+        {
+            get
+            {
+                if(WeakToTabItem.TryGetTarget(out TabViewItem Tab))
+                {
+                    return Tab;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
+        private WeakReference<TabViewItem> WeakToTabItem;
 
         public FileControl()
         {
             InitializeComponent();
+
+            Presenter.WeakToFileControl = new WeakReference<FileControl>(this);
 
             ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Tiles"));
             ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Details"));
@@ -404,7 +422,7 @@ namespace RX_Explorer
             {
                 try
                 {
-                    if (e.NavigationMode == NavigationMode.New && e?.Parameter is Tuple<TabViewItem, StorageFolder> Parameters)
+                    if (e.NavigationMode == NavigationMode.New && e?.Parameter is Tuple<WeakReference<TabViewItem>, StorageFolder> Parameters)
                     {
                         Application.Current.Suspending += Current_Suspending;
                         Application.Current.Resuming += Current_Resuming;
@@ -412,10 +430,8 @@ namespace RX_Explorer
 
                         if (Parameters.Item1 != null)
                         {
-                            TabItem = Parameters.Item1;
+                            WeakToTabItem = Parameters.Item1;
                         }
-
-                        Presenter.Container = this;
 
                         AreaWatcher = new StorageAreaWatcher(Presenter.FileCollection, FolderTree);
                         EnterLock = new SemaphoreSlim(1, 1);
@@ -1134,11 +1150,11 @@ namespace RX_Explorer
 
                 if (AnimationController.Current.IsEnableAnimation)
                 {
-                    Frame.Navigate(typeof(SearchPage), new Tuple<FileControl, bool>(this, ShallowRadio.IsChecked.GetValueOrDefault()), new DrillInNavigationTransitionInfo());
+                    Frame.Navigate(typeof(SearchPage), new Tuple<WeakReference<FileControl>, bool>(new WeakReference<FileControl>(this), ShallowRadio.IsChecked.GetValueOrDefault()), new DrillInNavigationTransitionInfo());
                 }
                 else
                 {
-                    Frame.Navigate(typeof(SearchPage), new Tuple<FileControl, bool>(this, ShallowRadio.IsChecked.GetValueOrDefault()), new SuppressNavigationTransitionInfo());
+                    Frame.Navigate(typeof(SearchPage), new Tuple<WeakReference<FileControl>, bool>(new WeakReference<FileControl>(this), ShallowRadio.IsChecked.GetValueOrDefault()), new SuppressNavigationTransitionInfo());
                 }
             }
             catch (Exception ex)
@@ -1867,6 +1883,7 @@ namespace RX_Explorer
                     {
                         Presenter.ItemPresenter = (Presenter.FindName("ListViewRefreshContainer") as RefreshContainer)?.Content as ListViewBase;
 
+                        Presenter.ListViewControl.Header = null;
                         Presenter.ListViewControl.HeaderTemplate = null;
                         Presenter.ListViewControl.ItemTemplate = Presenter.ListViewSimpleDataTemplate;
                         Presenter.ListViewControl.ItemsSource = Presenter.FileCollection;
@@ -2621,9 +2638,6 @@ namespace RX_Explorer
 
             EnterLock.Dispose();
             AreaWatcher.Dispose();
-
-            TabItem = null;
-            Presenter.Container = null;
 
             if (Presenter.ListViewControl?.Header is SortIndicatorController Instance)
             {

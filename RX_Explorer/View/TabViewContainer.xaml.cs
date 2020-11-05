@@ -3,7 +3,6 @@ using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -94,11 +93,11 @@ namespace RX_Explorer
                                 {
                                     if (AnimationController.Current.IsEnableAnimation)
                                     {
-                                        CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabViewControl.SelectedItem as TabViewItem, Device.Folder), new DrillInNavigationTransitionInfo());
+                                        CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Device.Folder), new DrillInNavigationTransitionInfo());
                                     }
                                     else
                                     {
-                                        CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabViewControl.SelectedItem as TabViewItem, Device.Folder), new SuppressNavigationTransitionInfo());
+                                        CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Device.Folder), new SuppressNavigationTransitionInfo());
                                     }
                                 }
                             }
@@ -106,11 +105,11 @@ namespace RX_Explorer
                             {
                                 if (AnimationController.Current.IsEnableAnimation)
                                 {
-                                    CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabViewControl.SelectedItem as TabViewItem, Library.Folder), new DrillInNavigationTransitionInfo());
+                                    CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Library.Folder), new DrillInNavigationTransitionInfo());
                                 }
                                 else
                                 {
-                                    CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(TabViewControl.SelectedItem as TabViewItem, Library.Folder), new SuppressNavigationTransitionInfo());
+                                    CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Library.Folder), new SuppressNavigationTransitionInfo());
                                 }
                             }
 
@@ -746,10 +745,6 @@ namespace RX_Explorer
         {
             CleanUpAndRemoveTabItem(args.Tab);
 
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
-
             if (sender.TabItems.Count == 0)
             {
                 await ApplicationView.GetForCurrentView().TryConsolidateAsync();
@@ -790,20 +785,20 @@ namespace RX_Explorer
 
                     if (StorageFolderForNewTab != null)
                     {
-                        frame.Navigate(typeof(ThisPC), Item, new SuppressNavigationTransitionInfo());
+                        frame.Navigate(typeof(ThisPC), new WeakReference<TabViewItem>(Item), new SuppressNavigationTransitionInfo());
 
                         if (AnimationController.Current.IsEnableAnimation)
                         {
-                            frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(Item, StorageFolderForNewTab), new DrillInNavigationTransitionInfo());
+                            frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(new WeakReference<TabViewItem>(Item), StorageFolderForNewTab), new DrillInNavigationTransitionInfo());
                         }
                         else
                         {
-                            frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, StorageFolder>(Item, StorageFolderForNewTab), new SuppressNavigationTransitionInfo());
+                            frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(new WeakReference<TabViewItem>(Item), StorageFolderForNewTab), new SuppressNavigationTransitionInfo());
                         }
                     }
                     else
                     {
-                        frame.Navigate(typeof(ThisPC), Item, new SuppressNavigationTransitionInfo());
+                        frame.Navigate(typeof(ThisPC), new WeakReference<TabViewItem>(Item), new SuppressNavigationTransitionInfo());
                     }
 
                     Item.Content = frame;

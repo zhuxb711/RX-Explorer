@@ -42,7 +42,22 @@ namespace RX_Explorer
     {
         public ObservableCollection<FileSystemStorageItemBase> FileCollection { get; private set; }
 
-        public FileControl Container { get; set; }
+        private FileControl Container
+        {
+            get
+            {
+                if (WeakToFileControl.TryGetTarget(out FileControl Instance))
+                {
+                    return Instance;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
+        public WeakReference<FileControl> WeakToFileControl { get; set; }
 
         private int DropLock;
 
