@@ -189,7 +189,7 @@ namespace RX_Explorer
 
             bool HasHiddenItem = SelectedItems.Any((Item) => Item is HiddenStorageItem);
 
-            if (!Container.IsSearchOrPathBoxFocused && !QueueContentDialog.IsRunningOrWaiting && !MainPage.ThisPage.IsAnyTaskRunning)
+            if (!QueueContentDialog.IsRunningOrWaiting && !MainPage.ThisPage.IsAnyTaskRunning)
             {
                 args.Handled = true;
 
@@ -360,7 +360,7 @@ namespace RX_Explorer
             {
                 string TargetChar = Convert.ToChar((int)Key).ToString();
 
-                if (LastPressString != TargetChar && (DateTimeOffset.Now - LastPressTime).TotalMilliseconds < 1500)
+                if (LastPressString != TargetChar && (DateTimeOffset.Now - LastPressTime).TotalMilliseconds < 1200)
                 {
                     TargetChar = LastPressString + TargetChar;
                 }
@@ -1685,7 +1685,6 @@ namespace RX_Explorer
             if ((e.OriginalSource as FrameworkElement)?.DataContext == null)
             {
                 SelectedItem = null;
-                Container.IsSearchOrPathBoxFocused = false;
             }
             else if (e.GetCurrentPoint(null).Properties.IsMiddleButtonPressed)
             {
@@ -2643,7 +2642,7 @@ namespace RX_Explorer
                                 EditBox.Focus(FocusState.Programmatic);
                             }
 
-                            Container.IsSearchOrPathBoxFocused = true;
+                            MainPage.ThisPage.IsAnyTaskRunning = true;
                         }
 
                         break;
@@ -2782,8 +2781,6 @@ namespace RX_Explorer
 
         private async void ViewControl_ItemClick(object sender, ItemClickEventArgs e)
         {
-            Container.IsSearchOrPathBoxFocused = false;
-
             if (!SettingControl.IsDoubleClickEnable && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple && e.ClickedItem is FileSystemStorageItemBase ReFile)
             {
                 CoreVirtualKeyStates CtrlState = Window.Current.CoreWindow.GetKeyState(VirtualKey.Control);
@@ -5409,7 +5406,7 @@ namespace RX_Explorer
                                 EditBox.Focus(FocusState.Programmatic);
                             }
 
-                            Container.IsSearchOrPathBoxFocused = true;
+                            MainPage.ThisPage.IsAnyTaskRunning = true;
                         }
                     }
 
@@ -5523,7 +5520,7 @@ namespace RX_Explorer
 
                     LastClickTime = DateTimeOffset.MaxValue;
 
-                    Container.IsSearchOrPathBoxFocused = false;
+                    MainPage.ThisPage.IsAnyTaskRunning = false;
                 }
             }
         }

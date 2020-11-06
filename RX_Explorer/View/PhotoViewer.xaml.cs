@@ -454,7 +454,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void Adjust_Click(object sender, RoutedEventArgs e)
+        private void Adjust_Click(object sender, RoutedEventArgs e)
         {
             try
             {

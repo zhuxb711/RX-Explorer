@@ -1,4 +1,19 @@
 ﻿*****
+###What's new in Ver.5.6.1.0
+
+#####Bug fix
+
+>#####Fixed the problem of an abnormal error message box popping up when executing files
+
+>#####Fixed the problem that a large number of blank files may be exported when exporting logs. Now it will automatically merge all non-blank logs into a single file
+
+>#####Fixed the problem of still allowing export when there is no log file available
+
+>#####Fixed the problem that the keyboard shortcut may not be activated correctly in some cases
+
+>#####Fixed the problem that the "sidebar switch" and "file directory switch" in the settings page only take effect on the current tab page
+
+*****
 ###What's new in Ver.5.6.0.0
 
 #####Feature update

@@ -150,7 +150,6 @@ namespace RX_Explorer
             set => recordIndex = value;
         }
 
-        public bool IsSearchOrPathBoxFocused { get; set; }
         private List<ValueTuple<string, string>> GoAndBackRecord = new List<ValueTuple<string, string>>();
         private ObservableCollection<string> AddressButtonList = new ObservableCollection<string>();
         private ObservableCollection<string> AddressExtentionList = new ObservableCollection<string>();
@@ -1175,12 +1174,17 @@ namespace RX_Explorer
 
         private async void GlobeSearch_GotFocus(object sender, RoutedEventArgs e)
         {
-            IsSearchOrPathBoxFocused = true;
+            MainPage.ThisPage.IsAnyTaskRunning = true;
 
             if (string.IsNullOrEmpty(GlobeSearch.Text))
             {
                 GlobeSearch.ItemsSource = await SQLite.Current.GetRelatedSearchHistoryAsync(string.Empty).ConfigureAwait(true);
             }
+        }
+
+        private void GlobeSearch_LostFocus(object sender, RoutedEventArgs e)
+        {
+            MainPage.ThisPage.IsAnyTaskRunning = false;
         }
 
         private async void AddressBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
@@ -1844,7 +1848,7 @@ namespace RX_Explorer
 
         private async void AddressBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            IsSearchOrPathBoxFocused = true;
+            MainPage.ThisPage.IsAnyTaskRunning = true;
 
             if (string.IsNullOrEmpty(AddressBox.Text))
             {
@@ -1932,6 +1936,7 @@ namespace RX_Explorer
         {
             AddressBox.Text = string.Empty;
             AddressButtonContainer.Visibility = Visibility.Visible;
+            MainPage.ThisPage.IsAnyTaskRunning = false;
         }
 
         private async void AddressButton_Click(object sender, RoutedEventArgs e)

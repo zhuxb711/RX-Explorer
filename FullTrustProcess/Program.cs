@@ -802,7 +802,6 @@ namespace FullTrustProcess
                         }
                     case "Excute_RunExe":
                         {
-                            Debugger.Launch();
                             string ExcutePath = Convert.ToString(args.Request.Message["ExcutePath"]);
                             string ExcuteParameter = Convert.ToString(args.Request.Message["ExcuteParameter"]);
                             string ExcuteAuthority = Convert.ToString(args.Request.Message["ExcuteAuthority"]);

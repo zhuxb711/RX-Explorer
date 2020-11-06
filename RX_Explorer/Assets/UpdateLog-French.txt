@@ -1,4 +1,19 @@
 ﻿*****
+###Quoi de neuf dans la version 5.6.1.0
+
+#####Correction d'un bug
+
+>#####Correction du problème d'une boîte de message d'erreur anormale apparaissant lors de l'exécution de fichiers
+
+>#####Correction du problème d'export d'un grand nombre de fichiers vides lors de l'exportation de journaux. Maintenant, il fusionnera automatiquement tous les journaux non vides dans un seul fichier
+
+>#####Correction du problème de toujours autoriser l'exportation lorsqu'il n'y a pas de fichier journal disponible
+
+>#####Correction du problème selon lequel le raccourci clavier peut ne pas être activé correctement dans certains cas
+
+>#####Correction du problème suivant: le "commutateur de la barre latérale" et le "changement de répertoire de fichiers" dans la page des paramètres ne prennent effet que sur la page à onglet actuelle
+
+*****
 ###Quoi de neuf dans la version 5.6.0.0
 
 #####Mise à jour des fonctionnalités

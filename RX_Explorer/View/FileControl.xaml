@@ -238,6 +238,7 @@
                             Grid.Column="6"
                             VerticalAlignment="Center"
                             GotFocus="GlobeSearch_GotFocus"
+                            LostFocus="GlobeSearch_LostFocus"
                             QuerySubmitted="GlobeSearch_QuerySubmitted"
                             TextChanged="GlobeSearch_TextChanged"
                             UpdateTextOnSelect="True"
