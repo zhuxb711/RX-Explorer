@@ -1751,16 +1751,13 @@
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedDelete_Content" xml:space="preserve">
-    <value>RX無權刪除此項目，可能需要管理員權限。 您是否要授予管理員權限？\r\r注意：\r除非關閉最後一個RX實例，否則它將以管理員權限繼續運行</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX無權刪除此項目，可能需要管理員權限。 您是否要授予管理員權限？</value>
   </data>
   <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
-    <value>RX 檔案總管沒有權限貼上檔案，可能需要管理員權限才能訪問此文件夾。 您要授予管理員權限嗎？\r\r注意：\r除非關閉了最後一個RX實例，否則它將繼續以管理員權限運行</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX 檔案總管沒有權限貼上檔案，可能需要管理員權限才能訪問此文件夾。 您要授予管理員權限嗎？</value>
   </data>
   <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
-    <value>RX 檔案總管沒有權限重新命名，可能需要管理員權限，您是否要授予管理員權限？\r\r注意：\r除非關閉最後一個RX實例，否則它將以管理員權限繼續運行</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX 檔案總管沒有權限重新命名，可能需要管理員權限，您是否要授予管理員權限？</value>
   </data>
   <data name="Common_Dialog_GoBack" xml:space="preserve">
     <value>返回</value>
@@ -2416,7 +2413,7 @@
     <value>調整背景模糊效果</value>
   </data>
   <data name="QueueDialog_UnauthorizedExecute_Content" xml:space="preserve">
-    <value>RX沒有執行文件的權限，可能需要管理員權限。您是否要授予管理員權限？\r\r注意：\r除非關閉了最後一個RX實例，否則它將以管理員權限繼續運行</value>
+    <value>RX沒有執行文件的權限，可能需要管理員權限。您是否要授予管理員權限？</value>
   </data>
   <data name="SettingPageAlwaysLaunchNew.Content" xml:space="preserve">
     <value>激活後始終啟動新流程</value>
@@ -2510,5 +2507,8 @@
   </data>
   <data name="MergeDialogEncodingQuality.Header" xml:space="preserve">
     <value>質量</value>
+  </data>
+  <data name="RunningInAdminModeTip" xml:space="preserve">
+    <value>管理員模式</value>
   </data>
 </root>

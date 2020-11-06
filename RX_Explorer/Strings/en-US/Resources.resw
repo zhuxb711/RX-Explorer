@@ -1877,12 +1877,10 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedDelete_Content" xml:space="preserve">
-    <value>RX does not have permission to delete this item, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\rUnless the last RX instance is shut down, it will keep running with administrator privileges.</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX does not have permission to delete this item, administrator rights may be required. Do you want to grant administrator rights?</value>
   </data>
   <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
-    <value>RX does not have permission to paste, administrator rights may be required to access this folder. Do you want to grant administrator rights?\r\rNotice:\rUnless the last RX instance is shut down, it will keep running with administrator privileges.</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX does not have permission to paste, administrator rights may be required to access this folder. Do you want to grant administrator rights?</value>
   </data>
   <data name="Common_Dialog_GoBack" xml:space="preserve">
     <value>Go back</value>
@@ -2039,8 +2037,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
-    <value>RX does not have permission to rename, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\rUnless the last RX instance is shut down, it will keep running with administrator privileges.</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX does not have permission to rename, administrator rights may be required. Do you want to grant administrator rights?</value>
   </data>
   <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">
     <value>Since some files/folders no longer exist, the undo operation could not be completed completely</value>
@@ -2536,7 +2533,7 @@ Invalid names include
     <value>Adjust background blur effect</value>
   </data>
   <data name="QueueDialog_UnauthorizedExecute_Content" xml:space="preserve">
-    <value>RX does not have permission to execute the file, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\rUnless the last RX instance is shut down, it will keep running with administrator privileges.</value>
+    <value>RX does not have permission to execute the file, administrator rights may be required. Do you want to grant administrator rights?</value>
   </data>
   <data name="SettingPageAlwaysLaunchNew.Content" xml:space="preserve">
     <value>Always start a new process when activated</value>
@@ -2615,5 +2612,8 @@ Invalid names include
   </data>
   <data name="LoadMode_OnlyFile_Text" xml:space="preserve">
     <value>Load file icon only (balanced)</value>
+  </data>
+  <data name="RunningInAdminModeTip" xml:space="preserve">
+    <value>Administrator mode</value>
   </data>
 </root>

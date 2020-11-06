@@ -70,6 +70,17 @@ namespace RX_Explorer
                 AppName.Text += " (Development Mode)";
             }
 
+            FullTrustProcessController.Current.AuthorityModeChanged += async(s, e) =>
+            {
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    if (FullTrustProcessController.Current.RuningInAdministratorMode)
+                    {
+                        AppName.Text += $" ({Globalization.GetString("RunningInAdminModeTip")})";
+                    }
+                });
+            };
+
             if (Parameter is Tuple<Rect, string> RSParamter)
             {
                 string[] Paras = RSParamter.Item2.Split("||");

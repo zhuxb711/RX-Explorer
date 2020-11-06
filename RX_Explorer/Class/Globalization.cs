@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
+using Windows.ApplicationModel;
 using Windows.ApplicationModel.Resources;
 using Windows.Globalization;
 using Windows.Storage;
@@ -77,9 +77,18 @@ namespace RX_Explorer.Class
                         return Value;
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    throw new Exception("Could not find the key");
+                    LogTracer.Log(ex, "Could not find the key");
+
+                    if (Package.Current.IsDevelopmentMode)
+                    {
+                        throw new Exception();
+                    }
+                    else
+                    {
+                        return string.Empty;
+                    }
                 }
             }
         }
@@ -118,13 +127,13 @@ namespace RX_Explorer.Class
 
                 if (PrimaryLanguage.StartsWith("zh", StringComparison.OrdinalIgnoreCase))
                 {
-                    if(PrimaryLanguage.Contains("Hant"))
+                    if (PrimaryLanguage.Contains("Hant"))
                     {
                         CurrentLanguage = LanguageEnum.Chinese_Traditional;
                         ApplicationLanguages.PrimaryLanguageOverride = "zh-Hant";
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 3;
                     }
-                    else if(PrimaryLanguage.Contains("Hans"))
+                    else if (PrimaryLanguage.Contains("Hans"))
                     {
                         CurrentLanguage = LanguageEnum.Chinese_Simplified;
                         ApplicationLanguages.PrimaryLanguageOverride = "zh-Hans";

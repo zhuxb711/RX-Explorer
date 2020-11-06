@@ -1732,12 +1732,10 @@
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
-    <value>RX无权将文件粘贴至此处，访问该文件夹可能需要管理员权限，您是否希望授予管理员权限？\r\r注意:\r除非最后一个RX的实例关闭，否则它将保持管理员权限运行</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX无权将文件粘贴至此处，访问该文件夹可能需要管理员权限，您是否希望授予管理员权限？</value>
   </data>
   <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
-    <value>RX无权重命名此文件夹，可能需要管理员权限，您是否希望授予管理员权限？\r\r注意:\r除非最后一个RX的实例关闭，否则它将保持管理员权限运行</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX无权重命名此文件夹，可能需要管理员权限，您是否希望授予管理员权限？</value>
   </data>
   <data name="Common_Dialog_GoBack" xml:space="preserve">
     <value>返回</value>
@@ -1999,8 +1997,7 @@
     <value>删除日期</value>
   </data>
   <data name="QueueDialog_UnauthorizedDelete_Content" xml:space="preserve">
-    <value>RX无权限删除此对象，可能需要管理员权限，您是否希望授予管理员权限？\r\r注意:\r除非最后一个RX的实例关闭，否则它将保持管理员权限运行</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX无权限删除此对象，可能需要管理员权限，您是否希望授予管理员权限？</value>
   </data>
   <data name="QueueDialog_Item_Captured_Content" xml:space="preserve">
     <value>该对象已被其他应用程序占用，无法进行此操作</value>
@@ -2416,7 +2413,7 @@
     <value>调整背景模糊效果</value>
   </data>
   <data name="QueueDialog_UnauthorizedExecute_Content" xml:space="preserve">
-    <value>RX无权执行此文件，可能需要管理员权限，您是否希望授予管理员权限？\r\r注意:\r除非最后一个RX的实例关闭，否则它将保持管理员权限运行</value>
+    <value>RX无权执行此文件，可能需要管理员权限，您是否希望授予管理员权限？</value>
   </data>
   <data name="SettingPageAlwaysLaunchNew.Content" xml:space="preserve">
     <value>激活时始终启动新的进程</value>
@@ -2510,5 +2507,8 @@
   </data>
   <data name="MergeDialogEncodingQuality.Header" xml:space="preserve">
     <value>输出质量</value>
+  </data>
+  <data name="RunningInAdminModeTip" xml:space="preserve">
+    <value>管理员模式</value>
   </data>
 </root>

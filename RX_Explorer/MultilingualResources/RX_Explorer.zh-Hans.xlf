@@ -2290,14 +2290,12 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedPaste_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to paste, administrator rights may be required to access this folder. Do you want to grant administrator rights?\r\rNotice:\rUnless the last RX instance is shut down, it will keep running with administrator privileges.</source>
-          <target state="translated">RX无权将文件粘贴至此处，访问该文件夹可能需要管理员权限，您是否希望授予管理员权限？\r\r注意:\r除非最后一个RX的实例关闭，否则它将保持管理员权限运行</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>RX does not have permission to paste, administrator rights may be required to access this folder. Do you want to grant administrator rights?</source>
+          <target state="translated">RX无权将文件粘贴至此处，访问该文件夹可能需要管理员权限，您是否希望授予管理员权限？</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedRenameFile_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to rename, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\rUnless the last RX instance is shut down, it will keep running with administrator privileges.</source>
-          <target state="translated">RX无权重命名此文件夹，可能需要管理员权限，您是否希望授予管理员权限？\r\r注意:\r除非最后一个RX的实例关闭，否则它将保持管理员权限运行</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>RX does not have permission to rename, administrator rights may be required. Do you want to grant administrator rights?</source>
+          <target state="translated">RX无权重命名此文件夹，可能需要管理员权限，您是否希望授予管理员权限？</target>
         </trans-unit>
         <trans-unit id="Common_Dialog_GoBack" translate="yes" xml:space="preserve">
           <source>Go back</source>
@@ -2640,9 +2638,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">删除日期</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedDelete_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to delete this item, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\rUnless the last RX instance is shut down, it will keep running with administrator privileges.</source>
-          <target state="translated">RX无权限删除此对象，可能需要管理员权限，您是否希望授予管理员权限？\r\r注意:\r除非最后一个RX的实例关闭，否则它将保持管理员权限运行</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>RX does not have permission to delete this item, administrator rights may be required. Do you want to grant administrator rights?</source>
+          <target state="translated">RX无权限删除此对象，可能需要管理员权限，您是否希望授予管理员权限？</target>
         </trans-unit>
         <trans-unit id="QueueDialog_Item_Captured_Content" translate="yes" xml:space="preserve">
           <source>The item is already occupied by another application, this operation cannot be performed</source>
@@ -3201,8 +3198,8 @@ Invalid names include
           <target state="translated">调整背景模糊效果</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedExecute_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to execute the file, administrator rights may be required. Do you want to grant administrator rights?\r\rNotice:\rUnless the last RX instance is shut down, it will keep running with administrator privileges.</source>
-          <target state="translated">RX无权执行此文件，可能需要管理员权限，您是否希望授予管理员权限？\r\r注意:\r除非最后一个RX的实例关闭，否则它将保持管理员权限运行</target>
+          <source>RX does not have permission to execute the file, administrator rights may be required. Do you want to grant administrator rights?</source>
+          <target state="translated">RX无权执行此文件，可能需要管理员权限，您是否希望授予管理员权限？</target>
         </trans-unit>
         <trans-unit id="SettingPageAlwaysLaunchNew.Content" translate="yes" xml:space="preserve">
           <source>Always start a new process when activated</source>
@@ -3327,6 +3324,10 @@ Invalid names include
         <trans-unit id="MergeDialogEncodingQuality.Header" translate="yes" xml:space="preserve">
           <source>Quality</source>
           <target state="translated">输出质量</target>
+        </trans-unit>
+        <trans-unit id="RunningInAdminModeTip" translate="yes" xml:space="preserve">
+          <source>Administrator mode</source>
+          <target state="translated">管理员模式</target>
         </trans-unit>
       </group>
     </body>

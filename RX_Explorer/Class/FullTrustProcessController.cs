@@ -101,6 +101,25 @@ namespace RX_Explorer.Class
             }
         }
 
+        private bool runningMode;
+        public bool RuningInAdministratorMode
+        {
+            get
+            {
+                return runningMode;
+            }
+            private set
+            {
+                if (value != runningMode)
+                {
+                    runningMode = value;
+                    AuthorityModeChanged?.Invoke(this, null);
+                }
+            }
+        }
+
+        public event EventHandler AuthorityModeChanged;
+
         private async void Connection_RequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
         {
             var Deferral = args.GetDeferral();
@@ -188,29 +207,29 @@ namespace RX_Explorer.Class
                     {
                         if (Response.Message.ContainsKey(ExcuteType_Test_Connection))
                         {
-                            return true;
+                            return RuningInAdministratorMode = true;
                         }
                         else
                         {
                             await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
-                            return false;
+                            return RuningInAdministratorMode = false;
                         }
                     }
                     else
                     {
-                        return false;
+                        return RuningInAdministratorMode = false;
                     }
                 }
                 else
                 {
                     LogTracer.Log($"{nameof(SwitchToAdminMode)}: Failed to connect AppService ");
-                    return false;
+                    return RuningInAdministratorMode = false;
                 }
             }
             catch(Exception ex)
             {
                 LogTracer.Log(ex, $"{ nameof(SwitchToAdminMode)} throw an error");
-                return false;
+                return RuningInAdministratorMode = false;
             }
             finally
             {

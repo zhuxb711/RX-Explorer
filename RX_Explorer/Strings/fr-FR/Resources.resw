@@ -1732,12 +1732,10 @@
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
-    <value>RX n'a pas la permission pour copier, des droits d'administrateur peuvent être nécessaires pour accéder à ce dossier. Voulez-vous accorder des droits d'administrateur?\r\rRemarquez: \rÀ moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX n'a pas la permission pour copier, des droits d'administrateur peuvent être nécessaires pour accéder à ce dossier. Voulez-vous accorder des droits d'administrateur?</value>
   </data>
   <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
-    <value>RX n'a pas la permission pour renommer ce dossier, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur? \r\rAvis: \rÀ moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX n'a pas la permission pour renommer ce dossier, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur?</value>
   </data>
   <data name="Common_Dialog_GoBack" xml:space="preserve">
     <value>Retour</value>
@@ -1999,8 +1997,7 @@
     <value>Date de recyclage</value>
   </data>
   <data name="QueueDialog_UnauthorizedDelete_Content" xml:space="preserve">
-    <value>RX n'a pas l'autorisation de supprimer cet élément, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur? \r\rAvis: \rÀ moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>RX n'a pas l'autorisation de supprimer cet élément, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur? </value>
   </data>
   <data name="QueueDialog_Item_Captured_Content" xml:space="preserve">
     <value>L'élément est déjà occupé par une autre application, cette opération ne peut pas être effectuée</value>
@@ -2416,7 +2413,7 @@ Les noms non valides incluent
     <value>Ajuster l'effet de flou d'arrière-plan</value>
   </data>
   <data name="QueueDialog_UnauthorizedExecute_Content" xml:space="preserve">
-    <value>RX n'a pas l'autorisation d'exécuter le fichier, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur? \r\rRemarque: \rÀ moins que la dernière instance RX ne soit arrêtée, elle continuera de fonctionner avec les privilèges d'administrateur.</value>
+    <value>RX n'a pas l'autorisation d'exécuter le fichier, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur?</value>
   </data>
   <data name="SettingPageAlwaysLaunchNew.Content" xml:space="preserve">
     <value>Toujours démarrer un nouveau processus lorsqu'il est activé</value>
@@ -2510,5 +2507,8 @@ Les noms non valides incluent
   </data>
   <data name="MergeDialogEncodingQuality.Header" xml:space="preserve">
     <value>Qualité</value>
+  </data>
+  <data name="RunningInAdminModeTip" xml:space="preserve">
+    <value>Mode administrateur</value>
   </data>
 </root>
