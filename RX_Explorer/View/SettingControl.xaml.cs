@@ -123,10 +123,9 @@ namespace RX_Explorer
 
 
         public bool IsOpened { get; private set; }
+        public bool IsAnimating { get; private set; }
 
         private bool HasInit;
-
-        private int EnterAndExitLock;
 
         private int BlurChangeLock;
 
@@ -317,50 +316,91 @@ namespace RX_Explorer
 
         public async Task Show()
         {
-            if (!IsOpened && Interlocked.Exchange(ref EnterAndExitLock, 1) == 0)
+            if (IsAnimating)
             {
-                IsOpened = true;
+                await Task.Run(() => SpinWait.SpinUntil(() => !IsAnimating, 3000)).ConfigureAwait(false);
+            }
 
-                Visibility = Visibility.Visible;
-
-                if (AnimationController.Current.IsEnableAnimation)
+            if (!IsOpened)
+            {
+                try
                 {
-                    Scroll.ChangeView(null, 0, null, true);
+                    IsAnimating = true;
 
-                    ActivateAnimation(Gr, TimeSpan.FromMilliseconds(600), TimeSpan.FromMilliseconds(200), 200, false);
-                    ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(300), 150, false);
-                    ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(300), 150, false);
+                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        Visibility = Visibility.Visible;
+
+                        if (AnimationController.Current.IsEnableAnimation)
+                        {
+                            Scroll.ChangeView(null, 0, null, true);
+
+                            ActivateAnimation(Gr, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(200), 200, false);
+                            ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(400), 250, false);
+                            ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(400), 250, false);
+                        }
+
+                        if (PictureMode.IsChecked.GetValueOrDefault() && PictureGirdView.SelectedItem != null)
+                        {
+                            PictureGirdView.ScrollIntoViewSmoothly(PictureGirdView.SelectedItem, ScrollIntoViewAlignment.Leading);
+                        }
+                    });
+
+                    await Task.Delay(1500).ConfigureAwait(false);
                 }
-
-                await Task.Delay(1000).ConfigureAwait(true);
-
-                if (PictureMode.IsChecked.GetValueOrDefault() && PictureGirdView.SelectedItem != null)
+                catch (Exception ex)
                 {
-                    PictureGirdView.ScrollIntoViewSmoothly(PictureGirdView.SelectedItem, ScrollIntoViewAlignment.Leading);
+                    LogTracer.Log(ex);
+                }
+                finally
+                {
+                    IsAnimating = false;
+                    IsOpened = true;
                 }
             }
         }
 
         public async Task Hide()
         {
+            if (IsAnimating)
+            {
+                await Task.Run(() => SpinWait.SpinUntil(() => !IsAnimating, 3000)).ConfigureAwait(false);
+            }
+
             if (IsOpened)
             {
-                IsOpened = false;
-
-                (TabViewContainer.CurrentTabNavigation.Content as Page).Focus(FocusState.Programmatic);
-
-                if (AnimationController.Current.IsEnableAnimation)
+                try
                 {
-                    ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(600), TimeSpan.FromMilliseconds(200), 150, true);
-                    ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(600), TimeSpan.FromMilliseconds(200), 150, true);
-                    ActivateAnimation(Gr, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(300), 200, true);
+                    IsAnimating = true;
 
-                    await Task.Delay(1400).ConfigureAwait(true);
+                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        (TabViewContainer.CurrentTabNavigation.Content as Page).Focus(FocusState.Programmatic);
+
+                        if (AnimationController.Current.IsEnableAnimation)
+                        {
+                            ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(200), 250, true);
+                            ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(200), 250, true);
+                            ActivateAnimation(Gr, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(400), 200, true);
+                        }
+                    });
+
+                    await Task.Delay(1500).ConfigureAwait(false);
                 }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex);
+                }
+                finally
+                {
+                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        Visibility = Visibility.Collapsed;
+                    });
 
-                Visibility = Visibility.Collapsed;
-
-                _ = Interlocked.Exchange(ref EnterAndExitLock, 0);
+                    IsAnimating = false;
+                    IsOpened = false;
+                }
             }
         }
 
@@ -1999,7 +2039,7 @@ namespace RX_Explorer
             {
                 FileSavePicker Picker = new FileSavePicker
                 {
-                    SuggestedFileName = "Export_LastThreeDay_Error_Log.txt",
+                    SuggestedFileName = "Export_All_Error_Log.txt",
                     SuggestedStartLocation = PickerLocationId.Desktop
                 };
                 Picker.FileTypeChoices.Add(Globalization.GetString("File_Type_TXT_Description"), new List<string> { ".txt" });

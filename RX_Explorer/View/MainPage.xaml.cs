@@ -666,12 +666,12 @@ namespace RX_Explorer
             {
                 if (args.IsSettingsInvoked)
                 {
+                    NavView.IsBackEnabled = true;
+
                     if (FindName(nameof(SettingControl)) is SettingControl Control)
                     {
                         await Control.Show().ConfigureAwait(true);
                     }
-
-                    NavView.IsBackEnabled = true;
                 }
                 else
                 {
@@ -679,7 +679,7 @@ namespace RX_Explorer
                     {
                         NavView.IsBackEnabled = (TabViewContainer.CurrentTabNavigation?.CanGoBack).GetValueOrDefault();
 
-                        if ((SettingControl?.IsOpened).GetValueOrDefault())
+                        if (SettingControl != null)
                         {
                             await SettingControl.Hide().ConfigureAwait(true);
                         }
@@ -690,7 +690,7 @@ namespace RX_Explorer
                     {
                         NavView.IsBackEnabled = false;
 
-                        if ((SettingControl?.IsOpened).GetValueOrDefault())
+                        if (SettingControl != null)
                         {
                             await SettingControl.Hide().ConfigureAwait(true);
                         }
@@ -722,30 +722,37 @@ namespace RX_Explorer
 
         public async void NavView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
         {
-            if ((SettingControl?.IsOpened).GetValueOrDefault())
+            try
             {
-                if (Nav.CurrentSourcePageType == typeof(TabViewContainer))
+                if ((SettingControl?.IsOpened).GetValueOrDefault() || (SettingControl?.IsAnimating).GetValueOrDefault())
                 {
-                    NavView.IsBackEnabled = (TabViewContainer.CurrentTabNavigation?.CanGoBack).GetValueOrDefault();
+                    if (Nav.CurrentSourcePageType == typeof(TabViewContainer))
+                    {
+                        NavView.IsBackEnabled = (TabViewContainer.CurrentTabNavigation?.CanGoBack).GetValueOrDefault();
+                    }
+                    else
+                    {
+                        NavView.IsBackEnabled = false;
+                    }
+
+                    if (NavView.MenuItems.Select((Item) => Item as NavigationViewItem).FirstOrDefault((Item) => Item.Content.ToString() == PageDictionary[Nav.CurrentSourcePageType]) is NavigationViewItem Item)
+                    {
+                        Item.IsSelected = true;
+                    }
+
+                    await SettingControl.Hide().ConfigureAwait(false);
                 }
                 else
                 {
-                    NavView.IsBackEnabled = false;
+                    if (TabViewContainer.CurrentTabNavigation.CanGoBack)
+                    {
+                        TabViewContainer.CurrentTabNavigation.GoBack();
+                    }
                 }
-
-                if (NavView.MenuItems.Select((Item) => Item as NavigationViewItem).FirstOrDefault((Item) => Item.Content.ToString() == PageDictionary[Nav.CurrentSourcePageType]) is NavigationViewItem Item)
-                {
-                    Item.IsSelected = true;
-                }
-
-                await SettingControl.Hide().ConfigureAwait(false);
             }
-            else
+            catch (Exception ex)
             {
-                if (TabViewContainer.CurrentTabNavigation.CanGoBack)
-                {
-                    TabViewContainer.CurrentTabNavigation.GoBack();
-                }
+                LogTracer.Log(ex, "An error was threw when navigate back");
             }
         }
     }
