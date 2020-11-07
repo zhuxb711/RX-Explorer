@@ -352,6 +352,7 @@
     <Content Include="Assets\LockFile.png" />
     <Content Include="Assets\Page_Solid_Black.png" />
     <Content Include="Assets\Page_Solid_White.png" />
+    <Content Include="Assets\RX-icon.png" />
     <Content Include="Assets\SAIntro_cn_s.png" />
     <Content Include="Assets\SAIntro_cn_t.png" />
     <Content Include="Assets\SAIntro_en.png" />
@@ -360,7 +361,6 @@
     <Content Include="Assets\UpdateLog-Chinese_T.txt" />
     <Content Include="Assets\UpdateLog-English.txt" />
     <Content Include="Assets\UpdateLog-French.txt" />
-    <Content Include="Assets\Viewer.png" />
     <Content Include="CustomImage\Picture10.jpg" />
     <Content Include="CustomImage\Picture15.jpg" />
     <Content Include="CustomImage\Picture14.jpg" />

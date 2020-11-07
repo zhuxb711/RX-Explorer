@@ -19,13 +19,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 指示当前是否存在正处于弹出状态的ContentDialog
         /// </summary>
-        public static bool IsRunningOrWaiting
-        {
-            get
-            {
-                return WaitCount != 0;
-            }
-        }
+        public static bool IsRunningOrWaiting => WaitCount != 0;
 
         /// <summary>
         /// 显示对话框

@@ -70,7 +70,7 @@ namespace RX_Explorer
                 AppName.Text += " (Development Mode)";
             }
 
-            FullTrustProcessController.Current.AuthorityModeChanged += async(s, e) =>
+            FullTrustProcessController.Current.AuthorityModeChanged += async (s, e) =>
             {
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
@@ -251,30 +251,30 @@ namespace RX_Explorer
         {
             Deferral Deferral = e.GetDeferral();
 
-            if (IsAnyTaskRunning || GeneralTransformer.IsAnyTransformTaskRunning || FullTrustProcessController.Current.IsNowHasAnyActionExcuting)
-            {
-                QueueContentDialog Dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                    Content = Globalization.GetString("QueueDialog_WaitUntilFinish_Content"),
-                    PrimaryButtonText = Globalization.GetString("QueueDialog_WaitUntilFinish_PrimaryButton"),
-                    CloseButtonText = Globalization.GetString("QueueDialog_WaitUntilFinish_CloseButton")
-                };
-
-                if ((await Dialog.ShowAsync().ConfigureAwait(true)) != ContentDialogResult.Primary)
-                {
-                    e.Handled = true;
-                }
-                else
-                {
-                    IsAnyTaskRunning = false;
-                    GeneralTransformer.IsAnyTransformTaskRunning = false;
-                    ToastNotificationManager.History.Clear();
-                }
-            }
-
             try
             {
+                if (IsAnyTaskRunning || GeneralTransformer.IsAnyTransformTaskRunning || FullTrustProcessController.Current.IsNowHasAnyActionExcuting)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                        Content = Globalization.GetString("QueueDialog_WaitUntilFinish_Content"),
+                        PrimaryButtonText = Globalization.GetString("QueueDialog_WaitUntilFinish_PrimaryButton"),
+                        CloseButtonText = Globalization.GetString("QueueDialog_WaitUntilFinish_CloseButton")
+                    };
+
+                    if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                    {
+                        IsAnyTaskRunning = false;
+                        GeneralTransformer.IsAnyTransformTaskRunning = false;
+                        ToastNotificationManager.History.Clear();
+                    }
+                    else
+                    {
+                        e.Handled = true;
+                    }
+                }
+
                 if (!e.Handled && Clipboard.GetContent().Contains(StandardDataFormats.StorageItems))
                 {
                     Clipboard.Flush();
@@ -282,10 +282,12 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, "Error happened when Flush Clipboard");
+                LogTracer.Log(ex, "An error was threw in close delay");
             }
-
-            Deferral.Complete();
+            finally
+            {
+                Deferral.Complete();
+            }
         }
 
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)
@@ -347,7 +349,7 @@ namespace RX_Explorer
                 string UserID = (await CurrentUser.GetPropertyAsync(KnownUserProperties.AccountName))?.ToString();
                 if (string.IsNullOrEmpty(UserID))
                 {
-                    var Token = HardwareIdentification.GetPackageSpecificToken(null);
+                    HardwareToken Token = HardwareIdentification.GetPackageSpecificToken(null);
                     HashAlgorithmProvider md5 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Md5);
                     IBuffer hashedData = md5.HashData(Token.Id);
                     UserID = CryptographicBuffer.EncodeToHexString(hashedData).ToUpper();
@@ -363,7 +365,7 @@ namespace RX_Explorer
             }
             else
             {
-                var Token = HardwareIdentification.GetPackageSpecificToken(null);
+                HardwareToken Token = HardwareIdentification.GetPackageSpecificToken(null);
                 HashAlgorithmProvider md5 = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Md5);
                 IBuffer hashedData = md5.HashData(Token.Id);
                 string UserID = CryptographicBuffer.EncodeToHexString(hashedData).ToUpper();

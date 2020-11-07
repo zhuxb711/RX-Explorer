@@ -1367,14 +1367,53 @@ namespace RX_Explorer
                 {
                     ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.BingPicture);
 
-                    BitmapImage Bitmap = new BitmapImage();
-
                     using (IRandomAccessStream FileStream = await File.OpenAsync(FileAccessMode.Read))
                     {
-                        await Bitmap.SetSourceAsync(FileStream);
-                    }
+                        BitmapImage Bitmap = new BitmapImage();
 
-                    BackgroundController.Current.SwitchTo(BackgroundBrushType.BingPicture, Bitmap);
+                        await Bitmap.SetSourceAsync(FileStream);
+
+                        BackgroundController.Current.SwitchTo(BackgroundBrushType.BingPicture, Bitmap);
+
+
+                        BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(FileStream);
+
+                        using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                        {
+                            float Brightness = ComputerVisionProvider.DetectAvgBrightness(SBitmap);
+
+                            if (Brightness <= 100 && CustomFontColor.SelectedIndex == 1)
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                    Content = Globalization.GetString("QueueDialog_AutoDetectBlackColor_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_SwitchButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
+
+                                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                {
+                                    CustomFontColor.SelectedIndex = 0;
+                                }
+                            }
+                            else if (Brightness > 156 && CustomFontColor.SelectedIndex == 0)
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                    Content = Globalization.GetString("QueueDialog_AutoDetectWhiteColor_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_SwitchButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
+
+                                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                {
+                                    CustomFontColor.SelectedIndex = 1;
+                                }
+                            }
+                        }
+                    }
                 }
                 else
                 {

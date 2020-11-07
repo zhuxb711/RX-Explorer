@@ -474,6 +474,8 @@ namespace RX_Explorer.View
 
                 if (await FullTrustProcessController.Current.EmptyRecycleBinAsync().ConfigureAwait(true))
                 {
+                    await ActivateLoading(false).ConfigureAwait(true);
+
                     FileCollection.Clear();
                 }
                 else
@@ -486,9 +488,9 @@ namespace RX_Explorer.View
                     };
 
                     _ = await dialog.ShowAsync().ConfigureAwait(true);
-                }
 
-                await ActivateLoading(false).ConfigureAwait(true);
+                    await ActivateLoading(false).ConfigureAwait(true);
+                }
             }
         }
 
