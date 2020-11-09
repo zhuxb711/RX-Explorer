@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -44,7 +45,7 @@ namespace RX_Explorer.Class
         /// 请求进入蓝屏状态
         /// </summary>
         /// <param name="Ex">错误内容</param>
-        public static async void LeadToBlueScreen(Exception Ex)
+        public static async void LeadToBlueScreen(Exception Ex, [CallerMemberName] string MemberName = "", [CallerFilePath] string SourceFilePath = "", [CallerLineNumber] int SourceLineNumber = 0)
         {
             if (Ex == null)
             {
@@ -102,6 +103,13 @@ namespace RX_Explorer.Class
                                         .AppendLine()
                                         .AppendLine("StackTrace:")
                                         .AppendLine(StackTraceSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, StackTraceSplit))
+                                        .AppendLine()
+                                        .AppendLine("------------------------------------")
+                                        .AppendLine()
+                                        .AppendLine("Extra info: ")
+                                        .AppendLine($"        CallerMemberName: {MemberName}")
+                                        .AppendLine($"        CallerFilePath: {SourceFilePath}")
+                                        .AppendLine($"        CallerLineNumber: {SourceLineNumber}")
                                         .AppendLine()
                                         .AppendLine("------------------------------------")
                                         .AppendLine();
@@ -185,6 +193,7 @@ namespace RX_Explorer.Class
                         {
                             using (StreamWriter Writer = new StreamWriter(ExportStream, Encoding.Unicode, 1024, true))
                             {
+                                Writer.WriteLine();
                                 Writer.WriteLine("*************************");
                                 Writer.WriteLine($"LogDate: {LogDate:G}");
                                 Writer.WriteLine("*************************");
@@ -212,65 +221,79 @@ namespace RX_Explorer.Class
         /// <param name="Ex">错误</param>
         /// <param name="AdditionalComment">附加信息</param>
         /// <returns></returns>
-        public static void Log(Exception Ex, string AdditionalComment = null)
+        public static void Log(Exception Ex, string AdditionalComment = null, [CallerMemberName] string MemberName = "", [CallerFilePath] string SourceFilePath = "", [CallerLineNumber] int SourceLineNumber = 0)
         {
             if (Ex == null)
             {
                 throw new ArgumentNullException(nameof(Ex), "Exception could not be null");
             }
 
-            string[] MessageSplit;
-
             try
             {
-                if (string.IsNullOrWhiteSpace(Ex.Message))
+                string[] MessageSplit;
+
+                try
+                {
+                    if (string.IsNullOrWhiteSpace(Ex.Message))
+                    {
+                        MessageSplit = Array.Empty<string>();
+                    }
+                    else
+                    {
+                        MessageSplit = Ex.Message.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
+                    }
+                }
+                catch
                 {
                     MessageSplit = Array.Empty<string>();
                 }
-                else
+
+                string[] StackTraceSplit;
+
+                try
                 {
-                    MessageSplit = Ex.Message.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
+                    if (string.IsNullOrWhiteSpace(Ex.StackTrace))
+                    {
+                        StackTraceSplit = Array.Empty<string>();
+                    }
+                    else
+                    {
+                        StackTraceSplit = Ex.StackTrace.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
+                    }
                 }
-            }
-            catch
-            {
-                MessageSplit = Array.Empty<string>();
-            }
-
-            string[] StackTraceSplit;
-
-            try
-            {
-                if (string.IsNullOrWhiteSpace(Ex.StackTrace))
+                catch
                 {
                     StackTraceSplit = Array.Empty<string>();
                 }
-                else
-                {
-                    StackTraceSplit = Ex.StackTrace.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Select((Line) => $"        {Line.Trim()}").ToArray();
-                }
+
+                StringBuilder Builder = new StringBuilder()
+                                        .AppendLine("------------------------------------")
+                                        .AppendLine($"AdditionalComment: {AdditionalComment ?? "<Empty>"}")
+                                        .AppendLine($"------------------------------------")
+                                        .AppendLine()
+                                        .AppendLine($"Exception: {Ex.GetType().Name}")
+                                        .AppendLine()
+                                        .AppendLine("Message:")
+                                        .AppendLine(MessageSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, MessageSplit))
+                                        .AppendLine("StackTrace:")
+                                        .AppendLine(StackTraceSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, StackTraceSplit))
+                                        .AppendLine()
+                                        .AppendLine("------------------------------------")
+                                        .AppendLine()
+                                        .AppendLine("Extra info: ")
+                                        .AppendLine($"        CallerMemberName: {MemberName}")
+                                        .AppendLine($"        CallerFilePath: {SourceFilePath}")
+                                        .AppendLine($"        CallerLineNumber: {SourceLineNumber}")
+                                        .AppendLine()
+                                        .AppendLine("------------------------------------")
+                                        .AppendLine();
+
+                Log(Builder.ToString());
             }
-            catch
+            catch (Exception ex)
             {
-                StackTraceSplit = Array.Empty<string>();
+                Debug.WriteLine($"An error was threw in {nameof(Log)}, message: {ex.Message}");
             }
-
-            StringBuilder Builder = new StringBuilder()
-                                    .AppendLine("------------------------------------")
-                                    .AppendLine($"AdditionalComment: {AdditionalComment ?? "<Empty>"}")
-                                    .AppendLine($"------------------------------------")
-                                    .AppendLine()
-                                    .AppendLine($"Exception: {Ex.GetType().Name}")
-                                    .AppendLine()
-                                    .AppendLine("Message:")
-                                    .AppendLine(MessageSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, MessageSplit))
-                                    .AppendLine("StackTrace:")
-                                    .AppendLine(StackTraceSplit.Length == 0 ? "        Unknown" : string.Join(Environment.NewLine, StackTraceSplit))
-                                    .AppendLine()
-                                    .AppendLine("------------------------------------")
-                                    .AppendLine();
-
-            Log(Builder.ToString());
         }
 
         /// <summary>
@@ -280,11 +303,18 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public static void Log(string Message)
         {
-            LogQueue.Enqueue(Message);
-
-            if (BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.WaitSleepJoin))
+            try
             {
-                Locker.Set();
+                LogQueue.Enqueue(Message);
+
+                if (BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.WaitSleepJoin))
+                {
+                    Locker.Set();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"An error was threw in {nameof(Log)}, message: {ex.Message}");
             }
         }
 

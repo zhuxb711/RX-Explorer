@@ -64,8 +64,9 @@ namespace RX_Explorer.Class
                         return ExistFile;
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    LogTracer.Log(ex, $"An error was threw in {nameof(UpdateBingPicture)}");
                     return ExistFile;
                 }
             }
@@ -102,8 +103,9 @@ namespace RX_Explorer.Class
                         return BingDailyPictureFile;
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    LogTracer.Log(ex, $"An error was threw in {nameof(UpdateBingPicture)}");
                     return null;
                 }
             }
@@ -134,8 +136,9 @@ namespace RX_Explorer.Class
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, "Network is not available");
                 return string.Empty;
             }
         }

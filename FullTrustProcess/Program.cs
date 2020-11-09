@@ -719,7 +719,7 @@ namespace FullTrustProcess
                                     }
                                     else
                                     {
-                                        if (ExcutePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)) && ExcutePathList.All((Item) => StorageItemController.CheckPermission(FileSystemRights.Modify, Item)))
+                                        if (ExcutePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)) && ExcutePathList.All((Item) => StorageItemController.CheckPermission(FileSystemRights.DeleteSubdirectoriesAndFiles, Item)))
                                         {
                                             if (StorageItemController.Delete(ExcutePathList, PermanentDelete, (s, e) =>
                                             {
@@ -752,6 +752,7 @@ namespace FullTrustProcess
                                             }))
                                             {
                                                 Value.Add("Success", string.Empty);
+
                                                 if (OperationRecordList.Count > 0)
                                                 {
                                                     Value.Add("OperationRecord", JsonConvert.SerializeObject(OperationRecordList));
@@ -811,7 +812,7 @@ namespace FullTrustProcess
 
                             if (!string.IsNullOrEmpty(ExcutePath))
                             {
-                                if (StorageItemController.CheckPermission(FileSystemRights.ExecuteFile, ExcutePath))
+                                if (StorageItemController.CheckPermission(FileSystemRights.ReadAndExecute, ExcutePath))
                                 {
                                     if (string.IsNullOrEmpty(ExcuteParameter))
                                     {

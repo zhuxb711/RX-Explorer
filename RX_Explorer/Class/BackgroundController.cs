@@ -305,12 +305,26 @@ namespace RX_Explorer.Class
             {
                 if (ApplicationData.Current.LocalSettings.Values["BackgroundTintLuminosity"] is string Luminosity)
                 {
-                    TintLuminosityOpacity = double.Parse(Luminosity);
+                    if (double.TryParse(Luminosity, out double Result))
+                    {
+                        TintLuminosityOpacity = Result;
+                    }
+                    else
+                    {
+                        TintLuminosityOpacity = 0.8;
+                    }
                 }
 
                 if (ApplicationData.Current.LocalSettings.Values["BackgroundTintOpacity"] is string Opacity)
                 {
-                    TintOpacity = double.Parse(Opacity);
+                    if (double.TryParse(Opacity, out double Result))
+                    {
+                        TintOpacity = Result;
+                    }
+                    else
+                    {
+                        TintOpacity = 0.6;
+                    }
                 }
 
                 if (ApplicationData.Current.LocalSettings.Values["AcrylicThemeColor"] is string AcrylicColor)
