@@ -1,4 +1,27 @@
 ﻿*****
+###What's new in Ver.5.6.3.0
+
+#####UI update
+
+>#####Updated the UI design of "Select other applications"
+
+>#####Added a prompt in the title bar for the process under the administrator privilege mode
+
+>#####Font color switching suggestions have now been introduced in "Bing Pictures" mode
+
+>#####Improved the animation effect of entering and exiting the settings page
+
+#####Bug fix
+
+>#####Fixed the problem that deleting functions in areas that require administrator rights cannot elevate permissions as needed
+
+>#####Fixed the potential problem that may cause a crash at startup
+
+>#####Fixed the crash problem that may be caused when recording abnormal information
+
+>#####Fixed an issue where the option "Open with this application by default" in the "Select other applications" page may be blocked
+
+*****
 ###What's new in Ver.5.6.1.0
 
 #####Bug fix

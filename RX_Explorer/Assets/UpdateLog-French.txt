@@ -1,4 +1,27 @@
 ﻿*****
+###Quoi de neuf dans la version 5.6.3.0
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Mise à jour de la conception de l'interface utilisateur de "Sélectionner d'autres applications"
+
+>#####Ajout d'une invite dans la barre de titre pour le processus en mode privilège administrateur
+
+>#####Des suggestions de changement de couleur de police ont maintenant été introduites dans le mode "Bing Pictures"
+
+>#####Amélioration de l'effet d'animation lors de l'entrée et de la sortie de la page des paramètres
+
+#####Correction d'un bug
+
+>#####Correction du problème qui empêchait la suppression de fonctions dans les zones nécessitant des droits d'administrateur d'élever les autorisations selon les besoins
+
+>#####Correction du problème potentiel pouvant provoquer un crash au démarrage
+
+>#####Correction du problème de plantage pouvant survenir lors de l'enregistrement d'informations anormales
+
+>#####Correction d'un problème où l'option "Ouvrir avec cette application par défaut" dans la page "Sélectionner d'autres applications" pouvait être bloquée
+
+*****
 ###Quoi de neuf dans la version 5.6.1.0
 
 #####Correction d'un bug
