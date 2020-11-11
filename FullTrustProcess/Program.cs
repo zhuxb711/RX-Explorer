@@ -170,7 +170,7 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    if (StorageItemController.CheckPermission(FileSystemRights.Modify, ExecutePath))
+                                    if (StorageItemController.CheckPermission(FileSystemRights.Modify, Path.GetDirectoryName(ExecutePath)))
                                     {
                                         if (StorageItemController.Rename(ExecutePath, DesireName))
                                         {
@@ -178,7 +178,7 @@ namespace FullTrustProcess
                                         }
                                         else
                                         {
-                                            Value.Add("Error", "Error happened when rename");
+                                            Value.Add("Error_Failure", "Error happened when rename");
                                         }
                                     }
                                     else
@@ -392,7 +392,7 @@ namespace FullTrustProcess
                             ValueSet Result = new ValueSet();
 
                             string RecycleItemResult = RecycleBinController.GenerateRecycleItemsByJson();
-                            
+
                             if (string.IsNullOrEmpty(RecycleItemResult))
                             {
                                 Result.Add("Error", "Could not get recycle items");
@@ -556,7 +556,7 @@ namespace FullTrustProcess
                                     }
                                     else
                                     {
-                                        Value.Add("Error", "An error occurred while copying the folder");
+                                        Value.Add("Error_Failure", "An error occurred while copying the folder");
                                     }
                                 }
                                 else
@@ -660,7 +660,7 @@ namespace FullTrustProcess
                                         }
                                         else
                                         {
-                                            Value.Add("Error", "An error occurred while moving the folder");
+                                            Value.Add("Error_Failure", "An error occurred while moving the folder");
                                         }
                                     }
                                     else
@@ -719,7 +719,7 @@ namespace FullTrustProcess
                                     }
                                     else
                                     {
-                                        if (ExcutePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)) && ExcutePathList.All((Item) => StorageItemController.CheckPermission(FileSystemRights.DeleteSubdirectoriesAndFiles, Item)))
+                                        if (ExcutePathList.All((Path) => (Directory.Exists(Path) || File.Exists(Path)) && StorageItemController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path))))
                                         {
                                             if (StorageItemController.Delete(ExcutePathList, PermanentDelete, (s, e) =>
                                             {
@@ -760,7 +760,7 @@ namespace FullTrustProcess
                                             }
                                             else
                                             {
-                                                Value.Add("Error", "The specified file could not be deleted");
+                                                Value.Add("Error_Failure", "The specified file could not be deleted");
                                             }
                                         }
                                         else

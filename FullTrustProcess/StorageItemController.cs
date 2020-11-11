@@ -96,65 +96,80 @@ namespace FullTrustProcess
 
         public static bool CheckPermission(FileSystemRights Permission, string Path)
         {
-            bool AllowWrite = false;
-            bool DenyWrite = false;
-
-            WindowsPrincipal CurrentUser = new WindowsPrincipal(WindowsIdentity.GetCurrent());
-
-            FileSystemSecurity Security;
-
-            if (Directory.Exists(Path))
+            try
             {
-                Security = Directory.GetAccessControl(Path);
-            }
-            else if(File.Exists(Path))
-            {
-                Security = File.GetAccessControl(Path);
-            }
-            else
-            {
-                //Relative path will come here, so we won't check its permission becasue no full path available
-                return true;
-            }
+                bool InheritedDeny = false;
+                bool InheritedAllow = false;
 
-            AuthorizationRuleCollection AccessRules = Security.GetAccessRules(true, true, typeof(SecurityIdentifier));
+                WindowsIdentity CurrentUser = WindowsIdentity.GetCurrent();
+                WindowsPrincipal CurrentPrincipal = new WindowsPrincipal(CurrentUser);
 
-            foreach (FileSystemAccessRule Rule in AccessRules)
-            {
-                if ((Permission & Rule.FileSystemRights) == Permission)
+                FileSystemSecurity Security;
+
+                if (Directory.Exists(Path))
                 {
-                    if (Rule.IdentityReference.Value.StartsWith("S-1-"))
-                    {
-                        if (!CurrentUser.IsInRole(new SecurityIdentifier(Rule.IdentityReference.Value)))
-                        {
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        if (!CurrentUser.IsInRole(Rule.IdentityReference.Value))
-                        {
-                            continue;
-                        }
-                    }
+                    Security = Directory.GetAccessControl(Path);
+                }
+                else if (File.Exists(Path))
+                {
+                    Security = File.GetAccessControl(Path);
+                }
+                else
+                {
+                    //Relative path will come here, so we won't check its permission becasue no full path available
+                    return true;
+                }
 
-                    switch (Rule.AccessControlType)
+                if (Security == null)
+                {
+                    return false;
+                }
+
+                AuthorizationRuleCollection AccessRules = Security.GetAccessRules(true, true, typeof(SecurityIdentifier));
+
+                foreach (FileSystemAccessRule Rule in AccessRules)
+                {
+                    if (CurrentUser.User.Equals(Rule.IdentityReference) || CurrentPrincipal.IsInRole((SecurityIdentifier)Rule.IdentityReference))
                     {
-                        case AccessControlType.Allow:
+                        if (Rule.AccessControlType == AccessControlType.Deny)
+                        {
+                            if ((Rule.FileSystemRights & Permission) == Permission)
                             {
-                                AllowWrite = true;
-                                break;
+                                if (Rule.IsInherited)
+                                {
+                                    InheritedDeny = true;
+                                }
+                                else
+                                {
+                                    // Non inherited "deny" takes overall precedence.
+                                    return false;
+                                }
                             }
-                        case AccessControlType.Deny:
+                        }
+                        else if (Rule.AccessControlType == AccessControlType.Allow)
+                        {
+                            if ((Rule.FileSystemRights & Permission) == Permission)
                             {
-                                DenyWrite = true;
-                                break;
+                                if (Rule.IsInherited)
+                                {
+                                    InheritedAllow = true;
+                                }
+                                else
+                                {
+                                    // Non inherited "allow" takes precedence over inherited rules
+                                    return true;
+                                }
                             }
+                        }
                     }
                 }
-            }
 
-            return AllowWrite && !DenyWrite;
+                return InheritedAllow && !InheritedDeny;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public static bool Rename(string Source, string DesireName)
