@@ -5,7 +5,6 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Vanara.InteropServices;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
 
@@ -14,6 +13,8 @@ namespace FullTrustProcess
     public static class ContextMenu
     {
         private static ShellContextMenu Context;
+
+        private const int BufferSize = 512;
 
         public static List<(string, string, string)> FetchContextMenuItems(IEnumerable<string> Path, bool FetchExtensionMenu = false)
         {
@@ -35,15 +36,15 @@ namespace FullTrustProcess
 
                     for (uint i = 0; i < MaxCount; i++)
                     {
-                        IntPtr UnmanagedPtr = Marshal.AllocHGlobal(512);
+                        IntPtr DataPtr = Marshal.AllocHGlobal(BufferSize);
 
                         try
                         {
                             User32.MENUITEMINFO Info = new User32.MENUITEMINFO
                             {
                                 fMask = User32.MenuItemInfoMask.MIIM_STRING | User32.MenuItemInfoMask.MIIM_ID | User32.MenuItemInfoMask.MIIM_FTYPE | User32.MenuItemInfoMask.MIIM_BITMAP,
-                                dwTypeData = UnmanagedPtr,
-                                cch = Convert.ToUInt32(512 - 1)
+                                dwTypeData = DataPtr,
+                                cch = Convert.ToUInt32(BufferSize - 1)
                             };
 
                             Info.cbSize = Convert.ToUInt32(Marshal.SizeOf(Info));
@@ -52,69 +53,82 @@ namespace FullTrustProcess
                             {
                                 if (Info.fType == User32.MenuItemType.MFT_STRING && Info.fState == User32.MenuItemState.MFS_ENABLED)
                                 {
+                                    IntPtr VerbPtr = Marshal.AllocHGlobal(BufferSize);
+
                                     try
                                     {
-                                        using (SafeCoTaskMemString VerbValue = new SafeCoTaskMemString(256))
+                                        Context.ComInterface.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VERBW, IntPtr.Zero, VerbPtr, Convert.ToUInt32(BufferSize - 1));
+
+                                        string Verb = Marshal.PtrToStringUni(VerbPtr);
+
+                                        switch (Verb)
                                         {
-                                            Context.ComInterface.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VERBW, IntPtr.Zero, VerbValue, Convert.ToUInt32(VerbValue.Capacity - 1));
+                                            case "open":
+                                            case "opennewprocess":
+                                            case "pintohome":
+                                            case "cut":
+                                            case "copy":
+                                            case "paste":
+                                            case "delete":
+                                            case "properties":
+                                            case "openas":
+                                            case "link":
+                                            case "runas":
+                                            case "rename":
+                                                {
+                                                    break;
+                                                }
+                                            default:
+                                                {
+                                                    IntPtr HelpTextPtr = Marshal.AllocHGlobal(BufferSize);
 
-                                            switch (VerbValue.ToString())
-                                            {
-                                                case "open":
-                                                case "opennewprocess":
-                                                case "pintohome":
-                                                case "cut":
-                                                case "copy":
-                                                case "paste":
-                                                case "delete":
-                                                case "properties":
-                                                case "openas":
-                                                case "link":
-                                                case "runas":
-                                                case "rename":
+                                                    try
                                                     {
-                                                        break;
-                                                    }
-                                                default:
-                                                    {
-                                                        using (SafeCoTaskMemString HelpTextValue = new SafeCoTaskMemString(512))
+                                                        Context.ComInterface.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_HELPTEXTW, IntPtr.Zero, HelpTextPtr, Convert.ToUInt32(BufferSize - 1));
+
+                                                        string HelpText = Marshal.PtrToStringUni(HelpTextPtr);
+
+                                                        if (Info.hbmpItem != HBITMAP.NULL)
                                                         {
-                                                            Context.ComInterface.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_HELPTEXTW, IntPtr.Zero, HelpTextValue, Convert.ToUInt32(HelpTextValue.Capacity - 1));
-
-                                                            if (Info.hbmpItem != HBITMAP.NULL)
+                                                            using (MemoryStream Stream = new MemoryStream())
                                                             {
-                                                                using (MemoryStream Stream = new MemoryStream())
-                                                                {
-                                                                    Bitmap OriginBitmap = Info.hbmpItem.ToBitmap();
-                                                                    BitmapData OriginData = OriginBitmap.LockBits(new Rectangle(0, 0, OriginBitmap.Width, OriginBitmap.Height), ImageLockMode.ReadOnly, OriginBitmap.PixelFormat);
-                                                                    Bitmap ArgbBitmap = new Bitmap(OriginBitmap.Width, OriginBitmap.Height, OriginData.Stride, PixelFormat.Format32bppArgb, OriginData.Scan0);
+                                                                Bitmap OriginBitmap = Info.hbmpItem.ToBitmap();
+                                                                BitmapData OriginData = OriginBitmap.LockBits(new Rectangle(0, 0, OriginBitmap.Width, OriginBitmap.Height), ImageLockMode.ReadOnly, OriginBitmap.PixelFormat);
+                                                                Bitmap ArgbBitmap = new Bitmap(OriginBitmap.Width, OriginBitmap.Height, OriginData.Stride, PixelFormat.Format32bppArgb, OriginData.Scan0);
 
-                                                                    ArgbBitmap.Save(Stream, ImageFormat.Png);
+                                                                ArgbBitmap.Save(Stream, ImageFormat.Png);
 
-                                                                    ContextMenuItemList.Add((HelpTextValue.ToString(), VerbValue.ToString(), Convert.ToBase64String(Stream.ToArray())));
-                                                                }
-                                                            }
-                                                            else
-                                                            {
-                                                                ContextMenuItemList.Add((HelpTextValue.ToString(), VerbValue.ToString(), string.Empty));
+                                                                ContextMenuItemList.Add((HelpText, Verb, Convert.ToBase64String(Stream.ToArray())));
                                                             }
                                                         }
-
-                                                        break;
+                                                        else
+                                                        {
+                                                            ContextMenuItemList.Add((HelpText, Verb, string.Empty));
+                                                        }
                                                     }
-                                            }
+                                                    finally
+                                                    {
+                                                        Marshal.FreeHGlobal(HelpTextPtr);
+                                                    }
+
+                                                    break;
+                                                }
                                         }
                                     }
                                     catch
                                     {
                                         continue;
                                     }
+                                    finally
+                                    {
+                                        Marshal.FreeHGlobal(VerbPtr);
+                                    }
                                 }
                             }
                         }
                         finally
                         {
-                            Marshal.FreeHGlobal(UnmanagedPtr);
+                            Marshal.FreeHGlobal(DataPtr);
                         }
                     }
 
