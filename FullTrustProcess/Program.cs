@@ -97,9 +97,52 @@ namespace FullTrustProcess
 
             try
             {
-                switch (args.Request.Message["ExcuteType"])
+                switch (args.Request.Message["ExecuteType"])
                 {
-                    case "Excute_ElevateAsAdmin":
+                    case "Execute_GetContextMenuItems":
+                        {
+                            IEnumerable<string> ExecutePath = JsonConvert.DeserializeObject<string[]>(Convert.ToString(args.Request.Message["ExecutePath"]));
+                            bool IncludeExtensionItem = Convert.ToBoolean(args.Request.Message["IncludeExtensionItem"]);
+
+                            List<(string, string, string)> ContextMenuItems = ContextMenu.FetchContextMenuItems(ExecutePath, IncludeExtensionItem);
+
+                            ValueSet Value = new ValueSet
+                            {
+                                {"Success", JsonConvert.SerializeObject(ContextMenuItems) }
+                            };
+
+                            await args.Request.SendResponseAsync(Value);
+
+                            break;
+                        }
+                    case "Execute_InvokeContextMenuItem":
+                        {
+                            string Verb = Convert.ToString(args.Request.Message["InvokeVerb"]);
+                            string[] Paths = JsonConvert.DeserializeObject<string[]>(Convert.ToString(args.Request.Message["ExecutePath"]));
+
+                            ValueSet Value = new ValueSet();
+
+                            if (!string.IsNullOrEmpty(Verb) && Paths.Length > 0)
+                            {
+                                if (ContextMenu.InvokeVerb(Paths, Verb))
+                                {
+                                    Value.Add("Success", string.Empty);
+                                }
+                                else
+                                {
+                                    Value.Add("Error", $"Execute Verb: {Verb} failed");
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "Verb is empty or Paths is empty");
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
+
+                            break;
+                        }
+                    case "Execute_ElevateAsAdmin":
                         {
                             Connection?.Dispose();
                             Connection = null;
@@ -116,7 +159,7 @@ namespace FullTrustProcess
                             ExitLocker.Set();
                             break;
                         }
-                    case "Excute_CreateLink":
+                    case "Execute_CreateLink":
                         {
                             string LinkPath = Convert.ToString(args.Request.Message["LinkPath"]);
                             string LinkTarget = Convert.ToString(args.Request.Message["LinkTarget"]);
@@ -134,7 +177,7 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case "Excute_GetVariable_Path":
+                    case "Execute_GetVariable_Path":
                         {
                             ValueSet Value = new ValueSet();
 
@@ -155,9 +198,9 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case "Excute_Rename":
+                    case "Execute_Rename":
                         {
-                            string ExecutePath = Convert.ToString(args.Request.Message["ExcutePath"]);
+                            string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);
                             string DesireName = Convert.ToString(args.Request.Message["DesireName"]);
 
                             ValueSet Value = new ValueSet();
@@ -196,15 +239,15 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case "Excute_GetHyperlinkInfo":
+                    case "Execute_GetHyperlinkInfo":
                         {
-                            string ExcutePath = Convert.ToString(args.Request.Message["ExcutePath"]);
+                            string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);
 
                             ValueSet Value = new ValueSet();
 
-                            if (File.Exists(ExcutePath))
+                            if (File.Exists(ExecutePath))
                             {
-                                using (ShellLink Link = new ShellLink(ExcutePath))
+                                using (ShellLink Link = new ShellLink(ExecutePath))
                                 {
                                     Value.Add("Success", string.Empty);
                                     Value.Add("TargetPath", Link.TargetPath);
@@ -222,7 +265,7 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case "Excute_Intercept_Win_E":
+                    case "Execute_Intercept_Win_E":
                         {
                             ValueSet Value = new ValueSet();
 
@@ -262,7 +305,7 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case "Excute_Restore_Win_E":
+                    case "Execute_Restore_Win_E":
                         {
                             StorageFile RestoreFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Restore_WIN_E.reg"));
 
@@ -281,17 +324,17 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case "Excute_RemoveHiddenAttribute":
+                    case "Execute_RemoveHiddenAttribute":
                         {
-                            string ExcutePath = Convert.ToString(args.Request.Message["ExcutePath"]);
+                            string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);
 
-                            if (File.Exists(ExcutePath))
+                            if (File.Exists(ExecutePath))
                             {
-                                File.SetAttributes(ExcutePath, File.GetAttributes(ExcutePath) & ~FileAttributes.Hidden);
+                                File.SetAttributes(ExecutePath, File.GetAttributes(ExecutePath) & ~FileAttributes.Hidden);
                             }
-                            else if (Directory.Exists(ExcutePath))
+                            else if (Directory.Exists(ExecutePath))
                             {
-                                DirectoryInfo Info = new DirectoryInfo(ExcutePath);
+                                DirectoryInfo Info = new DirectoryInfo(ExecutePath);
                                 Info.Attributes &= ~FileAttributes.Hidden;
                             }
 
@@ -304,7 +347,7 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case "Excute_RequestCreateNewPipe":
+                    case "Execute_RequestCreateNewPipe":
                         {
                             string Guid = Convert.ToString(args.Request.Message["Guid"]);
 
@@ -349,18 +392,18 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case "Excute_Quicklook":
+                    case "Execute_Quicklook":
                         {
-                            string ExcutePath = Convert.ToString(args.Request.Message["ExcutePath"]);
+                            string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);
 
-                            if (!string.IsNullOrEmpty(ExcutePath))
+                            if (!string.IsNullOrEmpty(ExecutePath))
                             {
-                                QuicklookConnector.SendMessageToQuicklook(ExcutePath);
+                                QuicklookConnector.SendMessageToQuicklook(ExecutePath);
                             }
 
                             break;
                         }
-                    case "Excute_Check_QuicklookIsAvaliable":
+                    case "Execute_Check_QuicklookIsAvaliable":
                         {
                             bool IsSuccess = QuicklookConnector.CheckQuicklookIsAvaliable();
 
@@ -373,9 +416,9 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case "Excute_Get_Associate":
+                    case "Execute_Get_Associate":
                         {
-                            string Path = Convert.ToString(args.Request.Message["ExcutePath"]);
+                            string Path = Convert.ToString(args.Request.Message["ExecutePath"]);
                             string Associate = ExtensionAssociate.GetAssociate(Path);
 
                             ValueSet Result = new ValueSet
@@ -387,7 +430,7 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case "Excute_Get_RecycleBinItems":
+                    case "Execute_Get_RecycleBinItems":
                         {
                             ValueSet Result = new ValueSet();
 
@@ -406,7 +449,7 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case "Excute_Empty_RecycleBin":
+                    case "Execute_Empty_RecycleBin":
                         {
                             ValueSet Result = new ValueSet
                             {
@@ -417,9 +460,9 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case "Excute_Restore_RecycleItem":
+                    case "Execute_Restore_RecycleItem":
                         {
-                            string Path = Convert.ToString(args.Request.Message["ExcutePath"]);
+                            string Path = Convert.ToString(args.Request.Message["ExecutePath"]);
 
                             ValueSet Result = new ValueSet
                             {
@@ -429,9 +472,9 @@ namespace FullTrustProcess
                             await args.Request.SendResponseAsync(Result);
                             break;
                         }
-                    case "Excute_Delete_RecycleItem":
+                    case "Execute_Delete_RecycleItem":
                         {
-                            string Path = Convert.ToString(args.Request.Message["ExcutePath"]);
+                            string Path = Convert.ToString(args.Request.Message["ExecutePath"]);
 
                             ValueSet Result = new ValueSet
                             {
@@ -441,11 +484,11 @@ namespace FullTrustProcess
                             await args.Request.SendResponseAsync(Result);
                             break;
                         }
-                    case "Excute_EjectUSB":
+                    case "Execute_EjectUSB":
                         {
                             ValueSet Value = new ValueSet();
 
-                            string Path = Convert.ToString(args.Request.Message["ExcutePath"]);
+                            string Path = Convert.ToString(args.Request.Message["ExecutePath"]);
 
                             if (string.IsNullOrEmpty(Path))
                             {
@@ -459,11 +502,11 @@ namespace FullTrustProcess
                             await args.Request.SendResponseAsync(Value);
                             break;
                         }
-                    case "Excute_Unlock_Occupy":
+                    case "Execute_Unlock_Occupy":
                         {
                             ValueSet Value = new ValueSet();
 
-                            string Path = Convert.ToString(args.Request.Message["ExcutePath"]);
+                            string Path = Convert.ToString(args.Request.Message["ExecutePath"]);
 
                             if (File.Exists(Path))
                             {
@@ -492,7 +535,7 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case "Excute_Copy":
+                    case "Execute_Copy":
                         {
                             ValueSet Value = new ValueSet();
 
@@ -591,7 +634,7 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case "Excute_Move":
+                    case "Execute_Move":
                         {
                             ValueSet Value = new ValueSet();
 
@@ -695,33 +738,33 @@ namespace FullTrustProcess
                             await args.Request.SendResponseAsync(Value);
                             break;
                         }
-                    case "Excute_Delete":
+                    case "Execute_Delete":
                         {
                             ValueSet Value = new ValueSet();
 
-                            string ExcutePathJson = Convert.ToString(args.Request.Message["ExcutePath"]);
+                            string ExecutePathJson = Convert.ToString(args.Request.Message["ExecutePath"]);
                             string Guid = Convert.ToString(args.Request.Message["Guid"]);
                             bool PermanentDelete = Convert.ToBoolean(args.Request.Message["PermanentDelete"]);
                             bool IsUndo = Convert.ToBoolean(args.Request.Message["Undo"]);
 
-                            List<string> ExcutePathList = JsonConvert.DeserializeObject<List<string>>(ExcutePathJson);
+                            List<string> ExecutePathList = JsonConvert.DeserializeObject<List<string>>(ExecutePathJson);
                             List<string> OperationRecordList = new List<string>();
 
                             int Progress = 0;
 
                             try
                             {
-                                if (ExcutePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
+                                if (ExecutePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                                 {
-                                    if (ExcutePathList.Any((Item) => StorageItemController.CheckOccupied(Item)))
+                                    if (ExecutePathList.Any((Item) => StorageItemController.CheckOccupied(Item)))
                                     {
                                         Value.Add("Error_Capture", "An error occurred while deleting the folder");
                                     }
                                     else
                                     {
-                                        if (ExcutePathList.All((Path) => (Directory.Exists(Path) || File.Exists(Path)) && StorageItemController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path))))
+                                        if (ExecutePathList.All((Path) => (Directory.Exists(Path) || File.Exists(Path)) && StorageItemController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path))))
                                         {
-                                            if (StorageItemController.Delete(ExcutePathList, PermanentDelete, (s, e) =>
+                                            if (StorageItemController.Delete(ExecutePathList, PermanentDelete, (s, e) =>
                                             {
                                                 lock (Locker)
                                                 {
@@ -771,7 +814,7 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    Value.Add("Error_NotFound", "ExcutePath is not a file or directory");
+                                    Value.Add("Error_NotFound", "ExecutePath is not a file or directory");
                                 }
                             }
                             catch
@@ -801,29 +844,29 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case "Excute_RunExe":
+                    case "Execute_RunExe":
                         {
-                            string ExcutePath = Convert.ToString(args.Request.Message["ExcutePath"]);
-                            string ExcuteParameter = Convert.ToString(args.Request.Message["ExcuteParameter"]);
-                            string ExcuteAuthority = Convert.ToString(args.Request.Message["ExcuteAuthority"]);
-                            bool ExcuteCreateNoWindow = Convert.ToBoolean(args.Request.Message["ExcuteCreateNoWindow"]);
+                            string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);
+                            string ExecuteParameter = Convert.ToString(args.Request.Message["ExecuteParameter"]);
+                            string ExecuteAuthority = Convert.ToString(args.Request.Message["ExecuteAuthority"]);
+                            bool ExecuteCreateNoWindow = Convert.ToBoolean(args.Request.Message["ExecuteCreateNoWindow"]);
 
                             ValueSet Value = new ValueSet();
 
-                            if (!string.IsNullOrEmpty(ExcutePath))
+                            if (!string.IsNullOrEmpty(ExecutePath))
                             {
-                                if (StorageItemController.CheckPermission(FileSystemRights.ReadAndExecute, ExcutePath))
+                                if (StorageItemController.CheckPermission(FileSystemRights.ReadAndExecute, ExecutePath))
                                 {
-                                    if (string.IsNullOrEmpty(ExcuteParameter))
+                                    if (string.IsNullOrEmpty(ExecuteParameter))
                                     {
                                         using (Process Process = new Process())
                                         {
-                                            Process.StartInfo.FileName = ExcutePath;
+                                            Process.StartInfo.FileName = ExecutePath;
                                             Process.StartInfo.UseShellExecute = true;
-                                            Process.StartInfo.CreateNoWindow = ExcuteCreateNoWindow;
-                                            Process.StartInfo.WorkingDirectory = Path.GetDirectoryName(ExcutePath);
+                                            Process.StartInfo.CreateNoWindow = ExecuteCreateNoWindow;
+                                            Process.StartInfo.WorkingDirectory = Path.GetDirectoryName(ExecutePath);
 
-                                            if (ExcuteAuthority == "Administrator")
+                                            if (ExecuteAuthority == "Administrator")
                                             {
                                                 Process.StartInfo.Verb = "runAs";
                                             }
@@ -837,13 +880,13 @@ namespace FullTrustProcess
                                     {
                                         using (Process Process = new Process())
                                         {
-                                            Process.StartInfo.FileName = ExcutePath;
-                                            Process.StartInfo.Arguments = ExcuteParameter;
+                                            Process.StartInfo.FileName = ExecutePath;
+                                            Process.StartInfo.Arguments = ExecuteParameter;
                                             Process.StartInfo.UseShellExecute = true;
-                                            Process.StartInfo.CreateNoWindow = ExcuteCreateNoWindow;
-                                            Process.StartInfo.WorkingDirectory = Path.GetDirectoryName(ExcutePath);
+                                            Process.StartInfo.CreateNoWindow = ExecuteCreateNoWindow;
+                                            Process.StartInfo.WorkingDirectory = Path.GetDirectoryName(ExecutePath);
 
-                                            if (ExcuteAuthority == "Administrator")
+                                            if (ExecuteAuthority == "Administrator")
                                             {
                                                 Process.StartInfo.Verb = "runAs";
                                             }
@@ -870,7 +913,7 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case "Excute_Test_Connection":
+                    case "Execute_Test_Connection":
                         {
                             try
                             {
@@ -885,11 +928,11 @@ namespace FullTrustProcess
                                 Debug.WriteLine("GetProcess from id and register Exit event failed");
                             }
 
-                            await args.Request.SendResponseAsync(new ValueSet { { "Excute_Test_Connection", string.Empty } });
+                            await args.Request.SendResponseAsync(new ValueSet { { "Execute_Test_Connection", string.Empty } });
 
                             break;
                         }
-                    case "Excute_Exit":
+                    case "Execute_Exit":
                         {
                             ExitLocker.Set();
                             break;

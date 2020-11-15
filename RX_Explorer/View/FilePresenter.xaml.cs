@@ -188,8 +188,9 @@ namespace RX_Explorer
             CoreVirtualKeyStates ShiftState = sender.GetKeyState(VirtualKey.Shift);
 
             bool HasHiddenItem = SelectedItems.Any((Item) => Item is HiddenStorageItem);
+            bool AnyCommandBarFlyoutOpened = LnkItemFlyout.IsOpen || EmptyFlyout.IsOpen || FolderFlyout.IsOpen || FileFlyout.IsOpen || HiddenItemFlyout.IsOpen || MixedFlyout.IsOpen;
 
-            if (!QueueContentDialog.IsRunningOrWaiting && !MainPage.ThisPage.IsAnyTaskRunning)
+            if (!QueueContentDialog.IsRunningOrWaiting && !MainPage.ThisPage.IsAnyTaskRunning && !AnyCommandBarFlyoutOpened)
             {
                 args.Handled = true;
 
@@ -320,21 +321,21 @@ namespace RX_Explorer
                                         MixZip.IsEnabled = true;
                                     }
 
-                                    ItemPresenter.ContextFlyout = MixedFlyout;
+                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(MixedFlyout).ConfigureAwait(true);
                                 }
                                 else
                                 {
                                     if (Context is HiddenStorageItem)
                                     {
-                                        ItemPresenter.ContextFlyout = HiddenItemFlyout;
+                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(HiddenItemFlyout).ConfigureAwait(true);
                                     }
                                     else if (Context is HyperlinkStorageItem)
                                     {
-                                        ItemPresenter.ContextFlyout = LnkItemFlyout;
+                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout).ConfigureAwait(true);
                                     }
                                     else
                                     {
-                                        ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout).ConfigureAwait(true);
                                     }
                                 }
                             }
@@ -1696,10 +1697,12 @@ namespace RX_Explorer
             }
         }
 
-        private void ViewControl_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        private async void ViewControl_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
         {
             if (e.PointerDeviceType == PointerDeviceType.Mouse)
             {
+                e.Handled = true;
+
                 if (ItemPresenter is GridView)
                 {
                     if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
@@ -1715,21 +1718,21 @@ namespace RX_Explorer
                                 MixZip.IsEnabled = true;
                             }
 
-                            ItemPresenter.ContextFlyout = MixedFlyout;
+                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(MixedFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                         }
                         else
                         {
                             if (Context is HiddenStorageItem)
                             {
-                                ItemPresenter.ContextFlyout = HiddenItemFlyout;
+                                await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(HiddenItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                             }
                             else if (Context is HyperlinkStorageItem)
                             {
-                                ItemPresenter.ContextFlyout = LnkItemFlyout;
+                                await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                             }
                             else
                             {
-                                ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                                await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                             }
 
                             SelectedItem = Context;
@@ -1738,7 +1741,7 @@ namespace RX_Explorer
                     else
                     {
                         SelectedItem = null;
-                        ItemPresenter.ContextFlyout = EmptyFlyout;
+                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                     }
                 }
                 else
@@ -1748,7 +1751,7 @@ namespace RX_Explorer
                         if (Element.Name == "EmptyTextblock")
                         {
                             SelectedItem = null;
-                            ItemPresenter.ContextFlyout = EmptyFlyout;
+                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                         }
                         else
                         {
@@ -1765,7 +1768,7 @@ namespace RX_Explorer
                                         MixZip.IsEnabled = true;
                                     }
 
-                                    ItemPresenter.ContextFlyout = MixedFlyout;
+                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(MixedFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                                 }
                                 else
                                 {
@@ -1773,15 +1776,15 @@ namespace RX_Explorer
                                     {
                                         if (Context is HiddenStorageItem)
                                         {
-                                            ItemPresenter.ContextFlyout = HiddenItemFlyout;
+                                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(HiddenItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                                         }
                                         else if (Context is HyperlinkStorageItem)
                                         {
-                                            ItemPresenter.ContextFlyout = LnkItemFlyout;
+                                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                                         }
                                         else
                                         {
-                                            ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                                         }
                                     }
                                     else
@@ -1792,21 +1795,21 @@ namespace RX_Explorer
 
                                             if (Context is HiddenStorageItem)
                                             {
-                                                ItemPresenter.ContextFlyout = HiddenItemFlyout;
+                                                await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(HiddenItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                                             }
                                             else if (Context is HyperlinkStorageItem)
                                             {
-                                                ItemPresenter.ContextFlyout = LnkItemFlyout;
+                                                await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                                             }
                                             else
                                             {
-                                                ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                                                await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                                             }
                                         }
                                         else
                                         {
                                             SelectedItem = null;
-                                            ItemPresenter.ContextFlyout = EmptyFlyout;
+                                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                                         }
                                     }
                                 }
@@ -1814,14 +1817,12 @@ namespace RX_Explorer
                             else
                             {
                                 SelectedItem = null;
-                                ItemPresenter.ContextFlyout = EmptyFlyout;
+                                await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                             }
                         }
                     }
                 }
             }
-
-            e.Handled = true;
         }
 
         private async void FileProperty_Click(object sender, RoutedEventArgs e)
@@ -4899,10 +4900,12 @@ namespace RX_Explorer
             }
         }
 
-        private void ViewControl_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
+        private async void ViewControl_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
         {
             if (e.HoldingState == Windows.UI.Input.HoldingState.Started)
             {
+                e.Handled = true;
+
                 if (ItemPresenter is GridView)
                 {
                     if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
@@ -4918,21 +4921,21 @@ namespace RX_Explorer
                                 MixZip.IsEnabled = true;
                             }
 
-                            ItemPresenter.ContextFlyout = MixedFlyout;
+                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(MixedFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                         }
                         else
                         {
                             if (Context is HiddenStorageItem)
                             {
-                                ItemPresenter.ContextFlyout = HiddenItemFlyout;
+                                await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(HiddenItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                             }
                             else if (Context is HyperlinkStorageItem)
                             {
-                                ItemPresenter.ContextFlyout = LnkItemFlyout;
+                                await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                             }
                             else
                             {
-                                ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                                await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                             }
 
                             SelectedItem = Context;
@@ -4941,7 +4944,7 @@ namespace RX_Explorer
                     else
                     {
                         SelectedItem = null;
-                        ItemPresenter.ContextFlyout = EmptyFlyout;
+                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                     }
                 }
                 else
@@ -4951,7 +4954,7 @@ namespace RX_Explorer
                         if (Element.Name == "EmptyTextblock")
                         {
                             SelectedItem = null;
-                            ItemPresenter.ContextFlyout = EmptyFlyout;
+                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                         }
                         else
                         {
@@ -4968,7 +4971,7 @@ namespace RX_Explorer
                                         MixZip.IsEnabled = true;
                                     }
 
-                                    ItemPresenter.ContextFlyout = MixedFlyout;
+                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(MixedFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                                 }
                                 else
                                 {
@@ -4976,15 +4979,15 @@ namespace RX_Explorer
                                     {
                                         if (Context is HiddenStorageItem)
                                         {
-                                            ItemPresenter.ContextFlyout = HiddenItemFlyout;
+                                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(HiddenItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                                         }
                                         else if (Context is HyperlinkStorageItem)
                                         {
-                                            ItemPresenter.ContextFlyout = LnkItemFlyout;
+                                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                                         }
                                         else
                                         {
-                                            ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                                         }
                                     }
                                     else
@@ -4995,21 +4998,21 @@ namespace RX_Explorer
 
                                             if (Context is HiddenStorageItem)
                                             {
-                                                ItemPresenter.ContextFlyout = HiddenItemFlyout;
+                                                await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(HiddenItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                                             }
                                             else if (Context is HyperlinkStorageItem)
                                             {
-                                                ItemPresenter.ContextFlyout = LnkItemFlyout;
+                                                await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                                             }
                                             else
                                             {
-                                                ItemPresenter.ContextFlyout = Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout;
+                                                await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                                             }
                                         }
                                         else
                                         {
                                             SelectedItem = null;
-                                            ItemPresenter.ContextFlyout = EmptyFlyout;
+                                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                                         }
                                     }
                                 }
@@ -5017,7 +5020,7 @@ namespace RX_Explorer
                             else
                             {
                                 SelectedItem = null;
-                                ItemPresenter.ContextFlyout = EmptyFlyout;
+                                await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                             }
                         }
                     }

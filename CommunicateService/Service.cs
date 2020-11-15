@@ -26,7 +26,7 @@ namespace CommunicateService
 
             IncomeConnection.RequestReceived += Connection_RequestReceived;
 
-            AppServiceResponse Response = await IncomeConnection.SendMessageAsync(new ValueSet { { "ExcuteType", "Identity" } });
+            AppServiceResponse Response = await IncomeConnection.SendMessageAsync(new ValueSet { { "ExecuteType", "Identity" } });
 
             if (Response.Status == AppServiceResponseStatus.Success)
             {
@@ -185,7 +185,7 @@ namespace CommunicateService
 
                                     ConnectionPair.Client = null;
 
-                                    ConnectionPair.Server?.SendMessageAsync(new ValueSet { { "ExcuteType", "Excute_Exit" } }).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
+                                    ConnectionPair.Server?.SendMessageAsync(new ValueSet { { "ExecuteType", "Execute_Exit" } }).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
                                 }
                             }
                         }

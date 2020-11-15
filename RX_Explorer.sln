@@ -4,9 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.29020.237
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RX_Explorer", "RX_Explorer\RX_Explorer.csproj", "{02D26683-3BD6-4B30-8457-62CD714B0ADF}"
-	ProjectSection(ProjectDependencies) = postProject
-		{04F23FCE-9DCC-4B3E-B088-F1016F628C65} = {04F23FCE-9DCC-4B3E-B088-F1016F628C65}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimationEffectProvider", "AnimationEffectProvider\AnimationEffectProvider.csproj", "{3B40A94D-6173-4B62-971E-27ABDBECE9D6}"
 EndProject

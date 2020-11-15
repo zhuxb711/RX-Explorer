@@ -83,6 +83,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ContextMenu.cs" />
     <Compile Include="ExtensionAssociate.cs" />
     <Compile Include="StorageItemController.cs" />
     <Compile Include="Program.cs" />
@@ -111,7 +112,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Net.Compilers.Toolset">
-      <Version>3.7.0</Version>
+      <Version>3.8.0</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -125,32 +126,12 @@
       <Version>5.0.0</Version>
     </PackageReference>
     <PackageReference Include="Vanara.Windows.Shell">
-      <Version>3.2.20</Version>
+      <Version>3.2.21</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /y /s "$(TargetDir)FullTrustProcess.exe" "$(SolutionDir)RX_Explorer\FullTrust\"
-xcopy /y /s "$(TargetDir)Newtonsoft.Json.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
-xcopy /y /s "$(TargetDir)System.Buffers.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
-xcopy /y /s "$(TargetDir)System.Memory.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
-xcopy /y /s "$(TargetDir)System.Numerics.Vectors.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
-xcopy /y /s "$(TargetDir)System.Runtime.CompilerServices.Unsafe.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
-xcopy /y /s "$(TargetDir)System.Runtime.WindowsRuntime.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
-xcopy /y /s "$(TargetDir)System.ValueTuple.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
-xcopy /y /s "$(TargetDir)Vanara.Core.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
-xcopy /y /s "$(TargetDir)Vanara.PInvoke.ComCtl32.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
-xcopy /y /s "$(TargetDir)Vanara.PInvoke.Cryptography.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
-xcopy /y /s "$(TargetDir)Vanara.PInvoke.Gdi32.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
-xcopy /y /s "$(TargetDir)Vanara.PInvoke.Kernel32.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
-xcopy /y /s "$(TargetDir)Vanara.PInvoke.Ole.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
-xcopy /y /s "$(TargetDir)Vanara.PInvoke.SearchApi.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
-xcopy /y /s "$(TargetDir)Vanara.PInvoke.Security.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
-xcopy /y /s "$(TargetDir)Vanara.PInvoke.Shared.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
-xcopy /y /s "$(TargetDir)Vanara.PInvoke.Shell32.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
-xcopy /y /s "$(TargetDir)Vanara.PInvoke.ShlwApi.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
-xcopy /y /s "$(TargetDir)Vanara.PInvoke.User32.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
-xcopy /y /s "$(TargetDir)Vanara.Windows.Shell.dll" "$(SolutionDir)RX_Explorer\FullTrust\"
-</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

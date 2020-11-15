@@ -20,55 +20,59 @@ namespace RX_Explorer.Class
     /// </summary>
     public sealed class FullTrustProcessController : IDisposable
     {
-        private const string ExcuteType_RunExe = "Excute_RunExe";
+        private const string ExecuteType_RunExe = "Execute_RunExe";
 
-        private const string ExcuteType_Quicklook = "Excute_Quicklook";
+        private const string ExecuteType_Quicklook = "Execute_Quicklook";
 
-        private const string ExcuteType_Check_Quicklook = "Excute_Check_QuicklookIsAvaliable";
+        private const string ExecuteType_Check_Quicklook = "Execute_Check_QuicklookIsAvaliable";
 
-        private const string ExcuteType_Get_Associate = "Excute_Get_Associate";
+        private const string ExecuteType_Get_Associate = "Execute_Get_Associate";
 
-        private const string ExcuteType_Get_RecycleBinItems = "Excute_Get_RecycleBinItems";
+        private const string ExecuteType_Get_RecycleBinItems = "Execute_Get_RecycleBinItems";
 
-        private const string ExcuteType_RequestCreateNewPipe = "Excute_RequestCreateNewPipe";
+        private const string ExeuteType_RequestCreateNewPipe = "Execute_RequestCreateNewPipe";
 
-        private const string ExcuteType_RemoveHiddenAttribute = "Excute_RemoveHiddenAttribute";
+        private const string ExecuteType_RemoveHiddenAttribute = "Execute_RemoveHiddenAttribute";
 
-        private const string ExcuteType_InterceptWinE = "Excute_Intercept_Win_E";
+        private const string ExecuteType_InterceptWinE = "Execute_Intercept_Win_E";
 
-        private const string ExcuteType_RestoreWinE = "Excute_Restore_Win_E";
+        private const string ExecuteType_RestoreWinE = "Execute_Restore_Win_E";
 
-        private const string ExcuteType_HyperlinkInfo = "Excute_GetHyperlinkInfo";
+        private const string ExecuteType_HyperlinkInfo = "Execute_GetHyperlinkInfo";
 
-        private const string ExcuteType_Rename = "Excute_Rename";
+        private const string ExecuteType_Rename = "Execute_Rename";
 
-        private const string ExcuteType_EmptyRecycleBin = "Excute_Empty_RecycleBin";
+        private const string ExecuteType_EmptyRecycleBin = "Execute_Empty_RecycleBin";
 
-        private const string ExcuteType_UnlockOccupy = "Excute_Unlock_Occupy";
+        private const string ExecuteType_UnlockOccupy = "Execute_Unlock_Occupy";
 
-        private const string ExcuteType_EjectUSB = "Excute_EjectUSB";
+        private const string ExecuteType_EjectUSB = "Execute_EjectUSB";
 
-        private const string ExcuteType_Copy = "Excute_Copy";
+        private const string ExecuteType_Copy = "Execute_Copy";
 
-        private const string ExcuteType_Move = "Excute_Move";
+        private const string ExecuteType_Move = "Execute_Move";
 
-        private const string ExcuteType_Delete = "Excute_Delete";
+        private const string ExecuteType_Delete = "Execute_Delete";
 
-        private const string ExcuteAuthority_Normal = "Normal";
+        private const string ExecuteAuthority_Normal = "Normal";
 
-        private const string ExcuteAuthority_Administrator = "Administrator";
+        private const string ExecuteAuthority_Administrator = "Administrator";
 
-        private const string ExcuteType_Restore_RecycleItem = "Excute_Restore_RecycleItem";
+        private const string ExecuteType_Restore_RecycleItem = "Execute_Restore_RecycleItem";
 
-        private const string ExcuteType_Delete_RecycleItem = "Excute_Delete_RecycleItem";
+        private const string ExecuteType_Delete_RecycleItem = "Execute_Delete_RecycleItem";
 
-        private const string ExcuteType_GetVariablePath = "Excute_GetVariable_Path";
+        private const string ExecuteType_GetVariablePath = "Execute_GetVariable_Path";
 
-        private const string ExcuteType_CreateLink = "Excute_CreateLink";
+        private const string ExecuteType_CreateLink = "Execute_CreateLink";
 
-        private const string ExcuteType_Test_Connection = "Excute_Test_Connection";
+        private const string ExecuteType_Test_Connection = "Execute_Test_Connection";
 
-        private const string ExcuteTyep_ElevateAsAdmin = "Excute_ElevateAsAdmin";
+        private const string ExecuteTyep_ElevateAsAdmin = "Execute_ElevateAsAdmin";
+
+        private const string ExecuteType_GetContextMenuItems = "Execute_GetContextMenuItems";
+
+        private const string ExecuteType_InvokeContextMenuItem = "Execute_InvokeContextMenuItem";
 
         private volatile static FullTrustProcessController Instance;
 
@@ -124,7 +128,7 @@ namespace RX_Explorer.Class
         {
             var Deferral = args.GetDeferral();
 
-            switch (args.Request.Message["ExcuteType"])
+            switch (args.Request.Message["ExecuteType"])
             {
                 case "Identity":
                     {
@@ -136,7 +140,7 @@ namespace RX_Explorer.Class
             Deferral.Complete();
         }
 
-        public async Task<bool> ConnectToFullTrustExcutorAsync()
+        public async Task<bool> ConnectToFullTrustProcessorAsync()
         {
             try
             {
@@ -165,11 +169,11 @@ namespace RX_Explorer.Class
                 }
 
             ReCheck:
-                AppServiceResponse Response = await Connection.SendMessageAsync(new ValueSet { { "ExcuteType", ExcuteType_Test_Connection }, { "ProcessId", CurrentProcessId } });
+                AppServiceResponse Response = await Connection.SendMessageAsync(new ValueSet { { "ExecuteType", ExecuteType_Test_Connection }, { "ProcessId", CurrentProcessId } });
 
                 if (Response.Status == AppServiceResponseStatus.Success)
                 {
-                    if (Response.Message.ContainsKey(ExcuteType_Test_Connection))
+                    if (Response.Message.ContainsKey(ExecuteType_Test_Connection))
                     {
                         return IsConnected = true;
                     }
@@ -186,8 +190,115 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"An unexpected error was threw in {nameof(ConnectToFullTrustExcutorAsync)}");
+                LogTracer.Log(ex, $"An unexpected error was threw in {nameof(ConnectToFullTrustProcessorAsync)}");
                 return IsConnected = false;
+            }
+        }
+
+        public async Task<List<ContextMenuItem>> GetContextMenuItems(IEnumerable<string> Path, bool IncludeExtensionItem = false)
+        {
+            try
+            {
+                IsNowHasAnyActionExcuting = true;
+
+                if (Path.Any())
+                {
+                    if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(true))
+                    {
+                        ValueSet Value = new ValueSet
+                        {
+                            {"ExecuteType", ExecuteType_GetContextMenuItems},
+                            {"ExecutePath", JsonConvert.SerializeObject(Path)},
+                            {"IncludeExtensionItem", IncludeExtensionItem }
+                        };
+
+                        AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                        if (Response.Status == AppServiceResponseStatus.Success)
+                        {
+                            if (Response.Message.TryGetValue("Success", out object Result))
+                            {
+                                return JsonConvert.DeserializeObject<List<(string, string, string)>>(Convert.ToString(Result)).Select((Item) => new ContextMenuItem(Item.Item1, Item.Item2, Item.Item3, Path.ToArray())).ToList();
+                            }
+                            else
+                            {
+                                if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                                {
+                                    LogTracer.Log($"An unexpected error was threw in {nameof(GetContextMenuItems)}, message: {ErrorMessage}");
+                                }
+
+                                return new List<ContextMenuItem>(0);
+                            }
+                        }
+                        else
+                        {
+                            LogTracer.Log($"AppServiceResponse in {nameof(GetContextMenuItems)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                            return new List<ContextMenuItem>(0);
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"{nameof(GetContextMenuItems)}: Failed to connect AppService ");
+                        return new List<ContextMenuItem>(0);
+                    }
+                }
+                else
+                {
+                    return new List<ContextMenuItem>(0);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{ nameof(GetContextMenuItems)} throw an error");
+                return new List<ContextMenuItem>(0);
+            }
+            finally
+            {
+                IsNowHasAnyActionExcuting = false;
+            }
+        }
+
+        public async Task InvokeContextMenuItem(ContextMenuItem Item)
+        {
+            try
+            {
+                IsNowHasAnyActionExcuting = true;
+
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(true))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExecuteType", ExecuteType_InvokeContextMenuItem},
+                        {"ExecutePath", JsonConvert.SerializeObject(Item?.BelongTo) },
+                        {"InvokeVerb", Item?.Verb}
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                        {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(GetContextMenuItems)}, message: {ErrorMessage}");
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"AppServiceResponse in {nameof(GetContextMenuItems)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                    }
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(GetContextMenuItems)}: Failed to connect AppService ");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{ nameof(GetContextMenuItems)} throw an error");
+            }
+            finally
+            {
+                IsNowHasAnyActionExcuting = false;
             }
         }
 
@@ -197,15 +308,15 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
                 {
-                    await Connection.SendMessageAsync(new ValueSet { { "ExcuteType", ExcuteTyep_ElevateAsAdmin } });
+                    await Connection.SendMessageAsync(new ValueSet { { "ExecuteType", ExecuteTyep_ElevateAsAdmin } });
 
-                    AppServiceResponse Response = await Connection.SendMessageAsync(new ValueSet { { "ExcuteType", ExcuteType_Test_Connection }, { "ProcessId", CurrentProcessId } });
+                    AppServiceResponse Response = await Connection.SendMessageAsync(new ValueSet { { "ExecuteType", ExecuteType_Test_Connection }, { "ProcessId", CurrentProcessId } });
 
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        if (Response.Message.ContainsKey(ExcuteType_Test_Connection))
+                        if (Response.Message.ContainsKey(ExecuteType_Test_Connection))
                         {
                             return RuningInAdministratorMode = true;
                         }
@@ -226,7 +337,7 @@ namespace RX_Explorer.Class
                     return RuningInAdministratorMode = false;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 LogTracer.Log(ex, $"{ nameof(SwitchToAdminMode)} throw an error");
                 return RuningInAdministratorMode = false;
@@ -243,11 +354,11 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
-                        {"ExcuteType", ExcuteType_CreateLink},
+                        {"ExecuteType", ExecuteType_CreateLink},
                         {"LinkPath", LinkPath },
                         {"LinkTarget", LinkTarget },
                         {"LinkDesc", LinkDesc },
@@ -301,11 +412,11 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
-                        {"ExcuteType", ExcuteType_GetVariablePath},
+                        {"ExecuteType", ExecuteType_GetVariablePath},
                         {"Variable", Variable }
                     };
 
@@ -356,12 +467,12 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
-                        {"ExcuteType", ExcuteType_Rename},
-                        {"ExcutePath",Path },
+                        {"ExecuteType", ExecuteType_Rename},
+                        {"ExecutePath",Path },
                         {"DesireName",DesireName}
                     };
 
@@ -412,12 +523,12 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
-                        {"ExcuteType", ExcuteType_HyperlinkInfo},
-                        {"ExcutePath",Path }
+                        {"ExecuteType", ExecuteType_HyperlinkInfo},
+                        {"ExecutePath",Path }
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -463,11 +574,11 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
-                        {"ExcuteType", ExcuteType_InterceptWinE}
+                        {"ExecuteType", ExecuteType_InterceptWinE}
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -517,11 +628,11 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
-                        {"ExcuteType", ExcuteType_RestoreWinE}
+                        {"ExecuteType", ExecuteType_RestoreWinE}
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -572,12 +683,12 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
-                        {"ExcuteType", ExcuteType_RemoveHiddenAttribute},
-                        {"ExcutePath", Path},
+                        {"ExecuteType", ExecuteType_RemoveHiddenAttribute},
+                        {"ExecutePath", Path},
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -627,11 +738,11 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
-                        {"ExcuteType", ExcuteType_RequestCreateNewPipe},
+                        {"ExecuteType", ExeuteType_RequestCreateNewPipe},
                         {"Guid",CurrentProcessID.ToString() },
                     };
 
@@ -664,15 +775,15 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
-                        {"ExcuteType", ExcuteType_RunExe},
-                        {"ExcutePath",Path },
-                        {"ExcuteParameter", string.Join(' ', Parameters.Select((Para) => (Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"")) ? $"\"{Para}\"" : Para))},
-                        {"ExcuteAuthority", RunAsAdmin ? ExcuteAuthority_Administrator : ExcuteAuthority_Normal},
-                        {"ExcuteCreateNoWindow", CreateNoWindow }
+                        {"ExecuteType", ExecuteType_RunExe},
+                        {"ExecutePath",Path },
+                        {"ExecuteParameter", string.Join(' ', Parameters.Select((Para) => (Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"")) ? $"\"{Para}\"" : Para))},
+                        {"ExecuteAuthority", RunAsAdmin ? ExecuteAuthority_Administrator : ExecuteAuthority_Normal},
+                        {"ExecuteCreateNoWindow", CreateNoWindow }
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -720,12 +831,12 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
-                        {"ExcuteType", ExcuteType_Quicklook},
-                        {"ExcutePath",Path }
+                        {"ExecuteType", ExecuteType_Quicklook},
+                        {"ExecutePath",Path }
                     };
 
                     await Connection.SendMessageAsync(Value);
@@ -751,11 +862,11 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
-                        {"ExcuteType", ExcuteType_Check_Quicklook}
+                        {"ExecuteType", ExecuteType_Check_Quicklook}
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -805,12 +916,12 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
-                        {"ExcuteType", ExcuteType_Get_Associate},
-                        {"ExcutePath", Path}
+                        {"ExecuteType", ExecuteType_Get_Associate},
+                        {"ExecutePath", Path}
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -860,11 +971,11 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
-                        {"ExcuteType", ExcuteType_EmptyRecycleBin}
+                        {"ExecuteType", ExecuteType_EmptyRecycleBin}
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -914,11 +1025,11 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(true))
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(true))
                 {
                     ValueSet Value = new ValueSet
                     {
-                        {"ExcuteType", ExcuteType_Get_RecycleBinItems}
+                        {"ExecuteType", ExecuteType_Get_RecycleBinItems}
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -977,12 +1088,12 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
-                        {"ExcuteType", ExcuteType_UnlockOccupy},
-                        {"ExcutePath", Path }
+                        {"ExecuteType", ExecuteType_UnlockOccupy},
+                        {"ExecutePath", Path }
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -1043,7 +1154,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
                 {
                     Task ProgressTask;
 
@@ -1058,8 +1169,8 @@ namespace RX_Explorer.Class
 
                     ValueSet Value = new ValueSet
                     {
-                        {"ExcuteType", ExcuteType_Delete},
-                        {"ExcutePath", JsonConvert.SerializeObject(Source)},
+                        {"ExecuteType", ExecuteType_Delete},
+                        {"ExecutePath", JsonConvert.SerializeObject(Source)},
                         {"PermanentDelete", PermanentDelete},
                         {"Guid", PipeLineController.Current.GUID.ToString() },
                         {"Undo", IsUndoOperation }
@@ -1163,7 +1274,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(true))
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(true))
                 {
                     List<KeyValuePair<string, string>> MessageList = new List<KeyValuePair<string, string>>();
 
@@ -1225,7 +1336,7 @@ namespace RX_Explorer.Class
 
                     ValueSet Value = new ValueSet
                     {
-                        {"ExcuteType", ExcuteType_Move},
+                        {"ExecuteType", ExecuteType_Move},
                         {"SourcePath", JsonConvert.SerializeObject(MessageList)},
                         {"DestinationPath", DestinationPath},
                         {"Guid", PipeLineController.Current.GUID.ToString() },
@@ -1361,7 +1472,7 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(true))
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(true))
                 {
                     List<KeyValuePair<string, string>> MessageList = new List<KeyValuePair<string, string>>();
 
@@ -1430,7 +1541,7 @@ namespace RX_Explorer.Class
 
                     ValueSet Value = new ValueSet
                     {
-                        {"ExcuteType", ExcuteType_Copy},
+                        {"ExecuteType", ExecuteType_Copy},
                         {"SourcePath", JsonConvert.SerializeObject(MessageList)},
                         {"DestinationPath", DestinationPath},
                         {"Guid", PipeLineController.Current.GUID.ToString() },
@@ -1561,12 +1672,12 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
-                        {"ExcuteType", ExcuteType_Restore_RecycleItem},
-                        {"ExcutePath", Path}
+                        {"ExecuteType", ExecuteType_Restore_RecycleItem},
+                        {"ExecutePath", Path}
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -1620,12 +1731,12 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
-                        {"ExcuteType", ExcuteType_Delete_RecycleItem},
-                        {"ExcutePath", Path},
+                        {"ExecuteType", ExecuteType_Delete_RecycleItem},
+                        {"ExecutePath", Path},
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -1658,7 +1769,7 @@ namespace RX_Explorer.Class
                     return false;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 LogTracer.Log(ex, $"{nameof(DeleteItemInRecycleBinAsync)} throw an error");
                 return false;
@@ -1680,12 +1791,12 @@ namespace RX_Explorer.Class
             {
                 IsNowHasAnyActionExcuting = true;
 
-                if (await ConnectToFullTrustExcutorAsync().ConfigureAwait(false))
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
-                        {"ExcuteType", ExcuteType_EjectUSB},
-                        {"ExcutePath", Path},
+                        {"ExecuteType", ExecuteType_EjectUSB},
+                        {"ExecutePath", Path},
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -1718,7 +1829,7 @@ namespace RX_Explorer.Class
                     return false;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 LogTracer.Log(ex, $"{nameof(EjectPortableDevice)} throw an error");
                 return false;

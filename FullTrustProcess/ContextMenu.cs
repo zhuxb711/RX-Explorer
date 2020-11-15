@@ -1,0 +1,163 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using Vanara.InteropServices;
+using Vanara.PInvoke;
+using Vanara.Windows.Shell;
+
+namespace FullTrustProcess
+{
+    public static class ContextMenu
+    {
+        private static ShellContextMenu Context;
+
+        public static List<(string, string, string)> FetchContextMenuItems(IEnumerable<string> Path, bool FetchExtensionMenu = false)
+        {
+            ShellItem[] ItemCollecion = Array.Empty<ShellItem>();
+
+            try
+            {
+                ItemCollecion = Path.Where((Item) => File.Exists(Item) || Directory.Exists(Item)).Select((Item) => ShellItem.Open(Item)).ToArray();
+
+                using (User32.SafeHMENU NewMenu = User32.CreatePopupMenu())
+                {
+                    Context = new ShellContextMenu(ItemCollecion);
+
+                    Context.ComInterface.QueryContextMenu(NewMenu, 0, 0, ushort.MaxValue, FetchExtensionMenu ? (Shell32.CMF.CMF_VERBSONLY | Shell32.CMF.CMF_EXTENDEDVERBS) : Shell32.CMF.CMF_VERBSONLY);
+
+                    int MaxCount = User32.GetMenuItemCount(NewMenu);
+
+                    List<(string, string, string)> ContextMenuItemList = new List<(string, string, string)>(MaxCount);
+
+                    for (uint i = 0; i < MaxCount; i++)
+                    {
+                        IntPtr UnmanagedPtr = Marshal.AllocHGlobal(512);
+
+                        try
+                        {
+                            User32.MENUITEMINFO Info = new User32.MENUITEMINFO
+                            {
+                                fMask = User32.MenuItemInfoMask.MIIM_STRING | User32.MenuItemInfoMask.MIIM_ID | User32.MenuItemInfoMask.MIIM_FTYPE | User32.MenuItemInfoMask.MIIM_BITMAP,
+                                dwTypeData = UnmanagedPtr,
+                                cch = Convert.ToUInt32(512 - 1)
+                            };
+
+                            Info.cbSize = Convert.ToUInt32(Marshal.SizeOf(Info));
+
+                            if (User32.GetMenuItemInfo(NewMenu, i, true, ref Info))
+                            {
+                                if (Info.fType == User32.MenuItemType.MFT_STRING && Info.fState == User32.MenuItemState.MFS_ENABLED)
+                                {
+                                    try
+                                    {
+                                        using (SafeCoTaskMemString VerbValue = new SafeCoTaskMemString(256))
+                                        {
+                                            Context.ComInterface.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VERBW, IntPtr.Zero, VerbValue, Convert.ToUInt32(VerbValue.Capacity - 1));
+
+                                            switch (VerbValue.ToString())
+                                            {
+                                                case "open":
+                                                case "opennewprocess":
+                                                case "pintohome":
+                                                case "cut":
+                                                case "copy":
+                                                case "paste":
+                                                case "delete":
+                                                case "properties":
+                                                case "openas":
+                                                case "link":
+                                                case "runas":
+                                                case "rename":
+                                                    {
+                                                        break;
+                                                    }
+                                                default:
+                                                    {
+                                                        using (SafeCoTaskMemString HelpTextValue = new SafeCoTaskMemString(512))
+                                                        {
+                                                            Context.ComInterface.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_HELPTEXTW, IntPtr.Zero, HelpTextValue, Convert.ToUInt32(HelpTextValue.Capacity - 1));
+
+                                                            if (Info.hbmpItem != HBITMAP.NULL)
+                                                            {
+                                                                using (MemoryStream Stream = new MemoryStream())
+                                                                {
+                                                                    Bitmap OriginBitmap = Info.hbmpItem.ToBitmap();
+                                                                    BitmapData OriginData = OriginBitmap.LockBits(new Rectangle(0, 0, OriginBitmap.Width, OriginBitmap.Height), ImageLockMode.ReadOnly, OriginBitmap.PixelFormat);
+                                                                    Bitmap ArgbBitmap = new Bitmap(OriginBitmap.Width, OriginBitmap.Height, OriginData.Stride, PixelFormat.Format32bppArgb, OriginData.Scan0);
+
+                                                                    ArgbBitmap.Save(Stream, ImageFormat.Png);
+
+                                                                    ContextMenuItemList.Add((HelpTextValue.ToString(), VerbValue.ToString(), Convert.ToBase64String(Stream.ToArray())));
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                ContextMenuItemList.Add((HelpTextValue.ToString(), VerbValue.ToString(), string.Empty));
+                                                            }
+                                                        }
+
+                                                        break;
+                                                    }
+                                            }
+                                        }
+                                    }
+                                    catch
+                                    {
+                                        continue;
+                                    }
+                                }
+                            }
+                        }
+                        finally
+                        {
+                            Marshal.FreeHGlobal(UnmanagedPtr);
+                        }
+                    }
+
+                    return ContextMenuItemList;
+                }
+            }
+            catch
+            {
+                return new List<(string, string, string)>(0);
+            }
+            finally
+            {
+                Array.ForEach(ItemCollecion, (Item) => Item.Dispose());
+            }
+        }
+
+        public static bool InvokeVerb(string[] Path, string Verb)
+        {
+            ShellItem[] ItemCollecion = Array.Empty<ShellItem>();
+
+            try
+            {
+                ItemCollecion = Path.Where((Item) => File.Exists(Item) || Directory.Exists(Item)).Select((Item) => ShellItem.Open(Item)).ToArray();
+
+                Shell32.CMINVOKECOMMANDINFOEX InvokeCommand = new Shell32.CMINVOKECOMMANDINFOEX
+                {
+                    lpVerb = new SafeResourceId(Verb, CharSet.Ansi),
+                    nShow = ShowWindowCommand.SW_SHOWNORMAL
+                };
+                InvokeCommand.cbSize = Convert.ToUInt32(Marshal.SizeOf(InvokeCommand));
+
+                Context?.ComInterface.InvokeCommand(InvokeCommand);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+            finally
+            {
+                Array.ForEach(ItemCollecion, (Item) => Item.Dispose());
+            }
+        }
+    }
+}

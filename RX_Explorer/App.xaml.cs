@@ -34,7 +34,7 @@ namespace RX_Explorer
 
         private async void App_Resuming(object sender, object e)
         {
-            await FullTrustProcessController.Current.ConnectToFullTrustExcutorAsync().ConfigureAwait(true);
+            await FullTrustProcessController.Current.ConnectToFullTrustProcessorAsync().ConfigureAwait(true);
             AppInstanceIdContainer.RegisterCurrentId(AppInstanceIdContainer.CurrentId);
         }
 

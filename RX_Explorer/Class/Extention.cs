@@ -19,12 +19,15 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
+using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
+using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
 using TreeView = Microsoft.UI.Xaml.Controls.TreeView;
 using TreeViewItem = Microsoft.UI.Xaml.Controls.TreeViewItem;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
@@ -36,6 +39,151 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extention
     {
+        public static async Task SetCommandBarFlyoutWithExtraContextMenuItems(this ListViewBase ListControl, CommandBarFlyout Flyout, Windows.Foundation.Point? ShowAt = null)
+        {
+            try
+            {
+                if (Flyout != null)
+                {
+                    ListControl.ContextFlyout = null;
+
+                    if (ListControl.SelectedItems.Count > 0)
+                    {
+                        string [] SelectedPath = ListControl.SelectedItems.Select((Item) => (Item as FileSystemStorageItemBase).Path).ToArray();
+
+                        List<ContextMenuItem> ExtraMenuItems = await FullTrustProcessController.Current.GetContextMenuItems(SelectedPath, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down)).ConfigureAwait(true);
+
+                        if (ExtraMenuItems.Count > 0)
+                        {
+                            if (Flyout.SecondaryCommands.OfType<AppBarElementContainer>().FirstOrDefault() is AppBarElementContainer ExistsContainer)
+                            {
+                                StackPanel InnerPanel = ExistsContainer.Content as StackPanel;
+
+                                List<ContextMenuItem> MenuExistItems = InnerPanel.Children.Select((Btn) => (Btn as Button).Tag as ContextMenuItem).ToList();
+
+                                foreach (ContextMenuItem AddItem in ExtraMenuItems.Except(MenuExistItems))
+                                {
+                                    Button Btn = await AddItem.GenerateUIButton().ConfigureAwait(true);
+                                    Btn.Click += async(s, e) =>
+                                    {
+                                        Flyout?.Hide();
+
+                                        if (((Button)s)?.Tag is ContextMenuItem MenuItem)
+                                        {
+                                            await MenuItem.Invoke().ConfigureAwait(true);
+                                        }
+                                    };
+
+                                    InnerPanel.Children.Add(Btn);
+                                }
+
+                                foreach (ContextMenuItem RemoveItem in MenuExistItems.Except(ExtraMenuItems))
+                                {
+                                    if (InnerPanel.Children.OfType<Button>().FirstOrDefault((Item) => (Item.Tag as ContextMenuItem) == RemoveItem) is Button Btn)
+                                    {
+                                        InnerPanel.Children.Remove(Btn);
+                                    }
+                                }
+
+                                foreach (ContextMenuItem UpdateItem in MenuExistItems.Where((Item) => ExtraMenuItems.Any((Extra) => Extra.Equals(Item))))
+                                {
+                                    UpdateItem.UpdateBelonging(SelectedPath);
+                                }
+                            }
+                            else
+                            {
+                                StackPanel Panel = new StackPanel
+                                {
+                                    HorizontalAlignment = HorizontalAlignment.Stretch
+                                };
+
+                                foreach (ContextMenuItem Item in ExtraMenuItems)
+                                {
+                                    Button Btn = await Item.GenerateUIButton().ConfigureAwait(true);
+                                    Btn.Click += async (s, e) =>
+                                    {
+                                        Flyout?.Hide();
+
+                                        if (((Button)s)?.Tag is ContextMenuItem MenuItem)
+                                        {
+                                            await MenuItem.Invoke().ConfigureAwait(true);
+                                        }
+                                    };
+
+                                    Panel.Children.Add(Btn);
+                                }
+
+                                AppBarElementContainer Container = new AppBarElementContainer
+                                {
+                                    HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                                    Content = Panel
+                                };
+
+                                List<int> SeparatorGroup = Flyout.SecondaryCommands.Select((Item, Index) => (Index, Item)).Where((Group) => Group.Item is AppBarSeparator).Select((Group) => Group.Index).ToList();
+
+                                if (SeparatorGroup.Count > 0)
+                                {
+                                    Flyout.SecondaryCommands.Insert(SeparatorGroup[0] + 1, new AppBarSeparator());
+                                    Flyout.SecondaryCommands.Insert(SeparatorGroup[0] + 1, Container);
+                                }
+                                else
+                                {
+                                    Flyout.SecondaryCommands.Insert(0, new AppBarSeparator());
+                                    Flyout.SecondaryCommands.Insert(0, Container);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            foreach (AppBarElementContainer ExistContainer in Flyout.SecondaryCommands.OfType<AppBarElementContainer>())
+                            {
+                                Flyout.SecondaryCommands.Remove(ExistContainer);
+                            }
+
+                            List<int> SeparatorGroup = Flyout.SecondaryCommands.Select((Item, Index) => (Index, Item)).Where((Group) => Group.Item is AppBarSeparator).Select((Group) => Group.Index).ToList();
+
+                            if (SeparatorGroup.Count == 1)
+                            {
+                                if (SeparatorGroup[0] == 0)
+                                {
+                                    Flyout.SecondaryCommands.RemoveAt(0);
+                                }
+                            }
+                            else
+                            {
+                                for (int i = 0; i < SeparatorGroup.Count - 1; i++)
+                                {
+                                    if (Math.Abs(SeparatorGroup[i] - SeparatorGroup[i + 1]) == 1)
+                                    {
+                                        Flyout.SecondaryCommands.RemoveAt(SeparatorGroup[i]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex);
+            }
+            finally
+            {
+                ListControl.ContextFlyout = Flyout;
+
+                if (ShowAt != null)
+                {
+                    FlyoutShowOptions Option = new FlyoutShowOptions
+                    {
+                        Position = ShowAt,
+                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                    };
+
+                    Flyout?.ShowAt(ListControl, Option);
+                }
+            }
+        }
+
         public static string ToFileSizeDescription(this ulong SizeRaw)
         {
             return SizeRaw / 1024d < 1024 ? Math.Round(SizeRaw / 1024d, 1, MidpointRounding.AwayFromZero).ToString("0.0") + " KB" :

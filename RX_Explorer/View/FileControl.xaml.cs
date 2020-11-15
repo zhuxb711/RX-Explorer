@@ -1613,7 +1613,7 @@ namespace RX_Explorer
                             {
                                 if ((await CurrentFolder.GetParentAsync()) is StorageFolder ParentFolder)
                                 {
-                                    await DisplayItemsInFolder(ParentFolder).ConfigureAwait(false);
+                                    await DisplayItemsInFolder(ParentFolder).ConfigureAwait(true);
                                 }
                             }
                             else
@@ -1624,7 +1624,7 @@ namespace RX_Explorer
 
                                     if (ParentFolder != null)
                                     {
-                                        await DisplayItemsInFolder(ParentNode).ConfigureAwait(false);
+                                        await DisplayItemsInFolder(ParentNode).ConfigureAwait(true);
                                     }
                                 }
                             }
