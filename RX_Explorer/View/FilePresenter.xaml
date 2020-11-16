@@ -624,7 +624,7 @@
             </muxc:TeachingTip.Content>
         </muxc:TeachingTip>
 
-        <DataTemplate x:Name="TileDataTemplate"
+        <DataTemplate x:Name="GridViewTileDataTemplate"
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
             <StackPanel Orientation="Horizontal"
@@ -673,7 +673,7 @@
             </StackPanel>
         </DataTemplate>
 
-        <DataTemplate x:Name="LargeImageDataTemplate"
+        <DataTemplate x:Name="GridViewLargeImageDataTemplate"
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
             <StackPanel Padding="5"
@@ -697,7 +697,7 @@
             </StackPanel>
         </DataTemplate>
 
-        <DataTemplate x:Name="MediumImageDataTemplate"
+        <DataTemplate x:Name="GridViewMediumImageDataTemplate"
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
             <StackPanel Padding="5"
@@ -721,7 +721,7 @@
             </StackPanel>
         </DataTemplate>
 
-        <DataTemplate x:Name="SmallImageDataTemplate"
+        <DataTemplate x:Name="GridViewSmallImageDataTemplate"
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
             <StackPanel Padding="5"
@@ -745,223 +745,10 @@
             </StackPanel>
         </DataTemplate>
 
-        <DataTemplate x:Name="ListHeaderDataTemplate"
-                      x:FieldModifier="public"
-                      x:DataType="Cls:SortIndicatorController">
-            <Grid Height="35">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="6*" />
-                    <ColumnDefinition Width="2.5*" />
-                    <ColumnDefinition Width="2*" />
-                    <ColumnDefinition Width="1.5*" />
-                    <ColumnDefinition MinWidth="50"
-                                      Width="*" />
-                </Grid.ColumnDefinitions>
-                <Button HorizontalContentAlignment="Stretch"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch"
-                        IsDoubleTapEnabled="True"
-                        DoubleTapped="ListHeader_DoubleTapped"
-                        Grid.Column="0"
-                        x:Name="ListHeaderName"
-                        Click="ListHeaderName_Click"
-                        Background="{StaticResource ElementAcrylicBrush}"
-                        Style="{StaticResource ListHeaderButtonStyle}">
-                    <RelativePanel>
-                        <TextBlock Text="名称"
-                                   FontSize="14"
-                                   x:Uid="SearchName"
-                                   TextTrimming="CharacterEllipsis"
-                                   RelativePanel.LeftOf="SortIndicator1"
-                                   RelativePanel.AlignLeftWithPanel="True"
-                                   RelativePanel.AlignVerticalCenterWithPanel="True" />
-                        <Viewbox RelativePanel.AlignRightWithPanel="True"
-                                 RelativePanel.AlignVerticalCenterWithPanel="True"
-                                 x:Name="SortIndicator1"
-                                 Height="12"
-                                 Width="12"
-                                 Child="{x:Bind Indicator1Icon,Mode=OneWay}"
-                                 Visibility="{x:Bind Indicator1Visibility,Mode=OneWay}" />
-                    </RelativePanel>
-                </Button>
-                <Button HorizontalContentAlignment="Stretch"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch"
-                        IsDoubleTapEnabled="True"
-                        DoubleTapped="ListHeader_DoubleTapped"
-                        Grid.Column="1"
-                        Name="ListHeaderModifiedTime"
-                        Click="ListHeaderModifiedTime_Click"
-                        Background="{StaticResource ElementAcrylicBrush}"
-                        Style="{StaticResource ListHeaderButtonStyle}">
-                    <RelativePanel>
-                        <TextBlock Text="修改日期"
-                                   FontSize="14"
-                                   x:Uid="SearchModified"
-                                   TextTrimming="CharacterEllipsis"
-                                   RelativePanel.LeftOf="SortIndicator2"
-                                   RelativePanel.AlignLeftWithPanel="True"
-                                   RelativePanel.AlignVerticalCenterWithPanel="True" />
-                        <Viewbox RelativePanel.AlignRightWithPanel="True"
-                                 RelativePanel.AlignVerticalCenterWithPanel="True"
-                                 x:Name="SortIndicator2"
-                                 Height="12"
-                                 Width="12"
-                                 Child="{x:Bind Indicator2Icon,Mode=OneWay}"
-                                 Visibility="{x:Bind Indicator2Visibility,Mode=OneWay}" />
-                    </RelativePanel>
-                </Button>
-                <Button Grid.Column="2"
-                        HorizontalContentAlignment="Stretch"
-                        IsDoubleTapEnabled="True"
-                        DoubleTapped="ListHeader_DoubleTapped"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch"
-                        Name="ListHeaderType"
-                        Click="ListHeaderType_Click"
-                        Background="{StaticResource ElementAcrylicBrush}"
-                        Style="{StaticResource ListHeaderButtonStyle}">
-                    <RelativePanel>
-                        <TextBlock Text="类型"
-                                   FontSize="14"
-                                   x:Uid="SearchType"
-                                   TextTrimming="CharacterEllipsis"
-                                   RelativePanel.LeftOf="SortIndicator3"
-                                   RelativePanel.AlignLeftWithPanel="True"
-                                   RelativePanel.AlignVerticalCenterWithPanel="True" />
-                        <Viewbox RelativePanel.AlignRightWithPanel="True"
-                                 RelativePanel.AlignVerticalCenterWithPanel="True"
-                                 x:Name="SortIndicator3"
-                                 Height="12"
-                                 Width="12"
-                                 Child="{x:Bind Indicator3Icon,Mode=OneWay}"
-                                 Visibility="{x:Bind Indicator3Visibility,Mode=OneWay}" />
-                    </RelativePanel>
-                </Button>
-                <Button HorizontalContentAlignment="Stretch"
-                        HorizontalAlignment="Stretch"
-                        IsDoubleTapEnabled="True"
-                        DoubleTapped="ListHeader_DoubleTapped"
-                        VerticalAlignment="Stretch"
-                        Name="ListHeaderSize"
-                        Grid.Column="3"
-                        Click="ListHeaderSize_Click"
-                        Background="{StaticResource ElementAcrylicBrush}"
-                        Style="{StaticResource ListHeaderButtonStyle}">
-                    <RelativePanel>
-                        <TextBlock Text="大小"
-                                   FontSize="14"
-                                   x:Uid="SearchSize"
-                                   TextTrimming="CharacterEllipsis"
-                                   RelativePanel.LeftOf="SortIndicator4"
-                                   RelativePanel.AlignLeftWithPanel="True"
-                                   RelativePanel.AlignVerticalCenterWithPanel="True" />
-                        <Viewbox RelativePanel.AlignRightWithPanel="True"
-                                 RelativePanel.AlignVerticalCenterWithPanel="True"
-                                 x:Name="SortIndicator4"
-                                 Height="12"
-                                 Width="12"
-                                 Child="{x:Bind Indicator4Icon,Mode=OneWay}"
-                                 Visibility="{x:Bind Indicator4Visibility,Mode=OneWay}" />
-                    </RelativePanel>
-                </Button>
-                <Button VerticalAlignment="Stretch"
-                        HorizontalAlignment="Stretch"
-                        Grid.Column="4"
-                        IsDoubleTapEnabled="True"
-                        DoubleTapped="ListHeader_DoubleTapped"
-                        Background="{StaticResource ElementAcrylicBrush}"
-                        Style="{StaticResource ListHeaderButtonStyle}" />
-            </Grid>
-        </DataTemplate>
-
         <DataTemplate x:DataType="Cls:FileSystemStorageItemBase"
-                      x:Name="ListViewDetailDataTemplate"
+                      x:Name="GridViewListDataTemplate"
                       x:FieldModifier="public">
-            <Grid HorizontalAlignment="Stretch">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="6*" />
-                    <ColumnDefinition Width="2.5*" />
-                    <ColumnDefinition Width="2*" />
-                    <ColumnDefinition Width="1.5*" />
-                    <ColumnDefinition MinWidth="50"
-                                      Width="*" />
-                </Grid.ColumnDefinitions>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="44" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Image VerticalAlignment="Center"
-                           HorizontalAlignment="Center"
-                           Stretch="Uniform"
-                           Source="{x:Bind Thumbnail,Mode=OneWay}"
-                           Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
-                           Height="30"
-                           Width="30"
-                           x:Phase="1"
-                           PointerPressed="GetFocus_PointerPressed" />
-                    <TextBlock VerticalAlignment="Center"
-                               HorizontalAlignment="Left"
-                               FontSize="14"
-                               Grid.Column="1"
-                               x:Phase="0"
-                               Text="{x:Bind Name,Mode=OneWay}"
-                               ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
-                               TextTrimming="CharacterEllipsis"
-                               PointerPressed="NameLabel_PointerPressed"
-                               x:Name="NameLabel" />
-                    <TextBox VerticalAlignment="Center"
-                             x:Name="NameEditBox"
-                             FontSize="14"
-                             Grid.Column="1"
-                             IsSpellCheckEnabled="False"
-                             Visibility="Collapsed"
-                             LostFocus="NameEditBox_LostFocus"
-                             BeforeTextChanging="NameEditBox_BeforeTextChanging"
-                             x:Load="False" />
-                </Grid>
-                <TextBlock VerticalAlignment="Center"
-                           FontSize="14"
-                           Padding="10,0,0,0"
-                           HorizontalAlignment="Left"
-                           Text="{x:Bind ModifiedTime,Mode=OneWay}"
-                           ToolTipService.ToolTip="{x:Bind ModifiedTime,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
-                           Grid.Column="1"
-                           x:Phase="0"
-                           TextTrimming="CharacterEllipsis"
-                           PointerPressed="GetFocus_PointerPressed" />
-                <TextBlock VerticalAlignment="Center"
-                           FontSize="14"
-                           Padding="10,0,0,0"
-                           HorizontalAlignment="Left"
-                           Text="{x:Bind DisplayType,Mode=OneWay}"
-                           ToolTipService.ToolTip="{x:Bind DisplayType,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
-                           Grid.Column="2"
-                           x:Phase="1"
-                           TextTrimming="CharacterEllipsis"
-                           PointerPressed="GetFocus_PointerPressed" />
-                <TextBlock VerticalAlignment="Center"
-                           FontSize="14"
-                           Padding="10,0,0,0"
-                           HorizontalAlignment="Left"
-                           Text="{x:Bind Size,Mode=OneWay}"
-                           ToolTipService.ToolTip="{x:Bind Size,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
-                           TextTrimming="CharacterEllipsis"
-                           Grid.Column="3"
-                           x:Phase="0"
-                           PointerPressed="GetFocus_PointerPressed" />
-                <TextBlock VerticalAlignment="Stretch"
-                           HorizontalAlignment="Stretch"
-                           Grid.Column="4"
-                           Name="EmptyTextblock" />
-            </Grid>
-        </DataTemplate>
-
-        <DataTemplate x:DataType="Cls:FileSystemStorageItemBase"
-                      x:Name="ListViewSimpleDataTemplate"
-                      x:FieldModifier="public">
-            <Grid>
+            <Grid Width="250">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="40" />
                     <ColumnDefinition Width="5*" />
@@ -1001,6 +788,18 @@
                            Name="EmptyTextblock" />
             </Grid>
         </DataTemplate>
+
+        <ItemsPanelTemplate x:Name="HorizontalGridViewPanel"
+                            x:FieldModifier="public">
+            <ItemsWrapGrid Orientation="Horizontal"
+                           HorizontalAlignment="Stretch" />
+        </ItemsPanelTemplate>
+
+        <ItemsPanelTemplate x:Name="VerticalGridViewPanel"
+                            x:FieldModifier="public">
+            <ItemsWrapGrid Orientation="Vertical"
+                           HorizontalAlignment="Stretch" />
+        </ItemsPanelTemplate>
     </Page.Resources>
 
     <Grid>
@@ -1034,6 +833,7 @@
                       Holding="ViewControl_Holding"
                       DoubleTapped="ViewControl_DoubleTapped"
                       x:FieldModifier="Public"
+                      Header="{x:Bind Cls:SortIndicatorController.CreateNewInstance()}"
                       ShowsScrollingPlaceholders="False"
                       ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
                 <ListView.ItemContainerStyle>
@@ -1044,6 +844,217 @@
                                 Value="0" />
                     </Style>
                 </ListView.ItemContainerStyle>
+                <ListView.HeaderTemplate>
+                    <DataTemplate x:DataType="Cls:SortIndicatorController">
+                        <Grid Height="35">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="6*" />
+                                <ColumnDefinition Width="2.5*" />
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="1.5*" />
+                                <ColumnDefinition MinWidth="50"
+                                                  Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Button HorizontalContentAlignment="Stretch"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    IsDoubleTapEnabled="True"
+                                    DoubleTapped="ListHeader_DoubleTapped"
+                                    Grid.Column="0"
+                                    x:Name="ListHeaderName"
+                                    Click="ListHeaderName_Click"
+                                    Background="{StaticResource ElementAcrylicBrush}"
+                                    Style="{StaticResource ListHeaderButtonStyle}">
+                                <RelativePanel>
+                                    <TextBlock Text="名称"
+                                               FontSize="14"
+                                               x:Uid="SearchName"
+                                               TextTrimming="CharacterEllipsis"
+                                               RelativePanel.LeftOf="SortIndicator1"
+                                               RelativePanel.AlignLeftWithPanel="True"
+                                               RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                    <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                             RelativePanel.AlignVerticalCenterWithPanel="True"
+                                             x:Name="SortIndicator1"
+                                             Height="12"
+                                             Width="12"
+                                             Child="{x:Bind Indicator1Icon,Mode=OneWay}"
+                                             Visibility="{x:Bind Indicator1Visibility,Mode=OneWay}" />
+                                </RelativePanel>
+                            </Button>
+                            <Button HorizontalContentAlignment="Stretch"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    IsDoubleTapEnabled="True"
+                                    DoubleTapped="ListHeader_DoubleTapped"
+                                    Grid.Column="1"
+                                    Name="ListHeaderModifiedTime"
+                                    Click="ListHeaderModifiedTime_Click"
+                                    Background="{StaticResource ElementAcrylicBrush}"
+                                    Style="{StaticResource ListHeaderButtonStyle}">
+                                <RelativePanel>
+                                    <TextBlock Text="修改日期"
+                                               FontSize="14"
+                                               x:Uid="SearchModified"
+                                               TextTrimming="CharacterEllipsis"
+                                               RelativePanel.LeftOf="SortIndicator2"
+                                               RelativePanel.AlignLeftWithPanel="True"
+                                               RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                    <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                             RelativePanel.AlignVerticalCenterWithPanel="True"
+                                             x:Name="SortIndicator2"
+                                             Height="12"
+                                             Width="12"
+                                             Child="{x:Bind Indicator2Icon,Mode=OneWay}"
+                                             Visibility="{x:Bind Indicator2Visibility,Mode=OneWay}" />
+                                </RelativePanel>
+                            </Button>
+                            <Button Grid.Column="2"
+                                    HorizontalContentAlignment="Stretch"
+                                    IsDoubleTapEnabled="True"
+                                    DoubleTapped="ListHeader_DoubleTapped"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    Name="ListHeaderType"
+                                    Click="ListHeaderType_Click"
+                                    Background="{StaticResource ElementAcrylicBrush}"
+                                    Style="{StaticResource ListHeaderButtonStyle}">
+                                <RelativePanel>
+                                    <TextBlock Text="类型"
+                                               FontSize="14"
+                                               x:Uid="SearchType"
+                                               TextTrimming="CharacterEllipsis"
+                                               RelativePanel.LeftOf="SortIndicator3"
+                                               RelativePanel.AlignLeftWithPanel="True"
+                                               RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                    <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                             RelativePanel.AlignVerticalCenterWithPanel="True"
+                                             x:Name="SortIndicator3"
+                                             Height="12"
+                                             Width="12"
+                                             Child="{x:Bind Indicator3Icon,Mode=OneWay}"
+                                             Visibility="{x:Bind Indicator3Visibility,Mode=OneWay}" />
+                                </RelativePanel>
+                            </Button>
+                            <Button HorizontalContentAlignment="Stretch"
+                                    HorizontalAlignment="Stretch"
+                                    IsDoubleTapEnabled="True"
+                                    DoubleTapped="ListHeader_DoubleTapped"
+                                    VerticalAlignment="Stretch"
+                                    Name="ListHeaderSize"
+                                    Grid.Column="3"
+                                    Click="ListHeaderSize_Click"
+                                    Background="{StaticResource ElementAcrylicBrush}"
+                                    Style="{StaticResource ListHeaderButtonStyle}">
+                                <RelativePanel>
+                                    <TextBlock Text="大小"
+                                               FontSize="14"
+                                               x:Uid="SearchSize"
+                                               TextTrimming="CharacterEllipsis"
+                                               RelativePanel.LeftOf="SortIndicator4"
+                                               RelativePanel.AlignLeftWithPanel="True"
+                                               RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                    <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                             RelativePanel.AlignVerticalCenterWithPanel="True"
+                                             x:Name="SortIndicator4"
+                                             Height="12"
+                                             Width="12"
+                                             Child="{x:Bind Indicator4Icon,Mode=OneWay}"
+                                             Visibility="{x:Bind Indicator4Visibility,Mode=OneWay}" />
+                                </RelativePanel>
+                            </Button>
+                            <Button VerticalAlignment="Stretch"
+                                    HorizontalAlignment="Stretch"
+                                    Grid.Column="4"
+                                    IsDoubleTapEnabled="True"
+                                    DoubleTapped="ListHeader_DoubleTapped"
+                                    Background="{StaticResource ElementAcrylicBrush}"
+                                    Style="{StaticResource ListHeaderButtonStyle}" />
+                        </Grid>
+                    </DataTemplate>
+                </ListView.HeaderTemplate>
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="Cls:FileSystemStorageItemBase">
+                        <Grid HorizontalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="6*" />
+                                <ColumnDefinition Width="2.5*" />
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="1.5*" />
+                                <ColumnDefinition MinWidth="50"
+                                                  Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="44" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Image VerticalAlignment="Center"
+                                       HorizontalAlignment="Center"
+                                       Stretch="Uniform"
+                                       Source="{x:Bind Thumbnail,Mode=OneWay}"
+                                       Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
+                                       Height="30"
+                                       Width="30"
+                                       x:Phase="1"
+                                       PointerPressed="GetFocus_PointerPressed" />
+                                <TextBlock VerticalAlignment="Center"
+                                           HorizontalAlignment="Left"
+                                           FontSize="14"
+                                           Grid.Column="1"
+                                           x:Phase="0"
+                                           Text="{x:Bind Name,Mode=OneWay}"
+                                           ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
+                                           TextTrimming="CharacterEllipsis"
+                                           PointerPressed="NameLabel_PointerPressed"
+                                           x:Name="NameLabel" />
+                                <TextBox VerticalAlignment="Center"
+                                         x:Name="NameEditBox"
+                                         FontSize="14"
+                                         Grid.Column="1"
+                                         IsSpellCheckEnabled="False"
+                                         Visibility="Collapsed"
+                                         LostFocus="NameEditBox_LostFocus"
+                                         BeforeTextChanging="NameEditBox_BeforeTextChanging"
+                                         x:Load="False" />
+                            </Grid>
+                            <TextBlock VerticalAlignment="Center"
+                                       FontSize="14"
+                                       Padding="10,0,0,0"
+                                       HorizontalAlignment="Left"
+                                       Text="{x:Bind ModifiedTime,Mode=OneWay}"
+                                       ToolTipService.ToolTip="{x:Bind ModifiedTime,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
+                                       Grid.Column="1"
+                                       x:Phase="0"
+                                       TextTrimming="CharacterEllipsis"
+                                       PointerPressed="GetFocus_PointerPressed" />
+                            <TextBlock VerticalAlignment="Center"
+                                       FontSize="14"
+                                       Padding="10,0,0,0"
+                                       HorizontalAlignment="Left"
+                                       Text="{x:Bind DisplayType,Mode=OneWay}"
+                                       ToolTipService.ToolTip="{x:Bind DisplayType,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
+                                       Grid.Column="2"
+                                       x:Phase="1"
+                                       TextTrimming="CharacterEllipsis"
+                                       PointerPressed="GetFocus_PointerPressed" />
+                            <TextBlock VerticalAlignment="Center"
+                                       FontSize="14"
+                                       Padding="10,0,0,0"
+                                       HorizontalAlignment="Left"
+                                       Text="{x:Bind Size,Mode=OneWay}"
+                                       ToolTipService.ToolTip="{x:Bind Size,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
+                                       TextTrimming="CharacterEllipsis"
+                                       Grid.Column="3"
+                                       x:Phase="0"
+                                       PointerPressed="GetFocus_PointerPressed" />
+                            <TextBlock VerticalAlignment="Stretch"
+                                       HorizontalAlignment="Stretch"
+                                       Grid.Column="4"
+                                       Name="EmptyTextblock" />
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
             </ListView>
         </muxc:RefreshContainer>
         <muxc:RefreshContainer x:Name="GridViewRefreshContainer"
@@ -1074,12 +1085,6 @@
                       x:FieldModifier="Public"
                       ShowsScrollingPlaceholders="False"
                       ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
-                <GridView.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <ItemsWrapGrid Orientation="Horizontal"
-                                       HorizontalAlignment="Stretch" />
-                    </ItemsPanelTemplate>
-                </GridView.ItemsPanel>
             </GridView>
         </muxc:RefreshContainer>
         <TextBlock Name="HasFile"

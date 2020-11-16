@@ -1712,6 +1712,8 @@ namespace RX_Explorer
                         }
                         else
                         {
+                            SelectedItem = Context;
+
                             if (Context is HiddenStorageItem)
                             {
                                 await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(HiddenItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
@@ -1724,8 +1726,6 @@ namespace RX_Explorer
                             {
                                 await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                             }
-
-                            SelectedItem = Context;
                         }
                     }
                     else
@@ -4915,6 +4915,8 @@ namespace RX_Explorer
                         }
                         else
                         {
+                            SelectedItem = Context;
+
                             if (Context is HiddenStorageItem)
                             {
                                 await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(HiddenItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
@@ -4927,13 +4929,12 @@ namespace RX_Explorer
                             {
                                 await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                             }
-
-                            SelectedItem = Context;
                         }
                     }
                     else
                     {
                         SelectedItem = null;
+
                         await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                     }
                 }

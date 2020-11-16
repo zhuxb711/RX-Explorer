@@ -44,10 +44,9 @@ namespace FullTrustProcess
                             {
                                 fMask = User32.MenuItemInfoMask.MIIM_STRING | User32.MenuItemInfoMask.MIIM_ID | User32.MenuItemInfoMask.MIIM_FTYPE | User32.MenuItemInfoMask.MIIM_BITMAP,
                                 dwTypeData = DataPtr,
-                                cch = Convert.ToUInt32(BufferSize - 1)
+                                cch = Convert.ToUInt32(BufferSize - 1),
+                                cbSize = Convert.ToUInt32(Marshal.SizeOf(typeof(User32.MENUITEMINFO)))
                             };
-
-                            Info.cbSize = Convert.ToUInt32(Marshal.SizeOf(Info));
 
                             if (User32.GetMenuItemInfo(NewMenu, i, true, ref Info))
                             {
@@ -137,6 +136,7 @@ namespace FullTrustProcess
             }
             catch
             {
+                System.Diagnostics.Debugger.Launch();
                 return new List<(string, string, string)>(0);
             }
             finally
@@ -156,9 +156,9 @@ namespace FullTrustProcess
                 Shell32.CMINVOKECOMMANDINFOEX InvokeCommand = new Shell32.CMINVOKECOMMANDINFOEX
                 {
                     lpVerb = new SafeResourceId(Verb, CharSet.Ansi),
-                    nShow = ShowWindowCommand.SW_SHOWNORMAL
+                    nShow = ShowWindowCommand.SW_SHOWNORMAL,
+                    cbSize = Convert.ToUInt32(Marshal.SizeOf(typeof(Shell32.CMINVOKECOMMANDINFOEX)))
                 };
-                InvokeCommand.cbSize = Convert.ToUInt32(Marshal.SizeOf(InvokeCommand));
 
                 Context?.ComInterface.InvokeCommand(InvokeCommand);
 

@@ -1860,7 +1860,7 @@ namespace RX_Explorer
             AddressBox.ItemsSource = await SQLite.Current.GetRelatedPathHistoryAsync().ConfigureAwait(true);
         }
 
-        private void ItemDisplayMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void ItemDisplayMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ApplicationData.Current.LocalSettings.Values["FilePresenterDisplayMode"] = ItemDisplayMode.SelectedIndex;
 
@@ -1870,48 +1870,110 @@ namespace RX_Explorer
                     {
                         Presenter.ItemPresenter = (Presenter.FindName("GridViewRefreshContainer") as RefreshContainer)?.Content as ListViewBase;
 
-                        Presenter.GridViewControl.ItemTemplate = Presenter.TileDataTemplate;
+                        Presenter.GridViewControl.ItemTemplate = Presenter.GridViewTileDataTemplate;
+                        Presenter.GridViewControl.ItemsPanel = Presenter.HorizontalGridViewPanel;
+
+                        if (Presenter.GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
+                        {
+                            Scroll.HorizontalScrollMode = ScrollMode.Disabled;
+                            Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
+                            Scroll.VerticalScrollMode = ScrollMode.Auto;
+                            Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+                        }
+                        else
+                        {
+                            await Task.Delay(300).ConfigureAwait(true);
+                        }
+
                         break;
                     }
                 case 1:
                     {
                         Presenter.ItemPresenter = (Presenter.FindName("ListViewRefreshContainer") as RefreshContainer)?.Content as ListViewBase;
-
-                        Presenter.ListViewControl.Header = SortIndicatorController.CreateNewInstance();
-                        Presenter.ListViewControl.HeaderTemplate = Presenter.ListHeaderDataTemplate;
-                        Presenter.ListViewControl.ItemTemplate = Presenter.ListViewDetailDataTemplate;
-                        Presenter.ListViewControl.ItemsSource = Presenter.FileCollection;
                         break;
                     }
                 case 2:
                     {
-                        Presenter.ItemPresenter = (Presenter.FindName("ListViewRefreshContainer") as RefreshContainer)?.Content as ListViewBase;
+                        Presenter.ItemPresenter = (Presenter.FindName("GridViewRefreshContainer") as RefreshContainer)?.Content as ListViewBase;
 
-                        Presenter.ListViewControl.Header = null;
-                        Presenter.ListViewControl.HeaderTemplate = null;
-                        Presenter.ListViewControl.ItemTemplate = Presenter.ListViewSimpleDataTemplate;
-                        Presenter.ListViewControl.ItemsSource = Presenter.FileCollection;
+                        Presenter.GridViewControl.ItemTemplate = Presenter.GridViewListDataTemplate;
+                        Presenter.GridViewControl.ItemsPanel = Presenter.VerticalGridViewPanel;
+
+                        if (Presenter.GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
+                        {
+                            Scroll.HorizontalScrollMode = ScrollMode.Auto;
+                            Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+                            Scroll.VerticalScrollMode = ScrollMode.Disabled;
+                            Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
+                        }
+                        else
+                        {
+                            await Task.Delay(300).ConfigureAwait(true);
+                        }
+
                         break;
                     }
                 case 3:
                     {
                         Presenter.ItemPresenter = (Presenter.FindName("GridViewRefreshContainer") as RefreshContainer)?.Content as ListViewBase;
 
-                        Presenter.GridViewControl.ItemTemplate = Presenter.LargeImageDataTemplate;
+                        Presenter.GridViewControl.ItemTemplate = Presenter.GridViewLargeImageDataTemplate;
+                        Presenter.GridViewControl.ItemsPanel = Presenter.HorizontalGridViewPanel;
+
+                        if (Presenter.GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
+                        {
+                            Scroll.HorizontalScrollMode = ScrollMode.Disabled;
+                            Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
+                            Scroll.VerticalScrollMode = ScrollMode.Auto;
+                            Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+                        }
+                        else
+                        {
+                            await Task.Delay(300).ConfigureAwait(true);
+                        }
+
                         break;
                     }
                 case 4:
                     {
                         Presenter.ItemPresenter = (Presenter.FindName("GridViewRefreshContainer") as RefreshContainer)?.Content as ListViewBase;
 
-                        Presenter.GridViewControl.ItemTemplate = Presenter.MediumImageDataTemplate;
+                        Presenter.GridViewControl.ItemTemplate = Presenter.GridViewMediumImageDataTemplate;
+                        Presenter.GridViewControl.ItemsPanel = Presenter.HorizontalGridViewPanel;
+
+                        if (Presenter.GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
+                        {
+                            Scroll.HorizontalScrollMode = ScrollMode.Disabled;
+                            Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
+                            Scroll.VerticalScrollMode = ScrollMode.Auto;
+                            Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+                        }
+                        else
+                        {
+                            await Task.Delay(300).ConfigureAwait(true);
+                        }
+
                         break;
                     }
                 case 5:
                     {
                         Presenter.ItemPresenter = (Presenter.FindName("GridViewRefreshContainer") as RefreshContainer)?.Content as ListViewBase;
 
-                        Presenter.GridViewControl.ItemTemplate = Presenter.SmallImageDataTemplate;
+                        Presenter.GridViewControl.ItemTemplate = Presenter.GridViewSmallImageDataTemplate;
+                        Presenter.GridViewControl.ItemsPanel = Presenter.HorizontalGridViewPanel;
+
+                        if (Presenter.GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
+                        {
+                            Scroll.HorizontalScrollMode = ScrollMode.Disabled;
+                            Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
+                            Scroll.VerticalScrollMode = ScrollMode.Auto;
+                            Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+                        }
+                        else
+                        {
+                            await Task.Delay(300).ConfigureAwait(true);
+                        }
+
                         break;
                     }
             }

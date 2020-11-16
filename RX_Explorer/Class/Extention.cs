@@ -173,16 +173,13 @@ namespace RX_Explorer.Class
             {
                 if (ShowAt != null)
                 {
-                    if (!Flyout.IsOpen)
+                    FlyoutShowOptions Option = new FlyoutShowOptions
                     {
-                        FlyoutShowOptions Option = new FlyoutShowOptions
-                        {
-                            Position = ShowAt,
-                            Placement = FlyoutPlacementMode.RightEdgeAlignedTop
-                        };
+                        Position = ShowAt,
+                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                    };
 
-                        Flyout?.ShowAt(ListControl, Option);
-                    }
+                    Flyout?.ShowAt(ListControl, Option);
                 }
                 else
                 {
