@@ -68,10 +68,7 @@ namespace RX_Explorer
         private ListViewBase itemPresenter;
         public ListViewBase ItemPresenter
         {
-            get
-            {
-                return itemPresenter;
-            }
+            get => itemPresenter;
             set
             {
                 if (value != itemPresenter)
@@ -113,10 +110,7 @@ namespace RX_Explorer
 
         public FileSystemStorageItemBase SelectedItem
         {
-            get
-            {
-                return ItemPresenter.SelectedItem as FileSystemStorageItemBase;
-            }
+            get => ItemPresenter.SelectedItem as FileSystemStorageItemBase;
             set
             {
                 ItemPresenter.SelectedItem = value;
@@ -128,13 +122,7 @@ namespace RX_Explorer
             }
         }
 
-        public List<FileSystemStorageItemBase> SelectedItems
-        {
-            get
-            {
-                return ItemPresenter.SelectedItems.Select((Item) => Item as FileSystemStorageItemBase).ToList();
-            }
-        }
+        public List<FileSystemStorageItemBase> SelectedItems => ItemPresenter.SelectedItems.Select((Item) => Item as FileSystemStorageItemBase).ToList();
 
         public FilePresenter()
         {
@@ -148,6 +136,8 @@ namespace RX_Explorer
 
             Loaded += FilePresenter_Loaded;
             Unloaded += FilePresenter_Unloaded;
+
+            TryUnlock.IsEnabled = Package.Current.Id.Architecture == ProcessorArchitecture.X64 || Package.Current.Id.Architecture == ProcessorArchitecture.X86 || Package.Current.Id.Architecture == ProcessorArchitecture.X86OnArm64;
         }
 
         private void FilePresenter_Unloaded(object sender, RoutedEventArgs e)
@@ -4010,7 +4000,7 @@ namespace RX_Explorer
 
         private async void Item_Drop(object sender, DragEventArgs e)
         {
-            var Deferral = e.GetDeferral();
+            DragOperationDeferral Deferral = e.GetDeferral();
 
             if (Interlocked.Exchange(ref DropLock, 1) == 0)
             {
@@ -4516,7 +4506,7 @@ namespace RX_Explorer
 
         private async void ViewControl_Drop(object sender, DragEventArgs e)
         {
-            var Deferral = e.GetDeferral();
+            DragOperationDeferral Deferral = e.GetDeferral();
 
             if (Interlocked.Exchange(ref ViewDropLock, 1) == 0)
             {
@@ -5253,16 +5243,16 @@ namespace RX_Explorer
 
                     using (HashCancellation = new CancellationTokenSource())
                     {
-                        var task1 = Item.ComputeSHA256Hash(HashCancellation.Token);
+                        Task<string> task1 = Item.ComputeSHA256Hash(HashCancellation.Token);
                         Hash_SHA256.IsEnabled = true;
 
-                        var task2 = Item.ComputeCrc32Hash(HashCancellation.Token);
+                        Task<string> task2 = Item.ComputeCrc32Hash(HashCancellation.Token);
                         Hash_Crc32.IsEnabled = true;
 
-                        var task4 = Item.ComputeMD5Hash(HashCancellation.Token);
+                        Task<string> task4 = Item.ComputeMD5Hash(HashCancellation.Token);
                         Hash_MD5.IsEnabled = true;
 
-                        var task3 = Item.ComputeSHA1Hash(HashCancellation.Token);
+                        Task<string> task3 = Item.ComputeSHA1Hash(HashCancellation.Token);
                         Hash_SHA1.IsEnabled = true;
 
                         Hash_MD5.Text = await task4.ConfigureAwait(true);
@@ -6430,7 +6420,7 @@ namespace RX_Explorer
 
         private async void ViewControlRefreshContainer_RefreshRequested(Microsoft.UI.Xaml.Controls.RefreshContainer sender, Microsoft.UI.Xaml.Controls.RefreshRequestedEventArgs args)
         {
-            var Deferral = args.GetDeferral();
+            Windows.Foundation.Deferral Deferral = args.GetDeferral();
 
             try
             {

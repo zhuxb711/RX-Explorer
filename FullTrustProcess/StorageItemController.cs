@@ -51,7 +51,7 @@ namespace FullTrustProcess
                     using (Process CheckTool = new Process())
                     {
                         CheckTool.StartInfo.FileName = "handle.exe";
-                        CheckTool.StartInfo.Arguments = $"\"{Path.Replace("\\", "/")}\"";
+                        CheckTool.StartInfo.Arguments = $"\"{Path}\" /accepteula";
                         CheckTool.StartInfo.UseShellExecute = false;
                         CheckTool.StartInfo.RedirectStandardOutput = true;
                         CheckTool.StartInfo.CreateNoWindow = true;

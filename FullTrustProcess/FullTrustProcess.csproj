@@ -129,6 +129,11 @@
       <Version>3.2.21</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="handle.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
