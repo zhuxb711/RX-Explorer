@@ -17,6 +17,8 @@ namespace RX_Explorer.Class
 
         public bool IsSupported => JumpList.IsSupported();
 
+        public int RecentItemMaxNum { get; set; } = 8;
+
         private async Task<bool> Initialize()
         {
             try
@@ -26,11 +28,20 @@ namespace RX_Explorer.Class
                     if (InnerList == null)
                     {
                         InnerList = await JumpList.LoadCurrentAsync();
+                        InnerList.SystemGroupKind = JumpListSystemGroupKind.None;
                     }
+
+                    bool ItemModified = false;
 
                     foreach (JumpListItem Item in InnerList.Items.Where((Item) => Item.RemovedByUser))
                     {
                         InnerList.Items.Remove(Item);
+                        ItemModified = true;
+                    }
+
+                    if (ItemModified)
+                    {
+                        await InnerList.SaveAsync();
                     }
 
                     return true;
@@ -50,52 +61,84 @@ namespace RX_Explorer.Class
         {
             if (await Initialize().ConfigureAwait(false))
             {
+                bool ItemModified = false;
+
                 foreach (string Path in PathList)
                 {
-                    JumpListItem NewItem = JumpListItem.CreateWithArguments(Path, System.IO.Path.GetFileName(Path));
+                    if (InnerList.Items.Where((Item) => Item.GroupName == Group).All((Item) => Item.Description != Path))
+                    {
+                        JumpListItem NewItem = JumpListItem.CreateWithArguments(Path, System.IO.Path.GetFileName(Path));
 
-                    NewItem.Logo = new Uri("ms-appx:///Assets/FolderIcon.png");
-                    NewItem.Description = Path;
-                    NewItem.GroupName = Group;
+                        NewItem.Logo = new Uri("ms-appx:///Assets/FolderIcon.png");
+                        NewItem.Description = Path;
+                        NewItem.GroupName = Group;
 
-                    InnerList.Items.Add(NewItem);
+                        InnerList.Items.Add(NewItem);
+
+                        ItemModified = true;
+                    }
                 }
 
-                await InnerList.SaveAsync();
+                if (Group == Globalization.GetString("JumpList_Group_Recent"))
+                {
+                    JumpListItem[] RecentGroup = InnerList.Items.Where((Item) => Item.GroupName == Group).ToArray();
+
+                    if (RecentGroup.Length >= RecentItemMaxNum)
+                    {
+                        foreach (JumpListItem RemoveItem in RecentGroup.Take(RecentGroup.Length - RecentItemMaxNum))
+                        {
+                            InnerList.Items.Remove(RemoveItem);
+                            ItemModified = true;
+                        }
+                    }
+                }
+
+                if (ItemModified)
+                {
+                    await InnerList.SaveAsync();
+                }
             }
         }
 
-        public async Task AddItem(string Group, params IStorageItem[] ItemList)
+        public async Task AddItem(string Group, params StorageFolder[] FolderList)
         {
             if (await Initialize().ConfigureAwait(false))
             {
-                foreach (IStorageItem Item in ItemList)
-                {
-                    JumpListItem NewItem;
+                bool ItemModified = false;
 
-                    if (Item is StorageFile File)
+                foreach (StorageFolder Folder in FolderList)
+                {
+                    if (InnerList.Items.Where((Item) => Item.GroupName == Group).All((Item) => Item.Description != Folder.Path))
                     {
-                        NewItem = JumpListItem.CreateWithArguments(File.Path, File.DisplayName);
-                        NewItem.Description = File.Path;
-                        NewItem.GroupName = Group;
-                        NewItem.Logo = new Uri("ms-appx:///Assets/FolderIcon.png");
-                    }
-                    else if (Item is StorageFolder Folder)
-                    {
-                        NewItem = JumpListItem.CreateWithArguments(Folder.Path, Folder.DisplayName);
+                        JumpListItem NewItem = JumpListItem.CreateWithArguments(Folder.Path, Folder.DisplayName);
                         NewItem.Description = Folder.Path;
                         NewItem.GroupName = Group;
                         NewItem.Logo = new Uri("ms-appx:///Assets/FolderIcon.png");
-                    }
-                    else
-                    {
-                        NewItem = JumpListItem.CreateSeparator();
-                    }
 
-                    InnerList.Items.Add(NewItem);
+                        InnerList.Items.Add(NewItem);
+
+                        ItemModified = true;
+                    }
                 }
 
-                await InnerList.SaveAsync();
+                if (Group == Globalization.GetString("JumpList_Group_Recent"))
+                {
+                    JumpListItem[] RecentGroup = InnerList.Items.Where((Item) => Item.GroupName == Group).ToArray();
+
+                    if (RecentGroup.Length >= RecentItemMaxNum)
+                    {
+                        foreach (JumpListItem RemoveItem in RecentGroup.Take(RecentGroup.Length - RecentItemMaxNum))
+                        {
+                            InnerList.Items.Remove(RemoveItem);
+                            ItemModified = true;
+                        }
+                    }
+                }
+
+                if (ItemModified)
+                {
+                    await InnerList.SaveAsync();
+                }
             }
         }
 
@@ -103,14 +146,20 @@ namespace RX_Explorer.Class
         {
             if (await Initialize().ConfigureAwait(false))
             {
+                bool ItemModified = false;
+
                 foreach (JumpListItem Item in ItemList)
                 {
                     if (InnerList.Items.Contains(Item))
                     {
                         InnerList.Items.Remove(Item);
-
-                        await InnerList.SaveAsync();
+                        ItemModified = true;
                     }
+                }
+
+                if (ItemModified)
+                {
+                    await InnerList.SaveAsync();
                 }
             }
         }

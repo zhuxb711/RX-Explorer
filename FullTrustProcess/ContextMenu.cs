@@ -24,11 +24,17 @@ namespace FullTrustProcess
             {
                 ItemCollecion = Path.Where((Item) => File.Exists(Item) || Directory.Exists(Item)).Select((Item) => ShellItem.Open(Item)).ToArray();
 
+                if (Context != null)
+                {
+                    Marshal.ReleaseComObject(Context.ComInterface);
+                    Context = null;
+                }
+
+                Context = new ShellContextMenu(ItemCollecion);
+
                 using (User32.SafeHMENU NewMenu = User32.CreatePopupMenu())
                 {
-                    Context = new ShellContextMenu(ItemCollecion);
-
-                    Context.ComInterface.QueryContextMenu(NewMenu, 0, 0, ushort.MaxValue, FetchExtensionMenu ? (Shell32.CMF.CMF_VERBSONLY | Shell32.CMF.CMF_EXTENDEDVERBS) : Shell32.CMF.CMF_VERBSONLY);
+                    Context.ComInterface.QueryContextMenu(NewMenu, 0, 0, ushort.MaxValue, FetchExtensionMenu ? (Shell32.CMF.CMF_NORMAL | Shell32.CMF.CMF_EXTENDEDVERBS) : Shell32.CMF.CMF_NORMAL);
 
                     int MaxCount = User32.GetMenuItemCount(NewMenu);
 
@@ -42,7 +48,7 @@ namespace FullTrustProcess
                         {
                             User32.MENUITEMINFO Info = new User32.MENUITEMINFO
                             {
-                                fMask = User32.MenuItemInfoMask.MIIM_STRING | User32.MenuItemInfoMask.MIIM_ID | User32.MenuItemInfoMask.MIIM_FTYPE | User32.MenuItemInfoMask.MIIM_BITMAP,
+                                fMask = User32.MenuItemInfoMask.MIIM_STRING | User32.MenuItemInfoMask.MIIM_ID | User32.MenuItemInfoMask.MIIM_FTYPE | User32.MenuItemInfoMask.MIIM_BITMAP | User32.MenuItemInfoMask.MIIM_STATE,
                                 dwTypeData = DataPtr,
                                 cch = Convert.ToUInt32(BufferSize - 1),
                                 cbSize = Convert.ToUInt32(Marshal.SizeOf(typeof(User32.MENUITEMINFO)))
@@ -60,7 +66,7 @@ namespace FullTrustProcess
 
                                         string Verb = Marshal.PtrToStringUni(VerbPtr);
 
-                                        switch (Verb)
+                                        switch (Verb.ToLower())
                                         {
                                             case "open":
                                             case "opennewprocess":
@@ -136,7 +142,6 @@ namespace FullTrustProcess
             }
             catch
             {
-                System.Diagnostics.Debugger.Launch();
                 return new List<(string, string, string)>(0);
             }
             finally

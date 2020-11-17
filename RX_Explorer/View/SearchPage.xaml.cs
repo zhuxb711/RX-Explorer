@@ -122,6 +122,8 @@ namespace RX_Explorer
 
                         await Control.OpenTargetFolder(ParentFolder).ConfigureAwait(true);
 
+                        await JumpListController.Current.AddItem(Globalization.GetString("JumpList_Group_Recent"), ParentFolder).ConfigureAwait(true);
+
                         if (Control.Presenter.FileCollection.FirstOrDefault((SItem) => SItem.Path == Item.Path) is FileSystemStorageItemBase Target)
                         {
                             Control.Presenter.ItemPresenter.ScrollIntoView(Target);

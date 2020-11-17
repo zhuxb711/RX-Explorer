@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -655,14 +656,31 @@ namespace RX_Explorer
                     }
                 }
 
+                foreach(var item in await JumpListController.Current.GetAllJumpListItems())
+                {
+                    Debug.WriteLine($"Group: {item.GroupName}, Name: {item.DisplayName}");
+                }
+
                 Queue<string> ErrorList = new Queue<string>();
                 foreach ((string, LibraryType) Library in await SQLite.Current.GetLibraryPathAsync().ConfigureAwait(true))
                 {
                     try
                     {
-                        StorageFolder PinFile = await StorageFolder.GetFolderFromPathAsync(Library.Item1);
-                        BitmapImage Thumbnail = await PinFile.GetThumbnailBitmapAsync().ConfigureAwait(true);
-                        CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(PinFile, Thumbnail, Library.Item2));
+                        StorageFolder PinFolder = await StorageFolder.GetFolderFromPathAsync(Library.Item1);
+                        BitmapImage Thumbnail = await PinFolder.GetThumbnailBitmapAsync().ConfigureAwait(true);
+                        CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(PinFolder, Thumbnail, Library.Item2));
+
+                        switch(Library.Item2)
+                        {
+                            case LibraryType.Downloads:
+                            case LibraryType.Pictures:
+                            case LibraryType.Document:
+                            case LibraryType.UserCustom:
+                                {
+                                    await JumpListController.Current.AddItem(Globalization.GetString("JumpList_Group_Library"), PinFolder).ConfigureAwait(true);
+                                    break;
+                                }
+                        }
                     }
                     catch (Exception)
                     {

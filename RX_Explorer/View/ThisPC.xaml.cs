@@ -886,9 +886,9 @@ namespace RX_Explorer
             };
             Picker.FileTypeFilter.Add("*");
 
-            if (await Picker.PickSingleFolderAsync() is StorageFolder folder)
+            if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
             {
-                if (CommonAccessCollection.LibraryFolderList.Any((Folder) => Folder.Folder.Path == folder.Path))
+                if (CommonAccessCollection.LibraryFolderList.Any((Library) => Library.Folder.Path == Folder.Path))
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -900,8 +900,9 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(folder, await folder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibraryType.UserCustom));
-                    await SQLite.Current.SetLibraryPathAsync(folder.Path, LibraryType.UserCustom).ConfigureAwait(false);
+                    CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(Folder, await Folder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibraryType.UserCustom));
+                    await SQLite.Current.SetLibraryPathAsync(Folder.Path, LibraryType.UserCustom).ConfigureAwait(false);
+                    await JumpListController.Current.AddItem(Globalization.GetString("JumpList_Group_Library"), Folder).ConfigureAwait(false);
                 }
             }
         }

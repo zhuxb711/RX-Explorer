@@ -1379,6 +1379,7 @@ namespace RX_Explorer
                     if (Item.StorageType == StorageItemTypes.Folder)
                     {
                         await SQLite.Current.SetPathHistoryAsync(Item.Path).ConfigureAwait(true);
+                        await JumpListController.Current.AddItem(Globalization.GetString("JumpList_Group_Recent"), Item.Path).ConfigureAwait(true);
                     }
                 }
 
@@ -1413,6 +1414,7 @@ namespace RX_Explorer
                     if (Item.StorageType == StorageItemTypes.Folder)
                     {
                         await SQLite.Current.SetPathHistoryAsync(Item.Path).ConfigureAwait(true);
+                        await JumpListController.Current.AddItem(Globalization.GetString("JumpList_Group_Recent"), Item.Path).ConfigureAwait(true);
                     }
                 }
 
@@ -1447,6 +1449,7 @@ namespace RX_Explorer
                     if (Item.StorageType == StorageItemTypes.Folder)
                     {
                         await SQLite.Current.SetPathHistoryAsync(Item.Path).ConfigureAwait(true);
+                        await JumpListController.Current.AddItem(Globalization.GetString("JumpList_Group_Recent"), Item.Path).ConfigureAwait(true);
                     }
                 }
 
@@ -1511,6 +1514,8 @@ namespace RX_Explorer
                         await DisplayItemsInFolder(Folder).ConfigureAwait(true);
 
                         await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(true);
+
+                        await JumpListController.Current.AddItem(Globalization.GetString("JumpList_Group_Recent"), Folder).ConfigureAwait(true);
                     }
                     else
                     {
@@ -1523,6 +1528,8 @@ namespace RX_Explorer
                                 await DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
 
                                 await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(true);
+
+                                await JumpListController.Current.AddItem(Globalization.GetString("JumpList_Group_Recent"), Folder).ConfigureAwait(true);
                             }
                         }
                         else
