@@ -75,7 +75,7 @@ namespace RX_Explorer.Class
 
                         if (Group == JumpListGroup.Library)
                         {
-                            if (LibraryGroupItems.Length >= GroupItemMaxNum)
+                            if (LibraryGroupItems.Length >= GroupItemMaxNum && RecentGroupItems.Length + LibraryGroupItems.Length >= 2 * GroupItemMaxNum)
                             {
                                 if (RecentGroupItems.Length > 4)
                                 {
@@ -89,7 +89,7 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            if (RecentGroupItems.Length + LibraryGroupItems.Length >= 2 * GroupItemMaxNum)
+                            if (RecentGroupItems.Length >= GroupItemMaxNum || RecentGroupItems.Length + LibraryGroupItems.Length >= 2 * GroupItemMaxNum)
                             {
                                 InnerList.Items.Remove(RecentGroupItems.FirstOrDefault());
                             }
