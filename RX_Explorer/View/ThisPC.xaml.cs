@@ -470,6 +470,7 @@ namespace RX_Explorer
             {
                 CommonAccessCollection.LibraryFolderList.Remove(Library);
                 await SQLite.Current.DeleteLibraryAsync(Library.Folder.Path).ConfigureAwait(false);
+                await JumpListController.Current.RemoveItem(JumpListGroup.Library, Library.Folder).ConfigureAwait(false);
             }
         }
 
@@ -902,7 +903,7 @@ namespace RX_Explorer
                 {
                     CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(Folder, await Folder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibraryType.UserCustom));
                     await SQLite.Current.SetLibraryPathAsync(Folder.Path, LibraryType.UserCustom).ConfigureAwait(false);
-                    await JumpListController.Current.AddItem(Globalization.GetString("JumpList_Group_Library"), Folder).ConfigureAwait(false);
+                    await JumpListController.Current.AddItem(JumpListGroup.Library, Folder).ConfigureAwait(false);
                 }
             }
         }

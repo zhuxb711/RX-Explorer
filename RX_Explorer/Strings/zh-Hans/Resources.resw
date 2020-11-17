@@ -2511,4 +2511,10 @@
   <data name="RunningInAdminModeTip" xml:space="preserve">
     <value>管理员模式</value>
   </data>
+  <data name="JumpList_Group_Library" xml:space="preserve">
+    <value>文件夹和库</value>
+  </data>
+  <data name="JumpList_Group_Recent" xml:space="preserve">
+    <value>近期</value>
+  </data>
 </root>

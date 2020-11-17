@@ -3329,6 +3329,14 @@ Les noms non valides incluent
           <source>Administrator mode</source>
           <target state="translated">Mode administrateur</target>
         </trans-unit>
+        <trans-unit id="JumpList_Group_Library" translate="yes" xml:space="preserve">
+          <source>Library</source>
+          <target state="translated">Bibliothèque</target>
+        </trans-unit>
+        <trans-unit id="JumpList_Group_Recent" translate="yes" xml:space="preserve">
+          <source>Recent</source>
+          <target state="translated">Récent</target>
+        </trans-unit>
       </group>
     </body>
   </file>

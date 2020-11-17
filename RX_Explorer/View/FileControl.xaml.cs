@@ -1379,7 +1379,6 @@ namespace RX_Explorer
                     if (Item.StorageType == StorageItemTypes.Folder)
                     {
                         await SQLite.Current.SetPathHistoryAsync(Item.Path).ConfigureAwait(true);
-                        await JumpListController.Current.AddItem(Globalization.GetString("JumpList_Group_Recent"), Item.Path).ConfigureAwait(true);
                     }
                 }
 
@@ -1414,7 +1413,6 @@ namespace RX_Explorer
                     if (Item.StorageType == StorageItemTypes.Folder)
                     {
                         await SQLite.Current.SetPathHistoryAsync(Item.Path).ConfigureAwait(true);
-                        await JumpListController.Current.AddItem(Globalization.GetString("JumpList_Group_Recent"), Item.Path).ConfigureAwait(true);
                     }
                 }
 
@@ -1449,7 +1447,6 @@ namespace RX_Explorer
                     if (Item.StorageType == StorageItemTypes.Folder)
                     {
                         await SQLite.Current.SetPathHistoryAsync(Item.Path).ConfigureAwait(true);
-                        await JumpListController.Current.AddItem(Globalization.GetString("JumpList_Group_Recent"), Item.Path).ConfigureAwait(true);
                     }
                 }
 
@@ -1515,7 +1512,7 @@ namespace RX_Explorer
 
                         await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(true);
 
-                        await JumpListController.Current.AddItem(Globalization.GetString("JumpList_Group_Recent"), Folder).ConfigureAwait(true);
+                        await JumpListController.Current.AddItem(JumpListGroup.Recent, Folder).ConfigureAwait(true);
                     }
                     else
                     {
@@ -1529,7 +1526,7 @@ namespace RX_Explorer
 
                                 await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(true);
 
-                                await JumpListController.Current.AddItem(Globalization.GetString("JumpList_Group_Recent"), Folder).ConfigureAwait(true);
+                                await JumpListController.Current.AddItem(JumpListGroup.Recent, Folder).ConfigureAwait(true);
                             }
                         }
                         else

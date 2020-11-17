@@ -2,6 +2,12 @@
 
 namespace RX_Explorer.Class
 {
+    public enum JumpListGroup
+    {
+        Library,
+        Recent
+    }
+
     public enum LoadMode
     {
         None = 0,

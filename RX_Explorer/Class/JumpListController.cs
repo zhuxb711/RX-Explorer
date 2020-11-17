@@ -17,7 +17,7 @@ namespace RX_Explorer.Class
 
         public bool IsSupported => JumpList.IsSupported();
 
-        public int RecentItemMaxNum { get; set; } = 8;
+        public int GroupItemMaxNum { get; set; } = 6;
 
         private async Task<bool> Initialize()
         {
@@ -25,15 +25,12 @@ namespace RX_Explorer.Class
             {
                 if (IsSupported)
                 {
-                    if (InnerList == null)
-                    {
-                        InnerList = await JumpList.LoadCurrentAsync();
-                        InnerList.SystemGroupKind = JumpListSystemGroupKind.None;
-                    }
+                    InnerList = await JumpList.LoadCurrentAsync();
+                    InnerList.SystemGroupKind = JumpListSystemGroupKind.None;
 
                     bool ItemModified = false;
 
-                    foreach (JumpListItem Item in InnerList.Items.Where((Item) => Item.RemovedByUser))
+                    foreach (JumpListItem Item in InnerList.Items.Where((Item) => Item.RemovedByUser).ToArray())
                     {
                         InnerList.Items.Remove(Item);
                         ItemModified = true;
@@ -57,81 +54,56 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task AddItem(string Group, params string[] PathList)
+        public async Task AddItem(JumpListGroup Group, params StorageFolder[] FolderList)
         {
             if (await Initialize().ConfigureAwait(false))
             {
                 bool ItemModified = false;
 
-                foreach (string Path in PathList)
-                {
-                    if (InnerList.Items.Where((Item) => Item.GroupName == Group).All((Item) => Item.Description != Path))
-                    {
-                        JumpListItem NewItem = JumpListItem.CreateWithArguments(Path, System.IO.Path.GetFileName(Path));
-
-                        NewItem.Logo = new Uri("ms-appx:///Assets/FolderIcon.png");
-                        NewItem.Description = Path;
-                        NewItem.GroupName = Group;
-
-                        InnerList.Items.Add(NewItem);
-
-                        ItemModified = true;
-                    }
-                }
-
-                if (Group == Globalization.GetString("JumpList_Group_Recent"))
-                {
-                    JumpListItem[] RecentGroup = InnerList.Items.Where((Item) => Item.GroupName == Group).ToArray();
-
-                    if (RecentGroup.Length >= RecentItemMaxNum)
-                    {
-                        foreach (JumpListItem RemoveItem in RecentGroup.Take(RecentGroup.Length - RecentItemMaxNum))
-                        {
-                            InnerList.Items.Remove(RemoveItem);
-                            ItemModified = true;
-                        }
-                    }
-                }
-
-                if (ItemModified)
-                {
-                    await InnerList.SaveAsync();
-                }
-            }
-        }
-
-        public async Task AddItem(string Group, params StorageFolder[] FolderList)
-        {
-            if (await Initialize().ConfigureAwait(false))
-            {
-                bool ItemModified = false;
+                string GroupString = ConvertGroupEnumToResourceString(Group);
 
                 foreach (StorageFolder Folder in FolderList)
                 {
-                    if (InnerList.Items.Where((Item) => Item.GroupName == Group).All((Item) => Item.Description != Folder.Path))
+                    if (InnerList.Items.Where((Item) => Item.GroupName == GroupString).All((Item) => Item.Description != Folder.Path))
                     {
+                        string RecentGroupString = ConvertGroupEnumToResourceString(JumpListGroup.Recent);
+                        string LibraryGroupString = ConvertGroupEnumToResourceString(JumpListGroup.Library);
+
+                        JumpListItem[] RecentGroupItems = InnerList.Items.Where((Item) => Item.GroupName == RecentGroupString).ToArray();
+
+                        JumpListItem[] LibraryGroupItems = InnerList.Items.Where((Item) => Item.GroupName == LibraryGroupString).ToArray();
+
+                        if (Group == JumpListGroup.Library)
+                        {
+                            if (LibraryGroupItems.Length >= GroupItemMaxNum)
+                            {
+                                if (RecentGroupItems.Length > 4)
+                                {
+                                    InnerList.Items.Remove(RecentGroupItems.FirstOrDefault());
+                                }
+                                else
+                                {
+                                    InnerList.Items.Remove(LibraryGroupItems.FirstOrDefault());
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (RecentGroupItems.Length + LibraryGroupItems.Length >= 2 * GroupItemMaxNum)
+                            {
+                                InnerList.Items.Remove(RecentGroupItems.FirstOrDefault());
+                            }
+                        }
+
                         JumpListItem NewItem = JumpListItem.CreateWithArguments(Folder.Path, Folder.DisplayName);
-                        NewItem.Description = Folder.Path;
-                        NewItem.GroupName = Group;
+
                         NewItem.Logo = new Uri("ms-appx:///Assets/FolderIcon.png");
+                        NewItem.Description = Folder.Path;
+                        NewItem.GroupName = GroupString;
 
                         InnerList.Items.Add(NewItem);
 
                         ItemModified = true;
-                    }
-                }
-
-                if (Group == Globalization.GetString("JumpList_Group_Recent"))
-                {
-                    JumpListItem[] RecentGroup = InnerList.Items.Where((Item) => Item.GroupName == Group).ToArray();
-
-                    if (RecentGroup.Length >= RecentItemMaxNum)
-                    {
-                        foreach (JumpListItem RemoveItem in RecentGroup.Take(RecentGroup.Length - RecentItemMaxNum))
-                        {
-                            InnerList.Items.Remove(RemoveItem);
-                            ItemModified = true;
-                        }
                     }
                 }
 
@@ -142,17 +114,20 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task RemoveItem(params JumpListItem[] ItemList)
+        public async Task RemoveItem(JumpListGroup Group, params string[] PathList)
         {
             if (await Initialize().ConfigureAwait(false))
             {
                 bool ItemModified = false;
+                string GroupString = ConvertGroupEnumToResourceString(Group);
 
-                foreach (JumpListItem Item in ItemList)
+                JumpListItem[] GroupItem = InnerList.Items.Where((Item) => Item.GroupName == GroupString).ToArray();
+
+                foreach (string Path in PathList)
                 {
-                    if (InnerList.Items.Contains(Item))
+                    if (GroupItem.FirstOrDefault((Item) => Item.Description == Path) is JumpListItem RemoveItem)
                     {
-                        InnerList.Items.Remove(Item);
+                        InnerList.Items.Remove(RemoveItem);
                         ItemModified = true;
                     }
                 }
@@ -162,6 +137,11 @@ namespace RX_Explorer.Class
                     await InnerList.SaveAsync();
                 }
             }
+        }
+
+        public Task RemoveItem(JumpListGroup Group, params StorageFolder[] FolderList)
+        {
+            return RemoveItem(Group, FolderList.Select((Item) => Item.Path).ToArray());
         }
 
         public async Task<List<JumpListItem>> GetAllJumpListItems()
@@ -173,6 +153,25 @@ namespace RX_Explorer.Class
             else
             {
                 return new List<JumpListItem>(0);
+            }
+        }
+
+        public string ConvertGroupEnumToResourceString(JumpListGroup Group)
+        {
+            switch (Group)
+            {
+                case JumpListGroup.Library:
+                    {
+                        return "ms-resource:///Resources/JumpList_Group_Library";
+                    }
+                case JumpListGroup.Recent:
+                    {
+                        return "ms-resource:///Resources/JumpList_Group_Recent";
+                    }
+                default:
+                    {
+                        throw new ArgumentOutOfRangeException(nameof(Group));
+                    }
             }
         }
 

@@ -2511,4 +2511,10 @@ Les noms non valides incluent
   <data name="RunningInAdminModeTip" xml:space="preserve">
     <value>Mode administrateur</value>
   </data>
+  <data name="JumpList_Group_Library" xml:space="preserve">
+    <value>Bibliothèque</value>
+  </data>
+  <data name="JumpList_Group_Recent" xml:space="preserve">
+    <value>Récent</value>
+  </data>
 </root>

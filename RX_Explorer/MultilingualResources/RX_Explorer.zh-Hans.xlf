@@ -3329,6 +3329,14 @@ Invalid names include
           <source>Administrator mode</source>
           <target state="translated">管理员模式</target>
         </trans-unit>
+        <trans-unit id="JumpList_Group_Library" translate="yes" xml:space="preserve">
+          <source>Library</source>
+          <target state="translated">文件夹和库</target>
+        </trans-unit>
+        <trans-unit id="JumpList_Group_Recent" translate="yes" xml:space="preserve">
+          <source>Recent</source>
+          <target state="translated">近期</target>
+        </trans-unit>
       </group>
     </body>
   </file>
