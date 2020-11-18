@@ -1903,16 +1903,20 @@ namespace RX_Explorer
                         Presenter.GridViewControl.ItemTemplate = Presenter.GridViewListDataTemplate;
                         Presenter.GridViewControl.ItemsPanel = Presenter.VerticalGridViewPanel;
 
-                        if (Presenter.GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
+                        while (true)
                         {
-                            Scroll.HorizontalScrollMode = ScrollMode.Auto;
-                            Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
-                            Scroll.VerticalScrollMode = ScrollMode.Disabled;
-                            Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
-                        }
-                        else
-                        {
-                            await Task.Delay(300).ConfigureAwait(true);
+                            if (Presenter.GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
+                            {
+                                Scroll.HorizontalScrollMode = ScrollMode.Auto;
+                                Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+                                Scroll.VerticalScrollMode = ScrollMode.Disabled;
+                                Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
+                                break;
+                            }
+                            else
+                            {
+                                await Task.Delay(300).ConfigureAwait(true);
+                            }
                         }
 
                         break;
