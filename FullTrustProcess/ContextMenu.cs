@@ -24,17 +24,11 @@ namespace FullTrustProcess
             {
                 ItemCollecion = Path.Where((Item) => File.Exists(Item) || Directory.Exists(Item)).Select((Item) => ShellItem.Open(Item)).ToArray();
 
-                if (Context != null)
-                {
-                    Marshal.ReleaseComObject(Context.ComInterface);
-                    Context = null;
-                }
-
                 Context = new ShellContextMenu(ItemCollecion);
 
                 using (User32.SafeHMENU NewMenu = User32.CreatePopupMenu())
                 {
-                    Context.ComInterface.QueryContextMenu(NewMenu, 0, 0, ushort.MaxValue, FetchExtensionMenu ? (Shell32.CMF.CMF_NORMAL | Shell32.CMF.CMF_EXTENDEDVERBS) : Shell32.CMF.CMF_NORMAL);
+                    Context.ComInterface.QueryContextMenu(NewMenu, 0, 0, ushort.MaxValue, FetchExtensionMenu ? (Shell32.CMF.CMF_VERBSONLY | Shell32.CMF.CMF_EXTENDEDVERBS) : Shell32.CMF.CMF_VERBSONLY);
 
                     int MaxCount = User32.GetMenuItemCount(NewMenu);
 

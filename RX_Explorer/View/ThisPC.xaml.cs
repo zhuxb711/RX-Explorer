@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Portable;
 using Windows.Storage;
@@ -125,37 +126,39 @@ namespace RX_Explorer
             }
         }
 
-        private async void DeviceGrid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        public async Task OpenTargetFolder(StorageFolder Folder)
         {
+            if (Folder == null)
+            {
+                throw new ArgumentNullException(nameof(Folder), "Argument could not be null");
+            }
+
             try
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Device)
+                if (string.IsNullOrEmpty(Folder.Path))
                 {
-                    if (string.IsNullOrEmpty(Device.Folder.Path))
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                            Content = Globalization.GetString("QueueDialog_MTP_CouldNotAccess_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                        };
+                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                        Content = Globalization.GetString("QueueDialog_MTP_CouldNotAccess_Content"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                    };
 
-                        if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
-                        {
-                            await Launcher.LaunchFolderAsync(Device.Folder);
-                        }
+                    if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                    {
+                        await Launcher.LaunchFolderAsync(Folder);
+                    }
+                }
+                else
+                {
+                    if (AnimationController.Current.IsEnableAnimation)
+                    {
+                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Folder), new DrillInNavigationTransitionInfo());
                     }
                     else
                     {
-                        if (AnimationController.Current.IsEnableAnimation)
-                        {
-                            Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Device.Folder), new DrillInNavigationTransitionInfo());
-                        }
-                        else
-                        {
-                            Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Device.Folder), new SuppressNavigationTransitionInfo());
-                        }
+                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Folder), new SuppressNavigationTransitionInfo());
                     }
                 }
             }
@@ -165,25 +168,23 @@ namespace RX_Explorer
             }
         }
 
-        private void LibraryGrid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        private async void DeviceGrid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
-            try
+            LibraryGrid.SelectedIndex = -1;
+
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Device)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Library)
-                {
-                    if (AnimationController.Current.IsEnableAnimation)
-                    {
-                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Library.Folder), new DrillInNavigationTransitionInfo());
-                    }
-                    else
-                    {
-                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Library.Folder), new SuppressNavigationTransitionInfo());
-                    }
-                }
+                await OpenTargetFolder(Device.Folder).ConfigureAwait(false);
             }
-            catch (Exception ex)
+        }
+
+        private async void LibraryGrid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        {
+            DeviceGrid.SelectedIndex = -1;
+
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Library)
             {
-                LogTracer.Log(ex, "An error was threw when entering library folder");
+                await OpenTargetFolder(Library.Folder).ConfigureAwait(false);
             }
         }
 
@@ -358,41 +359,11 @@ namespace RX_Explorer
 
         private async void OpenDevice_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                if (DeviceGrid.SelectedItem is HardDeviceInfo Device)
-                {
-                    if (string.IsNullOrEmpty(Device.Folder.Path))
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                            Content = Globalization.GetString("QueueDialog_MTP_CouldNotAccess_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                        };
+            LibraryGrid.SelectedIndex = -1;
 
-                        if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
-                        {
-                            await Launcher.LaunchFolderAsync(Device.Folder);
-                        }
-                    }
-                    else
-                    {
-                        if (AnimationController.Current.IsEnableAnimation)
-                        {
-                            Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Device.Folder), new DrillInNavigationTransitionInfo());
-                        }
-                        else
-                        {
-                            Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Device.Folder), new SuppressNavigationTransitionInfo());
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
+            if (DeviceGrid.SelectedItem is HardDeviceInfo Device)
             {
-                LogTracer.Log(ex, "An error was threw when entering device");
+                await OpenTargetFolder(Device.Folder).ConfigureAwait(false);
             }
         }
 
@@ -442,25 +413,13 @@ namespace RX_Explorer
             }
         }
 
-        private void OpenLibrary_Click(object sender, RoutedEventArgs e)
+        private async void OpenLibrary_Click(object sender, RoutedEventArgs e)
         {
-            try
+            DeviceGrid.SelectedIndex = -1;
+
+            if (LibraryGrid.SelectedItem is LibraryFolder Library)
             {
-                if (LibraryGrid.SelectedItem is LibraryFolder Library)
-                {
-                    if (AnimationController.Current.IsEnableAnimation)
-                    {
-                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Library.Folder), new DrillInNavigationTransitionInfo());
-                    }
-                    else
-                    {
-                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Library.Folder), new SuppressNavigationTransitionInfo());
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "An error was threw when entering library folder");
+                await OpenTargetFolder(Library.Folder).ConfigureAwait(false);
             }
         }
 
@@ -580,67 +539,21 @@ namespace RX_Explorer
 
         private async void DeviceGrid_ItemClick(object sender, ItemClickEventArgs e)
         {
-            try
-            {
-                LibraryGrid.SelectedIndex = -1;
+            LibraryGrid.SelectedIndex = -1;
 
-                if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is HardDeviceInfo Device)
-                {
-                    if (string.IsNullOrEmpty(Device.Folder.Path))
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                            Content = Globalization.GetString("QueueDialog_MTP_CouldNotAccess_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                        };
-
-                        if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
-                        {
-                            await Launcher.LaunchFolderAsync(Device.Folder);
-                        }
-                    }
-                    else
-                    {
-                        if (AnimationController.Current.IsEnableAnimation)
-                        {
-                            Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Device.Folder), new DrillInNavigationTransitionInfo());
-                        }
-                        else
-                        {
-                            Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Device.Folder), new SuppressNavigationTransitionInfo());
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
+            if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is HardDeviceInfo Device)
             {
-                LogTracer.Log(ex, "An error was threw when entering device");
+                await OpenTargetFolder(Device.Folder).ConfigureAwait(false);
             }
         }
 
-        private void LibraryGrid_ItemClick(object sender, ItemClickEventArgs e)
+        private async void LibraryGrid_ItemClick(object sender, ItemClickEventArgs e)
         {
-            try
-            {
-                DeviceGrid.SelectedIndex = -1;
+            DeviceGrid.SelectedIndex = -1;
 
-                if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is LibraryFolder Library)
-                {
-                    if (AnimationController.Current.IsEnableAnimation)
-                    {
-                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Library.Folder), new DrillInNavigationTransitionInfo());
-                    }
-                    else
-                    {
-                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Library.Folder), new SuppressNavigationTransitionInfo());
-                    }
-                }
-            }
-            catch (Exception ex)
+            if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is LibraryFolder Library)
             {
-                LogTracer.Log(ex, "An error was threw when entering library folder");
+                await OpenTargetFolder(Library.Folder).ConfigureAwait(false);
             }
         }
 

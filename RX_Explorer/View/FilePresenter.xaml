@@ -748,11 +748,11 @@
         <DataTemplate x:DataType="Cls:FileSystemStorageItemBase"
                       x:Name="GridViewListDataTemplate"
                       x:FieldModifier="public">
-            <Grid Width="250">
+            <Grid Width="200"
+                  Padding="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="40" />
                     <ColumnDefinition Width="5*" />
-                    <ColumnDefinition MinWidth="50" />
                 </Grid.ColumnDefinitions>
                 <Image VerticalAlignment="Center"
                        Stretch="Uniform"

@@ -186,11 +186,8 @@ namespace RX_Explorer
 
                 if (!CtrlState.HasFlag(CoreVirtualKeyStates.Down) && !ShiftState.HasFlag(CoreVirtualKeyStates.Down))
                 {
-                    if (args.VirtualKey >= VirtualKey.A && args.VirtualKey <= VirtualKey.Z)
-                    {
-                        NavigateToStorageItem(args.VirtualKey);
-                        return;
-                    }
+                    NavigateToStorageItem(args.VirtualKey);
+                    return;
                 }
 
                 switch (args.VirtualKey)
@@ -347,55 +344,72 @@ namespace RX_Explorer
 
         private void NavigateToStorageItem(VirtualKey Key)
         {
-            try
+            char Input = Convert.ToChar(Key);
+            
+            if (char.IsLetterOrDigit(Input))
             {
-                string TargetChar = Convert.ToChar((int)Key).ToString();
+                string SearchString = Input.ToString();
 
-                if (LastPressString != TargetChar && (DateTimeOffset.Now - LastPressTime).TotalMilliseconds < 1200)
+                try
                 {
-                    TargetChar = LastPressString + TargetChar;
-                }
-
-                List<FileSystemStorageItemBase> Group = FileCollection.Where((Item) => Item.Name.StartsWith(TargetChar, StringComparison.OrdinalIgnoreCase)).ToList();
-
-                if (Group.Count > 0)
-                {
-                    if (SelectedItem != null)
+                    if (LastPressString != SearchString && (DateTimeOffset.Now - LastPressTime).TotalMilliseconds < 1200)
                     {
-                        if (Group.Any((Item) => Item == SelectedItem))
-                        {
-                            int NextIndex = Group.IndexOf(SelectedItem);
+                        SearchString = LastPressString + SearchString;
 
-                            if (NextIndex < Group.Count - 1)
-                            {
-                                SelectedItem = Group[NextIndex + 1];
-                                ItemPresenter.ScrollIntoView(SelectedItem);
-                            }
-                            else
-                            {
-                                SelectedItem = Group[0];
-                                ItemPresenter.ScrollIntoView(SelectedItem);
-                            }
-                        }
-                        else
+                        IEnumerable<FileSystemStorageItemBase> Group = FileCollection.Where((Item) => Item.Name.StartsWith(SearchString, StringComparison.OrdinalIgnoreCase));
+
+                        if (Group.Any() && (SelectedItem == null || !Group.Contains(SelectedItem)))
                         {
-                            SelectedItem = Group[0];
+                            SelectedItem = Group.FirstOrDefault();
                             ItemPresenter.ScrollIntoView(SelectedItem);
                         }
                     }
                     else
                     {
-                        SelectedItem = Group[0];
-                        ItemPresenter.ScrollIntoView(SelectedItem);
+                        IEnumerable<FileSystemStorageItemBase> Group = FileCollection.Where((Item) => Item.Name.StartsWith(SearchString, StringComparison.OrdinalIgnoreCase));
+
+                        if (Group.Any())
+                        {
+                            if (SelectedItem != null)
+                            {
+                                FileSystemStorageItemBase[] ItemArray = Group.ToArray();
+
+                                int NextIndex = Array.IndexOf(ItemArray, SelectedItem);
+
+                                if (NextIndex != -1)
+                                {
+                                    if (NextIndex < ItemArray.Length - 1)
+                                    {
+                                        SelectedItem = ItemArray[NextIndex + 1];
+                                    }
+                                    else
+                                    {
+                                        SelectedItem = ItemArray.FirstOrDefault();
+                                    }
+                                }
+                                else
+                                {
+                                    SelectedItem = ItemArray.FirstOrDefault();
+                                }
+                            }
+                            else
+                            {
+                                SelectedItem = Group.FirstOrDefault();
+                            }
+
+                            ItemPresenter.ScrollIntoView(SelectedItem);
+                        }
                     }
                 }
-
-                LastPressString = TargetChar;
-                LastPressTime = DateTimeOffset.Now;
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{nameof(NavigateToStorageItem)} throw an exception");
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"{nameof(NavigateToStorageItem)} throw an exception");
+                }
+                finally
+                {
+                    LastPressString = SearchString;
+                    LastPressTime = DateTimeOffset.Now;
+                }
             }
         }
 
