@@ -274,11 +274,6 @@ namespace RX_Explorer
                         e.Handled = true;
                     }
                 }
-
-                if (!e.Handled && Clipboard.GetContent().Contains(StandardDataFormats.StorageItems))
-                {
-                    Clipboard.Flush();
-                }
             }
             catch (Exception ex)
             {

@@ -5,7 +5,6 @@ using System.Text.RegularExpressions;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
-using Windows.Storage;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.ViewManagement;
@@ -121,26 +120,40 @@ namespace RX_Explorer
             e.Handled = true;
         }
 
-        protected override void OnLaunched(LaunchActivatedEventArgs e)
+        protected override async void OnLaunched(LaunchActivatedEventArgs e)
         {
-            CoreApplication.EnablePrelaunch(false);
-
             ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
             TitleBar.ButtonBackgroundColor = Colors.Transparent;
             TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
             CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
 
-            if (!(Window.Current.Content is Frame) && !(Window.Current.Content is ExtendedSplash))
+            if (Window.Current.Content is Frame frame)
             {
-                if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("EnablePreLaunch"))
+                if (frame.Content is MainPage Main && Main.Nav.Content is TabViewContainer TabContainer)
                 {
-                    CoreApplication.EnablePrelaunch(true);
-                    ApplicationData.Current.LocalSettings.Values["EnablePreLaunch"] = true;
+                    if (!string.IsNullOrWhiteSpace(e.Arguments) && WIN_Native_API.CheckExist(e.Arguments))
+                    {
+                        await TabContainer.CreateNewTabAndOpenTargetFolder(e.Arguments).ConfigureAwait(true);
+                    }
+                    else
+                    {
+                        await TabContainer.CreateNewTabAndOpenTargetFolder(string.Empty).ConfigureAwait(true);
+                    }
                 }
-
-                ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen);
-                Window.Current.Content = extendedSplash;
+            }
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(e.Arguments) && WIN_Native_API.CheckExist(e.Arguments))
+                {
+                    ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen, $"PathActivate||{e.Arguments}");
+                    Window.Current.Content = extendedSplash;
+                }
+                else 
+                {
+                    ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen);
+                    Window.Current.Content = extendedSplash;
+                }
             }
 
             Window.Current.Activate();
