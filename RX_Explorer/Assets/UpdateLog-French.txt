@@ -1,4 +1,29 @@
 ﻿*****
+###Quoi de neuf dans la version 5.6.5.0
+
+##### Mise à jour des fonctionnalités
+
+>#####Nouveau mécanisme d'acquisition du menu contextuel du système
+
+>#####Ajouter une liste de sauts lors d'un clic droit sur une tuile
+
+>>#####Les dossiers et bibliothèques personnalisés seront enregistrés ici, mais pas plus de 8
+
+>>#####Les dossiers directement accessibles via la recherche ou la barre d'adresse seront enregistrés, mais pas plus de 6
+
+>>#####Tous les enregistrements ne totalisent pas plus de 12
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Modification de l'apparence en mode "Liste"
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel le bouton de retour à la précédente pouvait provoquer un plantage
+
+>#####Correction de certains problèmes lors de la recherche de fichiers avec un début spécifique à l'aide des touches du clavier, ce qui peut rendre le fichier sélectionné incorrect ou impossible à rechercher du tout
+
+*****
 ###Quoi de neuf dans la version 5.6.3.0
 
 #####Mise à jour de l'interface utilisateur

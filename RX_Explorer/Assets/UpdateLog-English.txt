@@ -1,4 +1,29 @@
 ﻿*****
+###What's new in Ver.5.6.5.0
+
+#####Feature update
+
+>#####New system right-click menu acquisition mechanism
+
+>#####Add a jump list when right-clicking on a tile
+
+>>#####Custom folders and libraries will be recorded here, but no more than 8
+
+>>#####Folders directly accessed through search or address bar will be recorded, but no more than 6
+
+>>#####All records total no more than 12
+
+#####UI update
+
+>#####Changed the appearance in "List" mode
+
+#####Bug fix
+
+>#####Fixed the problem that the back to previous button may cause a crash
+
+>#####Fixed some problems when searching for files with a specific beginning by keyboard keys, which may cause the selected file to be incorrect or impossible to search at all
+
+*****
 ###What's new in Ver.5.6.3.0
 
 #####UI update
