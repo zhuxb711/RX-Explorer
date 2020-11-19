@@ -14,7 +14,6 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Foundation;
 using Windows.Storage;
-using Windows.Storage.Search;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -450,25 +449,27 @@ namespace RX_Explorer
 
                 bool HasAnyFolder = WIN_Native_API.CheckContainsAnyItem(PathRoot, ItemFilters.Folder);
 
-                CurrentNode = new TreeViewNode
+                TreeViewNode RootNode = new TreeViewNode
                 {
                     Content = new TreeViewNodeContent(RootFolder),
                     IsExpanded = HasAnyFolder,
                     HasUnrealizedChildren = HasAnyFolder
                 };
 
-                FolderTree.RootNodes.Add(CurrentNode);
+                FolderTree.RootNodes.Add(RootNode);
 
                 List<Task> InitTasks = new List<Task>(2);
 
                 if (HasAnyFolder)
                 {
-                    InitTasks.Add(FillTreeNode(CurrentNode));
+                    InitTasks.Add(FillTreeNode(RootNode));
                 }
 
                 InitTasks.Add(DisplayItemsInFolder(InitFolder));
 
                 await Task.WhenAll(InitTasks).ConfigureAwait(false);
+
+                CurrentNode = RootNode;
             }
         }
 

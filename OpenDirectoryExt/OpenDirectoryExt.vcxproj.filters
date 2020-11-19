@@ -36,9 +36,4 @@
       <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\..\..\..\Downloads\icon.ico">
-      <Filter>Resources</Filter>
-    </Image>
-  </ItemGroup>
 </Project>
