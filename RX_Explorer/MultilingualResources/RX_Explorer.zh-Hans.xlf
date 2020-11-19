@@ -350,10 +350,6 @@
           <source>New folder</source>
           <target state="translated">新建文件夹</target>
         </trans-unit>
-        <trans-unit id="FileControlDeleteFolder.Label" translate="yes" xml:space="preserve">
-          <source>Delete</source>
-          <target state="translated">删除</target>
-        </trans-unit>
         <trans-unit id="FileControlForwardButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Forward</source>
           <target state="translated">前进</target>
@@ -361,10 +357,6 @@
         <trans-unit id="FileControlParentButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Upper</source>
           <target state="translated">返回上一级</target>
-        </trans-unit>
-        <trans-unit id="FileControlRenameFolder.Label" translate="yes" xml:space="preserve">
-          <source>Rename</source>
-          <target state="translated">重命名</target>
         </trans-unit>
         <trans-unit id="FileCopy.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Copy</source>
@@ -3058,10 +3050,6 @@ Invalid names include
         <trans-unit id="QuickStart_Picker_Web" translate="yes" xml:space="preserve">
           <source>Custom icon</source>
           <target state="translated">自定义图标</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_NeedOpenHiddenSwitch_Content" translate="yes" xml:space="preserve">
-          <source>The path contains hidden folders, please turn on the "Show hidden folders" switch or hide the folder tree on the left</source>
-          <target state="translated">该路径包含隐藏文件夹，请打开“显示隐藏文件夹”开关或隐藏左侧文件目录树</target>
         </trans-unit>
         <trans-unit id="QuickStartAddButton.Label" translate="yes" xml:space="preserve">
           <source>Add</source>

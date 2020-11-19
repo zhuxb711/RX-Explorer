@@ -350,10 +350,6 @@
           <source>New folder</source>
           <target state="translated">Nouveau dossier</target>
         </trans-unit>
-        <trans-unit id="FileControlDeleteFolder.Label" translate="yes" xml:space="preserve">
-          <source>Delete</source>
-          <target state="translated">Supprimer</target>
-        </trans-unit>
         <trans-unit id="FileControlForwardButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Forward</source>
           <target state="translated">Suivant</target>
@@ -361,10 +357,6 @@
         <trans-unit id="FileControlParentButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Upper</source>
           <target state="translated">Monter</target>
-        </trans-unit>
-        <trans-unit id="FileControlRenameFolder.Label" translate="yes" xml:space="preserve">
-          <source>Rename</source>
-          <target state="translated">Renommer</target>
         </trans-unit>
         <trans-unit id="FileCopy.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Copy</source>
@@ -3058,10 +3050,6 @@ Les noms non valides incluent
         <trans-unit id="QuickStart_Picker_Web" translate="yes" xml:space="preserve">
           <source>Custom icon</source>
           <target state="translated">Icône personnalisée</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_NeedOpenHiddenSwitch_Content" translate="yes" xml:space="preserve">
-          <source>The path contains hidden folders, please turn on the "Show hidden folders" switch or hide the folder tree on the left</source>
-          <target state="translated">Le chemin contient des dossiers cachés, veuillez activer le commutateur "Afficher les dossiers cachés" ou masquer l'arborescence des dossiers sur la gauche</target>
         </trans-unit>
         <trans-unit id="QuickStartAddButton.Label" translate="yes" xml:space="preserve">
           <source>Add</source>

@@ -3503,31 +3503,7 @@ namespace RX_Explorer
                             return;
                         }
 
-                        if (Folder.Path.StartsWith((Container.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path))
-                        {
-                            if (SettingControl.IsDetachTreeViewAndPresenter)
-                            {
-                                await Container.DisplayItemsInFolder(Folder).ConfigureAwait(true);
-                            }
-                            else
-                            {
-                                if (Container.CurrentNode == null)
-                                {
-                                    Container.CurrentNode = Container.FolderTree.RootNodes[0];
-                                }
-
-                                TreeViewNode TargetNode = await Container.FolderTree.RootNodes[0].GetChildNodeAsync(new PathAnalysis(Folder.Path, (Container.FolderTree.RootNodes[0].Content as TreeViewNodeContent).Path)).ConfigureAwait(true);
-
-                                if (TargetNode != null)
-                                {
-                                    await Container.DisplayItemsInFolder(TargetNode).ConfigureAwait(true);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            await Container.OpenTargetFolder(Folder).ConfigureAwait(true);
-                        }
+                        await Container.DisplayItemsInFolder(Folder).ConfigureAwait(true);
                     }
                 }
                 catch (Exception ex)
@@ -6388,42 +6364,9 @@ namespace RX_Explorer
         {
             if (SelectedItem is HyperlinkStorageItem Item)
             {
-                if (!SettingControl.IsDetachTreeViewAndPresenter && !SettingControl.IsDisplayHiddenItem)
-                {
-                    if (string.IsNullOrWhiteSpace(Item.TargetPath))
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                        return;
-                    }
-
-                    PathAnalysis Analysis = new PathAnalysis(Item.TargetPath, string.Empty);
-                    while (Analysis.HasNextLevel)
-                    {
-                        if (WIN_Native_API.CheckIfHidden(Analysis.NextFullPath()))
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_NeedOpenHiddenSwitch_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            _ = await Dialog.ShowAsync().ConfigureAwait(false);
-                            return;
-                        }
-                    }
-                }
-
                 StorageFolder ParentFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(Item.TargetPath));
 
-                await Container.OpenTargetFolder(ParentFolder).ConfigureAwait(true);
+                await Container.DisplayItemsInFolder(ParentFolder).ConfigureAwait(true);
 
                 if (FileCollection.FirstOrDefault((SItem) => SItem.Path == Item.TargetPath) is FileSystemStorageItemBase Target)
                 {

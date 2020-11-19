@@ -120,7 +120,7 @@ namespace RX_Explorer
                     {
                         Frame.GoBack();
 
-                        await Control.OpenTargetFolder(ParentFolder).ConfigureAwait(true);
+                        await Control.DisplayItemsInFolder(ParentFolder).ConfigureAwait(true);
 
                         await JumpListController.Current.AddItem(JumpListGroup.Recent, ParentFolder).ConfigureAwait(true);
 

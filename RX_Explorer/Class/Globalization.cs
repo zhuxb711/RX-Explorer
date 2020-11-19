@@ -28,24 +28,28 @@ namespace RX_Explorer.Class
                 case LanguageEnum.Chinese_Simplified:
                     {
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 0;
+                        ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "使用RX文件管理器打开";
                         ApplicationLanguages.PrimaryLanguageOverride = "zh-Hans";
                         break;
                     }
                 case LanguageEnum.English:
                     {
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 1;
+                        ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Open in RX-Explorer";
                         ApplicationLanguages.PrimaryLanguageOverride = "en-US";
                         break;
                     }
                 case LanguageEnum.French:
                     {
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 2;
+                        ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Ouvrir dans RX-Explorer";
                         ApplicationLanguages.PrimaryLanguageOverride = "fr-FR";
                         break;
                     }
                 case LanguageEnum.Chinese_Traditional:
                     {
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 3;
+                        ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "使用RX文件管理器打開";
                         ApplicationLanguages.PrimaryLanguageOverride = "zh-Hant";
                         break;
                     }

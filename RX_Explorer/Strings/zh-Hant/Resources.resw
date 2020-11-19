@@ -279,17 +279,11 @@
   <data name="FileControlCreateFolder.Label" xml:space="preserve">
     <value>新增資料夾</value>
   </data>
-  <data name="FileControlDeleteFolder.Label" xml:space="preserve">
-    <value>刪除</value>
-  </data>
   <data name="FileControlForwardButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>下一步</value>
   </data>
   <data name="FileControlParentButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>上一步</value>
-  </data>
-  <data name="FileControlRenameFolder.Label" xml:space="preserve">
-    <value>重新命名</value>
   </data>
   <data name="FileCopy.ToolTipService.ToolTip" xml:space="preserve">
     <value>複製</value>
@@ -2309,9 +2303,6 @@
   </data>
   <data name="QuickStart_Picker_Web" xml:space="preserve">
     <value>自定義圖標</value>
-  </data>
-  <data name="QueueDialog_NeedOpenHiddenSwitch_Content" xml:space="preserve">
-    <value>該路徑包含隱藏的文件夾，請打開“顯示隱藏的文件夾”開關或隱藏左側的文件夾樹</value>
   </data>
   <data name="QuickStartAddButton.Label" xml:space="preserve">
     <value>新增</value>

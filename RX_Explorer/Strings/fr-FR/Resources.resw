@@ -270,17 +270,11 @@
   <data name="FileControlCreateFolder.Label" xml:space="preserve">
     <value>Nouveau dossier</value>
   </data>
-  <data name="FileControlDeleteFolder.Label" xml:space="preserve">
-    <value>Supprimer</value>
-  </data>
   <data name="FileControlForwardButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Suivant</value>
   </data>
   <data name="FileControlParentButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Monter</value>
-  </data>
-  <data name="FileControlRenameFolder.Label" xml:space="preserve">
-    <value>Renommer</value>
   </data>
   <data name="FileCopy.ToolTipService.ToolTip" xml:space="preserve">
     <value>Copier</value>
@@ -2309,9 +2303,6 @@ Les noms non valides incluent
   </data>
   <data name="QuickStart_Picker_Web" xml:space="preserve">
     <value>Icône personnalisée</value>
-  </data>
-  <data name="QueueDialog_NeedOpenHiddenSwitch_Content" xml:space="preserve">
-    <value>Le chemin contient des dossiers cachés, veuillez activer le commutateur "Afficher les dossiers cachés" ou masquer l'arborescence des dossiers sur la gauche</value>
   </data>
   <data name="QuickStartAddButton.Label" xml:space="preserve">
     <value>Ajouter</value>

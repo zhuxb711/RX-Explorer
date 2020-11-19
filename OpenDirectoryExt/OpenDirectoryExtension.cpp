@@ -1,15 +1,12 @@
 ﻿#include "pch.h"
 #include "OpenDirectoryExtension.h"
 #include <wil/filesystem.h>
+#include <winrt\Windows.Storage.h>
+#include <winrt\Windows.Foundation.Collections.h>
 #include "resource.h"
 
-static constexpr std::wstring_view VerbDisplayName{ L"Open in RX-Explorer" };
 static constexpr std::wstring_view VerbName{ L"RxExplorerOpenHere" };
-
-// This code is aggressively copied from
-//   https://github.com/microsoft/Windows-classic-samples/blob/master/Samples/
-//   Win7Samples/winui/shell/appshellintegration/ExplorerCommandVerb/ExplorerCommandVerb.cpp
-
+static constexpr std::wstring_view DefaultDisplayName{ L"Open in RX-Explorer" };
 
 // Method Description:
 // - This method is called when the user activates the context menu item. We'll
@@ -67,7 +64,8 @@ HRESULT OpenTerminalHere::GetToolTip(IShellItemArray* /*psiItemArray*/,
 HRESULT OpenTerminalHere::GetTitle(IShellItemArray* /*psiItemArray*/,
     LPWSTR* ppszName)
 {
-    return SHStrDup(VerbDisplayName.data() , ppszName);
+    winrt::hstring DisplayName = winrt::unbox_value_or<winrt::hstring>(winrt::Windows::Storage::ApplicationData::Current().LocalSettings().Values().Lookup(L"GlobalizationStringForContextMenu"), DefaultDisplayName);
+    return SHStrDup(DisplayName.data(), ppszName);
 }
 
 HRESULT OpenTerminalHere::GetState(IShellItemArray* /*psiItemArray*/,
@@ -91,31 +89,6 @@ STDMETHODIMP_(HRESULT __stdcall) OpenTerminalHere::GetIcon(IShellItemArray* psiI
     *ppszIcon = nullptr;
     return E_NOTIMPL;
 }
-
-std::wstring get_module_filename(HMODULE mod = nullptr)
-{
-    wchar_t buffer[MAX_PATH + 1];
-    DWORD actual_length = GetModuleFileNameW(mod, buffer, MAX_PATH);
-    if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
-    {
-        const DWORD long_path_length = 0xFFFF; // should be always enough
-        std::wstring long_filename(long_path_length, L'\0');
-        actual_length = GetModuleFileNameW(mod, long_filename.data(), long_path_length);
-        return long_filename.substr(0, actual_length);
-    }
-    return { buffer, actual_length };
-}
-
-//HRESULT OpenTerminalHere::GetIcon(IShellItemArray* /*psiItemArray*/,
-//    LPWSTR* ppszIcon)
-//{
-//    // the icon ref ("dll,-<resid>") is provided here, in this case none is provided
-//    std::wstring iconResourcePath = get_module_filename();
-//    iconResourcePath += L",";
-//    iconResourcePath += std::to_wstring(IDI_ICON3);
-//    //MessageBox(0, iconResourcePath.c_str(), L"", MB_OK);
-//    return SHStrDup(iconResourcePath.c_str(), ppszIcon);
-//}
 
 HRESULT OpenTerminalHere::GetFlags(EXPCMDFLAGS* pFlags)
 {

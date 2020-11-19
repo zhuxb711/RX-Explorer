@@ -151,11 +151,7 @@
     <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="ContextMenuIcon.ico" />
-    <Image Include="ContextMenuIcon.png" />
-    <Image Include="ContextMenuIcon16.ico" />
-    <Image Include="ContextMenuIcon32.ico" />
-    <Image Include="icon2.ico" />
+    <Image Include="..\..\..\..\Downloads\icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -384,17 +384,11 @@
   <data name="FileControlCreateFolder.Label" xml:space="preserve">
     <value>New folder</value>
   </data>
-  <data name="FileControlDeleteFolder.Label" xml:space="preserve">
-    <value>Delete</value>
-  </data>
   <data name="FileControlForwardButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Forward</value>
   </data>
   <data name="FileControlParentButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Upper</value>
-  </data>
-  <data name="FileControlRenameFolder.Label" xml:space="preserve">
-    <value>Rename</value>
   </data>
   <data name="FileCopy.ToolTipService.ToolTip" xml:space="preserve">
     <value>Copy</value>
@@ -2429,9 +2423,6 @@ Invalid names include
   </data>
   <data name="QuickStart_Picker_Web" xml:space="preserve">
     <value>Custom icon</value>
-  </data>
-  <data name="QueueDialog_NeedOpenHiddenSwitch_Content" xml:space="preserve">
-    <value>The path contains hidden folders, please turn on the "Show hidden folders" switch or hide the folder tree on the left</value>
   </data>
   <data name="QuickStartAddButton.Label" xml:space="preserve">
     <value>Add</value>

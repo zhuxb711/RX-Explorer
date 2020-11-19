@@ -23,7 +23,38 @@ namespace MaintenanceTask
             {
                 await ClearUselessLogTask(Cancellation.Token);
 
-                //To-Do: Do more things as needed when users update the app
+                //The following code is used to update the globalization problem of the ContextMenu in the old version
+                if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("GlobalizationStringForContextMenu"))
+                {
+                    if (ApplicationData.Current.LocalSettings.Values["LanguageOverride"] is int LanguageIndex)
+                    {
+                        switch (LanguageIndex)
+                        {
+                            case 0:
+                                {
+                                    ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "使用RX文件管理器打开";
+                                    break;
+                                }
+                            case 1:
+                                {
+                                    ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Open in RX-Explorer";
+                                    break;
+                                }
+                            case 2:
+                                {
+                                    ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Ouvrir dans RX-Explorer";
+                                    break;
+                                }
+                            case 3:
+                                {
+                                    ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "使用RX文件管理器打開";
+                                    break;
+                                }
+                        }
+                    }
+                }
+
+                //To-Do: Do more things as needed when users update the app to newer version
             }
             catch (Exception ex)
             {

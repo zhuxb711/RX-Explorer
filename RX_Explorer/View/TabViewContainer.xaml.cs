@@ -221,41 +221,6 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        if (!SettingControl.IsDetachTreeViewAndPresenter && !SettingControl.IsDisplayHiddenItem)
-                        {
-                            PathAnalysis Analysis = new PathAnalysis(Path, string.Empty);
-
-                            while (Analysis.HasNextLevel)
-                            {
-                                if (WIN_Native_API.CheckIfHidden(Analysis.NextFullPath()))
-                                {
-                                    QueueContentDialog Dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_NeedOpenHiddenSwitch_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-
-                                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-
-                                    if (CreateNewTab() is TabViewItem EmptyItem)
-                                    {
-                                        //预览版TabView在没有子Item时会崩溃，此方案作为临时解决方案
-                                        if (TabViewControl == null)
-                                        {
-                                            _ = FindName(nameof(TabViewControl));
-                                        }
-
-                                        TabViewControl.TabItems.Insert(Index, EmptyItem);
-                                        TabViewControl.UpdateLayout();
-                                        TabViewControl.SelectedItem = EmptyItem;
-                                    }
-
-                                    return;
-                                }
-                            }
-                        }
-
                         StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(Path);
 
                         if (CreateNewTab(TargetFolder) is TabViewItem Item)

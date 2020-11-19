@@ -37,19 +37,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="ContextMenuIcon.png">
-      <Filter>Resources</Filter>
-    </Image>
-    <Image Include="ContextMenuIcon.ico">
-      <Filter>Resources</Filter>
-    </Image>
-    <Image Include="icon2.ico">
-      <Filter>Resources</Filter>
-    </Image>
-    <Image Include="ContextMenuIcon32.ico">
-      <Filter>Resources</Filter>
-    </Image>
-    <Image Include="ContextMenuIcon16.ico">
+    <Image Include="..\..\..\..\Downloads\icon.ico">
       <Filter>Resources</Filter>
     </Image>
   </ItemGroup>
