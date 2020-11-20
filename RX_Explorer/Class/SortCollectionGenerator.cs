@@ -302,7 +302,7 @@ namespace RX_Explorer.Class
         {
             if (ApplicationData.Current.LocalSettings.Values.TryGetValue("CollectionSortTarget", out object Target))
             {
-                SortTarget = (SortTarget)Enum.Parse(typeof(SortTarget), Convert.ToString(Target));
+                SortTarget = Enum.Parse<SortTarget>(Convert.ToString(Target));
             }
             else
             {
@@ -311,7 +311,7 @@ namespace RX_Explorer.Class
 
             if (ApplicationData.Current.LocalSettings.Values.TryGetValue("CollectionSortDirection", out object Direction))
             {
-                SortDirection = (SortDirection)Enum.Parse(typeof(SortDirection), Convert.ToString(Direction));
+                SortDirection = Enum.Parse<SortDirection>(Convert.ToString(Direction));
             }
             else
             {

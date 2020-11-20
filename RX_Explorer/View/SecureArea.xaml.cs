@@ -444,10 +444,16 @@ namespace RX_Explorer
                     {
                         if ((await File.EncryptAsync(SecureFolder, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true)) is StorageFile EncryptedFile)
                         {
-                            var Size = await EncryptedFile.GetSizeRawDataAsync().ConfigureAwait(true);
-                            var Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
-                            var ModifiedTime = await EncryptedFile.GetModifiedTimeAsync().ConfigureAwait(true);
-                            SecureCollection.Add(new FileSystemStorageItemBase(EncryptedFile, Size, Thumbnail, ModifiedTime));
+                            SecureCollection.Add(new FileSystemStorageItemBase(EncryptedFile, await EncryptedFile.GetSizeRawDataAsync().ConfigureAwait(true), new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png")), await EncryptedFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+
+                            try
+                            {
+                                await File.DeleteAsync(StorageDeleteOption.Default);
+                            }
+                            catch
+                            {
+
+                            }
                         }
                         else
                         {
@@ -457,6 +463,7 @@ namespace RX_Explorer
                                 Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
+
                             _ = await Dialog.ShowAsync().ConfigureAwait(true);
                             break;
                         }
@@ -509,10 +516,16 @@ namespace RX_Explorer
                     {
                         if ((await Item.EncryptAsync(SecureFolder, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true)) is StorageFile EncryptedFile)
                         {
-                            var Size = await EncryptedFile.GetSizeRawDataAsync().ConfigureAwait(true);
-                            var Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
-                            var ModifiedTime = await EncryptedFile.GetModifiedTimeAsync().ConfigureAwait(true);
-                            SecureCollection.Add(new FileSystemStorageItemBase(EncryptedFile, Size, Thumbnail, ModifiedTime));
+                            SecureCollection.Add(new FileSystemStorageItemBase(EncryptedFile, await EncryptedFile.GetSizeRawDataAsync().ConfigureAwait(true), new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png")), await EncryptedFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+
+                            try
+                            {
+                                await Item.DeleteAsync(StorageDeleteOption.Default);
+                            }
+                            catch
+                            {
+
+                            }
                         }
                         else
                         {

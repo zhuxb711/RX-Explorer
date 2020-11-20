@@ -69,7 +69,7 @@ namespace RX_Explorer.Class
 
             if (ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] is string Mode)
             {
-                Theme = (ElementTheme)Enum.Parse(typeof(ElementTheme), Mode);
+                Theme = Enum.Parse<ElementTheme>(Mode);
             }
             else
             {
@@ -82,7 +82,7 @@ namespace RX_Explorer.Class
         {
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                Theme = (ElementTheme)Enum.Parse(typeof(ElementTheme), Convert.ToString(ApplicationData.Current.LocalSettings.Values["AppFontColorMode"]));
+                Theme = Enum.Parse<ElementTheme>(Convert.ToString(ApplicationData.Current.LocalSettings.Values["AppFontColorMode"]));
             });
         }
 

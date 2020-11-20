@@ -243,7 +243,7 @@ namespace RX_Explorer
                                     {
                                         if (ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] is string Mode)
                                         {
-                                            switch ((BackgroundBrushType)Enum.Parse(typeof(BackgroundBrushType), Mode))
+                                            switch (Enum.Parse<BackgroundBrushType>(Mode))
                                             {
                                                 case BackgroundBrushType.Acrylic:
                                                     {
@@ -867,7 +867,7 @@ namespace RX_Explorer
 
                             if (ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] is string Mode)
                             {
-                                switch ((BackgroundBrushType)Enum.Parse(typeof(BackgroundBrushType), Mode))
+                                switch (Enum.Parse<BackgroundBrushType>(Mode))
                                 {
                                     case BackgroundBrushType.Acrylic:
                                         {

@@ -297,7 +297,7 @@ namespace RX_Explorer.Class
             {
                 while (query.Read())
                 {
-                    list.Add((query[0].ToString(), (LibraryType)Enum.Parse(typeof(LibraryType), query[1].ToString())));
+                    list.Add((query[0].ToString(), Enum.Parse<LibraryType>(query[1].ToString())));
                 }
             }
 
@@ -537,7 +537,7 @@ namespace RX_Explorer.Class
                                 await Bitmap.SetSourceAsync(Stream);
                             }
 
-                            if ((QuickStartType)Enum.Parse(typeof(QuickStartType), Reader[3].ToString()) == QuickStartType.Application)
+                            if (Enum.Parse<QuickStartType>(Reader[3].ToString()) == QuickStartType.Application)
                             {
                                 Result.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.Application, new QuickStartItem(Bitmap, Convert.ToString(Reader[2]), QuickStartType.Application, Reader[1].ToString(), Reader[0].ToString())));
                             }

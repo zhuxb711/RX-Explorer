@@ -271,7 +271,7 @@ namespace RX_Explorer.Class
 
                             if (ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] is string SubMode)
                             {
-                                CurrentType = (BackgroundBrushType)Enum.Parse(typeof(BackgroundBrushType), SubMode);
+                                CurrentType = Enum.Parse<BackgroundBrushType>(SubMode);
 
                                 if (CurrentType == BackgroundBrushType.Acrylic && ApplicationData.Current.LocalSettings.Values["PreventFallBack"] is bool IsPrevent)
                                 {
