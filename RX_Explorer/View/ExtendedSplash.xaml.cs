@@ -78,9 +78,9 @@ namespace RX_Explorer
 
         private async Task DismissExtendedSplashAsync()
         {
-            try
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                try
                 {
                     if (BackgroundController.Current.CurrentType == BackgroundBrushType.BingPicture && await BingPictureDownloader.CheckIfNeedToUpdate().ConfigureAwait(true))
                     {
@@ -102,12 +102,12 @@ namespace RX_Explorer
                         MainPage Main = new MainPage(new Tuple<Rect, string>(Splash.ImageLocation, ActivateParameter));
                         RootFrame.Content = Main;
                     }
-                });
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "An error was threw when dismissing extendedsplash ");
-            }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "An error was threw when dismissing extendedsplash ");
+                }
+            });
         }
 
         private async void Screen_Dismissed(SplashScreen sender, object args)

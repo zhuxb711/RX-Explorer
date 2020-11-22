@@ -204,7 +204,6 @@ namespace RX_Explorer
                 if (!CtrlState.HasFlag(CoreVirtualKeyStates.Down) && !ShiftState.HasFlag(CoreVirtualKeyStates.Down))
                 {
                     NavigateToStorageItem(args.VirtualKey);
-                    return;
                 }
 
                 switch (args.VirtualKey)
