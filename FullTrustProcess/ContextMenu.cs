@@ -146,30 +146,18 @@ namespace FullTrustProcess
 
         public static bool InvokeVerb(string[] Path, string Verb)
         {
-            ShellItem[] ItemCollecion = Array.Empty<ShellItem>();
-
             try
             {
-                ItemCollecion = Path.Where((Item) => File.Exists(Item) || Directory.Exists(Item)).Select((Item) => ShellItem.Open(Item)).ToArray();
-
-                Shell32.CMINVOKECOMMANDINFOEX InvokeCommand = new Shell32.CMINVOKECOMMANDINFOEX
+                if (Path.All((Item) => File.Exists(Item) || Directory.Exists(Item)))
                 {
-                    lpVerb = new SafeResourceId(Verb, CharSet.Ansi),
-                    nShow = ShowWindowCommand.SW_SHOWNORMAL,
-                    cbSize = Convert.ToUInt32(Marshal.SizeOf(typeof(Shell32.CMINVOKECOMMANDINFOEX)))
-                };
-
-                Context?.ComInterface.InvokeCommand(InvokeCommand);
+                    Context?.InvokeVerb(Verb);
+                }
 
                 return true;
             }
             catch
             {
                 return false;
-            }
-            finally
-            {
-                Array.ForEach(ItemCollecion, (Item) => Item.Dispose());
             }
         }
     }

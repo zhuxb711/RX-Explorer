@@ -628,7 +628,8 @@
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
             <StackPanel Orientation="Horizontal"
-                        Padding="5">
+                        Padding="5"
+                        Width="220">
                 <Image VerticalAlignment="Center"
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
@@ -642,9 +643,10 @@
                     <TextBlock Text="{x:Bind Name,Mode=OneWay}"
                                ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                                FontSize="14"
-                               Width="150"
+                               MaxWidth="150"
                                x:Phase="0"
                                HorizontalTextAlignment="Left"
+                               HorizontalAlignment="Left"
                                TextTrimming="CharacterEllipsis"
                                x:Name="NameLabel"
                                PointerPressed="NameLabel_PointerPressed" />
@@ -662,13 +664,15 @@
                                x:Phase="1"
                                HorizontalTextAlignment="Left"
                                TextTrimming="CharacterEllipsis"
-                               Width="150" />
+                               HorizontalAlignment="Left"
+                               MaxWidth="150" />
                     <TextBlock Text="{x:Bind Size,Mode=OneWay}"
                                FontSize="12"
                                x:Phase="0"
                                HorizontalTextAlignment="Left"
+                               HorizontalAlignment="Left"
                                TextTrimming="CharacterEllipsis"
-                               Width="150" />
+                               MaxWidth="150" />
                 </StackPanel>
             </StackPanel>
         </DataTemplate>
@@ -752,7 +756,7 @@
                   Padding="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="40" />
-                    <ColumnDefinition Width="5*" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Image VerticalAlignment="Center"
                        Stretch="Uniform"
@@ -773,7 +777,7 @@
                            PointerPressed="NameLabel_PointerPressed"
                            x:Name="NameLabel" />
                 <TextBox VerticalAlignment="Center"
-                         HorizontalAlignment="Left"
+                         HorizontalAlignment="Stretch"
                          x:Name="NameEditBox"
                          FontSize="14"
                          Grid.Column="1"
@@ -782,10 +786,6 @@
                          LostFocus="NameEditBox_LostFocus"
                          BeforeTextChanging="NameEditBox_BeforeTextChanging"
                          x:Load="False" />
-                <TextBlock VerticalAlignment="Stretch"
-                           HorizontalAlignment="Stretch"
-                           Grid.Column="2"
-                           Name="EmptyTextblock" />
             </Grid>
         </DataTemplate>
 
@@ -814,7 +814,6 @@
                       x:Name="ListViewControl"
                       HorizontalAlignment="Stretch"
                       VerticalAlignment="Stretch"
-                      PointerPressed="ViewControl_PointerPressed"
                       RightTapped="ViewControl_RightTapped"
                       SelectionChanged="ViewControl_SelectionChanged"
                       SelectionMode="Extended"
@@ -822,8 +821,6 @@
                       ContainerContentChanging="ViewControl_ContainerContentChanging"
                       CanDrag="False"
                       CanReorderItems="False"
-                      CanDragItems="True"
-                      DragItemsStarting="ViewControl_DragItemsStarting"
                       AllowDrop="True"
                       DragOver="ViewControl_DragOver"
                       Drop="ViewControl_Drop"
@@ -1065,7 +1062,6 @@
                       ContainerContentChanging="ViewControl_ContainerContentChanging"
                       HorizontalAlignment="Stretch"
                       VerticalAlignment="Stretch"
-                      PointerPressed="ViewControl_PointerPressed"
                       RightTapped="ViewControl_RightTapped"
                       Holding="ViewControl_Holding"
                       SelectionChanged="ViewControl_SelectionChanged"
@@ -1073,12 +1069,10 @@
                       ItemClick="ViewControl_ItemClick"
                       CanDrag="False"
                       CanReorderItems="False"
-                      CanDragItems="True"
                       AllowDrop="True"
                       IsHoldingEnabled="True"
                       DragOver="ViewControl_DragOver"
                       Drop="ViewControl_Drop"
-                      DragItemsStarting="ViewControl_DragItemsStarting"
                       IsItemClickEnabled="True"
                       IsDoubleTapEnabled="True"
                       DoubleTapped="ViewControl_DoubleTapped"
@@ -1095,6 +1089,12 @@
                    Text="无文件"
                    FontSize="16"
                    Visibility="Collapsed" />
+        <Canvas>
+            <Rectangle Fill="{ThemeResource SystemAccentColorDark2}"
+                       Stroke="{ThemeResource SystemAccentColorLight2}"
+                       x:Name="DrawRectangle"
+                       Opacity="0.4"/>
+        </Canvas>
         <StackPanel Grid.Row="1"
                     VerticalAlignment="Bottom">
             <TextBlock x:Name="StatusTips"

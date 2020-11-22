@@ -29,12 +29,12 @@ using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using ZXing;
 using ZXing.QrCode;
 using ZXing.QrCode.Internal;
-using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace RX_Explorer
 {
@@ -63,6 +63,8 @@ namespace RX_Explorer
 
         private int ViewDropLock;
 
+        private PointerEventHandler PointerPressedEventHandler;
+
         private CancellationTokenSource HashCancellation;
 
         private ListViewBase itemPresenter;
@@ -73,7 +75,19 @@ namespace RX_Explorer
             {
                 if (value != itemPresenter)
                 {
-                    itemPresenter = value;
+                    if (PointerPressedEventHandler != null)
+                    {
+                        value.RemoveHandler(PointerPressedEvent, PointerPressedEventHandler);
+                    }
+
+                    value.AddHandler(PointerPressedEvent, PointerPressedEventHandler = new PointerEventHandler(ViewControl_PointerPressed), true);
+
+                    if (SelectionExtention != null)
+                    {
+                        SelectionExtention.Dispose();
+                    }
+
+                    SelectionExtention = new ListViewBaseSelectionExtention(value, DrawRectangle);
 
                     if (value is GridView)
                     {
@@ -97,11 +111,14 @@ namespace RX_Explorer
                         ListViewControl.ItemsSource = FileCollection;
                         ListViewRefreshContainer.Visibility = Visibility.Visible;
                     }
+
+                    itemPresenter = value;
                 }
             }
         }
 
         private WiFiShareProvider WiFiProvider;
+        private ListViewBaseSelectionExtention SelectionExtention;
         private FileSystemStorageItemBase TabTarget;
         private FileSystemStorageItemBase CurrentNameEditItem;
         private DateTimeOffset LastClickTime;
@@ -117,7 +134,7 @@ namespace RX_Explorer
 
                 if (value != null)
                 {
-                    (ItemPresenter.ContainerFromItem(value) as ListViewItem)?.Focus(FocusState.Programmatic);
+                    (ItemPresenter.ContainerFromItem(value) as SelectorItem)?.Focus(FocusState.Programmatic);
                 }
             }
         }
@@ -345,7 +362,7 @@ namespace RX_Explorer
         private void NavigateToStorageItem(VirtualKey Key)
         {
             char Input = Convert.ToChar(Key);
-            
+
             if (char.IsLetterOrDigit(Input))
             {
                 string SearchString = Input.ToString();
@@ -1549,6 +1566,18 @@ namespace RX_Explorer
 
         private void ViewControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            foreach (FileSystemStorageItemBase RemovedItem in e.RemovedItems)
+            {
+                (ItemPresenter.ContainerFromItem(RemovedItem) as SelectorItem).CanDrag = false;
+            }
+
+            foreach (FileSystemStorageItemBase Selected in e.AddedItems)
+            {
+                (ItemPresenter.ContainerFromItem(Selected) as SelectorItem).CanDrag = true;
+            }
+
+            ItemPresenter.UpdateLayout();
+
             MixZip.IsEnabled = true;
 
             if (SelectedItems.Any((Item) => Item.StorageType != StorageItemTypes.Folder))
@@ -1685,23 +1714,48 @@ namespace RX_Explorer
             }
         }
 
-        private async void ViewControl_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private async void ViewControl_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext == null)
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
             {
-                SelectedItem = null;
-            }
-            else if (e.GetCurrentPoint(null).Properties.IsMiddleButtonPressed)
-            {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item && Item.StorageType == StorageItemTypes.Folder)
+                if ((e.OriginalSource as FrameworkElement).FindParentOfType<SelectorItem>() is SelectorItem)
                 {
+                    if (SelectedItems.Contains(Item))
+                    {
+                        SelectionExtention.Disable();
+                    }
+                    else
+                    {
+                        if(e.KeyModifiers == VirtualKeyModifiers.None)
+                        {
+                            SelectedItem = Item;
+                        }
+
+                        if (e.OriginalSource is ListViewItemPresenter)
+                        {
+                            SelectionExtention.Enable();
+                        }
+                        else
+                        {
+                            SelectionExtention.Disable();
+                        }
+                    }
+                }
+                else if (e.GetCurrentPoint(null).Properties.IsMiddleButtonPressed && Item.StorageType == StorageItemTypes.Folder)
+                {
+                    SelectionExtention.Disable();
                     SelectedItem = Item;
                     await TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(Item.Path).ConfigureAwait(false);
                 }
             }
+            else
+            {
+                SelectedItem = null;
+                SelectionExtention.Enable();
+            }
         }
 
-        private async void ViewControl_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        private async void ViewControl_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
             if (e.PointerDeviceType == PointerDeviceType.Mouse)
             {
@@ -2307,7 +2361,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void ViewControl_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        private async void ViewControl_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
             e.Handled = true;
 
@@ -4377,13 +4431,59 @@ namespace RX_Explorer
             }
         }
 
-
-        private async void ViewControl_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
+        private void ViewControl_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
         {
-            if (e.Items.Count != 0)
+            if (args.InRecycleQueue)
             {
-                List<IStorageItem> TempList = new List<IStorageItem>(e.Items.Count);
-                List<FileSystemStorageItemBase> DragList = e.Items.Select((Item) => Item as FileSystemStorageItemBase).ToList();
+                args.ItemContainer.DragStarting -= ItemContainer_DragStarting;
+                args.ItemContainer.Drop -= Item_Drop;
+                args.ItemContainer.DragEnter -= ItemContainer_DragEnter;
+                args.ItemContainer.PointerEntered -= ItemContainer_PointerEntered;
+            }
+            else
+            {
+                args.ItemContainer.UseSystemFocusVisuals = false;
+
+                if (args.Item is FileSystemStorageItemBase Item)
+                {
+                    if (Item.StorageType == StorageItemTypes.Folder)
+                    {
+                        args.ItemContainer.AllowDrop = true;
+                        args.ItemContainer.Drop += Item_Drop;
+                        args.ItemContainer.DragEnter += ItemContainer_DragEnter;
+                    }
+
+                    if (Item is HiddenStorageItem)
+                    {
+                        args.ItemContainer.AllowDrop = false;
+                    }
+                    else
+                    {
+                        args.ItemContainer.DragStarting += ItemContainer_DragStarting;
+                    }
+
+                    args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
+
+                    args.RegisterUpdateCallback(async (s, e) =>
+                    {
+                        if (e.Item is FileSystemStorageItemBase Item)
+                        {
+                            await Item.LoadMoreProperty().ConfigureAwait(false);
+                        }
+                    });
+                }
+            }
+        }
+
+        private async void ItemContainer_DragStarting(UIElement sender, DragStartingEventArgs args)
+        {
+            var Deferral = args.GetDeferral();
+
+            try
+            {
+                List<FileSystemStorageItemBase> DragList = SelectedItems;
+
+                List<IStorageItem> TempList = new List<IStorageItem>(DragList.Count);
 
                 foreach (FileSystemStorageItemBase StorageItem in DragList.Where((Item) => !(Item is HyperlinkStorageItem || Item is HiddenStorageItem)))
                 {
@@ -4400,7 +4500,7 @@ namespace RX_Explorer
 
                 if (TempList.Count > 0)
                 {
-                    e.Data.SetStorageItems(TempList, false);
+                    args.Data.SetStorageItems(TempList, false);
                 }
 
                 List<FileSystemStorageItemBase> NotStorageItems = DragList.Where((Item) => Item is HyperlinkStorageItem || Item is HiddenStorageItem).ToList();
@@ -4418,39 +4518,16 @@ namespace RX_Explorer
                         Builder.Append($"<p>{Item.Path}</p>");
                     }
 
-                    e.Data.SetHtmlFormat(HtmlFormatHelper.CreateHtmlFormat(Builder.ToString()));
+                    args.Data.SetHtmlFormat(HtmlFormatHelper.CreateHtmlFormat(Builder.ToString()));
                 }
             }
-        }
-
-        private void ViewControl_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
-        {
-            args.ItemContainer.UseSystemFocusVisuals = false;
-
-            if (args.Item is FileSystemStorageItemBase Item)
+            catch (Exception ex)
             {
-                if (Item.StorageType == StorageItemTypes.Folder)
-                {
-                    args.ItemContainer.AllowDrop = true;
-                    args.ItemContainer.Drop += Item_Drop;
-                    args.ItemContainer.DragEnter += ItemContainer_DragEnter;
-                }
-
-                if (Item is HiddenStorageItem)
-                {
-                    args.ItemContainer.AllowDrop = false;
-                    args.ItemContainer.CanDrag = false;
-                }
-
-                args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
-
-                args.RegisterUpdateCallback(async (s, e) =>
-                {
-                    if (e.Item is FileSystemStorageItemBase Item)
-                    {
-                        await Item.LoadMoreProperty().ConfigureAwait(false);
-                    }
-                });
+                LogTracer.Log(ex);
+            }
+            finally
+            {
+                Deferral.Complete();
             }
         }
 
@@ -4483,7 +4560,7 @@ namespace RX_Explorer
             }
         }
 
-        private void ItemContainer_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void ItemContainer_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
             if (!SettingControl.IsDoubleClickEnable && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple && e.KeyModifiers != VirtualKeyModifiers.Control && e.KeyModifiers != VirtualKeyModifiers.Shift)
             {
@@ -4880,7 +4957,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void ViewControl_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
+        private async void ViewControl_Holding(object sender, HoldingRoutedEventArgs e)
         {
             if (e.HoldingState == Windows.UI.Input.HoldingState.Started)
             {
@@ -5361,7 +5438,7 @@ namespace RX_Explorer
             }
         }
 
-        private void NameLabel_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void NameLabel_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             TextBlock NameLabel = (TextBlock)sender;
 
@@ -5381,6 +5458,7 @@ namespace RX_Explorer
                         if (ClickSpan.TotalMilliseconds > 1000 && ClickSpan.TotalMilliseconds < 3000)
                         {
                             NameLabel.Visibility = Visibility.Collapsed;
+
                             CurrentNameEditItem = Item;
 
                             if ((NameLabel.Parent as FrameworkElement).FindName("NameEditBox") is TextBox EditBox)
@@ -5509,7 +5587,7 @@ namespace RX_Explorer
             }
         }
 
-        private void GetFocus_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void GetFocus_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             ItemPresenter.Focus(FocusState.Programmatic);
         }
@@ -6355,7 +6433,7 @@ namespace RX_Explorer
             }
         }
 
-        private void ListHeader_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        private void ListHeader_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
             e.Handled = true;
         }
