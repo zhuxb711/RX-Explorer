@@ -2,6 +2,7 @@
 using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Security.Cryptography;
@@ -14,6 +15,7 @@ using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
 using Windows.Storage.Search;
 using Windows.System;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
@@ -23,7 +25,7 @@ namespace RX_Explorer
 {
     public sealed partial class SecureArea : Page
     {
-        private IncrementalLoadingCollection<FileSystemStorageItemBase> SecureCollection;
+        private readonly ObservableCollection<FileSystemStorageItemBase> SecureCollection = new ObservableCollection<FileSystemStorageItemBase>();
 
         private StorageFolder SecureFolder;
 
@@ -37,11 +39,11 @@ namespace RX_Explorer
 
         private CancellationTokenSource Cancellation;
 
+        private ListViewBaseSelectionExtention SelectionExtention;
+
         public SecureArea()
         {
             InitializeComponent();
-            SecureCollection = new IncrementalLoadingCollection<FileSystemStorageItemBase>(GetMoreItemsFunction);
-            SecureGridView.ItemsSource = SecureCollection;
             Loaded += SecureArea_Loaded;
             Unloaded += SecureArea_Unloaded;
             SecureCollection.CollectionChanged += SecureCollection_CollectionChanged;
@@ -49,7 +51,8 @@ namespace RX_Explorer
 
         private void SecureArea_Unloaded(object sender, RoutedEventArgs e)
         {
-            SecureGridView.Visibility = Visibility.Collapsed;
+            CoreWindow.GetForCurrentThread().KeyDown -= SecureArea_KeyDown;
+            SelectionExtention?.Dispose();
             EmptyTips.Visibility = Visibility.Collapsed;
             SecureCollection.Clear();
         }
@@ -64,7 +67,7 @@ namespace RX_Explorer
                     FileEncryptionAesKey = KeyGenerator.GetMD5FromKey(UnlockPassword, 16);
                     AESKeySize = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"]);
 
-                    if (!(ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] is string LockMode) || LockMode != nameof(CloseLockMode) || IsNewStart)
+                    if (ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] is not string LockMode || LockMode != nameof(CloseLockMode) || IsNewStart)
                     {
                         if (Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"]))
                         {
@@ -267,11 +270,34 @@ namespace RX_Explorer
                     }
                 }
 
+                SelectionExtention = new ListViewBaseSelectionExtention(SecureGridView, DrawRectangle);
+                CoreWindow.GetForCurrentThread().KeyDown += SecureArea_KeyDown;
+
                 await StartLoadFile().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 LogTracer.LeadToBlueScreen(ex);
+            }
+        }
+
+        private void SecureArea_KeyDown(CoreWindow sender, KeyEventArgs args)
+        {
+            CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
+
+            switch (args.VirtualKey)
+            {
+                case VirtualKey.A when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                    {
+                        SecureGridView.SelectAll();
+                        break;
+                    }
+                case VirtualKey.Delete when SecureGridView.SelectedItems.Count > 0:
+                case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SecureGridView.SelectedItems.Count > 0:
+                    {
+                        DeleteFile_Click(null, null);
+                        break;
+                    }
             }
         }
 
@@ -368,29 +394,26 @@ namespace RX_Explorer
                 FolderDepth = FolderDepth.Shallow,
                 IndexerOption = IndexerOption.UseIndexerWhenAvailable
             };
-            Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 100, ThumbnailOptions.ResizeThumbnail);
             Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.ItemTypeText", "System.ItemNameDisplayWithoutExtension", "System.FileName", "System.Size", "System.DateModified" });
 
-            StorageItemQueryResult ItemQuery = SecureFolder.CreateItemQueryWithOptions(Options);
+            StorageFileQueryResult ItemQuery = SecureFolder.CreateFileQueryWithOptions(Options);
 
-            IReadOnlyList<IStorageItem> EncryptedFileList = await ItemQuery.GetItemsAsync(0, 100);
+            uint Count = await ItemQuery.GetItemCountAsync();
 
-            if (EncryptedFileList.Count == 0)
+            for (uint i = 0; i < Count; i += 25)
+            {
+                IReadOnlyList<StorageFile> EncryptedFileList = await ItemQuery.GetFilesAsync(i, 25);
+
+                foreach (IStorageItem Item in EncryptedFileList)
+                {
+                    SecureCollection.Add(new FileSystemStorageItemBase(Item as StorageFile, await Item.GetSizeRawDataAsync().ConfigureAwait(true), new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png")), await Item.GetModifiedTimeAsync().ConfigureAwait(true)));
+                }
+            }
+
+            if (SecureCollection.Count == 0)
             {
                 EmptyTips.Visibility = Visibility.Visible;
             }
-
-            SecureGridView.Visibility = Visibility.Visible;
-
-            foreach (var Item in EncryptedFileList)
-            {
-                var Size = await Item.GetSizeRawDataAsync().ConfigureAwait(true);
-                var Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
-                var ModifiedTime = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
-                SecureCollection.Add(new FileSystemStorageItemBase(Item as StorageFile, Size, Thumbnail, ModifiedTime));
-            }
-
-            await SecureCollection.SetStorageQueryResultAsync(ItemQuery).ConfigureAwait(false);
         }
 
         private void SecureCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -406,19 +429,6 @@ namespace RX_Explorer
                     EmptyTips.Visibility = Visibility.Collapsed;
                 }
             }
-        }
-
-        private async Task<IEnumerable<FileSystemStorageItemBase>> GetMoreItemsFunction(uint Index, uint Num, StorageItemQueryResult Query)
-        {
-            List<FileSystemStorageItemBase> ItemList = new List<FileSystemStorageItemBase>();
-            foreach (var Item in await Query.GetItemsAsync(Index, Num))
-            {
-                var Size = await Item.GetSizeRawDataAsync().ConfigureAwait(true);
-                var Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
-                var ModifiedTime = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
-                ItemList.Add(new FileSystemStorageItemBase(Item as StorageFile, Size, Thumbnail, ModifiedTime));
-            }
-            return ItemList;
         }
 
         private async void AddFile_Click(object sender, RoutedEventArgs e)
@@ -450,9 +460,9 @@ namespace RX_Explorer
                             {
                                 await File.DeleteAsync(StorageDeleteOption.Default);
                             }
-                            catch
+                            catch(Exception ex)
                             {
-
+                                LogTracer.Log(ex);
                             }
                         }
                         else
@@ -465,6 +475,7 @@ namespace RX_Explorer
                             };
 
                             _ = await Dialog.ShowAsync().ConfigureAwait(true);
+
                             break;
                         }
                     }
@@ -490,71 +501,77 @@ namespace RX_Explorer
 
         private async void Grid_Drop(object sender, DragEventArgs e)
         {
-            IReadOnlyList<IStorageItem> Items = await e.DataView.GetStorageItemsAsync();
-
-            if (Items.Any((Item) => Item.IsOfType(StorageItemTypes.Folder)))
+            if (e.DataView.Contains(StandardDataFormats.StorageItems))
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                IReadOnlyList<IStorageItem> Items = await e.DataView.GetStorageItemsAsync();
+
+                if (Items.Any((Item) => Item.IsOfType(StorageItemTypes.Folder)))
                 {
-                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                    Content = Globalization.GetString("QueueDialog_SecureAreaImportFiliter_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-            }
-
-            if (Items.Any((Item) => Item.IsOfType(StorageItemTypes.File)))
-            {
-                ActivateLoading(true, true);
-
-                Cancellation = new CancellationTokenSource();
-
-                try
-                {
-                    foreach (StorageFile Item in Items.OfType<StorageFile>())
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        if ((await Item.EncryptAsync(SecureFolder, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true)) is StorageFile EncryptedFile)
-                        {
-                            SecureCollection.Add(new FileSystemStorageItemBase(EncryptedFile, await EncryptedFile.GetSizeRawDataAsync().ConfigureAwait(true), new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png")), await EncryptedFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                        Content = Globalization.GetString("QueueDialog_SecureAreaImportFiliter_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
 
-                            try
-                            {
-                                await Item.DeleteAsync(StorageDeleteOption.Default);
-                            }
-                            catch
-                            {
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                }
 
-                            }
-                        }
-                        else
+                if (Items.Any((Item) => Item.IsOfType(StorageItemTypes.File)))
+                {
+                    ActivateLoading(true, true);
+
+                    Cancellation = new CancellationTokenSource();
+
+                    try
+                    {
+                        foreach (StorageFile Item in Items.OfType<StorageFile>())
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
+                            if ((await Item.EncryptAsync(SecureFolder, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true)) is StorageFile EncryptedFile)
                             {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                            break;
+                                SecureCollection.Add(new FileSystemStorageItemBase(EncryptedFile, await EncryptedFile.GetSizeRawDataAsync().ConfigureAwait(true), new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png")), await EncryptedFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+
+                                try
+                                {
+                                    StorageFile ToDeleteFile = await StorageFile.GetFileFromPathAsync(Item.Path);
+                                    await ToDeleteFile.DeleteAsync(StorageDeleteOption.Default);
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex);
+                                }
+                            }
+                            else
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+
+                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+
+                                break;
+                            }
                         }
                     }
-                }
-                catch (TaskCanceledException cancelException)
-                {
-                    LogTracer.Log(cancelException, "Import items to SecureArea have been cancelled");
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "An error was threw when importing file");
-                }
-                finally
-                {
-                    Cancellation.Dispose();
-                    Cancellation = null;
+                    catch (TaskCanceledException cancelException)
+                    {
+                        LogTracer.Log(cancelException, "Import items to SecureArea have been cancelled");
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "An error was threw when importing file");
+                    }
+                    finally
+                    {
+                        Cancellation.Dispose();
+                        Cancellation = null;
 
-                    await Task.Delay(1500).ConfigureAwait(true);
-                    ActivateLoading(false);
+                        await Task.Delay(1000).ConfigureAwait(true);
+                        ActivateLoading(false);
+                    }
                 }
             }
         }
@@ -563,46 +580,40 @@ namespace RX_Explorer
         {
             if (e.DataView.Contains(StandardDataFormats.StorageItems))
             {
-                e.AcceptedOperation = DataPackageOperation.Copy;
+                e.AcceptedOperation = DataPackageOperation.Move;
                 e.DragUIOverride.Caption = Globalization.GetString("Drag_Tip_ReleaseToAdd");
-            }
-        }
-
-        private void SecureGridView_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (SecureGridView.SelectedItem is FileSystemStorageItemBase)
-            {
-                DeleteFile.IsEnabled = true;
-                ExportFile.IsEnabled = true;
-            }
-            else
-            {
-                DeleteFile.IsEnabled = false;
-                ExportFile.IsEnabled = false;
             }
         }
 
         private void SecureGridView_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            SecureGridView.SelectedIndex = -1;
+            if ((e.OriginalSource as FrameworkElement)?.DataContext == null)
+            {
+                SecureGridView.SelectedItem = null;
+            }
+
+            SelectionExtention.Enable();
         }
 
         private async void DeleteFile_Click(object sender, RoutedEventArgs e)
         {
-            if (SecureGridView.SelectedItem is FileSystemStorageItemBase Item)
+            QueueContentDialog Dialog = new QueueContentDialog
             {
-                QueueContentDialog Dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                    PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                    Content = Globalization.GetString("QueueDialog_DeleteFile_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                };
+                Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                Content = Globalization.GetString("QueueDialog_DeleteFile_Content"),
+                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+            };
 
-                if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+            if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+            {
+                foreach (FileSystemStorageItemBase Item in SecureGridView.SelectedItems.ToArray())
                 {
-                    await (await Item.GetStorageItem().ConfigureAwait(true)).DeleteAsync(StorageDeleteOption.PermanentDelete);
-                    SecureCollection.Remove(Item);
+                    if (await Item.GetStorageItem().ConfigureAwait(true) is StorageFile ToDeleteFile)
+                    {
+                        SecureCollection.Remove(Item);
+                        await ToDeleteFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                    }
                 }
             }
         }
@@ -614,96 +625,90 @@ namespace RX_Explorer
 
         private async void ExportFile_Click(object sender, RoutedEventArgs e)
         {
-            if (SecureGridView.SelectedItem is FileSystemStorageItemBase Item)
+            FolderPicker Picker = new FolderPicker
             {
-                FolderPicker Picker = new FolderPicker
-                {
-                    SuggestedStartLocation = PickerLocationId.Desktop,
-                    ViewMode = PickerViewMode.Thumbnail
-                };
-                Picker.FileTypeFilter.Add("*");
+                SuggestedStartLocation = PickerLocationId.Desktop,
+                ViewMode = PickerViewMode.Thumbnail
+            };
+            Picker.FileTypeFilter.Add("*");
 
-                if ((await Picker.PickSingleFolderAsync()) is StorageFolder Folder)
-                {
-                    Cancellation = new CancellationTokenSource();
+            if ((await Picker.PickSingleFolderAsync()) is StorageFolder Folder)
+            {
+                Cancellation = new CancellationTokenSource();
 
-                    try
+                try
+                {
+                    ActivateLoading(true, false);
+
+                    foreach (FileSystemStorageItemBase Item in SecureGridView.SelectedItems.ToArray())
                     {
-                        ActivateLoading(true, false);
-
-                        if (await ((StorageFile)await Item.GetStorageItem().ConfigureAwait(true)).DecryptAsync(Folder, FileEncryptionAesKey, Cancellation.Token).ConfigureAwait(true) is StorageFile)
+                        if (await Item.GetStorageItem().ConfigureAwait(true) is StorageFile InnerFile)
                         {
-                            await (await Item.GetStorageItem().ConfigureAwait(true)).DeleteAsync(StorageDeleteOption.PermanentDelete);
-                            SecureCollection.Remove(Item);
-
-                            _ = await Launcher.LaunchFolderAsync(Folder);
-                        }
-                        else
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
+                            if (await InnerFile.DecryptAsync(Folder, FileEncryptionAesKey, Cancellation.Token).ConfigureAwait(true) is StorageFile)
                             {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_DecryptError_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                                SecureCollection.Remove(Item);
+
+                                await InnerFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+
+                                _ = await Launcher.LaunchFolderAsync(Folder);
+                            }
+                            else
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_DecryptError_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                            }
                         }
                     }
-                    catch (PasswordErrorException)
+                }
+                catch (PasswordErrorException)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_DecryptPasswordError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_DecryptPasswordError_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
 
-                        await Task.Delay(1500).ConfigureAwait(true);
-                        ActivateLoading(false);
-                    }
-                    catch (FileDamagedException)
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                }
+                catch (FileDamagedException)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_FileDamageError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_FileDamageError_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
 
-                        await Task.Delay(1500).ConfigureAwait(true);
-                        ActivateLoading(false);
-                    }
-                    catch (UnauthorizedAccessException)
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_UnauthorizedCreateDecryptFile_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnauthorizedCreateDecryptFile_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
 
-                        await Task.Delay(1500).ConfigureAwait(true);
-                        ActivateLoading(false);
-                    }
-                    catch (TaskCanceledException)
-                    {
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex);
+                }
+                finally
+                {
+                    Cancellation.Dispose();
+                    Cancellation = null;
 
-                    }
-                    catch (CryptographicException)
-                    {
-
-                    }
-                    finally
-                    {
-                        Cancellation.Dispose();
-                        Cancellation = null;
-
-                        await Task.Delay(1500).ConfigureAwait(true);
-                        ActivateLoading(false);
-                    }
+                    await Task.Delay(1000).ConfigureAwait(true);
+                    ActivateLoading(false);
                 }
             }
         }
@@ -714,8 +719,15 @@ namespace RX_Explorer
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
                 {
-                    SecureGridView.SelectedItem = Item;
-                    SecureGridView.ContextFlyout = FileFlyout;
+                    if (SecureGridView.SelectedItems.Count > 1)
+                    {
+                        SecureGridView.ContextFlyout = MixedFlyout;
+                    }
+                    else
+                    {
+                        SecureGridView.SelectedItem = Item;
+                        SecureGridView.ContextFlyout = FileFlyout;
+                    }
                 }
                 else
                 {
@@ -745,6 +757,7 @@ namespace RX_Explorer
                     if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
                         await Item.RenameAsync(dialog.DesireName);
+                        await RenameItem.Update().ConfigureAwait(false);
                     }
                 }
             }
@@ -892,8 +905,15 @@ namespace RX_Explorer
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
                 {
-                    SecureGridView.SelectedItem = Item;
-                    SecureGridView.ContextFlyout = FileFlyout;
+                    if (SecureGridView.SelectedItems.Count > 1)
+                    {
+                        SecureGridView.ContextFlyout = MixedFlyout;
+                    }
+                    else
+                    {
+                        SecureGridView.SelectedItem = Item;
+                        SecureGridView.ContextFlyout = FileFlyout;
+                    }
                 }
                 else
                 {

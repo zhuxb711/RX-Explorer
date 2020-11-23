@@ -678,7 +678,7 @@ namespace RX_Explorer
                     catch (Exception ex)
                     {
                         ApplicationData.Current.LocalSettings.Values.Clear();
-                        LogTracer.Log(ex, $"{ nameof(ClearUp_Click)} threw an exception");
+                        LogTracer.Log(ex, $"{nameof(ClearUp_Click)} threw an exception");
                     }
 
                     Window.Current.Activate();

@@ -16,122 +16,130 @@ namespace FullTrustProcess
 
         private const int BufferSize = 512;
 
-        public static List<(string, string, string)> FetchContextMenuItems(IEnumerable<string> Path, bool FetchExtensionMenu = false)
+        public static List<(string, string, string)> FetchContextMenuItems(string Path, bool FetchExtensionMenu = false)
         {
-            ShellItem[] ItemCollecion = Array.Empty<ShellItem>();
+            ShellItem Item = null;
 
             try
             {
-                ItemCollecion = Path.Where((Item) => File.Exists(Item) || Directory.Exists(Item)).Select((Item) => ShellItem.Open(Item)).ToArray();
-
-                Context = new ShellContextMenu(ItemCollecion);
-
-                using (User32.SafeHMENU NewMenu = User32.CreatePopupMenu())
+                if (File.Exists(Path) || Directory.Exists(Path))
                 {
-                    Context.ComInterface.QueryContextMenu(NewMenu, 0, 0, ushort.MaxValue, FetchExtensionMenu ? (Shell32.CMF.CMF_VERBSONLY | Shell32.CMF.CMF_EXTENDEDVERBS) : Shell32.CMF.CMF_VERBSONLY);
+                    Item = ShellItem.Open(Path);
 
-                    int MaxCount = User32.GetMenuItemCount(NewMenu);
+                    Context = new ShellContextMenu(Item);
 
-                    List<(string, string, string)> ContextMenuItemList = new List<(string, string, string)>(MaxCount);
-
-                    for (uint i = 0; i < MaxCount; i++)
+                    using (User32.SafeHMENU NewMenu = User32.CreatePopupMenu())
                     {
-                        IntPtr DataPtr = Marshal.AllocHGlobal(BufferSize);
+                        Context.ComInterface.QueryContextMenu(NewMenu, 0, 0, ushort.MaxValue, FetchExtensionMenu ? (Shell32.CMF.CMF_NORMAL | Shell32.CMF.CMF_EXTENDEDVERBS) : Shell32.CMF.CMF_NORMAL);
 
-                        try
+                        int MaxCount = User32.GetMenuItemCount(NewMenu);
+
+                        List<(string, string, string)> ContextMenuItemList = new List<(string, string, string)>(MaxCount);
+
+                        for (uint i = 0; i < MaxCount; i++)
                         {
-                            User32.MENUITEMINFO Info = new User32.MENUITEMINFO
-                            {
-                                fMask = User32.MenuItemInfoMask.MIIM_STRING | User32.MenuItemInfoMask.MIIM_ID | User32.MenuItemInfoMask.MIIM_FTYPE | User32.MenuItemInfoMask.MIIM_BITMAP | User32.MenuItemInfoMask.MIIM_STATE,
-                                dwTypeData = DataPtr,
-                                cch = Convert.ToUInt32(BufferSize - 1),
-                                cbSize = Convert.ToUInt32(Marshal.SizeOf(typeof(User32.MENUITEMINFO)))
-                            };
+                            IntPtr DataPtr = Marshal.AllocHGlobal(BufferSize);
 
-                            if (User32.GetMenuItemInfo(NewMenu, i, true, ref Info))
+                            try
                             {
-                                if (Info.fType == User32.MenuItemType.MFT_STRING && Info.fState == User32.MenuItemState.MFS_ENABLED)
+                                User32.MENUITEMINFO Info = new User32.MENUITEMINFO
                                 {
-                                    IntPtr VerbPtr = Marshal.AllocHGlobal(BufferSize);
+                                    fMask = User32.MenuItemInfoMask.MIIM_STRING | User32.MenuItemInfoMask.MIIM_ID | User32.MenuItemInfoMask.MIIM_FTYPE | User32.MenuItemInfoMask.MIIM_BITMAP | User32.MenuItemInfoMask.MIIM_STATE,
+                                    dwTypeData = DataPtr,
+                                    cch = Convert.ToUInt32(BufferSize - 1),
+                                    cbSize = Convert.ToUInt32(Marshal.SizeOf(typeof(User32.MENUITEMINFO)))
+                                };
 
-                                    try
+                                if (User32.GetMenuItemInfo(NewMenu, i, true, ref Info))
+                                {
+                                    if (Info.fType == User32.MenuItemType.MFT_STRING && Info.fState == User32.MenuItemState.MFS_ENABLED)
                                     {
-                                        Context.ComInterface.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VERBW, IntPtr.Zero, VerbPtr, Convert.ToUInt32(BufferSize - 1));
+                                        IntPtr VerbPtr = Marshal.AllocHGlobal(BufferSize);
 
-                                        string Verb = Marshal.PtrToStringUni(VerbPtr);
-
-                                        switch (Verb.ToLower())
+                                        try
                                         {
-                                            case "open":
-                                            case "opennewprocess":
-                                            case "pintohome":
-                                            case "cut":
-                                            case "copy":
-                                            case "paste":
-                                            case "delete":
-                                            case "properties":
-                                            case "openas":
-                                            case "link":
-                                            case "runas":
-                                            case "rename":
-                                                {
-                                                    break;
-                                                }
-                                            default:
-                                                {
-                                                    IntPtr HelpTextPtr = Marshal.AllocHGlobal(BufferSize);
+                                            Context.ComInterface.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VERBW, IntPtr.Zero, VerbPtr, Convert.ToUInt32(BufferSize - 1));
 
-                                                    try
+                                            string Verb = Marshal.PtrToStringUni(VerbPtr);
+
+                                            switch (Verb.ToLower())
+                                            {
+                                                case "open":
+                                                case "opennewprocess":
+                                                case "pintohome":
+                                                case "cut":
+                                                case "copy":
+                                                case "paste":
+                                                case "delete":
+                                                case "properties":
+                                                case "openas":
+                                                case "link":
+                                                case "runas":
+                                                case "rename":
+                                                case "{e82bd2a8-8d63-42fd-b1ae-d364c201d8a7}":
                                                     {
-                                                        Context.ComInterface.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_HELPTEXTW, IntPtr.Zero, HelpTextPtr, Convert.ToUInt32(BufferSize - 1));
+                                                        break;
+                                                    }
+                                                default:
+                                                    {
+                                                        IntPtr HelpTextPtr = Marshal.AllocHGlobal(BufferSize);
 
-                                                        string HelpText = Marshal.PtrToStringUni(HelpTextPtr);
-
-                                                        if (Info.hbmpItem != HBITMAP.NULL)
+                                                        try
                                                         {
-                                                            using (MemoryStream Stream = new MemoryStream())
+                                                            Context.ComInterface.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_HELPTEXTW, IntPtr.Zero, HelpTextPtr, Convert.ToUInt32(BufferSize - 1));
+
+                                                            string HelpText = Marshal.PtrToStringUni(HelpTextPtr);
+
+                                                            if (Info.hbmpItem != HBITMAP.NULL)
                                                             {
-                                                                Bitmap OriginBitmap = Info.hbmpItem.ToBitmap();
-                                                                BitmapData OriginData = OriginBitmap.LockBits(new Rectangle(0, 0, OriginBitmap.Width, OriginBitmap.Height), ImageLockMode.ReadOnly, OriginBitmap.PixelFormat);
-                                                                Bitmap ArgbBitmap = new Bitmap(OriginBitmap.Width, OriginBitmap.Height, OriginData.Stride, PixelFormat.Format32bppArgb, OriginData.Scan0);
+                                                                using (MemoryStream Stream = new MemoryStream())
+                                                                {
+                                                                    Bitmap OriginBitmap = Info.hbmpItem.ToBitmap();
+                                                                    BitmapData OriginData = OriginBitmap.LockBits(new Rectangle(0, 0, OriginBitmap.Width, OriginBitmap.Height), ImageLockMode.ReadOnly, OriginBitmap.PixelFormat);
+                                                                    Bitmap ArgbBitmap = new Bitmap(OriginBitmap.Width, OriginBitmap.Height, OriginData.Stride, PixelFormat.Format32bppArgb, OriginData.Scan0);
 
-                                                                ArgbBitmap.Save(Stream, ImageFormat.Png);
+                                                                    ArgbBitmap.Save(Stream, ImageFormat.Png);
 
-                                                                ContextMenuItemList.Add((HelpText, Verb, Convert.ToBase64String(Stream.ToArray())));
+                                                                    ContextMenuItemList.Add((HelpText, Verb, Convert.ToBase64String(Stream.ToArray())));
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                ContextMenuItemList.Add((HelpText, Verb, string.Empty));
                                                             }
                                                         }
-                                                        else
+                                                        finally
                                                         {
-                                                            ContextMenuItemList.Add((HelpText, Verb, string.Empty));
+                                                            Marshal.FreeHGlobal(HelpTextPtr);
                                                         }
-                                                    }
-                                                    finally
-                                                    {
-                                                        Marshal.FreeHGlobal(HelpTextPtr);
-                                                    }
 
-                                                    break;
-                                                }
+                                                        break;
+                                                    }
+                                            }
                                         }
-                                    }
-                                    catch
-                                    {
-                                        continue;
-                                    }
-                                    finally
-                                    {
-                                        Marshal.FreeHGlobal(VerbPtr);
+                                        catch
+                                        {
+                                            continue;
+                                        }
+                                        finally
+                                        {
+                                            Marshal.FreeHGlobal(VerbPtr);
+                                        }
                                     }
                                 }
                             }
+                            finally
+                            {
+                                Marshal.FreeHGlobal(DataPtr);
+                            }
                         }
-                        finally
-                        {
-                            Marshal.FreeHGlobal(DataPtr);
-                        }
-                    }
 
-                    return ContextMenuItemList;
+                        return ContextMenuItemList;
+                    }
+                }
+                else
+                {
+                    return new List<(string, string, string)>(0);
                 }
             }
             catch
@@ -140,20 +148,23 @@ namespace FullTrustProcess
             }
             finally
             {
-                Array.ForEach(ItemCollecion, (Item) => Item.Dispose());
+                Item?.Dispose();
             }
         }
 
-        public static bool InvokeVerb(string[] Path, string Verb)
+        public static bool InvokeVerb(string Path, string Verb)
         {
             try
             {
-                if (Path.All((Item) => File.Exists(Item) || Directory.Exists(Item)))
+                if (File.Exists(Path) || Directory.Exists(Path))
                 {
                     Context?.InvokeVerb(Verb);
+                    return true;
                 }
-
-                return true;
+                else
+                {
+                    return false;
+                }
             }
             catch
             {

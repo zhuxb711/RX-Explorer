@@ -333,8 +333,8 @@
                               x:Name="FolderOpen"
                               Click="ItemOpen_Click">
                     <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Modifiers="Control"
-                                             Key="G"
+                        <KeyboardAccelerator Modifiers="None"
+                                             Key="Enter"
                                              IsEnabled="False" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
@@ -348,7 +348,7 @@
                     </AppBarButton.Icon>
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Modifiers="Control"
-                                             Key="W"
+                                             Key="Q"
                                              IsEnabled="False" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>

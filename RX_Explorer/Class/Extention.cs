@@ -50,126 +50,136 @@ namespace RX_Explorer.Class
             {
                 ListControl.ContextFlyout = null;
 
-                string[] SelectedPath;
+                string SelectedPath;
 
-                if (ListControl.SelectedItems.Count > 0)
+                if (ListControl.SelectedItems.Count <= 1)
                 {
-                    SelectedPath = ListControl.SelectedItems.Select((Item) => (Item as FileSystemStorageItemBase).Path).ToArray();
-                }
-                else if (ListControl.FindParentOfType<FileControl>() is FileControl Control)
-                {
-                    SelectedPath = new string[] { Control.CurrentFolder.Path };
-                }
-                else
-                {
-                    return;
-                }
-
-                List<ContextMenuItem> ExtraMenuItems = await FullTrustProcessController.Current.GetContextMenuItems(SelectedPath, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down)).ConfigureAwait(true);
-
-                if (ExtraMenuItems.Count > 0)
-                {
-                    if (Flyout.SecondaryCommands.OfType<AppBarElementContainer>().FirstOrDefault() is AppBarElementContainer ExistsContainer)
+                    if (ListControl.SelectedItem is FileSystemStorageItemBase Selected)
                     {
-                        StackPanel InnerPanel = ExistsContainer.Content as StackPanel;
-
-                        List<ContextMenuItem> MenuExistItems = InnerPanel.Children.Select((Btn) => (Btn as Button).Tag as ContextMenuItem).ToList();
-
-                        foreach (ContextMenuItem AddItem in ExtraMenuItems.Except(MenuExistItems))
-                        {
-                            Button Btn = await AddItem.GenerateUIButton().ConfigureAwait(true);
-                            Btn.Click += async (s, e) =>
-                            {
-                                Flyout?.Hide();
-
-                                if (((Button)s)?.Tag is ContextMenuItem MenuItem)
-                                {
-                                    await MenuItem.Invoke().ConfigureAwait(true);
-                                }
-                            };
-
-                            InnerPanel.Children.Add(Btn);
-                        }
-
-                        foreach (ContextMenuItem RemoveItem in MenuExistItems.Except(ExtraMenuItems))
-                        {
-                            if (InnerPanel.Children.OfType<Button>().FirstOrDefault((Item) => (Item.Tag as ContextMenuItem) == RemoveItem) is Button Btn)
-                            {
-                                InnerPanel.Children.Remove(Btn);
-                            }
-                        }
-
-                        foreach (ContextMenuItem UpdateItem in MenuExistItems.Where((Item) => ExtraMenuItems.Any((Extra) => Extra.Equals(Item))))
-                        {
-                            UpdateItem.UpdateBelonging(SelectedPath);
-                        }
+                        SelectedPath = Selected.Path;
                     }
-                    else
+                    else if (ListControl.FindParentOfType<FileControl>() is FileControl Control)
                     {
-                        StackPanel Panel = new StackPanel
+                        if (!string.IsNullOrEmpty(Control.CurrentFolder?.Path))
                         {
-                            HorizontalAlignment = HorizontalAlignment.Stretch
-                        };
-
-                        foreach (ContextMenuItem Item in ExtraMenuItems)
-                        {
-                            Button Btn = await Item.GenerateUIButton().ConfigureAwait(true);
-                            Btn.Click += async (s, e) =>
-                            {
-                                Flyout?.Hide();
-
-                                if (((Button)s)?.Tag is ContextMenuItem MenuItem)
-                                {
-                                    await MenuItem.Invoke().ConfigureAwait(true);
-                                }
-                            };
-
-                            Panel.Children.Add(Btn);
-                        }
-
-                        AppBarElementContainer Container = new AppBarElementContainer
-                        {
-                            HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                            Content = Panel
-                        };
-
-                        List<int> SeparatorGroup = Flyout.SecondaryCommands.Select((Item, Index) => (Index, Item)).Where((Group) => Group.Item is AppBarSeparator).Select((Group) => Group.Index).ToList();
-
-                        if (SeparatorGroup.Count > 0)
-                        {
-                            Flyout.SecondaryCommands.Insert(SeparatorGroup[0] + 1, new AppBarSeparator());
-                            Flyout.SecondaryCommands.Insert(SeparatorGroup[0] + 1, Container);
+                            SelectedPath = Control.CurrentFolder.Path;
                         }
                         else
                         {
-                            Flyout.SecondaryCommands.Insert(0, new AppBarSeparator());
-                            Flyout.SecondaryCommands.Insert(0, Container);
-                        }
-                    }
-                }
-                else
-                {
-                    foreach (AppBarElementContainer ExistContainer in Flyout.SecondaryCommands.OfType<AppBarElementContainer>())
-                    {
-                        Flyout.SecondaryCommands.Remove(ExistContainer);
-                    }
-
-                    List<int> SeparatorGroup = Flyout.SecondaryCommands.Select((Item, Index) => (Index, Item)).Where((Group) => Group.Item is AppBarSeparator).Select((Group) => Group.Index).ToList();
-
-                    if (SeparatorGroup.Count == 1)
-                    {
-                        if (SeparatorGroup[0] == 0)
-                        {
-                            Flyout.SecondaryCommands.RemoveAt(0);
+                            return;
                         }
                     }
                     else
                     {
-                        for (int i = 0; i < SeparatorGroup.Count - 1; i++)
+                        return;
+                    }
+
+                    List<ContextMenuItem> ExtraMenuItems = await FullTrustProcessController.Current.GetContextMenuItems(SelectedPath, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down)).ConfigureAwait(true);
+
+                    if (ExtraMenuItems.Count > 0)
+                    {
+                        if (Flyout.SecondaryCommands.OfType<AppBarElementContainer>().FirstOrDefault() is AppBarElementContainer ExistsContainer)
                         {
-                            if (Math.Abs(SeparatorGroup[i] - SeparatorGroup[i + 1]) == 1)
+                            StackPanel InnerPanel = ExistsContainer.Content as StackPanel;
+
+                            List<ContextMenuItem> MenuExistItems = InnerPanel.Children.Select((Btn) => (Btn as Button).Tag as ContextMenuItem).ToList();
+
+                            foreach (ContextMenuItem AddItem in ExtraMenuItems.Except(MenuExistItems))
                             {
-                                Flyout.SecondaryCommands.RemoveAt(SeparatorGroup[i]);
+                                Button Btn = await AddItem.GenerateUIButton().ConfigureAwait(true);
+                                Btn.Click += async (s, e) =>
+                                {
+                                    Flyout?.Hide();
+
+                                    if (((Button)s)?.Tag is ContextMenuItem MenuItem)
+                                    {
+                                        await MenuItem.Invoke().ConfigureAwait(true);
+                                    }
+                                };
+
+                                InnerPanel.Children.Add(Btn);
+                            }
+
+                            foreach (ContextMenuItem RemoveItem in MenuExistItems.Except(ExtraMenuItems))
+                            {
+                                if (InnerPanel.Children.OfType<Button>().FirstOrDefault((Item) => (Item.Tag as ContextMenuItem) == RemoveItem) is Button Btn)
+                                {
+                                    InnerPanel.Children.Remove(Btn);
+                                }
+                            }
+
+                            foreach (ContextMenuItem UpdateItem in MenuExistItems.Where((Item) => ExtraMenuItems.Any((Extra) => Extra.Equals(Item))))
+                            {
+                                UpdateItem.UpdateBelonging(SelectedPath);
+                            }
+                        }
+                        else
+                        {
+                            StackPanel Panel = new StackPanel
+                            {
+                                HorizontalAlignment = HorizontalAlignment.Stretch
+                            };
+
+                            foreach (ContextMenuItem Item in ExtraMenuItems)
+                            {
+                                Button Btn = await Item.GenerateUIButton().ConfigureAwait(true);
+                                Btn.Click += async (s, e) =>
+                                {
+                                    Flyout?.Hide();
+
+                                    if (((Button)s)?.Tag is ContextMenuItem MenuItem)
+                                    {
+                                        await MenuItem.Invoke().ConfigureAwait(true);
+                                    }
+                                };
+
+                                Panel.Children.Add(Btn);
+                            }
+
+                            AppBarElementContainer Container = new AppBarElementContainer
+                            {
+                                HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                                Content = Panel
+                            };
+
+                            List<int> SeparatorGroup = Flyout.SecondaryCommands.Select((Item, Index) => (Index, Item)).Where((Group) => Group.Item is AppBarSeparator).Select((Group) => Group.Index).ToList();
+
+                            if (SeparatorGroup.Count > 0)
+                            {
+                                Flyout.SecondaryCommands.Insert(SeparatorGroup[0] + 1, new AppBarSeparator());
+                                Flyout.SecondaryCommands.Insert(SeparatorGroup[0] + 1, Container);
+                            }
+                            else
+                            {
+                                Flyout.SecondaryCommands.Insert(0, new AppBarSeparator());
+                                Flyout.SecondaryCommands.Insert(0, Container);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach (AppBarElementContainer ExistContainer in Flyout.SecondaryCommands.OfType<AppBarElementContainer>())
+                        {
+                            Flyout.SecondaryCommands.Remove(ExistContainer);
+                        }
+
+                        List<int> SeparatorGroup = Flyout.SecondaryCommands.Select((Item, Index) => (Index, Item)).Where((Group) => Group.Item is AppBarSeparator).Select((Group) => Group.Index).ToList();
+
+                        if (SeparatorGroup.Count == 1)
+                        {
+                            if (SeparatorGroup[0] == 0)
+                            {
+                                Flyout.SecondaryCommands.RemoveAt(0);
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < SeparatorGroup.Count - 1; i++)
+                            {
+                                if (Math.Abs(SeparatorGroup[i] - SeparatorGroup[i + 1]) == 1)
+                                {
+                                    Flyout.SecondaryCommands.RemoveAt(SeparatorGroup[i]);
+                                }
                             }
                         }
                     }
@@ -905,12 +915,12 @@ namespace RX_Explorer.Class
                                     }
                                     else
                                     {
-                                        throw new FileDamagedException("文件损坏，无法解密");
+                                        throw new FileDamagedException("File damaged, could not be decrypted");
                                     }
                                 }
                                 else
                                 {
-                                    throw new FileDamagedException("文件损坏，无法解密");
+                                    throw new FileDamagedException("File damaged, could not be decrypted");
                                 }
 
                                 DecryptedFile = await ExportFolder.CreateFileAsync($"{ Path.GetFileNameWithoutExtension(EncryptedFile.Name)}{FileType}", CreationCollisionOption.GenerateUniqueName);
@@ -932,7 +942,7 @@ namespace RX_Explorer.Class
                                     }
                                     else
                                     {
-                                        throw new PasswordErrorException("密码错误");
+                                        throw new PasswordErrorException("Password is not correct");
                                     }
                                 }
                             }

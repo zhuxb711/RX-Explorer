@@ -60,6 +60,8 @@ namespace RX_Explorer.Class
 
         protected BitmapImage Inner_Thumbnail { get; set; }
 
+        public WIN_Native_API.WIN32_FIND_DATA? RawStorageItemData { get; }
+
         protected static readonly BitmapImage Const_Folder_Image = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
 
         protected static readonly BitmapImage Const_File_White_Image = new BitmapImage(new Uri("ms-appx:///Assets/Page_Solid_White.png"));
@@ -108,6 +110,7 @@ namespace RX_Explorer.Class
             InternalPathString = Path;
             ModifiedTimeRaw = ModifiedTime.ToLocalTime();
             this.StorageType = StorageType;
+            RawStorageItemData = Data;
 
             if (StorageType != StorageItemTypes.Folder)
             {

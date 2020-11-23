@@ -213,11 +213,6 @@ namespace RX_Explorer
                             await FullTrustProcessController.Current.ViewWithQuicklookAsync(SelectedItem.Path).ConfigureAwait(false);
                             break;
                         }
-                    case VirtualKey.Delete:
-                        {
-                            Delete_Click(null, null);
-                            break;
-                        }
                     case VirtualKey.F2 when !HasHiddenItem:
                         {
                             Rename_Click(null, null);
@@ -263,6 +258,7 @@ namespace RX_Explorer
                             Cut_Click(null, null);
                             break;
                         }
+                    case VirtualKey.Delete:
                     case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                         {
                             Delete_Click(null, null);
@@ -298,14 +294,9 @@ namespace RX_Explorer
                             OpenFolderInNewTab_Click(null, null);
                             break;
                         }
-                    case VirtualKey.W when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                    case VirtualKey.Q when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                         {
                             OpenFolderInNewWindow_Click(null, null);
-                            break;
-                        }
-                    case VirtualKey.G when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                        {
-                            ItemOpen_Click(null, null);
                             break;
                         }
                     case VirtualKey.Up:

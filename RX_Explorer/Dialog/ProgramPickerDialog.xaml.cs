@@ -189,7 +189,8 @@ namespace RX_Explorer.Dialog
                 ViewMode = PickerViewMode.List
             };
 
-            Picker.FileTypeFilter.Add("*");
+            Picker.FileTypeFilter.Add(".exe");
+            Picker.FileTypeFilter.Add(".lnk");
 
             if ((await Picker.PickSingleFileAsync()) is StorageFile ExtraApp)
             {

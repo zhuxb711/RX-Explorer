@@ -243,7 +243,6 @@
     <Compile Include="Class\GeneralTransformer.cs" />
     <Compile Include="Class\Globalization.cs" />
     <Compile Include="Class\HardDeviceInfo.cs" />
-    <Compile Include="Class\IncrementalLoadingCollection.cs" />
     <Compile Include="Class\KeyGenerator.cs" />
     <Compile Include="Class\LibraryFolder.cs" />
     <Compile Include="Class\MySQL.cs" />

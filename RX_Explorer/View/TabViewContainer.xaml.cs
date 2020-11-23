@@ -52,74 +52,99 @@ namespace RX_Explorer
 
         private async void TabViewContainer_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
-            if (!QueueContentDialog.IsRunningOrWaiting && CurrentTabNavigation?.Content is ThisPC PC)
+            if (!QueueContentDialog.IsRunningOrWaiting)
             {
-                args.Handled = true;
+                CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
 
                 switch (args.VirtualKey)
                 {
-                    case VirtualKey.Space when SettingControl.IsQuicklookAvailable && SettingControl.IsQuicklookEnable:
+                    case VirtualKey.W when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                         {
-                            if (PC.DeviceGrid.SelectedItem is HardDeviceInfo Device)
+                            if (TabViewControl.SelectedItem is TabViewItem Tab)
                             {
-                                await FullTrustProcessController.Current.ViewWithQuicklookAsync(Device.Folder.Path).ConfigureAwait(false);
+                                args.Handled = true;
+
+                                await CleanUpAndRemoveTabItem(Tab).ConfigureAwait(true);
                             }
-                            else if (PC.LibraryGrid.SelectedItem is LibraryFolder Library)
-                            {
-                                await FullTrustProcessController.Current.ViewWithQuicklookAsync(Library.Folder.Path).ConfigureAwait(false);
-                            }
+
                             break;
                         }
-                    case VirtualKey.Enter:
-                        {
-                            if (PC.DeviceGrid.SelectedItem is HardDeviceInfo Device)
-                            {
-                                if (string.IsNullOrEmpty(Device.Folder.Path))
-                                {
-                                    QueueContentDialog Dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                        Content = Globalization.GetString("QueueDialog_MTP_CouldNotAccess_Content"),
-                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                    };
+                }
 
-                                    if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
-                                    {
-                                        await Launcher.LaunchFolderAsync(Device.Folder);
-                                    }
-                                }
-                                else
+                if (CurrentTabNavigation?.Content is ThisPC PC)
+                {
+                    switch (args.VirtualKey)
+                    {
+                        case VirtualKey.Space when SettingControl.IsQuicklookAvailable && SettingControl.IsQuicklookEnable:
+                            {
+                                if (PC.DeviceGrid.SelectedItem is HardDeviceInfo Device)
                                 {
-                                    if (AnimationController.Current.IsEnableAnimation)
+                                    await FullTrustProcessController.Current.ViewWithQuicklookAsync(Device.Folder.Path).ConfigureAwait(false);
+                                }
+                                else if (PC.LibraryGrid.SelectedItem is LibraryFolder Library)
+                                {
+                                    await FullTrustProcessController.Current.ViewWithQuicklookAsync(Library.Folder.Path).ConfigureAwait(false);
+                                }
+                                break;
+                            }
+                        case VirtualKey.Enter:
+                            {
+                                if (PC.DeviceGrid.SelectedItem is HardDeviceInfo Device)
+                                {
+                                    if (string.IsNullOrEmpty(Device.Folder.Path))
                                     {
-                                        CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Device.Folder), new DrillInNavigationTransitionInfo());
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                            Content = Globalization.GetString("QueueDialog_MTP_CouldNotAccess_Content"),
+                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                        };
+
+                                        if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                                        {
+                                            await Launcher.LaunchFolderAsync(Device.Folder);
+                                        }
                                     }
                                     else
                                     {
-                                        CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Device.Folder), new SuppressNavigationTransitionInfo());
+                                        if (AnimationController.Current.IsEnableAnimation)
+                                        {
+                                            CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Device.Folder), new DrillInNavigationTransitionInfo());
+                                        }
+                                        else
+                                        {
+                                            CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Device.Folder), new SuppressNavigationTransitionInfo());
+                                        }
                                     }
-                                }
-                            }
-                            else if (PC.LibraryGrid.SelectedItem is LibraryFolder Library)
-                            {
-                                if (AnimationController.Current.IsEnableAnimation)
-                                {
-                                    CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Library.Folder), new DrillInNavigationTransitionInfo());
-                                }
-                                else
-                                {
-                                    CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Library.Folder), new SuppressNavigationTransitionInfo());
-                                }
-                            }
 
-                            break;
-                        }
-                    case VirtualKey.F5:
-                        {
-                            PC.Refresh_Click(null, null);
-                            break;
-                        }
+                                    args.Handled = true;
+                                }
+                                else if (PC.LibraryGrid.SelectedItem is LibraryFolder Library)
+                                {
+                                    if (AnimationController.Current.IsEnableAnimation)
+                                    {
+                                        CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Library.Folder), new DrillInNavigationTransitionInfo());
+                                    }
+                                    else
+                                    {
+                                        CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Library.Folder), new SuppressNavigationTransitionInfo());
+                                    }
+
+                                    args.Handled = true;
+                                }
+
+                                break;
+                            }
+                        case VirtualKey.F5:
+                            {
+                                PC.Refresh_Click(null, null);
+
+                                args.Handled = true;
+
+                                break;
+                            }
+                    }
                 }
             }
         }
@@ -308,18 +333,18 @@ namespace RX_Explorer
                 List<HardDeviceInfo> OneStepDeviceList = CommonAccessCollection.HardDeviceList.Where((Item) => !AllBaseDevice.Contains(Item.Folder.Path)).ToList();
                 List<HardDeviceInfo> TwoStepDeviceList = OneStepDeviceList.Where((RemoveItem) => PortableDevice.All((Item) => Item.Name != RemoveItem.Folder.Name)).ToList();
 
-                foreach (HardDeviceInfo Device in TwoStepDeviceList)
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async() =>
                 {
-                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    foreach (HardDeviceInfo Device in TwoStepDeviceList)
                     {
                         foreach (TabViewItem Tab in TabViewControl.TabItems.Select((Obj) => Obj as TabViewItem).Where((Tab) => Tab.Content is Frame frame && CommonAccessCollection.FrameFileControlDic.ContainsKey(frame) && Path.GetPathRoot(CommonAccessCollection.FrameFileControlDic[frame].CurrentFolder.Path) == Device.Folder.Path).ToArray())
                         {
-                            CleanUpAndRemoveTabItem(Tab);
+                            await CleanUpAndRemoveTabItem(Tab).ConfigureAwait(true);
                         }
 
                         CommonAccessCollection.HardDeviceList.Remove(Device);
-                    });
-                }
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -710,12 +735,7 @@ namespace RX_Explorer
 
         private async void TabViewControl_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
         {
-            CleanUpAndRemoveTabItem(args.Tab);
-
-            if (sender.TabItems.Count == 0)
-            {
-                await ApplicationView.GetForCurrentView().TryConsolidateAsync();
-            }
+            await CleanUpAndRemoveTabItem(args.Tab).ConfigureAwait(true);
         }
 
         private void TabViewControl_AddTabButtonClick(TabView sender, object args)
@@ -745,10 +765,12 @@ namespace RX_Explorer
                     TabViewItem Item = new TabViewItem
                     {
                         IconSource = new SymbolIconSource { Symbol = Symbol.Document },
-                        AllowDrop = true
+                        AllowDrop = true,
+                        IsDoubleTapEnabled = true
                     };
                     Item.DragEnter += Item_DragEnter;
                     Item.PointerPressed += Item_PointerPressed;
+                    Item.DoubleTapped += Item_DoubleTapped;
 
                     if (StorageFolderForNewTab != null)
                     {
@@ -783,23 +805,26 @@ namespace RX_Explorer
             }
         }
 
-        public async void Item_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private async void Item_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        {
+            if (sender is TabViewItem Tab)
+            {
+                await CleanUpAndRemoveTabItem(Tab).ConfigureAwait(false);
+            }
+        }
+
+        private async void Item_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             if (e.GetCurrentPoint(null).Properties.IsMiddleButtonPressed)
             {
                 if (sender is TabViewItem Tab)
                 {
-                    CleanUpAndRemoveTabItem(Tab);
-
-                    if (TabViewControl.TabItems.Count == 0)
-                    {
-                        await ApplicationView.GetForCurrentView().TryConsolidateAsync();
-                    }
+                    await CleanUpAndRemoveTabItem(Tab).ConfigureAwait(false);
                 }
             }
         }
 
-        public async void Item_DragEnter(object sender, DragEventArgs e)
+        private async void Item_DragEnter(object sender, DragEventArgs e)
         {
             DragOperationDeferral Deferral = e.GetDeferral();
 
@@ -897,12 +922,7 @@ namespace RX_Explorer
         {
             if (args.DropResult == DataPackageOperation.Link)
             {
-                CleanUpAndRemoveTabItem(args.Tab);
-
-                if (sender.TabItems.Count == 0)
-                {
-                    await ApplicationView.GetForCurrentView().TryConsolidateAsync();
-                }
+                await CleanUpAndRemoveTabItem(args.Tab).ConfigureAwait(false);
             }
         }
 
@@ -925,7 +945,7 @@ namespace RX_Explorer
                     }
                 }
 
-                CleanUpAndRemoveTabItem(args.Tab);
+                await CleanUpAndRemoveTabItem(args.Tab).ConfigureAwait(false);
             }
         }
 
@@ -1032,8 +1052,13 @@ namespace RX_Explorer
             }
         }
 
-        private void CleanUpAndRemoveTabItem(TabViewItem Tab)
+        public async Task CleanUpAndRemoveTabItem(TabViewItem Tab)
         {
+            if (Tab == null)
+            {
+                throw new ArgumentNullException(nameof(Tab), "Argument could not be null");
+            }
+
             if (Tab.Content is Frame frame)
             {
                 while (frame.CanGoBack)
@@ -1054,9 +1079,15 @@ namespace RX_Explorer
 
             Tab.DragEnter -= Item_DragEnter;
             Tab.PointerPressed -= Item_PointerPressed;
+            Tab.DoubleTapped -= Item_DoubleTapped;
             Tab.Content = null;
 
             TabViewControl.TabItems.Remove(Tab);
+
+            if (TabViewControl.TabItems.Count == 0)
+            {
+                await ApplicationView.GetForCurrentView().TryConsolidateAsync();
+            }
         }
     }
 }

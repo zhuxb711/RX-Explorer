@@ -34,6 +34,19 @@
                               Click="Property_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
+        <muxc:CommandBarFlyout x:Name="MixedFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="Import"
+                              Label="导出"
+                              x:Uid="SecureAreaExportButton"
+                              Click="ExportFile_Click" />
+                <AppBarButton Icon="Delete"
+                              Label="删除"
+                              x:Uid="SecureAreaDeleteButton"
+                              Click="DeleteFile_Click" />
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
         <muxc:CommandBarFlyout x:Name="EmptyFlyout"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
@@ -90,10 +103,9 @@
                           Click="Setting_Click" />
         </CommandBar>
         <GridView IsRightTapEnabled="True"
-                  IsItemClickEnabled="False"
                   Grid.Row="1"
                   AllowDrop="True"
-                  Visibility="Collapsed"
+                  SelectionMode="Extended"
                   Drop="Grid_Drop"
                   IsHoldingEnabled="True"
                   Holding="SecureGridView_Holding"
@@ -101,8 +113,8 @@
                   Name="SecureGridView"
                   PointerPressed="SecureGridView_PointerPressed"
                   DragEnter="SecureGridView_DragEnter"
-                  SelectionChanged="SecureGridView_SelectionChanged"
-                  Padding="20"
+                  Padding="20,10,20,10"
+                  ItemsSource="{x:Bind SecureCollection}"
                   ItemContainerTransitions="{x:Bind local:AnimationController.Current.PaneLeftTransitions,Mode=OneWay}">
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="local:FileSystemStorageItemBase">
@@ -231,6 +243,13 @@
                        Margin="0,20,0,0" />
         </StackPanel>
 
+        <Canvas Grid.Row="1">
+            <Rectangle Fill="{ThemeResource SystemAccentColorDark2}"
+                       Stroke="{ThemeResource SystemAccentColorLight2}"
+                       x:Name="DrawRectangle"
+                       Opacity="0.4" />
+        </Canvas>
+        
         <control:Loading x:Name="LoadingControl"
                          IsLoading="False"
                          Grid.RowSpan="2">
@@ -241,16 +260,15 @@
             <StackPanel Padding="12"
                         Width="230">
                 <TextBlock Name="LoadingText"
-                           FontSize="16"
+                           FontSize="15"
                            TextAlignment="Center" />
                 <muxc:ProgressBar IsIndeterminate="True"
                                   Margin="0,10,0,0" />
                 <Button Content="取消"
-                        Width="100"
                         Margin="0,10,0,0"
                         x:Uid="SecureAreaImportCancelButton"
                         Name="CancelButton"
-                        HorizontalAlignment="Center"
+                        HorizontalAlignment="Stretch"
                         Click="CancelButton_Click"
                         Style="{ThemeResource ButtonRevealStyle}" />
             </StackPanel>

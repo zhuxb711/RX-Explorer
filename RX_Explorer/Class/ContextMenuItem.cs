@@ -16,9 +16,9 @@ namespace RX_Explorer.Class
 
         public byte[]? IconData { get; private set; }
 
-        public string[] BelongTo { get; private set; }
+        public string BelongTo { get; private set; }
 
-        public ContextMenuItem(string Description, string Verb, string IconData, params string[] BelongTo)
+        public ContextMenuItem(string Description, string Verb, string IconData, string BelongTo)
         {
             this.Description = Description;
             this.Verb = Verb;
@@ -26,7 +26,7 @@ namespace RX_Explorer.Class
             this.BelongTo = BelongTo;
         }
 
-        public void UpdateBelonging(params string [] BelongTo)
+        public void UpdateBelonging(string BelongTo)
         {
             this.BelongTo = BelongTo;
         }

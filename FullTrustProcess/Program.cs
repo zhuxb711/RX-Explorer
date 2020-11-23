@@ -101,7 +101,7 @@ namespace FullTrustProcess
                 {
                     case "Execute_GetContextMenuItems":
                         {
-                            IEnumerable<string> ExecutePath = JsonConvert.DeserializeObject<string[]>(Convert.ToString(args.Request.Message["ExecutePath"]));
+                            string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);
                             bool IncludeExtensionItem = Convert.ToBoolean(args.Request.Message["IncludeExtensionItem"]);
 
                             List<(string, string, string)> ContextMenuItems = ContextMenu.FetchContextMenuItems(ExecutePath, IncludeExtensionItem);
@@ -118,13 +118,13 @@ namespace FullTrustProcess
                     case "Execute_InvokeContextMenuItem":
                         {
                             string Verb = Convert.ToString(args.Request.Message["InvokeVerb"]);
-                            string[] Paths = JsonConvert.DeserializeObject<string[]>(Convert.ToString(args.Request.Message["ExecutePath"]));
+                            string Path = Convert.ToString(args.Request.Message["ExecutePath"]);
 
                             ValueSet Value = new ValueSet();
 
-                            if (!string.IsNullOrEmpty(Verb) && Paths.Length > 0)
+                            if (!string.IsNullOrWhiteSpace(Verb) && !string.IsNullOrWhiteSpace(Path))
                             {
-                                if (ContextMenu.InvokeVerb(Paths, Verb))
+                                if (ContextMenu.InvokeVerb(Path, Verb))
                                 {
                                     Value.Add("Success", string.Empty);
                                 }

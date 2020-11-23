@@ -195,7 +195,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<List<ContextMenuItem>> GetContextMenuItems(IEnumerable<string> Path, bool IncludeExtensionItem = false)
+        public async Task<List<ContextMenuItem>> GetContextMenuItems(string Path, bool IncludeExtensionItem = false)
         {
             try
             {
@@ -208,7 +208,7 @@ namespace RX_Explorer.Class
                         ValueSet Value = new ValueSet
                         {
                             {"ExecuteType", ExecuteType_GetContextMenuItems},
-                            {"ExecutePath", JsonConvert.SerializeObject(Path)},
+                            {"ExecutePath", Path},
                             {"IncludeExtensionItem", IncludeExtensionItem }
                         };
 
@@ -218,7 +218,7 @@ namespace RX_Explorer.Class
                         {
                             if (Response.Message.TryGetValue("Success", out object Result))
                             {
-                                return JsonConvert.DeserializeObject<List<(string, string, string)>>(Convert.ToString(Result)).Select((Item) => new ContextMenuItem(Item.Item1, Item.Item2, Item.Item3, Path.ToArray())).ToList();
+                                return JsonConvert.DeserializeObject<List<(string, string, string)>>(Convert.ToString(Result)).Select((Item) => new ContextMenuItem(Item.Item1, Item.Item2, Item.Item3, Path)).ToList();
                             }
                             else
                             {
@@ -260,6 +260,11 @@ namespace RX_Explorer.Class
 
         public async Task InvokeContextMenuItem(ContextMenuItem Item)
         {
+            if (Item == null)
+            {
+                throw new ArgumentNullException(nameof(Item), "Argument could not be null");
+            }
+
             try
             {
                 IsNowHasAnyActionExcuting = true;
@@ -269,8 +274,8 @@ namespace RX_Explorer.Class
                     ValueSet Value = new ValueSet
                     {
                         {"ExecuteType", ExecuteType_InvokeContextMenuItem},
-                        {"ExecutePath", JsonConvert.SerializeObject(Item?.BelongTo) },
-                        {"InvokeVerb", Item?.Verb}
+                        {"ExecutePath", Item.BelongTo },
+                        {"InvokeVerb", Item.Verb}
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
