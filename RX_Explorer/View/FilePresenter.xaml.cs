@@ -1708,7 +1708,13 @@ namespace RX_Explorer
         {
             if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
             {
-                if ((e.OriginalSource as FrameworkElement).FindParentOfType<SelectorItem>() is SelectorItem)
+                if (e.GetCurrentPoint(null).Properties.IsMiddleButtonPressed && Item.StorageType == StorageItemTypes.Folder)
+                {
+                    SelectionExtention.Disable();
+                    SelectedItem = Item;
+                    await TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(Item.Path).ConfigureAwait(false);
+                }
+                else if ((e.OriginalSource as FrameworkElement).FindParentOfType<SelectorItem>() is SelectorItem)
                 {
                     if (SelectedItems.Contains(Item))
                     {
@@ -1730,12 +1736,6 @@ namespace RX_Explorer
                             SelectionExtention.Disable();
                         }
                     }
-                }
-                else if (e.GetCurrentPoint(null).Properties.IsMiddleButtonPressed && Item.StorageType == StorageItemTypes.Folder)
-                {
-                    SelectionExtention.Disable();
-                    SelectedItem = Item;
-                    await TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(Item.Path).ConfigureAwait(false);
                 }
             }
             else

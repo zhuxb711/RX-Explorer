@@ -96,7 +96,7 @@ namespace RX_Explorer.Class
 
         private void View_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
-            if (AllowProcess)
+            if (AllowProcess && e.Pointer.PointerDeviceType == PointerDeviceType.Mouse && e.GetCurrentPoint(View).Properties.IsLeftButtonPressed)
             {
                 Point RelativeEndPoint = e.GetCurrentPoint(View).Position;
                 Point RelativeStartPoint = new Point(AbsStartPoint.X - InnerScrollView.HorizontalOffset, AbsStartPoint.Y - InnerScrollView.VerticalOffset);
