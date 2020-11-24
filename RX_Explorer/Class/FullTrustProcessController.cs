@@ -144,12 +144,13 @@ namespace RX_Explorer.Class
         {
             try
             {
-                if (!IsConnected)
+                if (Connection == null || !IsConnected)
                 {
                     if (Connection != null)
                     {
                         Connection.RequestReceived -= Connection_RequestReceived;
                         Connection.Dispose();
+                        Connection = null;
                     }
 
                     Connection = new AppServiceConnection

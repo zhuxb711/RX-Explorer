@@ -16,6 +16,34 @@ namespace RX_Explorer
 
             if (activatedArgs is ToastNotificationActivatedEventArgs ToastActivate)
             {
+                if (ToastActivate.Argument == "EnterBackgroundTips")
+                {
+                    if (AppInstance.RecommendedInstance != null)
+                    {
+                        AppInstance.RecommendedInstance.RedirectActivationTo();
+                    }
+                    else if (!string.IsNullOrWhiteSpace(AppInstanceIdContainer.LastActiveId))
+                    {
+                        do
+                        {
+                            if (AppInstance.GetInstances().Any((Ins) => Ins.Key == AppInstanceIdContainer.LastActiveId))
+                            {
+                                if (AppInstance.FindOrRegisterInstanceForKey(AppInstanceIdContainer.LastActiveId) is AppInstance TargetInstance)
+                                {
+                                    TargetInstance.RedirectActivationTo();
+                                }
+
+                                break;
+                            }
+                            else
+                            {
+                                AppInstanceIdContainer.UngisterId(AppInstanceIdContainer.LastActiveId);
+                            }
+                        }
+                        while (!string.IsNullOrEmpty(AppInstanceIdContainer.LastActiveId));
+                    }
+                }
+
                 return;
             }
 
