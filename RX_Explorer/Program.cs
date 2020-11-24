@@ -14,7 +14,7 @@ namespace RX_Explorer
         {
             IActivatedEventArgs activatedArgs = AppInstance.GetActivatedEventArgs();
 
-            if (activatedArgs is ToastNotificationActivatedEventArgs)
+            if (activatedArgs is ToastNotificationActivatedEventArgs ToastActivate)
             {
                 return;
             }

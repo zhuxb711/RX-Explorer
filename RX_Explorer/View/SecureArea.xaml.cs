@@ -16,6 +16,7 @@ using Windows.Storage.Pickers;
 using Windows.Storage.Search;
 using Windows.System;
 using Windows.UI.Core;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
@@ -51,6 +52,7 @@ namespace RX_Explorer
 
         private void SecureArea_Unloaded(object sender, RoutedEventArgs e)
         {
+            ApplicationView.GetForCurrentView().IsScreenCaptureEnabled = true;
             CoreWindow.GetForCurrentThread().KeyDown -= SecureArea_KeyDown;
             SelectionExtention?.Dispose();
             EmptyTips.Visibility = Visibility.Collapsed;
@@ -61,6 +63,8 @@ namespace RX_Explorer
         {
             try
             {
+                ApplicationView.GetForCurrentView().IsScreenCaptureEnabled = false;
+
                 if (ApplicationData.Current.LocalSettings.Values.ContainsKey("IsFirstEnterSecureArea"))
                 {
                     UnlockPassword = CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword");
@@ -271,6 +275,7 @@ namespace RX_Explorer
                 }
 
                 SelectionExtention = new ListViewBaseSelectionExtention(SecureGridView, DrawRectangle);
+                
                 CoreWindow.GetForCurrentThread().KeyDown += SecureArea_KeyDown;
 
                 await StartLoadFile().ConfigureAwait(false);

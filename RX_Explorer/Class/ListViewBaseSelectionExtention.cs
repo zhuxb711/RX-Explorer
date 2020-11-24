@@ -267,5 +267,10 @@ namespace RX_Explorer.Class
                 InnerScrollView = null;
             }
         }
+
+        ~ListViewBaseSelectionExtention()
+        {
+            Dispose();
+        }
     }
 }

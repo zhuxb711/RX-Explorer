@@ -245,6 +245,12 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+        <Canvas>
+            <Rectangle Fill="{ThemeResource SystemAccentColorDark2}"
+                       Stroke="{ThemeResource SystemAccentColorLight2}"
+                       x:Name="DrawRectangle"
+                       Opacity="0.4" />
+        </Canvas>
         <TextBlock Name="HasFile"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"

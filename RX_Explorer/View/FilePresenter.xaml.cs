@@ -22,6 +22,7 @@ using Windows.Devices.Input;
 using Windows.Devices.Radios;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
+using Windows.Storage.Search;
 using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI;
@@ -1722,7 +1723,7 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        if(e.KeyModifiers == VirtualKeyModifiers.None)
+                        if (e.KeyModifiers == VirtualKeyModifiers.None)
                         {
                             SelectedItem = Item;
                         }
@@ -2116,7 +2117,7 @@ namespace RX_Explorer
 
                     if (ZipTarget is StorageFile ZipFile)
                     {
-                        using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(true))
+                        using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(false))
                         {
                             ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
                             {
@@ -2127,14 +2128,17 @@ namespace RX_Explorer
 
                             OutputStream.PutNextEntry(NewEntry);
 
-                            await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
+                            await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
                         }
 
-                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(100, null));
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                        {
+                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(100, null));
+                        });
                     }
                     else if (ZipTarget is StorageFolder ZipFolder)
                     {
-                        await ZipFolderCore(ZipFolder, OutputStream, ZipFolder.Name, ProgressHandler).ConfigureAwait(true);
+                        await ZipFolderCore(ZipFolder, OutputStream, ZipFolder.Name, ProgressHandler).ConfigureAwait(false);
                     }
 
                     await OutputStream.FlushAsync().ConfigureAwait(true);
@@ -2142,28 +2146,35 @@ namespace RX_Explorer
             }
             catch (UnauthorizedAccessException)
             {
-                QueueContentDialog dialog = new QueueContentDialog
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                 {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_UnauthorizedCompression_Content"),
-                    PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                };
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnauthorizedCompression_Content"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                    };
 
-                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                {
-                    _ = await Launcher.LaunchFolderAsync(Container.CurrentFolder);
-                }
+                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    {
+                        _ = await Launcher.LaunchFolderAsync(Container.CurrentFolder);
+                    }
+                });
             }
             catch (Exception e)
             {
-                QueueContentDialog dialog = new QueueContentDialog
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                 {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_CompressionError_Content") + e.Message,
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_CompressionError_Content") + e.Message,
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                });
             }
         }
 
@@ -2211,9 +2222,9 @@ namespace RX_Explorer
 
                         foreach (FileSystemStorageItemBase StorageItem in ZipItemGroup)
                         {
-                            if (await StorageItem.GetStorageItem().ConfigureAwait(true) is StorageFile ZipFile)
+                            if (await StorageItem.GetStorageItem().ConfigureAwait(false) is StorageFile ZipFile)
                             {
-                                using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(true))
+                                using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(false))
                                 {
                                     ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
                                     {
@@ -2224,16 +2235,20 @@ namespace RX_Explorer
 
                                     OutputStream.PutNextEntry(NewEntry);
 
-                                    await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
+                                    await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
                                 }
 
                                 if (TotalSize > 0)
                                 {
                                     CurrentPosition += Convert.ToInt64(StorageItem.SizeRaw);
-                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
+
+                                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                                    {
+                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
+                                    });
                                 }
                             }
-                            else if (await StorageItem.GetStorageItem().ConfigureAwait(true) is StorageFolder ZipFolder)
+                            else if (await StorageItem.GetStorageItem().ConfigureAwait(false) is StorageFolder ZipFolder)
                             {
                                 long InnerFolderSixe = Convert.ToInt64(WIN_Native_API.CalculateSize(ZipFolder.Path));
 
@@ -2243,52 +2258,69 @@ namespace RX_Explorer
                                     {
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * InnerFolderSixe)) * 100d / TotalSize)), null));
                                     }
-                                }).ConfigureAwait(true);
+                                }).ConfigureAwait(false);
 
                                 if (TotalSize > 0)
                                 {
                                     CurrentPosition += InnerFolderSixe;
-                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
+
+                                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                                    {
+                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
+                                    });
                                 }
                             }
                         }
 
-                        await OutputStream.FlushAsync().ConfigureAwait(true);
+                        await OutputStream.FlushAsync().ConfigureAwait(false);
                     }
                     catch (Exception e)
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async() =>
                         {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_CompressionError_Content") + e.Message,
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_CompressionError_Content") + e.Message,
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            _ = await dialog.ShowAsync().ConfigureAwait(true);
+                        });
                     }
                 }
             }
             catch (UnauthorizedAccessException)
             {
-                QueueContentDialog dialog = new QueueContentDialog
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                 {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_UnauthorizedCompression_Content"),
-                    PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                };
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnauthorizedCompression_Content"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                    };
 
-                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                {
-                    _ = await Launcher.LaunchFolderAsync(Container.CurrentFolder);
-                }
+                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    {
+                        _ = await Launcher.LaunchFolderAsync(Container.CurrentFolder);
+                    }
+                });
             }
         }
 
         private async Task ZipFolderCore(StorageFolder Folder, ZipOutputStream OutputStream, string BaseFolderName, ProgressChangedEventHandler ProgressHandler = null)
         {
-            IReadOnlyList<IStorageItem> ItemsCollection = await Folder.GetItemsAsync();
+            StorageItemQueryResult Query = Folder.CreateItemQueryWithOptions(new QueryOptions
+            {
+                FolderDepth = FolderDepth.Shallow,
+                IndexerOption = IndexerOption.UseIndexerWhenAvailable
+            });
 
-            if (ItemsCollection.Count == 0)
+            uint ItemsCount = await Query.GetItemCountAsync();
+
+            if (ItemsCount == 0)
             {
                 if (!string.IsNullOrEmpty(BaseFolderName))
                 {
@@ -2303,48 +2335,59 @@ namespace RX_Explorer
 
                 long CurrentPosition = 0;
 
-                foreach (IStorageItem Item in ItemsCollection)
+                for (uint CurrentIndex = 0; CurrentIndex < ItemsCount; CurrentIndex += 50)
                 {
-                    if (Item is StorageFolder InnerFolder)
+                    foreach (IStorageItem Item in await Query.GetItemsAsync(CurrentIndex, 50))
                     {
-                        long InnerFolderSixe = Convert.ToInt64(WIN_Native_API.CalculateSize(InnerFolder.Path));
-
-                        await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{InnerFolder.Name}", ProgressHandler: (s, e) =>
+                        if (Item is StorageFolder InnerFolder)
                         {
+                            long InnerFolderSixe = Convert.ToInt64(WIN_Native_API.CalculateSize(InnerFolder.Path));
+
+                            await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{InnerFolder.Name}", ProgressHandler: (s, e) =>
+                            {
+                                if (TotalSize > 0)
+                                {
+                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * InnerFolderSixe)) * 100d / TotalSize)), null));
+                                }
+                            }).ConfigureAwait(false);
+
                             if (TotalSize > 0)
                             {
-                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * InnerFolderSixe)) * 100d / TotalSize)), null));
+                                CurrentPosition += InnerFolderSixe;
+
+                                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                                {
+                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
+                                });
                             }
-                        }).ConfigureAwait(true);
-
-                        if (TotalSize > 0)
-                        {
-                            CurrentPosition += InnerFolderSixe;
-                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
                         }
-                    }
-                    else if (Item is StorageFile InnerFile)
-                    {
-                        using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(true))
+                        else if (Item is StorageFile InnerFile)
                         {
-                            ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/{InnerFile.Name}")
+                            using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(false))
                             {
-                                DateTime = DateTime.Now,
-                                CompressionMethod = CompressionMethod.Deflated,
-                                Size = FileStream.Length
-                            };
+                                ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/{InnerFile.Name}")
+                                {
+                                    DateTime = DateTime.Now,
+                                    CompressionMethod = CompressionMethod.Deflated,
+                                    Size = FileStream.Length
+                                };
 
-                            OutputStream.PutNextEntry(NewEntry);
+                                OutputStream.PutNextEntry(NewEntry);
 
-                            await FileStream.CopyToAsync(OutputStream).ConfigureAwait(true);
+                                await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
 
-                            OutputStream.CloseEntry();
-                        }
+                                OutputStream.CloseEntry();
+                            }
 
-                        if (TotalSize > 0)
-                        {
-                            CurrentPosition += Convert.ToInt64(await InnerFile.GetSizeRawDataAsync().ConfigureAwait(true));
-                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
+                            if (TotalSize > 0)
+                            {
+                                CurrentPosition += Convert.ToInt64(await InnerFile.GetSizeRawDataAsync().ConfigureAwait(false));
+
+                                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                                {
+                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
+                                });
+                            }
                         }
                     }
                 }

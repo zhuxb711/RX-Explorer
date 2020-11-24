@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices.ComTypes;
 using Vanara.Extensions;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
@@ -23,8 +22,8 @@ namespace FullTrustProcess
                     {
                         Dictionary<string, string> PropertyDic = new Dictionary<string, string>
                         {
-                            { "OriginPath", Item.IsLink ? $"{Item.Name}.lnk" : Item.Name },
-                            { "ActualPath", Item.FileSystemPath }
+                            { "ActualPath", Item.FileSystemPath },
+                            { "OriginPath", Item.Name + Item.FileInfo.Extension }
                         };
 
                         if (Item.Properties.TryGetValue(Ole32.PROPERTYKEY.System.Recycle.DateDeleted, out object DeleteFileTime))
@@ -56,7 +55,8 @@ namespace FullTrustProcess
         {
             try
             {
-                RecycleBin.Empty(noSound: false);
+                RecycleBin.Empty();
+
                 return true;
             }
             catch
@@ -83,7 +83,12 @@ namespace FullTrustProcess
                         ShellFileOperations.Move(SourceItem, DestItem, null, ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.RenameOnCollision);
                     }
 
-                    File.Delete(System.IO.Path.GetFileName(Path).Replace("$R", "$I"));
+                    string ExtraInfoPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), System.IO.Path.GetFileName(Path).Replace("$R", "$I"));
+
+                    if (File.Exists(ExtraInfoPath))
+                    {
+                        File.Delete(ExtraInfoPath);
+                    }
                 }
 
                 return true;
@@ -98,9 +103,23 @@ namespace FullTrustProcess
         {
             try
             {
-                File.Delete(Path);
-                File.Delete(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), System.IO.Path.GetFileName(Path).Replace("$R", "$I")));
-                return true;
+                if (File.Exists(Path))
+                {
+                    File.Delete(Path);
+
+                    string ExtraInfoPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), System.IO.Path.GetFileName(Path).Replace("$R", "$I"));
+
+                    if (File.Exists(ExtraInfoPath))
+                    {
+                        File.Delete(ExtraInfoPath);
+                    }
+
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
             catch
             {

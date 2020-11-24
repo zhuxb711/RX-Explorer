@@ -15,28 +15,22 @@ namespace RX_Explorer.Class
             }
         }
 
-        public RecycleStorageItem(FileSystemStorageItemBase Item, string OriginPath, DateTimeOffset CreateTime)
+        public RecycleStorageItem(string ActualPath, string OriginPath, DateTimeOffset CreateTime)
         {
-            if (Item == null)
-            {
-                throw new ArgumentNullException(nameof(Item), "Argument could not be null");
-            }
-
             this.OriginPath = OriginPath;
             ModifiedTimeRaw = CreateTime.ToLocalTime();
-            StorageType = Item.StorageType;
-            InternalPathString = Item.Path;
-            Thumbnail = Item.Thumbnail;
 
-            if (StorageType != StorageItemTypes.Folder)
+            if (string.IsNullOrEmpty(System.IO.Path.GetExtension(OriginPath)))
             {
-                SizeRaw = Item.SizeRaw;
+                StorageType = StorageItemTypes.Folder;
             }
-        }
+            else
+            {
+                StorageType = StorageItemTypes.File;
+                SizeRaw = WIN_Native_API.CalculateSize(ActualPath);
+            }
 
-        public RecycleStorageItem(WIN_Native_API.WIN32_FIND_DATA Data, StorageItemTypes StorageType, string Path, DateTimeOffset ModifiedTime) : base(Data, StorageType, Path, ModifiedTime)
-        {
-
+            InternalPathString = ActualPath;
         }
     }
 }

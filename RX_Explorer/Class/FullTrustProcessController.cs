@@ -1048,8 +1048,7 @@ namespace RX_Explorer.Class
 
                             foreach (Dictionary<string, string> PropertyDic in JsonList)
                             {
-                                FileSystemStorageItemBase Item = WIN_Native_API.GetStorageItems(PropertyDic["ActualPath"]).FirstOrDefault();
-                                RecycleItems.Add(new RecycleStorageItem(Item, PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
+                                RecycleItems.Add(new RecycleStorageItem(PropertyDic["ActualPath"], PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
                             }
 
                             return RecycleItems;

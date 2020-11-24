@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
@@ -12,7 +11,7 @@ namespace FullTrustProcess
 {
     public static class ContextMenu
     {
-        private static ShellContextMenu Context;
+        private static Shell32.IContextMenu Context;
 
         private const int BufferSize = 512;
 
@@ -26,11 +25,18 @@ namespace FullTrustProcess
                 {
                     Item = ShellItem.Open(Path);
 
-                    Context = new ShellContextMenu(Item);
+                    /*ReleaseComObject will lead to crash after several times*/
+                    //if (Context != null)
+                    //{
+                    //    Marshal.ReleaseComObject(Context);
+                    //    Context = null;
+                    //}
+
+                    Context = Item.GetHandler<Shell32.IContextMenu>(Shell32.BHID.BHID_SFUIObject);
 
                     using (User32.SafeHMENU NewMenu = User32.CreatePopupMenu())
                     {
-                        Context.ComInterface.QueryContextMenu(NewMenu, 0, 0, ushort.MaxValue, FetchExtensionMenu ? (Shell32.CMF.CMF_NORMAL | Shell32.CMF.CMF_EXTENDEDVERBS) : Shell32.CMF.CMF_NORMAL);
+                        Context.QueryContextMenu(NewMenu, 0, 0, ushort.MaxValue, FetchExtensionMenu ? (Shell32.CMF.CMF_NORMAL | Shell32.CMF.CMF_EXTENDEDVERBS) : Shell32.CMF.CMF_NORMAL);
 
                         int MaxCount = User32.GetMenuItemCount(NewMenu);
 
@@ -52,13 +58,13 @@ namespace FullTrustProcess
 
                                 if (User32.GetMenuItemInfo(NewMenu, i, true, ref Info))
                                 {
-                                    if (Info.fType == User32.MenuItemType.MFT_STRING && Info.fState == User32.MenuItemState.MFS_ENABLED)
+                                    if (Info.fType.HasFlag(User32.MenuItemType.MFT_STRING) && Info.fState.HasFlag(User32.MenuItemState.MFS_ENABLED))
                                     {
                                         IntPtr VerbPtr = Marshal.AllocHGlobal(BufferSize);
 
                                         try
                                         {
-                                            Context.ComInterface.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VERBW, IntPtr.Zero, VerbPtr, Convert.ToUInt32(BufferSize - 1));
+                                            Context.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VERBW, IntPtr.Zero, VerbPtr, Convert.ToUInt32(BufferSize - 1));
 
                                             string Verb = Marshal.PtrToStringUni(VerbPtr);
 
@@ -86,7 +92,7 @@ namespace FullTrustProcess
 
                                                         try
                                                         {
-                                                            Context.ComInterface.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_HELPTEXTW, IntPtr.Zero, HelpTextPtr, Convert.ToUInt32(BufferSize - 1));
+                                                            Context.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_HELPTEXTW, IntPtr.Zero, HelpTextPtr, Convert.ToUInt32(BufferSize - 1));
 
                                                             string HelpText = Marshal.PtrToStringUni(HelpTextPtr);
 
@@ -158,7 +164,15 @@ namespace FullTrustProcess
             {
                 if (File.Exists(Path) || Directory.Exists(Path))
                 {
-                    Context?.InvokeVerb(Verb);
+                    Shell32.CMINVOKECOMMANDINFOEX InvokeCommand = new Shell32.CMINVOKECOMMANDINFOEX
+                    {
+                        lpVerb = new SafeResourceId(Verb, CharSet.Ansi),
+                        nShow = ShowWindowCommand.SW_SHOWNORMAL,
+                        cbSize = Convert.ToUInt32(Marshal.SizeOf(typeof(Shell32.CMINVOKECOMMANDINFOEX)))
+                    };
+
+                    Context?.InvokeCommand(InvokeCommand);
+
                     return true;
                 }
                 else

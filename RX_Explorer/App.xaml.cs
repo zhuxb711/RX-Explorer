@@ -200,12 +200,12 @@ namespace RX_Explorer
 
                     if (Arguments.Length > 1 && !Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase))
                     {
-                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, $"PathActivate||{Path}");
+                        ExtendedSplash extendedSplash = new ExtendedSplash(CmdArgs.SplashScreen, $"PathActivate||{Path}");
                         Window.Current.Content = extendedSplash;
                     }
                     else
                     {
-                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
+                        ExtendedSplash extendedSplash = new ExtendedSplash(CmdArgs.SplashScreen);
                         Window.Current.Content = extendedSplash;
                     }
                 }
@@ -214,16 +214,16 @@ namespace RX_Explorer
             {
                 if (!string.IsNullOrWhiteSpace(ProtocalArgs.Uri.LocalPath))
                 {
-                    ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, $"PathActivate||{ProtocalArgs.Uri.LocalPath}");
+                    ExtendedSplash extendedSplash = new ExtendedSplash(ProtocalArgs.SplashScreen, $"PathActivate||{ProtocalArgs.Uri.LocalPath}");
                     Window.Current.Content = extendedSplash;
                 }
                 else
                 {
-                    ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
+                    ExtendedSplash extendedSplash = new ExtendedSplash(ProtocalArgs.SplashScreen);
                     Window.Current.Content = extendedSplash;
                 }
             }
-            else
+            else if(args is not ToastNotificationActivatedEventArgs)
             {
                 ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
                 Window.Current.Content = extendedSplash;

@@ -27,24 +27,27 @@ namespace RX_Explorer.View
             {SortTarget.OriginPath,SortDirection.Ascending }
         };
 
-        private ObservableCollection<RecycleStorageItem> FileCollection = new ObservableCollection<RecycleStorageItem>();
+        private readonly ObservableCollection<RecycleStorageItem> FileCollection = new ObservableCollection<RecycleStorageItem>();
+
+        private ListViewBaseSelectionExtention SelectionExtention;
 
         public RecycleBin()
         {
             InitializeComponent();
-            FileCollection.CollectionChanged += FileCollection_CollectionChanged;
             Loaded += RecycleBin_Loaded;
             Unloaded += RecycleBin_Unloaded;
         }
 
         private void RecycleBin_Unloaded(object sender, RoutedEventArgs e)
         {
+            SelectionExtention?.Dispose();
             CoreWindow.GetForCurrentThread().KeyDown -= RecycleBin_KeyDown;
         }
 
         private void RecycleBin_Loaded(object sender, RoutedEventArgs e)
         {
             CoreWindow.GetForCurrentThread().KeyDown += RecycleBin_KeyDown;
+            SelectionExtention = new ListViewBaseSelectionExtention(ListViewControl, DrawRectangle);
         }
 
         private void RecycleBin_KeyDown(CoreWindow sender, KeyEventArgs args)
@@ -58,26 +61,12 @@ namespace RX_Explorer.View
                         ListViewControl.SelectAll();
                         break;
                     }
-                case VirtualKey.Delete when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                case VirtualKey.Delete:
                 case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                     {
                         PermanentDelete_Click(null, null);
                         break;
                     }
-            }
-        }
-
-        private void FileCollection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            if (FileCollection.Count == 0)
-            {
-                HasFile.Visibility = Visibility.Visible;
-                ClearRecycleBin.IsEnabled = false;
-            }
-            else
-            {
-                HasFile.Visibility = Visibility.Collapsed;
-                ClearRecycleBin.IsEnabled = true;
             }
         }
 
@@ -91,6 +80,12 @@ namespace RX_Explorer.View
             if (FileCollection.Count == 0)
             {
                 HasFile.Visibility = Visibility.Visible;
+                ClearRecycleBin.IsEnabled = false;
+            }
+            else
+            {
+                HasFile.Visibility = Visibility.Collapsed;
+                ClearRecycleBin.IsEnabled = true;
             }
         }
 
@@ -105,6 +100,8 @@ namespace RX_Explorer.View
             {
                 ListViewControl.SelectedItem = null;
             }
+
+            SelectionExtention.Enable();
         }
 
         private async void ListViewControl_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
@@ -343,7 +340,6 @@ namespace RX_Explorer.View
                 {
                     FileCollection.Add(Item);
                 }
-
             }
             else
             {
@@ -455,6 +451,12 @@ namespace RX_Explorer.View
                 }
 
                 await ActivateLoading(false).ConfigureAwait(true);
+
+                if (FileCollection.Count == 0)
+                {
+                    HasFile.Visibility = Visibility.Visible;
+                    ClearRecycleBin.IsEnabled = false;
+                }
             }
         }
 
@@ -477,6 +479,9 @@ namespace RX_Explorer.View
                     await ActivateLoading(false).ConfigureAwait(true);
 
                     FileCollection.Clear();
+
+                    HasFile.Visibility = Visibility.Visible;
+                    ClearRecycleBin.IsEnabled = false;
                 }
                 else
                 {
@@ -526,6 +531,12 @@ namespace RX_Explorer.View
                 }
 
                 await ActivateLoading(false).ConfigureAwait(true);
+
+                if (FileCollection.Count == 0)
+                {
+                    HasFile.Visibility = Visibility.Visible;
+                    ClearRecycleBin.IsEnabled = false;
+                }
             }
         }
 
@@ -557,6 +568,12 @@ namespace RX_Explorer.View
             if (FileCollection.Count == 0)
             {
                 HasFile.Visibility = Visibility.Visible;
+                ClearRecycleBin.IsEnabled = false;
+            }
+            else
+            {
+                HasFile.Visibility = Visibility.Collapsed;
+                ClearRecycleBin.IsEnabled = true;
             }
         }
 
