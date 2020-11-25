@@ -6,6 +6,7 @@ using System.Runtime.InteropServices.ComTypes;
 using Vanara.Extensions;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
+using Windows.Storage;
 
 namespace FullTrustProcess
 {
@@ -23,9 +24,27 @@ namespace FullTrustProcess
                     {
                         Dictionary<string, string> PropertyDic = new Dictionary<string, string>
                         {
-                            { "ActualPath", Item.FileSystemPath },
-                            { "OriginPath", Item.Name + Item.FileInfo.Extension }
+                            { "ActualPath", Item.FileSystemPath }
                         };
+
+                        if (Path.HasExtension(Item.FileSystemPath))
+                        {
+                            PropertyDic.Add("StorageType", Enum.GetName(typeof(StorageItemTypes), StorageItemTypes.File));
+
+                            if (Path.HasExtension(Item.Name))
+                            {
+                                PropertyDic.Add("OriginPath", Item.Name);
+                            }
+                            else
+                            {
+                                PropertyDic.Add("OriginPath", Item.Name + Item.FileInfo.Extension);
+                            }
+                        }
+                        else
+                        {
+                            PropertyDic.Add("OriginPath", Item.Name);
+                            PropertyDic.Add("StorageType", Enum.GetName(typeof(StorageItemTypes), StorageItemTypes.Folder));
+                        }
 
                         if (Item.Properties.TryGetValue(Ole32.PROPERTYKEY.System.Recycle.DateDeleted, out object DeleteFileTime))
                         {
@@ -57,7 +76,6 @@ namespace FullTrustProcess
             try
             {
                 RecycleBin.Empty();
-
                 return true;
             }
             catch

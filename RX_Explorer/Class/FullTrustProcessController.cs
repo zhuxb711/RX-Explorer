@@ -74,7 +74,7 @@ namespace RX_Explorer.Class
 
         private const string ExecuteType_InvokeContextMenuItem = "Execute_InvokeContextMenuItem";
 
-        private volatile static FullTrustProcessController Instance;
+        private static volatile FullTrustProcessController Instance;
 
         private static readonly object locker = new object();
 
@@ -108,10 +108,7 @@ namespace RX_Explorer.Class
         private bool runningMode;
         public bool RuningInAdministratorMode
         {
-            get
-            {
-                return runningMode;
-            }
+            get => runningMode;
             private set
             {
                 if (value != runningMode)
@@ -126,7 +123,7 @@ namespace RX_Explorer.Class
 
         private async void Connection_RequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
         {
-            var Deferral = args.GetDeferral();
+            AppServiceDeferral Deferral = args.GetDeferral();
 
             switch (args.Request.Message["ExecuteType"])
             {
@@ -1049,7 +1046,7 @@ namespace RX_Explorer.Class
 
                             foreach (Dictionary<string, string> PropertyDic in JsonList)
                             {
-                                RecycleItems.Add(new RecycleStorageItem(PropertyDic["ActualPath"], PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
+                                RecycleItems.Add(new RecycleStorageItem(PropertyDic["ActualPath"], PropertyDic["OriginPath"], Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]), DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
                             }
 
                             return RecycleItems;

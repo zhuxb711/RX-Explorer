@@ -2214,7 +2214,7 @@ namespace RX_Explorer
                             }
                             else
                             {
-                                TotalSize += Convert.ToInt64(WIN_Native_API.CalculateSize(StorageItem.Path));
+                                TotalSize += Convert.ToInt64(WIN_Native_API.CalculateFolderSize(StorageItem.Path));
                             }
                         }
 
@@ -2250,7 +2250,7 @@ namespace RX_Explorer
                             }
                             else if (await StorageItem.GetStorageItem().ConfigureAwait(false) is StorageFolder ZipFolder)
                             {
-                                long InnerFolderSixe = Convert.ToInt64(WIN_Native_API.CalculateSize(ZipFolder.Path));
+                                long InnerFolderSixe = Convert.ToInt64(WIN_Native_API.CalculateFolderSize(ZipFolder.Path));
 
                                 await ZipFolderCore(ZipFolder, OutputStream, ZipFolder.Name, (s, e) =>
                                 {
@@ -2331,7 +2331,7 @@ namespace RX_Explorer
             }
             else
             {
-                long TotalSize = Convert.ToInt64(WIN_Native_API.CalculateSize(Folder.Path));
+                long TotalSize = Convert.ToInt64(WIN_Native_API.CalculateFolderSize(Folder.Path));
 
                 long CurrentPosition = 0;
 
@@ -2341,7 +2341,7 @@ namespace RX_Explorer
                     {
                         if (Item is StorageFolder InnerFolder)
                         {
-                            long InnerFolderSixe = Convert.ToInt64(WIN_Native_API.CalculateSize(InnerFolder.Path));
+                            long InnerFolderSixe = Convert.ToInt64(WIN_Native_API.CalculateFolderSize(InnerFolder.Path));
 
                             await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{InnerFolder.Name}", ProgressHandler: (s, e) =>
                             {

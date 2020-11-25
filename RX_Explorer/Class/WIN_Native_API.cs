@@ -266,8 +266,9 @@ namespace RX_Explorer.Class
 
                 return hDir;
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex);
                 return IntPtr.Zero;
             }
         }
@@ -314,8 +315,9 @@ namespace RX_Explorer.Class
                     return false;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex);
                 return false;
             }
             finally
@@ -345,8 +347,9 @@ namespace RX_Explorer.Class
                     return false;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex);
                 return false;
             }
             finally
@@ -388,8 +391,9 @@ namespace RX_Explorer.Class
                     return false;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex);
                 return false;
             }
             finally
@@ -398,14 +402,14 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static ulong CalculateSize(string Path, CancellationToken CancelToken = default)
+        public static ulong CalculateFolderSize(string FolderPath, CancellationToken CancelToken = default)
         {
-            if (string.IsNullOrWhiteSpace(Path))
+            if (string.IsNullOrWhiteSpace(FolderPath))
             {
-                throw new ArgumentException("Argument could not be empty", nameof(Path));
+                throw new ArgumentException("Argument could not be empty", nameof(FolderPath));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Path, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
 
             try
             {
@@ -419,7 +423,7 @@ namespace RX_Explorer.Class
                         {
                             if (Data.cFileName != "." && Data.cFileName != "..")
                             {
-                                TotalSize += CalculateSize(System.IO.Path.Combine(Path, Data.cFileName), CancelToken);
+                                TotalSize += CalculateFolderSize(Path.Combine(FolderPath, Data.cFileName), CancelToken);
                             }
                         }
                         else
@@ -437,8 +441,9 @@ namespace RX_Explorer.Class
                     return 0;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex);
                 return 0;
             }
             finally
@@ -447,14 +452,53 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static (uint, uint) CalculateFolderAndFileCount(string Path, CancellationToken CancelToken = default)
+        public static ulong CalculateFileSize(string FilePath)
         {
-            if (string.IsNullOrWhiteSpace(Path))
+            if (string.IsNullOrWhiteSpace(FilePath))
             {
-                throw new ArgumentException("Argument could not be empty", nameof(Path));
+                throw new ArgumentException("Argument could not be empty", nameof(FilePath));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Path, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(FilePath, FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+
+            try
+            {
+                if (Ptr.ToInt64() != -1)
+                {
+                    if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
+                    {
+                        return ((ulong)Data.nFileSizeHigh << 32) + Data.nFileSizeLow;
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+                else
+                {
+                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
+                    return 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex);
+                return 0;
+            }
+            finally
+            {
+                FindClose(Ptr);
+            }
+        }
+
+        public static (uint, uint) CalculateFolderAndFileCount(string FolderPath, CancellationToken CancelToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(FolderPath))
+            {
+                throw new ArgumentException("Argument could not be empty", nameof(FolderPath));
+            }
+
+            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
 
             try
             {
@@ -469,7 +513,7 @@ namespace RX_Explorer.Class
                         {
                             if (Data.cFileName != "." && Data.cFileName != "..")
                             {
-                                (uint SubFolderCount, uint SubFileCount) = CalculateFolderAndFileCount(System.IO.Path.Combine(Path, Data.cFileName), CancelToken);
+                                (uint SubFolderCount, uint SubFileCount) = CalculateFolderAndFileCount(Path.Combine(FolderPath, Data.cFileName), CancelToken);
                                 FolderCount += ++SubFolderCount;
                                 FileCount += SubFileCount;
                             }
@@ -489,8 +533,9 @@ namespace RX_Explorer.Class
                     return (0, 0);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex);
                 return (0, 0);
             }
             finally
@@ -592,8 +637,9 @@ namespace RX_Explorer.Class
                     return SearchResult;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex);
                 return SearchResult;
             }
             finally
@@ -676,8 +722,9 @@ namespace RX_Explorer.Class
                     return new List<FileSystemStorageItemBase>();
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex);
                 return new List<FileSystemStorageItemBase>();
             }
             finally
@@ -767,8 +814,9 @@ namespace RX_Explorer.Class
 
                 return Result;
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex);
                 return new List<FileSystemStorageItemBase>();
             }
         }
@@ -847,8 +895,9 @@ namespace RX_Explorer.Class
                     return new List<FileSystemStorageItemBase>();
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex);
                 return new List<FileSystemStorageItemBase>();
             }
             finally
@@ -901,8 +950,9 @@ namespace RX_Explorer.Class
                     return new List<string>();
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex);
                 return new List<string>();
             }
             finally

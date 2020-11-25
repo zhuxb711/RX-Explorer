@@ -1,4 +1,61 @@
 ﻿*****
+###What's new in Ver.5.7.0.0
+
+#####Feature update
+
+>#####Now supports drag and drop selection
+
+>#####Add shortcut keys
+
+>>#####Ctrl+W close tab
+
+>>#####Double click to close the tab
+
+>#####Security domain has been fully updated
+
+>>#####Added multiple selection, box selection, shortcut key selection and delete functions
+
+>>#####Improved the logic when dragging and adding files
+
+>>#####Security Area now will prevent screenshots
+
+#####UI update
+
+>#####The system right-click menu is now localized and will be changed with the change of language
+
+>#####The directory on the left will no longer be linked to other modules, and only expand to the root directory by default
+
+>#####Prevent the behavior of obtaining system right-click menu items when multiple files are selected
+
+>#####When customizing the opening program, the file types that can be selected are restricted to .exe and .lnk
+
+#####Performance improvement
+
+>#####Reduce the time required for compression and decompression and improve the interface freeze problem during compression and decompression
+
+>#####Faster when switching folders
+
+#####Bug fix
+
+>#####Updated UWP framework to reduce the probability of crash
+
+>#####Fixed the problem of invalid shortcut keys
+
+>#####Fixed the problem that resources could not be properly released during the process of right-click menu acquisition
+
+>#####Fixed the problem that the UI would not be updated after renaming in the security domain
+
+>#####Fixed the problem that the recycle bin could not display the correct icon
+
+>#####Fixed the problem that an error message might pop up when clicking the "Restore" button in the recycle bin
+
+>#####Fixed the problem that the Ctrl+Z withdrawal function failed
+
+>#####Fixed the problem that some Toast notifications could not activate RX
+
+>#####Fixed the problem that may cause a crash at startup
+
+*****
 ###What's new in Ver.5.6.5.0
 
 #####Feature update

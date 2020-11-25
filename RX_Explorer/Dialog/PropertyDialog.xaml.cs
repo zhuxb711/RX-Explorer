@@ -257,7 +257,7 @@ namespace RX_Explorer.Dialog
 
         private async Task<string> CalculateFolderSize(StorageFolder Folder, CancellationToken CancelToken = default)
         {
-            ulong TotalSize = await Task.Run(() => WIN_Native_API.CalculateSize(Folder.Path, CancelToken), CancelToken).ConfigureAwait(false);
+            ulong TotalSize = await Task.Run(() => WIN_Native_API.CalculateFolderSize(Folder.Path, CancelToken), CancelToken).ConfigureAwait(false);
 
             if (CancelToken.IsCancellationRequested)
             {

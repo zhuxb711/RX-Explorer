@@ -15,19 +15,15 @@ namespace RX_Explorer.Class
             }
         }
 
-        public RecycleStorageItem(string ActualPath, string OriginPath, DateTimeOffset CreateTime)
+        public RecycleStorageItem(string ActualPath, string OriginPath, StorageItemTypes StorageType, DateTimeOffset CreateTime)
         {
             this.OriginPath = OriginPath;
+            this.StorageType = StorageType;
             ModifiedTimeRaw = CreateTime.ToLocalTime();
 
-            if (string.IsNullOrEmpty(System.IO.Path.GetExtension(OriginPath)))
+            if (StorageType == StorageItemTypes.File)
             {
-                StorageType = StorageItemTypes.Folder;
-            }
-            else
-            {
-                StorageType = StorageItemTypes.File;
-                SizeRaw = WIN_Native_API.CalculateSize(ActualPath);
+                SizeRaw = WIN_Native_API.CalculateFileSize(ActualPath);
             }
 
             InternalPathString = ActualPath;

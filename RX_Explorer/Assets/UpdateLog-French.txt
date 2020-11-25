@@ -1,4 +1,61 @@
 ﻿*****
+###Quoi de neuf dans la version 5.7.0.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Prend désormais en charge la sélection par glisser-déposer
+
+>#####Ajouter des touches de raccourci
+
+>>#####Ctrl + W fermer l'onglet
+
+>>#####Double-cliquez pour fermer l'onglet
+
+>#####Le domaine de sécurité a été entièrement mis à jour
+
+>>#####Ajout de plusieurs fonctions de sélection, de sélection de boîte, de sélection de touches de raccourci et de suppression
+
+>>#####Amélioration de la logique lors du glissement et de l'ajout de fichiers
+
+>>#####La zone de sécurité empêchera désormais les captures d'écran
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Le menu contextuel du système est maintenant localisé et sera modifié avec le changement de langue
+
+>#####Le répertoire de gauche ne sera plus lié à d'autres modules, et ne se développera que dans le répertoire racine par défaut
+
+>#####Empêcher le comportement d'obtention des éléments du menu contextuel du système lorsque plusieurs fichiers sont sélectionnés
+
+>#####Lors de la personnalisation du programme d'ouverture, les types de fichiers qui peuvent être sélectionnés sont limités à .exe et .lnk
+
+#####Amélioration des performances
+
+>#####Réduit le temps requis pour la compression et la décompression et améliore le problème de gel de l'interface pendant la compression et la décompression
+
+>#####Plus rapide lors du changement de dossier
+
+#####Correction d'un bug
+
+>#####Mise à jour du framework UWP pour réduire la probabilité de crash
+
+>#####Correction du problème des touches de raccourci invalides
+
+>#####Correction du problème selon lequel les ressources ne pouvaient pas être correctement libérées pendant le processus d'acquisition du menu contextuel
+
+>#####Correction du problème selon lequel l'interface utilisateur ne serait pas mise à jour après le changement de nom dans le domaine de sécurité
+
+>#####Correction du problème selon lequel la corbeille ne pouvait pas afficher l'icône correcte
+
+>#####Correction du problème selon lequel un message d'erreur pouvait apparaître en cliquant sur le bouton "Restaurer" dans la corbeille
+
+>#####Correction du problème d'échec de la fonction de retrait Ctrl + Z
+
+>#####Correction du problème selon lequel certaines notifications Toast ne pouvaient pas activer RX
+
+>#####Correction du problème pouvant provoquer un crash au démarrage
+
+*****
 ###Quoi de neuf dans la version 5.6.5.0
 
 ##### Mise à jour des fonctionnalités
