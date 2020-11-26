@@ -1740,27 +1740,30 @@ namespace RX_Explorer
                 {
                     if ((Tab.Content as Frame)?.Content is FileControl Control && Control.CurrentFolder != null)
                     {
+                        Control.TreeViewGridCol.Width = TreeViewDetach.IsOn ? new GridLength(2, GridUnitType.Star) : new GridLength(0);
+
                         if (TreeViewDetach.IsOn)
                         {
+                            StorageFolder RootFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetPathRoot(Control.CurrentFolder.Path));
+
                             Control.FolderTree.RootNodes.Clear();
+
+                            bool HasAnyFolder = WIN_Native_API.CheckContainsAnyItem(RootFolder.Path, ItemFilters.Folder);
 
                             TreeViewNode RootNode = new TreeViewNode
                             {
-                                Content = new TreeViewNodeContent(Control.CurrentFolder),
-                                IsExpanded = false,
-                                HasUnrealizedChildren = (await Control.CurrentFolder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Count > 0
+                                Content = new TreeViewNodeContent(RootFolder),
+                                IsExpanded = HasAnyFolder,
+                                HasUnrealizedChildren = HasAnyFolder
                             };
 
                             Control.FolderTree.RootNodes.Add(RootNode);
 
-                            await Control.DisplayItemsInFolder(RootNode, true).ConfigureAwait(false);
+                            if (HasAnyFolder)
+                            {
+                                await Control.FillTreeNode(RootNode).ConfigureAwait(true);
+                            }
                         }
-                        else
-                        {
-                            Control.GoParentFolder.IsEnabled = Control.CurrentFolder.Path != Path.GetPathRoot(Control.CurrentFolder.Path);
-                        }
-
-                        Control.TreeViewGridCol.Width = TreeViewDetach.IsOn ? new GridLength(2, GridUnitType.Star) : new GridLength(0);
                     }
                 }
             }

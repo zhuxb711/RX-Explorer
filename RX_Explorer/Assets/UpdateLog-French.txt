@@ -1,4 +1,23 @@
 ﻿*****
+###Quoi de neuf dans la version 5.7.1.0
+
+#####Correction d'un bug
+
+>#####Correction d'un problème pouvant provoquer un plantage lors de la sélection d'un fichier puis du changement de mode de mise en page
+
+>#####Correction du problème en double-cliquant sur l'espace vide pour quitter directement la page principale
+
+>#####Correction du problème selon lequel le mode de sélection multiple ne peut pas être sélectionné et peut provoquer un crash
+
+>#####Correction du problème pouvant provoquer un crash lors de l'éjection d'un périphérique USB dans certains cas
+
+>#####Correction du problème qui empêchait le menu contextuel de s'afficher lorsqu'il y avait des tâches en cours dans d'autres onglets
+
+>#####Correction du problème pouvant provoquer un plantage lors de la saisie du dossier dans certains cas
+
+>#####Correction du problème selon lequel le répertoire de gauche ne peut pas être réactivé après la fermeture du dossier de gauche dans les paramètres
+
+*****
 ###Quoi de neuf dans la version 5.7.0.0
 
 #####Mise à jour des fonctionnalités

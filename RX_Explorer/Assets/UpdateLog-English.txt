@@ -1,4 +1,23 @@
 ﻿*****
+###What's new in Ver.5.7.1.0
+
+#####Bug fix
+
+>#####Fixed a problem that may cause a crash when selecting a file and then changing the layout mode
+
+>#####Fixed the problem that double-clicking the blank space will directly exit to the main page
+
+>#####Fixed the problem that the multi-select mode cannot be selected and may cause a crash
+
+>#####Fixed the problem that may cause a crash when ejecting a USB device in some cases
+
+>#####Fixed the problem that the right-click menu would be prevented from popping up when there are tasks in progress in other tabs
+
+>#####Fixed the problem that may cause a crash when entering the folder in some cases
+
+>#####Fixed the problem that the left directory cannot be re-enabled after closing the left folder in the settings
+
+*****
 ###What's new in Ver.5.7.0.0
 
 #####Feature update

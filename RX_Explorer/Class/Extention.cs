@@ -52,7 +52,7 @@ namespace RX_Explorer.Class
 
                 string SelectedPath;
 
-                if (ListControl.SelectedItems.Count <= 1)
+                if (ListControl.SelectedItems.Count <= 1 && !FullTrustProcessController.Current.IsNowHasAnyActionExcuting)
                 {
                     if (ListControl.SelectedItem is FileSystemStorageItemBase Selected)
                     {

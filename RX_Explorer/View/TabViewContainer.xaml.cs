@@ -333,11 +333,11 @@ namespace RX_Explorer
                 List<HardDeviceInfo> OneStepDeviceList = CommonAccessCollection.HardDeviceList.Where((Item) => !AllBaseDevice.Contains(Item.Folder.Path)).ToList();
                 List<HardDeviceInfo> TwoStepDeviceList = OneStepDeviceList.Where((RemoveItem) => PortableDevice.All((Item) => Item.Name != RemoveItem.Folder.Name)).ToList();
 
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async() =>
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                 {
                     foreach (HardDeviceInfo Device in TwoStepDeviceList)
                     {
-                        foreach (TabViewItem Tab in TabViewControl.TabItems.Select((Obj) => Obj as TabViewItem).Where((Tab) => Tab.Content is Frame frame && CommonAccessCollection.FrameFileControlDic.ContainsKey(frame) && Path.GetPathRoot(CommonAccessCollection.FrameFileControlDic[frame].CurrentFolder.Path) == Device.Folder.Path).ToArray())
+                        foreach (TabViewItem Tab in TabViewControl.TabItems.OfType<TabViewItem>().Where((Tab) => Tab.Content is Frame frame && CommonAccessCollection.FrameFileControlDic.TryGetValue(frame, out FileControl Value) && Path.GetPathRoot(Value.CurrentFolder?.Path) == Device.Folder?.Path).ToArray())
                         {
                             await CleanUpAndRemoveTabItem(Tab).ConfigureAwait(true);
                         }
@@ -934,18 +934,15 @@ namespace RX_Explorer
                 {
                     if (frame.Content is ThisPC)
                     {
+                        await CleanUpAndRemoveTabItem(args.Tab).ConfigureAwait(true);
                         await Launcher.LaunchUriAsync(new Uri($"rx-explorer:"));
                     }
-                    else
+                    else if (CommonAccessCollection.FrameFileControlDic.ContainsKey(frame))
                     {
-                        if (CommonAccessCollection.FrameFileControlDic.ContainsKey(frame))
-                        {
-                            await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(CommonAccessCollection.FrameFileControlDic[frame].CurrentFolder.Path)}"));
-                        }
+                        await CleanUpAndRemoveTabItem(args.Tab).ConfigureAwait(true);
+                        await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(CommonAccessCollection.FrameFileControlDic[frame].CurrentFolder.Path)}"));
                     }
                 }
-
-                await CleanUpAndRemoveTabItem(args.Tab).ConfigureAwait(false);
             }
         }
 
