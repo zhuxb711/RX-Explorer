@@ -2508,4 +2508,7 @@ Les noms non valides incluent
   <data name="JumpList_Group_Recent" xml:space="preserve">
     <value>Récent</value>
   </data>
+  <data name="MulSelect.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Sélection multiple</value>
+  </data>
 </root>

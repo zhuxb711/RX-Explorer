@@ -384,16 +384,6 @@
         <muxc:CommandBarFlyout x:Name="EmptyFlyout"
                                Placement="RightEdgeAlignedTop"
                                Opening="EmptyFlyout_Opening">
-            <AppBarButton Name="MulSelect"
-                          Click="MulSelect_Click"
-                          x:Uid="MulSelect"
-                          Label="多选"
-                          ToolTipService.ToolTip="{x:Bind MulSelect.Label}">
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="Segoe MDL2 Assets"
-                              Glyph="&#xE762;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
             <AppBarButton Icon="Paste"
                           x:Uid="FilePaste"
                           ToolTipService.ToolTip="{x:Bind Paste.Label}"

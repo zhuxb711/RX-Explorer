@@ -432,7 +432,7 @@ namespace RX_Explorer
         /// <summary>
         /// 关闭右键菜单
         /// </summary>
-        private void Restore()
+        private void CloseAllFlyout()
         {
             FileFlyout.Hide();
             FolderFlyout.Hide();
@@ -754,7 +754,7 @@ namespace RX_Explorer
 
         private async void Copy_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             if (SelectedItems.Count > 0)
             {
@@ -815,7 +815,7 @@ namespace RX_Explorer
 
         private async void Paste_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             try
             {
@@ -1167,7 +1167,7 @@ namespace RX_Explorer
 
         private async void Cut_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             if (SelectedItems.Count > 0)
             {
@@ -1227,7 +1227,7 @@ namespace RX_Explorer
 
         private async void Delete_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             if (SelectedItems.Count > 0)
             {
@@ -1407,7 +1407,7 @@ namespace RX_Explorer
 
         private async void Rename_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             if (SelectedItems.Count > 0)
             {
@@ -1513,7 +1513,7 @@ namespace RX_Explorer
 
         private async void BluetoothShare_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             StorageFile ShareFile = (await SelectedItem.GetStorageItem().ConfigureAwait(true)) as StorageFile;
 
@@ -1557,14 +1557,14 @@ namespace RX_Explorer
 
         private void ViewControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            foreach (FileSystemStorageItemBase RemovedItem in e.RemovedItems)
+            foreach (SelectorItem RemovedItem in e.RemovedItems.Select((Item)=> ItemPresenter.ContainerFromItem(Item)).OfType<SelectorItem>())
             {
-                (ItemPresenter.ContainerFromItem(RemovedItem) as SelectorItem).CanDrag = false;
+                RemovedItem.CanDrag = false;
             }
 
-            foreach (FileSystemStorageItemBase Selected in e.AddedItems)
+            foreach (SelectorItem SelectedItem in e.AddedItems.Select((Item) => ItemPresenter.ContainerFromItem(Item)).OfType<SelectorItem>())
             {
-                (ItemPresenter.ContainerFromItem(Selected) as SelectorItem).CanDrag = true;
+                SelectedItem.CanDrag = true;
             }
 
             ItemPresenter.UpdateLayout();
@@ -1717,25 +1717,32 @@ namespace RX_Explorer
                 }
                 else if ((e.OriginalSource as FrameworkElement).FindParentOfType<SelectorItem>() is SelectorItem)
                 {
-                    if (SelectedItems.Contains(Item))
+                    if (ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple)
                     {
-                        SelectionExtention.Disable();
-                    }
-                    else
-                    {
-                        if (e.KeyModifiers == VirtualKeyModifiers.None)
-                        {
-                            SelectedItem = Item;
-                        }
-
-                        if (e.OriginalSource is ListViewItemPresenter)
-                        {
-                            SelectionExtention.Enable();
-                        }
-                        else
+                        if (SelectedItems.Contains(Item))
                         {
                             SelectionExtention.Disable();
                         }
+                        else
+                        {
+                            if (e.KeyModifiers == VirtualKeyModifiers.None)
+                            {
+                                SelectedItem = Item;
+                            }
+
+                            if (e.OriginalSource is ListViewItemPresenter)
+                            {
+                                SelectionExtention.Enable();
+                            }
+                            else
+                            {
+                                SelectionExtention.Disable();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        SelectionExtention.Disable();
                     }
                 }
             }
@@ -1876,7 +1883,7 @@ namespace RX_Explorer
 
         private async void FileProperty_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             PropertyDialog Dialog = new PropertyDialog(SelectedItem);
             _ = await Dialog.ShowAsync().ConfigureAwait(true);
@@ -1884,7 +1891,7 @@ namespace RX_Explorer
 
         private async void Zip_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             StorageFile Item = (await SelectedItem.GetStorageItem().ConfigureAwait(true)) as StorageFile;
 
@@ -2404,7 +2411,7 @@ namespace RX_Explorer
             }
             else if (e.OriginalSource is Grid)
             {
-                if (Path.IsPathRooted(Container.CurrentFolder.Path))
+                if (Path.GetPathRoot(Container.CurrentFolder?.Path) == Container.CurrentFolder?.Path)
                 {
                     MainPage.ThisPage.NavView_BackRequested(null, null);
                 }
@@ -2417,7 +2424,7 @@ namespace RX_Explorer
 
         private async void Transcode_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile Source)
             {
@@ -2518,7 +2525,7 @@ namespace RX_Explorer
 
         private async void FolderProperty_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             StorageFolder Device = (await SelectedItem.GetStorageItem().ConfigureAwait(true)) as StorageFolder;
 
@@ -2542,7 +2549,7 @@ namespace RX_Explorer
 
         private async void WIFIShare_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile Item)
             {
@@ -2633,14 +2640,14 @@ namespace RX_Explorer
 
         private async void UseSystemFileMananger_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             _ = await Launcher.LaunchFolderAsync(Container.CurrentFolder);
         }
 
         private async void ParentProperty_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             if (!WIN_Native_API.CheckExist(Container.CurrentFolder.Path))
             {
@@ -2676,7 +2683,7 @@ namespace RX_Explorer
 
         private async void ItemOpen_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             if (SelectedItem is FileSystemStorageItemBase ReFile)
             {
@@ -2691,7 +2698,7 @@ namespace RX_Explorer
 
         private async void CreateFolder_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             if (!WIN_Native_API.CheckExist(Container.CurrentFolder.Path))
             {
@@ -2812,7 +2819,7 @@ namespace RX_Explorer
 
         private async void SystemShare_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile ShareItem)
             {
@@ -2845,7 +2852,7 @@ namespace RX_Explorer
 
         private async void Refresh_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             try
             {
@@ -3606,7 +3613,7 @@ namespace RX_Explorer
 
         private async void VideoEdit_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             if (GeneralTransformer.IsAnyTransformTaskRunning)
             {
@@ -3635,7 +3642,7 @@ namespace RX_Explorer
 
         private async void VideoMerge_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             if (GeneralTransformer.IsAnyTransformTaskRunning)
             {
@@ -3665,7 +3672,7 @@ namespace RX_Explorer
 
         private async void ChooseOtherApp_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile Item)
             {
@@ -3814,7 +3821,7 @@ namespace RX_Explorer
 
         private async void RunWithSystemAuthority_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             if (SelectedItem != null)
             {
@@ -3950,7 +3957,7 @@ namespace RX_Explorer
 
         private async void CreateFile_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             NewFileDialog Dialog = new NewFileDialog();
             if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
@@ -4014,7 +4021,7 @@ namespace RX_Explorer
 
         private async void CompressFolder_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             StorageFolder Item = (await SelectedItem.GetStorageItem().ConfigureAwait(true)) as StorageFolder;
 
@@ -5121,7 +5128,7 @@ namespace RX_Explorer
 
         private async void MixZip_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             if (SelectedItems.Any((Item) => Item is HyperlinkStorageItem))
             {
@@ -5243,7 +5250,7 @@ namespace RX_Explorer
 
         private async void TryUnlock_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             if (SelectedItem is FileSystemStorageItemBase Item && Item.StorageType == StorageItemTypes.File)
             {
@@ -5312,7 +5319,7 @@ namespace RX_Explorer
 
         private async void CalculateHash_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             try
             {
@@ -5420,7 +5427,7 @@ namespace RX_Explorer
 
         private async void OpenInTerminal_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             if (await SQLite.Current.GetTerminalProfileByName(Convert.ToString(ApplicationData.Current.LocalSettings.Values["DefaultTerminal"])).ConfigureAwait(true) is TerminalProfile Profile)
             {
@@ -5463,7 +5470,7 @@ namespace RX_Explorer
 
         private async void OpenFolderInNewTab_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             if (SelectedItem is FileSystemStorageItemBase Item && Item.StorageType == StorageItemTypes.Folder)
             {
@@ -5627,7 +5634,7 @@ namespace RX_Explorer
 
         private async void OpenFolderInNewWindow_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             if (SelectedItem is FileSystemStorageItemBase Item && Item.StorageType == StorageItemTypes.Folder)
             {
@@ -5637,14 +5644,14 @@ namespace RX_Explorer
 
         private async void Undo_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             await Ctrl_Z_Click().ConfigureAwait(false);
         }
 
         private async void RemoveHidden_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             if (await FullTrustProcessController.Current.RemoveHiddenAttribute(SelectedItem.Path).ConfigureAwait(true))
             {
@@ -5682,7 +5689,7 @@ namespace RX_Explorer
 
         private async void OpenHiddenItemExplorer_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             if (!await Launcher.LaunchFolderPathAsync(SelectedItem.Path))
             {
@@ -5706,7 +5713,7 @@ namespace RX_Explorer
 
         private void OrderByName_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             SortCollectionGenerator.Current.ModifySortWay(SortTarget.Name, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
 
@@ -5722,7 +5729,7 @@ namespace RX_Explorer
 
         private void OrderByTime_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             SortCollectionGenerator.Current.ModifySortWay(SortTarget.ModifiedTime, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
 
@@ -5738,7 +5745,7 @@ namespace RX_Explorer
 
         private void OrderByType_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             SortCollectionGenerator.Current.ModifySortWay(SortTarget.Type, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
 
@@ -5754,7 +5761,7 @@ namespace RX_Explorer
 
         private void OrderBySize_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             SortCollectionGenerator.Current.ModifySortWay(SortTarget.Size, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
 
@@ -5770,7 +5777,7 @@ namespace RX_Explorer
 
         private void Desc_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             SortCollectionGenerator.Current.ModifySortWay(SortDirection: SortDirection.Descending);
 
@@ -5786,7 +5793,7 @@ namespace RX_Explorer
 
         private void Asc_Click(object sender, RoutedEventArgs e)
         {
-            Restore();
+            CloseAllFlyout();
 
             SortCollectionGenerator.Current.ModifySortWay(SortDirection: SortDirection.Ascending);
 
@@ -5854,6 +5861,14 @@ namespace RX_Explorer
         {
             BottomCommandBar.PrimaryCommands.Clear();
             BottomCommandBar.SecondaryCommands.Clear();
+
+            AppBarButton MultiSelectButton = new AppBarButton
+            {
+                Icon = new FontIcon { Glyph = "\uE762" },
+                Label = Globalization.GetString("Operate_Text_MultiSelect")
+            };
+            MultiSelectButton.Click += MulSelect_Click;
+            BottomCommandBar.PrimaryCommands.Add(MultiSelectButton);
 
             if (SelectedItems.Count > 1)
             {
@@ -6262,14 +6277,6 @@ namespace RX_Explorer
                         IsEnableUndo = false;
                     }
 
-                    AppBarButton MultiSelectButton = new AppBarButton
-                    {
-                        Icon = new FontIcon { Glyph = "\uE762" },
-                        Label = Globalization.GetString("Operate_Text_MultiSelect")
-                    };
-                    MultiSelectButton.Click += MulSelect_Click;
-                    BottomCommandBar.PrimaryCommands.Add(MultiSelectButton);
-
                     AppBarButton PasteButton = new AppBarButton
                     {
                         Icon = new SymbolIcon(Symbol.Paste),
@@ -6522,7 +6529,7 @@ namespace RX_Explorer
 
         private void MulSelect_Click(object sender, RoutedEventArgs e)
         {
-            EmptyFlyout.Hide();
+            CloseAllFlyout();
 
             if (ItemPresenter.SelectionMode == ListViewSelectionMode.Extended)
             {

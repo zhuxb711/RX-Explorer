@@ -2508,4 +2508,7 @@
   <data name="JumpList_Group_Recent" xml:space="preserve">
     <value>最近</value>
   </data>
+  <data name="MulSelect.ToolTipService.ToolTip" xml:space="preserve">
+    <value>多選</value>
+  </data>
 </root>

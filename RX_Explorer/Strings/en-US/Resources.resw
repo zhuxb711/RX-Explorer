@@ -2613,4 +2613,7 @@ Invalid names include
   <data name="JumpList_Group_Recent" xml:space="preserve">
     <value>Recent</value>
   </data>
+  <data name="MulSelect.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Multi-select</value>
+  </data>
 </root>
