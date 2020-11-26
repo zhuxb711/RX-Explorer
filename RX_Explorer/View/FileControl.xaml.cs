@@ -32,16 +32,17 @@ namespace RX_Explorer
 {
     public sealed partial class FileControl : Page, IDisposable
     {
-        private volatile TreeViewNode currentnode;
+        private volatile TreeViewNode currentNode;
 
         public TreeViewNode CurrentNode
         {
-            get => currentnode;
+            get => currentNode;
             set
             {
                 if (value != null && value.Content is TreeViewNodeContent Content)
                 {
                     AreaWatcher.StartWatchDirectory(Content.Path, SettingControl.IsDisplayHiddenItem);
+                    
                     UpdateAddressButton(Content.Path);
 
                     CurrentPath = Content.Path;
@@ -73,7 +74,7 @@ namespace RX_Explorer
                     }
                 }
 
-                currentnode = value;
+                currentNode = value;
             }
         }
 
@@ -266,7 +267,7 @@ namespace RX_Explorer
                         return;
                     }
 
-                    if (CurrentFolder == null)
+                    if (string.IsNullOrWhiteSpace(CurrentPath))
                     {
                         string RootPath = System.IO.Path.GetPathRoot(Path);
 
@@ -449,27 +450,22 @@ namespace RX_Explorer
 
                 bool HasAnyFolder = WIN_Native_API.CheckContainsAnyItem(PathRoot, ItemFilters.Folder);
 
-                TreeViewNode RootNode = new TreeViewNode
+                currentNode = new TreeViewNode
                 {
                     Content = new TreeViewNodeContent(RootFolder),
                     IsExpanded = HasAnyFolder,
                     HasUnrealizedChildren = HasAnyFolder
                 };
 
-                FolderTree.RootNodes.Add(RootNode);
+                FolderTree.RootNodes.Add(currentNode);
 
-                List<Task> InitTasks = new List<Task>(2);
+                FolderTree.SelectNode(currentNode);
 
-                if (HasAnyFolder)
-                {
-                    InitTasks.Add(FillTreeNode(RootNode));
-                }
-
-                InitTasks.Add(DisplayItemsInFolder(InitFolder));
+                Task[] InitTasks = HasAnyFolder
+                    ? (new Task[] { FillTreeNode(currentNode), DisplayItemsInFolder(InitFolder,true) })
+                    : (new Task[] { DisplayItemsInFolder(InitFolder, true) });
 
                 await Task.WhenAll(InitTasks).ConfigureAwait(false);
-
-                CurrentNode = RootNode;
             }
         }
 
