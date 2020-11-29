@@ -32,7 +32,7 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool SendMessageToQuicklook(string Path)
+        public static bool SendMessage(string Path)
         {
             if (string.IsNullOrWhiteSpace(Path))
             {

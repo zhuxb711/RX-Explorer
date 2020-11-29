@@ -27,6 +27,7 @@ using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
+using Windows.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -1557,7 +1558,7 @@ namespace RX_Explorer
 
         private void ViewControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            foreach (SelectorItem RemovedItem in e.RemovedItems.Select((Item)=> ItemPresenter.ContainerFromItem(Item)).OfType<SelectorItem>())
+            foreach (SelectorItem RemovedItem in e.RemovedItems.Select((Item) => ItemPresenter.ContainerFromItem(Item)).OfType<SelectorItem>())
             {
                 RemovedItem.CanDrag = false;
             }
@@ -1709,7 +1710,9 @@ namespace RX_Explorer
         {
             if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
             {
-                if (e.GetCurrentPoint(null).Properties.IsMiddleButtonPressed && Item.StorageType == StorageItemTypes.Folder)
+                PointerPoint PointerInfo = e.GetCurrentPoint(null);
+
+                if (PointerInfo.Properties.IsMiddleButtonPressed && Item.StorageType == StorageItemTypes.Folder)
                 {
                     SelectionExtention.Disable();
                     SelectedItem = Item;
@@ -1725,7 +1728,7 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            if (e.KeyModifiers == VirtualKeyModifiers.None)
+                            if (e.KeyModifiers == VirtualKeyModifiers.None && PointerInfo.Properties.IsLeftButtonPressed)
                             {
                                 SelectedItem = Item;
                             }
@@ -2283,7 +2286,7 @@ namespace RX_Explorer
                     }
                     catch (Exception e)
                     {
-                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async() =>
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                         {
                             QueueContentDialog dialog = new QueueContentDialog
                             {
@@ -6538,6 +6541,14 @@ namespace RX_Explorer
             else
             {
                 ItemPresenter.SelectionMode = ListViewSelectionMode.Extended;
+            }
+        }
+
+        private void ViewControl_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == VirtualKey.Space)
+            {
+                e.Handled = true;
             }
         }
     }

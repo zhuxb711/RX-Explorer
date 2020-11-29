@@ -398,7 +398,7 @@ namespace FullTrustProcess
 
                             if (!string.IsNullOrEmpty(ExecutePath))
                             {
-                                QuicklookConnector.SendMessageToQuicklook(ExecutePath);
+                                QuicklookConnector.SendMessage(ExecutePath);
                             }
 
                             break;
