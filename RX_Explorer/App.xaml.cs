@@ -39,7 +39,7 @@ namespace RX_Explorer
 
         protected override async void OnWindowCreated(WindowCreatedEventArgs args)
         {
-            if (await FullTrustProcessController.Current.CheckQuicklookIsAvaliableAsync().ConfigureAwait(true))
+            if (await FullTrustProcessController.Current.CheckIfQuicklookIsAvaliableAsync().ConfigureAwait(true))
             {
                 SettingControl.IsQuicklookAvailable = true;
             }

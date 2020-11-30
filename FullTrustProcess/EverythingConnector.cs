@@ -6,10 +6,8 @@ using System.Text;
 
 namespace FullTrustProcess
 {
-    public class EverythingConnector
+    public class EverythingConnector : IDisposable
     {
-        private static EverythingConnector Instance;
-
 		private const int BufferSize = 256;
 
 		[DllImport("Everything32.dll")]
@@ -42,6 +40,9 @@ namespace FullTrustProcess
         [DllImport("Everything32.dll")]
         private static extern void Everything_SetRegex(bool isEnabled);
 
+        [DllImport("Everything32.dll")]
+        private static extern void Everything_CleanUp();
+
         public enum StateCode
 		{
 			OK,
@@ -67,15 +68,7 @@ namespace FullTrustProcess
             return Everything_GetLastError();
         }
 
-		public static EverythingConnector Current
-        {
-            get
-            {
-                return Instance ??= new EverythingConnector();
-            }
-        }
-
-		public IEnumerable<string> Search(string SearchKeyWord, bool SearchAsRegex = false, int Offset = 0, int MaxCount = 100)
+		public IEnumerable<string> Search(string SearchKeyWord, bool SearchAsRegex = false, int MaxCount = 500)
 		{
 			if (string.IsNullOrWhiteSpace(SearchKeyWord) || !CheckIfAvailable)
 			{
@@ -83,11 +76,6 @@ namespace FullTrustProcess
 			}
             else
             {
-                if (Offset < 0)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(Offset));
-                }
-
                 if (MaxCount < 0)
                 {
                     throw new ArgumentOutOfRangeException(nameof(MaxCount));
@@ -95,7 +83,7 @@ namespace FullTrustProcess
 
                 Everything_SetRegex(SearchAsRegex);
                 Everything_SetSearch(SearchKeyWord);
-                Everything_SetOffset(Offset);
+                Everything_SetOffset(0);
                 Everything_SetMax(MaxCount);
 
                 if (Everything_Query())
@@ -104,6 +92,7 @@ namespace FullTrustProcess
 
                     for (int index = 0; index < Everything_GetNumResults(); ++index)
                     {
+                        Builder.Clear();
                         Everything_GetResultFullPathName(index, Builder, BufferSize);
                         yield return Builder.ToString();
                     }
@@ -115,9 +104,9 @@ namespace FullTrustProcess
             }
         }
 
-		private EverythingConnector()
+        public void Dispose()
         {
-
+            Everything_CleanUp();
         }
     }
 }

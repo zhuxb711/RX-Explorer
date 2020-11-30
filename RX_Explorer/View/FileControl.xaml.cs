@@ -657,7 +657,7 @@ namespace RX_Explorer
 
                     if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                        if (await FullTrustProcessController.Current.SwitchToAdminModeAsync().ConfigureAwait(true))
                         {
                             goto Retry;
                         }
@@ -746,7 +746,7 @@ namespace RX_Explorer
 
                         if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                         {
-                            if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                            if (await FullTrustProcessController.Current.SwitchToAdminModeAsync().ConfigureAwait(true))
                             {
                                 goto Retry;
                             }
@@ -1081,7 +1081,7 @@ namespace RX_Explorer
 
                     if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                        if (await FullTrustProcessController.Current.SwitchToAdminModeAsync().ConfigureAwait(true))
                         {
                             goto Retry1;
                         }
@@ -1123,7 +1123,7 @@ namespace RX_Explorer
 
                     if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                        if (await FullTrustProcessController.Current.SwitchToAdminModeAsync().ConfigureAwait(true))
                         {
                             goto Retry2;
                         }
@@ -1168,7 +1168,7 @@ namespace RX_Explorer
 
                                 if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                 {
-                                    if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                                    if (await FullTrustProcessController.Current.SwitchToAdminModeAsync().ConfigureAwait(true))
                                     {
                                         goto Retry;
                                     }
@@ -1882,7 +1882,7 @@ namespace RX_Explorer
 
                                             if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                             {
-                                                if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                                                if (await FullTrustProcessController.Current.SwitchToAdminModeAsync().ConfigureAwait(true))
                                                 {
                                                     goto Retry;
                                                 }
@@ -1968,7 +1968,7 @@ namespace RX_Explorer
 
                                             if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                             {
-                                                if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                                                if (await FullTrustProcessController.Current.SwitchToAdminModeAsync().ConfigureAwait(true))
                                                 {
                                                     goto Retry;
                                                 }
@@ -2055,7 +2055,7 @@ namespace RX_Explorer
 
                                         if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                         {
-                                            if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                                            if (await FullTrustProcessController.Current.SwitchToAdminModeAsync().ConfigureAwait(true))
                                             {
                                                 goto Retry;
                                             }
@@ -2146,7 +2146,7 @@ namespace RX_Explorer
 
                                         if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                         {
-                                            if (await FullTrustProcessController.Current.SwitchToAdminMode().ConfigureAwait(true))
+                                            if (await FullTrustProcessController.Current.SwitchToAdminModeAsync().ConfigureAwait(true))
                                             {
                                                 goto Retry;
                                             }

@@ -74,6 +74,10 @@ namespace RX_Explorer.Class
 
         private const string ExecuteType_InvokeContextMenuItem = "Execute_InvokeContextMenuItem";
 
+        private const string ExecuteType_CheckIfEverythingAvailable = "Execute_CheckIfEverythingAvailable";
+
+        private const string ExecuteType_SearchByEverything = "Execute_SearchByEverything";
+
         private static volatile FullTrustProcessController Instance;
 
         private static readonly object locker = new object();
@@ -193,7 +197,119 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<List<ContextMenuItem>> GetContextMenuItems(string Path, bool IncludeExtensionItem = false)
+        public async Task<bool> CheckIfEverythingIsAvailableAsync()
+        {
+            try
+            {
+                IsNowHasAnyActionExcuting = true;
+
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(true))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExecuteType", ExecuteType_CheckIfEverythingAvailable}
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Success", out object IsAvailable))
+                        {
+                            return Convert.ToBoolean(IsAvailable);
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(CheckIfEverythingIsAvailableAsync)}, message: {ErrorMessage}");
+                            }
+
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"AppServiceResponse in {nameof(CheckIfEverythingIsAvailableAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        return false;
+                    }
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(CheckIfEverythingIsAvailableAsync)}: Failed to connect AppService ");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{ nameof(CheckIfEverythingIsAvailableAsync)} throw an error");
+                return false;
+            }
+            finally
+            {
+                IsNowHasAnyActionExcuting = false;
+            }
+        }
+
+        public async Task<List<FileSystemStorageItemBase>> SearchByEverythingAsync(string BaseLocation, string SearchWord, bool SearchAsRegex = false, int MaxCount = 500)
+        {
+            try
+            {
+                IsNowHasAnyActionExcuting = true;
+
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(true))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExecuteType", ExecuteType_CheckIfEverythingAvailable},
+                        {"BaseLocation", BaseLocation },
+                        {"SearchWord", SearchWord },
+                        {"SearchAsRegex", SearchWord },
+                        {"MaxCount", MaxCount }
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Success", out object IsAvailable))
+                        {
+                            return new List<FileSystemStorageItemBase>(0);
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(SearchByEverythingAsync)}, message: {ErrorMessage}");
+                            }
+
+                            return new List<FileSystemStorageItemBase>(0);
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"AppServiceResponse in {nameof(SearchByEverythingAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        return new List<FileSystemStorageItemBase>(0);
+                    }
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(SearchByEverythingAsync)}: Failed to connect AppService ");
+                    return new List<FileSystemStorageItemBase>(0);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{ nameof(SearchByEverythingAsync)} throw an error");
+                return new List<FileSystemStorageItemBase>(0);
+            }
+            finally
+            {
+                IsNowHasAnyActionExcuting = false;
+            }
+        }
+
+        public async Task<List<ContextMenuItem>> GetContextMenuItemsAsync(string Path, bool IncludeExtensionItem = false)
         {
             try
             {
@@ -222,7 +338,7 @@ namespace RX_Explorer.Class
                             {
                                 if (Response.Message.TryGetValue("Error", out object ErrorMessage))
                                 {
-                                    LogTracer.Log($"An unexpected error was threw in {nameof(GetContextMenuItems)}, message: {ErrorMessage}");
+                                    LogTracer.Log($"An unexpected error was threw in {nameof(GetContextMenuItemsAsync)}, message: {ErrorMessage}");
                                 }
 
                                 return new List<ContextMenuItem>(0);
@@ -230,13 +346,13 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            LogTracer.Log($"AppServiceResponse in {nameof(GetContextMenuItems)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                            LogTracer.Log($"AppServiceResponse in {nameof(GetContextMenuItemsAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                             return new List<ContextMenuItem>(0);
                         }
                     }
                     else
                     {
-                        LogTracer.Log($"{nameof(GetContextMenuItems)}: Failed to connect AppService ");
+                        LogTracer.Log($"{nameof(GetContextMenuItemsAsync)}: Failed to connect AppService ");
                         return new List<ContextMenuItem>(0);
                     }
                 }
@@ -247,7 +363,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{ nameof(GetContextMenuItems)} throw an error");
+                LogTracer.Log(ex, $"{ nameof(GetContextMenuItemsAsync)} throw an error");
                 return new List<ContextMenuItem>(0);
             }
             finally
@@ -256,7 +372,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task InvokeContextMenuItem(ContextMenuItem Item)
+        public async Task InvokeContextMenuItemAsync(ContextMenuItem Item)
         {
             if (Item == null)
             {
@@ -282,22 +398,22 @@ namespace RX_Explorer.Class
                     {
                         if (Response.Message.TryGetValue("Error", out object ErrorMessage))
                         {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(GetContextMenuItems)}, message: {ErrorMessage}");
+                            LogTracer.Log($"An unexpected error was threw in {nameof(GetContextMenuItemsAsync)}, message: {ErrorMessage}");
                         }
                     }
                     else
                     {
-                        LogTracer.Log($"AppServiceResponse in {nameof(GetContextMenuItems)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        LogTracer.Log($"AppServiceResponse in {nameof(GetContextMenuItemsAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                     }
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(GetContextMenuItems)}: Failed to connect AppService ");
+                    LogTracer.Log($"{nameof(GetContextMenuItemsAsync)}: Failed to connect AppService ");
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{ nameof(GetContextMenuItems)} throw an error");
+                LogTracer.Log(ex, $"{ nameof(GetContextMenuItemsAsync)} throw an error");
             }
             finally
             {
@@ -305,7 +421,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<bool> SwitchToAdminMode()
+        public async Task<bool> SwitchToAdminModeAsync()
         {
             try
             {
@@ -336,13 +452,13 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(SwitchToAdminMode)}: Failed to connect AppService ");
+                    LogTracer.Log($"{nameof(SwitchToAdminModeAsync)}: Failed to connect AppService ");
                     return RuningInAdministratorMode = false;
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{ nameof(SwitchToAdminMode)} throw an error");
+                LogTracer.Log(ex, $"{ nameof(SwitchToAdminModeAsync)} throw an error");
                 return RuningInAdministratorMode = false;
             }
             finally
@@ -351,7 +467,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<bool> CreateLink(string LinkPath, string LinkTarget, string LinkDesc, string LinkArgument)
+        public async Task<bool> CreateLinkAsync(string LinkPath, string LinkTarget, string LinkDesc, string LinkArgument)
         {
             try
             {
@@ -380,7 +496,7 @@ namespace RX_Explorer.Class
                         {
                             if (Response.Message.TryGetValue("Error", out object ErrorMessage))
                             {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(CreateLink)}, message: {ErrorMessage}");
+                                LogTracer.Log($"An unexpected error was threw in {nameof(CreateLinkAsync)}, message: {ErrorMessage}");
                             }
 
                             return false;
@@ -388,19 +504,19 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        LogTracer.Log($"AppServiceResponse in {nameof(CreateLink)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        LogTracer.Log($"AppServiceResponse in {nameof(CreateLinkAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         return false;
                     }
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(CreateLink)}: Failed to connect AppService ");
+                    LogTracer.Log($"{nameof(CreateLinkAsync)}: Failed to connect AppService ");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{ nameof(CreateLink)} throw an error");
+                LogTracer.Log(ex, $"{ nameof(CreateLinkAsync)} throw an error");
                 return false;
             }
             finally
@@ -409,7 +525,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<string> GetVariablePath(string Variable)
+        public async Task<string> GetVariablePathAsync(string Variable)
         {
             try
             {
@@ -435,7 +551,7 @@ namespace RX_Explorer.Class
                         {
                             if (Response.Message.TryGetValue("Error", out object ErrorMessage))
                             {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(GetVariablePath)}, message: {ErrorMessage}");
+                                LogTracer.Log($"An unexpected error was threw in {nameof(GetVariablePathAsync)}, message: {ErrorMessage}");
                             }
 
                             return string.Empty;
@@ -443,19 +559,19 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        LogTracer.Log($"AppServiceResponse in {nameof(GetVariablePath)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        LogTracer.Log($"AppServiceResponse in {nameof(GetVariablePathAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         return string.Empty;
                     }
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(GetVariablePath)}: Failed to connect AppService ");
+                    LogTracer.Log($"{nameof(GetVariablePathAsync)}: Failed to connect AppService ");
                     return string.Empty;
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{ nameof(GetVariablePath)} throw an error");
+                LogTracer.Log(ex, $"{ nameof(GetVariablePathAsync)} throw an error");
                 return string.Empty;
             }
             finally
@@ -571,7 +687,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<bool> InterceptWindowsPlusE()
+        public async Task<bool> InterceptWindowsPlusEAsync()
         {
             try
             {
@@ -596,7 +712,7 @@ namespace RX_Explorer.Class
                         {
                             if (Response.Message.TryGetValue("Error", out object ErrorMessage))
                             {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(InterceptWindowsPlusE)}, message: {ErrorMessage}");
+                                LogTracer.Log($"An unexpected error was threw in {nameof(InterceptWindowsPlusEAsync)}, message: {ErrorMessage}");
                             }
 
                             return false;
@@ -604,19 +720,19 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        LogTracer.Log($"AppServiceResponse in {nameof(InterceptWindowsPlusE)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        LogTracer.Log($"AppServiceResponse in {nameof(InterceptWindowsPlusEAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         return false;
                     }
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(InterceptWindowsPlusE)}: Failed to connect AppService");
+                    LogTracer.Log($"{nameof(InterceptWindowsPlusEAsync)}: Failed to connect AppService");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{nameof(InterceptWindowsPlusE)} throw an error");
+                LogTracer.Log(ex, $"{nameof(InterceptWindowsPlusEAsync)} throw an error");
                 return false;
             }
             finally
@@ -625,7 +741,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<bool> RestoreWindowsPlusE()
+        public async Task<bool> RestoreWindowsPlusEAsync()
         {
             try
             {
@@ -650,7 +766,7 @@ namespace RX_Explorer.Class
                         {
                             if (Response.Message.TryGetValue("Error", out object ErrorMessage))
                             {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(RestoreWindowsPlusE)}, message: {ErrorMessage}");
+                                LogTracer.Log($"An unexpected error was threw in {nameof(RestoreWindowsPlusEAsync)}, message: {ErrorMessage}");
                             }
 
                             return false;
@@ -658,20 +774,20 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        LogTracer.Log($"AppServiceResponse in {nameof(RestoreWindowsPlusE)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        LogTracer.Log($"AppServiceResponse in {nameof(RestoreWindowsPlusEAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
 
                         return false;
                     }
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(RestoreWindowsPlusE)}: Failed to connect AppService");
+                    LogTracer.Log($"{nameof(RestoreWindowsPlusEAsync)}: Failed to connect AppService");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{nameof(RestoreWindowsPlusE)} throw an error");
+                LogTracer.Log(ex, $"{nameof(RestoreWindowsPlusEAsync)} throw an error");
                 return false;
             }
             finally
@@ -680,7 +796,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<bool> RemoveHiddenAttribute(string Path)
+        public async Task<bool> RemoveHiddenAttributeAsync(string Path)
         {
             try
             {
@@ -706,7 +822,7 @@ namespace RX_Explorer.Class
                         {
                             if (Response.Message.TryGetValue("Error", out object ErrorMessage))
                             {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(RemoveHiddenAttribute)}, message: {ErrorMessage}");
+                                LogTracer.Log($"An unexpected error was threw in {nameof(RemoveHiddenAttributeAsync)}, message: {ErrorMessage}");
                             }
 
                             return false;
@@ -714,19 +830,19 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        LogTracer.Log($"AppServiceResponse in {nameof(RemoveHiddenAttribute)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        LogTracer.Log($"AppServiceResponse in {nameof(RemoveHiddenAttributeAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         return false;
                     }
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(RemoveHiddenAttribute)}: Failed to connect AppService");
+                    LogTracer.Log($"{nameof(RemoveHiddenAttributeAsync)}: Failed to connect AppService");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{nameof(RemoveHiddenAttribute)} throw an error");
+                LogTracer.Log(ex, $"{nameof(RemoveHiddenAttributeAsync)} throw an error");
                 return false;
             }
             finally
@@ -735,7 +851,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task RequestCreateNewPipeLine(Guid CurrentProcessID)
+        public async Task RequestCreateNewPipeLineAsync(Guid CurrentProcessID)
         {
             try
             {
@@ -753,12 +869,12 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(RequestCreateNewPipeLine)}: Failed to connect AppService");
+                    LogTracer.Log($"{nameof(RequestCreateNewPipeLineAsync)}: Failed to connect AppService");
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{nameof(RequestCreateNewPipeLine)} throw an error");
+                LogTracer.Log(ex, $"{nameof(RequestCreateNewPipeLineAsync)} throw an error");
             }
             finally
             {
@@ -859,7 +975,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<bool> CheckQuicklookIsAvaliableAsync()
+        public async Task<bool> CheckIfQuicklookIsAvaliableAsync()
         {
             try
             {
@@ -884,7 +1000,7 @@ namespace RX_Explorer.Class
                         {
                             if (Response.Message.TryGetValue("Error", out object ErrorMessage))
                             {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(CheckQuicklookIsAvaliableAsync)}, message: {ErrorMessage}");
+                                LogTracer.Log($"An unexpected error was threw in {nameof(CheckIfQuicklookIsAvaliableAsync)}, message: {ErrorMessage}");
                             }
 
                             return false;
@@ -892,19 +1008,19 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        LogTracer.Log($"AppServiceResponse in {nameof(CheckQuicklookIsAvaliableAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        LogTracer.Log($"AppServiceResponse in {nameof(CheckIfQuicklookIsAvaliableAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         return false;
                     }
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(CheckQuicklookIsAvaliableAsync)}: Failed to connect AppService");
+                    LogTracer.Log($"{nameof(CheckIfQuicklookIsAvaliableAsync)}: Failed to connect AppService");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{nameof(CheckQuicklookIsAvaliableAsync)} throw an error");
+                LogTracer.Log(ex, $"{nameof(CheckIfQuicklookIsAvaliableAsync)} throw an error");
                 return false;
             }
             finally

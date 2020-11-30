@@ -90,7 +90,7 @@ namespace RX_Explorer.Class
 
         public async Task Invoke()
         {
-            await FullTrustProcessController.Current.InvokeContextMenuItem(this).ConfigureAwait(false);
+            await FullTrustProcessController.Current.InvokeContextMenuItemAsync(this).ConfigureAwait(false);
         }
 
         public bool Equals(ContextMenuItem other)

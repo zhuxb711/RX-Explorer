@@ -1956,7 +1956,7 @@ namespace RX_Explorer
 
                     if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        if (await FullTrustProcessController.Current.InterceptWindowsPlusE().ConfigureAwait(true))
+                        if (await FullTrustProcessController.Current.InterceptWindowsPlusEAsync().ConfigureAwait(true))
                         {
                             ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] = true;
                         }
@@ -1989,7 +1989,7 @@ namespace RX_Explorer
                 {
                     AlwaysLaunchNewArea.Visibility = Visibility.Collapsed;
 
-                    if (await FullTrustProcessController.Current.RestoreWindowsPlusE().ConfigureAwait(true))
+                    if (await FullTrustProcessController.Current.RestoreWindowsPlusEAsync().ConfigureAwait(true))
                     {
                         ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] = false;
                     }

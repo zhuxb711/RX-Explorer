@@ -74,7 +74,7 @@ namespace RX_Explorer.Class
                         return;
                     }
 
-                    List<ContextMenuItem> ExtraMenuItems = await FullTrustProcessController.Current.GetContextMenuItems(SelectedPath, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down)).ConfigureAwait(true);
+                    List<ContextMenuItem> ExtraMenuItems = await FullTrustProcessController.Current.GetContextMenuItemsAsync(SelectedPath, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down)).ConfigureAwait(true);
 
                     if (ExtraMenuItems.Count > 0)
                     {
