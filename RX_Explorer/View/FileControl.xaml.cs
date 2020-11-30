@@ -972,6 +972,8 @@ namespace RX_Explorer
                 return;
             }
 
+            SearchInEverythingEngine.IsEnabled = await FullTrustProcessController.Current.CheckIfEverythingIsAvailableAsync().ConfigureAwait(true);
+
             FlyoutBase.ShowAttachedFlyout(sender);
 
             await SQLite.Current.SetSearchHistoryAsync(args.QueryText).ConfigureAwait(false);
@@ -986,37 +988,6 @@ namespace RX_Explorer
                     sender.ItemsSource = await SQLite.Current.GetRelatedSearchHistoryAsync(sender.Text).ConfigureAwait(true);
                 }
             }
-        }
-
-        private void SearchConfirm_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                SearchFlyout.Hide();
-
-                if (AnimationController.Current.IsEnableAnimation)
-                {
-                    Frame.Navigate(typeof(SearchPage), new Tuple<WeakReference<FileControl>, bool>(new WeakReference<FileControl>(this), ShallowRadio.IsChecked.GetValueOrDefault()), new DrillInNavigationTransitionInfo());
-                }
-                else
-                {
-                    Frame.Navigate(typeof(SearchPage), new Tuple<WeakReference<FileControl>, bool>(new WeakReference<FileControl>(this), ShallowRadio.IsChecked.GetValueOrDefault()), new SuppressNavigationTransitionInfo());
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "An error was threw when navigating to search page");
-            }
-        }
-
-        private void SearchCancel_Click(object sender, RoutedEventArgs e)
-        {
-            SearchFlyout.Hide();
-        }
-
-        private void SearchFlyout_Opened(object sender, object e)
-        {
-            _ = SearchConfirm.Focus(FocusState.Programmatic);
         }
 
         private async void GlobeSearch_GotFocus(object sender, RoutedEventArgs e)
@@ -2382,6 +2353,50 @@ namespace RX_Explorer
             {
                 await TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(CurrentFolder.Path).ConfigureAwait(false);
             }
+        }
+
+        private void SearchEngineConfirm_Click(object sender, RoutedEventArgs e)
+        {
+            SearchEngineFlyout.Hide();
+
+            if (SearchInDefaultEngine.IsChecked.GetValueOrDefault())
+            {
+                if (AnimationController.Current.IsEnableAnimation)
+                {
+                    Frame.Navigate(typeof(SearchPage), new Tuple<WeakReference<FileControl>, SearchCategory, bool?, bool?, bool?, uint?>(new WeakReference<FileControl>(this), BuiltInSearchAllSubFolders.IsChecked.GetValueOrDefault() ? SearchCategory.BuiltInEngine_Deep : SearchCategory.BuiltInEngine_Shallow, BuiltInEngineIgnoreCase.IsChecked, BuiltInEngineIncludeRegex.IsChecked, null, null), new DrillInNavigationTransitionInfo());
+                }
+                else
+                {
+                    Frame.Navigate(typeof(SearchPage), new Tuple<WeakReference<FileControl>, SearchCategory, bool?, bool?, bool?, uint?>(new WeakReference<FileControl>(this), BuiltInSearchAllSubFolders.IsChecked.GetValueOrDefault() ? SearchCategory.BuiltInEngine_Deep : SearchCategory.BuiltInEngine_Shallow, BuiltInEngineIgnoreCase.IsChecked, BuiltInEngineIncludeRegex.IsChecked, null, null), new SuppressNavigationTransitionInfo());
+                }
+            }
+            else
+            {
+                if (AnimationController.Current.IsEnableAnimation)
+                {
+                    Frame.Navigate(typeof(SearchPage), new Tuple<WeakReference<FileControl>, SearchCategory, bool?, bool?, bool?, uint?>(new WeakReference<FileControl>(this), SearchCategory.EverythingEngine, EverythingEngineIgnoreCase.IsChecked, EverythingEngineIncludeRegex.IsChecked, EverythingEngineSearchGloble.IsChecked, Convert.ToUInt32(EverythingEngineResultLimit.SelectedItem)), new DrillInNavigationTransitionInfo());
+                }
+                else
+                {
+                    Frame.Navigate(typeof(SearchPage), new Tuple<WeakReference<FileControl>, SearchCategory, bool?, bool?, bool?, uint?>(new WeakReference<FileControl>(this), SearchCategory.EverythingEngine, EverythingEngineIgnoreCase.IsChecked, EverythingEngineIncludeRegex.IsChecked, EverythingEngineSearchGloble.IsChecked, Convert.ToUInt32(EverythingEngineResultLimit.SelectedItem)), new SuppressNavigationTransitionInfo());
+                }
+            }
+        }
+
+        private void SearchEngineCancel_Click(object sender, RoutedEventArgs e)
+        {
+            SearchEngineFlyout.Hide();
+        }
+
+        private void SearchEngineFlyout_Opened(object sender, object e)
+        {
+            MainPage.ThisPage.IsAnyTaskRunning = true;
+            _ = SearchEngineConfirm.Focus(FocusState.Programmatic);
+        }
+
+        private void SearchEngineFlyout_Closed(object sender, object e)
+        {
+            MainPage.ThisPage.IsAnyTaskRunning = false;
         }
     }
 }

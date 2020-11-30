@@ -251,7 +251,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<List<FileSystemStorageItemBase>> SearchByEverythingAsync(string BaseLocation, string SearchWord, bool SearchAsRegex = false, int MaxCount = 500)
+        public async Task<List<FileSystemStorageItemBase>> SearchByEverythingAsync(string BaseLocation, string SearchWord, bool SearchAsRegex = false, bool IgnoreCase = true, uint MaxCount = 500)
         {
             try
             {
@@ -261,10 +261,11 @@ namespace RX_Explorer.Class
                 {
                     ValueSet Value = new ValueSet
                     {
-                        {"ExecuteType", ExecuteType_CheckIfEverythingAvailable},
+                        {"ExecuteType", ExecuteType_SearchByEverything},
                         {"BaseLocation", BaseLocation },
                         {"SearchWord", SearchWord },
-                        {"SearchAsRegex", SearchWord },
+                        {"SearchAsRegex", SearchAsRegex },
+                        {"IgnoreCase", IgnoreCase },
                         {"MaxCount", MaxCount }
                     };
 
@@ -272,9 +273,18 @@ namespace RX_Explorer.Class
 
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        if (Response.Message.TryGetValue("Success", out object IsAvailable))
+                        if (Response.Message.TryGetValue("Success", out object Result))
                         {
-                            return new List<FileSystemStorageItemBase>(0);
+                            string[] SearchResult = JsonConvert.DeserializeObject<string[]>(Convert.ToString(Result));
+
+                            if(SearchResult.Length == 0)
+                            {
+                                return new List<FileSystemStorageItemBase>(0);
+                            }
+                            else
+                            {
+                                return WIN_Native_API.GetStorageItems(SearchResult);
+                            }
                         }
                         else
                         {

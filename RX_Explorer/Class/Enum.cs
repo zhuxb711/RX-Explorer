@@ -2,6 +2,13 @@
 
 namespace RX_Explorer.Class
 {
+    public enum SearchCategory
+    {
+        BuiltInEngine_Shallow,
+        BuiltInEngine_Deep,
+        EverythingEngine
+    }
+
     public enum JumpListGroup
     {
         Library,

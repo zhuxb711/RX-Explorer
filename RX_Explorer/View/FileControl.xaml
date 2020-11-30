@@ -13,6 +13,7 @@
 
     <Page.Resources>
         <Cls:SpliterConverter x:Key="Converter" />
+        <Cls:InverseBooleanConverter x:Key="InverseConverter"/>
 
         <Flyout x:Name="AddressExtentionFlyout"
                 Placement="BottomEdgeAlignedLeft"
@@ -275,37 +276,94 @@
                             UpdateTextOnSelect="True"
                             Margin="0,0,5,0">
                 <FlyoutBase.AttachedFlyout>
-                    <Flyout Placement="BottomEdgeAlignedRight"
-                            x:Name="SearchFlyout"
-                            Opened="SearchFlyout_Opened">
-                        <StackPanel MinWidth="240">
-                            <RadioButton Name="ShallowRadio"
-                                         x:Uid="SearchFlyoutShallowRadio"
-                                         Content="仅搜索当前目录(较快)"
-                                         Tag="Shallow"
-                                         IsChecked="True"
-                                         GroupName="Search" />
-                            <RadioButton Name="DeepRadio"
-                                         Margin="0,5,0,0"
-                                         x:Uid="SearchFlyoutDeepRadio"
-                                         Content="深度搜索全部目录(较慢)"
-                                         Tag="Deep"
-                                         GroupName="Search" />
-                            <StackPanel Margin="0,5,0,0"
-                                        Orientation="Horizontal"
-                                        HorizontalAlignment="Right">
+                    <Flyout x:Name="SearchEngineFlyout"
+                            Placement="BottomEdgeAlignedRight"
+                            Opened="SearchEngineFlyout_Opened"
+                            Closed="SearchEngineFlyout_Closed">
+                        <StackPanel MinWidth="240"
+                                    ChildrenTransitions="{x:Bind Cls:AnimationController.Current.AddDeleteTransitions, Mode=OneWay}">
+                            <RadioButton Content="使用内置搜索引擎 (默认)"
+                                         Name="SearchInDefaultEngine"
+                                         IsChecked="True" />
+                            <StackPanel Orientation="Horizontal"
+                                        Visibility="{x:Bind SearchInDefaultEngine.IsChecked, Mode=OneWay}">
+                                <Line X1="10"
+                                      X2="10"
+                                      Y1="0"
+                                      Y2="100"
+                                      StrokeThickness="3"
+                                      Stroke="Gray" />
+                                <StackPanel Margin="18,5,0,0">
+                                    <CheckBox Content="忽略大小写"
+                                              FontSize="13"
+                                              IsChecked="True"
+                                              x:Name="BuiltInEngineIgnoreCase" />
+                                    <CheckBox Content="使用正则表达式"
+                                              x:Name="BuiltInEngineIncludeRegex"
+                                              FontSize="13" />
+                                    <CheckBox Content="搜索所有子文件夹"
+                                              Name="BuiltInSearchAllSubFolders"
+                                              FontSize="13" />
+                                </StackPanel>
+                            </StackPanel>
+                            <RadioButton Margin="0,5,0,0"
+                                         Name="SearchInEverythingEngine"
+                                         Content="使用Everything搜索引擎 (较快)" />
+                            <StackPanel Orientation="Horizontal"
+                                        Visibility="{x:Bind SearchInEverythingEngine.IsChecked, Mode=OneWay}">
+                                <Line X1="10"
+                                      X2="10"
+                                      Y1="0"
+                                      Y2="155"
+                                      StrokeThickness="3"
+                                      Stroke="Gray" />
+                                <StackPanel Margin="18,5,0,0">
+                                    <CheckBox Content="忽略大小写"
+                                              FontSize="13"
+                                              IsChecked="True"
+                                              x:Name="EverythingEngineIgnoreCase" />
+                                    <CheckBox Content="使用正则表达式"
+                                              x:Name="EverythingEngineIncludeRegex"
+                                              FontSize="13" />
+                                    <CheckBox Content="全局搜索"
+                                              IsChecked="{x:Bind EverythingEngineIncludeRegex.IsChecked, Mode=OneWay}"
+                                              IsEnabled="{x:Bind EverythingEngineIncludeRegex.IsChecked, Mode=OneWay, Converter={StaticResource InverseConverter}}"
+                                              x:Name="EverythingEngineSearchGloble"
+                                              FontSize="13" />
+                                    <ComboBox IsEditable="True"
+                                              Header="搜索结果限制"
+                                              x:Name="EverythingEngineResultLimit"
+                                              FontSize="13"
+                                              SelectedIndex="0"
+                                              MinWidth="150">
+                                        <x:String>100</x:String>
+                                        <x:String>300</x:String>
+                                        <x:String>500</x:String>
+                                        <x:String>1000</x:String>
+                                    </ComboBox>
+                                </StackPanel>
+                            </StackPanel>
+                            <Grid Margin="0,10,0,0"
+                                  HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
                                 <Button Content="搜索"
-                                        MinWidth="60"
                                         x:Uid="SearchFlyoutConfirm"
-                                        Name="SearchConfirm"
-                                        Click="SearchConfirm_Click" />
+                                        Style="{ThemeResource ButtonRevealStyle}"
+                                        HorizontalAlignment="Stretch"
+                                        Name="SearchEngineConfirm"
+                                        Click="SearchEngineConfirm_Click" />
                                 <Button Content="取消"
                                         x:Uid="SearchFlyoutCancel"
-                                        Name="SearchCancel"
-                                        MinWidth="60"
+                                        Grid.Column="1"
+                                        Style="{ThemeResource ButtonRevealStyle}"
                                         Margin="10,0,0,0"
-                                        Click="SearchCancel_Click" />
-                            </StackPanel>
+                                        Name="SearchEngineCancel"
+                                        Click="SearchEngineCancel_Click"
+                                        HorizontalAlignment="Stretch" />
+                            </Grid>
                         </StackPanel>
                     </Flyout>
                 </FlyoutBase.AttachedFlyout>

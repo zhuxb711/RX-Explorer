@@ -207,12 +207,6 @@ namespace RX_Explorer
                 {
                     if (CreateNewTab() is TabViewItem Item)
                     {
-                        //预览版TabView在没有子Item时会崩溃，此方案作为临时解决方案
-                        if (TabViewControl == null)
-                        {
-                            _ = FindName(nameof(TabViewControl));
-                        }
-
                         TabViewControl.TabItems.Insert(Index, Item);
                         TabViewControl.UpdateLayout();
                         TabViewControl.SelectedItem = Item;
@@ -231,17 +225,11 @@ namespace RX_Explorer
 
                         _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                        //预览版TabView在没有子Item时会崩溃，此方案作为临时解决方案
-                        if (TabViewControl == null)
+                        if (CreateNewTab() is TabViewItem EmptyItem)
                         {
-                            _ = FindName(nameof(TabViewControl));
-
-                            if (CreateNewTab() is TabViewItem EmptyItem)
-                            {
-                                TabViewControl.TabItems.Insert(Index, EmptyItem);
-                                TabViewControl.UpdateLayout();
-                                TabViewControl.SelectedItem = EmptyItem;
-                            }
+                            TabViewControl.TabItems.Insert(Index, EmptyItem);
+                            TabViewControl.UpdateLayout();
+                            TabViewControl.SelectedItem = EmptyItem;
                         }
                     }
                     else
@@ -250,12 +238,6 @@ namespace RX_Explorer
 
                         if (CreateNewTab(TargetFolder) is TabViewItem Item)
                         {
-                            //预览版TabView在没有子Item时会崩溃，此方案作为临时解决方案
-                            if (TabViewControl == null)
-                            {
-                                _ = FindName(nameof(TabViewControl));
-                            }
-
                             TabViewControl.TabItems.Insert(Index, Item);
                             TabViewControl.UpdateLayout();
                             TabViewControl.SelectedItem = Item;
@@ -267,12 +249,6 @@ namespace RX_Explorer
             {
                 if (CreateNewTab() is TabViewItem Item)
                 {
-                    //预览版TabView在没有子Item时会崩溃，此方案作为临时解决方案
-                    if (TabViewControl == null)
-                    {
-                        _ = FindName(nameof(TabViewControl));
-                    }
-
                     TabViewControl.TabItems.Insert(Index, Item);
                     TabViewControl.UpdateLayout();
                     TabViewControl.SelectedItem = Item;
@@ -742,12 +718,6 @@ namespace RX_Explorer
         {
             if (CreateNewTab() is TabViewItem Item)
             {
-                //预览版TabView在没有子Item时会崩溃，此方案作为临时解决方案
-                if (TabViewControl == null)
-                {
-                    _ = FindName(nameof(TabViewControl));
-                }
-
                 sender.TabItems.Add(Item);
                 sender.UpdateLayout();
                 sender.SelectedItem = Item;

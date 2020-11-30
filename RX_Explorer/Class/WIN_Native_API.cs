@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -544,16 +543,16 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static List<FileSystemStorageItemBase> Search(string FolderPath, string TargetName, bool SearchInSubFolders = false, bool IncludeHiddenItem = false, CancellationToken CancelToken = default)
+        public static List<FileSystemStorageItemBase> Search(string FolderPath, string SearchWord, bool SearchInSubFolders = false, bool IncludeHiddenItem = false, bool IsRegexExpresstion = false, bool IgnoreCase = true, CancellationToken CancelToken = default)
         {
             if (string.IsNullOrWhiteSpace(FolderPath))
             {
                 throw new ArgumentException("Argument could not be empty", nameof(FolderPath));
             }
 
-            if (string.IsNullOrEmpty(TargetName))
+            if (string.IsNullOrEmpty(SearchWord))
             {
-                throw new ArgumentException("Argument could not be empty", nameof(TargetName));
+                throw new ArgumentException("Argument could not be empty", nameof(SearchWord));
             }
 
             IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
@@ -576,7 +575,7 @@ namespace RX_Explorer.Class
                                 {
                                     string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
 
-                                    if (Regex.IsMatch(Data.cFileName, @$".*{TargetName}.*", RegexOptions.IgnoreCase))
+                                    if (Regex.IsMatch(Data.cFileName, IsRegexExpresstion ? SearchWord : @$".*{Regex.Escape(SearchWord)}.*", IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
                                     {
                                         FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
                                         DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
@@ -593,13 +592,13 @@ namespace RX_Explorer.Class
 
                                     if (SearchInSubFolders)
                                     {
-                                        SearchResult.AddRange(Search(CurrentDataPath, TargetName, true, IncludeHiddenItem, CancelToken));
+                                        SearchResult.AddRange(Search(CurrentDataPath, SearchWord, true, IncludeHiddenItem, IsRegexExpresstion, IgnoreCase, CancelToken));
                                     }
                                 }
                             }
                             else
                             {
-                                if (Regex.IsMatch(Data.cFileName, @$".*{TargetName}.*", RegexOptions.IgnoreCase))
+                                if (Regex.IsMatch(Data.cFileName, IsRegexExpresstion ? SearchWord : @$".*{Regex.Escape(SearchWord)}.*", IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
                                 {
                                     string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
 

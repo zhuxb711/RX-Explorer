@@ -1,38 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
 namespace FullTrustProcess
 {
-    public class EverythingConnector : IDisposable
+    public class EverythingConnector
     {
-		private const int BufferSize = 256;
+        private const int BufferSize = 256;
 
-		[DllImport("Everything32.dll")]
-		private static extern int Everything_SetSearch(string lpSearchString);
+        [DllImport("Everything32.dll")]
+        private static extern int Everything_SetSearch(string lpSearchString);
 
-		[DllImport("Everything32.dll")]
-		private static extern void Everything_SetOffset(int dwOffset);
+        [DllImport("Everything32.dll")]
+        private static extern void Everything_SetOffset(int dwOffset);
 
-		[DllImport("Everything32.dll")]
-		private static extern string Everything_GetSearch();
+        [DllImport("Everything32.dll")]
+        private static extern string Everything_GetSearch();
 
-		[DllImport("Everything32.dll")]
-		private static extern void Everything_SetMax(int dwMax);
+        [DllImport("Everything32.dll")]
+        private static extern void Everything_SetMax(int dwMax);
 
-		[DllImport("Everything32.dll")]
-		private static extern bool Everything_Query();
+        [DllImport("Everything32.dll")]
+        private static extern bool Everything_Query();
 
-		[DllImport("Everything32.dll")]
-		private static extern int Everything_GetNumResults();
+        [DllImport("Everything32.dll")]
+        private static extern int Everything_GetNumResults();
 
-		[DllImport("Everything32.dll")]
-		private static extern StateCode Everything_GetLastError();
+        [DllImport("Everything32.dll")]
+        private static extern StateCode Everything_GetLastError();
 
-		[DllImport("Everything32.dll")]
-		private static extern void Everything_GetResultFullPathName(int nIndex, StringBuilder lpString, int nMaxCount);
+        [DllImport("Everything32.dll")]
+        private static extern void Everything_GetResultFullPathName(int nIndex, StringBuilder lpString, int nMaxCount);
 
         [DllImport("Everything32.dll")]
         private static extern bool Everything_IsDBLoaded();
@@ -41,21 +40,21 @@ namespace FullTrustProcess
         private static extern void Everything_SetRegex(bool isEnabled);
 
         [DllImport("Everything32.dll")]
-        private static extern void Everything_CleanUp();
+        private static extern void Everything_SetMatchCase(bool isCaseSensitive);
 
         public enum StateCode
-		{
-			OK,
-			MemoryError,
-			IPCError,
-			RegisterClassExError,
-			CreateWindowError,
-			CreateThreadError,
-			InvalidIndexError,
-			InvalidCallError
-		}
+        {
+            OK,
+            MemoryError,
+            IPCError,
+            RegisterClassExError,
+            CreateWindowError,
+            CreateThreadError,
+            InvalidIndexError,
+            InvalidCallError
+        }
 
-        public bool CheckIfAvailable
+        public bool IsAvailable
         {
             get
             {
@@ -63,34 +62,52 @@ namespace FullTrustProcess
             }
         }
 
+        private static EverythingConnector Instance;
+        public static EverythingConnector Current
+        {
+            get
+            {
+                return Instance ??= new EverythingConnector();
+            }
+        }
+
+        private EverythingConnector()
+        {
+
+        }
+
         public StateCode GetLastErrorCode()
         {
             return Everything_GetLastError();
         }
 
-		public IEnumerable<string> Search(string SearchKeyWord, bool SearchAsRegex = false, int MaxCount = 500)
-		{
-			if (string.IsNullOrWhiteSpace(SearchKeyWord) || !CheckIfAvailable)
-			{
-				yield break;
-			}
+        public IEnumerable<string> Search(string BaseLocation, string SearchWord, bool SearchAsRegex = false, bool IgnoreCase = true, uint MaxCount = 500)
+        {
+            if (string.IsNullOrWhiteSpace(SearchWord) || !IsAvailable)
+            {
+                yield break;
+            }
             else
             {
-                if (MaxCount < 0)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(MaxCount));
-                }
-
                 Everything_SetRegex(SearchAsRegex);
-                Everything_SetSearch(SearchKeyWord);
+                Everything_SetMatchCase(!IgnoreCase);
                 Everything_SetOffset(0);
-                Everything_SetMax(MaxCount);
+                Everything_SetMax(Convert.ToInt32(MaxCount));
+
+                if (string.IsNullOrEmpty(BaseLocation))
+                {
+                    Everything_SetSearch(SearchWord);
+                }
+                else
+                {
+                    Everything_SetSearch(BaseLocation.EndsWith("\\") ? $"\"{BaseLocation}\" {SearchWord}" : $"\"{BaseLocation}\\\" {SearchWord}");
+                }
 
                 if (Everything_Query())
                 {
                     StringBuilder Builder = new StringBuilder(BufferSize);
 
-                    for (int index = 0; index < Everything_GetNumResults(); ++index)
+                    for (int index = 0; index < Everything_GetNumResults(); index++)
                     {
                         Builder.Clear();
                         Everything_GetResultFullPathName(index, Builder, BufferSize);
@@ -102,11 +119,6 @@ namespace FullTrustProcess
                     yield break;
                 }
             }
-        }
-
-        public void Dispose()
-        {
-            Everything_CleanUp();
         }
     }
 }

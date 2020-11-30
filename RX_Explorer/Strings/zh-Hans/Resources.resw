@@ -598,12 +598,6 @@
   <data name="SearchFlyoutConfirm.Content" xml:space="preserve">
     <value>搜索</value>
   </data>
-  <data name="SearchFlyoutDeepRadio.Content" xml:space="preserve">
-    <value>深度搜索全部目录(较慢)</value>
-  </data>
-  <data name="SearchFlyoutShallowRadio.Content" xml:space="preserve">
-    <value>仅搜索当前目录(较快)</value>
-  </data>
   <data name="SearchHasItem.Text" xml:space="preserve">
     <value>无法搜索到任何文件</value>
   </data>

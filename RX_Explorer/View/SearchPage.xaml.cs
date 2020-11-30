@@ -38,15 +38,15 @@ namespace RX_Explorer
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e?.Parameter is Tuple<WeakReference<FileControl>, bool> Parameters)
+            if (e?.Parameter is Tuple<WeakReference<FileControl>, SearchCategory, bool?, bool?, bool?, uint?> Parameters)
             {
                 WeakToFileControl = Parameters.Item1;
 
-                await Initialize(Parameters.Item2).ConfigureAwait(false);
+                await Initialize(Parameters.Item2, Parameters.Item3.GetValueOrDefault(), Parameters.Item4.GetValueOrDefault(), Parameters.Item5.GetValueOrDefault(), Parameters.Item6.GetValueOrDefault()).ConfigureAwait(false);
             }
         }
 
-        private async Task Initialize(bool SearchShallow)
+        private async Task Initialize(SearchCategory Category, bool IngoreCase, bool IncludeRegex, bool GlobleSearch, uint MaxCount)
         {
             HasItem.Visibility = Visibility.Collapsed;
 
@@ -62,11 +62,32 @@ namespace RX_Explorer
                     string CurrentPath = Control.CurrentFolder.Path;
                     string SearchTarget = Control.GlobeSearch.Text;
 
-                    List<FileSystemStorageItemBase> SearchItems = await Task.Run(() => WIN_Native_API.Search(CurrentPath, SearchTarget, !SearchShallow, SettingControl.IsDisplayHiddenItem, Cancellation.Token)).ConfigureAwait(true);
+                    List<FileSystemStorageItemBase> SearchItems = null;
+
+                    switch (Category)
+                    {
+                        case SearchCategory.BuiltInEngine_Deep:
+                            {
+                                SearchItems = await Task.Run(() => WIN_Native_API.Search(CurrentPath, SearchTarget, true, SettingControl.IsDisplayHiddenItem, IncludeRegex, IngoreCase, Cancellation.Token)).ConfigureAwait(true);
+                                break;
+                            }
+                        case SearchCategory.BuiltInEngine_Shallow:
+                            {
+                                SearchItems = await Task.Run(() => WIN_Native_API.Search(CurrentPath, SearchTarget, false, SettingControl.IsDisplayHiddenItem, IncludeRegex, IngoreCase, Cancellation.Token)).ConfigureAwait(true);
+                                break;
+                            }
+                        case SearchCategory.EverythingEngine:
+                            {
+                                SearchItems = await FullTrustProcessController.Current.SearchByEverythingAsync(GlobleSearch ? string.Empty : CurrentPath, SearchTarget, IncludeRegex, IngoreCase, MaxCount).ConfigureAwait(true);
+                                break;
+                            }
+                    }
 
                     await Task.Delay(500).ConfigureAwait(true);
 
                     LoadingControl.IsLoading = false;
+
+                    await Task.Delay(300).ConfigureAwait(true);
 
                     if (Cancellation.IsCancellationRequested)
                     {

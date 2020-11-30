@@ -800,14 +800,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Search</source>
           <target state="translated" state-qualifier="tm-suggestion">搜尋</target>
         </trans-unit>
-        <trans-unit id="SearchFlyoutDeepRadio.Content" translate="yes" xml:space="preserve">
-          <source>Deep search for all directories (slower)</source>
-          <target state="translated">深度搜尋所有路徑（緩慢）</target>
-        </trans-unit>
-        <trans-unit id="SearchFlyoutShallowRadio.Content" translate="yes" xml:space="preserve">
-          <source>Only search the current directory (faster)</source>
-          <target state="translated">只搜尋目前路徑（快速）</target>
-        </trans-unit>
         <trans-unit id="SearchHasItem.Text" translate="yes" xml:space="preserve">
           <source>No Result</source>
           <target state="translated" state-qualifier="tm-suggestion">沒有結果</target>

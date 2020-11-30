@@ -598,12 +598,6 @@
   <data name="SearchFlyoutConfirm.Content" xml:space="preserve">
     <value>Rechercher</value>
   </data>
-  <data name="SearchFlyoutDeepRadio.Content" xml:space="preserve">
-    <value>Rechercher dans les sous répertoires (plus lent)</value>
-  </data>
-  <data name="SearchFlyoutShallowRadio.Content" xml:space="preserve">
-    <value>Rechercher uniquement dans le répertoire courant (plus rapide)</value>
-  </data>
   <data name="SearchHasItem.Text" xml:space="preserve">
     <value>Aucun résultat</value>
   </data>

@@ -788,14 +788,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Search</source>
           <target state="translated">搜索</target>
         </trans-unit>
-        <trans-unit id="SearchFlyoutDeepRadio.Content" translate="yes" xml:space="preserve">
-          <source>Deep search for all directories (slower)</source>
-          <target state="translated">深度搜索全部目录(较慢)</target>
-        </trans-unit>
-        <trans-unit id="SearchFlyoutShallowRadio.Content" translate="yes" xml:space="preserve">
-          <source>Only search the current directory (faster)</source>
-          <target state="translated">仅搜索当前目录(较快)</target>
-        </trans-unit>
         <trans-unit id="SearchHasItem.Text" translate="yes" xml:space="preserve">
           <source>No Result</source>
           <target state="translated">无法搜索到任何文件</target>

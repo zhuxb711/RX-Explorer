@@ -718,12 +718,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="SearchFlyoutConfirm.Content" xml:space="preserve">
     <value>Search</value>
   </data>
-  <data name="SearchFlyoutDeepRadio.Content" xml:space="preserve">
-    <value>Deep search for all directories (slower)</value>
-  </data>
-  <data name="SearchFlyoutShallowRadio.Content" xml:space="preserve">
-    <value>Only search the current directory (faster)</value>
-  </data>
   <data name="SearchHasItem.Text" xml:space="preserve">
     <value>No Result</value>
   </data>

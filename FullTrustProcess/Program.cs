@@ -99,6 +99,40 @@ namespace FullTrustProcess
             {
                 switch (args.Request.Message["ExecuteType"])
                 {
+                    case "Execute_CheckIfEverythingAvailable":
+                        {
+                            await args.Request.SendResponseAsync(new ValueSet
+                            {
+                                {"Success", EverythingConnector.Current.IsAvailable }
+                            });
+
+                            break;
+                        }
+                    case "Execute_SearchByEverything":
+                        {
+                            string BaseLocation = Convert.ToString(args.Request.Message["BaseLocation"]);
+                            string SearchWord = Convert.ToString(args.Request.Message["SearchWord"]);
+                            bool SearchAsRegex = Convert.ToBoolean(args.Request.Message["SearchAsRegex"]);
+                            bool IgnoreCase = Convert.ToBoolean(args.Request.Message["IgnoreCase"]);
+                            uint MaxCount = Convert.ToUInt32(args.Request.Message["MaxCount"]);
+
+                            ValueSet Value = new ValueSet();
+
+                            if (EverythingConnector.Current.IsAvailable)
+                            {
+                                IEnumerable<string> SearchResult = EverythingConnector.Current.Search(BaseLocation, SearchWord, SearchAsRegex, IgnoreCase, MaxCount);
+
+                                Value.Add("Success", JsonConvert.SerializeObject(SearchResult));
+                            }
+                            else
+                            {
+                                Value.Add("Error", "Everything is not available");
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
+
+                            break;
+                        }
                     case "Execute_GetContextMenuItems":
                         {
                             string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);

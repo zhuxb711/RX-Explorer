@@ -607,12 +607,6 @@
   <data name="SearchFlyoutConfirm.Content" xml:space="preserve">
     <value>搜尋</value>
   </data>
-  <data name="SearchFlyoutDeepRadio.Content" xml:space="preserve">
-    <value>深度搜尋所有路徑（緩慢）</value>
-  </data>
-  <data name="SearchFlyoutShallowRadio.Content" xml:space="preserve">
-    <value>只搜尋目前路徑（快速）</value>
-  </data>
   <data name="SearchHasItem.Text" xml:space="preserve">
     <value>沒有結果</value>
   </data>
