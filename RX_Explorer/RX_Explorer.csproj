@@ -182,6 +182,9 @@
     <Compile Include="Class\ValueConverter.cs" />
     <Compile Include="Class\WIN_Native_API.cs" />
     <Compile Include="Class\CredentialProtector.cs" />
+    <Compile Include="Dialog\BitlockerPasswordDialog.xaml.cs">
+      <DependentUpon>BitlockerPasswordDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\DeleteDialog.xaml.cs">
       <DependentUpon>DeleteDialog.xaml</DependentUpon>
     </Compile>
@@ -460,6 +463,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Dialog\BitlockerPasswordDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Dialog\DeleteDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

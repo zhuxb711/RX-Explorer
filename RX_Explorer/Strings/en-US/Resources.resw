@@ -2610,4 +2610,7 @@ Invalid names include
   <data name="MulSelect.ToolTipService.ToolTip" xml:space="preserve">
     <value>Multi-select</value>
   </data>
+  <data name="Common_Dialog_ConfirmButton" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
 </root>

@@ -60,6 +60,8 @@ namespace RX_Explorer.Class
         /// </summary>
         public string FreeSpace { get; private set; }
 
+        public bool IsLockedByBitlocker { get; }
+
         /// <summary>
         /// 容量显示条对可用空间不足的情况转换颜色
         /// </summary>
@@ -108,7 +110,7 @@ namespace RX_Explorer.Class
 
             if (PropertiesRetrieve != null)
             {
-                if (PropertiesRetrieve.ContainsKey("System.Capacity") && PropertiesRetrieve["System.Capacity"] is ulong TotalByte)
+                if (PropertiesRetrieve.TryGetValue("System.Capacity", out object TotalByteRaw) && TotalByteRaw is ulong TotalByte)
                 {
                     this.TotalByte = TotalByte;
                     Capacity = TotalByte.ToFileSizeDescription();
@@ -118,7 +120,7 @@ namespace RX_Explorer.Class
                     Capacity = Globalization.GetString("UnknownText");
                 }
 
-                if (PropertiesRetrieve.ContainsKey("System.FreeSpace") && PropertiesRetrieve["System.FreeSpace"] is ulong FreeByte)
+                if (PropertiesRetrieve.TryGetValue("System.FreeSpace", out object FreeByteRaw) && FreeByteRaw is ulong FreeByte)
                 {
                     this.FreeByte = FreeByte;
                     FreeSpace = FreeByte.ToFileSizeDescription();
@@ -128,13 +130,40 @@ namespace RX_Explorer.Class
                     FreeSpace = Globalization.GetString("UnknownText");
                 }
 
-                if (PropertiesRetrieve.ContainsKey("System.Volume.FileSystem") && PropertiesRetrieve["System.Volume.FileSystem"] is string FileSystem)
+                if (PropertiesRetrieve.TryGetValue("System.Volume.FileSystem", out object FileSystemRaw) && FileSystemRaw is string FileSystem)
                 {
                     this.FileSystem = FileSystem;
                 }
                 else
                 {
                     this.FileSystem = Globalization.GetString("UnknownText");
+                }
+
+                /*
+                 * | System.Volume.      | Control Panel                    | manage-bde conversion     | manage-bde     | Get-BitlockerVolume          | Get-BitlockerVolume |
+                 * | BitLockerProtection |                                  |                           | protection     | VolumeStatus                 | ProtectionStatus    |
+                 * | ------------------- | -------------------------------- | ------------------------- | -------------- | ---------------------------- | ------------------- |
+                 * |                   1 | BitLocker on                     | Used Space Only Encrypted | Protection On  | FullyEncrypted               | On                  |
+                 * |                   1 | BitLocker on                     | Fully Encrypted           | Protection On  | FullyEncrypted               | On                  |
+                 * |                   1 | BitLocker on                     | Fully Encrypted           | Protection On  | FullyEncryptedWipeInProgress | On                  |
+                 * |                   2 | BitLocker off                    | Fully Decrypted           | Protection Off | FullyDecrypted               | Off                 |
+                 * |                   3 | BitLocker Encrypting             | Encryption In Progress    | Protection Off | EncryptionInProgress         | Off                 |
+                 * |                   3 | BitLocker Encryption Paused      | Encryption Paused         | Protection Off | EncryptionSuspended          | Off                 |
+                 * |                   4 | BitLocker Decrypting             | Decryption in progress    | Protection Off | DecyptionInProgress          | Off                 |
+                 * |                   4 | BitLocker Decryption Paused      | Decryption Paused         | Protection Off | DecryptionSuspended          | Off                 |
+                 * |                   5 | BitLocker suspended              | Used Space Only Encrypted | Protection Off | FullyEncrypted               | Off                 |
+                 * |                   5 | BitLocker suspended              | Fully Encrypted           | Protection Off | FullyEncrypted               | Off                 |
+                 * |                   6 | BitLocker on (Locked)            | Unknown                   | Unknown        | $null                        | Unknown             |
+                 * |                   7 |                                  |                           |                |                              |                     |
+                 * |                   8 | BitLocker waiting for activation | Used Space Only Encrypted | Protection Off | FullyEncrypted               | Off                 |
+                 */
+                if (PropertiesRetrieve.TryGetValue("System.Volume.BitLockerProtection", out object BitlockerStateRaw) && BitlockerStateRaw is int BitlockerState)
+                {
+                    IsLockedByBitlocker = BitlockerState == 6;
+                }
+                else
+                {
+                    IsLockedByBitlocker = false;
                 }
 
                 if (this.TotalByte != 0)
