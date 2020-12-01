@@ -3321,6 +3321,14 @@ Les noms non valides incluent
           <source>Multi-select</source>
           <target state="translated">Sélection multiple</target>
         </trans-unit>
+        <trans-unit id="Common_Dialog_ConfirmButton" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="translated">Confirmer</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnlockBitlockerFailed_Content" translate="yes" xml:space="preserve">
+          <source>Unable to unlock Bitlocker, please check whether the password is correct and whether the administrator authority is granted</source>
+          <target state="translated">Impossible de déverrouiller Bitlocker, veuillez vérifier si le mot de passe est correct et si l'autorité d'administrateur est accordée</target>
+        </trans-unit>
       </group>
     </body>
   </file>

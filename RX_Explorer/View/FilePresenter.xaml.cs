@@ -2957,7 +2957,7 @@ namespace RX_Explorer
                                     Retry:
                                         try
                                         {
-                                            await FullTrustProcessController.Current.RunAsync(Path, false, false, File.Path).ConfigureAwait(true);
+                                            await FullTrustProcessController.Current.RunAsync(Path, false, false, false, File.Path).ConfigureAwait(true);
                                         }
                                         catch (InvalidOperationException)
                                         {
@@ -3081,7 +3081,7 @@ namespace RX_Explorer
                                                 Retry:
                                                     try
                                                     {
-                                                        await FullTrustProcessController.Current.RunAsync(Dialog.SelectedProgram.Path, false, false, File.Path).ConfigureAwait(true);
+                                                        await FullTrustProcessController.Current.RunAsync(Dialog.SelectedProgram.Path, false, false, false, File.Path).ConfigureAwait(true);
                                                     }
                                                     catch (InvalidOperationException)
                                                     {
@@ -3224,7 +3224,7 @@ namespace RX_Explorer
                                             Retry:
                                                 try
                                                 {
-                                                    await FullTrustProcessController.Current.RunAsync(Dialog.SelectedProgram.Path, false, false, File.Path).ConfigureAwait(true);
+                                                    await FullTrustProcessController.Current.RunAsync(Dialog.SelectedProgram.Path, false, false, false, File.Path).ConfigureAwait(true);
                                                 }
                                                 catch (InvalidOperationException)
                                                 {
@@ -3361,7 +3361,7 @@ namespace RX_Explorer
                                         {
                                             if (TabTarget is HyperlinkStorageItem Item)
                                             {
-                                                await FullTrustProcessController.Current.RunAsync(Item.TargetPath, Item.NeedRunAs || RunAsAdministrator, false, Item.Arguments).ConfigureAwait(true);
+                                                await FullTrustProcessController.Current.RunAsync(Item.TargetPath, Item.NeedRunAs || RunAsAdministrator, false, false, Item.Arguments).ConfigureAwait(true);
                                             }
                                             else
                                             {
@@ -3405,7 +3405,7 @@ namespace RX_Explorer
                                     Retry:
                                         try
                                         {
-                                            await FullTrustProcessController.Current.RunAsync(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe"), false, true, "-Command", File.Path).ConfigureAwait(true);
+                                            await FullTrustProcessController.Current.RunAsync("powershell.exe", false, true, false, "-Command", File.Path).ConfigureAwait(true);
                                         }
                                         catch (InvalidOperationException)
                                         {
@@ -3515,7 +3515,7 @@ namespace RX_Explorer
                                                 Retry:
                                                     try
                                                     {
-                                                        await FullTrustProcessController.Current.RunAsync(Dialog.SelectedProgram.Path, false, false, File.Path).ConfigureAwait(true);
+                                                        await FullTrustProcessController.Current.RunAsync(Dialog.SelectedProgram.Path, false, false, false, File.Path).ConfigureAwait(true);
                                                     }
                                                     catch (InvalidOperationException)
                                                     {
@@ -3754,7 +3754,7 @@ namespace RX_Explorer
                         Retry:
                             try
                             {
-                                await FullTrustProcessController.Current.RunAsync(Dialog.SelectedProgram.Path, false, false, Item.Path).ConfigureAwait(true);
+                                await FullTrustProcessController.Current.RunAsync(Dialog.SelectedProgram.Path, false, false, false, Item.Path).ConfigureAwait(true);
                             }
                             catch (InvalidOperationException)
                             {
@@ -5437,7 +5437,7 @@ namespace RX_Explorer
             Retry:
                 try
                 {
-                    await FullTrustProcessController.Current.RunAsync(Profile.Path, Profile.RunAsAdmin, false, Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value == "[CurrentLocation]" ? Container.CurrentFolder.Path : Mat.Value).ToArray()).ConfigureAwait(false);
+                    await FullTrustProcessController.Current.RunAsync(Profile.Path, Profile.RunAsAdmin, false, false, Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value == "[CurrentLocation]" ? Container.CurrentFolder.Path : Mat.Value).ToArray()).ConfigureAwait(false);
                 }
                 catch (InvalidOperationException)
                 {
@@ -5658,7 +5658,7 @@ namespace RX_Explorer
 
             if (await FullTrustProcessController.Current.RemoveHiddenAttributeAsync(SelectedItem.Path).ConfigureAwait(true))
             {
-                if (WIN_Native_API.GetStorageItems(SelectedItem.Path).FirstOrDefault() is FileSystemStorageItemBase Item)
+                if (WIN_Native_API.GetStorageItem(SelectedItem.Path) is FileSystemStorageItemBase Item)
                 {
                     int Index = FileCollection.IndexOf(SelectedItem);
 

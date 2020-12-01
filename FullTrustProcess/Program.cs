@@ -883,7 +883,9 @@ namespace FullTrustProcess
                             string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);
                             string ExecuteParameter = Convert.ToString(args.Request.Message["ExecuteParameter"]);
                             string ExecuteAuthority = Convert.ToString(args.Request.Message["ExecuteAuthority"]);
+
                             bool ExecuteCreateNoWindow = Convert.ToBoolean(args.Request.Message["ExecuteCreateNoWindow"]);
+                            bool ShouldWaitForExit = Convert.ToBoolean(args.Request.Message["ExecuteShouldWaitForExit"]);
 
                             ValueSet Value = new ValueSet();
 
@@ -897,8 +899,13 @@ namespace FullTrustProcess
                                         {
                                             Process.StartInfo.FileName = ExecutePath;
                                             Process.StartInfo.UseShellExecute = true;
-                                            Process.StartInfo.CreateNoWindow = ExecuteCreateNoWindow;
                                             Process.StartInfo.WorkingDirectory = Path.GetDirectoryName(ExecutePath);
+
+                                            if (ExecuteCreateNoWindow)
+                                            {
+                                                Process.StartInfo.CreateNoWindow = true;
+                                                Process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                                            }
 
                                             if (ExecuteAuthority == "Administrator")
                                             {
@@ -908,6 +915,11 @@ namespace FullTrustProcess
                                             Process.Start();
 
                                             SetWindowsZPosition(Process);
+
+                                            if (ShouldWaitForExit)
+                                            {
+                                                Process.WaitForExit();
+                                            }
                                         }
                                     }
                                     else
@@ -917,8 +929,13 @@ namespace FullTrustProcess
                                             Process.StartInfo.FileName = ExecutePath;
                                             Process.StartInfo.Arguments = ExecuteParameter;
                                             Process.StartInfo.UseShellExecute = true;
-                                            Process.StartInfo.CreateNoWindow = ExecuteCreateNoWindow;
                                             Process.StartInfo.WorkingDirectory = Path.GetDirectoryName(ExecutePath);
+
+                                            if (ExecuteCreateNoWindow)
+                                            {
+                                                Process.StartInfo.CreateNoWindow = true;
+                                                Process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                                            }
 
                                             if (ExecuteAuthority == "Administrator")
                                             {
@@ -928,6 +945,11 @@ namespace FullTrustProcess
                                             Process.Start();
 
                                             SetWindowsZPosition(Process);
+
+                                            if (ShouldWaitForExit)
+                                            {
+                                                Process.WaitForExit();
+                                            }
                                         }
                                     }
 

@@ -2505,4 +2505,10 @@ Les noms non valides incluent
   <data name="MulSelect.ToolTipService.ToolTip" xml:space="preserve">
     <value>Sélection multiple</value>
   </data>
+  <data name="Common_Dialog_ConfirmButton" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="QueueDialog_UnlockBitlockerFailed_Content" xml:space="preserve">
+    <value>Impossible de déverrouiller Bitlocker, veuillez vérifier si le mot de passe est correct et si l'autorité d'administrateur est accordée</value>
+  </data>
 </root>

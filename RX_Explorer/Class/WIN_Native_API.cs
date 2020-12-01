@@ -732,6 +732,85 @@ namespace RX_Explorer.Class
             }
         }
 
+        public static FileSystemStorageItemBase GetStorageItem(string Path)
+        {
+            if(string.IsNullOrWhiteSpace(Path))
+            {
+                throw new ArgumentNullException(nameof(Path), "Argument could not be null");
+            }
+
+            try
+            {
+                IntPtr Ptr = FindFirstFileExFromApp(Path, FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+
+                try
+                {
+                    if (Ptr.ToInt64() != -1)
+                    {
+                        FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
+
+                        if (Attribute.HasFlag(FileAttributes.Directory))
+                        {
+                            if (Data.cFileName != "." && Data.cFileName != "..")
+                            {
+                                FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
+                                DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
+
+                                if (Attribute.HasFlag(FileAttributes.Hidden))
+                                {
+                                    return new HiddenStorageItem(Data, StorageItemTypes.Folder, Path, ModifiedTime);
+                                }
+                                else
+                                {
+                                    return new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, Path, ModifiedTime);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
+                            DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
+
+                            if (Attribute.HasFlag(FileAttributes.Hidden))
+                            {
+                                return new HiddenStorageItem(Data, StorageItemTypes.File, Path, ModifiedTime);
+                            }
+                            else
+                            {
+                                if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        return new HyperlinkStorageItem(Data, Path, ModifiedTime);
+                                    }
+                                    else
+                                    {
+                                        return new FileSystemStorageItemBase(Data, StorageItemTypes.File, Path, ModifiedTime);
+                                    }
+                                }
+                            }
+                        }
+
+                        return null;
+                    }
+                    else
+                    {
+                        LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
+                        return null;
+                    }
+                }
+                finally
+                {
+                    FindClose(Ptr);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex);
+                return null;
+            }
+        }
+
         public static List<FileSystemStorageItemBase> GetStorageItems(params string[] PathArray)
         {
             if (PathArray.Length == 0 || PathArray.Any((Item) => string.IsNullOrWhiteSpace(Item)))

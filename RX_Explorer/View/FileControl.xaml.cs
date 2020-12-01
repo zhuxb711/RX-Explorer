@@ -15,6 +15,7 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Foundation;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -1046,7 +1047,7 @@ namespace RX_Explorer
             Retry1:
                 try
                 {
-                    await FullTrustProcessController.Current.RunAsync(ExcutePath, true, false, "-NoExit", "-Command", "Set-Location", CurrentFolder.Path).ConfigureAwait(false);
+                    await FullTrustProcessController.Current.RunAsync(ExcutePath, true, false, false, "-NoExit", "-Command", "Set-Location", CurrentFolder.Path).ConfigureAwait(false);
                 }
                 catch (InvalidOperationException)
                 {
@@ -1088,7 +1089,7 @@ namespace RX_Explorer
             Retry2:
                 try
                 {
-                    await FullTrustProcessController.Current.RunAsync(ExcutePath, true, false, "/k", "cd", "/d", CurrentFolder.Path).ConfigureAwait(false);
+                    await FullTrustProcessController.Current.RunAsync(ExcutePath, true, false, false, "/k", "cd", "/d", CurrentFolder.Path).ConfigureAwait(false);
                 }
                 catch (InvalidOperationException)
                 {
@@ -1133,7 +1134,7 @@ namespace RX_Explorer
                         Retry:
                             try
                             {
-                                await FullTrustProcessController.Current.RunAsync("wt.exe", false, false, "/d", CurrentFolder.Path).ConfigureAwait(false);
+                                await FullTrustProcessController.Current.RunAsync("wt.exe", false, false, false, "/d", CurrentFolder.Path).ConfigureAwait(false);
                             }
                             catch (InvalidOperationException)
                             {
@@ -1178,7 +1179,7 @@ namespace RX_Explorer
 
             if (ProtentialPath1 != QueryText && WIN_Native_API.CheckExist(ProtentialPath1))
             {
-                if (WIN_Native_API.GetStorageItems(ProtentialPath1).FirstOrDefault() is FileSystemStorageItemBase Item)
+                if (WIN_Native_API.GetStorageItem(ProtentialPath1) is FileSystemStorageItemBase Item)
                 {
                     await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
 
@@ -1192,7 +1193,7 @@ namespace RX_Explorer
             }
             else if (ProtentialPath2 != QueryText && WIN_Native_API.CheckExist(ProtentialPath2))
             {
-                if (WIN_Native_API.GetStorageItems(ProtentialPath2).FirstOrDefault() is FileSystemStorageItemBase Item)
+                if (WIN_Native_API.GetStorageItem(ProtentialPath2) is FileSystemStorageItemBase Item)
                 {
                     await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
 
@@ -1206,7 +1207,7 @@ namespace RX_Explorer
             }
             else if (ProtentialPath3 != QueryText && WIN_Native_API.CheckExist(ProtentialPath3))
             {
-                if (WIN_Native_API.GetStorageItems(ProtentialPath3).FirstOrDefault() is FileSystemStorageItemBase Item)
+                if (WIN_Native_API.GetStorageItem(ProtentialPath3) is FileSystemStorageItemBase Item)
                 {
                     await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
 
@@ -1223,9 +1224,58 @@ namespace RX_Explorer
             {
                 QueryText = await CommonEnvironmentVariables.ReplaceVariableAndGetActualPath(QueryText).ConfigureAwait(true);
 
-                if (Path.IsPathRooted(QueryText) && CommonAccessCollection.HardDeviceList.Any((Drive) => Drive.Folder.Path == Path.GetPathRoot(QueryText)))
+
+                if (Path.IsPathRooted(QueryText) && CommonAccessCollection.HardDeviceList.FirstOrDefault((Drive) => Drive.Folder.Path == Path.GetPathRoot(QueryText)) is HardDeviceInfo Device)
                 {
-                    if (WIN_Native_API.GetStorageItems(QueryText).FirstOrDefault() is FileSystemStorageItemBase Item)
+                    if (Device.IsLockedByBitlocker)
+                    {
+                    Retry:
+                        BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
+
+                        if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                        {
+                            await FullTrustProcessController.Current.RunAsync("powershell.exe", true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
+
+                            StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
+
+                            BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
+                            IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
+
+                            HardDeviceInfo NewDevice = new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Device.DriveType);
+
+                            if (!NewDevice.IsLockedByBitlocker)
+                            {
+                                int Index = CommonAccessCollection.HardDeviceList.IndexOf(Device);
+                                CommonAccessCollection.HardDeviceList.Remove(Device);
+                                CommonAccessCollection.HardDeviceList.Insert(Index, NewDevice);
+                            }
+                            else
+                            {
+                                QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
+
+                                if (await UnlockFailedDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                {
+                                    goto Retry;
+                                }
+                                else
+                                {
+                                    return;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+
+                    if (WIN_Native_API.GetStorageItem(QueryText) is FileSystemStorageItemBase Item)
                     {
                         if (Item.StorageType == StorageItemTypes.File)
                         {
@@ -1237,6 +1287,7 @@ namespace RX_Explorer
                                 {
                                     DisplayApplicationPicker = true
                                 };
+
                                 _ = await Launcher.LaunchFileAsync(File, options);
                             }
                         }
@@ -1244,12 +1295,30 @@ namespace RX_Explorer
                         {
                             StorageFolder Folder = (await Item.GetStorageItem().ConfigureAwait(true)) as StorageFolder;
 
-                            await DisplayItemsInFolder(Folder).ConfigureAwait(true);
+                            if (Path.GetPathRoot(QueryText) != Path.GetPathRoot(CurrentFolder.Path))
+                            {
+                                await Initialize(Folder).ConfigureAwait(true);
+                            }
+                            else
+                            {
+                                await DisplayItemsInFolder(Folder).ConfigureAwait(true);
+                            }
 
                             await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(true);
 
                             await JumpListController.Current.AddItem(JumpListGroup.Recent, Folder).ConfigureAwait(true);
                         }
+                    }
+                    else
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} \r\"{QueryText}\"",
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                        };
+
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
                     }
                 }
                 else
@@ -1260,6 +1329,7 @@ namespace RX_Explorer
                         Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} \r\"{QueryText}\"",
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                     };
+
                     _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
             }
@@ -1271,6 +1341,7 @@ namespace RX_Explorer
                     Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} \r\"{QueryText}\"",
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                 };
+
                 _ = await dialog.ShowAsync().ConfigureAwait(true);
             }
         }
@@ -1281,9 +1352,7 @@ namespace RX_Explorer
 
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                if (Path.IsPathRooted(sender.Text)
-                    && Path.GetDirectoryName(sender.Text) is string DirectoryName
-                    && CommonAccessCollection.HardDeviceList.Any((Drive) => Drive.Folder.Path == Path.GetPathRoot(sender.Text)))
+                if (Path.IsPathRooted(sender.Text) && CommonAccessCollection.HardDeviceList.Any((Drive) => Drive.Folder.Path == Path.GetPathRoot(sender.Text)))
                 {
                     if (Interlocked.Exchange(ref TextChangeLockResource, 1) == 0)
                     {
@@ -1291,11 +1360,17 @@ namespace RX_Explorer
                         {
                             if (args.CheckCurrent())
                             {
-                                sender.ItemsSource = WIN_Native_API.GetStorageItems(DirectoryName, false, ItemFilters.Folder).Where((Item) => Item.Name.StartsWith(Path.GetFileName(sender.Text), StringComparison.OrdinalIgnoreCase)).Select((It) => It.Path);
-                            }
-                            else
-                            {
-                                sender.ItemsSource = null;
+                                string DirectoryPath = Path.GetPathRoot(sender.Text) == sender.Text ? sender.Text : Path.GetDirectoryName(sender.Text);
+                                string FileName = Path.GetFileName(sender.Text);
+
+                                if (string.IsNullOrEmpty(FileName))
+                                {
+                                    sender.ItemsSource = WIN_Native_API.GetStorageItems(DirectoryPath, false, ItemFilters.Folder).Take(20).Select((It) => It.Path);
+                                }
+                                else
+                                {
+                                    sender.ItemsSource = WIN_Native_API.GetStorageItems(DirectoryPath, false, ItemFilters.Folder).Where((Item) => Item.Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase)).Take(20).Select((It) => It.Path);
+                                }
                             }
                         }
                         catch (Exception)

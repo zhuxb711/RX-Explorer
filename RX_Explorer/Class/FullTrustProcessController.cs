@@ -898,7 +898,7 @@ namespace RX_Explorer.Class
         /// <param name="Path">程序路径</param>
         /// <param name="Parameters">传递的参数</param>
         /// <returns></returns>
-        public async Task RunAsync(string Path, bool RunAsAdmin = false, bool CreateNoWindow = false, params string[] Parameters)
+        public async Task RunAsync(string Path, bool RunAsAdmin = false, bool CreateNoWindow = false, bool ShouldWaitForExit = false, params string[] Parameters)
         {
             try
             {
@@ -912,7 +912,8 @@ namespace RX_Explorer.Class
                         {"ExecutePath",Path },
                         {"ExecuteParameter", string.Join(' ', Parameters.Select((Para) => (Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"")) ? $"\"{Para}\"" : Para))},
                         {"ExecuteAuthority", RunAsAdmin ? ExecuteAuthority_Administrator : ExecuteAuthority_Normal},
-                        {"ExecuteCreateNoWindow", CreateNoWindow }
+                        {"ExecuteCreateNoWindow", CreateNoWindow },
+                        {"ExecuteShouldWaitForExit", ShouldWaitForExit}
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);

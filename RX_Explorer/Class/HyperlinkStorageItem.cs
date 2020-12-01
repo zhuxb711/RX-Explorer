@@ -77,7 +77,7 @@ namespace RX_Explorer.Class
 
         public override async Task Replace(string NewPath)
         {
-            if (WIN_Native_API.GetStorageItems(NewPath).FirstOrDefault() is HyperlinkStorageItem HItem)
+            if (WIN_Native_API.GetStorageItem(NewPath) is HyperlinkStorageItem HItem)
             {
                 InternalPathString = HItem.Path;
                 SizeRaw = HItem.SizeRaw;
@@ -94,7 +94,7 @@ namespace RX_Explorer.Class
 
         public override Task Update()
         {
-            if (WIN_Native_API.GetStorageItems(InternalPathString).FirstOrDefault() is HyperlinkStorageItem HItem)
+            if (WIN_Native_API.GetStorageItem(InternalPathString) is HyperlinkStorageItem HItem)
             {
                 SizeRaw = HItem.SizeRaw;
                 ModifiedTimeRaw = HItem.ModifiedTimeRaw;

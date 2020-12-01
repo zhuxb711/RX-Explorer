@@ -156,6 +156,20 @@
                               Click="Attribute_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
+
+        <muxc:CommandBarFlyout x:Name="BitlockerDeviceFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Label="解锁"
+                              Name="UnlockBitlocker"
+                              Click="UnlockBitlocker_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                                  Glyph="&#xE785;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
     </Page.Resources>
 
     <Grid Background="Transparent"

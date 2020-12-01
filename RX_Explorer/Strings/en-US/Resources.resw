@@ -2613,4 +2613,7 @@ Invalid names include
   <data name="Common_Dialog_ConfirmButton" xml:space="preserve">
     <value>Confirm</value>
   </data>
+  <data name="QueueDialog_UnlockBitlockerFailed_Content" xml:space="preserve">
+    <value>Unable to unlock Bitlocker, please check whether the password is correct and whether the administrator authority is granted</value>
+  </data>
 </root>

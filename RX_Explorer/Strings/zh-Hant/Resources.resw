@@ -2505,4 +2505,10 @@
   <data name="MulSelect.ToolTipService.ToolTip" xml:space="preserve">
     <value>多選</value>
   </data>
+  <data name="Common_Dialog_ConfirmButton" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="QueueDialog_UnlockBitlockerFailed_Content" xml:space="preserve">
+    <value>無法解鎖Bitlocker，請檢查密碼是否正確以及是否授予管理員權限</value>
+  </data>
 </root>

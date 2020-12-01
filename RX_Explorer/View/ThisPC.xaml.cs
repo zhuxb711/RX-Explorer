@@ -176,11 +176,41 @@ namespace RX_Explorer
             {
                 if (Device.IsLockedByBitlocker)
                 {
+                Retry:
                     BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
 
                     if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        await FullTrustProcessController.Current.RunAsync("powershell", false, true, "-Command", $"$SecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $SecureString").ConfigureAwait(true);
+                        await FullTrustProcessController.Current.RunAsync("powershell.exe", true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
+
+                        StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
+
+                        BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
+                        IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
+
+                        HardDeviceInfo NewDevice = new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Device.DriveType);
+
+                        if (!NewDevice.IsLockedByBitlocker)
+                        {
+                            int Index = CommonAccessCollection.HardDeviceList.IndexOf(Device);
+                            CommonAccessCollection.HardDeviceList.Remove(Device);
+                            CommonAccessCollection.HardDeviceList.Insert(Index, NewDevice);
+                        }
+                        else
+                        {
+                            QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                                PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                            };
+
+                            if (await UnlockFailedDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                            {
+                                goto Retry;
+                            }
+                        }
                     }
                 }
                 else
@@ -217,7 +247,7 @@ namespace RX_Explorer
                             {
                                 if (Path.GetExtension(Item.Protocol).ToLower() == ".msc")
                                 {
-                                    await FullTrustProcessController.Current.RunAsync(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe"), false, true, "-Command", Item.Protocol).ConfigureAwait(true);
+                                    await FullTrustProcessController.Current.RunAsync("powershell.exe", false, true, false, "-Command", Item.Protocol).ConfigureAwait(true);
                                 }
                                 else
                                 {
@@ -359,7 +389,15 @@ namespace RX_Explorer
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Context)
                 {
                     DeviceGrid.SelectedItem = Context;
-                    DeviceGrid.ContextFlyout = Context.DriveType == DriveType.Removable ? PortableDeviceFlyout : DeviceFlyout;
+
+                    if (Context.IsLockedByBitlocker)
+                    {
+                        DeviceGrid.ContextFlyout = BitlockerDeviceFlyout;
+                    }
+                    else
+                    {
+                        DeviceGrid.ContextFlyout = Context.DriveType == DriveType.Removable ? PortableDeviceFlyout : DeviceFlyout;
+                    }
                 }
                 else
                 {
@@ -377,7 +415,42 @@ namespace RX_Explorer
             {
                 if (Device.IsLockedByBitlocker)
                 {
+                Retry:
+                    BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
 
+                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    {
+                        await FullTrustProcessController.Current.RunAsync("powershell.exe", true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
+
+                        StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
+
+                        BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
+                        IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
+
+                        HardDeviceInfo NewDevice = new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Device.DriveType);
+
+                        if (!NewDevice.IsLockedByBitlocker)
+                        {
+                            int Index = CommonAccessCollection.HardDeviceList.IndexOf(Device);
+                            CommonAccessCollection.HardDeviceList.Remove(Device);
+                            CommonAccessCollection.HardDeviceList.Insert(Index, NewDevice);
+                        }
+                        else
+                        {
+                            QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                                PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                            };
+
+                            if (await UnlockFailedDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                            {
+                                goto Retry;
+                            }
+                        }
+                    }
                 }
                 else
                 {
@@ -564,7 +637,42 @@ namespace RX_Explorer
             {
                 if (Device.IsLockedByBitlocker)
                 {
+                Retry:
+                    BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
 
+                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    {
+                        await FullTrustProcessController.Current.RunAsync("powershell.exe", true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
+
+                        StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
+
+                        BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
+                        IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
+
+                        HardDeviceInfo NewDevice = new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Device.DriveType);
+
+                        if (!NewDevice.IsLockedByBitlocker)
+                        {
+                            int Index = CommonAccessCollection.HardDeviceList.IndexOf(Device);
+                            CommonAccessCollection.HardDeviceList.Remove(Device);
+                            CommonAccessCollection.HardDeviceList.Insert(Index, NewDevice);
+                        }
+                        else
+                        {
+                            QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                                PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                            };
+
+                            if (await UnlockFailedDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                            {
+                                goto Retry;
+                            }
+                        }
+                    }
                 }
                 else
                 {
@@ -826,6 +934,49 @@ namespace RX_Explorer
                     CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(Folder, await Folder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibraryType.UserCustom));
                     await SQLite.Current.SetLibraryPathAsync(Folder.Path, LibraryType.UserCustom).ConfigureAwait(false);
                     await JumpListController.Current.AddItem(JumpListGroup.Library, Folder).ConfigureAwait(false);
+                }
+            }
+        }
+
+        private async void UnlockBitlocker_Click(object sender, RoutedEventArgs e)
+        {
+            if (DeviceGrid.SelectedItem is HardDeviceInfo Device)
+            {
+            Retry:
+                BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
+
+                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                {
+                    await FullTrustProcessController.Current.RunAsync("powershell.exe", true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
+
+                    StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
+
+                    BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
+                    IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
+
+                    HardDeviceInfo NewDevice = new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Device.DriveType);
+
+                    if (!NewDevice.IsLockedByBitlocker)
+                    {
+                        int Index = CommonAccessCollection.HardDeviceList.IndexOf(Device);
+                        CommonAccessCollection.HardDeviceList.Remove(Device);
+                        CommonAccessCollection.HardDeviceList.Insert(Index, NewDevice);
+                    }
+                    else
+                    {
+                        QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                        };
+
+                        if (await UnlockFailedDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                        {
+                            goto Retry;
+                        }
+                    }
                 }
             }
         }

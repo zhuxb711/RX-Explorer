@@ -156,10 +156,20 @@ namespace RX_Explorer.Class
                  * |                   6 | BitLocker on (Locked)            | Unknown                   | Unknown        | $null                        | Unknown             |
                  * |                   7 |                                  |                           |                |                              |                     |
                  * |                   8 | BitLocker waiting for activation | Used Space Only Encrypted | Protection Off | FullyEncrypted               | Off                 |
+                 * 
+                 * We could use Powershell command: Get-BitLockerVolume -MountPoint C: | Select -ExpandProperty LockStatus -------------->Locked / Unlocked
+                 * But powershell might speed too much time to load. So we would not use it
                  */
                 if (PropertiesRetrieve.TryGetValue("System.Volume.BitLockerProtection", out object BitlockerStateRaw) && BitlockerStateRaw is int BitlockerState)
                 {
-                    IsLockedByBitlocker = BitlockerState == 6;
+                    if (BitlockerState == 6 && Capacity == Globalization.GetString("UnknownText") && FreeSpace == Globalization.GetString("UnknownText"))
+                    {
+                        IsLockedByBitlocker = true;
+                    }
+                    else
+                    {
+                        IsLockedByBitlocker = false;
+                    }
                 }
                 else
                 {

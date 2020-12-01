@@ -3321,6 +3321,14 @@ Invalid names include
           <source>Multi-select</source>
           <target state="translated">多选</target>
         </trans-unit>
+        <trans-unit id="Common_Dialog_ConfirmButton" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="translated">确定</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_UnlockBitlockerFailed_Content" translate="yes" xml:space="preserve">
+          <source>Unable to unlock Bitlocker, please check whether the password is correct and whether the administrator authority is granted</source>
+          <target state="translated">无法解锁Bitlocker，请检查密码是否正确，以及是否授予了管理员权限</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -252,11 +252,11 @@ namespace RX_Explorer.Class
             List<Uri> list = new List<Uri>();
 
             using (SqliteCommand Command = new SqliteCommand("Select * From BackgroundPicture", Connection))
-            using (SqliteDataReader query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
+            using (SqliteDataReader Query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
             {
-                while (query.Read())
+                while (Query.Read())
                 {
-                    list.Add(new Uri(query[0].ToString()));
+                    list.Add(new Uri(Query[0].ToString()));
                 }
             }
 
@@ -293,11 +293,11 @@ namespace RX_Explorer.Class
             List<(string, LibraryType)> list = new List<(string, LibraryType)>();
 
             using (SqliteCommand Command = new SqliteCommand("Select * From Library", Connection))
-            using (SqliteDataReader query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
+            using (SqliteDataReader Query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
             {
-                while (query.Read())
+                while (Query.Read())
                 {
-                    list.Add((query[0].ToString(), Enum.Parse<LibraryType>(query[1].ToString())));
+                    list.Add((Query[0].ToString(), Enum.Parse<LibraryType>(Query[1].ToString())));
                 }
             }
 
@@ -325,7 +325,13 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public async Task SetPathHistoryAsync(string Path)
         {
-            using (SqliteCommand Command = new SqliteCommand("Insert Or Ignore Into PathHistory Values (@Para)", Connection))
+            using (SqliteCommand Command = new SqliteCommand("Delete From PathHistory Where Path = @Para", Connection))
+            {
+                Command.Parameters.AddWithValue("@Para", Path);
+                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+            }
+
+            using (SqliteCommand Command = new SqliteCommand("Insert Into PathHistory Values (@Para)", Connection))
             {
                 Command.Parameters.AddWithValue("@Para", Path);
                 await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
@@ -339,16 +345,17 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public async Task<List<string>> GetRelatedPathHistoryAsync()
         {
-            List<string> PathList = new List<string>();
+            List<string> PathList = new List<string>(25);
 
-            using (SqliteCommand Command = new SqliteCommand("Select * From PathHistory", Connection))
-            using (SqliteDataReader query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
+            using (SqliteCommand Command = new SqliteCommand("Select * From PathHistory Order By rowid Desc Limit 0,25", Connection))
+            using (SqliteDataReader Query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
             {
-                while (query.Read())
+                while (Query.Read())
                 {
-                    PathList.Add(query[0].ToString());
+                    PathList.Add(Query[0].ToString());
                 }
             }
+
             return PathList;
         }
 
@@ -601,11 +608,11 @@ namespace RX_Explorer.Class
             {
                 Command.Parameters.AddWithValue("@Target", "%" + Target + "%");
 
-                using (SqliteDataReader query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
+                using (SqliteDataReader Query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
                 {
-                    while (query.Read())
+                    while (Query.Read())
                     {
-                        HistoryList.Add(query[0].ToString());
+                        HistoryList.Add(Query[0].ToString());
                     }
                     return HistoryList;
                 }
