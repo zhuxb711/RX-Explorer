@@ -3329,10 +3329,6 @@ Invalid names include
           <source>Bitlocker password required</source>
           <target state="translated">需要Bitlocker密碼</target>
         </trans-unit>
-        <trans-unit id="BitlockerPasswordDialog_PasswordBox.Placeholder" translate="yes" xml:space="preserve">
-          <source>Please enter Bitlocker password to unlock the drive</source>
-          <target state="translated">請輸入Bitlocker密碼來解鎖驅動器</target>
-        </trans-unit>
         <trans-unit id="SearchEngineAllSubFolders.Content" translate="yes" xml:space="preserve">
           <source>Search all subfolders</source>
           <target state="translated">搜索所有子文件夾</target>
@@ -3372,6 +3368,10 @@ Invalid names include
         <trans-unit id="EverythingQuestionSubtitle" translate="yes" xml:space="preserve">
           <source>Everything search can bring an extremely fast search experience. If you need to use Everything, you need to \r  1. Install and run Everything or install the Everything service\r  2. Purchase this software to unlock this feature</source>
           <target state="translated">Everything搜索都可以帶來極其快速的搜索體驗。 如果需要使用Everything，則需要\r 1.安裝並運行Everything或安裝Everything服務\r 2.購買此軟件以解鎖此功能</target>
+        </trans-unit>
+        <trans-unit id="BitlockerPasswordDialog_PasswordBox.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Please enter Bitlocker password to unlock the drive</source>
+          <target state="translated">請輸入Bitlocker密碼來解鎖驅動器</target>
         </trans-unit>
       </group>
     </body>

@@ -2616,7 +2616,7 @@ Invalid names include
   <data name="BitlockerPasswordDialog.Title" xml:space="preserve">
     <value>Bitlocker password required</value>
   </data>
-  <data name="BitlockerPasswordDialog_PasswordBox.Placeholder" xml:space="preserve">
+  <data name="BitlockerPasswordDialog_PasswordBox.PlaceholderText" xml:space="preserve">
     <value>Please enter Bitlocker password to unlock the drive</value>
   </data>
   <data name="SearchEngineAllSubFolders.Content" xml:space="preserve">

@@ -3329,10 +3329,6 @@ Les noms non valides incluent
           <source>Bitlocker password required</source>
           <target state="translated">Mot de passe Bitlocker requis</target>
         </trans-unit>
-        <trans-unit id="BitlockerPasswordDialog_PasswordBox.Placeholder" translate="yes" xml:space="preserve">
-          <source>Please enter Bitlocker password to unlock the drive</source>
-          <target state="translated">Veuillez entrer le mot de passe Bitlocker pour déverrouiller le lecteur</target>
-        </trans-unit>
         <trans-unit id="SearchEngineAllSubFolders.Content" translate="yes" xml:space="preserve">
           <source>Search all subfolders</source>
           <target state="translated">Rechercher dans tous les sous-dossiers</target>
@@ -3372,6 +3368,10 @@ Les noms non valides incluent
         <trans-unit id="EverythingQuestionSubtitle" translate="yes" xml:space="preserve">
           <source>Everything search can bring an extremely fast search experience. If you need to use Everything, you need to \r  1. Install and run Everything or install the Everything service\r  2. Purchase this software to unlock this feature</source>
           <target state="translated">La recherche de tout peut apporter une expérience de recherche extrêmement rapide. Si vous devez utiliser Everything, vous devez \r 1. Installer et exécuter Everything ou installer le service Everything \r 2. Achetez ce logiciel pour déverrouiller cette fonctionnalité</target>
+        </trans-unit>
+        <trans-unit id="BitlockerPasswordDialog_PasswordBox.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Please enter Bitlocker password to unlock the drive</source>
+          <target state="translated">Veuillez entrer le mot de passe Bitlocker pour déverrouiller le lecteur</target>
         </trans-unit>
       </group>
     </body>

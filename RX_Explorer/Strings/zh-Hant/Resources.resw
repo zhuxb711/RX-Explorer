@@ -2511,9 +2511,6 @@
   <data name="BitlockerPasswordDialog.Title" xml:space="preserve">
     <value>需要Bitlocker密碼</value>
   </data>
-  <data name="BitlockerPasswordDialog_PasswordBox.Placeholder" xml:space="preserve">
-    <value>請輸入Bitlocker密碼來解鎖驅動器</value>
-  </data>
   <data name="SearchEngineAllSubFolders.Content" xml:space="preserve">
     <value>搜索所有子文件夾</value>
   </data>
@@ -2543,5 +2540,8 @@
   </data>
   <data name="EverythingQuestionSubtitle" xml:space="preserve">
     <value>Everything搜索都可以帶來極其快速的搜索體驗。 如果需要使用Everything，則需要\r 1.安裝並運行Everything或安裝Everything服務\r 2.購買此軟件以解鎖此功能</value>
+  </data>
+  <data name="BitlockerPasswordDialog_PasswordBox.PlaceholderText" xml:space="preserve">
+    <value>請輸入Bitlocker密碼來解鎖驅動器</value>
   </data>
 </root>

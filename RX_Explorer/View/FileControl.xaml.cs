@@ -1589,6 +1589,8 @@ namespace RX_Explorer
 
             AddressButtonContainer.Visibility = Visibility.Collapsed;
 
+            AddressBox.FindChildOfType<TextBox>()?.SelectAll();
+
             AddressBox.ItemsSource = await SQLite.Current.GetRelatedPathHistoryAsync().ConfigureAwait(true);
         }
 

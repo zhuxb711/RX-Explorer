@@ -2511,9 +2511,6 @@ Les noms non valides incluent
   <data name="BitlockerPasswordDialog.Title" xml:space="preserve">
     <value>Mot de passe Bitlocker requis</value>
   </data>
-  <data name="BitlockerPasswordDialog_PasswordBox.Placeholder" xml:space="preserve">
-    <value>Veuillez entrer le mot de passe Bitlocker pour déverrouiller le lecteur</value>
-  </data>
   <data name="SearchEngineAllSubFolders.Content" xml:space="preserve">
     <value>Rechercher dans tous les sous-dossiers</value>
   </data>
@@ -2543,5 +2540,8 @@ Les noms non valides incluent
   </data>
   <data name="EverythingQuestionSubtitle" xml:space="preserve">
     <value>La recherche de tout peut apporter une expérience de recherche extrêmement rapide. Si vous devez utiliser Everything, vous devez \r 1. Installer et exécuter Everything ou installer le service Everything \r 2. Achetez ce logiciel pour déverrouiller cette fonctionnalité</value>
+  </data>
+  <data name="BitlockerPasswordDialog_PasswordBox.PlaceholderText" xml:space="preserve">
+    <value>Veuillez entrer le mot de passe Bitlocker pour déverrouiller le lecteur</value>
   </data>
 </root>
