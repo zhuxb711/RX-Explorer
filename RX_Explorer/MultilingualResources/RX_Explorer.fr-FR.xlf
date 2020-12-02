@@ -2451,10 +2451,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Security Area does not support importing folder, all folders have been filtered</source>
           <target state="translated">L'Espace Sécurisé ne prend pas en charge l'importation de dossiers, tous les dossiers ont été filtrés</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_SecureAreaNetworkUnavailable_Content" translate="yes" xml:space="preserve">
-          <source>Cannot check license status because the current network or user is unavailable</source>
-          <target state="translated">Impossible de vérifier le statut de la licence parce que le réseau ou l'utilisateur actuel n'est pas disponible</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_SecureAreaUnlock_Content" translate="yes" xml:space="preserve">
           <source>Thank you for your support of the RX Explorer, the security area has been unlocked</source>
           <target state="translated">Merci pour votre support de RX Explorateur, l'Espace Sécurisé a été débloqué</target>
@@ -3328,6 +3324,54 @@ Les noms non valides incluent
         <trans-unit id="QueueDialog_UnlockBitlockerFailed_Content" translate="yes" xml:space="preserve">
           <source>Unable to unlock Bitlocker, please check whether the password is correct and whether the administrator authority is granted</source>
           <target state="translated">Impossible de déverrouiller Bitlocker, veuillez vérifier si le mot de passe est correct et si l'autorité d'administrateur est accordée</target>
+        </trans-unit>
+        <trans-unit id="BitlockerPasswordDialog.Title" translate="yes" xml:space="preserve">
+          <source>Bitlocker password required</source>
+          <target state="translated">Mot de passe Bitlocker requis</target>
+        </trans-unit>
+        <trans-unit id="BitlockerPasswordDialog_PasswordBox.Placeholder" translate="yes" xml:space="preserve">
+          <source>Please enter Bitlocker password to unlock the drive</source>
+          <target state="translated">Veuillez entrer le mot de passe Bitlocker pour déverrouiller le lecteur</target>
+        </trans-unit>
+        <trans-unit id="SearchEngineAllSubFolders.Content" translate="yes" xml:space="preserve">
+          <source>Search all subfolders</source>
+          <target state="translated">Rechercher dans tous les sous-dossiers</target>
+        </trans-unit>
+        <trans-unit id="SearchEngineGlobeSearch.Content" translate="yes" xml:space="preserve">
+          <source>Global search</source>
+          <target state="translated">Recherche globale</target>
+        </trans-unit>
+        <trans-unit id="SearchEngineIgnoreCase.Content" translate="yes" xml:space="preserve">
+          <source>Ignore case</source>
+          <target state="translated">Ignorer la casse</target>
+        </trans-unit>
+        <trans-unit id="SearchEngineLimitResult.Header" translate="yes" xml:space="preserve">
+          <source>Search result limit</source>
+          <target state="translated">Limite des résultats de recherche</target>
+        </trans-unit>
+        <trans-unit id="SearchEngineUseRegex.Content" translate="yes" xml:space="preserve">
+          <source>Use regular expressions</source>
+          <target state="translated">Utiliser des expressions régulières</target>
+        </trans-unit>
+        <trans-unit id="SearchInDefaultEngine.Content" translate="yes" xml:space="preserve">
+          <source>Use built-in search engine (default)</source>
+          <target state="translated">Utiliser le moteur de recherche intégré (par défaut)</target>
+        </trans-unit>
+        <trans-unit id="SearchInEverythingEngine.Content" translate="yes" xml:space="preserve">
+          <source>Use Everything search engine (faster)</source>
+          <target state="translated">Utilisez le moteur de recherche Everything (plus rapide)</target>
+        </trans-unit>
+        <trans-unit id="UnlockBitlocker.Label" translate="yes" xml:space="preserve">
+          <source>Unlock</source>
+          <target state="translated">Ouvrir</target>
+        </trans-unit>
+        <trans-unit id="EverythingQuestion.Title" translate="yes" xml:space="preserve">
+          <source>Everything Search Engine</source>
+          <target state="translated">Moteur de recherche Everything</target>
+        </trans-unit>
+        <trans-unit id="EverythingQuestionSubtitle" translate="yes" xml:space="preserve">
+          <source>Everything search can bring an extremely fast search experience. If you need to use Everything, you need to \r  1. Install and run Everything or install the Everything service\r  2. Purchase this software to unlock this feature</source>
+          <target state="translated">La recherche de tout peut apporter une expérience de recherche extrêmement rapide. Si vous devez utiliser Everything, vous devez \r 1. Installer et exécuter Everything ou installer le service Everything \r 2. Achetez ce logiciel pour déverrouiller cette fonctionnalité</target>
         </trans-unit>
       </group>
     </body>

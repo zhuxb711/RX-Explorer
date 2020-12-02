@@ -168,6 +168,7 @@
     <Compile Include="Class\IUknownInterface.cs" />
     <Compile Include="Class\JumpListController.cs" />
     <Compile Include="Class\ListViewBaseSelectionExtention.cs" />
+    <Compile Include="Class\MSStoreHelper.cs" />
     <Compile Include="Class\OperationRecorder.cs" />
     <Compile Include="Class\PipeLineController.cs" />
     <Compile Include="Class\RecycleStorageItem.cs" />

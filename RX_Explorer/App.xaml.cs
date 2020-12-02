@@ -39,6 +39,8 @@ namespace RX_Explorer
 
         protected override async void OnWindowCreated(WindowCreatedEventArgs args)
         {
+            await LogTracer.Initialize().ConfigureAwait(false);
+
             if (await FullTrustProcessController.Current.CheckIfQuicklookIsAvaliableAsync().ConfigureAwait(true))
             {
                 SettingControl.IsQuicklookAvailable = true;
@@ -47,8 +49,6 @@ namespace RX_Explorer
             {
                 SettingControl.IsQuicklookAvailable = false;
             }
-
-            await LogTracer.Initialize().ConfigureAwait(false);
         }
 
         private void App_Suspending(object sender, SuspendingEventArgs e)

@@ -2000,9 +2000,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_SecureAreaImportFiliter_Content" xml:space="preserve">
     <value>Security Area does not support importing folder, all folders have been filtered</value>
   </data>
-  <data name="QueueDialog_SecureAreaNetworkUnavailable_Content" xml:space="preserve">
-    <value>Cannot check license status because the current network or user is unavailable</value>
-  </data>
   <data name="QueueDialog_SecureAreaUnlock_Content" xml:space="preserve">
     <value>Thank you for your support of the RX Explorer, the security area has been unlocked</value>
   </data>
@@ -2615,5 +2612,41 @@ Invalid names include
   </data>
   <data name="QueueDialog_UnlockBitlockerFailed_Content" xml:space="preserve">
     <value>Unable to unlock Bitlocker, please check whether the password is correct and whether the administrator authority is granted</value>
+  </data>
+  <data name="BitlockerPasswordDialog.Title" xml:space="preserve">
+    <value>Bitlocker password required</value>
+  </data>
+  <data name="BitlockerPasswordDialog_PasswordBox.Placeholder" xml:space="preserve">
+    <value>Please enter Bitlocker password to unlock the drive</value>
+  </data>
+  <data name="SearchEngineAllSubFolders.Content" xml:space="preserve">
+    <value>Search all subfolders</value>
+  </data>
+  <data name="SearchEngineGlobeSearch.Content" xml:space="preserve">
+    <value>Global search</value>
+  </data>
+  <data name="SearchEngineIgnoreCase.Content" xml:space="preserve">
+    <value>Ignore case</value>
+  </data>
+  <data name="SearchEngineLimitResult.Header" xml:space="preserve">
+    <value>Search result limit</value>
+  </data>
+  <data name="SearchEngineUseRegex.Content" xml:space="preserve">
+    <value>Use regular expressions</value>
+  </data>
+  <data name="SearchInDefaultEngine.Content" xml:space="preserve">
+    <value>Use built-in search engine (default)</value>
+  </data>
+  <data name="SearchInEverythingEngine.Content" xml:space="preserve">
+    <value>Use Everything search engine (faster)</value>
+  </data>
+  <data name="UnlockBitlocker.Label" xml:space="preserve">
+    <value>Unlock</value>
+  </data>
+  <data name="EverythingQuestionSubtitle" xml:space="preserve">
+    <value>Everything search can bring an extremely fast search experience. If you need to use Everything, you need to \r  1. Install and run Everything or install the Everything service\r  2. Purchase this software to unlock this feature</value>
+  </data>
+  <data name="EverythingQuestion.Title" xml:space="preserve">
+    <value>Everything Search Engine</value>
   </data>
 </root>

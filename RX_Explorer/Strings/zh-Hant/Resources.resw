@@ -1877,9 +1877,6 @@
   <data name="QueueDialog_SecureAreaImportFiliter_Content" xml:space="preserve">
     <value>加密庫不支持移入資料夾，所有資料夾均已篩選</value>
   </data>
-  <data name="QueueDialog_SecureAreaNetworkUnavailable_Content" xml:space="preserve">
-    <value>由於當前網路或使用者不可用，無法檢查許可證狀態</value>
-  </data>
   <data name="QueueDialog_SecureAreaUnlock_Content" xml:space="preserve">
     <value>感謝您對RX 檔案管理的支持，加密庫已解鎖</value>
   </data>
@@ -2510,5 +2507,41 @@
   </data>
   <data name="QueueDialog_UnlockBitlockerFailed_Content" xml:space="preserve">
     <value>無法解鎖Bitlocker，請檢查密碼是否正確以及是否授予管理員權限</value>
+  </data>
+  <data name="BitlockerPasswordDialog.Title" xml:space="preserve">
+    <value>需要Bitlocker密碼</value>
+  </data>
+  <data name="BitlockerPasswordDialog_PasswordBox.Placeholder" xml:space="preserve">
+    <value>請輸入Bitlocker密碼來解鎖驅動器</value>
+  </data>
+  <data name="SearchEngineAllSubFolders.Content" xml:space="preserve">
+    <value>搜索所有子文件夾</value>
+  </data>
+  <data name="SearchEngineGlobeSearch.Content" xml:space="preserve">
+    <value>整體搜尋</value>
+  </data>
+  <data name="SearchEngineIgnoreCase.Content" xml:space="preserve">
+    <value>忽略大小寫</value>
+  </data>
+  <data name="SearchEngineLimitResult.Header" xml:space="preserve">
+    <value>搜索結果限制</value>
+  </data>
+  <data name="SearchEngineUseRegex.Content" xml:space="preserve">
+    <value>使用正則表達式</value>
+  </data>
+  <data name="SearchInDefaultEngine.Content" xml:space="preserve">
+    <value>使用內置的搜索引擎 (默認)</value>
+  </data>
+  <data name="SearchInEverythingEngine.Content" xml:space="preserve">
+    <value>使用Everything搜索引擎 (更快)</value>
+  </data>
+  <data name="UnlockBitlocker.Label" xml:space="preserve">
+    <value>開鎖</value>
+  </data>
+  <data name="EverythingQuestion.Title" xml:space="preserve">
+    <value>Everything搜索引擎</value>
+  </data>
+  <data name="EverythingQuestionSubtitle" xml:space="preserve">
+    <value>Everything搜索都可以帶來極其快速的搜索體驗。 如果需要使用Everything，則需要\r 1.安裝並運行Everything或安裝Everything服務\r 2.購買此軟件以解鎖此功能</value>
   </data>
 </root>

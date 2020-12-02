@@ -114,6 +114,12 @@
                               Click="FolderAttribute_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
+
+        <muxc:TeachingTip Title="Everything搜索引擎"
+                          IsLightDismissEnabled="True"
+                          x:Uid="EverythingQuestion"
+                          Target="{x:Bind EverythingQuestion}"
+                          x:Name="EverythingTip"/>
     </Page.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -283,6 +289,8 @@
                         <StackPanel MinWidth="240"
                                     ChildrenTransitions="{x:Bind Cls:AnimationController.Current.AddDeleteTransitions, Mode=OneWay}">
                             <RadioButton Content="使用内置搜索引擎 (默认)"
+                                         x:Uid="SearchInDefaultEngine"
+                                         GroupName="SearchEngine"
                                          Name="SearchInDefaultEngine"
                                          IsChecked="True" />
                             <StackPanel Orientation="Horizontal"
@@ -296,19 +304,34 @@
                                 <StackPanel Margin="18,5,0,0">
                                     <CheckBox Content="忽略大小写"
                                               FontSize="13"
+                                              x:Uid="SearchEngineIgnoreCase"
                                               IsChecked="True"
                                               x:Name="BuiltInEngineIgnoreCase" />
                                     <CheckBox Content="使用正则表达式"
+                                              x:Uid="SearchEngineUseRegex"
                                               x:Name="BuiltInEngineIncludeRegex"
                                               FontSize="13" />
                                     <CheckBox Content="搜索所有子文件夹"
                                               Name="BuiltInSearchAllSubFolders"
-                                              FontSize="13" />
+                                              FontSize="13" 
+                                              x:Uid="SearchEngineAllSubFolders"/>
                                 </StackPanel>
                             </StackPanel>
-                            <RadioButton Margin="0,5,0,0"
-                                         Name="SearchInEverythingEngine"
-                                         Content="使用Everything搜索引擎 (较快)" />
+                            <StackPanel Orientation="Horizontal">
+                                <RadioButton Margin="0,5,0,0"
+                                             GroupName="SearchEngine"
+                                             x:Uid="SearchInEverythingEngine"
+                                             Name="SearchInEverythingEngine"
+                                             Content="使用Everything搜索引擎 (较快)" />
+                                <Viewbox Margin="10,8,0,0"
+                                         Height="15"
+                                         Visibility="{x:Bind SearchInEverythingEngine.IsEnabled, Converter={StaticResource InverseConverter}, Mode=OneWay}"
+                                         VerticalAlignment="Center">
+                                    <FontIcon Glyph="&#xE9CE;"
+                                              Name="EverythingQuestion"
+                                              Tapped="EverythingQuestion_Tapped"/>
+                                </Viewbox>
+                            </StackPanel>
                             <StackPanel Orientation="Horizontal"
                                         Visibility="{x:Bind SearchInEverythingEngine.IsChecked, Mode=OneWay}">
                                 <Line X1="10"
@@ -319,19 +342,23 @@
                                       Stroke="Gray" />
                                 <StackPanel Margin="18,5,0,0">
                                     <CheckBox Content="忽略大小写"
+                                              x:Uid="SearchEngineIgnoreCase"
                                               FontSize="13"
                                               IsChecked="True"
                                               x:Name="EverythingEngineIgnoreCase" />
                                     <CheckBox Content="使用正则表达式"
+                                              x:Uid="SearchEngineUseRegex"
                                               x:Name="EverythingEngineIncludeRegex"
                                               FontSize="13" />
                                     <CheckBox Content="全局搜索"
+                                              x:Uid="SearchEngineGlobeSearch"
                                               IsChecked="{x:Bind EverythingEngineIncludeRegex.IsChecked, Mode=OneWay}"
                                               IsEnabled="{x:Bind EverythingEngineIncludeRegex.IsChecked, Mode=OneWay, Converter={StaticResource InverseConverter}}"
                                               x:Name="EverythingEngineSearchGloble"
                                               FontSize="13" />
                                     <ComboBox IsEditable="True"
                                               Header="搜索结果限制"
+                                              x:Uid="SearchEngineLimitResult"
                                               x:Name="EverythingEngineResultLimit"
                                               FontSize="13"
                                               SelectedIndex="0"

@@ -82,24 +82,4 @@ namespace RX_Explorer.Class
         {
         }
     }
-
-    /// <summary>
-    /// 网络错误
-    /// </summary>
-    public sealed class NetworkException : Exception
-    {
-        public NetworkException(string ErrorMessage) : base(ErrorMessage)
-        {
-
-        }
-
-        public NetworkException() : base()
-        {
-
-        }
-
-        public NetworkException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-    }
 }

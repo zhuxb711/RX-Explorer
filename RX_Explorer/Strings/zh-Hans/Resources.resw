@@ -1855,9 +1855,6 @@
   <data name="QueueDialog_SecureAreaImportFiliter_Content" xml:space="preserve">
     <value>安全域不支持导入文件夹类型，所有文件夹类型均已被过滤</value>
   </data>
-  <data name="QueueDialog_SecureAreaNetworkUnavailable_Content" xml:space="preserve">
-    <value>当前网络或用户不可用，因此无法检查许可证状态</value>
-  </data>
   <data name="QueueDialog_SecureAreaUnlock_Content" xml:space="preserve">
     <value>感谢您对RX文件管理器的支持，安全域功能已经解锁</value>
   </data>
@@ -2510,5 +2507,41 @@
   </data>
   <data name="QueueDialog_UnlockBitlockerFailed_Content" xml:space="preserve">
     <value>无法解锁Bitlocker，请检查密码是否正确，以及是否授予了管理员权限</value>
+  </data>
+  <data name="BitlockerPasswordDialog.Title" xml:space="preserve">
+    <value>需要Bitlocker密码</value>
+  </data>
+  <data name="BitlockerPasswordDialog_PasswordBox.Placeholder" xml:space="preserve">
+    <value>请输入Bitlocker密码以解锁驱动器</value>
+  </data>
+  <data name="SearchEngineAllSubFolders.Content" xml:space="preserve">
+    <value>搜索所有子文件夹</value>
+  </data>
+  <data name="SearchEngineGlobeSearch.Content" xml:space="preserve">
+    <value>全局搜索</value>
+  </data>
+  <data name="SearchEngineIgnoreCase.Content" xml:space="preserve">
+    <value>忽略大小写</value>
+  </data>
+  <data name="SearchEngineLimitResult.Header" xml:space="preserve">
+    <value>搜索结果限制</value>
+  </data>
+  <data name="SearchEngineUseRegex.Content" xml:space="preserve">
+    <value>使用正则表达式</value>
+  </data>
+  <data name="SearchInDefaultEngine.Content" xml:space="preserve">
+    <value>使用内置搜索引擎 (默认)</value>
+  </data>
+  <data name="SearchInEverythingEngine.Content" xml:space="preserve">
+    <value>使用Everything搜索引擎 (更快)</value>
+  </data>
+  <data name="UnlockBitlocker.Label" xml:space="preserve">
+    <value>解锁</value>
+  </data>
+  <data name="EverythingQuestion.Title" xml:space="preserve">
+    <value>Everything搜索引擎</value>
+  </data>
+  <data name="EverythingQuestionSubtitle" xml:space="preserve">
+    <value>Everything搜索可以带来极其快速的搜索体验，若您需要使用Everything，则需要\r  1. 安装运行Everything或安装Everything服务\r  2. 购买本软件以解锁此功能</value>
   </data>
 </root>

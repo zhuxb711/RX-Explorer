@@ -162,6 +162,7 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Label="解锁"
                               Name="UnlockBitlocker"
+                              x:Uid="UnlockBitlocker"
                               Click="UnlockBitlocker_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets"

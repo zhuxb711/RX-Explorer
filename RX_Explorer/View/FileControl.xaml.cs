@@ -125,6 +125,8 @@ namespace RX_Explorer
             ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Medium_Icon"));
             ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Small_Icon"));
 
+            EverythingTip.Subtitle = Globalization.GetString("EverythingQuestionSubtitle");
+
             if (ApplicationData.Current.LocalSettings.Values["FilePresenterDisplayMode"] is int Index)
             {
                 ItemDisplayMode.SelectedIndex = Index;
@@ -974,9 +976,16 @@ namespace RX_Explorer
                 return;
             }
 
-            if (Package.Current.Id.Architecture == ProcessorArchitecture.X64 || Package.Current.Id.Architecture == ProcessorArchitecture.X86 || Package.Current.Id.Architecture == ProcessorArchitecture.X86OnArm64)
+            if (await MSStoreHelper.Current.CheckPurchaseStatusAsync().ConfigureAwait(true))
             {
-                SearchInEverythingEngine.IsEnabled = await FullTrustProcessController.Current.CheckIfEverythingIsAvailableAsync().ConfigureAwait(true);
+                if (Package.Current.Id.Architecture == ProcessorArchitecture.X64 || Package.Current.Id.Architecture == ProcessorArchitecture.X86 || Package.Current.Id.Architecture == ProcessorArchitecture.X86OnArm64)
+                {
+                    SearchInEverythingEngine.IsEnabled = await FullTrustProcessController.Current.CheckIfEverythingIsAvailableAsync().ConfigureAwait(true);
+                }
+                else
+                {
+                    SearchInEverythingEngine.IsEnabled = false;
+                }
             }
             else
             {
@@ -1019,6 +1028,7 @@ namespace RX_Explorer
             LoadingControl.Focus(FocusState.Programmatic);
 
             string QueryText = string.Empty;
+
             if (args.ChosenSuggestion == null)
             {
                 if (string.IsNullOrEmpty(AddressBoxTextBackup))
@@ -1223,7 +1233,6 @@ namespace RX_Explorer
             try
             {
                 QueryText = await CommonEnvironmentVariables.ReplaceVariableAndGetActualPath(QueryText).ConfigureAwait(true);
-
 
                 if (Path.IsPathRooted(QueryText) && CommonAccessCollection.HardDeviceList.FirstOrDefault((Drive) => Drive.Folder.Path == Path.GetPathRoot(QueryText)) is HardDeviceInfo Device)
                 {
@@ -2480,6 +2489,11 @@ namespace RX_Explorer
         private void SearchEngineFlyout_Closed(object sender, object e)
         {
             MainPage.ThisPage.IsAnyTaskRunning = false;
+        }
+
+        private void EverythingQuestion_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            EverythingTip.IsOpen = true;
         }
     }
 }

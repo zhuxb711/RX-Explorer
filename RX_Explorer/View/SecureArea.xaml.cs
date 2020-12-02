@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
@@ -172,8 +171,6 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("SecureAreaUsePermission"))
-                    {
                         try
                         {
                             LoadingText.Text = Globalization.GetString("Progress_Tip_CheckingLicense");
@@ -181,38 +178,27 @@ namespace RX_Explorer
                             LoadingControl.IsLoading = true;
                             MainPage.ThisPage.IsAnyTaskRunning = true;
 
-                            if (await CheckPurchaseStatusAsync().ConfigureAwait(true))
+                            if (await MSStoreHelper.Current.CheckPurchaseStatusAsync().ConfigureAwait(true))
                             {
-                                if (MainPage.ThisPage.Nav.CurrentSourcePageType.Name != nameof(SecureArea))
-                                {
-                                    GoBack();
-                                    return;
-                                }
-
-                                ApplicationData.Current.LocalSettings.Values["SecureAreaUsePermission"] = true;
                                 await Task.Delay(500).ConfigureAwait(true);
                             }
                             else
                             {
-                                if (MainPage.ThisPage.Nav.CurrentSourcePageType.Name != nameof(SecureArea))
-                                {
-                                    GoBack();
-                                    return;
-                                }
-
                                 SecureAreaIntroDialog IntroDialog = new SecureAreaIntroDialog();
+                                
                                 if ((await IntroDialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                                 {
-                                    if (await PurchaseAsync().ConfigureAwait(true))
-                                    {
-                                        ApplicationData.Current.LocalSettings.Values["SecureAreaUsePermission"] = true;
+                                    StorePurchaseStatus Status = await MSStoreHelper.Current.PurchaseAsync().ConfigureAwait(true);
 
+                                    if (Status == StorePurchaseStatus.AlreadyPurchased || Status == StorePurchaseStatus.Succeeded)
+                                    {
                                         QueueContentDialog SuccessDialog = new QueueContentDialog
                                         {
                                             Title = Globalization.GetString("Common_Dialog_WarningTitle"),
                                             Content = Globalization.GetString("QueueDialog_SecureAreaUnlock_Content"),
                                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                         };
+
                                         _ = await SuccessDialog.ShowAsync().ConfigureAwait(true);
                                     }
                                     else
@@ -228,28 +214,15 @@ namespace RX_Explorer
                                 }
                             }
                         }
-                        catch (NetworkException)
-                        {
-                            QueueContentDialog ErrorDialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_SecureAreaNetworkUnavailable_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
-                            };
-                            _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-
-                            GoBack();
-                            return;
-                        }
                         finally
                         {
                             await Task.Delay(500).ConfigureAwait(true);
                             LoadingControl.IsLoading = false;
                             MainPage.ThisPage.IsAnyTaskRunning = false;
                         }
-                    }
 
                     SecureAreaWelcomeDialog Dialog = new SecureAreaWelcomeDialog();
+
                     if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
                         AESKeySize = Dialog.AESKeySize;
@@ -306,69 +279,6 @@ namespace RX_Explorer
             }
         }
 
-        private static async Task<bool> CheckPurchaseStatusAsync()
-        {
-            try
-            {
-                StoreContext Store = StoreContext.GetDefault();
-                StoreAppLicense License = await Store.GetAppLicenseAsync();
-
-                if (License.AddOnLicenses.Any((Item) => Item.Value.InAppOfferToken == "Donation"))
-                {
-                    return true;
-                }
-
-                if (License.IsActive)
-                {
-                    if (License.IsTrial)
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        return true;
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            catch
-            {
-                throw new NetworkException("Network Exception");
-            }
-        }
-
-        private static async Task<bool> PurchaseAsync()
-        {
-            StoreContext Store = StoreContext.GetDefault();
-            StoreProductResult ProductResult = await Store.GetStoreProductForCurrentAppAsync();
-
-            if (ProductResult.ExtendedError == null)
-            {
-                if (ProductResult.Product != null)
-                {
-                    if ((await ProductResult.Product.RequestPurchaseAsync()).Status == StorePurchaseStatus.Succeeded)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                throw new NetworkException("Network error");
-            }
-        }
-
         private async Task<bool> EnterByPassword()
         {
             SecureAreaVerifyDialog Dialog = new SecureAreaVerifyDialog(UnlockPassword);
@@ -383,7 +293,7 @@ namespace RX_Explorer
             }
         }
 
-        private static void GoBack()
+        private void GoBack()
         {
             MainPage.ThisPage.Nav.Navigate(typeof(TabViewContainer), null, new DrillInNavigationTransitionInfo());
         }
