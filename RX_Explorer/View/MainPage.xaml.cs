@@ -314,11 +314,24 @@ namespace RX_Explorer
 
                 await RegisterBackgroundTaskAsync().ConfigureAwait(true);
 
-                await PurchaseApplicationAsync().ConfigureAwait(true);
-
-                await Task.Delay(10000).ConfigureAwait(true);
-
-                await PinApplicationToTaskBarAsync().ConfigureAwait(true);
+                switch (Microsoft.Toolkit.Uwp.Helpers.SystemInformation.LaunchCount)
+                {
+                    case 5:
+                        {
+                            await PinApplicationToTaskBarAsync().ConfigureAwait(true);
+                            break;
+                        }
+                    case 10:
+                        {
+                            RequestRateApplication();
+                            break;
+                        }
+                    case 15:
+                        {
+                            await PurchaseApplicationAsync().ConfigureAwait(true);
+                            break;
+                        }
+                }
             }
             catch (Exception ex)
             {
@@ -451,23 +464,13 @@ namespace RX_Explorer
 
         private async Task PinApplicationToTaskBarAsync()
         {
-            if (ApplicationData.Current.LocalSettings.Values.ContainsKey("IsPinToTaskBar"))
+            TaskbarManager BarManager = TaskbarManager.GetDefault();
+            StartScreenManager ScreenManager = StartScreenManager.GetDefault();
+
+            bool PinStartScreen = false, PinTaskBar = false;
+
+            if ((await Package.Current.GetAppListEntriesAsync()).FirstOrDefault() is AppListEntry Entry)
             {
-                if (!ApplicationData.Current.RoamingSettings.Values.ContainsKey("IsRated"))
-                {
-                    await RequestRateApplication().ConfigureAwait(false);
-                }
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["IsPinToTaskBar"] = true;
-
-                TaskbarManager BarManager = TaskbarManager.GetDefault();
-                StartScreenManager ScreenManager = StartScreenManager.GetDefault();
-
-                bool PinStartScreen = false, PinTaskBar = false;
-
-                AppListEntry Entry = (await Package.Current.GetAppListEntriesAsync())[0];
                 if (ScreenManager.SupportsAppListEntry(Entry) && !await ScreenManager.ContainsAppListEntryAsync(Entry))
                 {
                     PinStartScreen = true;
@@ -510,32 +513,22 @@ namespace RX_Explorer
                     };
                 }
 
-                PinTip.Closed += async (s, e) =>
-                {
-                    s.IsOpen = false;
-                    await RequestRateApplication().ConfigureAwait(true);
-                };
-
                 PinTip.Subtitle = Globalization.GetString("TeachingTip_PinToMenu_Subtitle");
                 PinTip.IsOpen = true;
             }
         }
 
-        private async Task RequestRateApplication()
+        private void RequestRateApplication()
         {
-            await Task.Delay(60000).ConfigureAwait(true);
-
             RateTip.ActionButtonClick += async (s, e) =>
             {
                 s.IsOpen = false;
-                await Launcher.LaunchUriAsync(new Uri("ms-windows-store://review/?productid=9N88QBQKF2RS"));
-                ApplicationData.Current.RoamingSettings.Values["IsRated"] = true;
+                await Microsoft.Toolkit.Uwp.Helpers.SystemInformation.LaunchStoreForReviewAsync().ConfigureAwait(true);
             };
 
             RateTip.CloseButtonClick += (s, e) =>
             {
                 s.IsOpen = false;
-                ApplicationData.Current.RoamingSettings.Values["IsRated"] = true;
             };
 
             RateTip.IsOpen = true;
@@ -543,74 +536,65 @@ namespace RX_Explorer
 
         private async Task PurchaseApplicationAsync()
         {
-            if (ApplicationData.Current.LocalSettings.Values["IsDonated"] is bool Donated)
+            if (!await MSStoreHelper.Current.CheckPurchaseStatusAsync().ConfigureAwait(true))
             {
-                if (Donated && !await MSStoreHelper.Current.CheckPurchaseStatusAsync().ConfigureAwait(true))
+                PurchaseTip.ActionButtonClick += async (s, e) =>
                 {
-                    await Task.Delay(30000).ConfigureAwait(true);
+                    s.IsOpen = false;
 
-                    PurchaseTip.ActionButtonClick += async (s, e) =>
+                    switch (await MSStoreHelper.Current.PurchaseAsync().ConfigureAwait(true))
                     {
-                        s.IsOpen = false;
+                        case StorePurchaseStatus.Succeeded:
+                            {
+                                QueueContentDialog QueueContenDialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                    Content = Globalization.GetString("QueueDialog_Store_PurchaseSuccess_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
 
-                        switch (await MSStoreHelper.Current.PurchaseAsync().ConfigureAwait(true))
-                        {
-                            case StorePurchaseStatus.Succeeded:
+                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                                break;
+                            }
+                        case StorePurchaseStatus.AlreadyPurchased:
+                            {
+                                QueueContentDialog QueueContenDialog = new QueueContentDialog
                                 {
-                                    QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                        Content = Globalization.GetString("QueueDialog_Store_PurchaseSuccess_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
+                                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                    Content = Globalization.GetString("QueueDialog_Store_AlreadyPurchase_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                                break;
+                            }
+                        case StorePurchaseStatus.NotPurchased:
+                            {
+                                QueueContentDialog QueueContenDialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                    Content = Globalization.GetString("QueueDialog_Store_NotPurchase_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                                break;
+                            }
+                        default:
+                            {
+                                QueueContentDialog QueueContenDialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_Store_NetworkError_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                                break;
+                            }
+                    }
+                };
 
-                                    _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                    break;
-                                }
-                            case StorePurchaseStatus.AlreadyPurchased:
-                                {
-                                    QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                        Content = Globalization.GetString("QueueDialog_Store_AlreadyPurchase_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-                                    _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                    break;
-                                }
-                            case StorePurchaseStatus.NotPurchased:
-                                {
-                                    QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                        Content = Globalization.GetString("QueueDialog_Store_NotPurchase_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-                                    _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                    break;
-                                }
-                            default:
-                                {
-                                    QueueContentDialog QueueContenDialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_Store_NetworkError_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-                                    _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
-                                    break;
-                                }
-                        }
-                    };
-
-                    PurchaseTip.Subtitle = Globalization.GetString("TeachingTip_PurchaseTip_Subtitle");
-                    PurchaseTip.IsOpen = true;
-                    ApplicationData.Current.LocalSettings.Values["IsDonated"] = false;
-                }
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["IsDonated"] = true;
+                PurchaseTip.Subtitle = Globalization.GetString("TeachingTip_PurchaseTip_Subtitle");
+                PurchaseTip.IsOpen = true;
+                ApplicationData.Current.LocalSettings.Values["IsDonated"] = false;
             }
         }
 

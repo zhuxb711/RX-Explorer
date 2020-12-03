@@ -67,7 +67,7 @@ namespace RX_Explorer
                                 await CleanUpAndRemoveTabItem(Tab).ConfigureAwait(true);
                             }
 
-                            break;
+                            return;
                         }
                 }
 

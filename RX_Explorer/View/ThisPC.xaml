@@ -208,6 +208,7 @@
                       SelectionMode="None"
                       IsItemClickEnabled="True"
                       IsDoubleTapEnabled="False"
+                      PreviewKeyDown="GridView_PreviewKeyDown"
                       IsRightTapEnabled="True"
                       ItemClick="QuickStartGridView_ItemClick"
                       RightTapped="QuickStartGridView_RightTapped"
@@ -272,6 +273,7 @@
                       CanDragItems="True"
                       DragItemsCompleted="WebGridView_DragItemsCompleted"
                       CanReorderItems="True"
+                      PreviewKeyDown="GridView_PreviewKeyDown"
                       AllowDrop="True"
                       Padding="5"
                       ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">

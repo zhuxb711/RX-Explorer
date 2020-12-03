@@ -1,4 +1,43 @@
 ﻿*****
+###Quoi de neuf dans la version 5.7.4.0
+
+##### Mise à jour des fonctionnalités
+
+>#####Le module de recherche ajoute une variété d'options de recherche, et vous pouvez également rechercher dans "Everything"
+
+#####Mise à jour de l'interface utilisateur
+
+>#####L'enregistrement d'historique de la barre d'adresse affiche désormais uniquement les 25 enregistrements récemment saisis, et tous les enregistrements expirés seront automatiquement supprimés par la tâche de maintenance à chaque mise à jour
+
+>#####Légèrement augmenté l'intervalle de temps requis pour le double-clic pour déclencher le changement de nom
+
+>#####Vous pouvez maintenant utiliser Ctrl + T pour ouvrir un nouvel onglet dans la zone vide
+
+>#####Amélioration de la durée des astuces "Épingler au menu Démarrer", "Note" et "Acheter" pour éviter les astuces d'affichage prématurées
+
+>#####Cliquez maintenant sur la barre d'adresse pour sélectionner tout le texte
+
+#####Mise à jour des composants
+
+>#####Mise à jour vers la dernière version de l'aperçu de la bibliothèque WinUI pour résoudre de nombreux problèmes
+
+#####Correction d'un bug
+
+>#####Correction du problème qui pouvait rester bloqué en touchant et en sélectionnant des fichiers
+
+>#####Correction du problème d'ouverture du fichier ou du dossier correspondant lorsque l'aperçu "Quicklook" est déclenché en utilisant la barre d'espace en mode clic
+
+>#####Correction du problème selon lequel l'enregistrement d'historique dans la barre d'adresse n'ajustera pas l'emplacement d'enregistrement en fonction de l'ordre chronologique
+
+>#####Correction du problème de placement du dernier enregistrement à la fin de l'historique de la barre d'adresse
+
+>#####Correction du problème selon lequel aucune boîte d'invite n'apparaissait lorsqu'un chemin invalide était entré dans la barre d'adresse
+
+>#####Correction du problème de non mise à jour de l'arborescence du répertoire de fichiers sur le côté gauche lors de la saisie d'autres chemins de lettres de lecteur dans la barre d'adresse
+
+>#####Correction du problème d'échec de la fonction de prédiction de la barre d'adresse lorsque seul le répertoire racine du disque est entré, et la logique de traitement associée est améliorée
+
+*****
 ###Quoi de neuf dans la version 5.7.1.0
 
 #####Correction d'un bug

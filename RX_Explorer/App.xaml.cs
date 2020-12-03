@@ -39,6 +39,8 @@ namespace RX_Explorer
 
         protected override async void OnWindowCreated(WindowCreatedEventArgs args)
         {
+            MSStoreHelper.Current.PreLoadAppLicense();
+
             await LogTracer.Initialize().ConfigureAwait(false);
 
             if (await FullTrustProcessController.Current.CheckIfQuicklookIsAvaliableAsync().ConfigureAwait(true))
@@ -122,6 +124,8 @@ namespace RX_Explorer
 
         protected override async void OnLaunched(LaunchActivatedEventArgs e)
         {
+            Microsoft.Toolkit.Uwp.Helpers.SystemInformation.TrackAppUse(e);
+
             ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
             TitleBar.ButtonBackgroundColor = Colors.Transparent;
             TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;

@@ -655,8 +655,7 @@ namespace RX_Explorer
 
         private async void Like_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            _ = await Launcher.LaunchUriAsync(new Uri("ms-windows-store://review/?productid=9N88QBQKF2RS"));
-            ApplicationData.Current.RoamingSettings.Values["IsRated"] = true;
+            await Microsoft.Toolkit.Uwp.Helpers.SystemInformation.LaunchStoreForReviewAsync().ConfigureAwait(true);
         }
 
         private async void ClearUp_Click(object sender, RoutedEventArgs e)

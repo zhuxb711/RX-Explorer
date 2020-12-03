@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+﻿using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,11 +16,11 @@ namespace FullTrustProcess
                 {
                     uint Length = 0;
 
-                    if (ShlwApi.AssocQueryString(ShlwApi.ASSOCF.ASSOCF_NOFIXUPS | ShlwApi.ASSOCF.ASSOCF_VERIFY, ShlwApi.ASSOCSTR.ASSOCSTR_EXECUTABLE, System.IO.Path.GetExtension(Path), null, null, ref Length) == HRESULT.S_FALSE)
+                    if (ShlwApi.AssocQueryString(ShlwApi.ASSOCF.ASSOCF_VERIFY, ShlwApi.ASSOCSTR.ASSOCSTR_EXECUTABLE, System.IO.Path.GetExtension(Path).ToLower(), null, null, ref Length) == HRESULT.S_FALSE)
                     {
-                        StringBuilder Builder = new StringBuilder((int)Length);
+                        StringBuilder Builder = new StringBuilder(Convert.ToInt32(Length));
 
-                        if (ShlwApi.AssocQueryString(ShlwApi.ASSOCF.ASSOCF_NOFIXUPS | ShlwApi.ASSOCF.ASSOCF_VERIFY, ShlwApi.ASSOCSTR.ASSOCSTR_EXECUTABLE, System.IO.Path.GetExtension(Path), null, Builder, ref Length) == HRESULT.S_OK)
+                        if (ShlwApi.AssocQueryString(ShlwApi.ASSOCF.ASSOCF_VERIFY, ShlwApi.ASSOCSTR.ASSOCSTR_EXECUTABLE, System.IO.Path.GetExtension(Path).ToLower(), null, Builder, ref Length) == HRESULT.S_OK)
                         {
                             return Builder.ToString();
                         }
@@ -40,7 +40,7 @@ namespace FullTrustProcess
                 }
             });
 
-            if (SpinWait.SpinUntil(() => RunTask.IsCompleted, 3000))
+            if (SpinWait.SpinUntil(() => RunTask.IsCompleted, 4000))
             {
                 return RunTask.Result;
             }

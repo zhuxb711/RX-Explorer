@@ -980,5 +980,13 @@ namespace RX_Explorer
                 }
             }
         }
+
+        private void GridView_PreviewKeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (e.Key == VirtualKey.Space)
+            {
+                e.Handled = true;
+            }
+        }
     }
 }

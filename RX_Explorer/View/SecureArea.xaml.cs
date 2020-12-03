@@ -171,41 +171,35 @@ namespace RX_Explorer
                 }
                 else
                 {
-                        try
+                    try
+                    {
+                        LoadingText.Text = Globalization.GetString("Progress_Tip_CheckingLicense");
+                        CancelButton.Visibility = Visibility.Collapsed;
+                        LoadingControl.IsLoading = true;
+                        MainPage.ThisPage.IsAnyTaskRunning = true;
+
+                        if (await MSStoreHelper.Current.CheckPurchaseStatusAsync().ConfigureAwait(true))
                         {
-                            LoadingText.Text = Globalization.GetString("Progress_Tip_CheckingLicense");
-                            CancelButton.Visibility = Visibility.Collapsed;
-                            LoadingControl.IsLoading = true;
-                            MainPage.ThisPage.IsAnyTaskRunning = true;
+                            await Task.Delay(500).ConfigureAwait(true);
+                        }
+                        else
+                        {
+                            SecureAreaIntroDialog IntroDialog = new SecureAreaIntroDialog();
 
-                            if (await MSStoreHelper.Current.CheckPurchaseStatusAsync().ConfigureAwait(true))
+                            if ((await IntroDialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                             {
-                                await Task.Delay(500).ConfigureAwait(true);
-                            }
-                            else
-                            {
-                                SecureAreaIntroDialog IntroDialog = new SecureAreaIntroDialog();
-                                
-                                if ((await IntroDialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                                StorePurchaseStatus Status = await MSStoreHelper.Current.PurchaseAsync().ConfigureAwait(true);
+
+                                if (Status == StorePurchaseStatus.AlreadyPurchased || Status == StorePurchaseStatus.Succeeded)
                                 {
-                                    StorePurchaseStatus Status = await MSStoreHelper.Current.PurchaseAsync().ConfigureAwait(true);
-
-                                    if (Status == StorePurchaseStatus.AlreadyPurchased || Status == StorePurchaseStatus.Succeeded)
+                                    QueueContentDialog SuccessDialog = new QueueContentDialog
                                     {
-                                        QueueContentDialog SuccessDialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                                            Content = Globalization.GetString("QueueDialog_SecureAreaUnlock_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
+                                        Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                                        Content = Globalization.GetString("QueueDialog_SecureAreaUnlock_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
 
-                                        _ = await SuccessDialog.ShowAsync().ConfigureAwait(true);
-                                    }
-                                    else
-                                    {
-                                        GoBack();
-                                        return;
-                                    }
+                                    _ = await SuccessDialog.ShowAsync().ConfigureAwait(true);
                                 }
                                 else
                                 {
@@ -213,13 +207,19 @@ namespace RX_Explorer
                                     return;
                                 }
                             }
+                            else
+                            {
+                                GoBack();
+                                return;
+                            }
                         }
-                        finally
-                        {
-                            await Task.Delay(500).ConfigureAwait(true);
-                            LoadingControl.IsLoading = false;
-                            MainPage.ThisPage.IsAnyTaskRunning = false;
-                        }
+                    }
+                    finally
+                    {
+                        await Task.Delay(500).ConfigureAwait(true);
+                        LoadingControl.IsLoading = false;
+                        MainPage.ThisPage.IsAnyTaskRunning = false;
+                    }
 
                     SecureAreaWelcomeDialog Dialog = new SecureAreaWelcomeDialog();
 
@@ -248,7 +248,7 @@ namespace RX_Explorer
                 }
 
                 SelectionExtention = new ListViewBaseSelectionExtention(SecureGridView, DrawRectangle);
-                
+
                 CoreWindow.GetForCurrentThread().KeyDown += SecureArea_KeyDown;
 
                 await StartLoadFile().ConfigureAwait(false);
@@ -375,7 +375,7 @@ namespace RX_Explorer
                             {
                                 await File.DeleteAsync(StorageDeleteOption.Default);
                             }
-                            catch(Exception ex)
+                            catch (Exception ex)
                             {
                                 LogTracer.Log(ex);
                             }

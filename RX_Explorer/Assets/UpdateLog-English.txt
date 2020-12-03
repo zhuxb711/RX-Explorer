@@ -1,4 +1,43 @@
 ﻿*****
+###What's new in Ver.5.7.4.0
+
+#####Feature update
+
+>#####The search module adds a variety of search options, and you can also search through Everything
+
+#####UI update
+
+>#####The address bar history record now only displays the recently entered 25 records, and all expired records will be automatically deleted by the maintenance task each time it is updated
+
+>#####Slightly increased the time interval required for double-click to trigger the rename
+
+>#####Now you can use Ctrl+T to open a new tab in the blank area
+
+>#####Improved the time of "Pin to Start Menu", "Rating", and "Purchase" tips to avoid premature display tips
+
+>#####Now clicking on the address bar will select all text
+
+#####Component Update
+
+>#####Update to the latest version of WinUI library preview to solve many problems
+
+#####Bug fix
+
+>#####Fixed the problem that may get stuck when touching and selecting files
+
+>#####Fixed the problem that the corresponding file or folder will be opened when the "Quicklook" preview is triggered by using the space bar in click mode
+
+>#####Fixed the problem that the history record in the address bar will not adjust the record location according to the chronological order
+
+>#####Fixed the problem of placing the latest record at the end of the address bar history
+
+>#####Fixed the problem that no prompt box would pop up when an invalid path was entered in the address bar
+
+>#####Fixed the problem that the file directory tree on the left side would not be updated when entering other drive letter paths in the address bar
+
+>#####Fixed the problem that the address bar prediction function fails when only the root directory of the disk is entered, and the related processing logic is improved
+
+*****
 ###What's new in Ver.5.7.1.0
 
 #####Bug fix

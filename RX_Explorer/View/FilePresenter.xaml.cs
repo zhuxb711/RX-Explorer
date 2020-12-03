@@ -293,7 +293,20 @@ namespace RX_Explorer
                         }
                     case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                         {
-                            OpenFolderInNewTab_Click(null, null);
+                            CloseAllFlyout();
+
+                            if (SelectedItem is FileSystemStorageItemBase Item)
+                            {
+                                if (Item.StorageType == StorageItemTypes.Folder)
+                                {
+                                    await TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(Item.Path).ConfigureAwait(false);
+                                }
+                            }
+                            else
+                            {
+                                await TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(string.Empty).ConfigureAwait(false);
+                            }
+
                             break;
                         }
                     case VirtualKey.Q when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
@@ -5498,7 +5511,7 @@ namespace RX_Explorer
                     {
                         TimeSpan ClickSpan = DateTimeOffset.Now - LastClickTime;
 
-                        if (ClickSpan.TotalMilliseconds > 1000 && ClickSpan.TotalMilliseconds < 3000)
+                        if (ClickSpan.TotalMilliseconds > 1500 && ClickSpan.TotalMilliseconds < 3000)
                         {
                             NameLabel.Visibility = Visibility.Collapsed;
 

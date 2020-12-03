@@ -9,13 +9,6 @@ pr:
     include:
     - master
 
-schedules:
-  - cron: 0 0 * * *
-    displayName: DailyBuild
-    branches:
-      include:
-      - master
-
 variables:
 - group: UWP-PipeLineVariable
 - name: buildProject

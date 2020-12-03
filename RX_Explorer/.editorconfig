@@ -44,3 +44,6 @@ dotnet_diagnostic.CA2201.severity = none
 
 # CA1819: 属性不应返回数组
 dotnet_diagnostic.CA1819.severity = none
+
+# CA1826: Do not use Enumerable methods on indexable collections
+dotnet_diagnostic.CA1826.severity = none
