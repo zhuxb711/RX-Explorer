@@ -730,6 +730,10 @@
       <Project>{db5f5aa6-13b4-458a-a6a9-e29238adae06}</Project>
       <Name>OpenDirectoryExt</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ShareClassLibrary\ShareClassLibrary.csproj">
+      <Project>{57848d87-5f61-4150-b6dc-56a87ac0aeae}</Project>
+      <Name>ShareClassLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SystemInformationProvider\SystemInformationProvider.vcxproj">
       <Project>{b7beef6e-1f7f-43b6-a1ec-f447b3f995df}</Project>
       <Name>SystemInformationProvider</Name>

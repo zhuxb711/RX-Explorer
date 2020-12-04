@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -61,7 +63,7 @@ namespace RX_Explorer.Class
                                 Create Table If Not Exists Library (Path Text Not Null, Type Text Not Null, Primary Key (Path));
                                 Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));
                                 Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));
-                                Create Table If Not Exists ProgramPicker (FileType Text Not Null, Path Text Not Null, Primary Key(FileType,Path));
+                                Create Table If Not Exists ProgramPicker (FileType Text Not Null, Path Text Not Null, IsDefault Text, Primary Key(FileType, Path));
                                 Create Table If Not Exists TerminalProfile (Name Text Not Null, Path Text Not Null, Argument Text Not Null, RunAsAdmin Text Not Null, Primary Key(Name));
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture1.jpg');
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture2.jpg');
@@ -78,7 +80,6 @@ namespace RX_Explorer.Class
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture13.jpg');
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture14.jpg');
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture15.jpg');
-                                Insert Or Ignore Into ProgramPicker Values ('.*', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\notepad.exe")}');
                                 Insert Or Ignore Into TerminalProfile Values ('Powershell', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe")}', '-NoExit -Command Set-Location [CurrentLocation]', 'True');
                                 Insert Or Ignore Into TerminalProfile Values ('CMD', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe")}', '/k cd /d [CurrentLocation]', 'True');";
 
@@ -180,9 +181,62 @@ namespace RX_Explorer.Class
 
         }
 
-        public async Task SetProgramPickerRecordAsync(string FileType, string Path)
+        public async Task SetProgramPickerRecordAsync(string FileType, params string[] PathList)
         {
-            using (SqliteCommand Command = new SqliteCommand("Insert Or Ignore Into ProgramPicker Values (@FileType,@Path)", Connection))
+            StringBuilder AddPathBuilder = new StringBuilder();
+            
+            foreach (string AddPath in PathList)
+            {
+                AddPathBuilder.Append($"Insert Or Ignore Into ProgramPicker Values ('{FileType}', '{AddPath}', 'False');");
+            }
+
+            using (SqliteCommand Command = new SqliteCommand(AddPathBuilder.ToString(), Connection))
+            {
+                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+            }
+        }
+
+        public async Task UpdateProgramPickerRecordAsync(string FileType, IEnumerable<string> PathList)
+        {
+            List<string> ExistedPath = await GetProgramPickerRecordAsync(FileType).ConfigureAwait(false);
+
+            StringBuilder DeletePathBuilder = new StringBuilder();
+            foreach (string AddPath in ExistedPath.Except(PathList))
+            {
+                DeletePathBuilder.Append($"Delete From ProgramPicker Where FileType = '{FileType}' And Path = '{AddPath}';");
+            }
+
+            StringBuilder AddPathBuilder = new StringBuilder();
+            foreach (string AddPath in PathList.Except(ExistedPath))
+            {
+                AddPathBuilder.Append($"Insert Or Ignore Into ProgramPicker Values ('{FileType}', '{AddPath}', 'False');");
+            }
+
+            using (SqliteCommand Command = new SqliteCommand(DeletePathBuilder.ToString() + AddPathBuilder.ToString(), Connection))
+            {
+                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+            }
+        }
+
+        public async Task<string> GetDefaultProgramPickerRecordAsync(string FileType)
+        {
+            using (SqliteCommand Command = new SqliteCommand("Select Path From ProgramPicker Where FileType = @FileType And IsDefault = 'True'", Connection))
+            {
+                Command.Parameters.AddWithValue("@FileType", FileType);
+
+                return Convert.ToString(await Command.ExecuteScalarAsync().ConfigureAwait(false));
+            }
+        }
+
+        public async Task SetDefaultProgramPickerRecordAsync(string FileType, string Path)
+        {
+            using (SqliteCommand Command = new SqliteCommand("Update ProgramPicker Set IsDefault = 'False' Where FileType = @FileType", Connection))
+            {
+                Command.Parameters.AddWithValue("@FileType", FileType);
+                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+            }
+
+            using (SqliteCommand Command = new SqliteCommand("Update ProgramPicker Set IsDefault = 'True' Where FileType = @FileType And Path = @Path", Connection))
             {
                 Command.Parameters.AddWithValue("@FileType", FileType);
                 Command.Parameters.AddWithValue("@Path", Path);

@@ -2944,78 +2944,50 @@ namespace RX_Explorer
                             return;
                         }
 
-                        string AdminExcuteProgram = null;
-                        if (ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] is string ProgramExcute)
-                        {
-                            string SaveUnit = ProgramExcute.Split(';', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault((Item) => Item.Split('|')[0] == File.FileType);
-                            if (!string.IsNullOrEmpty(SaveUnit))
-                            {
-                                AdminExcuteProgram = SaveUnit.Split('|')[1];
-                            }
-                        }
+                        string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(File.FileType).ConfigureAwait(true);
 
-                        if (!string.IsNullOrEmpty(AdminExcuteProgram) && AdminExcuteProgram != Globalization.GetString("RX_BuildIn_Viewer_Name"))
+                        if (!string.IsNullOrEmpty(AdminExecutablePath) && AdminExecutablePath != Package.Current.Id.FamilyName)
                         {
-                            bool IsExcuted = false;
-                            foreach (string Path in await SQLite.Current.GetProgramPickerRecordAsync(File.FileType).ConfigureAwait(true))
+                            if (Path.IsPathRooted(AdminExecutablePath))
                             {
+                            Retry:
                                 try
                                 {
-                                    StorageFile ExcuteFile = await StorageFile.GetFileFromPathAsync(Path);
-
-                                    string AppName = Convert.ToString((await ExcuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" }))["System.FileDescription"]);
-
-                                    if (AppName == AdminExcuteProgram || ExcuteFile.DisplayName == AdminExcuteProgram)
+                                    await FullTrustProcessController.Current.RunAsync(AdminExecutablePath, false, false, false, File.Path).ConfigureAwait(true);
+                                }
+                                catch (InvalidOperationException)
+                                {
+                                    QueueContentDialog UnauthorizeDialog = new QueueContentDialog
                                     {
-                                    Retry:
-                                        try
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
+                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                    };
+
+                                    if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                    {
+                                        if (await FullTrustProcessController.Current.SwitchToAdminModeAsync().ConfigureAwait(true))
                                         {
-                                            await FullTrustProcessController.Current.RunAsync(Path, false, false, false, File.Path).ConfigureAwait(true);
+                                            goto Retry;
                                         }
-                                        catch (InvalidOperationException)
+                                        else
                                         {
-                                            QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                                            QueueContentDialog ErrorDialog = new QueueContentDialog
                                             {
                                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
-                                                PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
-                                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                                Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                             };
 
-                                            if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                            {
-                                                if (await FullTrustProcessController.Current.SwitchToAdminModeAsync().ConfigureAwait(true))
-                                                {
-                                                    goto Retry;
-                                                }
-                                                else
-                                                {
-                                                    QueueContentDialog ErrorDialog = new QueueContentDialog
-                                                    {
-                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                        Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
-                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                    };
-
-                                                    _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                                                }
-                                            }
+                                            _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
                                         }
-
-                                        IsExcuted = true;
-
-                                        break;
                                     }
                                 }
-                                catch (Exception)
-                                {
-                                    await SQLite.Current.DeleteProgramPickerRecordAsync(File.FileType, Path).ConfigureAwait(true);
-                                }
                             }
-
-                            if (!IsExcuted)
+                            else
                             {
-                                if ((await Launcher.FindFileHandlersAsync(File.FileType)).FirstOrDefault((Item) => Item.DisplayInfo.DisplayName == AdminExcuteProgram) is AppInfo Info)
+                                if ((await Launcher.FindFileHandlersAsync(File.FileType)).FirstOrDefault((Item) => Item.PackageFamilyName == AdminExecutablePath) is AppInfo Info)
                                 {
                                     if (!await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Info.PackageFamilyName, DisplayApplicationPicker = false }))
                                     {
@@ -3023,7 +2995,7 @@ namespace RX_Explorer
 
                                         if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                         {
-                                            if (Dialog.SelectedProgram.PackageName == Package.Current.Id.FamilyName)
+                                            if (Dialog.SelectedProgram.Path == Package.Current.Id.FamilyName)
                                             {
                                                 switch (File.FileType.ToLower())
                                                 {
@@ -3089,7 +3061,7 @@ namespace RX_Explorer
                                             }
                                             else
                                             {
-                                                if (Dialog.SelectedProgram.IsCustomApp)
+                                                if (Path.IsPathRooted(Dialog.SelectedProgram.Path))
                                                 {
                                                 Retry:
                                                     try
@@ -3128,7 +3100,7 @@ namespace RX_Explorer
                                                 }
                                                 else
                                                 {
-                                                    if (!await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.PackageName, DisplayApplicationPicker = false }))
+                                                    if (!await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.Path, DisplayApplicationPicker = false }))
                                                     {
                                                         if (ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] is string ProgramExcute1)
                                                         {
@@ -3166,7 +3138,7 @@ namespace RX_Explorer
 
                                     if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                     {
-                                        if (Dialog.SelectedProgram.PackageName == Package.Current.Id.FamilyName)
+                                        if (Dialog.SelectedProgram.Path == Package.Current.Id.FamilyName)
                                         {
                                             switch (File.FileType.ToLower())
                                             {
@@ -3232,7 +3204,7 @@ namespace RX_Explorer
                                         }
                                         else
                                         {
-                                            if (Dialog.SelectedProgram.IsCustomApp)
+                                            if (Path.IsPathRooted(Dialog.SelectedProgram.Path))
                                             {
                                             Retry:
                                                 try
@@ -3271,7 +3243,7 @@ namespace RX_Explorer
                                             }
                                             else
                                             {
-                                                if (!await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.PackageName, DisplayApplicationPicker = false }))
+                                                if (!await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.Path, DisplayApplicationPicker = false }))
                                                 {
                                                     if (ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] is string ProgramExcute1)
                                                     {
@@ -3455,9 +3427,10 @@ namespace RX_Explorer
                                 default:
                                     {
                                         ProgramPickerDialog Dialog = new ProgramPickerDialog(File);
+
                                         if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                         {
-                                            if (Dialog.SelectedProgram.PackageName == Package.Current.Id.FamilyName)
+                                            if (Dialog.SelectedProgram.Path == Package.Current.Id.FamilyName)
                                             {
                                                 switch (File.FileType.ToLower())
                                                 {
@@ -3523,7 +3496,7 @@ namespace RX_Explorer
                                             }
                                             else
                                             {
-                                                if (Dialog.SelectedProgram.IsCustomApp)
+                                                if (Path.IsPathRooted(Dialog.SelectedProgram.Path))
                                                 {
                                                 Retry:
                                                     try
@@ -3562,7 +3535,7 @@ namespace RX_Explorer
                                                 }
                                                 else
                                                 {
-                                                    if (!await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.PackageName, DisplayApplicationPicker = false }))
+                                                    if (!await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.Path, DisplayApplicationPicker = false }))
                                                     {
                                                         if (ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] is string ProgramExcute1)
                                                         {
@@ -3599,7 +3572,11 @@ namespace RX_Explorer
                     }
                     else if ((await TabTarget.GetStorageItem().ConfigureAwait(true)) is StorageFolder Folder)
                     {
-                        if (!WIN_Native_API.CheckExist(Folder.Path))
+                        if (WIN_Native_API.CheckExist(Folder.Path))
+                        {
+                            await Container.DisplayItemsInFolder(Folder).ConfigureAwait(true);
+                        }
+                        else
                         {
                             QueueContentDialog Dialog = new QueueContentDialog
                             {
@@ -3610,10 +3587,7 @@ namespace RX_Explorer
                             _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
                             await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
-                            return;
                         }
-
-                        await Container.DisplayItemsInFolder(Folder).ConfigureAwait(true);
                     }
                 }
                 catch (Exception ex)
@@ -3696,7 +3670,7 @@ namespace RX_Explorer
 
                 if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                 {
-                    if (Dialog.SelectedProgram.PackageName == Package.Current.Id.FamilyName)
+                    if (Dialog.SelectedProgram.Path == Package.Current.Id.FamilyName)
                     {
                         switch (Item.FileType.ToLower())
                         {
@@ -3762,7 +3736,7 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        if (Dialog.SelectedProgram.IsCustomApp)
+                        if (Path.IsPathRooted(Dialog.SelectedProgram.Path))
                         {
                         Retry:
                             try
@@ -3801,7 +3775,7 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            if (!await Launcher.LaunchFileAsync(Item, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.PackageName, DisplayApplicationPicker = false }))
+                            if (!await Launcher.LaunchFileAsync(Item, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.Path, DisplayApplicationPicker = false }))
                             {
                                 if (ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] is string ProgramExcute)
                                 {

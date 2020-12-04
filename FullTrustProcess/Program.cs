@@ -453,11 +453,10 @@ namespace FullTrustProcess
                     case "Execute_Get_Associate":
                         {
                             string Path = Convert.ToString(args.Request.Message["ExecutePath"]);
-                            string Associate = ExtensionAssociate.GetAssociate(Path);
 
                             ValueSet Result = new ValueSet
                             {
-                                {"Associate_Result", Associate }
+                                {"Associate_Result", JsonConvert.SerializeObject(ExtensionAssociate.GetAllAssociation(Path)) }
                             };
 
                             await args.Request.SendResponseAsync(Result);

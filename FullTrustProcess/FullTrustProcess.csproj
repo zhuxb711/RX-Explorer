@@ -137,6 +137,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ShareClassLibrary\ShareClassLibrary.csproj">
+      <Project>{57848d87-5f61-4150-b6dc-56a87ac0aeae}</Project>
+      <Name>ShareClassLibrary</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

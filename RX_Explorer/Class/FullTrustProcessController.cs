@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -277,7 +278,7 @@ namespace RX_Explorer.Class
                         {
                             string[] SearchResult = JsonConvert.DeserializeObject<string[]>(Convert.ToString(Result));
 
-                            if(SearchResult.Length == 0)
+                            if (SearchResult.Length == 0)
                             {
                                 return new List<FileSystemStorageItemBase>(0);
                             }
@@ -1040,7 +1041,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<string> GetAssociateFromPathAsync(string Path)
+        public async Task<List<AssociationPackage>> GetAssociateFromPathAsync(string Path)
         {
             try
             {
@@ -1060,7 +1061,7 @@ namespace RX_Explorer.Class
                     {
                         if (Response.Message.TryGetValue("Associate_Result", out object Result))
                         {
-                            return Convert.ToString(Result);
+                            return JsonConvert.DeserializeObject<List<AssociationPackage>>(Convert.ToString(Result));
                         }
                         else
                         {
@@ -1069,25 +1070,25 @@ namespace RX_Explorer.Class
                                 LogTracer.Log($"An unexpected error was threw in {nameof(GetAssociateFromPathAsync)}, message: {ErrorMessage}");
                             }
 
-                            return string.Empty;
+                            return new List<AssociationPackage>(0);
                         }
                     }
                     else
                     {
                         LogTracer.Log($"AppServiceResponse in {nameof(GetAssociateFromPathAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return string.Empty;
+                        return new List<AssociationPackage>(0);
                     }
                 }
                 else
                 {
                     LogTracer.Log($"{nameof(GetAssociateFromPathAsync)}: Failed to connect AppService");
-                    return string.Empty;
+                    return new List<AssociationPackage>(0);
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"{nameof(GetAssociateFromPathAsync)} throw an error");
-                return string.Empty;
+                return new List<AssociationPackage>(0);
             }
             finally
             {

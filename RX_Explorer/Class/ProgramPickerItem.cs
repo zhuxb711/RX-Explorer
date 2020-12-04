@@ -23,19 +23,9 @@ namespace RX_Explorer.Class
         public string Name { get; private set; }
 
         /// <summary>
-        /// 应用包名称
-        /// </summary>
-        public string PackageName { get; private set; }
-
-        /// <summary>
-        /// 应用可执行程序路径
+        /// 应用可执行程序路径或PFN
         /// </summary>
         public string Path { get; private set; }
-
-        /// <summary>
-        /// 是否是用户自定义应用
-        /// </summary>
-        public bool IsCustomApp { get; private set; }
 
         /// <summary>
         /// 初始化ProgramPickerItem实例
@@ -45,20 +35,12 @@ namespace RX_Explorer.Class
         /// <param name="Description">应用描述</param>
         /// <param name="PackageName">应用包名称</param>
         /// <param name="Path">应用可执行文件路径</param>
-        public ProgramPickerItem(BitmapImage Thumbnuil, string Name, string Description, string PackageName = null, string Path = null)
+        public ProgramPickerItem(BitmapImage Thumbnuil, string Name, string Description, string Path = null)
         {
             this.Thumbnuil = Thumbnuil;
             this.Name = Name;
             this.Description = Description;
-            if (!string.IsNullOrEmpty(PackageName))
-            {
-                this.PackageName = PackageName;
-            }
-            else if (!string.IsNullOrEmpty(Path))
-            {
-                this.Path = Path;
-                IsCustomApp = true;
-            }
+            this.Path = Path;
         }
     }
 }

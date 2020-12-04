@@ -1,52 +1,64 @@
-﻿using System;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using ShareClassLibrary;
+using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using Vanara.PInvoke;
 
 namespace FullTrustProcess
 {
     public static class ExtensionAssociate
     {
-        public static string GetAssociate(string Path)
+        public static List<AssociationPackage> GetAllAssociation(string Path)
         {
-            Task<string> RunTask = Task.Run(() =>
+            List<AssociationPackage> Association = new List<AssociationPackage>(100);
+
+            try
             {
-                try
+                string Extension = System.IO.Path.GetExtension(Path).ToLower();
+
+                if (Shell32.SHAssocEnumHandlers(Extension, Shell32.ASSOC_FILTER.ASSOC_FILTER_NONE, out Shell32.IEnumAssocHandlers AssocHandlers) == HRESULT.S_OK)
                 {
-                    uint Length = 0;
+                    Shell32.IAssocHandler[] Handlers = new Shell32.IAssocHandler[100];
 
-                    if (ShlwApi.AssocQueryString(ShlwApi.ASSOCF.ASSOCF_VERIFY, ShlwApi.ASSOCSTR.ASSOCSTR_EXECUTABLE, System.IO.Path.GetExtension(Path).ToLower(), null, null, ref Length) == HRESULT.S_FALSE)
+                    if (AssocHandlers.Next(100, Handlers, out uint FetchedNum) == HRESULT.S_OK)
                     {
-                        StringBuilder Builder = new StringBuilder(Convert.ToInt32(Length));
+                        Array.Resize(ref Handlers, Convert.ToInt32(FetchedNum));
 
-                        if (ShlwApi.AssocQueryString(ShlwApi.ASSOCF.ASSOCF_VERIFY, ShlwApi.ASSOCSTR.ASSOCSTR_EXECUTABLE, System.IO.Path.GetExtension(Path).ToLower(), null, Builder, ref Length) == HRESULT.S_OK)
+                        foreach (Shell32.IAssocHandler Handler in Handlers)
                         {
-                            return Builder.ToString();
-                        }
-                        else
-                        {
-                            return string.Empty;
+                            try
+                            {
+                                if (Handler.GetName(out string FullPath) == HRESULT.S_OK && Handler.GetUIName(out string DisplayName) == HRESULT.S_OK)
+                                {
+                                    //For UWP application, DisplayName == FullPath
+                                    if (DisplayName != FullPath)
+                                    {
+                                        Association.Add(new AssociationPackage(FullPath, Handler.IsRecommended() == HRESULT.S_OK));
+                                    }
+                                }
+                            }
+                            catch
+                            {
+                                continue;
+                            }
+                            finally
+                            {
+                                Marshal.ReleaseComObject(Handler);
+                            }
                         }
                     }
-                    else
-                    {
-                        return string.Empty;
-                    }
                 }
-                catch
-                {
-                    return string.Empty;
-                }
-            });
 
-            if (SpinWait.SpinUntil(() => RunTask.IsCompleted, 4000))
-            {
-                return RunTask.Result;
+                return Association;
             }
-            else
+            catch
             {
-                return string.Empty;
+                return Association;
+            }
+            finally
+            {
+                Association.Add(new AssociationPackage(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\notepad.exe"), false));
+                Association.TrimExcess();
             }
         }
     }

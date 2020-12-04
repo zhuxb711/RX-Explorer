@@ -3,7 +3,6 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,7 +23,12 @@ namespace MaintenanceTask
             try
             {
                 await ClearUselessLogTask(Cancellation.Token).ConfigureAwait(true);
-                await ClearAddressBarHistory().ConfigureAwait(true);
+
+                using (SqliteConnection Connection = GetSQLConnection())
+                {
+                    await ClearAddressBarHistory(Connection).ConfigureAwait(true);
+                    await UpdateProgramPickerTable(Connection).ConfigureAwait(true);
+                }
 
                 //The following code is used to update the globalization problem of the ContextMenu in the old version
                 if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("GlobalizationStringForContextMenu"))
@@ -89,14 +93,13 @@ namespace MaintenanceTask
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Debug.WriteLine($"An exception was threw in {nameof(ClearUselessLogTask)}, message: {ex.Message}");
             }
         }
 
-        //Clear history for addressbar and keep only 25 items
-        private async Task ClearAddressBarHistory()
+        private SqliteConnection GetSQLConnection()
         {
             try
             {
@@ -104,19 +107,64 @@ namespace MaintenanceTask
                 SQLitePCL.raw.sqlite3_win32_set_directory(1, ApplicationData.Current.LocalFolder.Path);
                 SQLitePCL.raw.sqlite3_win32_set_directory(2, ApplicationData.Current.TemporaryFolder.Path);
 
-                using (SqliteConnection Connection = new SqliteConnection("Filename=RX_Sqlite.db;"))
-                {
-                    Connection.Open();
+                SqliteConnection Connection = new SqliteConnection("Filename=RX_Sqlite.db;");
+                Connection.Open();
 
-                    using (SqliteCommand Command = new SqliteCommand("Delete From PathHistory Where rowid > 25", Connection))
-                    {
-                        await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
-                    }
+                return Connection;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        //Clear history for addressbar and keep only 25 items
+        private async Task ClearAddressBarHistory(SqliteConnection Connection)
+        {
+            try
+            {
+                using (SqliteCommand Command = new SqliteCommand("Delete From PathHistory Where rowid > 25", Connection))
+                {
+                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Debug.WriteLine($"An exception was threw in {nameof(ClearAddressBarHistory)}, message: {ex.Message}");
+            }
+        }
+
+        private async Task UpdateProgramPickerTable(SqliteConnection Connection)
+        {
+            try
+            {
+                using (SqliteCommand Command = new SqliteCommand("PRAGMA table_info('ProgramPicker')", Connection))
+                {
+                    using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
+                    {
+                        while (Reader.Read())
+                        {
+                            if (Convert.ToString(Reader[1]) == "IsDefault")
+                            {
+                                return;
+                            }
+                        }
+                    }
+                }
+
+                using (SqliteCommand Command = new SqliteCommand("Alter Table ProgramPicker Add Column IsDefault Text", Connection))
+                {
+                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                }
+
+                using (SqliteCommand Command = new SqliteCommand("Delete From ProgramPicker Where FileType = '.*'", Connection))
+                {
+                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"An exception was threw in {nameof(UpdateProgramPickerTable)}, message: {ex.Message}");
             }
         }
 
