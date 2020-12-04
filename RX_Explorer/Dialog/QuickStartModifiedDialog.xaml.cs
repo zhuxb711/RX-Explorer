@@ -1,6 +1,7 @@
 ﻿using ComputerVision;
 using RX_Explorer.Class;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -269,33 +270,64 @@ namespace RX_Explorer.Dialog
                                 {
                                     try
                                     {
-                                        StorageFile ExcuteFile = await StorageFile.GetFileFromPathAsync(Protocol.Text);
+                                        StorageFile ExecuteFile = await StorageFile.GetFileFromPathAsync(Protocol.Text);
 
-                                        DisplayName.Text = Convert.ToString((await ExcuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" }))["System.FileDescription"]);
+                                        IDictionary<string, object> PropertiesDictionary = await ExecuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" });
 
-                                        if (await ExcuteFile.GetThumbnailBitmapAsync().ConfigureAwait(true) is BitmapImage Image)
+                                        string ExtraAppName = string.Empty;
+
+                                        if (PropertiesDictionary.TryGetValue("System.FileDescription", out object DescriptionRaw))
                                         {
-                                            Icon.Source = Image;
-                                        }
-                                        else
-                                        {
-                                            Icon.Source = new BitmapImage(new Uri("ms-appx:///Assets/Page_Solid_White.png"));
+                                            ExtraAppName = Convert.ToString(DescriptionRaw);
                                         }
 
-                                        RenderTargetBitmap RTB = new RenderTargetBitmap();
-                                        await RTB.RenderAsync(Icon);
+                                        DisplayName.Text = string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName;
 
                                         StorageFile FileThumbnail = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("FileThumbnail.png", CreationCollisionOption.ReplaceExisting);
 
-                                        using (IRandomAccessStream Stream = await FileThumbnail.OpenAsync(FileAccessMode.ReadWrite))
+                                        if (await ExecuteFile.GetThumbnailRawStreamAsync().ConfigureAwait(true) is IRandomAccessStream ThumbnailStream)
                                         {
-                                            BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, Stream);
+                                            BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(ThumbnailStream);
+                                            using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                                            using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
+                                            using (InMemoryRandomAccessStream ResizeBitmapStream = new InMemoryRandomAccessStream())
+                                            {
+                                                BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, ResizeBitmapStream);
+                                                Encoder.SetSoftwareBitmap(ResizeBitmap);
+                                                await Encoder.FlushAsync();
 
-                                            byte[] PixelData = (await RTB.GetPixelsAsync()).ToArray();
+                                                BitmapImage Image = new BitmapImage();
+                                                Icon.Source = Image;
+                                                await Image.SetSourceAsync(ResizeBitmapStream);
 
-                                            Encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied, (uint)RTB.PixelWidth, (uint)RTB.PixelHeight, DisplayInformation.GetForCurrentView().LogicalDpi, DisplayInformation.GetForCurrentView().LogicalDpi, PixelData);
+                                                ResizeBitmapStream.Seek(0);
+                                                using (Stream TransformStream = ResizeBitmapStream.AsStreamForRead())
+                                                using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
+                                                {
+                                                    await TransformStream.CopyToAsync(FileStream).ConfigureAwait(true);
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            Uri PageUri = AppThemeController.Current.Theme == ElementTheme.Dark ? new Uri("ms-appx:///Assets/Page_Solid_White.png") : new Uri("ms-appx:///Assets/Page_Solid_Black.png");
 
-                                            await Encoder.FlushAsync();
+                                            StorageFile PageFile = await StorageFile.GetFileFromApplicationUriAsync(PageUri);
+
+                                            using (IRandomAccessStream PageStream = await PageFile.OpenAsync(FileAccessMode.Read))
+                                            {
+                                                BitmapImage Image = new BitmapImage();
+                                                Icon.Source = Image;
+                                                await Image.SetSourceAsync(PageStream);
+
+                                                PageStream.Seek(0);
+
+                                                using (Stream TransformStream = PageStream.AsStreamForRead())
+                                                using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
+                                                {
+                                                    await TransformStream.CopyToAsync(FileStream).ConfigureAwait(true);
+                                                }
+                                            }
                                         }
 
                                         ImageFile = FileThumbnail;
@@ -449,42 +481,75 @@ namespace RX_Explorer.Dialog
                 }
 
 
-                if (await Picker.PickSingleFileAsync() is StorageFile ExcuteFile)
+                if (await Picker.PickSingleFileAsync() is StorageFile ExecuteFile)
                 {
                     switch (Type)
                     {
                         case QuickStartType.Application:
                         case QuickStartType.UpdateApp:
                             {
-                                DisplayName.Text = Convert.ToString((await ExcuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" }))["System.FileDescription"]);
-                                Protocol.Text = ExcuteFile.Path;
+                                IDictionary<string, object> PropertiesDictionary = await ExecuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" });
+
+                                string ExtraAppName = string.Empty;
+
+                                if (PropertiesDictionary.TryGetValue("System.FileDescription", out object DescriptionRaw))
+                                {
+                                    ExtraAppName = Convert.ToString(DescriptionRaw);
+                                }
+
+                                DisplayName.Text = string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName;
+
+                                Protocol.Text = ExecuteFile.Path;
+
                                 break;
                             }
                     }
 
-                    if (await ExcuteFile.GetThumbnailBitmapAsync().ConfigureAwait(true) is BitmapImage Image)
+                    StorageFile FileThumbnail = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("FileThumbnail.png", CreationCollisionOption.ReplaceExisting);
+
+                    if (await ExecuteFile.GetThumbnailRawStreamAsync().ConfigureAwait(true) is IRandomAccessStream ThumbnailStream)
                     {
-                        Icon.Source = Image;
+                        BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(ThumbnailStream);
+                        using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                        using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
+                        using (InMemoryRandomAccessStream ResizeBitmapStream = new InMemoryRandomAccessStream())
+                        {
+                            BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, ResizeBitmapStream);
+                            Encoder.SetSoftwareBitmap(ResizeBitmap);
+                            await Encoder.FlushAsync();
+
+                            BitmapImage Image = new BitmapImage();
+                            Icon.Source = Image;
+                            await Image.SetSourceAsync(ResizeBitmapStream);
+
+                            ResizeBitmapStream.Seek(0);
+                            using (Stream TransformStream = ResizeBitmapStream.AsStreamForRead())
+                            using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
+                            {
+                                await TransformStream.CopyToAsync(FileStream).ConfigureAwait(true);
+                            }
+                        }
                     }
                     else
                     {
-                        Icon.Source = new BitmapImage(new Uri("ms-appx:///Assets/Page_Solid_White.png"));
-                    }
+                        Uri PageUri = AppThemeController.Current.Theme == ElementTheme.Dark ? new Uri("ms-appx:///Assets/Page_Solid_White.png") : new Uri("ms-appx:///Assets/Page_Solid_Black.png");
 
-                    RenderTargetBitmap RTB = new RenderTargetBitmap();
-                    await RTB.RenderAsync(Icon);
+                        StorageFile PageFile = await StorageFile.GetFileFromApplicationUriAsync(PageUri);
 
-                    StorageFile FileThumbnail = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("FileThumbnail.png", CreationCollisionOption.ReplaceExisting);
+                        using (IRandomAccessStream PageStream = await PageFile.OpenAsync(FileAccessMode.Read))
+                        {
+                            BitmapImage Image = new BitmapImage();
+                            Icon.Source = Image;
+                            await Image.SetSourceAsync(PageStream);
 
-                    using (IRandomAccessStream Stream = await FileThumbnail.OpenAsync(FileAccessMode.ReadWrite))
-                    {
-                        BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, Stream);
+                            PageStream.Seek(0);
 
-                        byte[] PixelData = (await RTB.GetPixelsAsync()).ToArray();
-
-                        Encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied, (uint)RTB.PixelWidth, (uint)RTB.PixelHeight, DisplayInformation.GetForCurrentView().LogicalDpi, DisplayInformation.GetForCurrentView().LogicalDpi, PixelData);
-
-                        await Encoder.FlushAsync();
+                            using (Stream TransformStream = PageStream.AsStreamForRead())
+                            using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
+                            {
+                                await TransformStream.CopyToAsync(FileStream).ConfigureAwait(true);
+                            }
+                        }
                     }
 
                     ImageFile = FileThumbnail;

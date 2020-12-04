@@ -212,9 +212,14 @@ namespace RX_Explorer.Class
                 AddPathBuilder.Append($"Insert Or Ignore Into ProgramPicker Values ('{FileType}', '{AddPath}', 'False');");
             }
 
-            using (SqliteCommand Command = new SqliteCommand(DeletePathBuilder.ToString() + AddPathBuilder.ToString(), Connection))
+            string SQLQuery = DeletePathBuilder.ToString() + AddPathBuilder.ToString();
+
+            if (!string.IsNullOrWhiteSpace(SQLQuery))
             {
-                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                using (SqliteCommand Command = new SqliteCommand(SQLQuery, Connection))
+                {
+                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                }
             }
         }
 

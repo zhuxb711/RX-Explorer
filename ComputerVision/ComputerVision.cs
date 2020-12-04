@@ -543,41 +543,68 @@ namespace ComputerVision
         public static SoftwareBitmap ResizeToActual(SoftwareBitmap Input)
         {
             using (Mat inputMat = Input.SoftwareBitmapToMat())
-            using (Mat tempMat = new Mat(inputMat.Rows, inputMat.Cols, MatType.CV_8UC4))
             {
-                Cv2.CvtColor(inputMat, tempMat, ColorConversionCodes.BGRA2GRAY);
-                Cv2.Threshold(tempMat, tempMat, 100, 255, ThresholdTypes.Binary);
+                Mat[] Channels = Array.Empty<Mat>();
 
-                using (Mat Hie = new Mat(tempMat.Size(), tempMat.Type()))
+                try
                 {
-                    Cv2.FindContours(tempMat, out Mat[] Result, Hie, RetrievalModes.External, ContourApproximationModes.ApproxNone);
+                    Channels = Cv2.Split(inputMat);
 
-                    try
+                    if (Channels.Length == 4)
                     {
-                        if (Result.FirstOrDefault() is Mat Contour)
-                        {
-                            Rect Area = Cv2.BoundingRect(Contour);
-                            return inputMat[Area].Clone().MatToSoftwareBitmap();
-                        }
-                        else
-                        {
-                            return SoftwareBitmap.Copy(Input);
-                        }
+                        Mat Contour = Channels.Last().FindNonZero();
+                        Rect Area = Cv2.BoundingRect(Contour);
+                        return inputMat[Area].Clone().MatToSoftwareBitmap();
                     }
-                    catch
+                    else
                     {
-                        return SoftwareBitmap.Copy(Input);
-                    }
-                    finally
-                    {
-                        foreach (Mat Item in Result)
-                        {
-                            Item.Dispose();
-                        }
+                        throw new ArgumentException("Input must have be BGRA image");
                     }
                 }
+                catch
+                {
+                    return SoftwareBitmap.Copy(Input);
+                }
+                finally
+                {
+                    Array.ForEach(Channels, (Channel) => Channel.Dispose());
+                }
             }
-        }
+                //using (Mat tempMat = new Mat(inputMat.Rows, inputMat.Cols, MatType.CV_8UC4))
+                //{
+                //    Cv2.CvtColor(inputMat, tempMat, ColorConversionCodes.BGRA2GRAY);
+                //    Cv2.Threshold(tempMat, tempMat, 100, 255, ThresholdTypes.Binary);
+
+                //    using (Mat Hie = new Mat(tempMat.Size(), tempMat.Type()))
+                //    {
+                //        Cv2.FindContours(tempMat, out Mat[] Result, Hie, RetrievalModes.External, ContourApproximationModes.ApproxNone);
+
+                //        try
+                //        {
+                //            if (Result.FirstOrDefault() is Mat Contour)
+                //            {
+                //                Rect Area = Cv2.BoundingRect(Contour);
+                //                return inputMat[Area].Clone().MatToSoftwareBitmap();
+                //            }
+                //            else
+                //            {
+                //                return SoftwareBitmap.Copy(Input);
+                //            }
+                //        }
+                //        catch
+                //        {
+                //            return SoftwareBitmap.Copy(Input);
+                //        }
+                //        finally
+                //        {
+                //            foreach (Mat Item in Result)
+                //            {
+                //                Item.Dispose();
+                //            }
+                //        }
+                //    }
+                //}
+            }
 
         private static unsafe Mat SoftwareBitmapToMat(this SoftwareBitmap softwareBitmap)
         {

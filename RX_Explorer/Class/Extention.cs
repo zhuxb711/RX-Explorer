@@ -19,6 +19,7 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
+using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Notifications;
@@ -1137,76 +1138,121 @@ namespace RX_Explorer.Class
         {
             try
             {
-                if (Item is StorageFolder Folder)
+                using (CancellationTokenSource Cancellation = new CancellationTokenSource())
                 {
-                    using (StorageItemThumbnail Thumbnail = await Folder.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 150))
+                    Task<StorageItemThumbnail> GetThumbnailTask;
+
+                    switch (Item)
                     {
-                        if (Thumbnail == null || Thumbnail.Size == 0 || Thumbnail.OriginalHeight == 0 || Thumbnail.OriginalWidth == 0)
-                        {
-                            return null;
-                        }
-
-                        BitmapImage bitmapImage = new BitmapImage();
-
-                        await bitmapImage.SetSourceAsync(Thumbnail);
-                        return bitmapImage;
-                    }
-                }
-                else if (Item is StorageFile File)
-                {
-                    using (CancellationTokenSource Cancellation = new CancellationTokenSource())
-                    {
-                        Task<StorageItemThumbnail> GetThumbnailTask = File.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 150).AsTask(Cancellation.Token);
-
-                        bool IsSuccess = await Task.Run(() => SpinWait.SpinUntil(() => GetThumbnailTask.IsCompleted, 2000)).ConfigureAwait(true);
-
-                        if (IsSuccess)
-                        {
-                            using (StorageItemThumbnail Thumbnail = GetThumbnailTask.Result)
+                        case StorageFolder Folder:
+                            GetThumbnailTask = Folder.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 150).AsTask(Cancellation.Token);
+                            break;
+                        case StorageFile File:
+                            GetThumbnailTask = File.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 150).AsTask(Cancellation.Token);
+                            break;
+                        default:
                             {
-                                if (Thumbnail == null || Thumbnail.Size == 0 || Thumbnail.OriginalHeight == 0 || Thumbnail.OriginalWidth == 0)
-                                {
-                                    return null;
-                                }
-
-                                BitmapImage bitmapImage = new BitmapImage();
-
-                                await bitmapImage.SetSourceAsync(Thumbnail);
-                                return bitmapImage;
+                                return null;
                             }
-                        }
-                        else
+                    }
+
+                    bool IsSuccess = await Task.Run(() => SpinWait.SpinUntil(() => GetThumbnailTask.IsCompleted, 2000)).ConfigureAwait(true);
+
+                    if (IsSuccess)
+                    {
+                        using (StorageItemThumbnail Thumbnail = GetThumbnailTask.Result)
                         {
-                            Cancellation.Cancel();
-
-                            if (!ToastNotificationManager.History.GetHistory().Any((Toast) => Toast.Tag == "DelayLoadNotification"))
+                            if (Thumbnail == null || Thumbnail.Size == 0 || Thumbnail.OriginalHeight == 0 || Thumbnail.OriginalWidth == 0)
                             {
-                                ToastContentBuilder Builder = new ToastContentBuilder()
-                                                              .SetToastScenario(ToastScenario.Default)
-                                                              .AddToastActivationInfo("Transcode", ToastActivationType.Foreground)
-                                                              .AddText(Globalization.GetString("DelayLoadNotification_Title"))
-                                                              .AddText(Globalization.GetString("DelayLoadNotification_Content_1"))
-                                                              .AddText(Globalization.GetString("DelayLoadNotification_Content_2"));
-
-                                ToastNotification Notification = new ToastNotification(Builder.GetToastContent().GetXml())
-                                {
-                                    Tag = "DelayLoadNotification"
-                                };
-
-                                ToastNotificationManager.CreateToastNotifier().Show(Notification);
+                                return null;
                             }
 
-                            return null;
+                            BitmapImage bitmapImage = new BitmapImage();
+
+                            await bitmapImage.SetSourceAsync(Thumbnail);
+
+                            return bitmapImage;
                         }
                     }
-                }
-                else
-                {
-                    return null;
+                    else
+                    {
+                        _ = GetThumbnailTask.ContinueWith((task) => task.Result?.Dispose(), TaskScheduler.Default);
+                        Cancellation.Cancel();
+
+                        if (!ToastNotificationManager.History.GetHistory().Any((Toast) => Toast.Tag == "DelayLoadNotification"))
+                        {
+                            ToastContentBuilder Builder = new ToastContentBuilder()
+                                                          .SetToastScenario(ToastScenario.Default)
+                                                          .AddToastActivationInfo("Transcode", ToastActivationType.Foreground)
+                                                          .AddText(Globalization.GetString("DelayLoadNotification_Title"))
+                                                          .AddText(Globalization.GetString("DelayLoadNotification_Content_1"))
+                                                          .AddText(Globalization.GetString("DelayLoadNotification_Content_2"));
+
+                            ToastNotification Notification = new ToastNotification(Builder.GetToastContent().GetXml())
+                            {
+                                Tag = "DelayLoadNotification"
+                            };
+
+                            ToastNotificationManager.CreateToastNotifier().Show(Notification);
+                        }
+
+                        return null;
+                    }
                 }
             }
             catch
             {
+                return null;
+            }
+        }
+
+        public static async Task<IRandomAccessStream> GetThumbnailRawStreamAsync(this IStorageItem Item)
+        {
+            try
+            {
+                using (CancellationTokenSource Cancellation = new CancellationTokenSource())
+                {
+                    Task<StorageItemThumbnail> GetThumbnailTask;
+
+                    switch (Item)
+                    {
+                        case StorageFolder Folder:
+                            GetThumbnailTask = Folder.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 150).AsTask(Cancellation.Token);
+                            break;
+                        case StorageFile File:
+                            GetThumbnailTask = File.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 150).AsTask(Cancellation.Token);
+                            break;
+                        default:
+                            {
+                                return null;
+                            }
+                    }
+
+                    bool IsSuccess = await Task.Run(() => SpinWait.SpinUntil(() => GetThumbnailTask.IsCompleted, 2000)).ConfigureAwait(true);
+
+                    if (IsSuccess)
+                    {
+                        using (StorageItemThumbnail Thumbnail = GetThumbnailTask.Result)
+                        {
+                            if (Thumbnail == null || Thumbnail.Size == 0 || Thumbnail.OriginalHeight == 0 || Thumbnail.OriginalWidth == 0)
+                            {
+                                return null;
+                            }
+
+                            return Thumbnail.CloneStream();
+                        }
+                    }
+                    else
+                    {
+                        _ = GetThumbnailTask.ContinueWith((task) => task.Result?.Dispose(), TaskScheduler.Default);
+                        Cancellation.Cancel();
+                        return null;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "An exception was threw when getting thumbnail");
                 return null;
             }
         }

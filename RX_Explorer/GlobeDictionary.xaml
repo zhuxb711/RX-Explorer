@@ -20,7 +20,7 @@
                      Color="Transparent" />
 
     <x:Double x:Key="ContentDialogMaxWidth">550</x:Double>
-    <x:Double x:Key="ContentDialogMaxHeight">550</x:Double>
+    <x:Double x:Key="ContentDialogMaxHeight">600</x:Double>
 
     <Style x:Key="ButtonLikeCommandBarFlyout"
            TargetType="Button">

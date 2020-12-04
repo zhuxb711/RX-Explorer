@@ -1,4 +1,5 @@
-﻿using RX_Explorer.Class;
+﻿using ComputerVision;
+using RX_Explorer.Class;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
@@ -30,43 +32,6 @@ namespace RX_Explorer.Dialog
 
             this.OpenFile = OpenFile ?? throw new ArgumentNullException(nameof(OpenFile), "Parameter could not be null");
 
-            switch (OpenFile.FileType)
-            {
-                case ".jpg":
-                case ".png":
-                case ".bmp":
-                case ".heic":
-                case ".gif":
-                case ".tiff":
-                case ".mkv":
-                case ".mp4":
-                case ".mp3":
-                case ".flac":
-                case ".wma":
-                case ".wmv":
-                case ".m4a":
-                case ".mov":
-                case ".alac":
-                case ".txt":
-                case ".pdf":
-                case ".exe":
-                    {
-                        Area1.Visibility = Visibility.Visible;
-                        CurrentUseProgramList.Visibility = Visibility.Visible;
-
-                        Title1.Text = Globalization.GetString("ProgramPicker_Dialog_Title_1");
-                        Title2.Text = Globalization.GetString("ProgramPicker_Dialog_Title_2");
-                        break;
-                    }
-                default:
-                    {
-                        Area1.Visibility = Visibility.Collapsed;
-                        CurrentUseProgramList.Visibility = Visibility.Collapsed;
-                        Title2.Text = Globalization.GetString("ProgramPicker_Dialog_Title_2");
-                        break;
-                    }
-            }
-
             Loading += ProgramPickerDialog_Loading;
         }
 
@@ -87,12 +52,31 @@ namespace RX_Explorer.Dialog
 
                 foreach (AppInfo Info in AppInfoList)
                 {
-                    using (IRandomAccessStreamWithContentType LogoStream = await Info.DisplayInfo.GetLogo(new Windows.Foundation.Size(150, 150)).OpenReadAsync())
+                    try
                     {
-                        BitmapImage Image = new BitmapImage();
-                        await Image.SetSourceAsync(LogoStream);
+                        using (IRandomAccessStreamWithContentType LogoStream = await Info.DisplayInfo.GetLogo(new Windows.Foundation.Size(128, 128)).OpenReadAsync())
+                        {
+                            BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(LogoStream);
 
-                        TempList.Add(new ProgramPickerItem(Image, Info.DisplayInfo.DisplayName, Info.DisplayInfo.Description, Info.PackageFamilyName));
+                            using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                            using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
+                            using (InMemoryRandomAccessStream Stream = new InMemoryRandomAccessStream())
+                            {
+                                BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, Stream);
+
+                                Encoder.SetSoftwareBitmap(ResizeBitmap);
+                                await Encoder.FlushAsync();
+
+                                BitmapImage Image = new BitmapImage();
+                                await Image.SetSourceAsync(Stream);
+
+                                TempList.Add(new ProgramPickerItem(Image, Info.DisplayInfo.DisplayName, Info.DisplayInfo.Description, Info.PackageFamilyName));
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "An exception was threw when getting or processing App Logo");
                     }
                 }
             }
@@ -105,9 +89,9 @@ namespace RX_Explorer.Dialog
             {
                 try
                 {
-                    StorageFile ExcuteFile = await StorageFile.GetFileFromPathAsync(Path);
+                    StorageFile ExecuteFile = await StorageFile.GetFileFromPathAsync(Path);
 
-                    IDictionary<string, object> PropertiesDictionary = await ExcuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" });
+                    IDictionary<string, object> PropertiesDictionary = await ExecuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" });
 
                     string ExtraAppName = string.Empty;
 
@@ -116,7 +100,27 @@ namespace RX_Explorer.Dialog
                         ExtraAppName = Convert.ToString(DescriptionRaw);
                     }
 
-                    TempList.Add(new ProgramPickerItem(await ExcuteFile.GetThumbnailBitmapAsync().ConfigureAwait(true), string.IsNullOrEmpty(ExtraAppName) ? ExcuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExcuteFile.Path));
+                    if (await ExecuteFile.GetThumbnailRawStreamAsync().ConfigureAwait(true) is IRandomAccessStream ThumbnailStream)
+                    {
+                        BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(ThumbnailStream);
+                        using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                        using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
+                        using (InMemoryRandomAccessStream ResizeBitmapStream = new InMemoryRandomAccessStream())
+                        {
+                            BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, ResizeBitmapStream);
+                            Encoder.SetSoftwareBitmap(ResizeBitmap);
+                            await Encoder.FlushAsync();
+
+                            BitmapImage ThumbnailBitmap = new BitmapImage();
+                            await ThumbnailBitmap.SetSourceAsync(ResizeBitmapStream);
+
+                            TempList.Add(new ProgramPickerItem(ThumbnailBitmap, string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path));
+                        }
+                    }
+                    else
+                    {
+                        TempList.Add(new ProgramPickerItem(new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? new Uri("ms-appx:///Assets/Page_Solid_White.png") : new Uri("ms-appx:///Assets/Page_Solid_Black.png")), string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path));
+                    }
                 }
                 catch (Exception)
                 {
@@ -124,25 +128,89 @@ namespace RX_Explorer.Dialog
                 }
             }
 
-            if (Area1.Visibility == Visibility.Visible)
+            string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(OpenFile.FileType).ConfigureAwait(true);
+
+            if (!string.IsNullOrEmpty(AdminExecutablePath) && TempList.FirstOrDefault((Item) => Item.Path == AdminExecutablePath) is ProgramPickerItem AdminItem)
             {
-                string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(OpenFile.FileType).ConfigureAwait(true);
+                CurrentUseProgramList.Items.Add(AdminItem);
+                CurrentUseProgramList.SelectedIndex = 0;
+                TempList.Remove(AdminItem);
+            }
 
-                if (!string.IsNullOrEmpty(AdminExecutablePath) && TempList.FirstOrDefault((Item) => Item.Name == AdminExecutablePath) is ProgramPickerItem AdminItem)
+            if (CurrentUseProgramList.Items.Count == 0)
+            {
+                switch (OpenFile.FileType)
                 {
-                    CurrentUseProgramList.Items.Add(AdminItem);
-                    CurrentUseProgramList.SelectedIndex = 0;
-                    TempList.Remove(AdminItem);
-                }
+                    case ".jpg":
+                    case ".png":
+                    case ".bmp":
+                    case ".heic":
+                    case ".gif":
+                    case ".tiff":
+                    case ".mkv":
+                    case ".mp4":
+                    case ".mp3":
+                    case ".flac":
+                    case ".wma":
+                    case ".wmv":
+                    case ".m4a":
+                    case ".mov":
+                    case ".alac":
+                    case ".txt":
+                    case ".pdf":
+                    case ".exe":
+                        {
+                            Area1.Visibility = Visibility.Visible;
+                            CurrentUseProgramList.Visibility = Visibility.Visible;
 
-                if (CurrentUseProgramList.Items.Count == 0)
-                {
-                    CurrentUseProgramList.Items.Add(new ProgramPickerItem(new BitmapImage(new Uri("ms-appx:///Assets/RX-icon.png")), Globalization.GetString("ProgramPicker_Dialog_BuiltInViewer"), Globalization.GetString("ProgramPicker_Dialog_BuiltInViewer_Description"), Package.Current.Id.FamilyName));
-                    CurrentUseProgramList.SelectedIndex = 0;
+                            Title1.Text = Globalization.GetString("ProgramPicker_Dialog_Title_1");
+                            Title2.Text = Globalization.GetString("ProgramPicker_Dialog_Title_2");
+
+                            CurrentUseProgramList.Items.Add(new ProgramPickerItem(new BitmapImage(new Uri("ms-appx:///Assets/RX-icon.png")), Globalization.GetString("ProgramPicker_Dialog_BuiltInViewer"), Globalization.GetString("ProgramPicker_Dialog_BuiltInViewer_Description"), Package.Current.Id.FamilyName));
+                            CurrentUseProgramList.SelectedIndex = 0;
+                            break;
+                        }
+                    default:
+                        {
+                            Area1.Visibility = Visibility.Collapsed;
+                            CurrentUseProgramList.Visibility = Visibility.Collapsed;
+                            Title2.Text = Globalization.GetString("ProgramPicker_Dialog_Title_2");
+                            break;
+                        }
                 }
-                else
+            }
+            else
+            {
+                Area1.Visibility = Visibility.Visible;
+                CurrentUseProgramList.Visibility = Visibility.Visible;
+
+                Title1.Text = Globalization.GetString("ProgramPicker_Dialog_Title_1");
+                Title2.Text = Globalization.GetString("ProgramPicker_Dialog_Title_2");
+
+                switch (OpenFile.FileType)
                 {
-                    ProgramCollection.Add(new ProgramPickerItem(new BitmapImage(new Uri("ms-appx:///Assets/RX-icon.png")), Globalization.GetString("ProgramPicker_Dialog_BuiltInViewer"), Globalization.GetString("ProgramPicker_Dialog_BuiltInViewer_Description"), Package.Current.Id.FamilyName));
+                    case ".jpg":
+                    case ".png":
+                    case ".bmp":
+                    case ".heic":
+                    case ".gif":
+                    case ".tiff":
+                    case ".mkv":
+                    case ".mp4":
+                    case ".mp3":
+                    case ".flac":
+                    case ".wma":
+                    case ".wmv":
+                    case ".m4a":
+                    case ".mov":
+                    case ".alac":
+                    case ".txt":
+                    case ".pdf":
+                    case ".exe":
+                        {
+                            ProgramCollection.Add(new ProgramPickerItem(new BitmapImage(new Uri("ms-appx:///Assets/RX-icon.png")), Globalization.GetString("ProgramPicker_Dialog_BuiltInViewer"), Globalization.GetString("ProgramPicker_Dialog_BuiltInViewer_Description"), Package.Current.Id.FamilyName));
+                            break;
+                        }
                 }
             }
 
@@ -187,9 +255,9 @@ namespace RX_Explorer.Dialog
             Picker.FileTypeFilter.Add(".exe");
             Picker.FileTypeFilter.Add(".lnk");
 
-            if ((await Picker.PickSingleFileAsync()) is StorageFile ExtraApp)
+            if ((await Picker.PickSingleFileAsync()) is StorageFile ExecuteFile)
             {
-                IDictionary<string, object> PropertiesDictionary = await ExtraApp.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" });
+                IDictionary<string, object> PropertiesDictionary = await ExecuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" });
 
                 string ExtraAppName = string.Empty;
 
@@ -198,10 +266,31 @@ namespace RX_Explorer.Dialog
                     ExtraAppName = Convert.ToString(Description);
                 }
 
-                ProgramCollection.Insert(0, new ProgramPickerItem(await ExtraApp.GetThumbnailBitmapAsync().ConfigureAwait(true), string.IsNullOrEmpty(ExtraAppName) ? ExtraApp.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExtraApp.Path));
+                if (await ExecuteFile.GetThumbnailRawStreamAsync().ConfigureAwait(true) is IRandomAccessStream ThumbnailStream)
+                {
+                    BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(ThumbnailStream);
+                    using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                    using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
+                    using (InMemoryRandomAccessStream ResizeBitmapStream = new InMemoryRandomAccessStream())
+                    {
+                        BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, ResizeBitmapStream);
+                        Encoder.SetSoftwareBitmap(ResizeBitmap);
+                        await Encoder.FlushAsync();
+
+                        BitmapImage ThumbnailBitmap = new BitmapImage();
+                        await ThumbnailBitmap.SetSourceAsync(ResizeBitmapStream);
+
+                        ProgramCollection.Insert(0, new ProgramPickerItem(ThumbnailBitmap, string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path));
+                    }
+                }
+                else
+                {
+                    ProgramCollection.Insert(0, new ProgramPickerItem(new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? new Uri("ms-appx:///Assets/Page_Solid_White.png") : new Uri("ms-appx:///Assets/Page_Solid_Black.png")), string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path));
+                }
+
                 OtherProgramList.SelectedIndex = 0;
 
-                await SQLite.Current.SetProgramPickerRecordAsync(OpenFile.FileType, ExtraApp.Path).ConfigureAwait(false);
+                await SQLite.Current.SetProgramPickerRecordAsync(OpenFile.FileType, ExecuteFile.Path).ConfigureAwait(false);
             }
         }
 

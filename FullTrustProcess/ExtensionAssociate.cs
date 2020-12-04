@@ -57,7 +57,6 @@ namespace FullTrustProcess
             }
             finally
             {
-                Association.Add(new AssociationPackage(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32\\notepad.exe"), false));
                 Association.TrimExcess();
             }
         }
