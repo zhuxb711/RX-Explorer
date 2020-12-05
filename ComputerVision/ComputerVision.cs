@@ -25,7 +25,7 @@ namespace ComputerVision
             {
                 Cv2.CvtColor(inputMat, BGRMat, ColorConversionCodes.BGRA2BGR);
 
-                using(Mat HSVMat = new Mat(BGRMat.Rows, BGRMat.Cols, MatType.CV_8UC3))
+                using (Mat HSVMat = new Mat(BGRMat.Rows, BGRMat.Cols, MatType.CV_8UC3))
                 {
                     Cv2.CvtColor(BGRMat, HSVMat, ColorConversionCodes.BGR2HSV);
 
@@ -190,16 +190,18 @@ namespace ComputerVision
 
                             Mat[] BGRChannel = Cv2.Split(Temp);
 
-                            BGRChannel[0] = (gain.Mul(BGRChannel[0] + Gray) + BGRChannel[0] - Gray) * 0.5f;
-                            BGRChannel[1] = (gain.Mul(BGRChannel[1] + Gray) + BGRChannel[1] - Gray) * 0.5f;
-                            BGRChannel[2] = (gain.Mul(BGRChannel[2] + Gray) + BGRChannel[2] - Gray) * 0.5f;
-
-                            Cv2.Merge(BGRChannel, Temp);
-                            Temp.ConvertTo(outputMat, MatType.CV_8UC4);
-
-                            foreach (Mat Item in BGRChannel)
+                            try
                             {
-                                Item.Dispose();
+                                BGRChannel[0] = (gain.Mul(BGRChannel[0] + Gray) + BGRChannel[0] - Gray) * 0.5f;
+                                BGRChannel[1] = (gain.Mul(BGRChannel[1] + Gray) + BGRChannel[1] - Gray) * 0.5f;
+                                BGRChannel[2] = (gain.Mul(BGRChannel[2] + Gray) + BGRChannel[2] - Gray) * 0.5f;
+
+                                Cv2.Merge(BGRChannel, Temp);
+                                Temp.ConvertTo(outputMat, MatType.CV_8UC4);
+                            }
+                            finally
+                            {
+                                Array.ForEach(BGRChannel, (Channel) => Channel.Dispose());
                             }
                         }
                     }
@@ -225,9 +227,9 @@ namespace ComputerVision
                 {
                     for (int j = 0; j < inputMat.Cols; j++)
                     {
-                        MaxVal = Math.Max(MaxVal, (int)temp.At<Vec3b>(i, j)[0]);
-                        MaxVal = Math.Max(MaxVal, (int)temp.At<Vec3b>(i, j)[1]);
-                        MaxVal = Math.Max(MaxVal, (int)temp.At<Vec3b>(i, j)[2]);
+                        MaxVal = Math.Max(MaxVal, temp.At<Vec3b>(i, j)[0]);
+                        MaxVal = Math.Max(MaxVal, temp.At<Vec3b>(i, j)[1]);
+                        MaxVal = Math.Max(MaxVal, temp.At<Vec3b>(i, j)[2]);
 
                         HistRGB[temp.At<Vec3b>(i, j)[0] + temp.At<Vec3b>(i, j)[1] + temp.At<Vec3b>(i, j)[2]]++;
                     }
@@ -451,44 +453,50 @@ namespace ComputerVision
                     new Mat(inputMat.Rows, inputMat.Cols, MatType.CV_8UC3)
                 };
 
-                int[] hissize = new int[1] { 512 };
-                int histHeight = 512, histWidth = 512;
-                float[] ranges = new float[2] { 0.0f, 256.0f };
-
-                Cv2.CvtColor(inputMat, temp, ColorConversionCodes.BGRA2BGR);
-                Mat[] RGBChannels = Cv2.Split(temp);
-                Cv2.CalcHist(new Mat[1] { RGBChannels[0] }, new int[1] { 0 }, null, OutputRGB[0], 1, hissize, new float[][] { ranges });
-                Cv2.CalcHist(new Mat[1] { RGBChannels[1] }, new int[1] { 0 }, null, OutputRGB[1], 1, hissize, new float[][] { ranges });
-                Cv2.CalcHist(new Mat[1] { RGBChannels[2] }, new int[1] { 0 }, null, OutputRGB[2], 1, hissize, new float[][] { ranges });
-
-                Cv2.Normalize(OutputRGB[0], OutputRGB[0], 0, histHeight, NormTypes.MinMax);
-                Cv2.Normalize(OutputRGB[1], OutputRGB[1], 0, histHeight, NormTypes.MinMax);
-                Cv2.Normalize(OutputRGB[2], OutputRGB[2], 0, histHeight, NormTypes.MinMax);
-
-                using (Mat histImage = new Mat(histHeight, histWidth, MatType.CV_8UC3, new Scalar(20, 20, 20)))
+                try
                 {
-                    int binStep = Convert.ToInt32(Math.Round((float)histWidth / (float)hissize[0], MidpointRounding.AwayFromZero));
+                    int[] hissize = new int[1] { 512 };
+                    int histHeight = 512, histWidth = 512;
+                    float[] ranges = new float[2] { 0.0f, 256.0f };
 
-                    for (int i = 1; i < hissize[0]; i++)
+                    Cv2.CvtColor(inputMat, temp, ColorConversionCodes.BGRA2BGR);
+
+                    Mat[] RGBChannels = Cv2.Split(temp);
+
+                    try
                     {
-                        Cv2.Line(histImage, new Point(binStep * (i - 1), histHeight - Convert.ToInt32(Math.Round(OutputRGB[0].At<float>(i - 1), MidpointRounding.AwayFromZero))), new Point(binStep * (i), histHeight - Convert.ToInt32(Math.Round(OutputRGB[0].At<float>(i), MidpointRounding.AwayFromZero))), new Scalar(255, 0, 0));
-                        Cv2.Line(histImage, new Point(binStep * (i - 1), histHeight - Convert.ToInt32(Math.Round(OutputRGB[1].At<float>(i - 1), MidpointRounding.AwayFromZero))), new Point(binStep * (i), histHeight - Convert.ToInt32(Math.Round(OutputRGB[1].At<float>(i), MidpointRounding.AwayFromZero))), new Scalar(0, 255, 0));
-                        Cv2.Line(histImage, new Point(binStep * (i - 1), histHeight - Convert.ToInt32(Math.Round(OutputRGB[2].At<float>(i - 1), MidpointRounding.AwayFromZero))), new Point(binStep * (i), histHeight - Convert.ToInt32(Math.Round(OutputRGB[2].At<float>(i), MidpointRounding.AwayFromZero))), new Scalar(0, 0, 255));
+                        Cv2.CalcHist(new Mat[1] { RGBChannels[0] }, new int[1] { 0 }, null, OutputRGB[0], 1, hissize, new float[][] { ranges });
+                        Cv2.CalcHist(new Mat[1] { RGBChannels[1] }, new int[1] { 0 }, null, OutputRGB[1], 1, hissize, new float[][] { ranges });
+                        Cv2.CalcHist(new Mat[1] { RGBChannels[2] }, new int[1] { 0 }, null, OutputRGB[2], 1, hissize, new float[][] { ranges });
+
+                        Cv2.Normalize(OutputRGB[0], OutputRGB[0], 0, histHeight, NormTypes.MinMax);
+                        Cv2.Normalize(OutputRGB[1], OutputRGB[1], 0, histHeight, NormTypes.MinMax);
+                        Cv2.Normalize(OutputRGB[2], OutputRGB[2], 0, histHeight, NormTypes.MinMax);
+
+                        using (Mat histImage = new Mat(histHeight, histWidth, MatType.CV_8UC3, new Scalar(20, 20, 20)))
+                        {
+                            int binStep = Convert.ToInt32(Math.Round(histWidth / (float)hissize[0], MidpointRounding.AwayFromZero));
+
+                            for (int i = 1; i < hissize[0]; i++)
+                            {
+                                Cv2.Line(histImage, new Point(binStep * (i - 1), histHeight - Convert.ToInt32(Math.Round(OutputRGB[0].At<float>(i - 1), MidpointRounding.AwayFromZero))), new Point(binStep * (i), histHeight - Convert.ToInt32(Math.Round(OutputRGB[0].At<float>(i), MidpointRounding.AwayFromZero))), new Scalar(255, 0, 0));
+                                Cv2.Line(histImage, new Point(binStep * (i - 1), histHeight - Convert.ToInt32(Math.Round(OutputRGB[1].At<float>(i - 1), MidpointRounding.AwayFromZero))), new Point(binStep * (i), histHeight - Convert.ToInt32(Math.Round(OutputRGB[1].At<float>(i), MidpointRounding.AwayFromZero))), new Scalar(0, 255, 0));
+                                Cv2.Line(histImage, new Point(binStep * (i - 1), histHeight - Convert.ToInt32(Math.Round(OutputRGB[2].At<float>(i - 1), MidpointRounding.AwayFromZero))), new Point(binStep * (i), histHeight - Convert.ToInt32(Math.Round(OutputRGB[2].At<float>(i), MidpointRounding.AwayFromZero))), new Scalar(0, 0, 255));
+                            }
+
+                            Cv2.CvtColor(histImage, outputMat, ColorConversionCodes.BGR2BGRA);
+
+                            return outputMat.MatToSoftwareBitmap();
+                        }
                     }
-
-                    Cv2.CvtColor(histImage, outputMat, ColorConversionCodes.BGR2BGRA);
-
-                    foreach (Mat Item in OutputRGB)
+                    finally
                     {
-                        Item.Dispose();
+                        Array.ForEach(RGBChannels, (Channel) => Channel.Dispose());
                     }
-
-                    foreach (Mat Item in RGBChannels)
-                    {
-                        Item.Dispose();
-                    }
-
-                    return outputMat.MatToSoftwareBitmap();
+                }
+                finally
+                {
+                    Array.ForEach(OutputRGB, (Channel) => Channel.Dispose());
                 }
             }
         }
@@ -570,41 +578,7 @@ namespace ComputerVision
                     Array.ForEach(Channels, (Channel) => Channel.Dispose());
                 }
             }
-                //using (Mat tempMat = new Mat(inputMat.Rows, inputMat.Cols, MatType.CV_8UC4))
-                //{
-                //    Cv2.CvtColor(inputMat, tempMat, ColorConversionCodes.BGRA2GRAY);
-                //    Cv2.Threshold(tempMat, tempMat, 100, 255, ThresholdTypes.Binary);
-
-                //    using (Mat Hie = new Mat(tempMat.Size(), tempMat.Type()))
-                //    {
-                //        Cv2.FindContours(tempMat, out Mat[] Result, Hie, RetrievalModes.External, ContourApproximationModes.ApproxNone);
-
-                //        try
-                //        {
-                //            if (Result.FirstOrDefault() is Mat Contour)
-                //            {
-                //                Rect Area = Cv2.BoundingRect(Contour);
-                //                return inputMat[Area].Clone().MatToSoftwareBitmap();
-                //            }
-                //            else
-                //            {
-                //                return SoftwareBitmap.Copy(Input);
-                //            }
-                //        }
-                //        catch
-                //        {
-                //            return SoftwareBitmap.Copy(Input);
-                //        }
-                //        finally
-                //        {
-                //            foreach (Mat Item in Result)
-                //            {
-                //                Item.Dispose();
-                //            }
-                //        }
-                //    }
-                //}
-            }
+        }
 
         private static unsafe Mat SoftwareBitmapToMat(this SoftwareBitmap softwareBitmap)
         {

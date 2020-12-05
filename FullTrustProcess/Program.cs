@@ -283,11 +283,18 @@ namespace FullTrustProcess
                             {
                                 using (ShellLink Link = new ShellLink(ExecutePath))
                                 {
-                                    Value.Add("Success", string.Empty);
-                                    Value.Add("TargetPath", Link.TargetPath);
-                                    Value.Add("Argument", Link.Arguments);
-                                    Value.Add("RunAs", Link.RunAsAdministrator);
-                                    Value.Add("IsFile", File.Exists(Link.TargetPath));
+                                    if (string.IsNullOrEmpty(Link.TargetPath))
+                                    {
+                                        Value.Add("Error", "TargetPath is invalid");
+                                    }
+                                    else
+                                    {
+                                        Value.Add("Success", string.Empty);
+                                        Value.Add("TargetPath", Link.TargetPath);
+                                        Value.Add("Argument", Link.Arguments);
+                                        Value.Add("RunAs", Link.RunAsAdministrator);
+                                        Value.Add("IsFile", File.Exists(Link.TargetPath));
+                                    }
                                 }
                             }
                             else

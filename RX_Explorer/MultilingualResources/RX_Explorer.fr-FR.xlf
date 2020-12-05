@@ -3373,6 +3373,10 @@ Les noms non valides incluent
           <source>Please enter Bitlocker password to unlock the drive</source>
           <target state="translated">Veuillez entrer le mot de passe Bitlocker pour déverrouiller le lecteur</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_UnableAccessFile_Content" translate="yes" xml:space="preserve">
+          <source>Cannot access this file due to lack of permissions</source>
+          <target state="translated">Impossible d'accéder à ce fichier en raison d'un manque d'autorisations</target>
+        </trans-unit>
       </group>
     </body>
   </file>

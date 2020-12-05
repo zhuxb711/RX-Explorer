@@ -3373,6 +3373,10 @@ Invalid names include
           <source>Please enter Bitlocker password to unlock the drive</source>
           <target state="translated">請輸入Bitlocker密碼來解鎖驅動器</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_UnableAccessFile_Content" translate="yes" xml:space="preserve">
+          <source>Cannot access this file due to lack of permissions</source>
+          <target state="translated">由於權限不足，無法訪問此文件</target>
+        </trans-unit>
       </group>
     </body>
   </file>

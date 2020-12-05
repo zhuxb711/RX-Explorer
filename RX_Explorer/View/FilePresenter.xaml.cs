@@ -1269,11 +1269,10 @@ namespace RX_Explorer
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                        await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(true);
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
                     catch (FileCaputureException)
                     {
@@ -1355,11 +1354,10 @@ namespace RX_Explorer
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                            await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(true);
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
                         }
                         catch (FileCaputureException)
                         {
@@ -1537,11 +1535,11 @@ namespace RX_Explorer
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
+
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
                 return;
             }
 
@@ -1917,11 +1915,11 @@ namespace RX_Explorer
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
+
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
                 return;
             }
 
@@ -2450,11 +2448,11 @@ namespace RX_Explorer
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
+
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                    await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
                     return;
                 }
 
@@ -2551,11 +2549,11 @@ namespace RX_Explorer
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
+
                 _ = await dialog.ShowAsync().ConfigureAwait(true);
 
-                await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
                 return;
             }
 
@@ -2623,11 +2621,10 @@ namespace RX_Explorer
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
             }
         }
 
@@ -2671,9 +2668,11 @@ namespace RX_Explorer
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
+
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
+
                 return;
             }
 
@@ -2722,8 +2721,9 @@ namespace RX_Explorer
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
+
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
                 return;
@@ -2845,11 +2845,11 @@ namespace RX_Explorer
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
+
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                    await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
                     return;
                 }
 
@@ -2882,7 +2882,7 @@ namespace RX_Explorer
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
@@ -2936,11 +2936,11 @@ namespace RX_Explorer
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
+
                             _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                            await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
                             return;
                         }
 
@@ -3582,12 +3582,22 @@ namespace RX_Explorer
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                            await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
                         }
+                    }
+                    else
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
                 }
                 catch (Exception ex)
@@ -4021,11 +4031,11 @@ namespace RX_Explorer
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
+
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
                 return;
             }
 
@@ -5128,6 +5138,7 @@ namespace RX_Explorer
                     Content = Globalization.GetString("QueueDialog_LinkIsNotAllowInMixZip_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
+
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
                 return;
@@ -5145,11 +5156,11 @@ namespace RX_Explorer
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
+
                         _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                        await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
                         return;
                     }
                 }
@@ -5163,11 +5174,11 @@ namespace RX_Explorer
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
+
                         _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                        await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(false);
                         return;
                     }
                 }
@@ -5365,11 +5376,10 @@ namespace RX_Explorer
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                    await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(true);
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
             }
             catch (Exception ex)
@@ -6471,15 +6481,29 @@ namespace RX_Explorer
         private async void LnkOpenLocation_Click(object sender, RoutedEventArgs e)
         {
             if (SelectedItem is HyperlinkStorageItem Item)
-            {
-                StorageFolder ParentFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(Item.TargetPath));
-
-                await Container.DisplayItemsInFolder(ParentFolder).ConfigureAwait(true);
-
-                if (FileCollection.FirstOrDefault((SItem) => SItem.Path == Item.TargetPath) is FileSystemStorageItemBase Target)
+            { 
+                if(string.IsNullOrEmpty(Item.TargetPath))
                 {
-                    ItemPresenter.ScrollIntoView(Target);
-                    SelectedItem = Target;
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                }
+                else
+                {
+                    StorageFolder ParentFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(Item.TargetPath));
+
+                    await Container.DisplayItemsInFolder(ParentFolder).ConfigureAwait(true);
+
+                    if (FileCollection.FirstOrDefault((SItem) => SItem.Path == Item.TargetPath) is FileSystemStorageItemBase Target)
+                    {
+                        ItemPresenter.ScrollIntoView(Target);
+                        SelectedItem = Target;
+                    }
                 }
             }
         }
@@ -6500,8 +6524,9 @@ namespace RX_Explorer
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                         Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
+
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
             }

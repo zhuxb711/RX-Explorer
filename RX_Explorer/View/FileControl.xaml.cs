@@ -910,6 +910,7 @@ namespace RX_Explorer
                 };
 
                 _ = await dialog.ShowAsync().ConfigureAwait(true);
+
                 return;
             }
 

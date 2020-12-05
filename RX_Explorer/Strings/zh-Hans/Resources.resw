@@ -2544,4 +2544,7 @@
   <data name="BitlockerPasswordDialog_PasswordBox.PlaceholderText" xml:space="preserve">
     <value>请输入Bitlocker密码以解锁驱动器</value>
   </data>
+  <data name="QueueDialog_UnableAccessFile_Content" xml:space="preserve">
+    <value>由于缺少权限，无法访问此文件</value>
+  </data>
 </root>

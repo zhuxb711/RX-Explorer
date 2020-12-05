@@ -2544,4 +2544,7 @@ Les noms non valides incluent
   <data name="BitlockerPasswordDialog_PasswordBox.PlaceholderText" xml:space="preserve">
     <value>Veuillez entrer le mot de passe Bitlocker pour déverrouiller le lecteur</value>
   </data>
+  <data name="QueueDialog_UnableAccessFile_Content" xml:space="preserve">
+    <value>Impossible d'accéder à ce fichier en raison d'un manque d'autorisations</value>
+  </data>
 </root>

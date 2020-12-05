@@ -194,13 +194,20 @@ namespace RX_Explorer.Class
             {
                 if (ShowAt != null)
                 {
-                    FlyoutShowOptions Option = new FlyoutShowOptions
+                    try
                     {
-                        Position = ShowAt,
-                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop
-                    };
+                        FlyoutShowOptions Option = new FlyoutShowOptions
+                        {
+                            Position = ShowAt,
+                            Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                        };
 
-                    Flyout?.ShowAt(ListControl, Option);
+                        Flyout?.ShowAt(ListControl, Option);
+                    }
+                    catch(Exception ex)
+                    {
+                        LogTracer.Log(ex, "An exception was threw when trying show flyout");
+                    }
                 }
                 else
                 {

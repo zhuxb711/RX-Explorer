@@ -2649,4 +2649,7 @@ Invalid names include
   <data name="EverythingQuestion.Title" xml:space="preserve">
     <value>Everything Search Engine</value>
   </data>
+  <data name="QueueDialog_UnableAccessFile_Content" xml:space="preserve">
+    <value>Cannot access this file due to lack of permissions</value>
+  </data>
 </root>
