@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
-using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
 
 namespace RX_Explorer.Class
 {

@@ -74,12 +74,28 @@
                           Margin="0,5,0,5" />
                 </StackPanel>
                 <ListView ItemsSource="{x:Bind ProgramCollection}"
-                          MaxHeight="250"
+                          MaxHeight="220"
                           Name="OtherProgramList"
                           SelectionChanged="OtherProgramList_SelectionChanged"
                           ScrollViewer.HorizontalScrollMode="Disabled"
                           ItemTemplate="{StaticResource CommonDataTemplate}"
                           ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}"/>
+                <Button Style="{StaticResource OnlyClickableButtonStyle}" Background="Transparent"
+                        Padding="0,2,0,2"
+                        Margin="15,0,0,0"
+                        Name="ShowMore"
+                        Click="ShowMore_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="更多应用" 
+                                   Foreground="{ThemeResource SystemAccentColor}"/>
+                        <Viewbox Height="20"
+                                 Margin="5,0,0,0">
+                            <FontIcon FontFamily="Segoe UI"
+                                      Glyph="&#x25BC;"
+                                      Foreground="{ThemeResource SystemAccentColor}"/>
+                        </Viewbox>
+                    </StackPanel> 
+                </Button>
                 <HyperlinkButton Content="选择此电脑上的其他应用"
                                  x:Uid="ProgramPickerDialogPickOther"
                                  Name="BowserApp"

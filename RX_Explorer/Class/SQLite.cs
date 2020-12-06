@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.Sqlite;
+using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,7 +19,7 @@ namespace RX_Explorer.Class
     {
         private bool IsDisposed;
         private static readonly object Locker = new object();
-        private volatile static SQLite SQL;
+        private static volatile SQLite SQL;
         private SqliteConnection Connection;
 
         /// <summary>
@@ -63,7 +64,7 @@ namespace RX_Explorer.Class
                                 Create Table If Not Exists Library (Path Text Not Null, Type Text Not Null, Primary Key (Path));
                                 Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));
                                 Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));
-                                Create Table If Not Exists ProgramPicker (FileType Text Not Null, Path Text Not Null, IsDefault Text, Primary Key(FileType, Path));
+                                Create Table If Not Exists ProgramPicker (FileType Text Not Null, Path Text Not Null, IsDefault Text, IsRecommanded Text, Primary Key(FileType, Path));
                                 Create Table If Not Exists TerminalProfile (Name Text Not Null, Path Text Not Null, Argument Text Not Null, RunAsAdmin Text Not Null, Primary Key(Name));
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture1.jpg');
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture2.jpg');
@@ -181,13 +182,13 @@ namespace RX_Explorer.Class
 
         }
 
-        public async Task SetProgramPickerRecordAsync(string FileType, params string[] PathList)
+        public async Task SetProgramPickerRecordAsync(params AssociationPackage[] Packages)
         {
             StringBuilder AddPathBuilder = new StringBuilder();
             
-            foreach (string AddPath in PathList)
+            foreach (AssociationPackage Package in Packages)
             {
-                AddPathBuilder.Append($"Insert Or Ignore Into ProgramPicker Values ('{FileType}', '{AddPath}', 'False');");
+                AddPathBuilder.Append($"Insert Or Ignore Into ProgramPicker Values ('{Package.Extension}', '{Package.ExecutablePath}', 'False', '{Package.IsRecommanded}');");
             }
 
             using (SqliteCommand Command = new SqliteCommand(AddPathBuilder.ToString(), Connection))
@@ -196,20 +197,20 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task UpdateProgramPickerRecordAsync(string FileType, IEnumerable<string> PathList)
+        public async Task UpdateProgramPickerRecordAsync(string FileType, IEnumerable<AssociationPackage> AssociationList)
         {
-            List<string> ExistedPath = await GetProgramPickerRecordAsync(FileType).ConfigureAwait(false);
+            List<AssociationPackage> ExistedPackage = await GetProgramPickerRecordAsync(FileType, true).ConfigureAwait(false);
 
             StringBuilder DeletePathBuilder = new StringBuilder();
-            foreach (string AddPath in ExistedPath.Except(PathList))
+            foreach (AssociationPackage Package in ExistedPackage.Except(AssociationList))
             {
-                DeletePathBuilder.Append($"Delete From ProgramPicker Where FileType = '{FileType}' And Path = '{AddPath}';");
+                DeletePathBuilder.Append($"Delete From ProgramPicker Where FileType = '{FileType}' And Path = '{Package.ExecutablePath}';");
             }
 
             StringBuilder AddPathBuilder = new StringBuilder();
-            foreach (string AddPath in PathList.Except(ExistedPath))
+            foreach (AssociationPackage Package in AssociationList.Except(ExistedPackage))
             {
-                AddPathBuilder.Append($"Insert Or Ignore Into ProgramPicker Values ('{FileType}', '{AddPath}', 'False');");
+                AddPathBuilder.Append($"Insert Or Ignore Into ProgramPicker Values ('{FileType}', '{Package.ExecutablePath}', 'False', '{Package.IsRecommanded}');");
             }
 
             string SQLQuery = DeletePathBuilder.ToString() + AddPathBuilder.ToString();
@@ -223,11 +224,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<string> GetDefaultProgramPickerRecordAsync(string FileType)
+        public async Task<string> GetDefaultProgramPickerRecordAsync(string Extension)
         {
             using (SqliteCommand Command = new SqliteCommand("Select Path From ProgramPicker Where FileType = @FileType And IsDefault = 'True'", Connection))
             {
-                Command.Parameters.AddWithValue("@FileType", FileType);
+                Command.Parameters.AddWithValue("@FileType", Extension);
 
                 return Convert.ToString(await Command.ExecuteScalarAsync().ConfigureAwait(false));
             }
@@ -249,19 +250,29 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<List<string>> GetProgramPickerRecordAsync(string FileType)
+        public async Task<List<AssociationPackage>> GetProgramPickerRecordAsync(string Extension, bool IncludeUWPApplication)
         {
-            List<string> Result = new List<string>();
+            List<AssociationPackage> Result = new List<AssociationPackage>();
 
-            using (SqliteCommand Command = new SqliteCommand("Select * From ProgramPicker Where FileType = @FileType Or FileType = '.*'", Connection))
+            using (SqliteCommand Command = new SqliteCommand("Select * From ProgramPicker Where FileType = @FileType", Connection))
             {
-                Command.Parameters.AddWithValue("@FileType", FileType);
+                Command.Parameters.AddWithValue("@FileType", Extension);
 
                 using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
                 {
                     while (Reader.Read())
                     {
-                        Result.Add(Reader[1].ToString());
+                        if (IncludeUWPApplication)
+                        {
+                            Result.Add(new AssociationPackage(Extension, Convert.ToString(Reader[1]), Convert.ToBoolean(Reader[3])));
+                        }
+                        else
+                        {
+                            if (Path.IsPathRooted(Convert.ToString(Reader[1])))
+                            {
+                                Result.Add(new AssociationPackage(Extension, Convert.ToString(Reader[1]), Convert.ToBoolean(Reader[3])));
+                            }
+                        }
                     }
                 }
             }
@@ -271,12 +282,12 @@ namespace RX_Explorer.Class
             return Result;
         }
 
-        public async Task DeleteProgramPickerRecordAsync(string FileType, string Path)
+        public async Task DeleteProgramPickerRecordAsync(AssociationPackage Package)
         {
             using (SqliteCommand Command = new SqliteCommand("Delete From ProgramPicker Where FileType = @FileType And Path = @Path", Connection))
             {
-                Command.Parameters.AddWithValue("@FileType", FileType);
-                Command.Parameters.AddWithValue("@Path", Path);
+                Command.Parameters.AddWithValue("@FileType", Package.Extension);
+                Command.Parameters.AddWithValue("@Path", Package.ExecutablePath);
                 await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
@@ -640,7 +651,7 @@ namespace RX_Explorer.Class
                 }
             }
 
-            foreach (var ErrorItem in ErrorList)
+            foreach (Tuple<string, string, string> ErrorItem in ErrorList)
             {
                 using (SqliteCommand Command = new SqliteCommand("Delete From QuickStart Where Name = @Name And FullPath = @FullPath And Type=@Type", Connection))
                 {

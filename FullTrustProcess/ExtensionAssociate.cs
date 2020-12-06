@@ -33,7 +33,7 @@ namespace FullTrustProcess
                                     //For UWP application, DisplayName == FullPath
                                     if (DisplayName != FullPath)
                                     {
-                                        Association.Add(new AssociationPackage(FullPath, Handler.IsRecommended() == HRESULT.S_OK));
+                                        Association.Add(new AssociationPackage(Extension, FullPath, Handler.IsRecommended() == HRESULT.S_OK));
                                     }
                                 }
                             }

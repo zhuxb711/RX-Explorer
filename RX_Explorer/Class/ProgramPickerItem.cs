@@ -35,7 +35,7 @@ namespace RX_Explorer.Class
         /// <param name="Description">应用描述</param>
         /// <param name="PackageName">应用包名称</param>
         /// <param name="Path">应用可执行文件路径</param>
-        public ProgramPickerItem(BitmapImage Thumbnuil, string Name, string Description, string Path = null)
+        public ProgramPickerItem(BitmapImage Thumbnuil, string Name, string Description, string Path)
         {
             this.Thumbnuil = Thumbnuil;
             this.Name = Name;

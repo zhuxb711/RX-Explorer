@@ -138,6 +138,11 @@ namespace MaintenanceTask
         {
             try
             {
+                using (SqliteCommand Command = new SqliteCommand("Delete From ProgramPicker Where FileType = '.*'", Connection))
+                {
+                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                }
+
                 using (SqliteCommand Command = new SqliteCommand("PRAGMA table_info('ProgramPicker')", Connection))
                 {
                     using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
@@ -152,12 +157,7 @@ namespace MaintenanceTask
                     }
                 }
 
-                using (SqliteCommand Command = new SqliteCommand("Alter Table ProgramPicker Add Column IsDefault Text", Connection))
-                {
-                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
-                }
-
-                using (SqliteCommand Command = new SqliteCommand("Delete From ProgramPicker Where FileType = '.*'", Connection))
+                using (SqliteCommand Command = new SqliteCommand("Alter Table ProgramPicker Add Column IsDefault Text;Alter Table ProgramPicker Add Column IsRecommanded Text", Connection))
                 {
                     await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }

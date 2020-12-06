@@ -13,7 +13,7 @@ namespace RX_Explorer.Class
     /// <summary>
     /// 提供对设备中的存储对象的描述
     /// </summary>
-    public class FileSystemStorageItemBase : INotifyPropertyChanged, IComparable
+    public class FileSystemStorageItemBase : INotifyPropertyChanged, IEquatable<FileSystemStorageItemBase>
     {
         /// <summary>
         /// 指示所包含的存储对象类型
@@ -407,18 +407,6 @@ namespace RX_Explorer.Class
             return Name;
         }
 
-        public int CompareTo(object obj)
-        {
-            if (obj is FileSystemStorageItemBase Item)
-            {
-                return Item.Path.CompareTo(Path);
-            }
-            else
-            {
-                throw new ArgumentNullException(nameof(obj), "obj must be FileSystemStorageItem");
-            }
-        }
-
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))
@@ -441,6 +429,25 @@ namespace RX_Explorer.Class
         public override int GetHashCode()
         {
             return Path.GetHashCode();
+        }
+
+        public bool Equals(FileSystemStorageItemBase other)
+        {
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            else
+            {
+                if (other == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return other.Path.Equals(Path);
+                }
+            }
         }
 
         public static bool operator ==(FileSystemStorageItemBase left, FileSystemStorageItemBase right)
