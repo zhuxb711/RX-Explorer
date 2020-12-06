@@ -2,6 +2,20 @@
 
 namespace RX_Explorer.Class
 {
+    public enum CreateOption
+    {
+        OpenIfExist,
+        GenerateUniqueName,
+        ReplaceExisting
+    }
+    public enum AccessMode
+    {
+        Read,
+        Write,
+        ReadWrite,
+        Exclusive
+    }
+
     public enum SearchCategory
     {
         BuiltInEngine_Shallow,

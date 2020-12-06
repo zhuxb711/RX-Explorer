@@ -22,7 +22,6 @@ using Windows.Devices.Input;
 using Windows.Devices.Radios;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
-using Windows.Storage.Search;
 using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI;
@@ -2009,8 +2008,7 @@ namespace RX_Explorer
                 ParentFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(ZFile.Path));
                 NewFolder = await ParentFolder.CreateFolderAsync(Path.GetFileNameWithoutExtension(ZFile.Name), CreationCollisionOption.OpenIfExists);
 
-                using (SafeFileHandle NewFileLockHandle = ZFile.LockAndBlockAccess())
-                using (FileStream FileStream = new FileStream(NewFileLockHandle, FileAccess.ReadWrite))
+                using (FileStream FileStream = WIN_Native_API.CreateFileStreamFromExistingPath(ZFile.Path, AccessMode.Exclusive))
                 using (ZipInputStream InputZipStream = new ZipInputStream(FileStream))
                 {
                     FileStream.Seek(0, SeekOrigin.Begin);
@@ -2023,8 +2021,6 @@ namespace RX_Explorer
                         {
                             throw new NotImplementedException();
                         }
-
-                        StorageFile NewFile = null;
 
                         if (Entry.Name.Contains("/"))
                         {
@@ -2040,21 +2036,23 @@ namespace RX_Explorer
                             if (Entry.Name.Last() == '/')
                             {
                                 await TempFolder.CreateFolderAsync(SplitFolderPath.Last(), CreationCollisionOption.OpenIfExists);
-                                continue;
                             }
                             else
                             {
-                                NewFile = await TempFolder.CreateFileAsync(SplitFolderPath.Last(), CreationCollisionOption.ReplaceExisting);
+                                using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(TempFolder.Path, SplitFolderPath.Last()), AccessMode.Write, CreateOption.ReplaceExisting))
+                                using (FileStream NewFileStream = new FileStream(Handle, FileAccess.Write))
+                                {
+                                    await InputZipStream.CopyToAsync(NewFileStream).ConfigureAwait(true);
+                                }
                             }
                         }
                         else
                         {
-                            NewFile = await NewFolder.CreateFileAsync(Entry.Name, CreationCollisionOption.ReplaceExisting);
-                        }
-
-                        using (Stream NewFileStream = await NewFile.OpenStreamForWriteAsync().ConfigureAwait(true))
-                        {
-                            await InputZipStream.CopyToAsync(NewFileStream).ConfigureAwait(true);
+                            using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(NewFolder.Path, Entry.Name), AccessMode.Write, CreateOption.ReplaceExisting))
+                            using (FileStream NewFileStream = new FileStream(Handle, FileAccess.Write))
+                            {
+                                await InputZipStream.CopyToAsync(NewFileStream).ConfigureAwait(true);
+                            }
                         }
 
                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(FileStream.Position * 100d / FileStream.Length)), null));
@@ -2126,21 +2124,20 @@ namespace RX_Explorer
         {
             try
             {
-                StorageFile Newfile = await Container.CurrentFolder.CreateFileAsync(NewZipName, CreationCollisionOption.GenerateUniqueName);
-
-                using (SafeFileHandle NewFileLockHandle = Newfile.LockAndBlockAccess())
-                using (FileStream NewFileStream = new FileStream(NewFileLockHandle, FileAccess.ReadWrite))
+                using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(Container.CurrentFolder.Path, NewZipName), AccessMode.Exclusive, CreateOption.GenerateUniqueName))
+                using (FileStream NewFileStream = new FileStream(Handle, FileAccess.ReadWrite))
                 using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
                 {
                     OutputStream.SetLevel(ZipLevel);
                     OutputStream.UseZip64 = UseZip64.Dynamic;
                     OutputStream.IsStreamOwner = false;
 
-                    if (ZipTarget is StorageFile ZipFile)
+                    if (ZipTarget is StorageFile File)
                     {
-                        using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                        using (SafeFileHandle SourceHandle = WIN_Native_API.CreateFileHandleFromPath(File.Path, AccessMode.Read, CreateOption.GenerateUniqueName))
+                        using (FileStream FileStream = new FileStream(SourceHandle, FileAccess.Read))
                         {
-                            ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
+                            ZipEntry NewEntry = new ZipEntry(File.Name)
                             {
                                 DateTime = DateTime.Now,
                                 CompressionMethod = CompressionMethod.Deflated,
@@ -2213,10 +2210,8 @@ namespace RX_Explorer
         {
             try
             {
-                StorageFile Newfile = await Container.CurrentFolder.CreateFileAsync(NewZipName, CreationCollisionOption.GenerateUniqueName);
-
-                using (SafeFileHandle NewFileLockHandle = Newfile.LockAndBlockAccess())
-                using (FileStream NewFileStream = new FileStream(NewFileLockHandle, FileAccess.ReadWrite))
+                using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(Container.CurrentFolder.Path, NewZipName), AccessMode.Exclusive, CreateOption.GenerateUniqueName))
+                using (FileStream NewFileStream = new FileStream(Handle, FileAccess.ReadWrite))
                 using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
                 {
                     OutputStream.SetLevel(ZipLevel);
@@ -2243,31 +2238,28 @@ namespace RX_Explorer
 
                         foreach (FileSystemStorageItemBase StorageItem in ZipItemGroup)
                         {
-                            if (await StorageItem.GetStorageItem().ConfigureAwait(false) is StorageFile ZipFile)
+                            using (FileStream FileStream = WIN_Native_API.CreateFileStreamFromExistingPath(StorageItem.Path, AccessMode.Read))
                             {
-                                using (Stream FileStream = await ZipFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                                ZipEntry NewEntry = new ZipEntry(StorageItem.Name)
                                 {
-                                    ZipEntry NewEntry = new ZipEntry(ZipFile.Name)
-                                    {
-                                        DateTime = DateTime.Now,
-                                        CompressionMethod = CompressionMethod.Deflated,
-                                        Size = FileStream.Length
-                                    };
+                                    DateTime = DateTime.Now,
+                                    CompressionMethod = CompressionMethod.Deflated,
+                                    Size = FileStream.Length
+                                };
 
-                                    OutputStream.PutNextEntry(NewEntry);
+                                OutputStream.PutNextEntry(NewEntry);
 
-                                    await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
-                                }
+                                await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
+                            }
 
-                                if (TotalSize > 0)
+                            if (TotalSize > 0)
+                            {
+                                CurrentPosition += Convert.ToInt64(StorageItem.SizeRaw);
+
+                                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                                 {
-                                    CurrentPosition += Convert.ToInt64(StorageItem.SizeRaw);
-
-                                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                                    {
-                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
-                                    });
-                                }
+                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
+                                });
                             }
                             else if (await StorageItem.GetStorageItem().ConfigureAwait(false) is StorageFolder ZipFolder)
                             {
@@ -2331,17 +2323,16 @@ namespace RX_Explorer
             }
         }
 
-        private async Task ZipFolderCore(StorageFolder Folder, ZipOutputStream OutputStream, string BaseFolderName, ProgressChangedEventHandler ProgressHandler = null)
+        private Task ZipFolderCore(StorageFolder Folder, ZipOutputStream OutputStream, string BaseFolderName, ProgressChangedEventHandler ProgressHandler = null)
         {
-            StorageItemQueryResult Query = Folder.CreateItemQueryWithOptions(new QueryOptions
-            {
-                FolderDepth = FolderDepth.Shallow,
-                IndexerOption = IndexerOption.UseIndexerWhenAvailable
-            });
+            return ZipFolderCore(Folder.Path, OutputStream, BaseFolderName, ProgressHandler);
+        }
 
-            uint ItemsCount = await Query.GetItemCountAsync();
+        private async Task ZipFolderCore(string Path, ZipOutputStream OutputStream, string BaseFolderName, ProgressChangedEventHandler ProgressHandler = null)
+        {
+            List<FileSystemStorageItemBase> PathList = WIN_Native_API.GetStorageItems(Path, true, ItemFilters.File | ItemFilters.Folder);
 
-            if (ItemsCount == 0)
+            if (PathList.Count == 0)
             {
                 if (!string.IsNullOrEmpty(BaseFolderName))
                 {
@@ -2352,63 +2343,60 @@ namespace RX_Explorer
             }
             else
             {
-                long TotalSize = Convert.ToInt64(WIN_Native_API.CalculateFolderSize(Folder.Path));
+                long TotalSize = Convert.ToInt64(WIN_Native_API.CalculateFolderSize(Path));
 
                 long CurrentPosition = 0;
 
-                for (uint CurrentIndex = 0; CurrentIndex < ItemsCount; CurrentIndex += 50)
+                foreach (FileSystemStorageItemBase Item in PathList)
                 {
-                    foreach (IStorageItem Item in await Query.GetItemsAsync(CurrentIndex, 50))
+                    if (Item.StorageType == StorageItemTypes.Folder)
                     {
-                        if (Item is StorageFolder InnerFolder)
+                        long InnerFolderSixe = Convert.ToInt64(WIN_Native_API.CalculateFolderSize(Item.Path));
+
+                        await ZipFolderCore(Item.Path, OutputStream, $"{BaseFolderName}/{Item.Name}", ProgressHandler: (s, e) =>
                         {
-                            long InnerFolderSixe = Convert.ToInt64(WIN_Native_API.CalculateFolderSize(InnerFolder.Path));
-
-                            await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{InnerFolder.Name}", ProgressHandler: (s, e) =>
-                            {
-                                if (TotalSize > 0)
-                                {
-                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * InnerFolderSixe)) * 100d / TotalSize)), null));
-                                }
-                            }).ConfigureAwait(false);
-
                             if (TotalSize > 0)
                             {
-                                CurrentPosition += InnerFolderSixe;
-
-                                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                                {
-                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
-                                });
+                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * InnerFolderSixe)) * 100d / TotalSize)), null));
                             }
+                        }).ConfigureAwait(false);
+
+                        if (TotalSize > 0)
+                        {
+                            CurrentPosition += InnerFolderSixe;
+
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            {
+                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
+                            });
                         }
-                        else if (Item is StorageFile InnerFile)
+                    }
+                    else if (Item.StorageType == StorageItemTypes.File)
+                    {
+                        using (FileStream FileStream = WIN_Native_API.CreateFileStreamFromExistingPath(Item.Path, AccessMode.Read))
                         {
-                            using (Stream FileStream = await InnerFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                            ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/{Item.Name}")
                             {
-                                ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/{InnerFile.Name}")
-                                {
-                                    DateTime = DateTime.Now,
-                                    CompressionMethod = CompressionMethod.Deflated,
-                                    Size = FileStream.Length
-                                };
+                                DateTime = DateTime.Now,
+                                CompressionMethod = CompressionMethod.Deflated,
+                                Size = FileStream.Length
+                            };
 
-                                OutputStream.PutNextEntry(NewEntry);
+                            OutputStream.PutNextEntry(NewEntry);
 
-                                await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
+                            await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
 
-                                OutputStream.CloseEntry();
-                            }
+                            OutputStream.CloseEntry();
+                        }
 
-                            if (TotalSize > 0)
+                        if (TotalSize > 0)
+                        {
+                            CurrentPosition += Convert.ToInt64(Item.SizeRaw);
+
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                             {
-                                CurrentPosition += Convert.ToInt64(await InnerFile.GetSizeRawDataAsync().ConfigureAwait(false));
-
-                                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                                {
-                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
-                                });
-                            }
+                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
+                            });
                         }
                     }
                 }
@@ -6481,8 +6469,8 @@ namespace RX_Explorer
         private async void LnkOpenLocation_Click(object sender, RoutedEventArgs e)
         {
             if (SelectedItem is HyperlinkStorageItem Item)
-            { 
-                if(string.IsNullOrEmpty(Item.TargetPath))
+            {
+                if (string.IsNullOrEmpty(Item.TargetPath))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {

@@ -41,6 +41,11 @@ namespace RX_Explorer.Class
 
         private static bool ExitSignal;
 
+        static LogTracer()
+        {
+            BackgroundProcessThread.Start();
+        }
+
         /// <summary>
         /// 请求进入蓝屏状态
         /// </summary>
@@ -311,12 +316,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task Initialize()
-        {
-            LogFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync(UniqueName, CreationCollisionOption.GenerateUniqueName);
-            BackgroundProcessThread.Start();
-        }
-
         private static void LogProcessThread()
         {
             while (!ExitSignal)
@@ -328,7 +327,7 @@ namespace RX_Explorer.Class
                         Locker.WaitOne();
                     }
 
-                    using (SafeFileHandle Handle = LogFile.LockAndBlockAccess())
+                    using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName), AccessMode.Exclusive, CreateOption.OpenIfExist))
                     using (FileStream LogFileStream = new FileStream(Handle, FileAccess.ReadWrite))
                     {
                         LogFileStream.Seek(0, SeekOrigin.End);

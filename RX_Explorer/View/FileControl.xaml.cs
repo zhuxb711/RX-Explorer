@@ -208,7 +208,7 @@ namespace RX_Explorer
                         return;
                     }
 
-                    if (CurrentFolder == null)
+                    if (AddressButtonList.Count == 0)
                     {
                         string RootPath = System.IO.Path.GetPathRoot(Path);
 
@@ -2335,8 +2335,6 @@ namespace RX_Explorer
             GoBackRecord.IsEnabled = false;
             GoForwardRecord.IsEnabled = false;
             GoParentFolder.IsEnabled = false;
-
-            CurrentFolder = null;
 
             EnterLock.Dispose();
             AreaWatcher.Dispose();

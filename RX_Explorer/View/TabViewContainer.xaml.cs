@@ -907,10 +907,10 @@ namespace RX_Explorer
                         await CleanUpAndRemoveTabItem(args.Tab).ConfigureAwait(true);
                         await Launcher.LaunchUriAsync(new Uri($"rx-explorer:"));
                     }
-                    else if (CommonAccessCollection.FrameFileControlDic.ContainsKey(frame))
+                    else if (CommonAccessCollection.FrameFileControlDic.TryGetValue(frame, out FileControl Control))
                     {
                         await CleanUpAndRemoveTabItem(args.Tab).ConfigureAwait(true);
-                        await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(CommonAccessCollection.FrameFileControlDic[frame].CurrentFolder.Path)}"));
+                        await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(Control.CurrentFolder.Path)}"));
                     }
                 }
             }

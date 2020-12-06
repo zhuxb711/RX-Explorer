@@ -41,8 +41,6 @@ namespace RX_Explorer
         {
             MSStoreHelper.Current.PreLoadAppLicense();
 
-            await LogTracer.Initialize().ConfigureAwait(false);
-
             if (await FullTrustProcessController.Current.CheckIfQuicklookIsAvaliableAsync().ConfigureAwait(true))
             {
                 SettingControl.IsQuicklookAvailable = true;

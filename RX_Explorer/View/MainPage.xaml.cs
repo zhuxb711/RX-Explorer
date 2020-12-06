@@ -5,6 +5,7 @@ using RX_Explorer.Dialog;
 using RX_Explorer.View;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;

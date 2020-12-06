@@ -228,9 +228,8 @@ namespace RX_Explorer.Class
         /// 请求锁定文件并拒绝其他任何读写访问(独占锁)
         /// </summary>
         /// <param name="Item">文件</param>
-        /// <param name="Handle">Safe句柄，Dispose该对象可以解除锁定</param>
-        /// <returns>操作是否正确完成</returns>
-        public static SafeFileHandle LockAndBlockAccess(this IStorageItem Item)
+        /// <returns>Safe句柄，Dispose该对象可以解除锁定</returns>
+        public static FileStream LockAndBlockAccess(this IStorageItem Item)
         {
             IntPtr ComInterface = Marshal.GetComInterfaceForObject(Item, typeof(IUknownInterface.IStorageItemHandleAccess));
             IUknownInterface.IStorageItemHandleAccess StorageHandleAccess = (IUknownInterface.IStorageItemHandleAccess)Marshal.GetObjectForIUnknown(ComInterface);
@@ -240,7 +239,7 @@ namespace RX_Explorer.Class
 
             StorageHandleAccess.Create(READ_FLAG | WRITE_FLAG, 0, 0, IntPtr.Zero, out IntPtr handle);
 
-            return new SafeFileHandle(handle, true);
+            return new FileStream(new SafeFileHandle(handle, true), FileAccess.ReadWrite);
         }
 
         public static IEnumerable<T> OrderByLikeFileSystem<T>(this IEnumerable<T> Input, Func<T, string> GetString, SortDirection Direction)

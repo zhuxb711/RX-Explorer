@@ -139,8 +139,13 @@ namespace RX_Explorer.Class
         const uint FILE_SHARE_READ = 0x1;
         const uint FILE_SHARE_WRITE = 0x2;
         const uint FILE_SHARE_DELETE = 0x4;
+        const uint CREATE_NEW = 1;
+        const uint CREATE_ALWAYS = 2;
         const uint OPEN_EXISTING = 3;
+        const uint OPEN_ALWAYS = 4;
+        const uint TRUNCATE_EXISTING = 5;
         const uint FILE_FLAG_BACKUP_SEMANTICS = 0x2000000;
+        const uint FILE_ATTRIBUTE_NORMAL = 0x80;
         const uint FILE_NOTIFY_CHANGE_FILE_NAME = 0x1;
         const uint FILE_NOTIFY_CHANGE_DIR_NAME = 0x2;
         const uint FILE_NOTIFY_CHANGE_LAST_WRITE = 0x10;
@@ -155,6 +160,221 @@ namespace RX_Explorer.Class
             Rename_Action_NewName = 5
         }
 
+        public static FileStream CreateFileStreamFromExistingPath(string Path, AccessMode AccessMode)
+        {
+            IntPtr Handle = IntPtr.Zero;
+
+            switch (AccessMode)
+            {
+                case AccessMode.Read:
+                    {
+                        Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+
+                        break;
+                    }
+                case AccessMode.Write:
+                    {
+                        Handle = CreateFileFromApp(Path, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+
+                        break;
+                    }
+                case AccessMode.ReadWrite:
+                    {
+                        Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+
+                        break;
+                    }
+                case AccessMode.Exclusive:
+                    {
+                        Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_NO_SHARE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+
+                        break;
+                    }
+            }
+
+            if (Handle == IntPtr.Zero || Handle.ToInt64() == -1)
+            {
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            }
+
+            switch (AccessMode)
+            {
+                case AccessMode.Exclusive:
+                case AccessMode.Read:
+                    {
+                        return new FileStream(new SafeFileHandle(Handle, true), FileAccess.Read);
+                    }
+                case AccessMode.Write:
+                    {
+                        return new FileStream(new SafeFileHandle(Handle, true), FileAccess.Write);
+                    }
+                case AccessMode.ReadWrite:
+                    {
+                        return new FileStream(new SafeFileHandle(Handle, true), FileAccess.ReadWrite);
+                    }
+                default:
+                    {
+                        return null;
+                    }
+            }
+        }
+
+        public static SafeFileHandle CreateFileHandleFromPath(string Path, AccessMode AccessMode, CreateOption Option)
+        {
+            IntPtr Handle = IntPtr.Zero;
+
+            switch (AccessMode)
+            {
+                case AccessMode.Read:
+                    {
+                        switch (Option)
+                        {
+                            case CreateOption.OpenIfExist:
+                                {
+                                    Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                                    break;
+                                }
+                            case CreateOption.GenerateUniqueName:
+                                {
+                                    if (CheckExist(Path))
+                                    {
+                                        Handle = CreateFileFromApp(GenerateUniquePath(Path), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                                    }
+                                    else
+                                    {
+                                        Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                                    }
+
+                                    break;
+                                }
+                            case CreateOption.ReplaceExisting:
+                                {
+                                    Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                                    break;
+                                }
+                        }
+
+                        break;
+                    }
+                case AccessMode.Write:
+                    {
+                        switch (Option)
+                        {
+                            case CreateOption.OpenIfExist:
+                                {
+                                    Handle = CreateFileFromApp(Path, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                                    break;
+                                }
+                            case CreateOption.GenerateUniqueName:
+                                {
+                                    if (CheckExist(Path))
+                                    {
+                                        Handle = CreateFileFromApp(GenerateUniquePath(Path), GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                                    }
+                                    else
+                                    {
+                                        Handle = CreateFileFromApp(Path, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                                    }
+
+                                    break;
+                                }
+                            case CreateOption.ReplaceExisting:
+                                {
+                                    Handle = CreateFileFromApp(Path, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                                    break;
+                                }
+                        }
+
+                        break;
+                    }
+                case AccessMode.ReadWrite:
+                    {
+                        switch (Option)
+                        {
+                            case CreateOption.OpenIfExist:
+                                {
+                                    Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                                    break;
+                                }
+                            case CreateOption.GenerateUniqueName:
+                                {
+                                    if (CheckExist(Path))
+                                    {
+                                        Handle = CreateFileFromApp(GenerateUniquePath(Path), GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                                    }
+                                    else
+                                    {
+                                        Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                                    }
+
+                                    break;
+                                }
+                            case CreateOption.ReplaceExisting:
+                                {
+                                    Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                                    break;
+                                }
+                        }
+
+                        break;
+                    }
+                case AccessMode.Exclusive:
+                    {
+                        switch (Option)
+                        {
+                            case CreateOption.OpenIfExist:
+                                {
+                                    Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_NO_SHARE, IntPtr.Zero, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                                    break;
+                                }
+                            case CreateOption.GenerateUniqueName:
+                                {
+                                    if (CheckExist(Path))
+                                    {
+                                        Handle = CreateFileFromApp(GenerateUniquePath(Path), GENERIC_WRITE | GENERIC_READ, FILE_NO_SHARE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                                    }
+                                    else
+                                    {
+                                        Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_NO_SHARE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                                    }
+
+                                    break;
+                                }
+                            case CreateOption.ReplaceExisting:
+                                {
+                                    Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_NO_SHARE, IntPtr.Zero, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                                    break;
+                                }
+                        }
+
+                        break;
+                    }
+            }
+
+            if (Handle == IntPtr.Zero || Handle.ToInt64() == -1)
+            {
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            }
+
+            return new SafeFileHandle(Handle, true);
+        }
+
+        public static string GenerateUniquePath(string Path)
+        {
+            ushort Count = 1;
+            string UniquePath = Path;
+            string NameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(Path);
+            string Extension = System.IO.Path.GetExtension(Path);
+            string Directory = System.IO.Path.GetDirectoryName(Path);
+
+            while (CheckExist(UniquePath))
+            {
+                UniquePath = System.IO.Path.Combine(Directory, $"{NameWithoutExt} ({Count++}){Extension}");
+            }
+
+            return UniquePath;
+        }
+
         public static void StopDirectoryWatcher(ref IntPtr hDir)
         {
             CancelIoEx(hDir, IntPtr.Zero);
@@ -162,7 +382,6 @@ namespace RX_Explorer.Class
             hDir = IntPtr.Zero;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2008:不要在未传递 TaskScheduler 的情况下创建任务", Justification = "<挂起>")]
         public static IntPtr CreateDirectoryWatcher(string Path, Action<string> Added = null, Action<string> Removed = null, Action<string, string> Renamed = null, Action<string> Modified = null)
         {
             try
@@ -261,7 +480,7 @@ namespace RX_Explorer.Class
                             }
                         }
                     }
-                }, (hDir, Added, Removed, Renamed, Modified));
+                }, (hDir, Added, Removed, Renamed, Modified), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 
                 return hDir;
             }
@@ -734,7 +953,7 @@ namespace RX_Explorer.Class
 
         public static FileSystemStorageItemBase GetStorageItem(string Path)
         {
-            if(string.IsNullOrWhiteSpace(Path))
+            if (string.IsNullOrWhiteSpace(Path))
             {
                 throw new ArgumentNullException(nameof(Path), "Argument could not be null");
             }
