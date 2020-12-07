@@ -665,11 +665,11 @@ namespace RX_Explorer
         {
             if (SecureGridView.SelectedItem is FileSystemStorageItemBase RenameItem)
             {
-                if (await RenameItem.GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
-                {
-                    RenameDialog dialog = new RenameDialog(Item);
+                RenameDialog dialog = new RenameDialog(RenameItem);
 
-                    if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                {
+                    if (await RenameItem.GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
                     {
                         await Item.RenameAsync(dialog.DesireName);
                         await RenameItem.Update().ConfigureAwait(false);

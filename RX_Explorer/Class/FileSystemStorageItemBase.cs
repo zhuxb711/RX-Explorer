@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using System.IO;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
@@ -156,6 +158,23 @@ namespace RX_Explorer.Class
             {
                 return null;
             }
+        }
+
+        public virtual FileStream GetStreamFromFile(AccessMode Mode)
+        {
+            if (StorageType == StorageItemTypes.File)
+            {
+                return WIN_Native_API.CreateFileStreamFromExistingPath(Path, Mode);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public virtual FileSystemStorageItemBase GetParentFolder()
+        {
+            return WIN_Native_API.GetStorageItem(System.IO.Path.GetDirectoryName(Path));
         }
 
         /// <summary>

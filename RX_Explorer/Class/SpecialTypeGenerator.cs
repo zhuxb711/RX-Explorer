@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using ICSharpCode.SharpZipLib.Zip;
+using Microsoft.Win32.SafeHandles;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace RX_Explorer.Class
 {
     public sealed class SpecialTypeGenerator
     {
-        private volatile static SpecialTypeGenerator instance;
+        private static volatile SpecialTypeGenerator instance;
 
         private static readonly object Locker = new object();
 
@@ -40,7 +41,7 @@ namespace RX_Explorer.Class
 
         }
 
-        public async Task<StorageFile> CreateZipAsync(StorageFolder TargetFolder, string Name)
+        public void CreateZipFile(StorageFolder TargetFolder, string Name)
         {
             if (TargetFolder == null)
             {
@@ -59,23 +60,22 @@ namespace RX_Explorer.Class
 
             try
             {
-                StorageFile File = await TargetFolder.CreateFileAsync(Name, CreationCollisionOption.GenerateUniqueName);
-                using (Stream Stream = (await File.OpenAsync(FileAccessMode.ReadWrite)).AsStream())
+                using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(TargetFolder.Path, Name), AccessMode.ReadWrite, CreateOption.GenerateUniqueName))
+                using (FileStream Stream = new FileStream(Handle, FileAccess.ReadWrite))
                 using (ZipFile Zip = ZipFile.Create(Stream))
                 {
                     Zip.BeginUpdate();
                     Zip.CommitUpdate();
                 }
-
-                return File;
             }
-            catch
+            catch (Exception ex)
             {
-                return null;
+                LogTracer.Log(ex);
+                throw new UnauthorizedAccessException();
             }
         }
 
-        public async Task<StorageFile> CreateRtfAsync(StorageFolder TargetFolder, string Name)
+        public void CreateRtfFile(StorageFolder TargetFolder, string Name)
         {
             if (TargetFolder == null)
             {
@@ -94,22 +94,28 @@ namespace RX_Explorer.Class
 
             try
             {
-                StorageFile File = await TargetFolder.CreateFileAsync(Name, CreationCollisionOption.GenerateUniqueName);
-                RichEditBox REB = new RichEditBox();
-                using (IRandomAccessStream Stream = await File.OpenAsync(FileAccessMode.ReadWrite))
+                using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(TargetFolder.Path, Name), AccessMode.ReadWrite, CreateOption.GenerateUniqueName))
                 {
-                    REB.Document.SaveToStream(Windows.UI.Text.TextGetOptions.FormatRtf, Stream);
+                    RichEditBox REB = new RichEditBox();
+                    using (FileStream Stream = new FileStream(Handle, FileAccess.ReadWrite))
+                    using (InMemoryRandomAccessStream MemoryStream = new InMemoryRandomAccessStream())
+                    {
+                        REB.Document.SaveToStream(Windows.UI.Text.TextGetOptions.FormatRtf, MemoryStream);
+                        using (Stream TempStream = MemoryStream.AsStreamForRead())
+                        {
+                            TempStream.CopyTo(Stream);
+                        }
+                    }
                 }
-
-                return File;
             }
-            catch
+            catch (Exception ex)
             {
-                return null;
+                LogTracer.Log(ex);
+                throw new UnauthorizedAccessException();
             }
         }
 
-        public async Task<StorageFile> CreateExcelAsync(StorageFolder TargetFolder, string Name)
+        public void CreateExcelFile(StorageFolder TargetFolder, string Name)
         {
             if (TargetFolder == null)
             {
@@ -128,22 +134,17 @@ namespace RX_Explorer.Class
 
             try
             {
-                StorageFile File = await TargetFolder.CreateFileAsync(Name, CreationCollisionOption.GenerateUniqueName);
-
-                if (File.FileType == ".xlsx")
+                using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(TargetFolder.Path, Name), AccessMode.ReadWrite, CreateOption.GenerateUniqueName))
+                using (FileStream FileStream = new FileStream(Handle,FileAccess.ReadWrite))
+                using (SpreadsheetDocument Document = SpreadsheetDocument.Create(FileStream, SpreadsheetDocumentType.Workbook))
                 {
-                    using (Stream FileStream = (await File.OpenAsync(FileAccessMode.ReadWrite)).AsStream())
-                    using (SpreadsheetDocument Document = SpreadsheetDocument.Create(FileStream, SpreadsheetDocumentType.Workbook))
-                    {
-                        CreateExcelParts(Document);
-                    }
+                    CreateExcelParts(Document);
                 }
-
-                return File;
             }
-            catch
+            catch (Exception ex)
             {
-                return null;
+                LogTracer.Log(ex);
+                throw new UnauthorizedAccessException();
             }
         }
 
@@ -172,26 +173,36 @@ namespace RX_Explorer.Class
         {
             Ap.Properties properties1 = new Ap.Properties();
             properties1.AddNamespaceDeclaration("vt", "http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes");
-            Ap.Application application1 = new Ap.Application();
-            application1.Text = "Microsoft Excel";
-            Ap.DocumentSecurity documentSecurity1 = new Ap.DocumentSecurity();
-            documentSecurity1.Text = "0";
-            Ap.ScaleCrop scaleCrop1 = new Ap.ScaleCrop();
-            scaleCrop1.Text = "false";
+            Ap.Application application1 = new Ap.Application
+            {
+                Text = "Microsoft Excel"
+            };
+            Ap.DocumentSecurity documentSecurity1 = new Ap.DocumentSecurity
+            {
+                Text = "0"
+            };
+            Ap.ScaleCrop scaleCrop1 = new Ap.ScaleCrop
+            {
+                Text = "false"
+            };
 
             Ap.HeadingPairs headingPairs1 = new Ap.HeadingPairs();
 
-            Vt.VTVector vTVector1 = new Vt.VTVector() { BaseType = Vt.VectorBaseValues.Variant, Size = (UInt32Value)2U };
+            Vt.VTVector vTVector1 = new Vt.VTVector() { BaseType = Vt.VectorBaseValues.Variant, Size = 2U };
 
             Vt.Variant variant1 = new Vt.Variant();
-            Vt.VTLPSTR vTLPSTR1 = new Vt.VTLPSTR();
-            vTLPSTR1.Text = "Worksheets";
+            Vt.VTLPSTR vTLPSTR1 = new Vt.VTLPSTR
+            {
+                Text = "Worksheets"
+            };
 
             variant1.Append(vTLPSTR1);
 
             Vt.Variant variant2 = new Vt.Variant();
-            Vt.VTInt32 vTInt321 = new Vt.VTInt32();
-            vTInt321.Text = "1";
+            Vt.VTInt32 vTInt321 = new Vt.VTInt32
+            {
+                Text = "1"
+            };
 
             variant2.Append(vTInt321);
 
@@ -202,23 +213,35 @@ namespace RX_Explorer.Class
 
             Ap.TitlesOfParts titlesOfParts1 = new Ap.TitlesOfParts();
 
-            Vt.VTVector vTVector2 = new Vt.VTVector() { BaseType = Vt.VectorBaseValues.Lpstr, Size = (UInt32Value)1U };
-            Vt.VTLPSTR vTLPSTR2 = new Vt.VTLPSTR();
-            vTLPSTR2.Text = "Sheet1";
+            Vt.VTVector vTVector2 = new Vt.VTVector() { BaseType = Vt.VectorBaseValues.Lpstr, Size = 1U };
+            Vt.VTLPSTR vTLPSTR2 = new Vt.VTLPSTR
+            {
+                Text = "Sheet1"
+            };
 
             vTVector2.Append(vTLPSTR2);
 
             titlesOfParts1.Append(vTVector2);
-            Ap.Company company1 = new Ap.Company();
-            company1.Text = "";
-            Ap.LinksUpToDate linksUpToDate1 = new Ap.LinksUpToDate();
-            linksUpToDate1.Text = "false";
-            Ap.SharedDocument sharedDocument1 = new Ap.SharedDocument();
-            sharedDocument1.Text = "false";
-            Ap.HyperlinksChanged hyperlinksChanged1 = new Ap.HyperlinksChanged();
-            hyperlinksChanged1.Text = "false";
-            Ap.ApplicationVersion applicationVersion1 = new Ap.ApplicationVersion();
-            applicationVersion1.Text = "16.0300";
+            Ap.Company company1 = new Ap.Company
+            {
+                Text = ""
+            };
+            Ap.LinksUpToDate linksUpToDate1 = new Ap.LinksUpToDate
+            {
+                Text = "false"
+            };
+            Ap.SharedDocument sharedDocument1 = new Ap.SharedDocument
+            {
+                Text = "false"
+            };
+            Ap.HyperlinksChanged hyperlinksChanged1 = new Ap.HyperlinksChanged
+            {
+                Text = "false"
+            };
+            Ap.ApplicationVersion applicationVersion1 = new Ap.ApplicationVersion
+            {
+                Text = "16.0300"
+            };
 
             properties1.Append(application1);
             properties1.Append(documentSecurity1);
@@ -242,18 +265,18 @@ namespace RX_Explorer.Class
             workbook1.AddNamespaceDeclaration("mc", "http://schemas.openxmlformats.org/markup-compatibility/2006");
             workbook1.AddNamespaceDeclaration("x15", "http://schemas.microsoft.com/office/spreadsheetml/2010/11/main");
             FileVersion fileVersion1 = new FileVersion() { ApplicationName = "xl", LastEdited = "6", LowestEdited = "6", BuildVersion = "14420" };
-            WorkbookProperties workbookProperties1 = new WorkbookProperties() { DefaultThemeVersion = (UInt32Value)164011U };
+            WorkbookProperties workbookProperties1 = new WorkbookProperties() { DefaultThemeVersion = 164011U };
 
             BookViews bookViews1 = new BookViews();
-            WorkbookView workbookView1 = new WorkbookView() { XWindow = 0, YWindow = 0, WindowWidth = (UInt32Value)22260U, WindowHeight = (UInt32Value)12645U };
+            WorkbookView workbookView1 = new WorkbookView() { XWindow = 0, YWindow = 0, WindowWidth = 22260U, WindowHeight = 12645U };
 
             bookViews1.Append(workbookView1);
 
             Sheets sheets1 = new Sheets();
-            Sheet sheet1 = new Sheet() { Name = "Sheet1", SheetId = (UInt32Value)1U, Id = "rId1" };
+            Sheet sheet1 = new Sheet() { Name = "Sheet1", SheetId = 1U, Id = "rId1" };
 
             sheets1.Append(sheet1);
-            CalculationProperties calculationProperties1 = new CalculationProperties() { CalculationId = (UInt32Value)162913U };
+            CalculationProperties calculationProperties1 = new CalculationProperties() { CalculationId = 162913U };
 
             WorkbookExtensionList workbookExtensionList1 = new WorkbookExtensionList();
 
@@ -283,11 +306,11 @@ namespace RX_Explorer.Class
             stylesheet1.AddNamespaceDeclaration("x14ac", "http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac");
             stylesheet1.AddNamespaceDeclaration("x16r2", "http://schemas.microsoft.com/office/spreadsheetml/2015/02/main");
 
-            Fonts fonts1 = new Fonts() { Count = (UInt32Value)1U, KnownFonts = true };
+            Fonts fonts1 = new Fonts() { Count = 1U, KnownFonts = true };
 
             Font font1 = new Font();
             FontSize fontSize1 = new FontSize() { Val = 11D };
-            Color color1 = new Color() { Theme = (UInt32Value)1U };
+            Color color1 = new Color() { Theme = 1U };
             FontName fontName1 = new FontName() { Val = "等线" };
             FontFamilyNumbering fontFamilyNumbering1 = new FontFamilyNumbering() { Val = 2 };
             FontScheme fontScheme1 = new FontScheme() { Val = FontSchemeValues.Minor };
@@ -300,7 +323,7 @@ namespace RX_Explorer.Class
 
             fonts1.Append(font1);
 
-            Fills fills1 = new Fills() { Count = (UInt32Value)2U };
+            Fills fills1 = new Fills() { Count = 2U };
 
             Fill fill1 = new Fill();
             PatternFill patternFill1 = new PatternFill() { PatternType = PatternValues.None };
@@ -315,7 +338,7 @@ namespace RX_Explorer.Class
             fills1.Append(fill1);
             fills1.Append(fill2);
 
-            Borders borders1 = new Borders() { Count = (UInt32Value)1U };
+            Borders borders1 = new Borders() { Count = 1U };
 
             Border border1 = new Border();
             LeftBorder leftBorder1 = new LeftBorder();
@@ -332,22 +355,22 @@ namespace RX_Explorer.Class
 
             borders1.Append(border1);
 
-            CellStyleFormats cellStyleFormats1 = new CellStyleFormats() { Count = (UInt32Value)1U };
-            CellFormat cellFormat1 = new CellFormat() { NumberFormatId = (UInt32Value)0U, FontId = (UInt32Value)0U, FillId = (UInt32Value)0U, BorderId = (UInt32Value)0U };
+            CellStyleFormats cellStyleFormats1 = new CellStyleFormats() { Count = 1U };
+            CellFormat cellFormat1 = new CellFormat() { NumberFormatId = 0U, FontId = 0U, FillId = 0U, BorderId = 0U };
 
             cellStyleFormats1.Append(cellFormat1);
 
-            CellFormats cellFormats1 = new CellFormats() { Count = (UInt32Value)1U };
-            CellFormat cellFormat2 = new CellFormat() { NumberFormatId = (UInt32Value)0U, FontId = (UInt32Value)0U, FillId = (UInt32Value)0U, BorderId = (UInt32Value)0U, FormatId = (UInt32Value)0U };
+            CellFormats cellFormats1 = new CellFormats() { Count = 1U };
+            CellFormat cellFormat2 = new CellFormat() { NumberFormatId = 0U, FontId = 0U, FillId = 0U, BorderId = 0U, FormatId = 0U };
 
             cellFormats1.Append(cellFormat2);
 
-            CellStyles cellStyles1 = new CellStyles() { Count = (UInt32Value)1U };
-            CellStyle cellStyle1 = new CellStyle() { Name = "Normal", FormatId = (UInt32Value)0U, BuiltinId = (UInt32Value)0U };
+            CellStyles cellStyles1 = new CellStyles() { Count = 1U };
+            CellStyle cellStyle1 = new CellStyle() { Name = "Normal", FormatId = 0U, BuiltinId = 0U };
 
             cellStyles1.Append(cellStyle1);
-            DifferentialFormats differentialFormats1 = new DifferentialFormats() { Count = (UInt32Value)0U };
-            TableStyles tableStyles1 = new TableStyles() { Count = (UInt32Value)0U, DefaultTableStyle = "TableStyleMedium2", DefaultPivotStyle = "PivotStyleLight16" };
+            DifferentialFormats differentialFormats1 = new DifferentialFormats() { Count = 0U };
+            TableStyles tableStyles1 = new TableStyles() { Count = 0U, DefaultTableStyle = "TableStyleMedium2", DefaultPivotStyle = "PivotStyleLight16" };
 
             StylesheetExtensionList stylesheetExtensionList1 = new StylesheetExtensionList();
 
@@ -913,7 +936,7 @@ namespace RX_Explorer.Class
             SheetDimension sheetDimension1 = new SheetDimension() { Reference = "A1" };
 
             SheetViews sheetViews1 = new SheetViews();
-            SheetView sheetView1 = new SheetView() { TabSelected = true, WorkbookViewId = (UInt32Value)0U };
+            SheetView sheetView1 = new SheetView() { TabSelected = true, WorkbookViewId = 0U };
 
             sheetViews1.Append(sheetView1);
             SheetFormatProperties sheetFormatProperties1 = new SheetFormatProperties() { DefaultRowHeight = 15D, DyDescent = 0.25D };

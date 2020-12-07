@@ -838,19 +838,60 @@ namespace RX_Explorer
                 return;
             }
 
-            RenameDialog dialog = new RenameDialog(CurrentFolder);
+            RenameDialog dialog = new RenameDialog(WIN_Native_API.GetStorageItem(CurrentFolder.Path));
 
             if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
             {
+            Retry:
                 try
                 {
-                    await CurrentFolder.RenameAsync(dialog.DesireName);
-
+                    await FullTrustProcessController.Current.RenameAsync(CurrentFolder.Path, dialog.DesireName).ConfigureAwait(true);
+                    
                     (FolderTree.SelectedNode.Content as TreeViewNodeContent).Update(CurrentFolder);
 
                     UpdateAddressButton(CurrentFolder.Path);
                 }
-                catch (UnauthorizedAccessException)
+                catch (FileLoadException)
+                {
+                    QueueContentDialog LoadExceptionDialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_FileOccupied_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                    };
+
+                    _ = await LoadExceptionDialog.ShowAsync().ConfigureAwait(true);
+                }
+                catch (InvalidOperationException)
+                {
+                    QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                    };
+
+                    if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    {
+                        if (await FullTrustProcessController.Current.SwitchToAdminModeAsync().ConfigureAwait(true))
+                        {
+                            goto Retry;
+                        }
+                        else
+                        {
+                            QueueContentDialog ErrorDialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                        }
+                    }
+                }
+                catch (Exception)
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -863,36 +904,6 @@ namespace RX_Explorer
                     if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
                         _ = await Launcher.LaunchFolderAsync(CurrentFolder);
-                    }
-                }
-                catch (FileLoadException)
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_FolderOccupied_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                    };
-
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
-                catch
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_RenameExist_Content"),
-                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                    };
-
-                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                    {
-                        await CurrentFolder.RenameAsync(dialog.DesireName, NameCollisionOption.GenerateUniqueName);
-
-                        (FolderTree.SelectedNode.Content as TreeViewNodeContent).Update(CurrentFolder);
-
-                        UpdateAddressButton(CurrentFolder.Path);
                     }
                 }
             }

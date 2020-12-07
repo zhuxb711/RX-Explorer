@@ -804,8 +804,8 @@ namespace RX_Explorer.Class
                             IV = Encoding.UTF8.GetBytes(IV)
                         })
                         {
-                            using (Stream OriginFileStream = await OriginFile.OpenStreamForReadAsync().ConfigureAwait(false))
-                            using (Stream EncryptFileStream = await EncryptedFile.OpenStreamForWriteAsync().ConfigureAwait(false))
+                            using(FileStream OriginFileStream = WIN_Native_API.CreateFileStreamFromExistingPath(OriginFile.Path, AccessMode.Exclusive))
+                            using (Stream EncryptFileStream = WIN_Native_API.CreateFileStreamFromExistingPath(EncryptedFile.Path, AccessMode.Exclusive))
                             using (ICryptoTransform Encryptor = AES.CreateEncryptor())
                             {
                                 byte[] Detail = Encoding.UTF8.GetBytes("$" + KeySize + "|" + OriginFile.FileType + "$");
@@ -817,7 +817,7 @@ namespace RX_Explorer.Class
 
                                 using (CryptoStream TransformStream = new CryptoStream(EncryptFileStream, Encryptor, CryptoStreamMode.Write))
                                 {
-                                    await OriginFileStream.CopyToAsync(TransformStream, 81920, CancelToken).ConfigureAwait(false);
+                                    await OriginFileStream.CopyToAsync(TransformStream, 8192, CancelToken).ConfigureAwait(false);
                                     TransformStream.FlushFinalBlock();
                                 }
                             }
@@ -900,7 +900,7 @@ namespace RX_Explorer.Class
                             IV = Encoding.UTF8.GetBytes(IV)
                         })
                         {
-                            using (Stream EncryptFileStream = await EncryptedFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                            using (Stream EncryptFileStream = WIN_Native_API.CreateFileStreamFromExistingPath(EncryptedFile.Path, AccessMode.Exclusive))
                             {
                                 byte[] DecryptByteBuffer = new byte[20];
 
@@ -910,6 +910,7 @@ namespace RX_Explorer.Class
                                 if (Encoding.UTF8.GetString(DecryptByteBuffer).Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string Info)
                                 {
                                     string[] InfoGroup = Info.Split('|');
+                                    
                                     if (InfoGroup.Length == 2)
                                     {
                                         int KeySize = Convert.ToInt32(InfoGroup[0]);
@@ -932,7 +933,7 @@ namespace RX_Explorer.Class
 
                                 DecryptedFile = await ExportFolder.CreateFileAsync($"{ Path.GetFileNameWithoutExtension(EncryptedFile.Name)}{FileType}", CreationCollisionOption.GenerateUniqueName);
 
-                                using (Stream DecryptFileStream = await DecryptedFile.OpenStreamForWriteAsync().ConfigureAwait(false))
+                                using (FileStream DecryptFileStream = WIN_Native_API.CreateFileStreamFromExistingPath(DecryptedFile.Path, AccessMode.Exclusive))
                                 using (ICryptoTransform Decryptor = AES.CreateDecryptor(AES.Key, AES.IV))
                                 {
                                     byte[] PasswordConfirm = new byte[16];
@@ -943,7 +944,7 @@ namespace RX_Explorer.Class
                                     {
                                         using (CryptoStream TransformStream = new CryptoStream(DecryptFileStream, Decryptor, CryptoStreamMode.Write))
                                         {
-                                            await EncryptFileStream.CopyToAsync(TransformStream, 81920, CancelToken).ConfigureAwait(false);
+                                            await EncryptFileStream.CopyToAsync(TransformStream, 8192, CancelToken).ConfigureAwait(false);
                                             TransformStream.FlushFinalBlock();
                                         }
                                     }

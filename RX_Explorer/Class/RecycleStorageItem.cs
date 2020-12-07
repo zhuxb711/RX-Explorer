@@ -15,6 +15,11 @@ namespace RX_Explorer.Class
             }
         }
 
+        public override FileSystemStorageItemBase GetParentFolder()
+        {
+            return null;
+        }
+
         public RecycleStorageItem(string ActualPath, string OriginPath, StorageItemTypes StorageType, DateTimeOffset CreateTime)
         {
             this.OriginPath = OriginPath;

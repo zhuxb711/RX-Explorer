@@ -361,15 +361,21 @@ namespace RX_Explorer.Class
 
         public static string GenerateUniquePath(string Path)
         {
-            ushort Count = 1;
             string UniquePath = Path;
             string NameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(Path);
             string Extension = System.IO.Path.GetExtension(Path);
             string Directory = System.IO.Path.GetDirectoryName(Path);
 
-            while (CheckExist(UniquePath))
+            for (ushort Count = 1; CheckExist(UniquePath); Count++)
             {
-                UniquePath = System.IO.Path.Combine(Directory, $"{NameWithoutExt} ({Count++}){Extension}");
+                if (Regex.IsMatch(NameWithoutExt, @".*\(\d+\)"))
+                {
+                    UniquePath = System.IO.Path.Combine(Directory, $"{NameWithoutExt.Substring(0, NameWithoutExt.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count}){Extension}");
+                }
+                else
+                {
+                    UniquePath = System.IO.Path.Combine(Directory, $"{NameWithoutExt} ({Count}){Extension}");
+                }
             }
 
             return UniquePath;

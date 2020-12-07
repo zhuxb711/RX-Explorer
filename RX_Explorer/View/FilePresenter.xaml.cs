@@ -1906,46 +1906,27 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            StorageFile Item = (await SelectedItem.GetStorageItem().ConfigureAwait(true)) as StorageFile;
-
-            if (!WIN_Native_API.CheckExist(Item.Path))
+            if (SelectedItem is FileSystemStorageItemBase Item)
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                if (!WIN_Native_API.CheckExist(Item.Path))
                 {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-
-                return;
-            }
-
-            if (Item.FileType == ".zip")
-            {
-                await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
-
-                await UnZipAsync(Item, (s, e) =>
-                {
-                    if (Container.ProBar.Value < e.ProgressPercentage)
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        Container.ProBar.IsIndeterminate = false;
-                        Container.ProBar.Value = e.ProgressPercentage;
-                    }
-                }).ConfigureAwait(true);
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
 
-                await Container.LoadingActivation(false).ConfigureAwait(true);
-            }
-            else
-            {
-                ZipDialog dialog = new ZipDialog(Item.DisplayName);
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                    return;
+                }
+
+                if (Item.Type == ".zip")
                 {
-                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
+                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
 
-                    await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level, (s, e) =>
+                    await UnZipAsync(Item, (s, e) =>
                     {
                         if (Container.ProBar.Value < e.ProgressPercentage)
                         {
@@ -1954,7 +1935,27 @@ namespace RX_Explorer
                         }
                     }).ConfigureAwait(true);
 
-                    await Container.LoadingActivation(false).ConfigureAwait(false);
+                    await Container.LoadingActivation(false).ConfigureAwait(true);
+                }
+                else
+                {
+                    ZipDialog dialog = new ZipDialog(Path.GetFileNameWithoutExtension(Item.Name));
+
+                    if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                    {
+                        await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
+
+                        await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level, (s, e) =>
+                        {
+                            if (Container.ProBar.Value < e.ProgressPercentage)
+                            {
+                                Container.ProBar.IsIndeterminate = false;
+                                Container.ProBar.Value = e.ProgressPercentage;
+                            }
+                        }).ConfigureAwait(true);
+
+                        await Container.LoadingActivation(false).ConfigureAwait(false);
+                    }
                 }
             }
         }
@@ -1979,15 +1980,12 @@ namespace RX_Explorer
 
             foreach (FileSystemStorageItemBase Item in FileList)
             {
-                if (await Item.GetStorageItem().ConfigureAwait(true) is StorageFile File)
+                await UnZipAsync(Item, (s, e) =>
                 {
-                    await UnZipAsync(File, (s, e) =>
-                    {
-                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((Convert.ToDouble(e.ProgressPercentage * Convert.ToInt64(Item.SizeRaw)) + Step * 100) / TotalSize)), null));
-                    }).ConfigureAwait(true);
+                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((Convert.ToDouble(e.ProgressPercentage * Convert.ToInt64(Item.SizeRaw)) + Step * 100) / TotalSize)), null));
+                }).ConfigureAwait(true);
 
-                    Step += Convert.ToInt64(Item.SizeRaw);
-                }
+                Step += Convert.ToInt64(Item.SizeRaw);
             }
 
             await Container.LoadingActivation(false).ConfigureAwait(true);
@@ -1996,19 +1994,19 @@ namespace RX_Explorer
         /// <summary>
         /// 执行ZIP解压功能
         /// </summary>
-        /// <param name="ZFile">ZIP文件</param>
+        /// <param name="Item">ZIP文件</param>
         /// <returns>无</returns>
-        private async Task UnZipAsync(StorageFile ZFile, ProgressChangedEventHandler ProgressHandler = null)
+        private async Task UnZipAsync(FileSystemStorageItemBase Item, ProgressChangedEventHandler ProgressHandler = null)
         {
             StorageFolder ParentFolder = null;
             StorageFolder NewFolder = null;
 
             try
             {
-                ParentFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(ZFile.Path));
-                NewFolder = await ParentFolder.CreateFolderAsync(Path.GetFileNameWithoutExtension(ZFile.Name), CreationCollisionOption.OpenIfExists);
+                ParentFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(Item.Path));
+                NewFolder = await ParentFolder.CreateFolderAsync(Path.GetFileNameWithoutExtension(Item.Name), CreationCollisionOption.OpenIfExists);
 
-                using (FileStream FileStream = WIN_Native_API.CreateFileStreamFromExistingPath(ZFile.Path, AccessMode.Exclusive))
+                using (FileStream FileStream = WIN_Native_API.CreateFileStreamFromExistingPath(Item.Path, AccessMode.Exclusive))
                 using (ZipInputStream InputZipStream = new ZipInputStream(FileStream))
                 {
                     FileStream.Seek(0, SeekOrigin.Begin);
@@ -2120,7 +2118,7 @@ namespace RX_Explorer
         /// <param name="NewZipName">生成的Zip文件名</param>
         /// <param name="ZipLevel">压缩等级</param>
         /// <param name="ProgressHandler">进度通知</param>
-        private async Task CreateZipAsync(IStorageItem ZipTarget, string NewZipName, int ZipLevel, ProgressChangedEventHandler ProgressHandler = null)
+        private async Task CreateZipAsync(FileSystemStorageItemBase ZipTarget, string NewZipName, int ZipLevel, ProgressChangedEventHandler ProgressHandler = null)
         {
             try
             {
@@ -2132,12 +2130,11 @@ namespace RX_Explorer
                     OutputStream.UseZip64 = UseZip64.Dynamic;
                     OutputStream.IsStreamOwner = false;
 
-                    if (ZipTarget is StorageFile File)
+                    if (ZipTarget.StorageType == StorageItemTypes.File)
                     {
-                        using (SafeFileHandle SourceHandle = WIN_Native_API.CreateFileHandleFromPath(File.Path, AccessMode.Read, CreateOption.GenerateUniqueName))
-                        using (FileStream FileStream = new FileStream(SourceHandle, FileAccess.Read))
+                        using (FileStream FileStream = ZipTarget.GetStreamFromFile(AccessMode.Read))
                         {
-                            ZipEntry NewEntry = new ZipEntry(File.Name)
+                            ZipEntry NewEntry = new ZipEntry(ZipTarget.Name)
                             {
                                 DateTime = DateTime.Now,
                                 CompressionMethod = CompressionMethod.Deflated,
@@ -2154,9 +2151,9 @@ namespace RX_Explorer
                             ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(100, null));
                         });
                     }
-                    else if (ZipTarget is StorageFolder ZipFolder)
+                    else
                     {
-                        await ZipFolderCore(ZipFolder, OutputStream, ZipFolder.Name, ProgressHandler).ConfigureAwait(false);
+                        await ZipFolderCore(ZipTarget, OutputStream, ZipTarget.Name, ProgressHandler).ConfigureAwait(false);
                     }
 
                     await OutputStream.FlushAsync().ConfigureAwait(true);
@@ -2238,34 +2235,37 @@ namespace RX_Explorer
 
                         foreach (FileSystemStorageItemBase StorageItem in ZipItemGroup)
                         {
-                            using (FileStream FileStream = WIN_Native_API.CreateFileStreamFromExistingPath(StorageItem.Path, AccessMode.Read))
+                            if (StorageItem.StorageType == StorageItemTypes.File)
                             {
-                                ZipEntry NewEntry = new ZipEntry(StorageItem.Name)
+                                using (FileStream FileStream = StorageItem.GetStreamFromFile(AccessMode.Read))
                                 {
-                                    DateTime = DateTime.Now,
-                                    CompressionMethod = CompressionMethod.Deflated,
-                                    Size = FileStream.Length
-                                };
+                                    ZipEntry NewEntry = new ZipEntry(StorageItem.Name)
+                                    {
+                                        DateTime = DateTime.Now,
+                                        CompressionMethod = CompressionMethod.Deflated,
+                                        Size = FileStream.Length
+                                    };
 
-                                OutputStream.PutNextEntry(NewEntry);
+                                    OutputStream.PutNextEntry(NewEntry);
 
-                                await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
-                            }
+                                    await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
+                                }
 
-                            if (TotalSize > 0)
-                            {
-                                CurrentPosition += Convert.ToInt64(StorageItem.SizeRaw);
-
-                                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                                if (TotalSize > 0)
                                 {
-                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
-                                });
-                            }
-                            else if (await StorageItem.GetStorageItem().ConfigureAwait(false) is StorageFolder ZipFolder)
-                            {
-                                long InnerFolderSixe = Convert.ToInt64(WIN_Native_API.CalculateFolderSize(ZipFolder.Path));
+                                    CurrentPosition += Convert.ToInt64(StorageItem.SizeRaw);
 
-                                await ZipFolderCore(ZipFolder, OutputStream, ZipFolder.Name, (s, e) =>
+                                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                                    {
+                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                long InnerFolderSixe = Convert.ToInt64(WIN_Native_API.CalculateFolderSize(StorageItem.Path));
+
+                                await ZipFolderCore(StorageItem, OutputStream, StorageItem.Name, (s, e) =>
                                 {
                                     if (TotalSize > 0)
                                     {
@@ -2323,7 +2323,7 @@ namespace RX_Explorer
             }
         }
 
-        private Task ZipFolderCore(StorageFolder Folder, ZipOutputStream OutputStream, string BaseFolderName, ProgressChangedEventHandler ProgressHandler = null)
+        private Task ZipFolderCore(FileSystemStorageItemBase Folder, ZipOutputStream OutputStream, string BaseFolderName, ProgressChangedEventHandler ProgressHandler = null)
         {
             return ZipFolderCore(Folder.Path, OutputStream, BaseFolderName, ProgressHandler);
         }
@@ -2373,7 +2373,7 @@ namespace RX_Explorer
                     }
                     else if (Item.StorageType == StorageItemTypes.File)
                     {
-                        using (FileStream FileStream = WIN_Native_API.CreateFileStreamFromExistingPath(Item.Path, AccessMode.Read))
+                        using (FileStream FileStream = Item.GetStreamFromFile(AccessMode.Read))
                         {
                             ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/{Item.Name}")
                             {
@@ -3948,6 +3948,7 @@ namespace RX_Explorer
             CloseAllFlyout();
 
             NewFileDialog Dialog = new NewFileDialog();
+            
             if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
             {
                 try
@@ -3956,17 +3957,17 @@ namespace RX_Explorer
                     {
                         case ".zip":
                             {
-                                _ = await SpecialTypeGenerator.Current.CreateZipAsync(Container.CurrentFolder, Dialog.NewFileName).ConfigureAwait(true) ?? throw new UnauthorizedAccessException();
+                                SpecialTypeGenerator.Current.CreateZipFile(Container.CurrentFolder, Dialog.NewFileName);
                                 break;
                             }
                         case ".rtf":
                             {
-                                _ = await SpecialTypeGenerator.Current.CreateRtfAsync(Container.CurrentFolder, Dialog.NewFileName).ConfigureAwait(true) ?? throw new UnauthorizedAccessException();
+                                SpecialTypeGenerator.Current.CreateRtfFile(Container.CurrentFolder, Dialog.NewFileName);
                                 break;
                             }
                         case ".xlsx":
                             {
-                                _ = await SpecialTypeGenerator.Current.CreateExcelAsync(Container.CurrentFolder, Dialog.NewFileName).ConfigureAwait(true) ?? throw new UnauthorizedAccessException();
+                                SpecialTypeGenerator.Current.CreateExcelFile(Container.CurrentFolder, Dialog.NewFileName);
                                 break;
                             }
                         case ".lnk":
@@ -3984,12 +3985,12 @@ namespace RX_Explorer
                             }
                         default:
                             {
-                                _ = await Container.CurrentFolder.CreateFileAsync(Dialog.NewFileName, CreationCollisionOption.GenerateUniqueName) ?? throw new UnauthorizedAccessException();
+                                WIN_Native_API.CreateFileHandleFromPath(Path.Combine(Container.CurrentFolder.Path, Dialog.NewFileName), AccessMode.ReadWrite, CreateOption.GenerateUniqueName).Dispose();
                                 break;
                             }
                     }
                 }
-                catch (UnauthorizedAccessException)
+                catch (Exception)
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -4011,38 +4012,39 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            StorageFolder Item = (await SelectedItem.GetStorageItem().ConfigureAwait(true)) as StorageFolder;
-
-            if (!WIN_Native_API.CheckExist(Item.Path))
+            if(SelectedItem is FileSystemStorageItemBase Item)
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                if (!WIN_Native_API.CheckExist(Item.Path))
                 {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-
-                return;
-            }
-
-            ZipDialog dialog = new ZipDialog(Item.DisplayName);
-
-            if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
-            {
-                await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
-
-                await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level, ProgressHandler: (s, e) =>
-                {
-                    if (Container.ProBar.Value < e.ProgressPercentage)
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
-                        Container.ProBar.IsIndeterminate = false;
-                        Container.ProBar.Value = e.ProgressPercentage;
-                    }
-                }).ConfigureAwait(true);
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
 
-                await Container.LoadingActivation(false).ConfigureAwait(true);
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+
+                    return;
+                }
+
+                ZipDialog dialog = new ZipDialog(Path.GetFileNameWithoutExtension(Item.Name));
+
+                if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                {
+                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
+
+                    await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level, ProgressHandler: (s, e) =>
+                    {
+                        if (Container.ProBar.Value < e.ProgressPercentage)
+                        {
+                            Container.ProBar.IsIndeterminate = false;
+                            Container.ProBar.Value = e.ProgressPercentage;
+                        }
+                    }).ConfigureAwait(true);
+
+                    await Container.LoadingActivation(false).ConfigureAwait(true);
+                }
             }
         }
 
@@ -4505,7 +4507,7 @@ namespace RX_Explorer
 
         private async void ItemContainer_DragStarting(UIElement sender, DragStartingEventArgs args)
         {
-            var Deferral = args.GetDeferral();
+            DragOperationDeferral Deferral = args.GetDeferral();
 
             try
             {
@@ -6483,14 +6485,28 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    StorageFolder ParentFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(Item.TargetPath));
-
-                    await Container.DisplayItemsInFolder(ParentFolder).ConfigureAwait(true);
-
-                    if (FileCollection.FirstOrDefault((SItem) => SItem.Path == Item.TargetPath) is FileSystemStorageItemBase Target)
+                    try
                     {
-                        ItemPresenter.ScrollIntoView(Target);
-                        SelectedItem = Target;
+                        StorageFolder ParentFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(Item.TargetPath));
+
+                        await Container.DisplayItemsInFolder(ParentFolder).ConfigureAwait(true);
+
+                        if (FileCollection.FirstOrDefault((SItem) => SItem.Path == Item.TargetPath) is FileSystemStorageItemBase Target)
+                        {
+                            ItemPresenter.ScrollIntoView(Target);
+                            SelectedItem = Target;
+                        }
+                    }
+                    catch
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
                 }
             }
