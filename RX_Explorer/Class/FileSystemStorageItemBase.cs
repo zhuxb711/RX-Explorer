@@ -172,11 +172,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual FileSystemStorageItemBase GetParentFolder()
-        {
-            return WIN_Native_API.GetStorageItem(System.IO.Path.GetDirectoryName(Path));
-        }
-
         public virtual List<FileSystemStorageItemBase> GetChildrenItems(bool IncludeHiddenItems, ItemFilters Filter)
         {
             if (StorageType == StorageItemTypes.Folder)
@@ -388,6 +383,32 @@ namespace RX_Explorer.Class
         /// 获取文件的完整文件名(包括后缀)
         /// </summary>
         public virtual string Name => StorageItem == null ? System.IO.Path.GetFileName(InternalPathString) : StorageItem.Name;
+
+        public virtual string DisplayName
+        {
+            get
+            {
+                if (StorageItem == null)
+                {
+                    return Name;
+                }
+                else
+                {
+                    if (StorageItem is StorageFolder Folder)
+                    {
+                        return Folder.DisplayName;
+                    }
+                    else if (StorageItem is StorageFile File)
+                    {
+                        return File.DisplayName;
+                    }
+                    else
+                    {
+                        return string.Empty;
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// 获取文件类型描述

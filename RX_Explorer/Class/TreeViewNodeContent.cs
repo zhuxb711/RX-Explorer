@@ -53,13 +53,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        public void Update(StorageFolder Folder)
-        {
-            InnerFolder = Folder ?? throw new ArgumentNullException(nameof(Folder), "Argument could not be null");
-
-            OnPropertyChanged(nameof(DisplayName));
-        }
-
         public TreeViewNodeContent(StorageFolder Folder)
         {
             InnerFolder = Folder ?? throw new ArgumentNullException(nameof(Folder), "Argument could not be null");

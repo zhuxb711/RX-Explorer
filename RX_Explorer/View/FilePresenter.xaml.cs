@@ -30,6 +30,7 @@ using Windows.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
@@ -121,7 +122,6 @@ namespace RX_Explorer
         private WiFiShareProvider WiFiProvider;
         private ListViewBaseSelectionExtention SelectionExtention;
         private FileSystemStorageItemBase TabTarget;
-        private FileSystemStorageItemBase CurrentNameEditItem;
         private DateTimeOffset LastClickTime;
         private DateTimeOffset LastPressTime;
         private string LastPressString;
@@ -1764,29 +1764,36 @@ namespace RX_Explorer
                     SelectedItem = Item;
                     await TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(Item.Path).ConfigureAwait(false);
                 }
-                else if ((e.OriginalSource as FrameworkElement).FindParentOfType<SelectorItem>() is SelectorItem)
+                else if ((e.OriginalSource as FrameworkElement).FindParentOfType<SelectorItem>() != null)
                 {
                     if (ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple)
                     {
-                        if (SelectedItems.Contains(Item))
+                        if (e.KeyModifiers == VirtualKeyModifiers.None)
                         {
-                            SelectionExtention.Disable();
-                        }
-                        else
-                        {
-                            if (e.KeyModifiers == VirtualKeyModifiers.None && PointerInfo.Properties.IsLeftButtonPressed)
-                            {
-                                SelectedItem = Item;
-                            }
-
-                            if (e.OriginalSource is ListViewItemPresenter)
-                            {
-                                SelectionExtention.Enable();
-                            }
-                            else
+                            if (SelectedItems.Contains(Item))
                             {
                                 SelectionExtention.Disable();
                             }
+                            else
+                            {
+                                if (PointerInfo.Properties.IsLeftButtonPressed)
+                                {
+                                    SelectedItem = Item;
+                                }
+
+                                if (e.OriginalSource is ListViewItemPresenter)
+                                {
+                                    SelectionExtention.Enable();
+                                }
+                                else
+                                {
+                                    SelectionExtention.Disable();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            SelectionExtention.Disable();
                         }
                     }
                     else
@@ -2034,116 +2041,104 @@ namespace RX_Explorer
         /// <returns>无</returns>
         private async Task UnZipAsync(FileSystemStorageItemBase Item, ProgressChangedEventHandler ProgressHandler = null)
         {
-            StorageFolder ParentFolder = null;
-            StorageFolder NewFolder = null;
-
-            try
+            if (WIN_Native_API.CreateDirectoryFromPath(Path.Combine(Path.GetDirectoryName(Item.Path), Path.GetFileNameWithoutExtension(Item.Name)), CreateDirectoryOption.OpenIfExist, out string NewFolderPath))
             {
-                ParentFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(Item.Path));
-                NewFolder = await ParentFolder.CreateFolderAsync(Path.GetFileNameWithoutExtension(Item.Name), CreationCollisionOption.OpenIfExists);
-
-                using (FileStream FileStream = WIN_Native_API.CreateFileStreamFromExistingPath(Item.Path, AccessMode.Exclusive))
-                using (ZipInputStream InputZipStream = new ZipInputStream(FileStream))
+                try
                 {
-                    FileStream.Seek(0, SeekOrigin.Begin);
-
-                    InputZipStream.IsStreamOwner = false;
-
-                    while (InputZipStream.GetNextEntry() is ZipEntry Entry)
+                    using (FileStream FileStream = WIN_Native_API.CreateFileStreamFromExistingPath(Item.Path, AccessMode.Exclusive))
+                    using (ZipInputStream InputZipStream = new ZipInputStream(FileStream))
                     {
-                        if (!InputZipStream.CanDecompressEntry)
+                        FileStream.Seek(0, SeekOrigin.Begin);
+
+                        InputZipStream.IsStreamOwner = false;
+
+                        while (InputZipStream.GetNextEntry() is ZipEntry Entry)
                         {
-                            throw new NotImplementedException();
-                        }
-
-                        if (Entry.Name.Contains("/"))
-                        {
-                            string[] SplitFolderPath = Entry.Name.Split('/', StringSplitOptions.RemoveEmptyEntries);
-
-                            StorageFolder TempFolder = NewFolder;
-
-                            for (int i = 0; i < SplitFolderPath.Length - 1; i++)
+                            if (!InputZipStream.CanDecompressEntry)
                             {
-                                TempFolder = await TempFolder.CreateFolderAsync(SplitFolderPath[i], CreationCollisionOption.OpenIfExists);
+                                throw new NotImplementedException();
                             }
 
-                            if (Entry.Name.Last() == '/')
+                            if (Entry.Name.Contains("/"))
                             {
-                                await TempFolder.CreateFolderAsync(SplitFolderPath.Last(), CreationCollisionOption.OpenIfExists);
+                                string[] SplitFolderPath = Entry.Name.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+                                string TempFolderPath = NewFolderPath;
+
+                                for (int i = 0; i < SplitFolderPath.Length - 1; i++)
+                                {
+                                    if (!WIN_Native_API.CreateDirectoryFromPath(Path.Combine(TempFolderPath, SplitFolderPath[i]), CreateDirectoryOption.OpenIfExist, out TempFolderPath))
+                                    {
+                                        throw new UnauthorizedAccessException("Could not create directory");
+                                    }
+                                }
+
+                                if (Entry.Name.Last() == '/')
+                                {
+                                    if (!WIN_Native_API.CreateDirectoryFromPath(Path.Combine(TempFolderPath, SplitFolderPath.Last()), CreateDirectoryOption.OpenIfExist, out _))
+                                    {
+                                        throw new UnauthorizedAccessException("Could not create directory");
+                                    }
+                                }
+                                else
+                                {
+                                    using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(TempFolderPath, SplitFolderPath.Last()), AccessMode.Write, CreateOption.ReplaceExisting))
+                                    using (FileStream NewFileStream = new FileStream(Handle, FileAccess.Write))
+                                    {
+                                        await InputZipStream.CopyToAsync(NewFileStream).ConfigureAwait(true);
+                                    }
+                                }
                             }
                             else
                             {
-                                using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(TempFolder.Path, SplitFolderPath.Last()), AccessMode.Write, CreateOption.ReplaceExisting))
+                                using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(NewFolderPath, Entry.Name), AccessMode.Write, CreateOption.ReplaceExisting))
                                 using (FileStream NewFileStream = new FileStream(Handle, FileAccess.Write))
                                 {
                                     await InputZipStream.CopyToAsync(NewFileStream).ConfigureAwait(true);
                                 }
                             }
-                        }
-                        else
-                        {
-                            using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(NewFolder.Path, Entry.Name), AccessMode.Write, CreateOption.ReplaceExisting))
-                            using (FileStream NewFileStream = new FileStream(Handle, FileAccess.Write))
-                            {
-                                await InputZipStream.CopyToAsync(NewFileStream).ConfigureAwait(true);
-                            }
-                        }
 
-                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(FileStream.Position * 100d / FileStream.Length)), null));
+                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(FileStream.Position * 100d / FileStream.Length)), null));
+                        }
                     }
                 }
-            }
-            catch (UnauthorizedAccessException)
-            {
-                if (NewFolder != null)
+                catch (UnauthorizedAccessException)
                 {
-                    await NewFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                    };
+
+                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    {
+                        _ = await Launcher.LaunchFolderPathAsync(Path.GetDirectoryName(Item.Path));
+                    }
                 }
-
-                QueueContentDialog dialog = new QueueContentDialog
+                catch (NotImplementedException)
                 {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"),
-                    PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                };
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_CanNotDecompressEncrypted_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
 
-                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                {
-                    _ = await Launcher.LaunchFolderAsync(ParentFolder);
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
-            }
-            catch (NotImplementedException)
-            {
-                if (NewFolder != null)
+                catch (Exception e)
                 {
-                    await NewFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_DecompressionError_Content") + e.Message,
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
-
-                QueueContentDialog Dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_CanNotDecompressEncrypted_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-            }
-            catch (Exception e)
-            {
-                if (NewFolder != null)
-                {
-                    await NewFolder.DeleteAllSubFilesAndFolders().ConfigureAwait(true);
-                }
-
-                QueueContentDialog dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_DecompressionError_Content") + e.Message,
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
             }
         }
 
@@ -2359,14 +2354,9 @@ namespace RX_Explorer
             }
         }
 
-        private Task ZipFolderCore(FileSystemStorageItemBase Folder, ZipOutputStream OutputStream, string BaseFolderName, ProgressChangedEventHandler ProgressHandler = null)
+        private async Task ZipFolderCore(FileSystemStorageItemBase Folder, ZipOutputStream OutputStream, string BaseFolderName, ProgressChangedEventHandler ProgressHandler = null)
         {
-            return ZipFolderCore(Folder.Path, OutputStream, BaseFolderName, ProgressHandler);
-        }
-
-        private async Task ZipFolderCore(string Path, ZipOutputStream OutputStream, string BaseFolderName, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            List<FileSystemStorageItemBase> PathList = WIN_Native_API.GetStorageItems(Path, true, ItemFilters.File | ItemFilters.Folder);
+            List<FileSystemStorageItemBase> PathList = Folder.GetChildrenItems(true, ItemFilters.File | ItemFilters.Folder);
 
             if (PathList.Count == 0)
             {
@@ -2379,7 +2369,7 @@ namespace RX_Explorer
             }
             else
             {
-                long TotalSize = Convert.ToInt64(WIN_Native_API.CalculateFolderSize(Path));
+                long TotalSize = Convert.ToInt64(WIN_Native_API.CalculateFolderSize(Folder.Path));
 
                 long CurrentPosition = 0;
 
@@ -2389,7 +2379,7 @@ namespace RX_Explorer
                     {
                         long InnerFolderSixe = Convert.ToInt64(WIN_Native_API.CalculateFolderSize(Item.Path));
 
-                        await ZipFolderCore(Item.Path, OutputStream, $"{BaseFolderName}/{Item.Name}", ProgressHandler: (s, e) =>
+                        await ZipFolderCore(Item, OutputStream, $"{BaseFolderName}/{Item.Name}", ProgressHandler: (s, e) =>
                         {
                             if (TotalSize > 0)
                             {
@@ -2757,7 +2747,7 @@ namespace RX_Explorer
                 return;
             }
 
-            if (WIN_Native_API.CreateDirectoryFromPath(Path.Combine(Container.CurrentFolder.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), out string NewFolderPath))
+            if (WIN_Native_API.CreateDirectoryFromPath(Path.Combine(Container.CurrentFolder.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), CreateDirectoryOption.GenerateUniqueName, out string NewFolderPath))
             {
                 while (true)
                 {
@@ -2767,7 +2757,7 @@ namespace RX_Explorer
 
                         ItemPresenter.ScrollIntoView(NewItem);
 
-                        CurrentNameEditItem = NewItem;
+                        SelectedItem = NewItem;
 
                         if ((ItemPresenter.ContainerFromItem(NewItem) as SelectorItem)?.ContentTemplateRoot is FrameworkElement Element)
                         {
@@ -2778,6 +2768,7 @@ namespace RX_Explorer
 
                             if (Element.FindName("NameEditBox") is TextBox EditBox)
                             {
+                                EditBox.Tag = NewItem;
                                 EditBox.Text = NewItem.Name;
                                 EditBox.Visibility = Visibility.Visible;
                                 EditBox.Focus(FocusState.Programmatic);
@@ -5529,10 +5520,9 @@ namespace RX_Explorer
                         {
                             NameLabel.Visibility = Visibility.Collapsed;
 
-                            CurrentNameEditItem = Item;
-
                             if ((NameLabel.Parent as FrameworkElement).FindName("NameEditBox") is TextBox EditBox)
                             {
+                                EditBox.Tag = Item;
                                 EditBox.Text = NameLabel.Text;
                                 EditBox.Visibility = Visibility.Visible;
                                 EditBox.Focus(FocusState.Programmatic);
@@ -5551,7 +5541,7 @@ namespace RX_Explorer
         {
             TextBox NameEditBox = (TextBox)sender;
 
-            if ((NameEditBox?.Parent as FrameworkElement)?.FindName("NameLabel") is TextBlock NameLabel && CurrentNameEditItem != null)
+            if ((NameEditBox?.Parent as FrameworkElement)?.FindName("NameLabel") is TextBlock NameLabel && NameEditBox.Tag is FileSystemStorageItemBase CurrentEditItem)
             {
                 try
                 {
@@ -5562,12 +5552,12 @@ namespace RX_Explorer
                         return;
                     }
 
-                    if (CurrentNameEditItem.Name == NameEditBox.Text)
+                    if (CurrentEditItem.Name == NameEditBox.Text)
                     {
                         return;
                     }
 
-                    if (WIN_Native_API.CheckExist(Path.Combine(Path.GetDirectoryName(CurrentNameEditItem.Path), NameEditBox.Text)))
+                    if (WIN_Native_API.CheckExist(Path.Combine(Path.GetDirectoryName(CurrentEditItem.Path), NameEditBox.Text)))
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
@@ -5586,7 +5576,7 @@ namespace RX_Explorer
                 Retry:
                     try
                     {
-                        await FullTrustProcessController.Current.RenameAsync(CurrentNameEditItem.Path, NameEditBox.Text).ConfigureAwait(true);
+                        await FullTrustProcessController.Current.RenameAsync(CurrentEditItem.Path, NameEditBox.Text).ConfigureAwait(true);
                     }
                     catch (FileLoadException)
                     {

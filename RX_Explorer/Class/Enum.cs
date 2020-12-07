@@ -2,12 +2,19 @@
 
 namespace RX_Explorer.Class
 {
+    public enum CreateDirectoryOption
+    {
+        OpenIfExist,
+        GenerateUniqueName
+    }
+
     public enum CreateOption
     {
         OpenIfExist,
         GenerateUniqueName,
         ReplaceExisting
     }
+
     public enum AccessMode
     {
         Read,

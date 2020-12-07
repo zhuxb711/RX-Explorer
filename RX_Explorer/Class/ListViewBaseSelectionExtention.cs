@@ -107,7 +107,7 @@ namespace RX_Explorer.Class
 
                 Rect SelectedRect = new Rect(RelativeStartPoint, RelativeEndPoint);
 
-                if (SelectedRect.Width >= 15 && SelectedRect.Height >= 15)
+                if (SelectedRect.Width >= 20 && SelectedRect.Height >= 20)
                 {
                     IEnumerable<FileSystemStorageItemBase> SelectedArray = VisualTreeHelper.FindElementsInHostCoordinates(AbsToWindowTransform.TransformBounds(SelectedRect), View).OfType<SelectorItem>().Select((Item) => Item.Content as FileSystemStorageItemBase);
 

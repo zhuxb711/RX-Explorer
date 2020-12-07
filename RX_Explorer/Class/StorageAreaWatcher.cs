@@ -120,11 +120,7 @@ namespace RX_Explorer.Class
 
                         if (!SettingControl.IsDetachTreeViewAndPresenter)
                         {
-                            if (await TreeView.RootNodes[0].GetChildNodeAsync(new PathAnalysis(OldPath, (TreeView.RootNodes[0].Content as TreeViewNodeContent).Path), true).ConfigureAwait(true) is TreeViewNode Node)
-                            {
-                                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(NewPath);
-                                (Node.Content as TreeViewNodeContent).Update(Folder);
-                            }
+                            await TreeView.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
                         }
                     }
                     catch (Exception ex)
