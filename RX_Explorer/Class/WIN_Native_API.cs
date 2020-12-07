@@ -132,6 +132,9 @@ namespace RX_Explorer.Class
         [DllImport("api-ms-win-core-io-l1-1-1.dll")]
         private static extern bool CancelIoEx(IntPtr hFile, IntPtr lpOverlapped);
 
+        [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern bool CreateDirectoryFromAppW(string lpPathName, IntPtr lpSecurityAttributes);
+
         const uint GENERIC_READ = 0x80000000;
         const uint GENERIC_WRITE = 0x40000000;
         const uint FILE_LIST_DIRECTORY = 0x1;
@@ -216,6 +219,54 @@ namespace RX_Explorer.Class
                     {
                         return null;
                     }
+            }
+        }
+
+        public static bool CreateDirectoryFromPath(string Path, out string NewFolderPath)
+        {
+            try
+            {
+                PathAnalysis Analysis = new PathAnalysis(Path, string.Empty);
+
+                while (true)
+                {
+                    string NextPath = Analysis.NextFullPath();
+
+                    if (Analysis.HasNextLevel)
+                    {
+                        if (!CheckExist(NextPath))
+                        {
+                            if (!CreateDirectoryFromAppW(NextPath, IntPtr.Zero))
+                            {
+                                NewFolderPath = string.Empty;
+                                LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "An exception was threw when createdirectory");
+                                return false;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        string UniquePath = GenerateUniquePath(NextPath);
+
+                        if (CreateDirectoryFromAppW(UniquePath, IntPtr.Zero))
+                        {
+                            NewFolderPath = UniquePath;
+                            return true;
+                        }
+                        else
+                        {
+                            NewFolderPath = string.Empty;
+                            LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "An exception was threw when createdirectory");
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                NewFolderPath = string.Empty;
+                LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "An exception was threw when createdirectory");
+                return false;
             }
         }
 
@@ -957,7 +1008,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static FileSystemStorageItemBase GetStorageItem(string Path)
+        public static FileSystemStorageItemBase GetStorageItem(string Path, ItemFilters Filter = ItemFilters.Folder | ItemFilters.File)
         {
             if (string.IsNullOrWhiteSpace(Path))
             {
@@ -974,7 +1025,7 @@ namespace RX_Explorer.Class
                     {
                         FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
 
-                        if (Attribute.HasFlag(FileAttributes.Directory))
+                        if (Attribute.HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
                         {
                             if (Data.cFileName != "." && Data.cFileName != "..")
                             {
@@ -991,7 +1042,7 @@ namespace RX_Explorer.Class
                                 }
                             }
                         }
-                        else
+                        else if (Filter.HasFlag(ItemFilters.File))
                         {
                             FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
                             DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);

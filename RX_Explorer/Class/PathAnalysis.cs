@@ -37,7 +37,7 @@ namespace RX_Explorer.Class
 
             this.FullPath = FullPath;
 
-            CurrentLevel = CurrentPath;
+            CurrentLevel = CurrentPath ?? string.Empty;
 
             if (string.IsNullOrEmpty(CurrentPath))
             {

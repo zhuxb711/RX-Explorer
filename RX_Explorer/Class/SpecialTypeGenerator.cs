@@ -41,7 +41,7 @@ namespace RX_Explorer.Class
 
         }
 
-        public void CreateZipFile(StorageFolder TargetFolder, string Name)
+        public void CreateZipFile(string TargetFolder, string Name)
         {
             if (TargetFolder == null)
             {
@@ -60,7 +60,7 @@ namespace RX_Explorer.Class
 
             try
             {
-                using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(TargetFolder.Path, Name), AccessMode.ReadWrite, CreateOption.GenerateUniqueName))
+                using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(TargetFolder, Name), AccessMode.ReadWrite, CreateOption.GenerateUniqueName))
                 using (FileStream Stream = new FileStream(Handle, FileAccess.ReadWrite))
                 using (ZipFile Zip = ZipFile.Create(Stream))
                 {
@@ -75,7 +75,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public void CreateRtfFile(StorageFolder TargetFolder, string Name)
+        public void CreateRtfFile(string TargetFolder, string Name)
         {
             if (TargetFolder == null)
             {
@@ -94,7 +94,7 @@ namespace RX_Explorer.Class
 
             try
             {
-                using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(TargetFolder.Path, Name), AccessMode.ReadWrite, CreateOption.GenerateUniqueName))
+                using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(TargetFolder, Name), AccessMode.ReadWrite, CreateOption.GenerateUniqueName))
                 {
                     RichEditBox REB = new RichEditBox();
                     using (FileStream Stream = new FileStream(Handle, FileAccess.ReadWrite))
@@ -115,7 +115,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public void CreateExcelFile(StorageFolder TargetFolder, string Name)
+        public void CreateExcelFile(string TargetFolder, string Name)
         {
             if (TargetFolder == null)
             {
@@ -134,7 +134,7 @@ namespace RX_Explorer.Class
 
             try
             {
-                using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(TargetFolder.Path, Name), AccessMode.ReadWrite, CreateOption.GenerateUniqueName))
+                using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(TargetFolder, Name), AccessMode.ReadWrite, CreateOption.GenerateUniqueName))
                 using (FileStream FileStream = new FileStream(Handle,FileAccess.ReadWrite))
                 using (SpreadsheetDocument Document = SpreadsheetDocument.Create(FileStream, SpreadsheetDocumentType.Workbook))
                 {

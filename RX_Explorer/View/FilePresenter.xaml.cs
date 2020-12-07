@@ -282,7 +282,7 @@ namespace RX_Explorer
                         }
                     case VirtualKey.E when ShiftState.HasFlag(CoreVirtualKeyStates.Down) && Container.CurrentFolder != null:
                         {
-                            _ = await Launcher.LaunchFolderAsync(Container.CurrentFolder);
+                            _ = await Launcher.LaunchFolderPathAsync(Container.CurrentFolder.Path);
                             break;
                         }
                     case VirtualKey.T when ShiftState.HasFlag(CoreVirtualKeyStates.Down):
@@ -473,87 +473,26 @@ namespace RX_Explorer
                                 {
                                     if (Container.CurrentFolder.Path == Path.GetDirectoryName(SplitGroup[3]))
                                     {
-                                        StorageFolder OriginFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(SplitGroup[0]));
-
-                                        switch (SplitGroup[2])
+                                        if (WIN_Native_API.GetStorageItem(Path.GetDirectoryName(SplitGroup[0]), ItemFilters.Folder) is FileSystemStorageItemBase OriginFolder)
                                         {
-                                            case "File":
-                                                {
-                                                    if (Path.GetExtension(SplitGroup[3]) == ".lnk")
+                                            switch (SplitGroup[2])
+                                            {
+                                                case "File":
                                                     {
-                                                        await FullTrustProcessController.Current.MoveAsync(SplitGroup[3], OriginFolder, (s, arg) =>
+                                                        if (Path.GetExtension(SplitGroup[3]) == ".lnk")
                                                         {
-                                                            if (Container.ProBar.Value < arg.ProgressPercentage)
+                                                            await FullTrustProcessController.Current.MoveAsync(SplitGroup[3], OriginFolder.Path, (s, arg) =>
                                                             {
-                                                                Container.ProBar.IsIndeterminate = false;
-                                                                Container.ProBar.Value = arg.ProgressPercentage;
-                                                            }
-                                                        }, true).ConfigureAwait(true);
-                                                    }
-                                                    else if ((await Container.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
-                                                    {
-                                                        await FullTrustProcessController.Current.MoveAsync(File, OriginFolder, (s, arg) =>
+                                                                if (Container.ProBar.Value < arg.ProgressPercentage)
+                                                                {
+                                                                    Container.ProBar.IsIndeterminate = false;
+                                                                    Container.ProBar.Value = arg.ProgressPercentage;
+                                                                }
+                                                            }, true).ConfigureAwait(true);
+                                                        }
+                                                        else if (WIN_Native_API.GetStorageItem(Path.Combine(Container.CurrentFolder.Path, Path.GetFileName(SplitGroup[3])), ItemFilters.File) is FileSystemStorageItemBase Item)
                                                         {
-                                                            if (Container.ProBar.Value < arg.ProgressPercentage)
-                                                            {
-                                                                Container.ProBar.IsIndeterminate = false;
-                                                                Container.ProBar.Value = arg.ProgressPercentage;
-                                                            }
-                                                        }, true).ConfigureAwait(true);
-                                                    }
-                                                    else
-                                                    {
-                                                        throw new FileNotFoundException();
-                                                    }
-
-                                                    break;
-                                                }
-                                            case "Folder":
-                                                {
-                                                    if ((await Container.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFolder Folder)
-                                                    {
-                                                        await FullTrustProcessController.Current.MoveAsync(Folder, OriginFolder, (s, arg) =>
-                                                        {
-                                                            if (Container.ProBar.Value < arg.ProgressPercentage)
-                                                            {
-                                                                Container.ProBar.IsIndeterminate = false;
-                                                                Container.ProBar.Value = arg.ProgressPercentage;
-                                                            }
-                                                        }, true).ConfigureAwait(true);
-                                                    }
-                                                    else
-                                                    {
-                                                        throw new FileNotFoundException();
-                                                    }
-
-                                                    break;
-                                                }
-                                        }
-                                    }
-                                    else if (Container.CurrentFolder.Path == Path.GetDirectoryName(SplitGroup[0]))
-                                    {
-                                        switch (SplitGroup[2])
-                                        {
-                                            case "File":
-                                                {
-                                                    if (Path.GetExtension(SplitGroup[3]) == ".lnk")
-                                                    {
-                                                        await FullTrustProcessController.Current.MoveAsync(SplitGroup[3], Container.CurrentFolder, (s, arg) =>
-                                                        {
-                                                            if (Container.ProBar.Value < arg.ProgressPercentage)
-                                                            {
-                                                                Container.ProBar.IsIndeterminate = false;
-                                                                Container.ProBar.Value = arg.ProgressPercentage;
-                                                            }
-                                                        }, true).ConfigureAwait(true);
-                                                    }
-                                                    else
-                                                    {
-                                                        StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(SplitGroup[3]));
-
-                                                        if ((await TargetFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
-                                                        {
-                                                            await FullTrustProcessController.Current.MoveAsync(File, Container.CurrentFolder, (s, arg) =>
+                                                            await FullTrustProcessController.Current.MoveAsync(Item.Path, OriginFolder.Path, (s, arg) =>
                                                             {
                                                                 if (Container.ProBar.Value < arg.ProgressPercentage)
                                                                 {
@@ -566,38 +505,45 @@ namespace RX_Explorer
                                                         {
                                                             throw new FileNotFoundException();
                                                         }
+
+                                                        break;
                                                     }
-
-                                                    break;
-                                                }
-                                            case "Folder":
-                                                {
-                                                    StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(SplitGroup[3]);
-
-                                                    await FullTrustProcessController.Current.MoveAsync(Folder, Container.CurrentFolder, (s, arg) =>
+                                                case "Folder":
                                                     {
-                                                        if (Container.ProBar.Value < arg.ProgressPercentage)
+                                                        if (WIN_Native_API.GetStorageItem(Path.Combine(Container.CurrentFolder.Path, Path.GetFileName(SplitGroup[3])), ItemFilters.Folder) is FileSystemStorageItemBase Item)
                                                         {
-                                                            Container.ProBar.IsIndeterminate = false;
-                                                            Container.ProBar.Value = arg.ProgressPercentage;
+                                                            await FullTrustProcessController.Current.MoveAsync(Item.Path, OriginFolder.Path, (s, arg) =>
+                                                            {
+                                                                if (Container.ProBar.Value < arg.ProgressPercentage)
+                                                                {
+                                                                    Container.ProBar.IsIndeterminate = false;
+                                                                    Container.ProBar.Value = arg.ProgressPercentage;
+                                                                }
+                                                            }, true).ConfigureAwait(true);
                                                         }
-                                                    }, true).ConfigureAwait(true);
+                                                        else
+                                                        {
+                                                            throw new FileNotFoundException();
+                                                        }
 
-                                                    break;
-                                                }
+                                                        break;
+                                                    }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            throw new DirectoryNotFoundException();
                                         }
                                     }
-                                    else
+                                    else if (Container.CurrentFolder.Path == Path.GetDirectoryName(SplitGroup[0]))
                                     {
-                                        StorageFolder OriginFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(SplitGroup[0]));
-
                                         switch (SplitGroup[2])
                                         {
                                             case "File":
                                                 {
                                                     if (Path.GetExtension(SplitGroup[3]) == ".lnk")
                                                     {
-                                                        await FullTrustProcessController.Current.MoveAsync(SplitGroup[3], OriginFolder, (s, arg) =>
+                                                        await FullTrustProcessController.Current.MoveAsync(SplitGroup[3], Container.CurrentFolder.Path, (s, arg) =>
                                                         {
                                                             if (Container.ProBar.Value < arg.ProgressPercentage)
                                                             {
@@ -608,9 +554,39 @@ namespace RX_Explorer
                                                     }
                                                     else
                                                     {
-                                                        StorageFile File = await StorageFile.GetFileFromPathAsync(SplitGroup[3]);
+                                                        string TargetFolderPath = Path.GetDirectoryName(SplitGroup[3]);
 
-                                                        await FullTrustProcessController.Current.MoveAsync(File, OriginFolder, (s, arg) =>
+                                                        if (WIN_Native_API.CheckExist(TargetFolderPath))
+                                                        {
+                                                            if (WIN_Native_API.GetStorageItem(Path.Combine(TargetFolderPath, Path.GetFileName(SplitGroup[3])), ItemFilters.File) is FileSystemStorageItemBase Item)
+                                                            {
+                                                                await FullTrustProcessController.Current.MoveAsync(Item.Path, Container.CurrentFolder.Path, (s, arg) =>
+                                                                {
+                                                                    if (Container.ProBar.Value < arg.ProgressPercentage)
+                                                                    {
+                                                                        Container.ProBar.IsIndeterminate = false;
+                                                                        Container.ProBar.Value = arg.ProgressPercentage;
+                                                                    }
+                                                                }, true).ConfigureAwait(true);
+                                                            }
+                                                            else
+                                                            {
+                                                                throw new FileNotFoundException();
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            throw new DirectoryNotFoundException();
+                                                        }
+                                                    }
+
+                                                    break;
+                                                }
+                                            case "Folder":
+                                                {
+                                                    if (WIN_Native_API.GetStorageItem(SplitGroup[3], ItemFilters.Folder) is FileSystemStorageItemBase Item)
+                                                    {
+                                                        await FullTrustProcessController.Current.MoveAsync(Item.Path, Container.CurrentFolder.Path, (s, arg) =>
                                                         {
                                                             if (Container.ProBar.Value < arg.ProgressPercentage)
                                                             {
@@ -619,29 +595,85 @@ namespace RX_Explorer
                                                             }
                                                         }, true).ConfigureAwait(true);
                                                     }
-
-                                                    break;
-                                                }
-                                            case "Folder":
-                                                {
-                                                    StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(SplitGroup[3]);
-
-                                                    await FullTrustProcessController.Current.MoveAsync(Folder, OriginFolder, (s, arg) =>
+                                                    else
                                                     {
-                                                        if (Container.ProBar.Value < arg.ProgressPercentage)
-                                                        {
-                                                            Container.ProBar.IsIndeterminate = false;
-                                                            Container.ProBar.Value = arg.ProgressPercentage;
-                                                        }
-                                                    }, true).ConfigureAwait(true);
-
-                                                    if (!SettingControl.IsDetachTreeViewAndPresenter)
-                                                    {
-                                                        await Container.FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                                        throw new DirectoryNotFoundException();
                                                     }
 
                                                     break;
                                                 }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (WIN_Native_API.GetStorageItem(Path.GetDirectoryName(SplitGroup[0]), ItemFilters.Folder) is FileSystemStorageItemBase OriginFolder)
+                                        {
+                                            switch (SplitGroup[2])
+                                            {
+                                                case "File":
+                                                    {
+                                                        if (Path.GetExtension(SplitGroup[3]) == ".lnk")
+                                                        {
+                                                            await FullTrustProcessController.Current.MoveAsync(SplitGroup[3], OriginFolder.Path, (s, arg) =>
+                                                            {
+                                                                if (Container.ProBar.Value < arg.ProgressPercentage)
+                                                                {
+                                                                    Container.ProBar.IsIndeterminate = false;
+                                                                    Container.ProBar.Value = arg.ProgressPercentage;
+                                                                }
+                                                            }, true).ConfigureAwait(true);
+                                                        }
+                                                        else
+                                                        {
+                                                            if (WIN_Native_API.GetStorageItem(SplitGroup[3], ItemFilters.File) is FileSystemStorageItemBase File)
+                                                            {
+                                                                await FullTrustProcessController.Current.MoveAsync(File.Path, OriginFolder.Path, (s, arg) =>
+                                                                {
+                                                                    if (Container.ProBar.Value < arg.ProgressPercentage)
+                                                                    {
+                                                                        Container.ProBar.IsIndeterminate = false;
+                                                                        Container.ProBar.Value = arg.ProgressPercentage;
+                                                                    }
+                                                                }, true).ConfigureAwait(true);
+                                                            }
+                                                            else
+                                                            {
+                                                                throw new FileNotFoundException();
+                                                            }
+                                                        }
+
+                                                        break;
+                                                    }
+                                                case "Folder":
+                                                    {
+                                                        if (WIN_Native_API.GetStorageItem(SplitGroup[3], ItemFilters.Folder) is FileSystemStorageItemBase Folder)
+                                                        {
+                                                            await FullTrustProcessController.Current.MoveAsync(Folder.Path, OriginFolder.Path, (s, arg) =>
+                                                            {
+                                                                if (Container.ProBar.Value < arg.ProgressPercentage)
+                                                                {
+                                                                    Container.ProBar.IsIndeterminate = false;
+                                                                    Container.ProBar.Value = arg.ProgressPercentage;
+                                                                }
+                                                            }, true).ConfigureAwait(true);
+                                                        }
+                                                        else
+                                                        {
+                                                            throw new DirectoryNotFoundException();
+                                                        }
+
+                                                        if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                                        {
+                                                            await Container.FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                                        }
+
+                                                        break;
+                                                    }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            throw new DirectoryNotFoundException();
                                         }
                                     }
 
@@ -666,9 +698,9 @@ namespace RX_Explorer
                                                             }
                                                         }, true).ConfigureAwait(true);
                                                     }
-                                                    else if ((await Container.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFile File)
+                                                    else if (WIN_Native_API.GetStorageItem(Path.Combine(Container.CurrentFolder.Path, Path.GetFileName(SplitGroup[3])), ItemFilters.File) is FileSystemStorageItemBase File)
                                                     {
-                                                        await FullTrustProcessController.Current.DeleteAsync(File, true, (s, arg) =>
+                                                        await FullTrustProcessController.Current.DeleteAsync(File.Path, true, (s, arg) =>
                                                         {
                                                             if (Container.ProBar.Value < arg.ProgressPercentage)
                                                             {
@@ -686,9 +718,9 @@ namespace RX_Explorer
                                                 }
                                             case "Folder":
                                                 {
-                                                    if ((await Container.CurrentFolder.TryGetItemAsync(Path.GetFileName(SplitGroup[3]))) is StorageFolder Folder)
+                                                    if (WIN_Native_API.GetStorageItem(Path.Combine(Container.CurrentFolder.Path, Path.GetFileName(SplitGroup[3])), ItemFilters.Folder) is FileSystemStorageItemBase Folder)
                                                     {
-                                                        await FullTrustProcessController.Current.DeleteAsync(Folder, true, (s, arg) =>
+                                                        await FullTrustProcessController.Current.DeleteAsync(Folder.Path, true, (s, arg) =>
                                                         {
                                                             if (Container.ProBar.Value < arg.ProgressPercentage)
                                                             {
@@ -696,6 +728,10 @@ namespace RX_Explorer
                                                                 Container.ProBar.Value = arg.ProgressPercentage;
                                                             }
                                                         }, true).ConfigureAwait(true);
+                                                    }
+                                                    else
+                                                    {
+                                                        throw new DirectoryNotFoundException();
                                                     }
 
                                                     break;
@@ -850,14 +886,14 @@ namespace RX_Explorer
                     Retry:
                         try
                         {
-                            await FullTrustProcessController.Current.MoveAsync(ItemList, Container.CurrentFolder, (s, arg) =>
-                            {
-                                if (Container.ProBar.Value < arg.ProgressPercentage)
-                                {
-                                    Container.ProBar.IsIndeterminate = false;
-                                    Container.ProBar.Value = arg.ProgressPercentage;
-                                }
-                            }).ConfigureAwait(true);
+                            await FullTrustProcessController.Current.MoveAsync(ItemList.Select((Item) => Item.Path), Container.CurrentFolder.Path, (s, arg) =>
+                              {
+                                  if (Container.ProBar.Value < arg.ProgressPercentage)
+                                  {
+                                      Container.ProBar.IsIndeterminate = false;
+                                      Container.ProBar.Value = arg.ProgressPercentage;
+                                  }
+                              }).ConfigureAwait(true);
                         }
                         catch (FileNotFoundException)
                         {
@@ -929,14 +965,14 @@ namespace RX_Explorer
                     Retry:
                         try
                         {
-                            await FullTrustProcessController.Current.CopyAsync(ItemList, Container.CurrentFolder, (s, arg) =>
-                            {
-                                if (Container.ProBar.Value < arg.ProgressPercentage)
-                                {
-                                    Container.ProBar.IsIndeterminate = false;
-                                    Container.ProBar.Value = arg.ProgressPercentage;
-                                }
-                            }).ConfigureAwait(true);
+                            await FullTrustProcessController.Current.CopyAsync(ItemList.Select((Item) => Item.Path), Container.CurrentFolder.Path, (s, arg) =>
+                              {
+                                  if (Container.ProBar.Value < arg.ProgressPercentage)
+                                  {
+                                      Container.ProBar.IsIndeterminate = false;
+                                      Container.ProBar.Value = arg.ProgressPercentage;
+                                  }
+                              }).ConfigureAwait(true);
                         }
                         catch (FileNotFoundException)
                         {
@@ -1514,7 +1550,7 @@ namespace RX_Explorer
 
                             if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                             {
-                                _ = await Launcher.LaunchFolderAsync(Container.CurrentFolder);
+                                _ = await Launcher.LaunchFolderPathAsync(Container.CurrentFolder.Path);
                             }
                         }
                     }
@@ -2173,7 +2209,7 @@ namespace RX_Explorer
 
                     if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        _ = await Launcher.LaunchFolderAsync(Container.CurrentFolder);
+                        _ = await Launcher.LaunchFolderPathAsync(Container.CurrentFolder.Path);
                     }
                 });
             }
@@ -2317,7 +2353,7 @@ namespace RX_Explorer
 
                     if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        _ = await Launcher.LaunchFolderAsync(Container.CurrentFolder);
+                        _ = await Launcher.LaunchFolderPathAsync(Container.CurrentFolder.Path);
                     }
                 });
             }
@@ -2475,7 +2511,11 @@ namespace RX_Explorer
                             {
                                 try
                                 {
-                                    StorageFile DestinationFile = await Container.CurrentFolder.CreateFileAsync(Source.DisplayName + "." + dialog.MediaTranscodeEncodingProfile.ToLower(), CreationCollisionOption.GenerateUniqueName);
+                                    string DestFilePath = Path.Combine(Container.CurrentFolder.Path, $"{Source.Path}.{dialog.MediaTranscodeEncodingProfile.ToLower()}");
+
+                                    WIN_Native_API.CreateFileHandleFromPath(DestFilePath, AccessMode.Exclusive, CreateOption.GenerateUniqueName).Dispose();
+
+                                    StorageFile DestinationFile = await StorageFile.GetFileFromPathAsync(DestFilePath);
 
                                     await GeneralTransformer.TranscodeFromAudioOrVideoAsync(Source, DestinationFile, dialog.MediaTranscodeEncodingProfile, dialog.MediaTranscodeQuality, dialog.SpeedUp).ConfigureAwait(true);
                                 }
@@ -2491,7 +2531,7 @@ namespace RX_Explorer
 
                                     if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                     {
-                                        _ = await Launcher.LaunchFolderAsync(Container.CurrentFolder);
+                                        _ = await Launcher.LaunchFolderPathAsync(Container.CurrentFolder.Path);
                                     }
                                 }
                             }
@@ -2643,7 +2683,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            _ = await Launcher.LaunchFolderAsync(Container.CurrentFolder);
+            _ = await Launcher.LaunchFolderPathAsync(Container.CurrentFolder.Path);
         }
 
         private async void ParentProperty_Click(object sender, RoutedEventArgs e)
@@ -2666,7 +2706,7 @@ namespace RX_Explorer
 
             if (Container.CurrentFolder.Path == Path.GetPathRoot(Container.CurrentFolder.Path))
             {
-                if (CommonAccessCollection.HardDeviceList.FirstOrDefault((Device) => Device.Name == Container.CurrentFolder.DisplayName) is HardDeviceInfo Info)
+                if (CommonAccessCollection.HardDeviceList.FirstOrDefault((Device) => Device.Folder.Path == Container.CurrentFolder.Path) is HardDeviceInfo Info)
                 {
                     DeviceInfoDialog dialog = new DeviceInfoDialog(Info);
                     _ = await dialog.ShowAsync().ConfigureAwait(true);
@@ -2717,13 +2757,11 @@ namespace RX_Explorer
                 return;
             }
 
-            try
+            if (WIN_Native_API.CreateDirectoryFromPath(Path.Combine(Container.CurrentFolder.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), out string NewFolderPath))
             {
-                StorageFolder NewFolder = await Container.CurrentFolder.CreateFolderAsync(Globalization.GetString("Create_NewFolder_Admin_Name"), CreationCollisionOption.GenerateUniqueName);
-
                 while (true)
                 {
-                    if (FileCollection.FirstOrDefault((Item) => Item.Path == NewFolder.Path) is FileSystemStorageItemBase NewItem)
+                    if (FileCollection.FirstOrDefault((Item) => Item.Path == NewFolderPath) is FileSystemStorageItemBase NewItem)
                     {
                         ItemPresenter.UpdateLayout();
 
@@ -2740,7 +2778,7 @@ namespace RX_Explorer
 
                             if (Element.FindName("NameEditBox") is TextBox EditBox)
                             {
-                                EditBox.Text = NewFolder.Name;
+                                EditBox.Text = NewItem.Name;
                                 EditBox.Visibility = Visibility.Visible;
                                 EditBox.Focus(FocusState.Programmatic);
                             }
@@ -2756,7 +2794,7 @@ namespace RX_Explorer
                     }
                 }
             }
-            catch
+            else
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -2768,7 +2806,7 @@ namespace RX_Explorer
 
                 if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                 {
-                    _ = await Launcher.LaunchFolderAsync(Container.CurrentFolder);
+                    _ = await Launcher.LaunchFolderPathAsync(Container.CurrentFolder.Path);
                 }
             }
         }
@@ -3619,11 +3657,14 @@ namespace RX_Explorer
             if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
             {
                 VideoEditDialog Dialog = new VideoEditDialog(File);
+
                 if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    StorageFile ExportFile = await Container.CurrentFolder.CreateFileAsync($"{File.DisplayName} - {Globalization.GetString("Crop_Image_Name_Tail")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
-
-                    await GeneralTransformer.GenerateCroppedVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding, Dialog.TrimmingPreference).ConfigureAwait(true);
+                    if (await Container.CurrentFolder.GetStorageItem().ConfigureAwait(true) is StorageFolder Folder)
+                    {
+                        StorageFile ExportFile = await Folder.CreateFileAsync($"{File.DisplayName} - {Globalization.GetString("Crop_Image_Name_Tail")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
+                        await GeneralTransformer.GenerateCroppedVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding, Dialog.TrimmingPreference).ConfigureAwait(true);
+                    }
                 }
             }
         }
@@ -3649,11 +3690,15 @@ namespace RX_Explorer
             if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile Item)
             {
                 VideoMergeDialog Dialog = new VideoMergeDialog(Item);
+
                 if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    StorageFile ExportFile = await Container.CurrentFolder.CreateFileAsync($"{Item.DisplayName} - {Globalization.GetString("Merge_Image_Name_Tail")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
+                    if (await Container.CurrentFolder.GetStorageItem().ConfigureAwait(true) is StorageFolder Folder)
+                    {
+                        StorageFile ExportFile = await Folder.CreateFileAsync($"{Item.DisplayName} - {Globalization.GetString("Merge_Image_Name_Tail")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
 
-                    await GeneralTransformer.GenerateMergeVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding).ConfigureAwait(true);
+                        await GeneralTransformer.GenerateMergeVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding).ConfigureAwait(true);
+                    }
                 }
             }
         }
@@ -3948,7 +3993,7 @@ namespace RX_Explorer
             CloseAllFlyout();
 
             NewFileDialog Dialog = new NewFileDialog();
-            
+
             if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
             {
                 try
@@ -3957,22 +4002,23 @@ namespace RX_Explorer
                     {
                         case ".zip":
                             {
-                                SpecialTypeGenerator.Current.CreateZipFile(Container.CurrentFolder, Dialog.NewFileName);
+                                SpecialTypeGenerator.Current.CreateZipFile(Container.CurrentFolder.Path, Dialog.NewFileName);
                                 break;
                             }
                         case ".rtf":
                             {
-                                SpecialTypeGenerator.Current.CreateRtfFile(Container.CurrentFolder, Dialog.NewFileName);
+                                SpecialTypeGenerator.Current.CreateRtfFile(Container.CurrentFolder.Path, Dialog.NewFileName);
                                 break;
                             }
                         case ".xlsx":
                             {
-                                SpecialTypeGenerator.Current.CreateExcelFile(Container.CurrentFolder, Dialog.NewFileName);
+                                SpecialTypeGenerator.Current.CreateExcelFile(Container.CurrentFolder.Path, Dialog.NewFileName);
                                 break;
                             }
                         case ".lnk":
                             {
                                 LinkOptionsDialog dialog = new LinkOptionsDialog();
+
                                 if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                 {
                                     if (!await FullTrustProcessController.Current.CreateLinkAsync(Path.Combine(Container.CurrentFolder.Path, Dialog.NewFileName), dialog.Path, dialog.Description, dialog.Argument).ConfigureAwait(true))
@@ -4002,7 +4048,7 @@ namespace RX_Explorer
 
                     if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        _ = await Launcher.LaunchFolderAsync(Container.CurrentFolder);
+                        _ = await Launcher.LaunchFolderPathAsync(Container.CurrentFolder.Path);
                     }
                 }
             }
@@ -4012,7 +4058,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if(SelectedItem is FileSystemStorageItemBase Item)
+            if (SelectedItem is FileSystemStorageItemBase Item)
             {
                 if (!WIN_Native_API.CheckExist(Item.Path))
                 {
@@ -4055,12 +4101,12 @@ namespace RX_Explorer
                 if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                 {
                     e.AcceptedOperation = DataPackageOperation.Copy;
-                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {Container.CurrentFolder.DisplayName}";
+                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {Container.CurrentFolder.Name}";
                 }
                 else
                 {
                     e.AcceptedOperation = DataPackageOperation.Move;
-                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {Container.CurrentFolder.DisplayName}";
+                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {Container.CurrentFolder.Name}";
                 }
 
                 e.DragUIOverride.IsContentVisible = true;
@@ -4262,9 +4308,7 @@ namespace RX_Explorer
 
                         if ((sender as SelectorItem).Content is FileSystemStorageItemBase Item)
                         {
-                            StorageFolder TargetFolder = (await Item.GetStorageItem().ConfigureAwait(true)) as StorageFolder;
-
-                            if (DragItemList.Contains(TargetFolder))
+                            if (DragItemList.Any((Item) => Item.Path == Item.Path))
                             {
                                 QueueContentDialog Dialog = new QueueContentDialog
                                 {
@@ -4286,14 +4330,14 @@ namespace RX_Explorer
                                     Retry:
                                         try
                                         {
-                                            await FullTrustProcessController.Current.CopyAsync(DragItemList, TargetFolder, (s, arg) =>
-                                            {
-                                                if (Container.ProBar.Value < arg.ProgressPercentage)
-                                                {
-                                                    Container.ProBar.IsIndeterminate = false;
-                                                    Container.ProBar.Value = arg.ProgressPercentage;
-                                                }
-                                            }).ConfigureAwait(true);
+                                            await FullTrustProcessController.Current.CopyAsync(DragItemList.Select((Item) => Item.Path), Item.Path, (s, arg) =>
+                                              {
+                                                  if (Container.ProBar.Value < arg.ProgressPercentage)
+                                                  {
+                                                      Container.ProBar.IsIndeterminate = false;
+                                                      Container.ProBar.Value = arg.ProgressPercentage;
+                                                  }
+                                              }).ConfigureAwait(true);
 
                                             if (!SettingControl.IsDetachTreeViewAndPresenter)
                                             {
@@ -4361,14 +4405,14 @@ namespace RX_Explorer
                                     Retry:
                                         try
                                         {
-                                            await FullTrustProcessController.Current.MoveAsync(DragItemList, TargetFolder, (s, arg) =>
-                                            {
-                                                if (Container.ProBar.Value < arg.ProgressPercentage)
-                                                {
-                                                    Container.ProBar.IsIndeterminate = false;
-                                                    Container.ProBar.Value = arg.ProgressPercentage;
-                                                }
-                                            }).ConfigureAwait(true);
+                                            await FullTrustProcessController.Current.MoveAsync(DragItemList.Select((Item) => Item.Path), Item.Path, (s, arg) =>
+                                              {
+                                                  if (Container.ProBar.Value < arg.ProgressPercentage)
+                                                  {
+                                                      Container.ProBar.IsIndeterminate = false;
+                                                      Container.ProBar.Value = arg.ProgressPercentage;
+                                                  }
+                                              }).ConfigureAwait(true);
                                         }
                                         catch (FileNotFoundException)
                                         {
@@ -4623,8 +4667,6 @@ namespace RX_Explorer
                             HtmlNodeCollection BodyNode = Document.DocumentNode.SelectNodes("/p");
                             List<string> LinkItemsPath = BodyNode.Select((Node) => Node.InnerText).ToList();
 
-                            StorageFolder TargetFolder = Container.CurrentFolder;
-
                             switch (e.AcceptedOperation)
                             {
                                 case DataPackageOperation.Copy:
@@ -4634,7 +4676,7 @@ namespace RX_Explorer
                                     Retry:
                                         try
                                         {
-                                            await FullTrustProcessController.Current.CopyAsync(LinkItemsPath, TargetFolder.Path, (s, arg) =>
+                                            await FullTrustProcessController.Current.CopyAsync(LinkItemsPath, Container.CurrentFolder.Path, (s, arg) =>
                                             {
                                                 if (Container.ProBar.Value < arg.ProgressPercentage)
                                                 {
@@ -4699,7 +4741,7 @@ namespace RX_Explorer
                                     }
                                 case DataPackageOperation.Move:
                                     {
-                                        if (LinkItemsPath.All((Item) => Path.GetDirectoryName(Item) == TargetFolder.Path))
+                                        if (LinkItemsPath.All((Item) => Path.GetDirectoryName(Item) == Container.CurrentFolder.Path))
                                         {
                                             return;
                                         }
@@ -4709,7 +4751,7 @@ namespace RX_Explorer
                                     Retry:
                                         try
                                         {
-                                            await FullTrustProcessController.Current.MoveAsync(LinkItemsPath, TargetFolder.Path, (s, arg) =>
+                                            await FullTrustProcessController.Current.MoveAsync(LinkItemsPath, Container.CurrentFolder.Path, (s, arg) =>
                                             {
                                                 if (Container.ProBar.Value < arg.ProgressPercentage)
                                                 {
@@ -4791,9 +4833,7 @@ namespace RX_Explorer
                     {
                         List<IStorageItem> DragItemList = (await e.DataView.GetStorageItemsAsync()).ToList();
 
-                        StorageFolder TargetFolder = Container.CurrentFolder;
-
-                        if (DragItemList.Contains(TargetFolder))
+                        if (DragItemList.Any((Item) => Item.Path == Container.CurrentFolder.Path))
                         {
                             QueueContentDialog Dialog = new QueueContentDialog
                             {
@@ -4815,14 +4855,14 @@ namespace RX_Explorer
                                 Retry:
                                     try
                                     {
-                                        await FullTrustProcessController.Current.CopyAsync(DragItemList, TargetFolder, (s, arg) =>
-                                        {
-                                            if (Container.ProBar.Value < arg.ProgressPercentage)
-                                            {
-                                                Container.ProBar.IsIndeterminate = false;
-                                                Container.ProBar.Value = arg.ProgressPercentage;
-                                            }
-                                        }).ConfigureAwait(true);
+                                        await FullTrustProcessController.Current.CopyAsync(DragItemList.Select((Item) => Item.Path), Container.CurrentFolder.Path, (s, arg) =>
+                                          {
+                                              if (Container.ProBar.Value < arg.ProgressPercentage)
+                                              {
+                                                  Container.ProBar.IsIndeterminate = false;
+                                                  Container.ProBar.Value = arg.ProgressPercentage;
+                                              }
+                                          }).ConfigureAwait(true);
                                     }
                                     catch (FileNotFoundException)
                                     {
@@ -4880,7 +4920,7 @@ namespace RX_Explorer
                                 }
                             case DataPackageOperation.Move:
                                 {
-                                    if (DragItemList.Select((Item) => Item.Path).All((Item) => Path.GetDirectoryName(Item) == TargetFolder.Path))
+                                    if (DragItemList.Select((Item) => Item.Path).All((Item) => Path.GetDirectoryName(Item) == Container.CurrentFolder.Path))
                                     {
                                         return;
                                     }
@@ -4890,14 +4930,14 @@ namespace RX_Explorer
                                 Retry:
                                     try
                                     {
-                                        await FullTrustProcessController.Current.MoveAsync(DragItemList, TargetFolder, (s, arg) =>
-                                        {
-                                            if (Container.ProBar.Value < arg.ProgressPercentage)
-                                            {
-                                                Container.ProBar.IsIndeterminate = false;
-                                                Container.ProBar.Value = arg.ProgressPercentage;
-                                            }
-                                        }).ConfigureAwait(true);
+                                        await FullTrustProcessController.Current.MoveAsync(DragItemList.Select((Item) => Item.Path), Container.CurrentFolder.Path, (s, arg) =>
+                                          {
+                                              if (Container.ProBar.Value < arg.ProgressPercentage)
+                                              {
+                                                  Container.ProBar.IsIndeterminate = false;
+                                                  Container.ProBar.Value = arg.ProgressPercentage;
+                                              }
+                                          }).ConfigureAwait(true);
                                     }
                                     catch (FileCaputureException)
                                     {
@@ -5601,7 +5641,7 @@ namespace RX_Explorer
 
                     if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        _ = await Launcher.LaunchFolderAsync(Container.CurrentFolder);
+                        _ = await Launcher.LaunchFolderPathAsync(Container.CurrentFolder.Path);
                     }
                 }
                 finally

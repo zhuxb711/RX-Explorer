@@ -1363,26 +1363,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task DeleteAsync(IEnumerable<IStorageItem> Source, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
-        {
-            if (Source == null)
-            {
-                throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
-            }
-
-            return DeleteAsync(Source.Select((Item) => Item.Path), PermanentDelete, ProgressHandler, IsUndoOperation);
-        }
-
-        public Task DeleteAsync(IStorageItem Source, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
-        {
-            if (Source == null)
-            {
-                throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
-            }
-
-            return DeleteAsync(new string[1] { Source.Path }, PermanentDelete, ProgressHandler, IsUndoOperation);
-        }
-
         public Task DeleteAsync(string Source, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
         {
             if (Source == null)
@@ -1530,21 +1510,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task MoveAsync(string SourcePath, StorageFolder Destination, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
-        {
-            if (string.IsNullOrEmpty(SourcePath))
-            {
-                throw new ArgumentNullException(nameof(SourcePath), "Parameter could not be null");
-            }
-
-            if (Destination == null)
-            {
-                throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
-            }
-
-            return MoveAsync(new string[1] { SourcePath }, Destination.Path, ProgressHandler, IsUndoOperation);
-        }
-
         public Task MoveAsync(string SourcePath, string Destination, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
         {
             if (string.IsNullOrEmpty(SourcePath))
@@ -1558,37 +1523,6 @@ namespace RX_Explorer.Class
             }
 
             return MoveAsync(new string[1] { SourcePath }, Destination, ProgressHandler, IsUndoOperation);
-        }
-
-
-        public Task MoveAsync(IEnumerable<IStorageItem> Source, StorageFolder Destination, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
-        {
-            if (Source == null)
-            {
-                throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
-            }
-
-            if (Destination == null)
-            {
-                throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
-            }
-
-            return MoveAsync(Source.Select((Item) => Item.Path), Destination.Path, ProgressHandler, IsUndoOperation);
-        }
-
-        public Task MoveAsync(IStorageItem Source, StorageFolder Destination, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
-        {
-            if (Source == null)
-            {
-                throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
-            }
-
-            if (Destination == null)
-            {
-                throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
-            }
-
-            return MoveAsync(new string[1] { Source.Path }, Destination.Path, ProgressHandler, IsUndoOperation);
         }
 
         public async Task CopyAsync(IEnumerable<string> Source, string DestinationPath, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
@@ -1730,36 +1664,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task CopyAsync(IEnumerable<IStorageItem> Source, StorageFolder Destination, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
-        {
-            if (Source == null)
-            {
-                throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
-            }
-
-            if (Destination == null)
-            {
-                throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
-            }
-
-            return CopyAsync(Source.Select((Item) => Item.Path), Destination.Path, ProgressHandler, IsUndoOperation);
-        }
-
-        public Task CopyAsync(string SourcePath, StorageFolder Destination, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
-        {
-            if (string.IsNullOrEmpty(SourcePath))
-            {
-                throw new ArgumentNullException(nameof(SourcePath), "Parameter could not be null");
-            }
-
-            if (Destination == null)
-            {
-                throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
-            }
-
-            return CopyAsync(new string[1] { SourcePath }, Destination.Path, ProgressHandler, IsUndoOperation);
-        }
-
         public Task CopyAsync(string SourcePath, string Destination, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
         {
             if (string.IsNullOrEmpty(SourcePath))
@@ -1773,22 +1677,6 @@ namespace RX_Explorer.Class
             }
 
             return CopyAsync(new string[1] { SourcePath }, Destination, ProgressHandler, IsUndoOperation);
-        }
-
-
-        public Task CopyAsync(IStorageItem Source, StorageFolder Destination, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
-        {
-            if (Source == null)
-            {
-                throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
-            }
-
-            if (Destination == null)
-            {
-                throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
-            }
-
-            return CopyAsync(new string[1] { Source.Path }, Destination.Path, ProgressHandler, IsUndoOperation);
         }
 
         public async Task<bool> RestoreItemInRecycleBinAsync(string Path)

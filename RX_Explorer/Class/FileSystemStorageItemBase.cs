@@ -177,6 +177,18 @@ namespace RX_Explorer.Class
             return WIN_Native_API.GetStorageItem(System.IO.Path.GetDirectoryName(Path));
         }
 
+        public virtual List<FileSystemStorageItemBase> GetChildrenItems(bool IncludeHiddenItems, ItemFilters Filter)
+        {
+            if (StorageType == StorageItemTypes.Folder)
+            {
+                return WIN_Native_API.GetStorageItems(Path, IncludeHiddenItems, Filter);
+            }
+            else
+            {
+                return new List<FileSystemStorageItemBase>(0);
+            }
+        }
+
         /// <summary>
         /// 加载并获取更多属性，例如缩略图，显示名称等
         /// </summary>
