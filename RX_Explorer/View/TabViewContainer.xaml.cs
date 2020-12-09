@@ -110,11 +110,11 @@ namespace RX_Explorer
                                     {
                                         if (AnimationController.Current.IsEnableAnimation)
                                         {
-                                            CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Device.Folder), new DrillInNavigationTransitionInfo());
+                                            CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Device.Folder.Path), new DrillInNavigationTransitionInfo());
                                         }
                                         else
                                         {
-                                            CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Device.Folder), new SuppressNavigationTransitionInfo());
+                                            CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Device.Folder.Path), new SuppressNavigationTransitionInfo());
                                         }
                                     }
 
@@ -124,11 +124,11 @@ namespace RX_Explorer
                                 {
                                     if (AnimationController.Current.IsEnableAnimation)
                                     {
-                                        CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Library.Folder), new DrillInNavigationTransitionInfo());
+                                        CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Library.Folder.Path), new DrillInNavigationTransitionInfo());
                                     }
                                     else
                                     {
-                                        CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Library.Folder), new SuppressNavigationTransitionInfo());
+                                        CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Library.Folder.Path), new SuppressNavigationTransitionInfo());
                                     }
 
                                     args.Handled = true;
@@ -214,34 +214,11 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if (WIN_Native_API.CheckIfHidden(Path))
+                    if (CreateNewTab(Path) is TabViewItem Item)
                     {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_ItemHidden_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-
-                        if (CreateNewTab() is TabViewItem EmptyItem)
-                        {
-                            TabViewControl.TabItems.Insert(Index, EmptyItem);
-                            TabViewControl.UpdateLayout();
-                            TabViewControl.SelectedItem = EmptyItem;
-                        }
-                    }
-                    else
-                    {
-                        StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(Path);
-
-                        if (CreateNewTab(TargetFolder) is TabViewItem Item)
-                        {
-                            TabViewControl.TabItems.Insert(Index, Item);
-                            TabViewControl.UpdateLayout();
-                            TabViewControl.SelectedItem = Item;
-                        }
+                        TabViewControl.TabItems.Insert(Index, Item);
+                        TabViewControl.UpdateLayout();
+                        TabViewControl.SelectedItem = Item;
                     }
                 }
             }
@@ -637,7 +614,7 @@ namespace RX_Explorer
                     }
                 }
 
-                await JumpListController.Current.AddItem(JumpListGroup.Library, CommonAccessCollection.LibraryFolderList.Where((Library) => Library.Type == LibraryType.UserCustom).Select((Library) => Library.Folder).ToArray()).ConfigureAwait(true);
+                await JumpListController.Current.AddItem(JumpListGroup.Library, CommonAccessCollection.LibraryFolderList.Where((Library) => Library.Type == LibraryType.UserCustom).Select((Library) => Library.Folder.Path).ToArray()).ConfigureAwait(true);
 
                 bool AccessError = false;
                 foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable)
@@ -724,7 +701,7 @@ namespace RX_Explorer
             }
         }
 
-        private TabViewItem CreateNewTab(StorageFolder StorageFolderForNewTab = null)
+        private TabViewItem CreateNewTab(string PathForNewTab = null)
         {
             if (Interlocked.Exchange(ref LockResource, 1) == 0)
             {
@@ -742,17 +719,17 @@ namespace RX_Explorer
                     Item.PointerPressed += Item_PointerPressed;
                     Item.DoubleTapped += Item_DoubleTapped;
 
-                    if (StorageFolderForNewTab != null)
+                    if (PathForNewTab != null)
                     {
                         frame.Navigate(typeof(ThisPC), new WeakReference<TabViewItem>(Item), new SuppressNavigationTransitionInfo());
 
                         if (AnimationController.Current.IsEnableAnimation)
                         {
-                            frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(new WeakReference<TabViewItem>(Item), StorageFolderForNewTab), new DrillInNavigationTransitionInfo());
+                            frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(new WeakReference<TabViewItem>(Item), PathForNewTab), new DrillInNavigationTransitionInfo());
                         }
                         else
                         {
-                            frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(new WeakReference<TabViewItem>(Item), StorageFolderForNewTab), new SuppressNavigationTransitionInfo());
+                            frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(new WeakReference<TabViewItem>(Item), PathForNewTab), new SuppressNavigationTransitionInfo());
                         }
                     }
                     else

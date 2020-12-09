@@ -22,13 +22,13 @@ namespace RX_Explorer.Dialog
     {
         private ObservableCollection<ProgramPickerItem> ProgramCollection = new ObservableCollection<ProgramPickerItem>();
 
-        private StorageFile OpenFile;
+        private FileSystemStorageItemBase OpenFile;
 
         public ProgramPickerItem SelectedProgram { get; private set; }
 
         private List<ProgramPickerItem> NotRecommandList = new List<ProgramPickerItem>();
 
-        public ProgramPickerDialog(StorageFile OpenFile)
+        public ProgramPickerDialog(FileSystemStorageItemBase OpenFile)
         {
             InitializeComponent();
 
@@ -48,9 +48,9 @@ namespace RX_Explorer.Dialog
             try
             {
                 List<AssociationPackage> AssocList = await FullTrustProcessController.Current.GetAssociateFromPathAsync(OpenFile.Path).ConfigureAwait(true);
-                List<AppInfo> AppInfoList = (await Launcher.FindFileHandlersAsync(OpenFile.FileType)).ToList();
+                List<AppInfo> AppInfoList = (await Launcher.FindFileHandlersAsync(OpenFile.Type)).ToList();
 
-                await SQLite.Current.UpdateProgramPickerRecordAsync(OpenFile.FileType, AssocList.Concat(AppInfoList.Select((Info) => new AssociationPackage(OpenFile.FileType,Info.PackageFamilyName, true)))).ConfigureAwait(true);
+                await SQLite.Current.UpdateProgramPickerRecordAsync(OpenFile.Type, AssocList.Concat(AppInfoList.Select((Info) => new AssociationPackage(OpenFile.Type, Info.PackageFamilyName, true)))).ConfigureAwait(true);
 
                 foreach (AppInfo Info in AppInfoList)
                 {
@@ -87,7 +87,7 @@ namespace RX_Explorer.Dialog
                 LogTracer.Log(ex, "An exception was threw when fetching association data");
             }
 
-            foreach (AssociationPackage Package in await SQLite.Current.GetProgramPickerRecordAsync(OpenFile.FileType, false).ConfigureAwait(true))
+            foreach (AssociationPackage Package in await SQLite.Current.GetProgramPickerRecordAsync(OpenFile.Type, false).ConfigureAwait(true))
             {
                 try
                 {
@@ -154,7 +154,7 @@ namespace RX_Explorer.Dialog
                 }
             }
 
-            string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(OpenFile.FileType).ConfigureAwait(true);
+            string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(OpenFile.Type).ConfigureAwait(true);
 
             if (!string.IsNullOrEmpty(AdminExecutablePath))
             {
@@ -164,7 +164,7 @@ namespace RX_Explorer.Dialog
                     CurrentUseProgramList.SelectedIndex = 0;
                     RecommandList.Remove(RecommandItem);
                 }
-                else if(NotRecommandList.FirstOrDefault((Item) => Item.Path == AdminExecutablePath) is ProgramPickerItem NotRecommandItem)
+                else if (NotRecommandList.FirstOrDefault((Item) => Item.Path == AdminExecutablePath) is ProgramPickerItem NotRecommandItem)
                 {
                     CurrentUseProgramList.Items.Add(NotRecommandItem);
                     CurrentUseProgramList.SelectedIndex = 0;
@@ -174,7 +174,7 @@ namespace RX_Explorer.Dialog
 
             if (CurrentUseProgramList.Items.Count == 0)
             {
-                switch (OpenFile.FileType)
+                switch (OpenFile.Type)
                 {
                     case ".jpg":
                     case ".png":
@@ -222,7 +222,7 @@ namespace RX_Explorer.Dialog
                 Title1.Text = Globalization.GetString("ProgramPicker_Dialog_Title_1");
                 Title2.Text = Globalization.GetString("ProgramPicker_Dialog_Title_2");
 
-                switch (OpenFile.FileType)
+                switch (OpenFile.Type)
                 {
                     case ".jpg":
                     case ".png":
@@ -325,7 +325,7 @@ namespace RX_Explorer.Dialog
 
                 OtherProgramList.SelectedIndex = 0;
 
-                await SQLite.Current.SetProgramPickerRecordAsync(new AssociationPackage(OpenFile.FileType, ExecuteFile.Path, true)).ConfigureAwait(false);
+                await SQLite.Current.SetProgramPickerRecordAsync(new AssociationPackage(OpenFile.Type, ExecuteFile.Path, true)).ConfigureAwait(false);
             }
         }
 
@@ -345,7 +345,7 @@ namespace RX_Explorer.Dialog
 
                     if (UseAsAdmin.IsChecked.GetValueOrDefault())
                     {
-                        await SQLite.Current.SetDefaultProgramPickerRecordAsync(OpenFile.FileType, OtherItem.Path).ConfigureAwait(true);
+                        await SQLite.Current.SetDefaultProgramPickerRecordAsync(OpenFile.Type, OtherItem.Path).ConfigureAwait(true);
                     }
                 }
             }

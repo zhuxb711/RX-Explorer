@@ -1,5 +1,7 @@
 ﻿using RX_Explorer.Class;
 using System;
+using System.Linq;
+using System.Text.RegularExpressions;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.UI.Xaml;
@@ -11,7 +13,7 @@ namespace RX_Explorer.Dialog
     {
         public string Path { get; private set; }
 
-        public string Argument { get; private set; }
+        public string[] Arguments { get; private set; }
 
         public string Description { get; private set; }
 
@@ -63,7 +65,7 @@ namespace RX_Explorer.Dialog
 
                 if (!string.IsNullOrWhiteSpace(LinkArgument.Text))
                 {
-                    Argument = LinkArgument.Text;
+                    Arguments = Regex.Matches(LinkArgument.Text, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value).ToArray();
                 }
 
                 if (!string.IsNullOrWhiteSpace(LinkDescription.Text))

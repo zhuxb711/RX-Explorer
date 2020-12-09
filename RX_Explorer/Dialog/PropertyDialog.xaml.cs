@@ -29,8 +29,6 @@ namespace RX_Explorer.Dialog
 
         private FileSystemStorageItemBase Item;
 
-        private IStorageItem SItem;
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         private CancellationTokenSource Cancellation;
@@ -42,70 +40,49 @@ namespace RX_Explorer.Dialog
             Loading += PropertyDialog_Loading;
         }
 
-        public PropertyDialog(IStorageItem SItem)
-        {
-            InitializeComponent();
-            this.SItem = SItem;
-            Loading += PropertyDialog_Loading;
-        }
-
         private async void PropertyDialog_Loading(FrameworkElement sender, object args)
         {
-            if (SItem is StorageFile || Item?.StorageType == StorageItemTypes.File)
+            if (Item.StorageType == StorageItemTypes.File)
             {
                 IncludeArea.Visibility = Visibility.Collapsed;
 
-                StorageFile file;
+                FileName = Item.Name;
+                Path = Item.Path;
+                FileType = $"{Item.DisplayType} ({Item.Type})";
+                CreateTime = Item.CreationTimeRaw.ToString("F");
+                ChangeTime = Item.ModifiedTimeRaw.ToString("F");
+                FileSize = Item.Size + " (" + Item.SizeRaw.ToString("N0") + $" {Globalization.GetString("Device_Capacity_Unit")})";
 
-                if (Item != null)
+                if (Item is HyperlinkStorageItem LinkItem)
                 {
-                    FileName = Item.Name;
-                    Path = Item.Path;
-                    FileType = $"{Item.DisplayType} ({Item.Type})";
-                    CreateTime = Item.ModifiedTimeRaw.ToString("F");
+                    LinkTargetArea.Visibility = Visibility.Visible;
+                    ExtraDataArea.Visibility = Visibility.Collapsed;
 
-                    if (Item is HyperlinkStorageItem LinkItem)
-                    {
-                        LinkTargetArea.Visibility = Visibility.Visible;
-                        ExtraDataArea.Visibility = Visibility.Collapsed;
+                    TargetPath = LinkItem.LinkTargetPath;
 
-                        FileSize = LinkItem.Size;
-                        TargetPath = LinkItem.TargetPath;
-                        ChangeTime = LinkItem.ModifiedTimeRaw.ToString("F");
-
-                        goto JUMP;
-                    }
-
-                    file = await Item.GetStorageItem().ConfigureAwait(true) as StorageFile;
-                }
-                else
-                {
-                    file = SItem as StorageFile;
-                    Path = SItem.Path;
-                    FileType = $"{file.DisplayType} ({file.FileType})";
-                    CreateTime = file.DateCreated.ToString("F");
+                    goto JUMP;
                 }
 
-                if (file != null)
+                if (await Item.GetStorageItem().ConfigureAwait(true) is StorageFile File)
                 {
-                    if (file.ContentType.StartsWith("video", StringComparison.OrdinalIgnoreCase))
+                    if (File.ContentType.StartsWith("video", StringComparison.OrdinalIgnoreCase))
                     {
-                        VideoProperties Video = await file.Properties.GetVideoPropertiesAsync();
+                        VideoProperties Video = await File.Properties.GetVideoPropertiesAsync();
                         ExtraData.Text = $"{Globalization.GetString("FileProperty_Resolution")}: {((Video.Width == 0 && Video.Height == 0) ? Globalization.GetString("UnknownText") : $"{Video.Width}×{Video.Height}")}{Environment.NewLine}{Globalization.GetString("FileProperty_Bitrate")}: {(Video.Bitrate == 0 ? Globalization.GetString("UnknownText") : (Video.Bitrate / 1024f < 1024 ? Math.Round(Video.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Video.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}{Environment.NewLine}{Globalization.GetString("FileProperty_Duration")}: {ConvertTimsSpanToString(Video.Duration)}";
                     }
-                    else if (file.ContentType.StartsWith("audio", StringComparison.OrdinalIgnoreCase))
+                    else if (File.ContentType.StartsWith("audio", StringComparison.OrdinalIgnoreCase))
                     {
-                        MusicProperties Music = await file.Properties.GetMusicPropertiesAsync();
+                        MusicProperties Music = await File.Properties.GetMusicPropertiesAsync();
                         ExtraData.Text = $"{Globalization.GetString("FileProperty_Bitrate")}: {(Music.Bitrate == 0 ? Globalization.GetString("UnknownText") : (Music.Bitrate / 1024f < 1024 ? Math.Round(Music.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Music.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}{Environment.NewLine}{Globalization.GetString("FileProperty_Duration")}: {ConvertTimsSpanToString(Music.Duration)}";
                     }
-                    else if (file.ContentType.StartsWith("image", StringComparison.OrdinalIgnoreCase))
+                    else if (File.ContentType.StartsWith("image", StringComparison.OrdinalIgnoreCase))
                     {
-                        ImageProperties Image = await file.Properties.GetImagePropertiesAsync();
+                        ImageProperties Image = await File.Properties.GetImagePropertiesAsync();
                         ExtraData.Text = $"{Globalization.GetString("FileProperty_Resolution")}: {((Image.Width == 0 && Image.Height == 0) ? Globalization.GetString("UnknownText") : $"{Image.Width}×{Image.Height}")}{Environment.NewLine}{Globalization.GetString("FileProperty_ShootingDate")}: {Image.DateTaken.ToLocalTime():F}{Environment.NewLine}{Globalization.GetString("FileProperty_Longitude")}: {(Image.Longitude.HasValue ? Image.Longitude.Value.ToString() : Globalization.GetString("UnknownText"))}{Environment.NewLine}{Globalization.GetString("FileProperty_Latitude")}: {(Image.Latitude.HasValue ? Image.Latitude.Value.ToString() : Globalization.GetString("UnknownText"))}";
                     }
                     else
                     {
-                        switch (file.FileType)
+                        switch (File.FileType)
                         {
                             case ".flv":
                             case ".rmvb":
@@ -120,7 +97,7 @@ namespace RX_Explorer.Dialog
                             case ".ts":
                             case ".swf":
                                 {
-                                    VideoProperties Video = await file.Properties.GetVideoPropertiesAsync();
+                                    VideoProperties Video = await File.Properties.GetVideoPropertiesAsync();
                                     ExtraData.Text = $"{Globalization.GetString("FileProperty_Resolution")}: {((Video.Width == 0 && Video.Height == 0) ? Globalization.GetString("UnknownText") : $"{Video.Width}×{Video.Height}")}{Environment.NewLine}{Globalization.GetString("FileProperty_Bitrate")}: {(Video.Bitrate == 0 ? Globalization.GetString("UnknownText") : (Video.Bitrate / 1024f < 1024 ? Math.Round(Video.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Video.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}{Environment.NewLine}{Globalization.GetString("FileProperty_Duration")}: {ConvertTimsSpanToString(Video.Duration)}";
                                     break;
                                 }
@@ -131,7 +108,7 @@ namespace RX_Explorer.Dialog
                             case ".wma":
                             case ".ogg":
                                 {
-                                    MusicProperties Music = await file.Properties.GetMusicPropertiesAsync();
+                                    MusicProperties Music = await File.Properties.GetMusicPropertiesAsync();
                                     ExtraData.Text = $"{Globalization.GetString("FileProperty_Bitrate")}: {(Music.Bitrate == 0 ? Globalization.GetString("UnknownText") : (Music.Bitrate / 1024f < 1024 ? Math.Round(Music.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Music.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}{Environment.NewLine}{Globalization.GetString("FileProperty_Duration")}: {ConvertTimsSpanToString(Music.Duration)}";
                                     break;
                                 }
@@ -144,7 +121,7 @@ namespace RX_Explorer.Dialog
                             case ".exif":
                             case ".png":
                                 {
-                                    ImageProperties Image = await file.Properties.GetImagePropertiesAsync();
+                                    ImageProperties Image = await File.Properties.GetImagePropertiesAsync();
                                     ExtraData.Text = $"{Globalization.GetString("FileProperty_Resolution")}: {((Image.Width == 0 && Image.Height == 0) ? Globalization.GetString("UnknownText") : $"{Image.Width}×{Image.Height}")}{Environment.NewLine}{Globalization.GetString("FileProperty_ShootingDate")}: {Image.DateTaken.ToLocalTime():F}{Environment.NewLine}{Globalization.GetString("FileProperty_Longitude")}: {(Image.Longitude.HasValue ? Image.Longitude.Value.ToString() : Globalization.GetString("UnknownText"))}{Environment.NewLine}{Globalization.GetString("FileProperty_Latitude")}: {(Image.Latitude.HasValue ? Image.Latitude.Value.ToString() : Globalization.GetString("UnknownText"))}";
                                     break;
                                 }
@@ -155,12 +132,6 @@ namespace RX_Explorer.Dialog
                                 }
                         }
                     }
-
-                    BasicProperties Properties = await file.GetBasicPropertiesAsync();
-
-                    FileSize = Properties.Size.ToFileSizeDescription() + " (" + Properties.Size.ToString("N0") + $" {Globalization.GetString("Device_Capacity_Unit")})";
-
-                    ChangeTime = Properties.DateModified.ToString("F");
                 }
             }
             else
@@ -170,64 +141,45 @@ namespace RX_Explorer.Dialog
                 Include = Globalization.GetString("SizeProperty_Calculating_Text");
                 FileSize = Globalization.GetString("SizeProperty_Calculating_Text");
 
-                StorageFolder folder;
-                if (Item != null)
-                {
-                    FileName = Item.Name;
-                    Path = Item.Path;
-                    FileType = Globalization.GetString("Folder_Admin_DisplayType");
+                FileName = Item.Name;
+                Path = Item.Path;
+                FileType = Globalization.GetString("Folder_Admin_DisplayType");
 
-                    folder = await Item.GetStorageItem().ConfigureAwait(true) as StorageFolder;
+                CreateTime = Item.CreationTimeRaw.ToString("F");
+                ChangeTime = Item.ModifiedTimeRaw.ToString("F");
+
+                OnPropertyChanged();
+
+                try
+                {
+                    Cancellation = new CancellationTokenSource();
+
+                    Task CountTask = CalculateFolderAndFileCount(Item.Path, Cancellation.Token).ContinueWith((task) =>
+                    {
+                        Include = task.Result;
+                        PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Include)));
+                    }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
+
+                    Task SizeTask = CalculateFolderSize(Item.Path, Cancellation.Token).ContinueWith((task) =>
+                    {
+                        FileSize = task.Result;
+                        PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(FileSize)));
+                    }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
+
+                    await Task.WhenAll(CountTask, SizeTask).ConfigureAwait(true);
                 }
-                else
+                catch (TaskCanceledException)
                 {
-                    FileName = SItem.Name;
-                    Path = SItem.Path;
-                    FileType = Globalization.GetString("Folder_Admin_DisplayType");
-
-                    folder = SItem as StorageFolder;
+                    LogTracer.Log($"{nameof(CalculateFolderAndFileCount)} and {nameof(CalculateFolderSize)} have been canceled");
                 }
-
-                if (folder != null)
+                catch (Exception ex)
                 {
-                    CreateTime = folder.DateCreated.ToString("F");
-
-                    BasicProperties Properties = await folder.GetBasicPropertiesAsync();
-                    ChangeTime = Properties.DateModified.ToString("F");
-
-                    OnPropertyChanged();
-
-                    try
-                    {
-                        Cancellation = new CancellationTokenSource();
-
-                        Task CountTask = CalculateFolderAndFileCount(folder, Cancellation.Token).ContinueWith((task) =>
-                        {
-                            Include = task.Result;
-                            PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Include)));
-                        }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
-
-                        Task SizeTask = CalculateFolderSize(folder, Cancellation.Token).ContinueWith((task) =>
-                        {
-                            FileSize = task.Result;
-                            PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(FileSize)));
-                        }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
-
-                        await Task.WhenAll(CountTask, SizeTask).ConfigureAwait(true);
-                    }
-                    catch (TaskCanceledException)
-                    {
-                        LogTracer.Log($"{nameof(CalculateFolderAndFileCount)} and {nameof(CalculateFolderSize)} have been canceled");
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, $"{ nameof(CalculateFolderAndFileCount)} and { nameof(CalculateFolderSize)} threw an exception");
-                    }
-                    finally
-                    {
-                        Cancellation.Dispose();
-                        Cancellation = null;
-                    }
+                    LogTracer.Log(ex, $"{ nameof(CalculateFolderAndFileCount)} and { nameof(CalculateFolderSize)} threw an exception");
+                }
+                finally
+                {
+                    Cancellation.Dispose();
+                    Cancellation = null;
                 }
             }
 
@@ -255,9 +207,9 @@ namespace RX_Explorer.Dialog
             return string.Format("{0:D2}:{1:D2}:{2:D2}", Hour, Minute, Second);
         }
 
-        private async Task<string> CalculateFolderSize(StorageFolder Folder, CancellationToken CancelToken = default)
+        private async Task<string> CalculateFolderSize(string FolderPath, CancellationToken CancelToken = default)
         {
-            ulong TotalSize = await Task.Run(() => WIN_Native_API.CalculateFolderSize(Folder.Path, CancelToken), CancelToken).ConfigureAwait(false);
+            ulong TotalSize = await Task.Run(() => WIN_Native_API.CalculateFolderSize(FolderPath, CancelToken), CancelToken).ConfigureAwait(false);
 
             if (CancelToken.IsCancellationRequested)
             {
@@ -269,9 +221,9 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        private async Task<string> CalculateFolderAndFileCount(StorageFolder Folder, CancellationToken CancelToken = default)
+        private async Task<string> CalculateFolderAndFileCount(string FolderPath, CancellationToken CancelToken = default)
         {
-            (uint FolderCount, uint FileCount) = await Task.Run(() => WIN_Native_API.CalculateFolderAndFileCount(Folder.Path, CancelToken), CancelToken).ConfigureAwait(false);
+            (uint FolderCount, uint FileCount) = await Task.Run(() => WIN_Native_API.CalculateFolderAndFileCount(FolderPath, CancelToken), CancelToken).ConfigureAwait(false);
 
             if (Cancellation.IsCancellationRequested)
             {

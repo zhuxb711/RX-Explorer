@@ -536,7 +536,7 @@
     <value>Veuillez sélectionner un dossier de destination</value>
   </data>
   <data name="RunWithSystemAuthority.Text" xml:space="preserve">
-    <value>Ouvrir en tant qu'administrateur</value>
+    <value>Exécuter en tant qu'administrateur</value>
   </data>
   <data name="SAVerifyDialog.CloseButtonText" xml:space="preserve">
     <value>Annuler</value>
@@ -2131,9 +2131,6 @@
   <data name="QueueDialog_FailToGetClipboardError_Content" xml:space="preserve">
     <value>Impossible d'obtenir le contenu du presse-papiers</value>
   </data>
-  <data name="QueueDialog_ItemHidden_Content" xml:space="preserve">
-    <value>Impossible d'accéder aux fichiers ou dossiers cachés, veuillez les afficher et réessayer d'y accéder</value>
-  </data>
   <data name="QueueDialog_RemoveHiddenError_Content" xml:space="preserve">
     <value>Impossible de supprimer les attributs masqués</value>
   </data>
@@ -2546,5 +2543,8 @@ Les noms non valides incluent
   </data>
   <data name="QueueDialog_UnableAccessFile_Content" xml:space="preserve">
     <value>Impossible d'accéder à ce fichier en raison d'un manque d'autorisations</value>
+  </data>
+  <data name="ProgramPickerDialog_MoreApp.Text" xml:space="preserve">
+    <value>Afficher plus d'applications</value>
   </data>
 </root>

@@ -2134,9 +2134,6 @@
   <data name="QueueDialog_FailToGetClipboardError_Content" xml:space="preserve">
     <value>無法取得剪貼簿的內容</value>
   </data>
-  <data name="QueueDialog_ItemHidden_Content" xml:space="preserve">
-    <value>無法存取隱藏的檔案或資料夾，請取消隱藏它們，然後嘗試再次存取</value>
-  </data>
   <data name="QueueDialog_RemoveHiddenError_Content" xml:space="preserve">
     <value>無法刪除隱藏的屬性</value>
   </data>
@@ -2546,5 +2543,8 @@
   </data>
   <data name="QueueDialog_UnableAccessFile_Content" xml:space="preserve">
     <value>由於權限不足，無法訪問此文件</value>
+  </data>
+  <data name="ProgramPickerDialog_MoreApp.Text" xml:space="preserve">
+    <value>顯示更多應用</value>
   </data>
 </root>

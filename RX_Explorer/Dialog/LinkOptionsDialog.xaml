@@ -78,7 +78,7 @@
                      Margin="0,10,0,0"
                      x:Uid="LinkOptionsDialog_LinkDescription"
                      Name="LinkDescription"
-                     PlaceholderText="输入快捷方式的描述"/>
+                     PlaceholderText="输入快捷方式的描述" />
         </StackPanel>
     </Grid>
 </Cls:QueueContentDialog>

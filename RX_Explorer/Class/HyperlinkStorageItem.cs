@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ShareClassLibrary;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,13 +9,31 @@ namespace RX_Explorer.Class
 {
     public sealed class HyperlinkStorageItem : FileSystemStorageItemBase
     {
-        public string TargetPath { get; private set; }
+        public string LinkTargetPath
+        {
+            get
+            {
+                return Package.LinkTargetPath;
+            }
+        }
 
-        public string[] Arguments { get; private set; }
+        public string[] Arguments
+        {
+            get
+            {
+                return Package.Argument;
+            }
+        }
 
-        public bool NeedRunAs { get; private set; }
+        public bool NeedRunAsAdmin
+        {
+            get
+            {
+                return Package.NeedRunAsAdmin;
+            }
+        }
 
-        public bool TargetPathIsFile { get; private set; }
+        private HyperlinkPackage Package;
 
         public override string Path
         {
@@ -54,19 +73,20 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    (TargetPath, Arguments, NeedRunAs, TargetPathIsFile) = await FullTrustProcessController.Current.GetHyperlinkRelatedInformationAsync(InternalPathString).ConfigureAwait(true);
+                    Package = await FullTrustProcessController.Current.GetHyperlinkRelatedInformationAsync(InternalPathString).ConfigureAwait(true);
 
-                    if (TargetPathIsFile)
+                    if (WIN_Native_API.CheckType(LinkTargetPath) == StorageItemTypes.Folder)
                     {
-                        return StorageItem = await StorageFile.GetFileFromPathAsync(TargetPath);
+                        return StorageItem = await StorageFolder.GetFolderFromPathAsync(LinkTargetPath);
                     }
                     else
                     {
-                        return StorageItem = await StorageFolder.GetFolderFromPathAsync(TargetPath);
+                        return StorageItem = await StorageFile.GetFileFromPathAsync(LinkTargetPath);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    LogTracer.Log(ex, $"Could not get hyperlink file. Path: {LinkTargetPath}");
                     return StorageItem = null;
                 }
             }
@@ -109,7 +129,7 @@ namespace RX_Explorer.Class
             return Task.CompletedTask;
         }
 
-        public HyperlinkStorageItem(WIN_Native_API.WIN32_FIND_DATA Data, string Path, DateTimeOffset ModifiedTime) : base(Data, StorageItemTypes.File, Path, ModifiedTime)
+        public HyperlinkStorageItem(WIN_Native_API.WIN32_FIND_DATA Data, string Path, DateTimeOffset CreationTime, DateTimeOffset ModifiedTime) : base(Data, StorageItemTypes.File, Path, CreationTime, ModifiedTime)
         {
 
         }

@@ -3,6 +3,7 @@ using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,13 +39,13 @@ namespace RX_Explorer
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is StorageFile Parameters)
+            if (e.Parameter is FileSystemStorageItemBase Parameters)
             {
                 await Initialize(Parameters).ConfigureAwait(false);
             }
         }
 
-        private async Task Initialize(StorageFile PdfFile)
+        private async Task Initialize(FileSystemStorageItemBase PdfFile)
         {
             LoadingControl.IsLoading = true;
             MainPage.ThisPage.IsAnyTaskRunning = true;
@@ -59,21 +60,24 @@ namespace RX_Explorer
 
             try
             {
-                try
+                using (IRandomAccessStream PdfStream = PdfFile.GetStreamFromFile(AccessMode.Read).AsRandomAccessStream())
                 {
-                    Pdf = await PdfDocument.LoadFromFileAsync(PdfFile);
-                }
-                catch (Exception)
-                {
-                    PdfPasswordDialog Dialog = new PdfPasswordDialog();
-                    if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                    try
                     {
-                        Pdf = await PdfDocument.LoadFromFileAsync(PdfFile, Dialog.Password);
+                        Pdf = await PdfDocument.LoadFromStreamAsync(PdfStream);
                     }
-                    else
+                    catch (Exception)
                     {
-                        Frame.GoBack();
-                        return;
+                        PdfPasswordDialog Dialog = new PdfPasswordDialog();
+                        if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                        {
+                            Pdf = await PdfDocument.LoadFromStreamAsync(PdfStream, Dialog.Password);
+                        }
+                        else
+                        {
+                            Frame.GoBack();
+                            return;
+                        }
                     }
                 }
 

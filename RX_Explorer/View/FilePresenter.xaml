@@ -151,7 +151,7 @@
                               Icon="OpenWith">
                     <AppBarButton.Flyout>
                         <MenuFlyout x:Name="FileOpenMethodFlyout">
-                            <MenuFlyoutItem Text="以管理员权限打开"
+                            <MenuFlyoutItem Text="以管理员权限运行"
                                             MinWidth="160"
                                             x:FieldModifier="public"
                                             x:Uid="RunWithSystemAuthority"

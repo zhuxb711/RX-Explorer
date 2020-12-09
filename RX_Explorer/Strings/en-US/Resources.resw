@@ -656,7 +656,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Please select an export folder</value>
   </data>
   <data name="RunWithSystemAuthority.Text" xml:space="preserve">
-    <value>Open as administrator</value>
+    <value>Run as administrator</value>
   </data>
   <data name="SAVerifyDialog.CloseButtonText" xml:space="preserve">
     <value>Cancel</value>
@@ -2260,9 +2260,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_FailToGetClipboardError_Content" xml:space="preserve">
     <value>Failed to get the contents of the clipboard</value>
   </data>
-  <data name="QueueDialog_ItemHidden_Content" xml:space="preserve">
-    <value>Unable to access hidden files or folders, please unhide them and try to access again</value>
-  </data>
   <data name="QueueDialog_RemoveHiddenError_Content" xml:space="preserve">
     <value>Cannot remove hidden attributes</value>
   </data>
@@ -2651,5 +2648,8 @@ Invalid names include
   </data>
   <data name="QueueDialog_UnableAccessFile_Content" xml:space="preserve">
     <value>Cannot access this file due to lack of permissions</value>
+  </data>
+  <data name="ProgramPickerDialog_MoreApp.Text" xml:space="preserve">
+    <value>Show more apps</value>
   </data>
 </root>

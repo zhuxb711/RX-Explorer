@@ -478,7 +478,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<bool> CreateLinkAsync(string LinkPath, string LinkTarget, string LinkDesc, string LinkArgument)
+        public async Task<bool> CreateLinkAsync(string LinkPath, string LinkTarget, string LinkDesc, params string[] LinkArgument)
         {
             try
             {
@@ -489,10 +489,7 @@ namespace RX_Explorer.Class
                     ValueSet Value = new ValueSet
                     {
                         {"ExecuteType", ExecuteType_CreateLink},
-                        {"LinkPath", LinkPath },
-                        {"LinkTarget", LinkTarget },
-                        {"LinkDesc", LinkDesc },
-                        {"LinkArgument", LinkArgument }
+                        {"DataPackage", JsonConvert.SerializeObject(new HyperlinkPackage(LinkPath, LinkTarget, LinkArgument, LinkDesc, false)) }
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -647,7 +644,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<(string, string[], bool, bool)> GetHyperlinkRelatedInformationAsync(string Path)
+        public async Task<HyperlinkPackage> GetHyperlinkRelatedInformationAsync(string Path)
         {
             try
             {
@@ -658,16 +655,16 @@ namespace RX_Explorer.Class
                     ValueSet Value = new ValueSet
                     {
                         {"ExecuteType", ExecuteType_HyperlinkInfo},
-                        {"ExecutePath",Path }
+                        {"ExecutePath", Path}
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        if (Response.Message.ContainsKey("Success"))
+                        if (Response.Message.TryGetValue("Success", out object Result))
                         {
-                            return (Convert.ToString(Response.Message["TargetPath"]), Regex.Matches(Convert.ToString(Response.Message["Argument"]), "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value).ToArray(), Convert.ToBoolean(Response.Message["RunAs"]), Convert.ToBoolean(Response.Message["IsFile"]));
+                            return JsonConvert.DeserializeObject<HyperlinkPackage>(Convert.ToString(Result));
                         }
                         else
                         {

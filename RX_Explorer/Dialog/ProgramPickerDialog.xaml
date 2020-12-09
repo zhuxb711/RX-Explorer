@@ -85,7 +85,8 @@
                         Name="ShowMore"
                         Click="ShowMore_Click">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="更多应用" 
+                        <TextBlock Text="更多应用"
+                                   x:Uid="ProgramPickerDialog_MoreApp"
                                    Foreground="{ThemeResource SystemAccentColor}"/>
                         <Viewbox Height="20"
                                  Margin="5,0,0,0">

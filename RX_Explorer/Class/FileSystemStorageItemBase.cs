@@ -77,13 +77,16 @@ namespace RX_Explorer.Class
         /// <param name="Size">大小</param>
         /// <param name="Thumbnail">缩略图</param>
         /// <param name="ModifiedTime">修改时间</param>
-        public FileSystemStorageItemBase(StorageFile Item, ulong Size, BitmapImage Thumbnail, DateTimeOffset ModifiedTime)
+        public FileSystemStorageItemBase(StorageFile Item, ulong Size, BitmapImage Thumbnail, DateTimeOffset CreationTime, DateTimeOffset ModifiedTime)
         {
             StorageItem = Item;
             StorageType = StorageItemTypes.File;
 
             SizeRaw = Size;
-            ModifiedTimeRaw = ModifiedTime;
+
+            CreationTimeRaw = CreationTime.ToLocalTime();
+            ModifiedTimeRaw = ModifiedTime.ToLocalTime();
+
             this.Thumbnail = Thumbnail;
         }
 
@@ -92,12 +95,13 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="Item">文件夹</param>
         /// <param name="ModifiedTime">修改时间</param>
-        public FileSystemStorageItemBase(StorageFolder Item, DateTimeOffset ModifiedTime)
+        public FileSystemStorageItemBase(StorageFolder Item, DateTimeOffset CreationTime, DateTimeOffset ModifiedTime)
         {
             StorageItem = Item;
             StorageType = StorageItemTypes.Folder;
 
-            ModifiedTimeRaw = ModifiedTime;
+            CreationTimeRaw = CreationTime.ToLocalTime();
+            ModifiedTimeRaw = ModifiedTime.ToLocalTime();
         }
 
         /// <summary>
@@ -107,10 +111,13 @@ namespace RX_Explorer.Class
         /// <param name="StorageType">指示存储类型</param>
         /// <param name="Path">路径</param>
         /// <param name="ModifiedTime">修改时间</param>
-        public FileSystemStorageItemBase(WIN_Native_API.WIN32_FIND_DATA Data, StorageItemTypes StorageType, string Path, DateTimeOffset ModifiedTime)
+        public FileSystemStorageItemBase(WIN_Native_API.WIN32_FIND_DATA Data, StorageItemTypes StorageType, string Path, DateTimeOffset CreationTime, DateTimeOffset ModifiedTime)
         {
             InternalPathString = Path;
+
+            CreationTimeRaw = CreationTime.ToLocalTime();
             ModifiedTimeRaw = ModifiedTime.ToLocalTime();
+
             this.StorageType = StorageType;
             RawStorageItemData = Data;
 
@@ -327,6 +334,11 @@ namespace RX_Explorer.Class
         }
 
         /// <summary>
+        /// 获取原始的修改时间
+        /// </summary>
+        public DateTimeOffset ModifiedTimeRaw { get; protected set; }
+
+        /// <summary>
         /// 获取文件的修改时间描述
         /// </summary>
         public virtual string ModifiedTime
@@ -344,12 +356,27 @@ namespace RX_Explorer.Class
             }
         }
 
-        public double ThumbnailOpacity { get; protected set; } = 1d;
+        public DateTimeOffset CreationTimeRaw { get; protected set; }
 
         /// <summary>
-        /// 获取原始的修改时间
+        /// 获取文件的创建时间描述
         /// </summary>
-        public DateTimeOffset ModifiedTimeRaw { get; protected set; }
+        public virtual string CreationTime
+        {
+            get
+            {
+                if (CreationTimeRaw == DateTimeOffset.MaxValue.ToLocalTime())
+                {
+                    return Globalization.GetString("UnknownText");
+                }
+                else
+                {
+                    return CreationTimeRaw.ToString("G");
+                }
+            }
+        }
+
+        public double ThumbnailOpacity { get; protected set; } = 1d;
 
         /// <summary>
         /// 获取文件的路径

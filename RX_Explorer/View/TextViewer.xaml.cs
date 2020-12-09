@@ -1,5 +1,6 @@
 ﻿using RX_Explorer.Class;
 using System;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -13,7 +14,7 @@ namespace RX_Explorer
 {
     public sealed partial class TextViewer : Page
     {
-        private StorageFile SFile;
+        private FileSystemStorageItemBase TextFile;
 
         public TextViewer()
         {
@@ -27,29 +28,26 @@ namespace RX_Explorer
 
             try
             {
-                string FileText = await FileIO.ReadTextAsync(SFile);
-
-                Text.Text = FileText;
-
-                await Task.Delay(500).ConfigureAwait(true);
+                using (FileStream Stream = TextFile.GetStreamFromFile(AccessMode.Read))
+                using (StreamReader Reader = new StreamReader(Stream))
+                {
+                    Text.Text = await Reader.ReadToEndAsync().ConfigureAwait(true);
+                }
             }
             catch (ArgumentOutOfRangeException)
             {
-                IBuffer buffer = await FileIO.ReadBufferAsync(SFile);
-                DataReader reader = DataReader.FromBuffer(buffer);
-                byte[] fileContent = new byte[reader.UnconsumedBufferLength];
-                reader.ReadBytes(fileContent);
                 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
                 Encoding GBKEncoding = Encoding.GetEncoding("GBK");
 
-                string FileText = GBKEncoding.GetString(fileContent);
-
-                Text.Text = FileText;
-
-                await Task.Delay(500).ConfigureAwait(true);
+                using (FileStream Stream = TextFile.GetStreamFromFile(AccessMode.Read))
+                using (StreamReader Reader = new StreamReader(Stream, GBKEncoding))
+                {
+                    Text.Text = await Reader.ReadToEndAsync().ConfigureAwait(true);
+                }
             }
             finally
             {
+                await Task.Delay(500).ConfigureAwait(true);
                 LoadingControl.IsLoading = false;
                 MainPage.ThisPage.IsAnyTaskRunning = false;
             }
@@ -57,10 +55,10 @@ namespace RX_Explorer
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e?.Parameter is StorageFile Parameters)
+            if (e?.Parameter is FileSystemStorageItemBase Parameters)
             {
-                SFile = Parameters;
-                Title.Text = SFile.Name;
+                TextFile = Parameters;
+                Title.Text = TextFile.Name;
 
                 await Initialize().ConfigureAwait(false);
             }
@@ -68,13 +66,17 @@ namespace RX_Explorer
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            SFile = null;
+            TextFile = null;
             Text.Text = string.Empty;
         }
 
         private async void Save_Click(object sender, RoutedEventArgs e)
         {
-            await FileIO.WriteTextAsync(SFile, Text.Text);
+            using (FileStream Stream = TextFile.GetStreamFromFile(AccessMode.Write))
+            using(StreamWriter Writer = new StreamWriter(Stream))
+            {
+                await Writer.WriteAsync(Text.Text).ConfigureAwait(true);
+            }
 
             Frame.GoBack();
         }

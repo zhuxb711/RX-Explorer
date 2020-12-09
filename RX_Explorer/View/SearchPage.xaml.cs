@@ -135,15 +135,15 @@ namespace RX_Explorer
             {
                 try
                 {
-                    StorageFolder ParentFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(Item.Path));
+                    string ParentFolderPath = Path.GetDirectoryName(Item.Path);
 
                     if (WeakToFileControl.TryGetTarget(out FileControl Control))
                     {
                         Frame.GoBack();
 
-                        await Control.DisplayItemsInFolder(ParentFolder).ConfigureAwait(true);
+                        await Control.DisplayItemsInFolder(ParentFolderPath).ConfigureAwait(true);
 
-                        await JumpListController.Current.AddItem(JumpListGroup.Recent, ParentFolder).ConfigureAwait(true);
+                        await JumpListController.Current.AddItem(JumpListGroup.Recent, ParentFolderPath).ConfigureAwait(true);
 
                         if (Control.Presenter.FileCollection.FirstOrDefault((SItem) => SItem.Path == Item.Path) is FileSystemStorageItemBase Target)
                         {

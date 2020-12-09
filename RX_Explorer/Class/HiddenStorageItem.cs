@@ -16,7 +16,7 @@ namespace RX_Explorer.Class
 
         }
 
-        public HiddenStorageItem(WIN_Native_API.WIN32_FIND_DATA Data, StorageItemTypes StorageType, string Path, DateTimeOffset ModifiedTime) : base(Data, StorageType, Path, ModifiedTime)
+        public HiddenStorageItem(WIN_Native_API.WIN32_FIND_DATA Data, StorageItemTypes StorageType, string Path, DateTimeOffset CreationTime, DateTimeOffset ModifiedTime) : base(Data, StorageType, Path, CreationTime, ModifiedTime)
         {
             base.SetThumbnailOpacity(ThumbnailStatus.ReduceOpacity);
         }

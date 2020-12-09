@@ -321,7 +321,7 @@ namespace RX_Explorer
 
                 foreach (IStorageItem Item in EncryptedFileList)
                 {
-                    SecureCollection.Add(new FileSystemStorageItemBase(Item as StorageFile, await Item.GetSizeRawDataAsync().ConfigureAwait(true), new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png")), await Item.GetModifiedTimeAsync().ConfigureAwait(true)));
+                    SecureCollection.Add(new FileSystemStorageItemBase(Item as StorageFile, await Item.GetSizeRawDataAsync().ConfigureAwait(true), new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png")), Item.DateCreated, await Item.GetModifiedTimeAsync().ConfigureAwait(true)));
                 }
             }
 
@@ -369,7 +369,7 @@ namespace RX_Explorer
                     {
                         if ((await File.EncryptAsync(SecureFolder, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true)) is StorageFile EncryptedFile)
                         {
-                            SecureCollection.Add(new FileSystemStorageItemBase(EncryptedFile, await EncryptedFile.GetSizeRawDataAsync().ConfigureAwait(true), new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png")), await EncryptedFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                            SecureCollection.Add(new FileSystemStorageItemBase(EncryptedFile, await EncryptedFile.GetSizeRawDataAsync().ConfigureAwait(true), new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png")), EncryptedFile.DateCreated, await EncryptedFile.GetModifiedTimeAsync().ConfigureAwait(true)));
 
                             try
                             {
@@ -444,7 +444,7 @@ namespace RX_Explorer
                         {
                             if ((await Item.EncryptAsync(SecureFolder, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true)) is StorageFile EncryptedFile)
                             {
-                                SecureCollection.Add(new FileSystemStorageItemBase(EncryptedFile, await EncryptedFile.GetSizeRawDataAsync().ConfigureAwait(true), new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png")), await EncryptedFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                SecureCollection.Add(new FileSystemStorageItemBase(EncryptedFile, await EncryptedFile.GetSizeRawDataAsync().ConfigureAwait(true), new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png")), EncryptedFile.DateCreated, await EncryptedFile.GetModifiedTimeAsync().ConfigureAwait(true)));
 
                                 try
                                 {

@@ -2,7 +2,7 @@
 
 namespace ShareClassLibrary
 {
-    public class AssociationPackage : IEquatable<AssociationPackage>
+    public sealed class AssociationPackage : IEquatable<AssociationPackage>
     {
         public bool IsRecommanded { get; }
 

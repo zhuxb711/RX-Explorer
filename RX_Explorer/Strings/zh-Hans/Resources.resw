@@ -536,7 +536,7 @@
     <value>请选择一个导出文件夹</value>
   </data>
   <data name="RunWithSystemAuthority.Text" xml:space="preserve">
-    <value>以管理员权限打开</value>
+    <value>以管理员身份运行</value>
   </data>
   <data name="SAVerifyDialog.CloseButtonText" xml:space="preserve">
     <value>取消</value>
@@ -2131,9 +2131,6 @@
   <data name="QueueDialog_FailToGetClipboardError_Content" xml:space="preserve">
     <value>无法获取剪贴板的内容</value>
   </data>
-  <data name="QueueDialog_ItemHidden_Content" xml:space="preserve">
-    <value>无法访问隐藏的文件或文件夹，请取消隐藏后再尝试访问</value>
-  </data>
   <data name="QueueDialog_RemoveHiddenError_Content" xml:space="preserve">
     <value>无法移除隐藏属性</value>
   </data>
@@ -2546,5 +2543,8 @@
   </data>
   <data name="QueueDialog_UnableAccessFile_Content" xml:space="preserve">
     <value>由于缺少权限，无法访问此文件</value>
+  </data>
+  <data name="ProgramPickerDialog_MoreApp.Text" xml:space="preserve">
+    <value>更多应用</value>
   </data>
 </root>

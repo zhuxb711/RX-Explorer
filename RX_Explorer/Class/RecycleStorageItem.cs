@@ -19,6 +19,7 @@ namespace RX_Explorer.Class
         {
             this.OriginPath = OriginPath;
             this.StorageType = StorageType;
+
             ModifiedTimeRaw = CreateTime.ToLocalTime();
 
             if (StorageType == StorageItemTypes.File)

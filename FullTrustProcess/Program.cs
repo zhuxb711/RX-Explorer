@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Vanara.PInvoke;
@@ -195,12 +197,11 @@ namespace FullTrustProcess
                         }
                     case "Execute_CreateLink":
                         {
-                            string LinkPath = Convert.ToString(args.Request.Message["LinkPath"]);
-                            string LinkTarget = Convert.ToString(args.Request.Message["LinkTarget"]);
-                            string LinkDesc = Convert.ToString(args.Request.Message["LinkDesc"]);
-                            string LinkArgument = Convert.ToString(args.Request.Message["LinkArgument"]);
+                            HyperlinkPackage Package = JsonConvert.DeserializeObject<HyperlinkPackage>(Convert.ToString(args.Request.Message["DataPackage"]));
 
-                            ShellLink.Create(LinkPath, LinkTarget, description: LinkDesc, arguments: LinkArgument).Dispose();
+                            string Argument = string.Join(" ", Package.Argument.Select((Para) => (Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"")) ? $"\"{Para}\"" : Para).ToArray());
+
+                            ShellLink.Create(Package.LinkPath, Package.LinkTargetPath, description: Package.Description, arguments: Argument).Dispose();
 
                             ValueSet Value = new ValueSet
                             {
@@ -289,11 +290,16 @@ namespace FullTrustProcess
                                     }
                                     else
                                     {
-                                        Value.Add("Success", string.Empty);
-                                        Value.Add("TargetPath", Link.TargetPath);
-                                        Value.Add("Argument", Link.Arguments);
-                                        Value.Add("RunAs", Link.RunAsAdministrator);
-                                        Value.Add("IsFile", File.Exists(Link.TargetPath));
+                                        MatchCollection Collection = Regex.Matches(Link.Arguments, "[^ \"]+|\"[^\"]*\"");
+
+                                        List<string> Arguments = new List<string>(Collection.Count);
+
+                                        foreach (Match Mat in Collection)
+                                        {
+                                            Arguments.Add(Mat.Value);
+                                        }
+
+                                        Value.Add("Success", JsonConvert.SerializeObject(new HyperlinkPackage(ExecutePath, Link.TargetPath, Arguments.ToArray(), Link.Description, Link.RunAsAdministrator)));
                                     }
                                 }
                             }

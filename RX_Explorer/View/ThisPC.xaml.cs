@@ -154,11 +154,11 @@ namespace RX_Explorer
                 {
                     if (AnimationController.Current.IsEnableAnimation)
                     {
-                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Folder), new DrillInNavigationTransitionInfo());
+                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(WeakToTabItem, Folder.Path), new DrillInNavigationTransitionInfo());
                     }
                     else
                     {
-                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, StorageFolder>(WeakToTabItem, Folder), new SuppressNavigationTransitionInfo());
+                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(WeakToTabItem, Folder.Path), new SuppressNavigationTransitionInfo());
                     }
                 }
             }
@@ -529,7 +529,7 @@ namespace RX_Explorer
         {
             if (LibraryGrid.SelectedItem is LibraryFolder Library)
             {
-                PropertyDialog Dialog = new PropertyDialog(Library.Folder);
+                PropertyDialog Dialog = new PropertyDialog(WIN_Native_API.GetStorageItem(Library.Folder.Path,ItemFilters.Folder));
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
             }
         }
@@ -933,7 +933,7 @@ namespace RX_Explorer
                 {
                     CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(Folder, await Folder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibraryType.UserCustom));
                     await SQLite.Current.SetLibraryPathAsync(Folder.Path, LibraryType.UserCustom).ConfigureAwait(false);
-                    await JumpListController.Current.AddItem(JumpListGroup.Library, Folder).ConfigureAwait(false);
+                    await JumpListController.Current.AddItem(JumpListGroup.Library, Folder.Path).ConfigureAwait(false);
                 }
             }
         }

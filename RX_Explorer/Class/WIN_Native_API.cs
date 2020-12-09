@@ -661,6 +661,45 @@ namespace RX_Explorer.Class
             }
         }
 
+        public static StorageItemTypes CheckType(string Path)
+        {
+            if (string.IsNullOrWhiteSpace(Path))
+            {
+                throw new ArgumentException("Argument could not be empty", nameof(Path));
+            }
+
+            IntPtr Ptr = FindFirstFileExFromApp(Path, FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+
+            try
+            {
+                if (Ptr.ToInt64() != -1)
+                {
+                    if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
+                    {
+                        return StorageItemTypes.Folder;
+                    }
+                    else
+                    {
+                        return StorageItemTypes.File;
+                    }
+                }
+                else
+                {
+                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
+                    return StorageItemTypes.None;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex);
+                return StorageItemTypes.None;
+            }
+            finally
+            {
+                FindClose(Ptr);
+            }
+        }
+
         public static bool CheckIfHidden(string Path)
         {
             if (string.IsNullOrWhiteSpace(Path))
@@ -884,13 +923,16 @@ namespace RX_Explorer.Class
                                         FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
                                         DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
 
+                                        FileTimeToSystemTime(ref Data.ftCreationTime, out SYSTEMTIME CreTime);
+                                        DateTime CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc);
+
                                         if (Attribute.HasFlag(FileAttributes.Hidden))
                                         {
-                                            SearchResult.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, CurrentDataPath, ModifiedTime));
+                                            SearchResult.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, CurrentDataPath, CreationTime, ModifiedTime));
                                         }
                                         else
                                         {
-                                            SearchResult.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, CurrentDataPath, ModifiedTime));
+                                            SearchResult.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, CurrentDataPath, CreationTime, ModifiedTime));
                                         }
                                     }
 
@@ -909,9 +951,12 @@ namespace RX_Explorer.Class
                                     FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
                                     DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
 
+                                    FileTimeToSystemTime(ref Data.ftCreationTime, out SYSTEMTIME CreTime);
+                                    DateTime CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc);
+
                                     if (Attribute.HasFlag(FileAttributes.Hidden))
                                     {
-                                        SearchResult.Add(new HiddenStorageItem(Data, StorageItemTypes.File, CurrentDataPath, ModifiedTime));
+                                        SearchResult.Add(new HiddenStorageItem(Data, StorageItemTypes.File, CurrentDataPath, CreationTime, ModifiedTime));
                                     }
                                     else
                                     {
@@ -919,11 +964,11 @@ namespace RX_Explorer.Class
                                         {
                                             if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
                                             {
-                                                SearchResult.Add(new HyperlinkStorageItem(Data, CurrentDataPath, ModifiedTime));
+                                                SearchResult.Add(new HyperlinkStorageItem(Data, CurrentDataPath, CreationTime, ModifiedTime));
                                             }
                                             else
                                             {
-                                                SearchResult.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, CurrentDataPath, ModifiedTime));
+                                                SearchResult.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, CurrentDataPath, CreationTime, ModifiedTime));
                                             }
                                         }
                                     }
@@ -979,13 +1024,16 @@ namespace RX_Explorer.Class
                                     FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
                                     DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
 
+                                    FileTimeToSystemTime(ref Data.ftCreationTime, out SYSTEMTIME CreTime);
+                                    DateTime CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc);
+
                                     if (Attribute.HasFlag(FileAttributes.Hidden))
                                     {
-                                        Result.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime));
+                                        Result.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Path, Data.cFileName), CreationTime, ModifiedTime));
                                     }
                                     else
                                     {
-                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime));
+                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Path, Data.cFileName), CreationTime, ModifiedTime));
                                     }
                                 }
                             }
@@ -994,9 +1042,12 @@ namespace RX_Explorer.Class
                                 FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
                                 DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
 
+                                FileTimeToSystemTime(ref Data.ftCreationTime, out SYSTEMTIME CreTime);
+                                DateTime CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc);
+
                                 if (Attribute.HasFlag(FileAttributes.Hidden))
                                 {
-                                    Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime));
+                                    Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, System.IO.Path.Combine(Path, Data.cFileName), CreationTime, ModifiedTime));
                                 }
                                 else
                                 {
@@ -1004,11 +1055,11 @@ namespace RX_Explorer.Class
                                     {
                                         if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
                                         {
-                                            Result.Add(new HyperlinkStorageItem(Data, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime));
+                                            Result.Add(new HyperlinkStorageItem(Data, System.IO.Path.Combine(Path, Data.cFileName), CreationTime, ModifiedTime));
                                         }
                                         else
                                         {
-                                            Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, System.IO.Path.Combine(Path, Data.cFileName), ModifiedTime));
+                                            Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, System.IO.Path.Combine(Path, Data.cFileName), CreationTime, ModifiedTime));
                                         }
                                     }
                                 }
@@ -1060,13 +1111,16 @@ namespace RX_Explorer.Class
                                 FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
                                 DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
 
+                                FileTimeToSystemTime(ref Data.ftCreationTime, out SYSTEMTIME CreTime);
+                                DateTime CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc);
+
                                 if (Attribute.HasFlag(FileAttributes.Hidden))
                                 {
-                                    return new HiddenStorageItem(Data, StorageItemTypes.Folder, Path, ModifiedTime);
+                                    return new HiddenStorageItem(Data, StorageItemTypes.Folder, Path, CreationTime, ModifiedTime);
                                 }
                                 else
                                 {
-                                    return new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, Path, ModifiedTime);
+                                    return new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, Path, CreationTime, ModifiedTime);
                                 }
                             }
                         }
@@ -1075,9 +1129,12 @@ namespace RX_Explorer.Class
                             FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
                             DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
 
+                            FileTimeToSystemTime(ref Data.ftCreationTime, out SYSTEMTIME CreTime);
+                            DateTime CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc);
+
                             if (Attribute.HasFlag(FileAttributes.Hidden))
                             {
-                                return new HiddenStorageItem(Data, StorageItemTypes.File, Path, ModifiedTime);
+                                return new HiddenStorageItem(Data, StorageItemTypes.File, Path, CreationTime, ModifiedTime);
                             }
                             else
                             {
@@ -1085,11 +1142,11 @@ namespace RX_Explorer.Class
                                 {
                                     if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        return new HyperlinkStorageItem(Data, Path, ModifiedTime);
+                                        return new HyperlinkStorageItem(Data, Path, CreationTime, ModifiedTime);
                                     }
                                     else
                                     {
-                                        return new FileSystemStorageItemBase(Data, StorageItemTypes.File, Path, ModifiedTime);
+                                        return new FileSystemStorageItemBase(Data, StorageItemTypes.File, Path, CreationTime, ModifiedTime);
                                     }
                                 }
                             }
@@ -1148,13 +1205,16 @@ namespace RX_Explorer.Class
                                     FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
                                     DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
 
+                                    FileTimeToSystemTime(ref Data.ftCreationTime, out SYSTEMTIME CreTime);
+                                    DateTime CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc);
+
                                     if (Attribute.HasFlag(FileAttributes.Hidden))
                                     {
-                                        Result.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, Path, ModifiedTime));
+                                        Result.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, Path, CreationTime, ModifiedTime));
                                     }
                                     else
                                     {
-                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, Path, ModifiedTime));
+                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, Path, CreationTime, ModifiedTime));
                                     }
                                 }
                             }
@@ -1163,9 +1223,12 @@ namespace RX_Explorer.Class
                                 FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
                                 DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
 
+                                FileTimeToSystemTime(ref Data.ftCreationTime, out SYSTEMTIME CreTime);
+                                DateTime CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc);
+
                                 if (Attribute.HasFlag(FileAttributes.Hidden))
                                 {
-                                    Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, Path, ModifiedTime));
+                                    Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, Path, CreationTime, ModifiedTime));
                                 }
                                 else
                                 {
@@ -1173,11 +1236,11 @@ namespace RX_Explorer.Class
                                     {
                                         if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
                                         {
-                                            Result.Add(new HyperlinkStorageItem(Data, Path, ModifiedTime));
+                                            Result.Add(new HyperlinkStorageItem(Data, Path, CreationTime, ModifiedTime));
                                         }
                                         else
                                         {
-                                            Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, Path, ModifiedTime));
+                                            Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, Path, CreationTime, ModifiedTime));
                                         }
                                     }
                                 }

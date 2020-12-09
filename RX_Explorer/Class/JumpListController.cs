@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -55,7 +56,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task AddItem(JumpListGroup Group, params StorageFolder[] FolderList)
+        public async Task AddItem(JumpListGroup Group, params string[] FolderPathList)
         {
             try
             {
@@ -65,9 +66,9 @@ namespace RX_Explorer.Class
 
                     string GroupString = ConvertGroupEnumToResourceString(Group);
 
-                    foreach (StorageFolder Folder in FolderList)
+                    foreach (string FolderPath in FolderPathList)
                     {
-                        if (InnerList.Items.Where((Item) => Item.GroupName == GroupString).All((Item) => Item.Description != Folder.Path))
+                        if (InnerList.Items.Where((Item) => Item.GroupName == GroupString).All((Item) => Item.Description != FolderPath))
                         {
                             string RecentGroupString = ConvertGroupEnumToResourceString(JumpListGroup.Recent);
                             string LibraryGroupString = ConvertGroupEnumToResourceString(JumpListGroup.Library);
@@ -98,10 +99,10 @@ namespace RX_Explorer.Class
                                 }
                             }
 
-                            JumpListItem NewItem = JumpListItem.CreateWithArguments(Folder.Path, Folder.DisplayName);
+                            JumpListItem NewItem = JumpListItem.CreateWithArguments(FolderPath, Path.GetFileName(FolderPath));
 
                             NewItem.Logo = new Uri("ms-appx:///Assets/FolderIcon.png");
-                            NewItem.Description = Folder.Path;
+                            NewItem.Description = FolderPath;
                             NewItem.GroupName = GroupString;
 
                             InnerList.Items.Add(NewItem);
