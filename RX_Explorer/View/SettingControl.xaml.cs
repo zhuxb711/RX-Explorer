@@ -18,7 +18,6 @@ using Windows.Graphics.Imaging;
 using Windows.Services.Store;
 using Windows.Storage;
 using Windows.Storage.Pickers;
-using Windows.Storage.Search;
 using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI;
@@ -655,7 +654,7 @@ namespace RX_Explorer
 
         private async void Like_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            await Microsoft.Toolkit.Uwp.Helpers.SystemInformation.LaunchStoreForReviewAsync().ConfigureAwait(true);
+            await SystemInformation.LaunchStoreForReviewAsync().ConfigureAwait(true);
         }
 
         private async void ClearUp_Click(object sender, RoutedEventArgs e)
@@ -708,83 +707,92 @@ namespace RX_Explorer
                     StorageFolder SecureFolder = await ApplicationData.Current.LocalCacheFolder.CreateFolderAsync("SecureFolder", CreationCollisionOption.OpenIfExists);
                     string FileEncryptionAesKey = KeyGenerator.GetMD5FromKey(CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword"), 16);
 
-                    foreach (StorageFile Item in await SecureFolder.GetFilesAsync())
+                    try
                     {
+                        foreach (FileSystemStorageItemBase Item in WIN_Native_API.GetStorageItems(SecureFolder.Path, false, ItemFilters.File))
+                        {
+                            if (await Item.DecryptAsync(Dialog.ExportFolder.Path, FileEncryptionAesKey).ConfigureAwait(true) is FileSystemStorageItemBase)
+                            {
+                                //await Item.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                            }
+                        }
+
                         try
                         {
-                            _ = await Item.DecryptAsync(Dialog.ExportFolder, FileEncryptionAesKey).ConfigureAwait(true);
+                            SQLite.Current.Dispose();
+                            MySQL.Current.Dispose();
+                            FullTrustProcessController.Current.Dispose();
 
-                            await Item.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                            await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Local);
+                            await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Temporary);
+                            await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Roaming);
                         }
                         catch (Exception ex)
                         {
-                            await Item.MoveAsync(Dialog.ExportFolder, $"{Item.Name}-{Globalization.GetString("DecryptFail_Backup_Text")}", NameCollisionOption.GenerateUniqueName);
+                            ApplicationData.Current.LocalSettings.Values.Clear();
+                            LogTracer.Log(ex, $"{nameof(ClearUp_Click)} threw an exception");
+                        }
 
-                            if (ex is PasswordErrorException)
-                            {
-                                QueueContentDialog Dialog1 = new QueueContentDialog
+                        await Task.Delay(1000).ConfigureAwait(true);
+
+                        LoadingControl.IsLoading = false;
+                        MainPage.ThisPage.IsAnyTaskRunning = false;
+
+                        await Task.Delay(1000).ConfigureAwait(true);
+
+                        Window.Current.Activate();
+
+                        switch (await CoreApplication.RequestRestartAsync(string.Empty))
+                        {
+                            case AppRestartFailureReason.InvalidUser:
+                            case AppRestartFailureReason.NotInForeground:
+                            case AppRestartFailureReason.Other:
                                 {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_DecryptPasswordError_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
+                                    QueueContentDialog Dialog1 = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_RestartFail_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
 
-                                _ = await Dialog1.ShowAsync().ConfigureAwait(true);
-                            }
-                            else if (ex is FileDamagedException)
-                            {
-                                QueueContentDialog Dialog1 = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_FileDamageError_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
+                                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
 
-                                _ = await Dialog1.ShowAsync().ConfigureAwait(true);
-                            }
+                                    break;
+                                }
                         }
                     }
-
-                    try
+                    catch (PasswordErrorException)
                     {
-                        SQLite.Current.Dispose();
-                        MySQL.Current.Dispose();
-                        FullTrustProcessController.Current.Dispose();
+                        QueueContentDialog Dialog1 = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_DecryptPasswordError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
 
-                        await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Local);
-                        await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Temporary);
-                        await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Roaming);
+                        _ = await Dialog1.ShowAsync().ConfigureAwait(true);
+                    }
+                    catch (FileDamagedException)
+                    {
+                        QueueContentDialog Dialog1 = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_FileDamageError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                     }
                     catch (Exception ex)
                     {
-                        ApplicationData.Current.LocalSettings.Values.Clear();
-                        LogTracer.Log(ex, $"{nameof(ClearUp_Click)} threw an exception");
-                    }
+                        QueueContentDialog Dialog1 = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
 
-                    await Task.Delay(1000).ConfigureAwait(true);
-
-                    LoadingControl.IsLoading = false;
-                    MainPage.ThisPage.IsAnyTaskRunning = false;
-
-                    await Task.Delay(1000).ConfigureAwait(true);
-
-                    Window.Current.Activate();
-
-                    switch (await CoreApplication.RequestRestartAsync(string.Empty))
-                    {
-                        case AppRestartFailureReason.InvalidUser:
-                        case AppRestartFailureReason.NotInForeground:
-                        case AppRestartFailureReason.Other:
-                            {
-                                QueueContentDialog Dialog1 = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_RestartFail_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-                                _ = await Dialog1.ShowAsync().ConfigureAwait(true);
-                                break;
-                            }
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
                 }
             }

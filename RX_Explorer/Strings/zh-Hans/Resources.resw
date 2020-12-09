@@ -1743,9 +1743,6 @@
   <data name="Crop_Image_Name_Tail" xml:space="preserve">
     <value>裁剪</value>
   </data>
-  <data name="DecryptFail_Backup_Text" xml:space="preserve">
-    <value>错误文件备份</value>
-  </data>
   <data name="Download_Folder_Name" xml:space="preserve">
     <value>下载</value>
     <comment>Name of [Downloads folder]</comment>
@@ -1864,9 +1861,6 @@
   <data name="QueueDialog_UnauthorizedCompression_Content" xml:space="preserve">
     <value>RX无权在此处创建Zip文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？</value>
     <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
-  <data name="QueueDialog_UnauthorizedCreateDecryptFile_Content" xml:space="preserve">
-    <value>RX无权在此处创建解密文件，可能是您无权访问此文件夹</value>
   </data>
   <data name="QueueDialog_UnauthorizedCreateNewFile_Content" xml:space="preserve">
     <value>RX没有足够的权限在此文件夹新建文件\r\r是否立即进入系统文件管理器进行相应操作？</value>

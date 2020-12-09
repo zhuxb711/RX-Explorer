@@ -1,9 +1,17 @@
-﻿using System;
+﻿using Microsoft.Win32.SafeHandles;
+using NetworkAccess;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Security;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI.Core;
@@ -37,7 +45,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 获取此文件的缩略图
         /// </summary>
-        public BitmapImage Thumbnail
+        public virtual BitmapImage Thumbnail
         {
             get
             {
@@ -338,6 +346,191 @@ namespace RX_Explorer.Class
             OnPropertyChanged(nameof(ModifiedTime));
             OnPropertyChanged(nameof(DisplayType));
             OnPropertyChanged(nameof(Size));
+        }
+
+        public async Task<FileSystemStorageItemBase> EncryptAsync(string ExportFolderPath, string Key, int KeySize, CancellationToken CancelToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(ExportFolderPath))
+            {
+                throw new ArgumentNullException(nameof(ExportFolderPath), "ExportFolder could not be null");
+            }
+
+            if (KeySize != 256 && KeySize != 128)
+            {
+                throw new InvalidEnumArgumentException("AES密钥长度仅支持128或256任意一种");
+            }
+
+            if (string.IsNullOrEmpty(Key))
+            {
+                throw new ArgumentNullException(nameof(Key), "Parameter could not be null or empty");
+            }
+
+            byte[] KeyArray = null;
+
+            int KeyLengthNeed = KeySize / 8;
+
+            KeyArray = Key.Length > KeyLengthNeed
+                       ? Encoding.UTF8.GetBytes(Key.Substring(0, KeyLengthNeed))
+                       : Encoding.UTF8.GetBytes(Key.PadRight(KeyLengthNeed, '0'));
+
+            string EncryptedFilePath = System.IO.Path.Combine(ExportFolderPath, $"{System.IO.Path.GetFileNameWithoutExtension(Name)}.sle");
+
+            using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(EncryptedFilePath, AccessMode.Write, CreateOption.GenerateUniqueName))
+            using (SecureString Secure = SecureAccessProvider.GetFileEncryptionAesIV(Package.Current))
+            {
+                IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
+                string IV = Marshal.PtrToStringBSTR(Bstr);
+
+                try
+                {
+                    using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
+                    {
+                        KeySize = KeySize,
+                        Key = KeyArray,
+                        Mode = CipherMode.CBC,
+                        Padding = PaddingMode.Zeros,
+                        IV = Encoding.UTF8.GetBytes(IV)
+                    })
+                    {
+                        using (FileStream OriginFileStream = GetStreamFromFile(AccessMode.Read))
+                        using (FileStream EncryptFileStream = new FileStream(Handle, FileAccess.Write))
+                        using (ICryptoTransform Encryptor = AES.CreateEncryptor())
+                        {
+                            byte[] Detail = Encoding.UTF8.GetBytes("$" + KeySize + "|" + Type + "$");
+                            await EncryptFileStream.WriteAsync(Detail, 0, Detail.Length, CancelToken).ConfigureAwait(false);
+
+                            byte[] PasswordFlag = Encoding.UTF8.GetBytes("PASSWORD_CORRECT");
+                            byte[] EncryptPasswordFlag = Encryptor.TransformFinalBlock(PasswordFlag, 0, PasswordFlag.Length);
+                            await EncryptFileStream.WriteAsync(EncryptPasswordFlag, 0, EncryptPasswordFlag.Length, CancelToken).ConfigureAwait(false);
+
+                            using (CryptoStream TransformStream = new CryptoStream(EncryptFileStream, Encryptor, CryptoStreamMode.Write))
+                            {
+                                await OriginFileStream.CopyToAsync(TransformStream, 8192, CancelToken).ConfigureAwait(false);
+                                TransformStream.FlushFinalBlock();
+                            }
+                        }
+                    }
+                }
+                finally
+                {
+                    Marshal.ZeroFreeBSTR(Bstr);
+                    unsafe
+                    {
+                        fixed (char* ClearPtr = IV)
+                        {
+                            for (int i = 0; i < IV.Length; i++)
+                            {
+                                ClearPtr[i] = '\0';
+                            }
+                        }
+                    }
+                }
+            }
+
+            return WIN_Native_API.GetStorageItem(EncryptedFilePath, ItemFilters.File);
+        }
+
+        public async Task<FileSystemStorageItemBase> DecryptAsync(string ExportFolderPath, string Key, CancellationToken CancelToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(ExportFolderPath))
+            {
+                throw new ArgumentNullException(nameof(ExportFolderPath), "ExportFolder could not be null");
+            }
+
+            if (string.IsNullOrEmpty(Key))
+            {
+                throw new ArgumentNullException(nameof(Key), "Key could not be null or empty");
+            }
+
+            using (SecureString Secure = SecureAccessProvider.GetFileEncryptionAesIV(Package.Current))
+            {
+                IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
+                string IV = Marshal.PtrToStringBSTR(Bstr);
+
+                try
+                {
+                    using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
+                    {
+                        Mode = CipherMode.CBC,
+                        Padding = PaddingMode.Zeros,
+                        IV = Encoding.UTF8.GetBytes(IV)
+                    })
+                    {
+                        using (FileStream EncryptFileStream = GetStreamFromFile(AccessMode.Read))
+                        {
+                            byte[] DecryptByteBuffer = new byte[20];
+
+                            await EncryptFileStream.ReadAsync(DecryptByteBuffer, 0, DecryptByteBuffer.Length, CancelToken).ConfigureAwait(false);
+
+                            string FileType;
+
+                            if (Encoding.UTF8.GetString(DecryptByteBuffer).Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string Info)
+                            {
+                                string[] InfoGroup = Info.Split('|');
+
+                                if (InfoGroup.Length == 2)
+                                {
+                                    int KeySize = Convert.ToInt32(InfoGroup[0]);
+                                    FileType = InfoGroup[1];
+
+                                    AES.KeySize = KeySize;
+
+                                    int KeyLengthNeed = KeySize / 8;
+                                    AES.Key = Key.Length > KeyLengthNeed ? Encoding.UTF8.GetBytes(Key.Substring(0, KeyLengthNeed)) : Encoding.UTF8.GetBytes(Key.PadRight(KeyLengthNeed, '0'));
+                                }
+                                else
+                                {
+                                    throw new FileDamagedException("File damaged, could not be decrypted");
+                                }
+                            }
+                            else
+                            {
+                                throw new FileDamagedException("File damaged, could not be decrypted");
+                            }
+
+                            string DecryptedFilePath = System.IO.Path.Combine(ExportFolderPath, $"{System.IO.Path.GetFileNameWithoutExtension(Name)}{FileType}");
+
+                            using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(DecryptedFilePath, AccessMode.Exclusive, CreateOption.GenerateUniqueName))
+                            using (FileStream DecryptFileStream = new FileStream(Handle, FileAccess.Write))
+                            using (ICryptoTransform Decryptor = AES.CreateDecryptor(AES.Key, AES.IV))
+                            {
+                                byte[] PasswordConfirm = new byte[16];
+                                EncryptFileStream.Seek(Info.Length + 2, SeekOrigin.Begin);
+                                await EncryptFileStream.ReadAsync(PasswordConfirm, 0, PasswordConfirm.Length, CancelToken).ConfigureAwait(false);
+
+                                if (Encoding.UTF8.GetString(Decryptor.TransformFinalBlock(PasswordConfirm, 0, PasswordConfirm.Length)) == "PASSWORD_CORRECT")
+                                {
+                                    using (CryptoStream TransformStream = new CryptoStream(DecryptFileStream, Decryptor, CryptoStreamMode.Write))
+                                    {
+                                        await EncryptFileStream.CopyToAsync(TransformStream, 8192, CancelToken).ConfigureAwait(false);
+                                        TransformStream.FlushFinalBlock();
+                                    }
+                                }
+                                else
+                                {
+                                    throw new PasswordErrorException("Password is not correct");
+                                }
+                            }
+
+                            return WIN_Native_API.GetStorageItem(DecryptedFilePath, ItemFilters.File);
+                        }
+                    }
+                }
+                finally
+                {
+                    Marshal.ZeroFreeBSTR(Bstr);
+                    unsafe
+                    {
+                        fixed (char* ClearPtr = IV)
+                        {
+                            for (int i = 0; i < IV.Length; i++)
+                            {
+                                ClearPtr[i] = '\0';
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>

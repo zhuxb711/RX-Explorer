@@ -1765,9 +1765,6 @@
   <data name="Crop_Image_Name_Tail" xml:space="preserve">
     <value>裁剪</value>
   </data>
-  <data name="DecryptFail_Backup_Text" xml:space="preserve">
-    <value>檔案備份師敗</value>
-  </data>
   <data name="Download_Folder_Name" xml:space="preserve">
     <value>下載</value>
     <comment>Name of [Downloads folder]</comment>
@@ -1886,9 +1883,6 @@
   <data name="QueueDialog_UnauthorizedCompression_Content" xml:space="preserve">
     <value>RX 檔案管理沒有權限在此處新增Zip文件，可能是您沒有權限訪問此檔案。\r\r立即進入檔案總管？</value>
     <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
-  <data name="QueueDialog_UnauthorizedCreateDecryptFile_Content" xml:space="preserve">
-    <value>RX沒有權限在此新增解密檔案</value>
   </data>
   <data name="QueueDialog_UnauthorizedCreateNewFile_Content" xml:space="preserve">
     <value>RX 檔案總管沒有權限在此資料夾中新增檔案\r\r立即進入檔案總管？</value>

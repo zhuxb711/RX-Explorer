@@ -1743,9 +1743,6 @@
   <data name="Crop_Image_Name_Tail" xml:space="preserve">
     <value>Recadré</value>
   </data>
-  <data name="DecryptFail_Backup_Text" xml:space="preserve">
-    <value>Sauvegarde des fichiers d'erreur</value>
-  </data>
   <data name="Download_Folder_Name" xml:space="preserve">
     <value>Téléchargements</value>
     <comment>Name of [Downloads folder]</comment>
@@ -1864,9 +1861,6 @@
   <data name="QueueDialog_UnauthorizedCompression_Content" xml:space="preserve">
     <value>RX n'a pas la permission pour créer le fichier zip ici, il se peut que vous n'ayez pas accès à ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</value>
     <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
-  <data name="QueueDialog_UnauthorizedCreateDecryptFile_Content" xml:space="preserve">
-    <value>RX n'a pas la permission de créer un fichier déchiffré ici</value>
   </data>
   <data name="QueueDialog_UnauthorizedCreateNewFile_Content" xml:space="preserve">
     <value>RX n'a pas les permissions suffisantes pour créer de nouveaux fichiers dans ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</value>

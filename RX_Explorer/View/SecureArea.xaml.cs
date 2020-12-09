@@ -365,33 +365,34 @@ namespace RX_Explorer
 
                 try
                 {
-                    foreach (StorageFile File in FileList)
+                    foreach (string OriginFilePath in FileList.Select((Item) => Item.Path))
                     {
-                        if ((await File.EncryptAsync(SecureFolder, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true)) is StorageFile EncryptedFile)
+                        if (WIN_Native_API.GetStorageItem(OriginFilePath, ItemFilters.File) is FileSystemStorageItemBase Item)
                         {
-                            SecureCollection.Add(new FileSystemStorageItemBase(EncryptedFile, await EncryptedFile.GetSizeRawDataAsync().ConfigureAwait(true), new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png")), EncryptedFile.DateCreated, await EncryptedFile.GetModifiedTimeAsync().ConfigureAwait(true)));
-
-                            try
+                            if (await Item.EncryptAsync(SecureFolder.Path, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is FileSystemStorageItemBase EncryptedFile)
                             {
-                                await File.DeleteAsync(StorageDeleteOption.Default);
+                                SecureCollection.Add(EncryptedFile);
+
+                                //try
+                                //{
+                                //    await File.DeleteAsync(StorageDeleteOption.Default);
+                                //}
+                                //catch (Exception ex)
+                                //{
+                                //    LogTracer.Log(ex);
+                                //}
                             }
-                            catch (Exception ex)
+                            else
                             {
-                                LogTracer.Log(ex);
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+
+                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
                             }
-                        }
-                        else
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-
-                            break;
                         }
                     }
                 }
@@ -402,6 +403,15 @@ namespace RX_Explorer
                 catch (Exception ex)
                 {
                     LogTracer.Log(ex, "An error was threw when importing file");
+
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 finally
                 {
@@ -440,34 +450,34 @@ namespace RX_Explorer
 
                     try
                     {
-                        foreach (StorageFile Item in Items.OfType<StorageFile>())
+                        foreach (string OriginFilePath in Items.Select((Item) => Item.Path))
                         {
-                            if ((await Item.EncryptAsync(SecureFolder, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true)) is StorageFile EncryptedFile)
+                            if (WIN_Native_API.GetStorageItem(OriginFilePath, ItemFilters.File) is FileSystemStorageItemBase Item)
                             {
-                                SecureCollection.Add(new FileSystemStorageItemBase(EncryptedFile, await EncryptedFile.GetSizeRawDataAsync().ConfigureAwait(true), new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png")), EncryptedFile.DateCreated, await EncryptedFile.GetModifiedTimeAsync().ConfigureAwait(true)));
-
-                                try
+                                if (await Item.EncryptAsync(SecureFolder.Path, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is FileSystemStorageItemBase EncryptedFile)
                                 {
-                                    StorageFile ToDeleteFile = await StorageFile.GetFileFromPathAsync(Item.Path);
-                                    await ToDeleteFile.DeleteAsync(StorageDeleteOption.Default);
+                                    SecureCollection.Add(EncryptedFile);
+
+                                    //try
+                                    //{
+                                    //    await File.DeleteAsync(StorageDeleteOption.Default);
+                                    //}
+                                    //catch (Exception ex)
+                                    //{
+                                    //    LogTracer.Log(ex);
+                                    //}
                                 }
-                                catch (Exception ex)
+                                else
                                 {
-                                    LogTracer.Log(ex);
+                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+
+                                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                                 }
-                            }
-                            else
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-
-                                break;
                             }
                         }
                     }
@@ -478,6 +488,15 @@ namespace RX_Explorer
                     catch (Exception ex)
                     {
                         LogTracer.Log(ex, "An error was threw when importing file");
+
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
                     finally
                     {
@@ -545,6 +564,7 @@ namespace RX_Explorer
                 SuggestedStartLocation = PickerLocationId.Desktop,
                 ViewMode = PickerViewMode.Thumbnail
             };
+
             Picker.FileTypeFilter.Add("*");
 
             if ((await Picker.PickSingleFolderAsync()) is StorageFolder Folder)
@@ -557,28 +577,25 @@ namespace RX_Explorer
 
                     foreach (FileSystemStorageItemBase Item in SecureGridView.SelectedItems.ToArray())
                     {
-                        if (await Item.GetStorageItem().ConfigureAwait(true) is StorageFile InnerFile)
+                        if (await Item.DecryptAsync(Folder.Path, FileEncryptionAesKey, Cancellation.Token).ConfigureAwait(true) is FileSystemStorageItemBase DecryptedFile)
                         {
-                            if (await InnerFile.DecryptAsync(Folder, FileEncryptionAesKey, Cancellation.Token).ConfigureAwait(true) is StorageFile)
+                            SecureCollection.Remove(Item);
+                            //await InnerFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                        }
+                        else
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
                             {
-                                SecureCollection.Remove(Item);
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_DecryptError_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
 
-                                await InnerFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
-
-                                _ = await Launcher.LaunchFolderAsync(Folder);
-                            }
-                            else
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_DecryptError_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                            }
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
                         }
                     }
+
+                    _ = await Launcher.LaunchFolderAsync(Folder);
                 }
                 catch (PasswordErrorException)
                 {
@@ -602,20 +619,22 @@ namespace RX_Explorer
 
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
-                catch (UnauthorizedAccessException)
+                catch (TaskCanceledException cancelException)
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_UnauthorizedCreateDecryptFile_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    LogTracer.Log(cancelException, "Import items to SecureArea have been cancelled");
                 }
                 catch (Exception ex)
                 {
                     LogTracer.Log(ex);
+
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_DecryptError_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 finally
                 {

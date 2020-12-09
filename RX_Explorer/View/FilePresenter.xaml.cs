@@ -2044,7 +2044,7 @@ namespace RX_Explorer
             {
                 try
                 {
-                    using (FileStream FileStream = WIN_Native_API.CreateFileStreamFromExistingPath(Item.Path, AccessMode.Exclusive))
+                    using (FileStream FileStream = Item.GetStreamFromFile(AccessMode.Exclusive))
                     using (ZipInputStream InputZipStream = new ZipInputStream(FileStream))
                     {
                         FileStream.Seek(0, SeekOrigin.Begin);

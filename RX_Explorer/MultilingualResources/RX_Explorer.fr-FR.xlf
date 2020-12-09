@@ -2305,10 +2305,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Cropped</source>
           <target state="translated">Recadré</target>
         </trans-unit>
-        <trans-unit id="DecryptFail_Backup_Text" translate="yes" xml:space="preserve">
-          <source>Error file backup</source>
-          <target state="translated">Sauvegarde des fichiers d'erreur</target>
-        </trans-unit>
         <trans-unit id="Download_Folder_Name" translate="yes" xml:space="preserve">
           <source>Downloads</source>
           <target state="translated">Téléchargements</target>
@@ -2463,10 +2459,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>RX does not have permission to create the Zip file here, it may be that you do not have access to this file.\r\rEnter the system explorer immediately?</source>
           <target state="translated">RX n'a pas la permission pour créer le fichier zip ici, il se peut que vous n'ayez pas accès à ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
-        </trans-unit>
-        <trans-unit id="QueueDialog_UnauthorizedCreateDecryptFile_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to create an decrypted file here</source>
-          <target state="translated">RX n'a pas la permission de créer un fichier déchiffré ici</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedCreateNewFile_Content" translate="yes" xml:space="preserve">
           <source>RX does not have sufficient permissions to create new files in this folder\r\rEnter the system explorer immediately?</source>
