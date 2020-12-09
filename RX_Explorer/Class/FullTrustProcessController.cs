@@ -6,7 +6,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.AppService;
@@ -1389,29 +1388,34 @@ namespace RX_Explorer.Class
                     {
                         try
                         {
-                            _ = await StorageFile.GetFileFromPathAsync(SourcePath);
-                            MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
-                        }
-                        catch
-                        {
-                            try
+                            if (WIN_Native_API.CheckType(SourcePath) == StorageItemTypes.File)
                             {
-                                StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(DestinationPath);
+                                MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
+                            }
+                            else
+                            {
+                                string TargetPath = Path.Combine(DestinationPath, Path.GetFileName(SourcePath));
 
-                                if (await TargetFolder.TryGetItemAsync(Path.GetFileName(SourcePath)) is StorageFolder ExistFolder)
+                                if (WIN_Native_API.CheckExist(TargetPath))
                                 {
                                     QueueContentDialog Dialog = new QueueContentDialog
                                     {
                                         Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                                        Content = $"{Globalization.GetString("QueueDialog_FolderRepeat_Content")} {ExistFolder.Name}",
+                                        Content = $"{Globalization.GetString("QueueDialog_FolderRepeat_Content")} {Path.GetFileName(SourcePath)}",
                                         PrimaryButtonText = Globalization.GetString("QueueDialog_FolderRepeat_PrimaryButton"),
                                         CloseButtonText = Globalization.GetString("QueueDialog_FolderRepeat_CloseButton")
                                     };
 
                                     if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
                                     {
-                                        StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Path.GetFileName(SourcePath), CreationCollisionOption.GenerateUniqueName);
-                                        MessageList.Add(new KeyValuePair<string, string>(SourcePath, NewFolder.Name));
+                                        if (WIN_Native_API.CreateDirectoryFromPath(TargetPath, CreateDirectoryOption.GenerateUniqueName, out string NewFolderPath))
+                                        {
+                                            MessageList.Add(new KeyValuePair<string, string>(SourcePath, Path.GetFileName(NewFolderPath)));
+                                        }
+                                        else
+                                        {
+                                            throw new Exception($"Could not create a folder on \"{TargetPath}\"");
+                                        }
                                     }
                                     else
                                     {
@@ -1423,10 +1427,10 @@ namespace RX_Explorer.Class
                                     MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
                                 }
                             }
-                            catch
-                            {
-                                throw new FileNotFoundException();
-                            }
+                        }
+                        catch
+                        {
+                            throw new FileNotFoundException();
                         }
                     }
 
@@ -1541,31 +1545,36 @@ namespace RX_Explorer.Class
                     {
                         try
                         {
-                            _ = await StorageFile.GetFileFromPathAsync(SourcePath);
-                            MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
-                        }
-                        catch
-                        {
-                            try
+                            if (WIN_Native_API.CheckType(SourcePath) == StorageItemTypes.File)
+                            {
+                                MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
+                            }
+                            else
                             {
                                 if (Path.GetDirectoryName(SourcePath) != DestinationPath)
                                 {
-                                    StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(DestinationPath);
+                                    string TargetPath = Path.Combine(DestinationPath, Path.GetFileName(SourcePath));
 
-                                    if (await TargetFolder.TryGetItemAsync(Path.GetFileName(SourcePath)) is StorageFolder ExistFolder)
+                                    if(WIN_Native_API.CheckExist(TargetPath))
                                     {
                                         QueueContentDialog Dialog = new QueueContentDialog
                                         {
                                             Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                                            Content = $"{Globalization.GetString("QueueDialog_FolderRepeat_Content")} {ExistFolder.Name}",
+                                            Content = $"{Globalization.GetString("QueueDialog_FolderRepeat_Content")} {Path.GetFileName(SourcePath)}",
                                             PrimaryButtonText = Globalization.GetString("QueueDialog_FolderRepeat_PrimaryButton"),
                                             CloseButtonText = Globalization.GetString("QueueDialog_FolderRepeat_CloseButton")
                                         };
 
                                         if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
                                         {
-                                            StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(Path.GetFileName(SourcePath), CreationCollisionOption.GenerateUniqueName);
-                                            MessageList.Add(new KeyValuePair<string, string>(SourcePath, NewFolder.Name));
+                                            if (WIN_Native_API.CreateDirectoryFromPath(TargetPath, CreateDirectoryOption.GenerateUniqueName, out string NewFolderPath))
+                                            {
+                                                MessageList.Add(new KeyValuePair<string, string>(SourcePath, Path.GetFileName(NewFolderPath)));
+                                            }
+                                            else
+                                            {
+                                                throw new Exception($"Could not create a folder on \"{TargetPath}\"");
+                                            }
                                         }
                                         else
                                         {
@@ -1582,10 +1591,10 @@ namespace RX_Explorer.Class
                                     MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
                                 }
                             }
-                            catch
-                            {
-                                throw new FileNotFoundException();
-                            }
+                        }
+                        catch
+                        {
+                            throw new FileNotFoundException();
                         }
                     }
 

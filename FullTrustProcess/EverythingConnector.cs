@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -7,39 +8,36 @@ namespace FullTrustProcess
 {
     public class EverythingConnector
     {
-        private const int BufferSize = 256;
+        private const int BufferSize = 512;
 
-        [DllImport("Everything32.dll")]
+        [DllImport("Everything32.dll", CharSet = CharSet.Unicode)]
         private static extern int Everything_SetSearch(string lpSearchString);
 
-        [DllImport("Everything32.dll")]
+        [DllImport("Everything32.dll", CharSet = CharSet.Unicode)]
         private static extern void Everything_SetOffset(int dwOffset);
 
-        [DllImport("Everything32.dll")]
-        private static extern string Everything_GetSearch();
-
-        [DllImport("Everything32.dll")]
+        [DllImport("Everything32.dll", CharSet = CharSet.Unicode)]
         private static extern void Everything_SetMax(int dwMax);
 
-        [DllImport("Everything32.dll")]
-        private static extern bool Everything_Query();
+        [DllImport("Everything32.dll", CharSet = CharSet.Unicode)]
+        private static extern bool Everything_Query(bool bWait);
 
-        [DllImport("Everything32.dll")]
+        [DllImport("Everything32.dll", CharSet = CharSet.Unicode)]
         private static extern int Everything_GetNumResults();
 
-        [DllImport("Everything32.dll")]
+        [DllImport("Everything32.dll", CharSet = CharSet.Unicode)]
         private static extern StateCode Everything_GetLastError();
 
-        [DllImport("Everything32.dll")]
+        [DllImport("Everything32.dll", CharSet = CharSet.Unicode)]
         private static extern void Everything_GetResultFullPathName(int nIndex, StringBuilder lpString, int nMaxCount);
 
-        [DllImport("Everything32.dll")]
+        [DllImport("Everything32.dll", CharSet = CharSet.Unicode)]
         private static extern bool Everything_IsDBLoaded();
 
-        [DllImport("Everything32.dll")]
+        [DllImport("Everything32.dll", CharSet = CharSet.Unicode)]
         private static extern void Everything_SetRegex(bool isEnabled);
 
-        [DllImport("Everything32.dll")]
+        [DllImport("Everything32.dll", CharSet = CharSet.Unicode)]
         private static extern void Everything_SetMatchCase(bool isCaseSensitive);
 
         public enum StateCode
@@ -100,10 +98,10 @@ namespace FullTrustProcess
                 }
                 else
                 {
-                    Everything_SetSearch(BaseLocation.EndsWith("\\") ? $"\"{BaseLocation}\" {SearchWord}" : $"\"{BaseLocation}\\\" {SearchWord}");
+                    Everything_SetSearch($"{(BaseLocation.EndsWith("\\") ? BaseLocation : BaseLocation + "\\")} {SearchWord}");
                 }
 
-                if (Everything_Query())
+                if (Everything_Query(true))
                 {
                     StringBuilder Builder = new StringBuilder(BufferSize);
 

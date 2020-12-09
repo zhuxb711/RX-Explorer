@@ -147,13 +147,20 @@ namespace RX_Explorer.Class
             {
                 if (StorageItem == null)
                 {
-                    if (StorageType == StorageItemTypes.File)
+                    if (WIN_Native_API.CheckExist(InternalPathString))
                     {
-                        return StorageItem = await StorageFile.GetFileFromPathAsync(InternalPathString);
+                        if (StorageType == StorageItemTypes.File)
+                        {
+                            return StorageItem = await StorageFile.GetFileFromPathAsync(InternalPathString);
+                        }
+                        else
+                        {
+                            return StorageItem = await StorageFolder.GetFolderFromPathAsync(InternalPathString);
+                        }
                     }
                     else
                     {
-                        return StorageItem = await StorageFolder.GetFolderFromPathAsync(InternalPathString);
+                        return null;
                     }
                 }
                 else

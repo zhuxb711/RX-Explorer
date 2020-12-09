@@ -13,7 +13,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return Package.LinkTargetPath;
+                return Package?.LinkTargetPath ?? Globalization.GetString("UnknownText");
             }
         }
 
@@ -21,7 +21,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return Package.Argument;
+                return Package?.Argument ?? Array.Empty<string>();
             }
         }
 
@@ -29,7 +29,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return Package.NeedRunAsAdmin;
+                return (Package?.NeedRunAsAdmin).GetValueOrDefault();
             }
         }
 
@@ -73,20 +73,27 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    Package = await FullTrustProcessController.Current.GetHyperlinkRelatedInformationAsync(InternalPathString).ConfigureAwait(true);
+                    Package = await FullTrustProcessController.Current.GetHyperlinkRelatedInformationAsync(InternalPathString).ConfigureAwait(false);
 
-                    if (WIN_Native_API.CheckType(LinkTargetPath) == StorageItemTypes.Folder)
+                    if (WIN_Native_API.CheckExist(LinkTargetPath))
                     {
-                        return StorageItem = await StorageFolder.GetFolderFromPathAsync(LinkTargetPath);
+                        if (WIN_Native_API.CheckType(LinkTargetPath) == StorageItemTypes.Folder)
+                        {
+                            return StorageItem = await StorageFolder.GetFolderFromPathAsync(LinkTargetPath);
+                        }
+                        else
+                        {
+                            return StorageItem = await StorageFile.GetFileFromPathAsync(LinkTargetPath);
+                        }
                     }
                     else
                     {
-                        return StorageItem = await StorageFile.GetFileFromPathAsync(LinkTargetPath);
+                        return StorageItem = null;
                     }
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, $"Could not get hyperlink file. Path: {LinkTargetPath}");
+                    LogTracer.Log(ex, $"Could not get hyperlink file, path: {InternalPathString}");
                     return StorageItem = null;
                 }
             }

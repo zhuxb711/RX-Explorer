@@ -124,7 +124,23 @@ namespace FullTrustProcess
                             {
                                 IEnumerable<string> SearchResult = EverythingConnector.Current.Search(BaseLocation, SearchWord, SearchAsRegex, IgnoreCase, MaxCount);
 
-                                Value.Add("Success", JsonConvert.SerializeObject(SearchResult));
+                                if (SearchResult.Any())
+                                {
+                                    Value.Add("Success", JsonConvert.SerializeObject(SearchResult));
+                                }
+                                else
+                                {
+                                    EverythingConnector.StateCode Code = EverythingConnector.Current.GetLastErrorCode();
+
+                                    if (Code == EverythingConnector.StateCode.OK)
+                                    {
+                                        Value.Add("Success", JsonConvert.SerializeObject(SearchResult));
+                                    }
+                                    else
+                                    {
+                                        Value.Add("Error", $"Everything report an error, code: {Enum.GetName(typeof(EverythingConnector.StateCode), Code)}");
+                                    }
+                                }
                             }
                             else
                             {

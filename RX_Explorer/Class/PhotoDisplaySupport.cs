@@ -1,6 +1,7 @@
 ﻿using ComputerVision;
 using System;
 using System.ComponentModel;
+using System.IO;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
@@ -72,20 +73,17 @@ namespace RX_Explorer.Class
 
                 try
                 {
-                    if ((await PhotoFile.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
+                    using (IRandomAccessStream Stream = PhotoFile.GetStreamFromFile(AccessMode.Read).AsRandomAccessStream())
                     {
-                        using (IRandomAccessStream Stream = await File.OpenAsync(FileAccessMode.Read))
+                        if (BitmapSource == null)
                         {
-                            if (BitmapSource == null)
-                            {
-                                BitmapSource = new BitmapImage();
-                            }
-
-                            await BitmapSource.SetSourceAsync(Stream);
+                            BitmapSource = new BitmapImage();
                         }
 
-                        OnPropertyChanged(nameof(BitmapSource));
+                        await BitmapSource.SetSourceAsync(Stream);
                     }
+
+                    OnPropertyChanged(nameof(BitmapSource));
                 }
                 catch
                 {
@@ -130,15 +128,12 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public async Task UpdateImage()
         {
-            if ((await PhotoFile.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
+            using (IRandomAccessStream Stream = PhotoFile.GetStreamFromFile(AccessMode.Read).AsRandomAccessStream())
             {
-                using (IRandomAccessStream Stream = await File.OpenAsync(FileAccessMode.Read))
-                {
-                    await BitmapSource.SetSourceAsync(Stream);
-                }
-
-                OnPropertyChanged(nameof(BitmapSource));
+                await BitmapSource.SetSourceAsync(Stream);
             }
+
+            OnPropertyChanged(nameof(BitmapSource));
         }
 
         /// <summary>
@@ -149,49 +144,42 @@ namespace RX_Explorer.Class
         {
             try
             {
-                if ((await PhotoFile.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
+                using (IRandomAccessStream Stream = PhotoFile.GetStreamFromFile(AccessMode.Read).AsRandomAccessStream())
                 {
-                    using (IRandomAccessStream stream = await File.OpenAsync(FileAccessMode.Read))
-                    {
-                        BitmapDecoder decoder = await BitmapDecoder.CreateAsync(stream);
+                    BitmapDecoder decoder = await BitmapDecoder.CreateAsync(Stream);
 
-                        switch (RotateAngle % 360)
-                        {
-                            case 0:
+                    switch (RotateAngle % 360)
+                    {
+                        case 0:
+                            {
+                                return await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
+                            }
+                        case 90:
+                            {
+                                using (SoftwareBitmap Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
                                 {
-                                    return await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
+                                    return ComputerVisionProvider.RotateEffect(Origin, 90);
                                 }
-                            case 90:
+                            }
+                        case 180:
+                            {
+                                using (SoftwareBitmap Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
                                 {
-                                    using (SoftwareBitmap Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
-                                    {
-                                        return ComputerVisionProvider.RotateEffect(Origin, 90);
-                                    }
+                                    return ComputerVisionProvider.RotateEffect(Origin, 180);
                                 }
-                            case 180:
+                            }
+                        case 270:
+                            {
+                                using (SoftwareBitmap Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
                                 {
-                                    using (SoftwareBitmap Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
-                                    {
-                                        return ComputerVisionProvider.RotateEffect(Origin, 180);
-                                    }
+                                    return ComputerVisionProvider.RotateEffect(Origin, -90);
                                 }
-                            case 270:
-                                {
-                                    using (SoftwareBitmap Origin = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
-                                    {
-                                        return ComputerVisionProvider.RotateEffect(Origin, -90);
-                                    }
-                                }
-                            default:
-                                {
-                                    return null;
-                                }
-                        }
+                            }
+                        default:
+                            {
+                                return null;
+                            }
                     }
-                }
-                else
-                {
-                    return null;
                 }
             }
             catch
