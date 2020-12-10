@@ -65,7 +65,7 @@ namespace RX_Explorer.Class
                     }
                 }
             }
-            set => Inner_Thumbnail = value;
+            protected set => Inner_Thumbnail = value;
         }
 
         protected BitmapImage Inner_Thumbnail { get; set; }
@@ -204,6 +204,11 @@ namespace RX_Explorer.Class
             {
                 return new List<FileSystemStorageItemBase>(0);
             }
+        }
+
+        public bool PermanentDelete()
+        {
+            return WIN_Native_API.DeleteFromPath(Path);
         }
 
         /// <summary>
@@ -348,7 +353,7 @@ namespace RX_Explorer.Class
             OnPropertyChanged(nameof(Size));
         }
 
-        public async Task<FileSystemStorageItemBase> EncryptAsync(string ExportFolderPath, string Key, int KeySize, CancellationToken CancelToken = default)
+        public async Task<SecureAreaStorageItem> EncryptAsync(string ExportFolderPath, string Key, int KeySize, CancellationToken CancelToken = default)
         {
             if (string.IsNullOrWhiteSpace(ExportFolderPath))
             {
@@ -375,7 +380,7 @@ namespace RX_Explorer.Class
 
             string EncryptedFilePath = System.IO.Path.Combine(ExportFolderPath, $"{System.IO.Path.GetFileNameWithoutExtension(Name)}.sle");
 
-            using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(EncryptedFilePath, AccessMode.Write, CreateOption.GenerateUniqueName))
+            using (FileStream EncryptFileStream = WIN_Native_API.CreateFileFromPath(EncryptedFilePath, AccessMode.Write, CreateOption.GenerateUniqueName))
             using (SecureString Secure = SecureAccessProvider.GetFileEncryptionAesIV(Package.Current))
             {
                 IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
@@ -393,7 +398,6 @@ namespace RX_Explorer.Class
                     })
                     {
                         using (FileStream OriginFileStream = GetStreamFromFile(AccessMode.Read))
-                        using (FileStream EncryptFileStream = new FileStream(Handle, FileAccess.Write))
                         using (ICryptoTransform Encryptor = AES.CreateEncryptor())
                         {
                             byte[] Detail = Encoding.UTF8.GetBytes("$" + KeySize + "|" + Type + "$");
@@ -411,110 +415,10 @@ namespace RX_Explorer.Class
                         }
                     }
                 }
-                finally
+                catch(Exception)
                 {
-                    Marshal.ZeroFreeBSTR(Bstr);
-                    unsafe
-                    {
-                        fixed (char* ClearPtr = IV)
-                        {
-                            for (int i = 0; i < IV.Length; i++)
-                            {
-                                ClearPtr[i] = '\0';
-                            }
-                        }
-                    }
-                }
-            }
-
-            return WIN_Native_API.GetStorageItem(EncryptedFilePath, ItemFilters.File);
-        }
-
-        public async Task<FileSystemStorageItemBase> DecryptAsync(string ExportFolderPath, string Key, CancellationToken CancelToken = default)
-        {
-            if (string.IsNullOrWhiteSpace(ExportFolderPath))
-            {
-                throw new ArgumentNullException(nameof(ExportFolderPath), "ExportFolder could not be null");
-            }
-
-            if (string.IsNullOrEmpty(Key))
-            {
-                throw new ArgumentNullException(nameof(Key), "Key could not be null or empty");
-            }
-
-            using (SecureString Secure = SecureAccessProvider.GetFileEncryptionAesIV(Package.Current))
-            {
-                IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
-                string IV = Marshal.PtrToStringBSTR(Bstr);
-
-                try
-                {
-                    using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
-                    {
-                        Mode = CipherMode.CBC,
-                        Padding = PaddingMode.Zeros,
-                        IV = Encoding.UTF8.GetBytes(IV)
-                    })
-                    {
-                        using (FileStream EncryptFileStream = GetStreamFromFile(AccessMode.Read))
-                        {
-                            byte[] DecryptByteBuffer = new byte[20];
-
-                            await EncryptFileStream.ReadAsync(DecryptByteBuffer, 0, DecryptByteBuffer.Length, CancelToken).ConfigureAwait(false);
-
-                            string FileType;
-
-                            if (Encoding.UTF8.GetString(DecryptByteBuffer).Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string Info)
-                            {
-                                string[] InfoGroup = Info.Split('|');
-
-                                if (InfoGroup.Length == 2)
-                                {
-                                    int KeySize = Convert.ToInt32(InfoGroup[0]);
-                                    FileType = InfoGroup[1];
-
-                                    AES.KeySize = KeySize;
-
-                                    int KeyLengthNeed = KeySize / 8;
-                                    AES.Key = Key.Length > KeyLengthNeed ? Encoding.UTF8.GetBytes(Key.Substring(0, KeyLengthNeed)) : Encoding.UTF8.GetBytes(Key.PadRight(KeyLengthNeed, '0'));
-                                }
-                                else
-                                {
-                                    throw new FileDamagedException("File damaged, could not be decrypted");
-                                }
-                            }
-                            else
-                            {
-                                throw new FileDamagedException("File damaged, could not be decrypted");
-                            }
-
-                            string DecryptedFilePath = System.IO.Path.Combine(ExportFolderPath, $"{System.IO.Path.GetFileNameWithoutExtension(Name)}{FileType}");
-
-                            using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(DecryptedFilePath, AccessMode.Exclusive, CreateOption.GenerateUniqueName))
-                            using (FileStream DecryptFileStream = new FileStream(Handle, FileAccess.Write))
-                            using (ICryptoTransform Decryptor = AES.CreateDecryptor(AES.Key, AES.IV))
-                            {
-                                byte[] PasswordConfirm = new byte[16];
-                                EncryptFileStream.Seek(Info.Length + 2, SeekOrigin.Begin);
-                                await EncryptFileStream.ReadAsync(PasswordConfirm, 0, PasswordConfirm.Length, CancelToken).ConfigureAwait(false);
-
-                                if (Encoding.UTF8.GetString(Decryptor.TransformFinalBlock(PasswordConfirm, 0, PasswordConfirm.Length)) == "PASSWORD_CORRECT")
-                                {
-                                    using (CryptoStream TransformStream = new CryptoStream(DecryptFileStream, Decryptor, CryptoStreamMode.Write))
-                                    {
-                                        await EncryptFileStream.CopyToAsync(TransformStream, 8192, CancelToken).ConfigureAwait(false);
-                                        TransformStream.FlushFinalBlock();
-                                    }
-                                }
-                                else
-                                {
-                                    throw new PasswordErrorException("Password is not correct");
-                                }
-                            }
-
-                            return WIN_Native_API.GetStorageItem(DecryptedFilePath, ItemFilters.File);
-                        }
-                    }
+                    WIN_Native_API.DeleteFromPath(EncryptedFilePath);
+                    throw;
                 }
                 finally
                 {
@@ -531,6 +435,8 @@ namespace RX_Explorer.Class
                     }
                 }
             }
+
+            return new SecureAreaStorageItem(WIN_Native_API.GetStorageItem(EncryptedFilePath, ItemFilters.File));
         }
 
         /// <summary>

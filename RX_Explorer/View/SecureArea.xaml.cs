@@ -4,7 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
@@ -25,9 +28,9 @@ namespace RX_Explorer
 {
     public sealed partial class SecureArea : Page
     {
-        private readonly ObservableCollection<FileSystemStorageItemBase> SecureCollection = new ObservableCollection<FileSystemStorageItemBase>();
+        private readonly ObservableCollection<SecureAreaStorageItem> SecureCollection = new ObservableCollection<SecureAreaStorageItem>();
 
-        private StorageFolder SecureFolder;
+        private FileSystemStorageItemBase SecureFolder;
 
         private string FileEncryptionAesKey;
 
@@ -302,27 +305,15 @@ namespace RX_Explorer
         {
             IsNewStart = false;
 
-            SecureFolder = await ApplicationData.Current.LocalCacheFolder.CreateFolderAsync("SecureFolder", CreationCollisionOption.OpenIfExists);
+            string SecureFolderPath = Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder");
 
-            QueryOptions Options = new QueryOptions
+            WIN_Native_API.CreateDirectoryFromPath(SecureFolderPath, CreateDirectoryOption.OpenIfExist, out _);
+
+            SecureFolder = WIN_Native_API.GetStorageItem(SecureFolderPath, ItemFilters.Folder);
+
+            foreach (FileSystemStorageItemBase Item in SecureFolder.GetChildrenItems(false, ItemFilters.File).Where((SLE)=>SLE.Type == ".sle"))
             {
-                FolderDepth = FolderDepth.Shallow,
-                IndexerOption = IndexerOption.UseIndexerWhenAvailable
-            };
-            Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.ItemTypeText", "System.ItemNameDisplayWithoutExtension", "System.FileName", "System.Size", "System.DateModified" });
-
-            StorageFileQueryResult ItemQuery = SecureFolder.CreateFileQueryWithOptions(Options);
-
-            uint Count = await ItemQuery.GetItemCountAsync();
-
-            for (uint i = 0; i < Count; i += 25)
-            {
-                IReadOnlyList<StorageFile> EncryptedFileList = await ItemQuery.GetFilesAsync(i, 25);
-
-                foreach (IStorageItem Item in EncryptedFileList)
-                {
-                    SecureCollection.Add(new FileSystemStorageItemBase(Item as StorageFile, await Item.GetSizeRawDataAsync().ConfigureAwait(true), new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png")), Item.DateCreated, await Item.GetModifiedTimeAsync().ConfigureAwait(true)));
-                }
+                SecureCollection.Add(new SecureAreaStorageItem(Item));
             }
 
             if (SecureCollection.Count == 0)
@@ -369,18 +360,14 @@ namespace RX_Explorer
                     {
                         if (WIN_Native_API.GetStorageItem(OriginFilePath, ItemFilters.File) is FileSystemStorageItemBase Item)
                         {
-                            if (await Item.EncryptAsync(SecureFolder.Path, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is FileSystemStorageItemBase EncryptedFile)
+                            if (await Item.EncryptAsync(SecureFolder.Path, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is SecureAreaStorageItem EncryptedFile)
                             {
                                 SecureCollection.Add(EncryptedFile);
 
-                                //try
-                                //{
-                                //    await File.DeleteAsync(StorageDeleteOption.Default);
-                                //}
-                                //catch (Exception ex)
-                                //{
-                                //    LogTracer.Log(ex);
-                                //}
+                                if (!Item.PermanentDelete())
+                                {
+                                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Delete origin file failed after importing to SecureArea");
+                                }
                             }
                             else
                             {
@@ -454,18 +441,14 @@ namespace RX_Explorer
                         {
                             if (WIN_Native_API.GetStorageItem(OriginFilePath, ItemFilters.File) is FileSystemStorageItemBase Item)
                             {
-                                if (await Item.EncryptAsync(SecureFolder.Path, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is FileSystemStorageItemBase EncryptedFile)
+                                if (await Item.EncryptAsync(SecureFolder.Path, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is SecureAreaStorageItem EncryptedFile)
                                 {
                                     SecureCollection.Add(EncryptedFile);
 
-                                    //try
-                                    //{
-                                    //    await File.DeleteAsync(StorageDeleteOption.Default);
-                                    //}
-                                    //catch (Exception ex)
-                                    //{
-                                    //    LogTracer.Log(ex);
-                                    //}
+                                    if (!Item.PermanentDelete())
+                                    {
+                                        LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Delete origin file failed after importing to SecureArea");
+                                    }
                                 }
                                 else
                                 {
@@ -541,12 +524,13 @@ namespace RX_Explorer
 
             if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
             {
-                foreach (FileSystemStorageItemBase Item in SecureGridView.SelectedItems.ToArray())
+                foreach (SecureAreaStorageItem Item in SecureGridView.SelectedItems.ToArray())
                 {
-                    if (await Item.GetStorageItem().ConfigureAwait(true) is StorageFile ToDeleteFile)
+                    SecureCollection.Remove(Item);
+
+                    if (!Item.PermanentDelete())
                     {
-                        SecureCollection.Remove(Item);
-                        await ToDeleteFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                        LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Delete encrypted file failed");
                     }
                 }
             }
@@ -575,12 +559,16 @@ namespace RX_Explorer
                 {
                     ActivateLoading(true, false);
 
-                    foreach (FileSystemStorageItemBase Item in SecureGridView.SelectedItems.ToArray())
+                    foreach (SecureAreaStorageItem Item in SecureGridView.SelectedItems.ToArray())
                     {
-                        if (await Item.DecryptAsync(Folder.Path, FileEncryptionAesKey, Cancellation.Token).ConfigureAwait(true) is FileSystemStorageItemBase DecryptedFile)
+                        if (await Item.DecryptAsync(Folder.Path, FileEncryptionAesKey, Cancellation.Token).ConfigureAwait(true) is FileSystemStorageItemBase)
                         {
                             SecureCollection.Remove(Item);
-                            //await InnerFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+
+                            if (!Item.PermanentDelete())
+                            {
+                                LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Delete encrypted file failed after exporting to SecureArea");
+                            }
                         }
                         else
                         {

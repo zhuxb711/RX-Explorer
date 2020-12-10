@@ -60,8 +60,7 @@ namespace RX_Explorer.Class
 
             try
             {
-                using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(TargetFolder, Name), AccessMode.ReadWrite, CreateOption.GenerateUniqueName))
-                using (FileStream Stream = new FileStream(Handle, FileAccess.ReadWrite))
+                using (FileStream Stream = WIN_Native_API.CreateFileFromPath(Path.Combine(TargetFolder, Name), AccessMode.ReadWrite, CreateOption.GenerateUniqueName))
                 using (ZipFile Zip = ZipFile.Create(Stream))
                 {
                     Zip.BeginUpdate();
@@ -94,10 +93,9 @@ namespace RX_Explorer.Class
 
             try
             {
-                using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(TargetFolder, Name), AccessMode.ReadWrite, CreateOption.GenerateUniqueName))
+                using (FileStream Stream = WIN_Native_API.CreateFileFromPath(Path.Combine(TargetFolder, Name), AccessMode.ReadWrite, CreateOption.GenerateUniqueName))
                 {
                     RichEditBox REB = new RichEditBox();
-                    using (FileStream Stream = new FileStream(Handle, FileAccess.ReadWrite))
                     using (InMemoryRandomAccessStream MemoryStream = new InMemoryRandomAccessStream())
                     {
                         REB.Document.SaveToStream(Windows.UI.Text.TextGetOptions.FormatRtf, MemoryStream);
@@ -134,8 +132,7 @@ namespace RX_Explorer.Class
 
             try
             {
-                using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(TargetFolder, Name), AccessMode.ReadWrite, CreateOption.GenerateUniqueName))
-                using (FileStream FileStream = new FileStream(Handle,FileAccess.ReadWrite))
+                using (FileStream FileStream = WIN_Native_API.CreateFileFromPath(Path.Combine(TargetFolder, Name), AccessMode.ReadWrite, CreateOption.GenerateUniqueName))
                 using (SpreadsheetDocument Document = SpreadsheetDocument.Create(FileStream, SpreadsheetDocumentType.Workbook))
                 {
                     CreateExcelParts(Document);

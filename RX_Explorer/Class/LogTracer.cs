@@ -327,8 +327,7 @@ namespace RX_Explorer.Class
                         Locker.WaitOne();
                     }
 
-                    using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName), AccessMode.Exclusive, CreateOption.OpenIfExist))
-                    using (FileStream LogFileStream = new FileStream(Handle, FileAccess.ReadWrite))
+                    using (FileStream LogFileStream = WIN_Native_API.CreateFileFromPath(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName), AccessMode.Exclusive, CreateOption.OpenIfExist))
                     {
                         LogFileStream.Seek(0, SeekOrigin.End);
 
@@ -337,6 +336,7 @@ namespace RX_Explorer.Class
                             while (LogQueue.TryDequeue(out string LogItem))
                             {
                                 Writer.WriteLine(LogItem);
+                                Debug.WriteLine(LogItem);
                             }
 
                             Writer.Flush();

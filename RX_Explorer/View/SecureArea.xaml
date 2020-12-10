@@ -117,7 +117,7 @@
                   ItemsSource="{x:Bind SecureCollection}"
                   ItemContainerTransitions="{x:Bind local:AnimationController.Current.PaneLeftTransitions,Mode=OneWay}">
             <GridView.ItemTemplate>
-                <DataTemplate x:DataType="local:FileSystemStorageItemBase">
+                <DataTemplate x:DataType="local:SecureAreaStorageItem">
                     <StackPanel Width="215"
                                 Padding="5"
                                 Orientation="Horizontal"

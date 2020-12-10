@@ -172,6 +172,7 @@
     <Compile Include="Class\OperationRecorder.cs" />
     <Compile Include="Class\PipeLineController.cs" />
     <Compile Include="Class\RecycleStorageItem.cs" />
+    <Compile Include="Class\SecureAreaStorageItem.cs" />
     <Compile Include="Class\SortCollectionGenerator.cs" />
     <Compile Include="Class\SortIndicatorController.cs" />
     <Compile Include="Class\SpecialTypeGenerator.cs" />

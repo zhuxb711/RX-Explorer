@@ -135,6 +135,12 @@ namespace RX_Explorer.Class
         [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern bool CreateDirectoryFromAppW(string lpPathName, IntPtr lpSecurityAttributes);
 
+        [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern bool DeleteFileFromApp(string lpPathName);
+
+        [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern bool RemoveDirectoryFromApp(string lpPathName);
+
         const uint GENERIC_READ = 0x80000000;
         const uint GENERIC_WRITE = 0x40000000;
         const uint FILE_LIST_DIRECTORY = 0x1;
@@ -161,6 +167,79 @@ namespace RX_Explorer.Class
             Modified_Action = 3,
             Rename_Action_OldName = 4,
             Rename_Action_NewName = 5
+        }
+
+        public static bool DeleteFromPath(string Path)
+        {
+            try
+            {
+                if (CheckType(Path) == StorageItemTypes.Folder)
+                {
+                    IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Path, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+
+                    try
+                    {
+                        if (Ptr.ToInt64() != -1)
+                        {
+                            bool AllSuccess = true;
+
+                            do
+                            {
+                                if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
+                                {
+                                    if (Data.cFileName != "." && Data.cFileName != "..")
+                                    {
+                                        if (!DeleteFromPath(System.IO.Path.Combine(Path, Data.cFileName)))
+                                        {
+                                            AllSuccess = false;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (!DeleteFileFromApp(System.IO.Path.Combine(Path, Data.cFileName)))
+                                    {
+                                        AllSuccess = false;
+                                    }
+                                }
+                            }
+                            while (FindNextFile(Ptr, out Data));
+
+                            if (AllSuccess)
+                            {
+                                return RemoveDirectoryFromApp(Path);
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
+                            return false;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex);
+                        return false;
+                    }
+                    finally
+                    {
+                        FindClose(Ptr);
+                    }
+                }
+                else
+                {
+                    return DeleteFileFromApp(Path);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex);
+                return false;
+            }
         }
 
         public static FileStream CreateFileStreamFromExistingPath(string Path, AccessMode AccessMode)
@@ -298,7 +377,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static SafeFileHandle CreateFileHandleFromPath(string Path, AccessMode AccessMode, CreateOption Option)
+        public static FileStream CreateFileFromPath(string Path, AccessMode AccessMode, CreateOption Option)
         {
             IntPtr Handle = IntPtr.Zero;
 
@@ -435,7 +514,26 @@ namespace RX_Explorer.Class
                 throw new Win32Exception(Marshal.GetLastWin32Error());
             }
 
-            return new SafeFileHandle(Handle, true);
+            switch(AccessMode)
+            {
+                case AccessMode.ReadWrite:
+                case AccessMode.Exclusive:
+                    {
+                        return new FileStream(new SafeFileHandle(Handle, true), FileAccess.ReadWrite);
+                    }
+                case AccessMode.Read:
+                    {
+                        return new FileStream(new SafeFileHandle(Handle, true), FileAccess.Read);
+                    }
+                case AccessMode.Write:
+                    {
+                        return new FileStream(new SafeFileHandle(Handle, true), FileAccess.Write);
+                    }
+                default:
+                    {
+                        return null;
+                    }
+            }
         }
 
         public static string GenerateUniquePath(string Path)

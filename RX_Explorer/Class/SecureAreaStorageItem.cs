@@ -1,0 +1,143 @@
+﻿using NetworkAccess;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Security;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Windows.ApplicationModel;
+using Windows.UI.Xaml.Media.Imaging;
+
+namespace RX_Explorer.Class
+{
+    public sealed class SecureAreaStorageItem : FileSystemStorageItemBase
+    {
+        public override BitmapImage Thumbnail
+        {
+            get
+            {
+                return new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
+            }
+        }
+
+        public async Task<FileSystemStorageItemBase> DecryptAsync(string ExportFolderPath, string Key, CancellationToken CancelToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(ExportFolderPath))
+            {
+                throw new ArgumentNullException(nameof(ExportFolderPath), "ExportFolder could not be null");
+            }
+
+            if (string.IsNullOrEmpty(Key))
+            {
+                throw new ArgumentNullException(nameof(Key), "Key could not be null or empty");
+            }
+
+            using (SecureString Secure = SecureAccessProvider.GetFileEncryptionAesIV(Package.Current))
+            {
+                IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
+                string IV = Marshal.PtrToStringBSTR(Bstr);
+                string DecryptedFilePath = string.Empty;
+
+                try
+                {
+                    using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
+                    {
+                        Mode = CipherMode.CBC,
+                        Padding = PaddingMode.Zeros,
+                        IV = Encoding.UTF8.GetBytes(IV)
+                    })
+                    {
+                        using (FileStream EncryptFileStream = GetStreamFromFile(AccessMode.Read))
+                        {
+                            byte[] DecryptByteBuffer = new byte[20];
+
+                            await EncryptFileStream.ReadAsync(DecryptByteBuffer, 0, DecryptByteBuffer.Length, CancelToken).ConfigureAwait(false);
+
+                            string FileType;
+
+                            if (Encoding.UTF8.GetString(DecryptByteBuffer).Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string Info)
+                            {
+                                string[] InfoGroup = Info.Split('|');
+
+                                if (InfoGroup.Length == 2)
+                                {
+                                    int KeySize = Convert.ToInt32(InfoGroup[0]);
+                                    FileType = InfoGroup[1];
+
+                                    AES.KeySize = KeySize;
+
+                                    int KeyLengthNeed = KeySize / 8;
+                                    AES.Key = Key.Length > KeyLengthNeed ? Encoding.UTF8.GetBytes(Key.Substring(0, KeyLengthNeed)) : Encoding.UTF8.GetBytes(Key.PadRight(KeyLengthNeed, '0'));
+                                }
+                                else
+                                {
+                                    throw new FileDamagedException("File damaged, could not be decrypted");
+                                }
+                            }
+                            else
+                            {
+                                throw new FileDamagedException("File damaged, could not be decrypted");
+                            }
+
+                            DecryptedFilePath = System.IO.Path.Combine(ExportFolderPath, $"{System.IO.Path.GetFileNameWithoutExtension(Name)}{FileType}");
+
+                            using (FileStream DecryptFileStream = WIN_Native_API.CreateFileFromPath(DecryptedFilePath, AccessMode.Exclusive, CreateOption.GenerateUniqueName))
+                            using (ICryptoTransform Decryptor = AES.CreateDecryptor(AES.Key, AES.IV))
+                            {
+                                byte[] PasswordConfirm = new byte[16];
+                                EncryptFileStream.Seek(Info.Length + 2, SeekOrigin.Begin);
+                                await EncryptFileStream.ReadAsync(PasswordConfirm, 0, PasswordConfirm.Length, CancelToken).ConfigureAwait(false);
+
+                                if (Encoding.UTF8.GetString(Decryptor.TransformFinalBlock(PasswordConfirm, 0, PasswordConfirm.Length)) == "PASSWORD_CORRECT")
+                                {
+                                    using (CryptoStream TransformStream = new CryptoStream(DecryptFileStream, Decryptor, CryptoStreamMode.Write))
+                                    {
+                                        await EncryptFileStream.CopyToAsync(TransformStream, 8192, CancelToken).ConfigureAwait(false);
+                                        TransformStream.FlushFinalBlock();
+                                    }
+                                }
+                                else
+                                {
+                                    throw new PasswordErrorException("Password is not correct");
+                                }
+                            }
+
+                            return WIN_Native_API.GetStorageItem(DecryptedFilePath, ItemFilters.File);
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    if (!string.IsNullOrEmpty(DecryptedFilePath))
+                    {
+                        WIN_Native_API.DeleteFromPath(DecryptedFilePath);
+                    }
+
+                    throw;
+                }
+                finally
+                {
+                    Marshal.ZeroFreeBSTR(Bstr);
+                    unsafe
+                    {
+                        fixed (char* ClearPtr = IV)
+                        {
+                            for (int i = 0; i < IV.Length; i++)
+                            {
+                                ClearPtr[i] = '\0';
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public SecureAreaStorageItem(FileSystemStorageItemBase Item) : base(Item.RawStorageItemData.GetValueOrDefault(), Item.StorageType, Item.Path, Item.CreationTimeRaw, Item.ModifiedTimeRaw)
+        {
+        }
+    }
+}

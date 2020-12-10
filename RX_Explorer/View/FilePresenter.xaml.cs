@@ -2081,8 +2081,7 @@ namespace RX_Explorer
                                 }
                                 else
                                 {
-                                    using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(TempFolderPath, SplitFolderPath.Last()), AccessMode.Write, CreateOption.ReplaceExisting))
-                                    using (FileStream NewFileStream = new FileStream(Handle, FileAccess.Write))
+                                    using (FileStream NewFileStream = WIN_Native_API.CreateFileFromPath(Path.Combine(TempFolderPath, SplitFolderPath.Last()), AccessMode.Write, CreateOption.ReplaceExisting))
                                     {
                                         await InputZipStream.CopyToAsync(NewFileStream).ConfigureAwait(true);
                                     }
@@ -2090,8 +2089,7 @@ namespace RX_Explorer
                             }
                             else
                             {
-                                using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(NewFolderPath, Entry.Name), AccessMode.Write, CreateOption.ReplaceExisting))
-                                using (FileStream NewFileStream = new FileStream(Handle, FileAccess.Write))
+                                using (FileStream NewFileStream = WIN_Native_API.CreateFileFromPath(Path.Combine(NewFolderPath, Entry.Name), AccessMode.Write, CreateOption.ReplaceExisting))
                                 {
                                     await InputZipStream.CopyToAsync(NewFileStream).ConfigureAwait(true);
                                 }
@@ -2152,8 +2150,7 @@ namespace RX_Explorer
         {
             try
             {
-                using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(Container.CurrentFolder.Path, NewZipName), AccessMode.Exclusive, CreateOption.GenerateUniqueName))
-                using (FileStream NewFileStream = new FileStream(Handle, FileAccess.ReadWrite))
+                using (FileStream NewFileStream = WIN_Native_API.CreateFileFromPath(Path.Combine(Container.CurrentFolder.Path, NewZipName), AccessMode.Exclusive, CreateOption.GenerateUniqueName))
                 using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
                 {
                     OutputStream.SetLevel(ZipLevel);
@@ -2237,8 +2234,7 @@ namespace RX_Explorer
         {
             try
             {
-                using (SafeFileHandle Handle = WIN_Native_API.CreateFileHandleFromPath(Path.Combine(Container.CurrentFolder.Path, NewZipName), AccessMode.Exclusive, CreateOption.GenerateUniqueName))
-                using (FileStream NewFileStream = new FileStream(Handle, FileAccess.ReadWrite))
+                using (FileStream NewFileStream = WIN_Native_API.CreateFileFromPath(Path.Combine(Container.CurrentFolder.Path, NewZipName), AccessMode.Exclusive, CreateOption.GenerateUniqueName))
                 using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
                 {
                     OutputStream.SetLevel(ZipLevel);
@@ -2502,7 +2498,7 @@ namespace RX_Explorer
                                 {
                                     string DestFilePath = Path.Combine(Container.CurrentFolder.Path, $"{Source.Path}.{dialog.MediaTranscodeEncodingProfile.ToLower()}");
 
-                                    WIN_Native_API.CreateFileHandleFromPath(DestFilePath, AccessMode.Exclusive, CreateOption.GenerateUniqueName).Dispose();
+                                    WIN_Native_API.CreateFileFromPath(DestFilePath, AccessMode.Exclusive, CreateOption.GenerateUniqueName).Dispose();
 
                                     StorageFile DestinationFile = await StorageFile.GetFileFromPathAsync(DestFilePath);
 
@@ -4047,7 +4043,7 @@ namespace RX_Explorer
                             }
                         default:
                             {
-                                WIN_Native_API.CreateFileHandleFromPath(Path.Combine(Container.CurrentFolder.Path, Dialog.NewFileName), AccessMode.ReadWrite, CreateOption.GenerateUniqueName).Dispose();
+                                WIN_Native_API.CreateFileFromPath(Path.Combine(Container.CurrentFolder.Path, Dialog.NewFileName), AccessMode.ReadWrite, CreateOption.GenerateUniqueName).Dispose();
                                 break;
                             }
                     }

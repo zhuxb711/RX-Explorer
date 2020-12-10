@@ -5,7 +5,6 @@ using Microsoft.Win32.SafeHandles;
 using NetworkAccess;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -268,61 +267,6 @@ namespace RX_Explorer.Class
             else
             {
                 return new List<T>();
-            }
-        }
-
-        public static async Task MoveSubFilesAndSubFoldersAsync(this StorageFolder Folder, StorageFolder TargetFolder)
-        {
-            if (Folder == null)
-            {
-                throw new ArgumentNullException(nameof(Folder), "Parameter could not be null");
-            }
-
-            if (TargetFolder == null)
-            {
-                throw new ArgumentNullException(nameof(TargetFolder), "Parameter could not be null");
-            }
-
-            foreach (IStorageItem Item in await Folder.GetItemsAsync())
-            {
-                if (Item is StorageFolder SubFolder)
-                {
-                    StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(SubFolder.Name, CreationCollisionOption.OpenIfExists);
-
-                    await MoveSubFilesAndSubFoldersAsync(SubFolder, NewFolder).ConfigureAwait(false);
-                }
-                else
-                {
-                    await ((StorageFile)Item).MoveAsync(TargetFolder, Item.Name, NameCollisionOption.GenerateUniqueName);
-                }
-            }
-
-            await Folder.DeleteAllSubFilesAndFolders().ConfigureAwait(false);
-        }
-
-        public static async Task CopySubFilesAndSubFoldersAsync(this StorageFolder Folder, StorageFolder TargetFolder)
-        {
-            if (Folder == null)
-            {
-                throw new ArgumentNullException(nameof(Folder), "Parameter could not be null");
-            }
-
-            if (TargetFolder == null)
-            {
-                throw new ArgumentNullException(nameof(TargetFolder), "Parameter could not be null");
-            }
-
-            foreach (IStorageItem Item in await Folder.GetItemsAsync())
-            {
-                if (Item is StorageFolder SubFolder)
-                {
-                    StorageFolder NewFolder = await TargetFolder.CreateFolderAsync(SubFolder.Name, CreationCollisionOption.OpenIfExists);
-                    await CopySubFilesAndSubFoldersAsync(SubFolder, NewFolder).ConfigureAwait(false);
-                }
-                else
-                {
-                    await ((StorageFile)Item).CopyAsync(TargetFolder, Item.Name, NameCollisionOption.GenerateUniqueName);
-                }
             }
         }
 
@@ -817,33 +761,6 @@ namespace RX_Explorer.Class
                 CurrentParent = VisualTreeHelper.GetParent(CurrentParent);
             }
             return Parent;
-        }
-
-        /// <summary>
-        /// 删除当前文件夹下的所有子文件和子文件夹
-        /// </summary>
-        /// <param name="Folder">当前文件夹</param>
-        /// <returns></returns>
-        public static async Task DeleteAllSubFilesAndFolders(this StorageFolder Folder)
-        {
-            if (Folder == null)
-            {
-                throw new ArgumentNullException(nameof(Folder), "Folder could not be null");
-            }
-
-            foreach (IStorageItem Item in await Folder.GetItemsAsync())
-            {
-                if (Item is StorageFolder folder)
-                {
-                    await DeleteAllSubFilesAndFolders(folder).ConfigureAwait(false);
-                }
-                else
-                {
-                    await Item.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                }
-            }
-
-            await Folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
         }
 
         public static async Task<ulong> GetSizeRawDataAsync(this IStorageItem Item)

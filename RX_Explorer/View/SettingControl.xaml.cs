@@ -711,9 +711,11 @@ namespace RX_Explorer
                     {
                         foreach (FileSystemStorageItemBase Item in WIN_Native_API.GetStorageItems(SecureFolder.Path, false, ItemFilters.File))
                         {
-                            if (await Item.DecryptAsync(Dialog.ExportFolder.Path, FileEncryptionAesKey).ConfigureAwait(true) is FileSystemStorageItemBase)
+                            SecureAreaStorageItem SItem = new SecureAreaStorageItem(Item);
+
+                            if (await SItem.DecryptAsync(Dialog.ExportFolder.Path, FileEncryptionAesKey).ConfigureAwait(true) is FileSystemStorageItemBase)
                             {
-                                //await Item.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                                SItem.PermanentDelete();
                             }
                         }
 
