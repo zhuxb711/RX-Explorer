@@ -2,10 +2,8 @@
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using ICSharpCode.SharpZipLib.Zip;
-using Microsoft.Win32.SafeHandles;
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml.Controls;
@@ -58,18 +56,25 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("The extension must be .zip", nameof(Name));
             }
 
-            try
+            if (FileSystemStorageItemBase.Create(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
             {
-                using (FileStream Stream = WIN_Native_API.CreateFileFromPath(Path.Combine(TargetFolder, Name), AccessMode.ReadWrite, CreateOption.GenerateUniqueName))
-                using (ZipFile Zip = ZipFile.Create(Stream))
+                try
                 {
-                    Zip.BeginUpdate();
-                    Zip.CommitUpdate();
+                    using (FileStream Stream = Item.GetStreamFromFile(AccessMode.ReadWrite))
+                    using (ZipFile Zip = ZipFile.Create(Stream))
+                    {
+                        Zip.BeginUpdate();
+                        Zip.CommitUpdate();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex);
+                    throw new UnauthorizedAccessException();
                 }
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.Log(ex);
                 throw new UnauthorizedAccessException();
             }
         }
@@ -91,24 +96,31 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("The extension must be .rtf", nameof(Name));
             }
 
-            try
+            if (FileSystemStorageItemBase.Create(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
             {
-                using (FileStream Stream = WIN_Native_API.CreateFileFromPath(Path.Combine(TargetFolder, Name), AccessMode.ReadWrite, CreateOption.GenerateUniqueName))
+                try
                 {
-                    RichEditBox REB = new RichEditBox();
-                    using (InMemoryRandomAccessStream MemoryStream = new InMemoryRandomAccessStream())
+                    using (FileStream Stream = Item.GetStreamFromFile(AccessMode.ReadWrite))
                     {
-                        REB.Document.SaveToStream(Windows.UI.Text.TextGetOptions.FormatRtf, MemoryStream);
-                        using (Stream TempStream = MemoryStream.AsStreamForRead())
+                        RichEditBox REB = new RichEditBox();
+                        using (InMemoryRandomAccessStream MemoryStream = new InMemoryRandomAccessStream())
                         {
-                            TempStream.CopyTo(Stream);
+                            REB.Document.SaveToStream(Windows.UI.Text.TextGetOptions.FormatRtf, MemoryStream);
+                            using (Stream TempStream = MemoryStream.AsStreamForRead())
+                            {
+                                TempStream.CopyTo(Stream);
+                            }
                         }
                     }
                 }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex);
+                    throw new UnauthorizedAccessException();
+                }
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.Log(ex);
                 throw new UnauthorizedAccessException();
             }
         }
@@ -130,17 +142,24 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("The extension must be .xlsx", nameof(Name));
             }
 
-            try
+            if (FileSystemStorageItemBase.Create(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
             {
-                using (FileStream FileStream = WIN_Native_API.CreateFileFromPath(Path.Combine(TargetFolder, Name), AccessMode.ReadWrite, CreateOption.GenerateUniqueName))
-                using (SpreadsheetDocument Document = SpreadsheetDocument.Create(FileStream, SpreadsheetDocumentType.Workbook))
+                try
                 {
-                    CreateExcelParts(Document);
+                    using (FileStream FileStream = Item.GetStreamFromFile(AccessMode.ReadWrite))
+                    using (SpreadsheetDocument Document = SpreadsheetDocument.Create(FileStream, SpreadsheetDocumentType.Workbook))
+                    {
+                        CreateExcelParts(Document);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex);
+                    throw new UnauthorizedAccessException();
                 }
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.Log(ex);
                 throw new UnauthorizedAccessException();
             }
         }

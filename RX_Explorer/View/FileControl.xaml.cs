@@ -433,7 +433,7 @@ namespace RX_Explorer
             {
                 try
                 {
-                    List<string> StorageItemPath = WIN_Native_API.GetStorageItemsPath(Content.Path, SettingControl.IsDisplayHiddenItem, ItemFilters.Folder);
+                    List<string> StorageItemPath = WIN_Native_API.GetStorageItemsAndReturnPath(Content.Path, SettingControl.IsDisplayHiddenItem, ItemFilters.Folder);
 
                     for (int i = 0; i < StorageItemPath.Count && Node.IsExpanded && Node.CanTraceToRootNode(FolderTree.RootNodes.FirstOrDefault()); i++)
                     {
@@ -544,9 +544,9 @@ namespace RX_Explorer
                     RecordIndex = GoAndBackRecord.Count - 1;
                 }
 
-                if(WIN_Native_API.CheckIfHidden(FolderPath))
+                if (WIN_Native_API.CheckIfHidden(FolderPath))
                 {
-                    if (WIN_Native_API.GetStorageItem(FolderPath, ItemFilters.Folder) is FileSystemStorageItemBase Item)
+                    if (FileSystemStorageItemBase.Open(FolderPath, ItemFilters.Folder) is FileSystemStorageItemBase Item)
                     {
                         CurrentFolder = Item;
                     }
@@ -573,7 +573,7 @@ namespace RX_Explorer
                     }
                     catch
                     {
-                        if (WIN_Native_API.GetStorageItem(FolderPath, ItemFilters.Folder) is FileSystemStorageItemBase Item)
+                        if (FileSystemStorageItemBase.Open(FolderPath, ItemFilters.Folder) is FileSystemStorageItemBase Item)
                         {
                             CurrentFolder = Item;
                         }
@@ -757,7 +757,7 @@ namespace RX_Explorer
                     {
                         await FullTrustProcessController.Current.DeleteAsync(CurrentFolder.Path, QueueContenDialog.IsPermanentDelete).ConfigureAwait(true);
 
-                            await DisplayItemsInFolder(Path.GetDirectoryName(CurrentFolder.Path)).ConfigureAwait(true);
+                        await DisplayItemsInFolder(Path.GetDirectoryName(CurrentFolder.Path)).ConfigureAwait(true);
 
                         await FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
                     }
@@ -981,7 +981,25 @@ namespace RX_Explorer
 
         private async void CreateFolder_Click(object sender, RoutedEventArgs e)
         {
-            if (!WIN_Native_API.CheckExist(CurrentFolder.Path))
+            if (WIN_Native_API.CheckExist(CurrentFolder.Path))
+            {
+                if (FileSystemStorageItemBase.Create(Path.Combine(CurrentFolder.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) == null)
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnauthorizedCreateFolder_Content"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                    };
+
+                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    {
+                        _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
+                    }
+                }
+            }
+            else
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -991,24 +1009,6 @@ namespace RX_Explorer
                 };
 
                 _ = await dialog.ShowAsync().ConfigureAwait(true);
-
-                return;
-            }
-
-            if (!WIN_Native_API.CreateDirectoryFromPath(Path.Combine(CurrentFolder.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), CreateDirectoryOption.GenerateUniqueName, out string _))
-            {
-                QueueContentDialog dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_UnauthorizedCreateFolder_Content"),
-                    PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                };
-
-                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                {
-                    _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                }
             }
         }
 
@@ -1267,7 +1267,7 @@ namespace RX_Explorer
 
             if (ProtentialPath1 != QueryText && WIN_Native_API.CheckExist(ProtentialPath1))
             {
-                if (WIN_Native_API.GetStorageItem(ProtentialPath1) is FileSystemStorageItemBase Item)
+                if (FileSystemStorageItemBase.Open(ProtentialPath1) is FileSystemStorageItemBase Item)
                 {
                     await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
 
@@ -1281,7 +1281,7 @@ namespace RX_Explorer
             }
             else if (ProtentialPath2 != QueryText && WIN_Native_API.CheckExist(ProtentialPath2))
             {
-                if (WIN_Native_API.GetStorageItem(ProtentialPath2) is FileSystemStorageItemBase Item)
+                if (FileSystemStorageItemBase.Open(ProtentialPath2) is FileSystemStorageItemBase Item)
                 {
                     await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
 
@@ -1295,7 +1295,7 @@ namespace RX_Explorer
             }
             else if (ProtentialPath3 != QueryText && WIN_Native_API.CheckExist(ProtentialPath3))
             {
-                if (WIN_Native_API.GetStorageItem(ProtentialPath3) is FileSystemStorageItemBase Item)
+                if (FileSystemStorageItemBase.Open(ProtentialPath3) is FileSystemStorageItemBase Item)
                 {
                     await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
 
@@ -1362,20 +1362,32 @@ namespace RX_Explorer
                         }
                     }
 
-                    if (WIN_Native_API.GetStorageItem(QueryText) is FileSystemStorageItemBase Item)
+                    if (FileSystemStorageItemBase.Open(QueryText) is FileSystemStorageItemBase Item)
                     {
                         if (Item.StorageType == StorageItemTypes.File)
                         {
-                            StorageFile File = (await Item.GetStorageItem().ConfigureAwait(true)) as StorageFile;
-
-                            if (!await Launcher.LaunchFileAsync(File))
+                            if (await Item.GetStorageItem().ConfigureAwait(true) is StorageFile File)
                             {
-                                LauncherOptions options = new LauncherOptions
+                                if (!await Launcher.LaunchFileAsync(File))
                                 {
-                                    DisplayApplicationPicker = true
+                                    LauncherOptions options = new LauncherOptions
+                                    {
+                                        DisplayApplicationPicker = true
+                                    };
+
+                                    _ = await Launcher.LaunchFileAsync(File, options);
+                                }
+                            }
+                            else
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                 };
 
-                                _ = await Launcher.LaunchFileAsync(File, options);
+                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
                             }
                         }
                         else
@@ -1450,11 +1462,11 @@ namespace RX_Explorer
 
                                 if (string.IsNullOrEmpty(FileName))
                                 {
-                                    sender.ItemsSource = WIN_Native_API.GetStorageItems(DirectoryPath, false, ItemFilters.Folder).Take(20).Select((It) => It.Path);
+                                    sender.ItemsSource = FileSystemStorageItemBase.Open(DirectoryPath).GetChildrenItems(SettingControl.IsDisplayHiddenItem, ItemFilters.Folder).Take(20).Select((It) => It.Path);
                                 }
                                 else
                                 {
-                                    sender.ItemsSource = WIN_Native_API.GetStorageItems(DirectoryPath, false, ItemFilters.Folder).Where((Item) => Item.Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase)).Take(20).Select((It) => It.Path);
+                                    sender.ItemsSource = FileSystemStorageItemBase.Open(DirectoryPath).GetChildrenItems(SettingControl.IsDisplayHiddenItem, ItemFilters.Folder).Where((Item) => Item.Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase)).Take(20).Select((It) => It.Path);
                                 }
                             }
                         }
@@ -1801,7 +1813,7 @@ namespace RX_Explorer
             string OriginalString = string.Join("\\", AddressButtonList.Take(AddressButtonList.IndexOf(Convert.ToString(Btn.DataContext)) + 1).Skip(1));
             string ActualString = Path.Combine(Path.GetPathRoot(CurrentFolder.Path), OriginalString);
 
-            List<string> ItemList = WIN_Native_API.GetStorageItemsPath(ActualString, SettingControl.IsDisplayHiddenItem, ItemFilters.Folder);
+            List<string> ItemList = WIN_Native_API.GetStorageItemsAndReturnPath(ActualString, SettingControl.IsDisplayHiddenItem, ItemFilters.Folder);
 
             foreach (string SubFolderName in ItemList.Select((Item) => Path.GetFileName(Item)))
             {
@@ -1877,7 +1889,7 @@ namespace RX_Explorer
                         if (HeadNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
                         {
                             HtmlNodeCollection BodyNode = Document.DocumentNode.SelectNodes("/p");
-                            List<string> LinkItemsPath = BodyNode.Select((Node) => Node.InnerText).ToList();
+                            List<string> LinkAndHiddenItemsPath = BodyNode.Select((Node) => Node.InnerText).ToList();
 
                             StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(ActualPath);
 
@@ -1890,7 +1902,7 @@ namespace RX_Explorer
                                     Retry:
                                         try
                                         {
-                                            await FullTrustProcessController.Current.CopyAsync(LinkItemsPath, TargetFolder.Path, (s, arg) =>
+                                            await FullTrustProcessController.Current.CopyAsync(LinkAndHiddenItemsPath, TargetFolder.Path, (s, arg) =>
                                             {
                                                 if (ProBar.Value < arg.ProgressPercentage)
                                                 {
@@ -1955,7 +1967,7 @@ namespace RX_Explorer
                                     }
                                 case DataPackageOperation.Move:
                                     {
-                                        if (LinkItemsPath.All((Item) => Path.GetDirectoryName(Item) == ActualPath))
+                                        if (LinkAndHiddenItemsPath.All((Item) => Path.GetDirectoryName(Item) == ActualPath))
                                         {
                                             return;
                                         }
@@ -1965,7 +1977,7 @@ namespace RX_Explorer
                                     Retry:
                                         try
                                         {
-                                            await FullTrustProcessController.Current.MoveAsync(LinkItemsPath, TargetFolder.Path, (s, arg) =>
+                                            await FullTrustProcessController.Current.MoveAsync(LinkAndHiddenItemsPath, TargetFolder.Path, (s, arg) =>
                                             {
                                                 if (ProBar.Value < arg.ProgressPercentage)
                                                 {
@@ -2227,27 +2239,70 @@ namespace RX_Explorer
             }
         }
 
-        private void AddressButton_DragOver(object sender, DragEventArgs e)
+        private async void AddressButton_DragOver(object sender, DragEventArgs e)
         {
-            if (e.DataView.Contains(StandardDataFormats.StorageItems) || e.DataView.Contains(StandardDataFormats.Html))
-            {
-                if (e.Modifiers.HasFlag(DragDropModifiers.Control))
-                {
-                    e.AcceptedOperation = DataPackageOperation.Copy;
-                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {(e.OriginalSource as Button).Content}";
-                }
-                else
-                {
-                    e.AcceptedOperation = DataPackageOperation.Move;
-                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {(e.OriginalSource as Button).Content}";
-                }
+            var Deferral = e.GetDeferral();
 
-                e.DragUIOverride.IsContentVisible = true;
-                e.DragUIOverride.IsCaptionVisible = true;
-            }
-            else
+            try
             {
-                e.AcceptedOperation = DataPackageOperation.None;
+                if (e.OriginalSource is Button Btn)
+                {
+                    if (e.DataView.Contains(StandardDataFormats.StorageItems))
+                    {
+                        if (e.Modifiers.HasFlag(DragDropModifiers.Control))
+                        {
+                            e.AcceptedOperation = DataPackageOperation.Copy;
+                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {Btn.Content}";
+                        }
+                        else
+                        {
+                            e.AcceptedOperation = DataPackageOperation.Move;
+                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {Btn.Content}";
+                        }
+
+                        e.DragUIOverride.IsContentVisible = true;
+                        e.DragUIOverride.IsCaptionVisible = true;
+                    }
+                    else if (e.DataView.Contains(StandardDataFormats.Html))
+                    {
+                        string Html = await e.DataView.GetHtmlFormatAsync();
+                        string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
+
+                        HtmlDocument Document = new HtmlDocument();
+                        Document.LoadHtml(Fragment);
+                        HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
+
+                        if (HeadNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
+                        {
+                            if (e.Modifiers.HasFlag(DragDropModifiers.Control))
+                            {
+                                e.AcceptedOperation = DataPackageOperation.Copy;
+                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {Btn.Content}";
+                            }
+                            else
+                            {
+                                e.AcceptedOperation = DataPackageOperation.Move;
+                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {Btn.Content}";
+                            }
+                        }
+                        else
+                        {
+                            e.AcceptedOperation = DataPackageOperation.None;
+                        }
+                    }
+                    else
+                    {
+                        e.AcceptedOperation = DataPackageOperation.None;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex);
+            }
+            finally
+            {
+                Deferral.Complete();
             }
         }
 

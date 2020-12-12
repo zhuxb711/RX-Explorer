@@ -27,7 +27,7 @@ namespace RX_Explorer
     {
         private readonly ObservableCollection<SecureAreaStorageItem> SecureCollection = new ObservableCollection<SecureAreaStorageItem>();
 
-        private readonly string SecureFolderPath = Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder");
+        private FileSystemStorageItemBase SecureFolder;
 
         private string FileEncryptionAesKey;
 
@@ -302,9 +302,9 @@ namespace RX_Explorer
         {
             IsNewStart = false;
 
-            WIN_Native_API.CreateDirectoryFromPath(SecureFolderPath, CreateDirectoryOption.OpenIfExist, out _);
+            SecureFolder = FileSystemStorageItemBase.Create(Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder"), StorageItemTypes.Folder, CreateOption.OpenIfExist);
 
-            foreach (SecureAreaStorageItem Item in WIN_Native_API.GetStorageItems(SecureFolderPath, false, ItemFilters.File))
+            foreach (SecureAreaStorageItem Item in SecureFolder.GetChildrenItems(false, ItemFilters.File))
             {
                 SecureCollection.Add(Item);
             }
@@ -351,9 +351,9 @@ namespace RX_Explorer
                 {
                     foreach (string OriginFilePath in FileList.Select((Item) => Item.Path))
                     {
-                        if (WIN_Native_API.GetStorageItem(OriginFilePath, ItemFilters.File) is FileSystemStorageItemBase Item)
+                        if (FileSystemStorageItemBase.Open(OriginFilePath, ItemFilters.File) is FileSystemStorageItemBase Item)
                         {
-                            if (await Item.EncryptAsync(SecureFolderPath, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is SecureAreaStorageItem EncryptedFile)
+                            if (await Item.EncryptAsync(SecureFolder.Path, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is SecureAreaStorageItem EncryptedFile)
                             {
                                 SecureCollection.Add(EncryptedFile);
 
@@ -432,9 +432,9 @@ namespace RX_Explorer
                     {
                         foreach (string OriginFilePath in Items.Select((Item) => Item.Path))
                         {
-                            if (WIN_Native_API.GetStorageItem(OriginFilePath, ItemFilters.File) is FileSystemStorageItemBase Item)
+                            if (FileSystemStorageItemBase.Open(OriginFilePath, ItemFilters.File) is FileSystemStorageItemBase Item)
                             {
-                                if (await Item.EncryptAsync(SecureFolderPath, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is SecureAreaStorageItem EncryptedFile)
+                                if (await Item.EncryptAsync(SecureFolder.Path, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is SecureAreaStorageItem EncryptedFile)
                                 {
                                     SecureCollection.Add(EncryptedFile);
 

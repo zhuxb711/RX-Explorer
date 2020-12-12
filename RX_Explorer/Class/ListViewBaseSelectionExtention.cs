@@ -265,6 +265,8 @@ namespace RX_Explorer.Class
                 View = null;
                 RectangleInCanvas = null;
                 InnerScrollView = null;
+
+                GC.SuppressFinalize(this);
             }
         }
 

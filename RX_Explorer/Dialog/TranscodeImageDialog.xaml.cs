@@ -12,13 +12,16 @@ namespace RX_Explorer.Dialog
 {
     public sealed partial class TranscodeImageDialog : QueueContentDialog
     {
-        public StorageFile TargetFile { get; private set; }
+        public FileSystemStorageItemBase TargetFile { get; private set; }
 
         private readonly uint PixelWidth;
 
         private readonly uint PixelHeight;
 
-        private FileSavePicker Picker;
+        private FileSavePicker Picker = new FileSavePicker
+        {
+            SuggestedStartLocation = PickerLocationId.Desktop
+        };
 
         public uint ScaleWidth { get; private set; }
 
@@ -47,7 +50,10 @@ namespace RX_Explorer.Dialog
 
         private async void SavePositionButton_Click(object sender, RoutedEventArgs e)
         {
-            TargetFile = await Picker.PickSaveFileAsync();
+            if (await Picker.PickSaveFileAsync() is StorageFile File)
+            {
+                TargetFile = FileSystemStorageItemBase.Open(File.Path, ItemFilters.File);
+            }
         }
 
         private (uint, uint) GetScalePixelData(string ComboBoxInputText)
@@ -94,10 +100,7 @@ namespace RX_Explorer.Dialog
         {
             TargetFile = null;
 
-            Picker = new FileSavePicker
-            {
-                SuggestedStartLocation = PickerLocationId.Desktop
-            };
+            Picker.FileTypeChoices.Clear();
 
             switch (Format.SelectedItem.ToString().Split(" ").FirstOrDefault())
             {

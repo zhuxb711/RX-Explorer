@@ -1472,9 +1472,9 @@ namespace RX_Explorer.Class
 
                                     if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
                                     {
-                                        if (WIN_Native_API.CreateDirectoryFromPath(TargetPath, CreateDirectoryOption.GenerateUniqueName, out string NewFolderPath))
+                                        if (FileSystemStorageItemBase.Create(TargetPath, StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFolder)
                                         {
-                                            MessageList.Add(new KeyValuePair<string, string>(SourcePath, Path.GetFileName(NewFolderPath)));
+                                            MessageList.Add(new KeyValuePair<string, string>(SourcePath, Path.GetFileName(NewFolder.Path)));
                                         }
                                         else
                                         {
@@ -1619,7 +1619,7 @@ namespace RX_Explorer.Class
                                 {
                                     string TargetPath = Path.Combine(DestinationPath, Path.GetFileName(SourcePath));
 
-                                    if(WIN_Native_API.CheckExist(TargetPath))
+                                    if (WIN_Native_API.CheckExist(TargetPath))
                                     {
                                         QueueContentDialog Dialog = new QueueContentDialog
                                         {
@@ -1631,9 +1631,9 @@ namespace RX_Explorer.Class
 
                                         if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
                                         {
-                                            if (WIN_Native_API.CreateDirectoryFromPath(TargetPath, CreateDirectoryOption.GenerateUniqueName, out string NewFolderPath))
+                                            if (FileSystemStorageItemBase.Create(TargetPath, StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFolder)
                                             {
-                                                MessageList.Add(new KeyValuePair<string, string>(SourcePath, Path.GetFileName(NewFolderPath)));
+                                                MessageList.Add(new KeyValuePair<string, string>(SourcePath, Path.GetFileName(NewFolder.Path)));
                                             }
                                             else
                                             {

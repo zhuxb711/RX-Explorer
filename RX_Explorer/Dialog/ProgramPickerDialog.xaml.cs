@@ -249,9 +249,23 @@ namespace RX_Explorer.Dialog
                 }
             }
 
-            foreach (ProgramPickerItem Item in RecommandList)
+            if(RecommandList.Count == 0)
             {
-                ProgramCollection.Add(Item);
+                ShowMore.Visibility = Visibility.Collapsed;
+
+                foreach (ProgramPickerItem Item in NotRecommandList)
+                {
+                    ProgramCollection.Add(Item);
+                }
+
+                OtherProgramList.MaxHeight = 300;
+            }
+            else
+            {
+                foreach (ProgramPickerItem Item in RecommandList)
+                {
+                    ProgramCollection.Add(Item);
+                }
             }
 
             if (CurrentUseProgramList.SelectedIndex == -1)

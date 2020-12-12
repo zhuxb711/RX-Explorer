@@ -59,78 +59,82 @@ namespace RX_Explorer.Dialog
                     ExtraDataArea.Visibility = Visibility.Collapsed;
 
                     TargetPath = LinkItem.LinkTargetPath;
-
-                    goto JUMP;
                 }
-
-                if (await Item.GetStorageItem().ConfigureAwait(true) is StorageFile File)
+                else
                 {
-                    if (File.ContentType.StartsWith("video", StringComparison.OrdinalIgnoreCase))
+                    if (await Item.GetStorageItem().ConfigureAwait(true) is StorageFile File)
                     {
-                        VideoProperties Video = await File.Properties.GetVideoPropertiesAsync();
-                        ExtraData.Text = $"{Globalization.GetString("FileProperty_Resolution")}: {((Video.Width == 0 && Video.Height == 0) ? Globalization.GetString("UnknownText") : $"{Video.Width}×{Video.Height}")}{Environment.NewLine}{Globalization.GetString("FileProperty_Bitrate")}: {(Video.Bitrate == 0 ? Globalization.GetString("UnknownText") : (Video.Bitrate / 1024f < 1024 ? Math.Round(Video.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Video.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}{Environment.NewLine}{Globalization.GetString("FileProperty_Duration")}: {ConvertTimsSpanToString(Video.Duration)}";
-                    }
-                    else if (File.ContentType.StartsWith("audio", StringComparison.OrdinalIgnoreCase))
-                    {
-                        MusicProperties Music = await File.Properties.GetMusicPropertiesAsync();
-                        ExtraData.Text = $"{Globalization.GetString("FileProperty_Bitrate")}: {(Music.Bitrate == 0 ? Globalization.GetString("UnknownText") : (Music.Bitrate / 1024f < 1024 ? Math.Round(Music.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Music.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}{Environment.NewLine}{Globalization.GetString("FileProperty_Duration")}: {ConvertTimsSpanToString(Music.Duration)}";
-                    }
-                    else if (File.ContentType.StartsWith("image", StringComparison.OrdinalIgnoreCase))
-                    {
-                        ImageProperties Image = await File.Properties.GetImagePropertiesAsync();
-                        ExtraData.Text = $"{Globalization.GetString("FileProperty_Resolution")}: {((Image.Width == 0 && Image.Height == 0) ? Globalization.GetString("UnknownText") : $"{Image.Width}×{Image.Height}")}{Environment.NewLine}{Globalization.GetString("FileProperty_ShootingDate")}: {Image.DateTaken.ToLocalTime():F}{Environment.NewLine}{Globalization.GetString("FileProperty_Longitude")}: {(Image.Longitude.HasValue ? Image.Longitude.Value.ToString() : Globalization.GetString("UnknownText"))}{Environment.NewLine}{Globalization.GetString("FileProperty_Latitude")}: {(Image.Latitude.HasValue ? Image.Latitude.Value.ToString() : Globalization.GetString("UnknownText"))}";
+                        if (File.ContentType.StartsWith("video", StringComparison.OrdinalIgnoreCase))
+                        {
+                            VideoProperties Video = await File.Properties.GetVideoPropertiesAsync();
+                            ExtraData.Text = $"{Globalization.GetString("FileProperty_Resolution")}: {((Video.Width == 0 && Video.Height == 0) ? Globalization.GetString("UnknownText") : $"{Video.Width}×{Video.Height}")}{Environment.NewLine}{Globalization.GetString("FileProperty_Bitrate")}: {(Video.Bitrate == 0 ? Globalization.GetString("UnknownText") : (Video.Bitrate / 1024f < 1024 ? Math.Round(Video.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Video.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}{Environment.NewLine}{Globalization.GetString("FileProperty_Duration")}: {ConvertTimsSpanToString(Video.Duration)}";
+                        }
+                        else if (File.ContentType.StartsWith("audio", StringComparison.OrdinalIgnoreCase))
+                        {
+                            MusicProperties Music = await File.Properties.GetMusicPropertiesAsync();
+                            ExtraData.Text = $"{Globalization.GetString("FileProperty_Bitrate")}: {(Music.Bitrate == 0 ? Globalization.GetString("UnknownText") : (Music.Bitrate / 1024f < 1024 ? Math.Round(Music.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Music.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}{Environment.NewLine}{Globalization.GetString("FileProperty_Duration")}: {ConvertTimsSpanToString(Music.Duration)}";
+                        }
+                        else if (File.ContentType.StartsWith("image", StringComparison.OrdinalIgnoreCase))
+                        {
+                            ImageProperties Image = await File.Properties.GetImagePropertiesAsync();
+                            ExtraData.Text = $"{Globalization.GetString("FileProperty_Resolution")}: {((Image.Width == 0 && Image.Height == 0) ? Globalization.GetString("UnknownText") : $"{Image.Width}×{Image.Height}")}{Environment.NewLine}{Globalization.GetString("FileProperty_ShootingDate")}: {Image.DateTaken.ToLocalTime():F}{Environment.NewLine}{Globalization.GetString("FileProperty_Longitude")}: {(Image.Longitude.HasValue ? Image.Longitude.Value.ToString() : Globalization.GetString("UnknownText"))}{Environment.NewLine}{Globalization.GetString("FileProperty_Latitude")}: {(Image.Latitude.HasValue ? Image.Latitude.Value.ToString() : Globalization.GetString("UnknownText"))}";
+                        }
+                        else
+                        {
+                            switch (File.FileType)
+                            {
+                                case ".flv":
+                                case ".rmvb":
+                                case ".rm":
+                                case ".mov":
+                                case ".mkv":
+                                case ".mp4":
+                                case ".m4v":
+                                case ".m2ts":
+                                case ".wmv":
+                                case ".f4v":
+                                case ".ts":
+                                case ".swf":
+                                    {
+                                        VideoProperties Video = await File.Properties.GetVideoPropertiesAsync();
+                                        ExtraData.Text = $"{Globalization.GetString("FileProperty_Resolution")}: {((Video.Width == 0 && Video.Height == 0) ? Globalization.GetString("UnknownText") : $"{Video.Width}×{Video.Height}")}{Environment.NewLine}{Globalization.GetString("FileProperty_Bitrate")}: {(Video.Bitrate == 0 ? Globalization.GetString("UnknownText") : (Video.Bitrate / 1024f < 1024 ? Math.Round(Video.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Video.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}{Environment.NewLine}{Globalization.GetString("FileProperty_Duration")}: {ConvertTimsSpanToString(Video.Duration)}";
+                                        break;
+                                    }
+                                case ".mpe":
+                                case ".flac":
+                                case ".mp3":
+                                case ".aac":
+                                case ".wma":
+                                case ".ogg":
+                                    {
+                                        MusicProperties Music = await File.Properties.GetMusicPropertiesAsync();
+                                        ExtraData.Text = $"{Globalization.GetString("FileProperty_Bitrate")}: {(Music.Bitrate == 0 ? Globalization.GetString("UnknownText") : (Music.Bitrate / 1024f < 1024 ? Math.Round(Music.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Music.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}{Environment.NewLine}{Globalization.GetString("FileProperty_Duration")}: {ConvertTimsSpanToString(Music.Duration)}";
+                                        break;
+                                    }
+                                case ".raw":
+                                case ".bmp":
+                                case ".tiff":
+                                case ".gif":
+                                case ".jpg":
+                                case ".jpeg":
+                                case ".exif":
+                                case ".png":
+                                    {
+                                        ImageProperties Image = await File.Properties.GetImagePropertiesAsync();
+                                        ExtraData.Text = $"{Globalization.GetString("FileProperty_Resolution")}: {((Image.Width == 0 && Image.Height == 0) ? Globalization.GetString("UnknownText") : $"{Image.Width}×{Image.Height}")}{Environment.NewLine}{Globalization.GetString("FileProperty_ShootingDate")}: {Image.DateTaken.ToLocalTime():F}{Environment.NewLine}{Globalization.GetString("FileProperty_Longitude")}: {(Image.Longitude.HasValue ? Image.Longitude.Value.ToString() : Globalization.GetString("UnknownText"))}{Environment.NewLine}{Globalization.GetString("FileProperty_Latitude")}: {(Image.Latitude.HasValue ? Image.Latitude.Value.ToString() : Globalization.GetString("UnknownText"))}";
+                                        break;
+                                    }
+                                default:
+                                    {
+                                        ExtraDataArea.Visibility = Visibility.Collapsed;
+                                        break;
+                                    }
+                            }
+                        }
                     }
                     else
                     {
-                        switch (File.FileType)
-                        {
-                            case ".flv":
-                            case ".rmvb":
-                            case ".rm":
-                            case ".mov":
-                            case ".mkv":
-                            case ".mp4":
-                            case ".m4v":
-                            case ".m2ts":
-                            case ".wmv":
-                            case ".f4v":
-                            case ".ts":
-                            case ".swf":
-                                {
-                                    VideoProperties Video = await File.Properties.GetVideoPropertiesAsync();
-                                    ExtraData.Text = $"{Globalization.GetString("FileProperty_Resolution")}: {((Video.Width == 0 && Video.Height == 0) ? Globalization.GetString("UnknownText") : $"{Video.Width}×{Video.Height}")}{Environment.NewLine}{Globalization.GetString("FileProperty_Bitrate")}: {(Video.Bitrate == 0 ? Globalization.GetString("UnknownText") : (Video.Bitrate / 1024f < 1024 ? Math.Round(Video.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Video.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}{Environment.NewLine}{Globalization.GetString("FileProperty_Duration")}: {ConvertTimsSpanToString(Video.Duration)}";
-                                    break;
-                                }
-                            case ".mpe":
-                            case ".flac":
-                            case ".mp3":
-                            case ".aac":
-                            case ".wma":
-                            case ".ogg":
-                                {
-                                    MusicProperties Music = await File.Properties.GetMusicPropertiesAsync();
-                                    ExtraData.Text = $"{Globalization.GetString("FileProperty_Bitrate")}: {(Music.Bitrate == 0 ? Globalization.GetString("UnknownText") : (Music.Bitrate / 1024f < 1024 ? Math.Round(Music.Bitrate / 1024f, 2).ToString("0.00") + " Kbps" : Math.Round(Music.Bitrate / 1048576f, 2).ToString("0.00") + " Mbps"))}{Environment.NewLine}{Globalization.GetString("FileProperty_Duration")}: {ConvertTimsSpanToString(Music.Duration)}";
-                                    break;
-                                }
-                            case ".raw":
-                            case ".bmp":
-                            case ".tiff":
-                            case ".gif":
-                            case ".jpg":
-                            case ".jpeg":
-                            case ".exif":
-                            case ".png":
-                                {
-                                    ImageProperties Image = await File.Properties.GetImagePropertiesAsync();
-                                    ExtraData.Text = $"{Globalization.GetString("FileProperty_Resolution")}: {((Image.Width == 0 && Image.Height == 0) ? Globalization.GetString("UnknownText") : $"{Image.Width}×{Image.Height}")}{Environment.NewLine}{Globalization.GetString("FileProperty_ShootingDate")}: {Image.DateTaken.ToLocalTime():F}{Environment.NewLine}{Globalization.GetString("FileProperty_Longitude")}: {(Image.Longitude.HasValue ? Image.Longitude.Value.ToString() : Globalization.GetString("UnknownText"))}{Environment.NewLine}{Globalization.GetString("FileProperty_Latitude")}: {(Image.Latitude.HasValue ? Image.Latitude.Value.ToString() : Globalization.GetString("UnknownText"))}";
-                                    break;
-                                }
-                            default:
-                                {
-                                    ExtraDataArea.Visibility = Visibility.Collapsed;
-                                    break;
-                                }
-                        }
+                        ExtraDataArea.Visibility = Visibility.Collapsed;
                     }
                 }
             }
@@ -183,7 +187,6 @@ namespace RX_Explorer.Dialog
                 }
             }
 
-        JUMP:
             OnPropertyChanged();
         }
 

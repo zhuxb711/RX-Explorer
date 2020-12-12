@@ -704,12 +704,13 @@ namespace RX_Explorer
                     LoadingControl.IsLoading = true;
                     MainPage.ThisPage.IsAnyTaskRunning = true;
 
-                    StorageFolder SecureFolder = await ApplicationData.Current.LocalCacheFolder.CreateFolderAsync("SecureFolder", CreationCollisionOption.OpenIfExists);
+                    FileSystemStorageItemBase SecureFolder = FileSystemStorageItemBase.Create(Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder"), StorageItemTypes.Folder, CreateOption.OpenIfExist);
+                    
                     string FileEncryptionAesKey = KeyGenerator.GetMD5FromKey(CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword"), 16);
 
                     try
                     {
-                        foreach (SecureAreaStorageItem Item in WIN_Native_API.GetStorageItems(SecureFolder.Path, false, ItemFilters.File))
+                        foreach (SecureAreaStorageItem Item in SecureFolder.GetChildrenItems(false, ItemFilters.File))
                         {
                             if (await Item.DecryptAsync(Dialog.ExportFolder.Path, FileEncryptionAesKey).ConfigureAwait(true) is FileSystemStorageItemBase)
                             {

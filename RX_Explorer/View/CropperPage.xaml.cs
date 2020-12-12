@@ -23,7 +23,7 @@ namespace RX_Explorer
         SoftwareBitmap OriginBackupImage;
         SoftwareBitmap FilterImage;
         SoftwareBitmap FilterBackupImage;
-        StorageFile OriginFile;
+        FileSystemStorageItemBase OriginFile;
         Rect UnchangeRegion;
         ObservableCollection<FilterItem> FilterCollection = new ObservableCollection<FilterItem>();
 
@@ -47,7 +47,7 @@ namespace RX_Explorer
             {
                 if (e?.Parameter is PhotoDisplaySupport Item)
                 {
-                    OriginFile = (await Item.PhotoFile.GetStorageItem().ConfigureAwait(true)) as StorageFile;
+                    OriginFile = Item.PhotoFile;
                     OriginImage = await Item.GenerateImageWithRotation().ConfigureAwait(true);
                     OriginBackupImage = SoftwareBitmap.Copy(OriginImage);
 
@@ -310,30 +310,28 @@ namespace RX_Explorer
             LoadingControl.IsLoading = true;
             MainPage.ThisPage.IsAnyTaskRunning = true;
 
-            using (IRandomAccessStream Stream = await OriginFile.OpenAsync(FileAccessMode.ReadWrite))
+            using (FileStream Stream = OriginFile.GetStreamFromFile(AccessMode.ReadWrite))
             {
-                Stream.Size = 0;
-                switch (OriginFile.FileType)
+                switch (OriginFile.Type.ToLower())
                 {
                     case ".png":
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Png).ConfigureAwait(true);
+                        await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Png).ConfigureAwait(true);
                         break;
                     case ".jpg":
                     case ".jpeg":
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Jpeg).ConfigureAwait(true);
+                        await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Jpeg).ConfigureAwait(true);
                         break;
                     case ".bmp":
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Bmp).ConfigureAwait(true);
+                        await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Bmp).ConfigureAwait(true);
                         break;
                     case ".gif":
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Gif).ConfigureAwait(true);
+                        await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Gif).ConfigureAwait(true);
                         break;
                     case ".tiff":
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Tiff).ConfigureAwait(true);
+                        await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Tiff).ConfigureAwait(true);
                         break;
                     default:
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Png).ConfigureAwait(true);
-                        await OriginFile.RenameAsync(Path.GetFileNameWithoutExtension(OriginFile.Name) + ".png", NameCollisionOption.GenerateUniqueName);
+                        await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Png).ConfigureAwait(true);
                         break;
                 }
             }

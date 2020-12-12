@@ -1,5 +1,4 @@
-﻿using Microsoft.Win32.SafeHandles;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
@@ -327,7 +326,7 @@ namespace RX_Explorer.Class
                         Locker.WaitOne();
                     }
 
-                    using (FileStream LogFileStream = WIN_Native_API.CreateFileFromPath(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName), AccessMode.Exclusive, CreateOption.OpenIfExist))
+                    using (FileStream LogFileStream = FileSystemStorageItemBase.Create(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName), StorageItemTypes.File, CreateOption.OpenIfExist).GetStreamFromFile(AccessMode.Exclusive))
                     {
                         LogFileStream.Seek(0, SeekOrigin.End);
 

@@ -245,64 +245,72 @@ namespace RX_Explorer.Class
 
         public static FileStream CreateFileStreamFromExistingPath(string Path, AccessMode AccessMode)
         {
-            IntPtr Handle = IntPtr.Zero;
-
-            switch (AccessMode)
+            try
             {
-                case AccessMode.Read:
-                    {
-                        Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                IntPtr Handle = IntPtr.Zero;
 
-                        break;
-                    }
-                case AccessMode.Write:
-                    {
-                        Handle = CreateFileFromApp(Path, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                switch (AccessMode)
+                {
+                    case AccessMode.Read:
+                        {
+                            Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
 
-                        break;
-                    }
-                case AccessMode.ReadWrite:
-                    {
-                        Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                            break;
+                        }
+                    case AccessMode.Write:
+                        {
+                            Handle = CreateFileFromApp(Path, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
 
-                        break;
-                    }
-                case AccessMode.Exclusive:
-                    {
-                        Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_NO_SHARE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                            break;
+                        }
+                    case AccessMode.ReadWrite:
+                        {
+                            Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
 
-                        break;
-                    }
+                            break;
+                        }
+                    case AccessMode.Exclusive:
+                        {
+                            Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_NO_SHARE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+
+                            break;
+                        }
+                }
+
+                if (Handle == IntPtr.Zero || Handle.ToInt64() == -1)
+                {
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                }
+
+                switch (AccessMode)
+                {
+                    case AccessMode.Exclusive:
+                    case AccessMode.ReadWrite:
+                        {
+                            return new FileStream(new SafeFileHandle(Handle, true), FileAccess.ReadWrite);
+                        }
+                    case AccessMode.Write:
+                        {
+                            return new FileStream(new SafeFileHandle(Handle, true), FileAccess.Write);
+                        }
+                    case AccessMode.Read:
+                        {
+                            return new FileStream(new SafeFileHandle(Handle, true), FileAccess.Read);
+                        }
+                    default:
+                        {
+                            return null;
+                        }
+                }
             }
-
-            if (Handle == IntPtr.Zero || Handle.ToInt64() == -1)
+            catch (Exception ex)
             {
-                throw new Win32Exception(Marshal.GetLastWin32Error());
-            }
-
-            switch (AccessMode)
-            {
-                case AccessMode.Exclusive:
-                case AccessMode.Read:
-                    {
-                        return new FileStream(new SafeFileHandle(Handle, true), FileAccess.Read);
-                    }
-                case AccessMode.Write:
-                    {
-                        return new FileStream(new SafeFileHandle(Handle, true), FileAccess.Write);
-                    }
-                case AccessMode.ReadWrite:
-                    {
-                        return new FileStream(new SafeFileHandle(Handle, true), FileAccess.ReadWrite);
-                    }
-                default:
-                    {
-                        return null;
-                    }
+                LogTracer.Log(ex, "Could not create a new file stream");
+                throw;
             }
         }
 
-        public static bool CreateDirectoryFromPath(string Path, CreateDirectoryOption Option, out string NewFolderPath)
+        public static bool CreateDirectoryFromPath(string Path, CreateOption Option, out string NewFolderPath)
         {
             try
             {
@@ -328,7 +336,7 @@ namespace RX_Explorer.Class
                     {
                         switch (Option)
                         {
-                            case CreateDirectoryOption.GenerateUniqueName:
+                            case CreateOption.GenerateUniqueName:
                                 {
                                     string UniquePath = GenerateUniquePath(NextPath);
 
@@ -344,7 +352,7 @@ namespace RX_Explorer.Class
                                         return false;
                                     }
                                 }
-                            case CreateDirectoryOption.OpenIfExist:
+                            case CreateOption.OpenIfExist:
                                 {
                                     if (CheckExist(NextPath))
                                     {
@@ -366,174 +374,113 @@ namespace RX_Explorer.Class
                                         }
                                     }
                                 }
+                            default:
+                                {
+                                    throw new ArgumentException("Argument is invalid", nameof(Option));
+                                }
                         }
                     }
                 }
             }
-            catch
+            catch(Exception ex)
             {
                 NewFolderPath = string.Empty;
-                LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "An exception was threw when createdirectory");
+                LogTracer.Log(ex, "An exception was threw when createdirectory");
                 return false;
             }
         }
 
-        public static FileStream CreateFileFromPath(string Path, AccessMode AccessMode, CreateOption Option)
+        public static bool CreateFileFromPath(string Path, CreateOption Option, out string NewPath)
         {
-            IntPtr Handle = IntPtr.Zero;
-
-            switch (AccessMode)
+            try
             {
-                case AccessMode.Read:
-                    {
-                        switch (Option)
+                switch (Option)
+                {
+                    case CreateOption.GenerateUniqueName:
                         {
-                            case CreateOption.OpenIfExist:
-                                {
-                                    Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-                                    break;
-                                }
-                            case CreateOption.GenerateUniqueName:
-                                {
-                                    if (CheckExist(Path))
-                                    {
-                                        Handle = CreateFileFromApp(GenerateUniquePath(Path), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-                                    }
-                                    else
-                                    {
-                                        Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-                                    }
+                            if (CheckExist(Path))
+                            {
+                                string UniquePath = GenerateUniquePath(Path);
 
-                                    break;
-                                }
-                            case CreateOption.ReplaceExisting:
+                                IntPtr Handle = CreateFileFromApp(UniquePath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+
+                                if (Handle == IntPtr.Zero || Handle.ToInt64() == -1)
                                 {
-                                    Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-                                    break;
+                                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not create a new file");
+                                    NewPath = string.Empty;
+                                    return false;
                                 }
+                                else
+                                {
+                                    CloseHandle(Handle);
+                                    NewPath = UniquePath;
+                                    return true;
+                                }
+                            }
+                            else
+                            {
+                                IntPtr Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+
+                                if (Handle == IntPtr.Zero || Handle.ToInt64() == -1)
+                                {
+                                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not create a new file");
+                                    NewPath = string.Empty;
+                                    return false;
+                                }
+                                else
+                                {
+                                    CloseHandle(Handle);
+                                    NewPath = Path;
+                                    return true;
+                                }
+                            }
                         }
-
-                        break;
-                    }
-                case AccessMode.Write:
-                    {
-                        switch (Option)
+                    case CreateOption.OpenIfExist:
                         {
-                            case CreateOption.OpenIfExist:
-                                {
-                                    Handle = CreateFileFromApp(Path, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-                                    break;
-                                }
-                            case CreateOption.GenerateUniqueName:
-                                {
-                                    if (CheckExist(Path))
-                                    {
-                                        Handle = CreateFileFromApp(GenerateUniquePath(Path), GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-                                    }
-                                    else
-                                    {
-                                        Handle = CreateFileFromApp(Path, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-                                    }
+                            IntPtr Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
 
-                                    break;
-                                }
-                            case CreateOption.ReplaceExisting:
-                                {
-                                    Handle = CreateFileFromApp(Path, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-                                    break;
-                                }
+                            if (Handle == IntPtr.Zero || Handle.ToInt64() == -1)
+                            {
+                                LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not create a new file");
+                                NewPath = string.Empty;
+                                return false;
+                            }
+                            else
+                            {
+                                CloseHandle(Handle);
+                                NewPath = Path;
+                                return true;
+                            }
                         }
-
-                        break;
-                    }
-                case AccessMode.ReadWrite:
-                    {
-                        switch (Option)
+                    case CreateOption.ReplaceExisting:
                         {
-                            case CreateOption.OpenIfExist:
-                                {
-                                    Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-                                    break;
-                                }
-                            case CreateOption.GenerateUniqueName:
-                                {
-                                    if (CheckExist(Path))
-                                    {
-                                        Handle = CreateFileFromApp(GenerateUniquePath(Path), GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-                                    }
-                                    else
-                                    {
-                                        Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-                                    }
+                            IntPtr Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
 
-                                    break;
-                                }
-                            case CreateOption.ReplaceExisting:
-                                {
-                                    Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-                                    break;
-                                }
+                            if (Handle == IntPtr.Zero || Handle.ToInt64() == -1)
+                            {
+                                LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not create a new file");
+                                NewPath = string.Empty;
+                                return false;
+                            }
+                            else
+                            {
+                                CloseHandle(Handle);
+                                NewPath = Path;
+                                return true;
+                            }
                         }
-
-                        break;
-                    }
-                case AccessMode.Exclusive:
-                    {
-                        switch (Option)
+                    default:
                         {
-                            case CreateOption.OpenIfExist:
-                                {
-                                    Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_NO_SHARE, IntPtr.Zero, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-                                    break;
-                                }
-                            case CreateOption.GenerateUniqueName:
-                                {
-                                    if (CheckExist(Path))
-                                    {
-                                        Handle = CreateFileFromApp(GenerateUniquePath(Path), GENERIC_WRITE | GENERIC_READ, FILE_NO_SHARE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-                                    }
-                                    else
-                                    {
-                                        Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_NO_SHARE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-                                    }
-
-                                    break;
-                                }
-                            case CreateOption.ReplaceExisting:
-                                {
-                                    Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_NO_SHARE, IntPtr.Zero, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-                                    break;
-                                }
+                            NewPath = string.Empty;
+                            return false;
                         }
-
-                        break;
-                    }
+                }
             }
-
-            if (Handle == IntPtr.Zero || Handle.ToInt64() == -1)
+            catch (Exception ex)
             {
-                throw new Win32Exception(Marshal.GetLastWin32Error());
-            }
-
-            switch(AccessMode)
-            {
-                case AccessMode.ReadWrite:
-                case AccessMode.Exclusive:
-                    {
-                        return new FileStream(new SafeFileHandle(Handle, true), FileAccess.ReadWrite);
-                    }
-                case AccessMode.Read:
-                    {
-                        return new FileStream(new SafeFileHandle(Handle, true), FileAccess.Read);
-                    }
-                case AccessMode.Write:
-                    {
-                        return new FileStream(new SafeFileHandle(Handle, true), FileAccess.Write);
-                    }
-                default:
-                    {
-                        return null;
-                    }
+                LogTracer.Log(ex, "Could not create a new file");
+                NewPath = string.Empty;
+                return false;
             }
         }
 
@@ -1381,7 +1328,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static List<string> GetStorageItemsPath(string FolderPath, bool IncludeHiddenItem, ItemFilters Filter)
+        public static List<string> GetStorageItemsAndReturnPath(string FolderPath, bool IncludeHiddenItem, ItemFilters Filter)
         {
             if (string.IsNullOrWhiteSpace(FolderPath))
             {

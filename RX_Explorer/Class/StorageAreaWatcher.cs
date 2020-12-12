@@ -103,7 +103,7 @@ namespace RX_Explorer.Class
                         }
                         else if (CurrentCollection.All((Item) => Item.Path != NewPath))
                         {
-                            if (WIN_Native_API.GetStorageItem(NewPath) is FileSystemStorageItemBase Item)
+                            if (FileSystemStorageItemBase.Open(NewPath) is FileSystemStorageItemBase Item)
                             {
                                 int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, Item);
 
@@ -177,7 +177,7 @@ namespace RX_Explorer.Class
                     {
                         await Locker.WaitAsync().ConfigureAwait(true);
 
-                        if (CurrentCollection.All((Item) => Item.Path != Path) && WIN_Native_API.GetStorageItem(Path) is FileSystemStorageItemBase NewItem)
+                        if (CurrentCollection.All((Item) => Item.Path != Path) && FileSystemStorageItemBase.Open(Path) is FileSystemStorageItemBase NewItem)
                         {
                             await NewItem.LoadMorePropertyAsync().ConfigureAwait(true);
 

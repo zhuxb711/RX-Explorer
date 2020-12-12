@@ -109,28 +109,35 @@ namespace RX_Explorer.Class
 
                             DecryptedFilePath = System.IO.Path.Combine(ExportFolderPath, $"{System.IO.Path.GetFileNameWithoutExtension(Name)}{FileType}");
 
-                            using (FileStream DecryptFileStream = WIN_Native_API.CreateFileFromPath(DecryptedFilePath, AccessMode.Exclusive, CreateOption.GenerateUniqueName))
-                            using (ICryptoTransform Decryptor = AES.CreateDecryptor(AES.Key, AES.IV))
+                            if (Create(DecryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
                             {
-                                byte[] PasswordConfirm = new byte[16];
-                                EncryptFileStream.Seek(Info.Length + 2, SeekOrigin.Begin);
-                                await EncryptFileStream.ReadAsync(PasswordConfirm, 0, PasswordConfirm.Length, CancelToken).ConfigureAwait(false);
-
-                                if (Encoding.UTF8.GetString(Decryptor.TransformFinalBlock(PasswordConfirm, 0, PasswordConfirm.Length)) == "PASSWORD_CORRECT")
+                                using (FileStream DecryptFileStream = Item.GetStreamFromFile(AccessMode.Exclusive))
+                                using (ICryptoTransform Decryptor = AES.CreateDecryptor(AES.Key, AES.IV))
                                 {
-                                    using (CryptoStream TransformStream = new CryptoStream(DecryptFileStream, Decryptor, CryptoStreamMode.Write))
+                                    byte[] PasswordConfirm = new byte[16];
+                                    EncryptFileStream.Seek(Info.Length + 2, SeekOrigin.Begin);
+                                    await EncryptFileStream.ReadAsync(PasswordConfirm, 0, PasswordConfirm.Length, CancelToken).ConfigureAwait(false);
+
+                                    if (Encoding.UTF8.GetString(Decryptor.TransformFinalBlock(PasswordConfirm, 0, PasswordConfirm.Length)) == "PASSWORD_CORRECT")
                                     {
-                                        await EncryptFileStream.CopyToAsync(TransformStream, 8192, CancelToken).ConfigureAwait(false);
-                                        TransformStream.FlushFinalBlock();
+                                        using (CryptoStream TransformStream = new CryptoStream(DecryptFileStream, Decryptor, CryptoStreamMode.Write))
+                                        {
+                                            await EncryptFileStream.CopyToAsync(TransformStream, 8192, CancelToken).ConfigureAwait(false);
+                                            TransformStream.FlushFinalBlock();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        throw new PasswordErrorException("Password is not correct");
                                     }
                                 }
-                                else
-                                {
-                                    throw new PasswordErrorException("Password is not correct");
-                                }
-                            }
 
-                            return WIN_Native_API.GetStorageItem(DecryptedFilePath, ItemFilters.File);
+                                return Open(DecryptedFilePath, ItemFilters.File);
+                            }
+                            else
+                            {
+                                throw new Exception("Could not create a new file");
+                            }
                         }
                     }
                 }

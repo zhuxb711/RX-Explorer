@@ -78,6 +78,41 @@ namespace RX_Explorer.Class
 
         protected static readonly BitmapImage Const_File_Black_Image = new BitmapImage(new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
 
+        public static FileSystemStorageItemBase Open(string Path, ItemFilters Filters = ItemFilters.File | ItemFilters.Folder)
+        {
+            return WIN_Native_API.GetStorageItem(Path, Filters);
+        }
+
+        public static FileSystemStorageItemBase Create(string Path, StorageItemTypes ItemTypes, CreateOption Option)
+        {
+            if (ItemTypes == StorageItemTypes.File)
+            {
+                if (WIN_Native_API.CreateFileFromPath(Path, Option, out string NewPath))
+                {
+                    return Open(NewPath, ItemFilters.File);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else if (ItemTypes == StorageItemTypes.Folder)
+            {
+                if (WIN_Native_API.CreateDirectoryFromPath(Path, Option, out string NewPath))
+                {
+                    return Open(NewPath, ItemFilters.Folder);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         /// <summary>
         /// 初始化FileSystemStorageItem对象
         /// </summary>
@@ -312,7 +347,7 @@ namespace RX_Explorer.Class
                         SizeRaw = Item.SizeRaw;
                         ModifiedTimeRaw = Item.ModifiedTimeRaw;
                         CreationTimeRaw = Item.CreationTimeRaw;
-
+                        InternalPathString = NewPath;
                         Inner_Thumbnail = null;
 
                         await LoadMorePropertyAsync().ConfigureAwait(true);
@@ -335,7 +370,7 @@ namespace RX_Explorer.Class
 
                         ModifiedTimeRaw = Item.ModifiedTimeRaw;
                         CreationTimeRaw = Item.CreationTimeRaw;
-
+                        InternalPathString = NewPath;
                         Inner_Thumbnail = null;
 
                         await LoadMorePropertyAsync().ConfigureAwait(true);
@@ -372,9 +407,17 @@ namespace RX_Explorer.Class
                 {
                     if (WIN_Native_API.GetStorageItem(Path, ItemFilters.File) is FileSystemStorageItemBase Item)
                     {
+                        if (StorageItem != null)
+                        {
+                            StorageItem = await Item.GetStorageItem().ConfigureAwait(true);
+                        }
+
                         SizeRaw = Item.SizeRaw;
                         ModifiedTimeRaw = Item.ModifiedTimeRaw;
                         CreationTimeRaw = Item.CreationTimeRaw;
+                        Inner_Thumbnail = null;
+
+                        await LoadMorePropertyAsync().ConfigureAwait(true);
                     }
                     else
                     {
@@ -385,8 +428,16 @@ namespace RX_Explorer.Class
                 {
                     if (WIN_Native_API.GetStorageItem(Path, ItemFilters.Folder) is FileSystemStorageItemBase Item)
                     {
+                        if (StorageItem != null)
+                        {
+                            StorageItem = await Item.GetStorageItem().ConfigureAwait(true);
+                        }
+
                         ModifiedTimeRaw = Item.ModifiedTimeRaw;
                         CreationTimeRaw = Item.CreationTimeRaw;
+                        Inner_Thumbnail = null;
+
+                        await LoadMorePropertyAsync().ConfigureAwait(true);
                     }
                     else
                     {
@@ -434,7 +485,7 @@ namespace RX_Explorer.Class
 
             string EncryptedFilePath = System.IO.Path.Combine(ExportFolderPath, $"{System.IO.Path.GetFileNameWithoutExtension(Name)}.sle");
 
-            using (FileStream EncryptFileStream = WIN_Native_API.CreateFileFromPath(EncryptedFilePath, AccessMode.Write, CreateOption.GenerateUniqueName))
+            using (FileStream EncryptFileStream = Create(EncryptedFilePath, StorageItemTypes.Folder, CreateOption.GenerateUniqueName).GetStreamFromFile(AccessMode.Write))
             using (SecureString Secure = SecureAccessProvider.GetFileEncryptionAesIV(Package.Current))
             {
                 IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);

@@ -529,7 +529,7 @@ namespace RX_Explorer
         {
             if (LibraryGrid.SelectedItem is LibraryFolder Library)
             {
-                PropertyDialog Dialog = new PropertyDialog(WIN_Native_API.GetStorageItem(Library.Folder.Path,ItemFilters.Folder));
+                PropertyDialog Dialog = new PropertyDialog(FileSystemStorageItemBase.Open(Library.Folder.Path, ItemFilters.Folder));
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
             }
         }

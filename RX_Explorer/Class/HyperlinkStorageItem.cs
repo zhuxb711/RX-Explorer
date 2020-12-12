@@ -103,39 +103,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override async Task Replace(string NewPath)
-        {
-            if (WIN_Native_API.GetStorageItem(NewPath) is HyperlinkStorageItem HItem)
-            {
-                InternalPathString = HItem.Path;
-                SizeRaw = HItem.SizeRaw;
-                ModifiedTimeRaw = HItem.ModifiedTimeRaw;
-                StorageItem = null;
-                _ = await GetStorageItem().ConfigureAwait(true);
-            }
-
-            OnPropertyChanged(nameof(Name));
-            OnPropertyChanged(nameof(DisplayType));
-            OnPropertyChanged(nameof(Size));
-            OnPropertyChanged(nameof(ModifiedTime));
-        }
-
-        public override Task Update()
-        {
-            if (WIN_Native_API.GetStorageItem(InternalPathString) is HyperlinkStorageItem HItem)
-            {
-                SizeRaw = HItem.SizeRaw;
-                ModifiedTimeRaw = HItem.ModifiedTimeRaw;
-            }
-
-            OnPropertyChanged(nameof(Name));
-            OnPropertyChanged(nameof(ModifiedTime));
-            OnPropertyChanged(nameof(DisplayType));
-            OnPropertyChanged(nameof(Size));
-
-            return Task.CompletedTask;
-        }
-
         public HyperlinkStorageItem(WIN_Native_API.WIN32_FIND_DATA Data, string Path, DateTimeOffset CreationTime, DateTimeOffset ModifiedTime) : base(Data, StorageItemTypes.File, Path, CreationTime, ModifiedTime)
         {
 
