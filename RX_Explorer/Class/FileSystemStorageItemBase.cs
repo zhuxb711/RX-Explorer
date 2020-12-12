@@ -45,7 +45,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 获取此文件的缩略图
         /// </summary>
-        public virtual BitmapImage Thumbnail
+        public BitmapImage Thumbnail
         {
             get
             {
@@ -215,9 +215,9 @@ namespace RX_Explorer.Class
         /// 加载并获取更多属性，例如缩略图，显示名称等
         /// </summary>
         /// <returns></returns>
-        public async Task LoadMoreProperty()
+        public async Task LoadMorePropertyAsync()
         {
-            if (Inner_Thumbnail == null && await GetStorageItem().ConfigureAwait(false) is IStorageItem Item)
+            if (Inner_Thumbnail == null)
             {
                 switch (SettingControl.ContentLoadMode)
                 {
@@ -231,7 +231,7 @@ namespace RX_Explorer.Class
                             {
                                 await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                                 {
-                                    Thumbnail = await Item.GetThumbnailBitmapAsync().ConfigureAwait(true);
+                                    await LoadMorePropertyCore().ConfigureAwait(true);
                                     OnPropertyChanged(nameof(Thumbnail));
                                     OnPropertyChanged(nameof(DisplayType));
                                 });
@@ -242,13 +242,21 @@ namespace RX_Explorer.Class
                         {
                             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                             {
-                                Thumbnail = await Item.GetThumbnailBitmapAsync().ConfigureAwait(true);
+                                await LoadMorePropertyCore().ConfigureAwait(true);
                                 OnPropertyChanged(nameof(Thumbnail));
                                 OnPropertyChanged(nameof(DisplayType));
                             });
                             break;
                         }
                 }
+            }
+        }
+
+        protected virtual async Task LoadMorePropertyCore()
+        {
+            if (await GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
+            {
+                Thumbnail = await Item.GetThumbnailBitmapAsync().ConfigureAwait(true);
             }
         }
 
@@ -290,67 +298,113 @@ namespace RX_Explorer.Class
         {
             try
             {
-                StorageFile File = await StorageFile.GetFileFromPathAsync(NewPath);
-                StorageItem = File;
-                StorageType = StorageItemTypes.File;
-
-                SizeRaw = await File.GetSizeRawDataAsync().ConfigureAwait(true);
-                ModifiedTimeRaw = await File.GetModifiedTimeAsync().ConfigureAwait(true);
-
-                if (SettingControl.ContentLoadMode != LoadMode.None)
+                if (WIN_Native_API.CheckType(NewPath) == StorageItemTypes.File)
                 {
-                    Thumbnail = await File.GetThumbnailBitmapAsync().ConfigureAwait(true);
-                }
-            }
-            catch
-            {
-                try
-                {
-                    StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(NewPath);
-                    StorageItem = Folder;
-                    StorageType = StorageItemTypes.Folder;
-
-                    ModifiedTimeRaw = await Folder.GetModifiedTimeAsync().ConfigureAwait(true);
-
-                    if (SettingControl.ContentLoadMode == LoadMode.FileAndFolder)
+                    if (WIN_Native_API.GetStorageItem(NewPath, ItemFilters.File) is FileSystemStorageItemBase Item)
                     {
-                        Thumbnail = await Folder.GetThumbnailBitmapAsync().ConfigureAwait(true);
+                        if (StorageItem != null)
+                        {
+                            StorageItem = await Item.GetStorageItem().ConfigureAwait(true);
+                        }
+
+                        StorageType = StorageItemTypes.File;
+
+                        SizeRaw = Item.SizeRaw;
+                        ModifiedTimeRaw = Item.ModifiedTimeRaw;
+                        CreationTimeRaw = Item.CreationTimeRaw;
+
+                        Inner_Thumbnail = null;
+
+                        await LoadMorePropertyAsync().ConfigureAwait(true);
+                    }
+                    else
+                    {
+                        LogTracer.Log($"File not found or access deny when executing FileSystemStorageItemBase.Update, path: {NewPath}");
                     }
                 }
-                catch
+                else
                 {
-                    return;
+                    if (WIN_Native_API.GetStorageItem(NewPath, ItemFilters.Folder) is FileSystemStorageItemBase Item)
+                    {
+                        if (StorageItem != null)
+                        {
+                            StorageItem = await Item.GetStorageItem().ConfigureAwait(true);
+                        }
+
+                        StorageType = StorageItemTypes.Folder;
+
+                        ModifiedTimeRaw = Item.ModifiedTimeRaw;
+                        CreationTimeRaw = Item.CreationTimeRaw;
+
+                        Inner_Thumbnail = null;
+
+                        await LoadMorePropertyAsync().ConfigureAwait(true);
+                    }
+                    else
+                    {
+                        LogTracer.Log($"Folder not found or access deny when executing FileSystemStorageItemBase.Update, path: {NewPath}");
+                    }
                 }
             }
-
-            OnPropertyChanged(nameof(Thumbnail));
-            OnPropertyChanged(nameof(Name));
-            OnPropertyChanged(nameof(ModifiedTime));
-            OnPropertyChanged(nameof(DisplayType));
-            OnPropertyChanged(nameof(Size));
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw when executing FileSystemStorageItemBase.Replace, path: {NewPath}");
+            }
+            finally
+            {
+                OnPropertyChanged(nameof(Thumbnail));
+                OnPropertyChanged(nameof(Name));
+                OnPropertyChanged(nameof(ModifiedTime));
+                OnPropertyChanged(nameof(DisplayType));
+                OnPropertyChanged(nameof(Size));
+            }
         }
 
         /// <summary>
         /// 手动更新界面显示
         /// </summary>
-        /// <param name="ReGenerateSizeAndModifiedTime"><是否重新计算大小和修改时间/param>
         /// <returns></returns>
         public virtual async Task Update()
         {
-            if (await GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
+            try
             {
-                if (Item.IsOfType(StorageItemTypes.File))
+                if (WIN_Native_API.CheckType(Path) == StorageItemTypes.File)
                 {
-                    SizeRaw = await Item.GetSizeRawDataAsync().ConfigureAwait(true);
+                    if (WIN_Native_API.GetStorageItem(Path, ItemFilters.File) is FileSystemStorageItemBase Item)
+                    {
+                        SizeRaw = Item.SizeRaw;
+                        ModifiedTimeRaw = Item.ModifiedTimeRaw;
+                        CreationTimeRaw = Item.CreationTimeRaw;
+                    }
+                    else
+                    {
+                        LogTracer.Log($"File not found or access deny when executing FileSystemStorageItemBase.Update, path: {Path}");
+                    }
                 }
-
-                ModifiedTimeRaw = await Item.GetModifiedTimeAsync().ConfigureAwait(true);
+                else
+                {
+                    if (WIN_Native_API.GetStorageItem(Path, ItemFilters.Folder) is FileSystemStorageItemBase Item)
+                    {
+                        ModifiedTimeRaw = Item.ModifiedTimeRaw;
+                        CreationTimeRaw = Item.CreationTimeRaw;
+                    }
+                    else
+                    {
+                        LogTracer.Log($"Folder not found or access deny when executing FileSystemStorageItemBase.Update, path: {Path}");
+                    }
+                }
             }
-
-            OnPropertyChanged(nameof(Name));
-            OnPropertyChanged(nameof(ModifiedTime));
-            OnPropertyChanged(nameof(DisplayType));
-            OnPropertyChanged(nameof(Size));
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An exception was threw when executing FileSystemStorageItemBase.Update, path: {Path}");
+            }
+            finally
+            {
+                OnPropertyChanged(nameof(Name));
+                OnPropertyChanged(nameof(ModifiedTime));
+                OnPropertyChanged(nameof(DisplayType));
+                OnPropertyChanged(nameof(Size));
+            }
         }
 
         public async Task<SecureAreaStorageItem> EncryptAsync(string ExportFolderPath, string Key, int KeySize, CancellationToken CancelToken = default)
@@ -436,7 +490,21 @@ namespace RX_Explorer.Class
                 }
             }
 
-            return new SecureAreaStorageItem(WIN_Native_API.GetStorageItem(EncryptedFilePath, ItemFilters.File));
+            switch (WIN_Native_API.GetStorageItem(EncryptedFilePath, ItemFilters.File))
+            {
+                case SecureAreaStorageItem SItem:
+                    {
+                        return SItem;
+                    }
+                case FileSystemStorageItemBase Item:
+                    {
+                        return new SecureAreaStorageItem(Item.RawStorageItemData.GetValueOrDefault(), Item.Path, Item.CreationTimeRaw, Item.ModifiedTimeRaw);
+                    }
+                default:
+                    {
+                        return null;
+                    }
+            }
         }
 
         /// <summary>
@@ -447,7 +515,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 获取文件的修改时间描述
         /// </summary>
-        public virtual string ModifiedTime
+        public string ModifiedTime
         {
             get
             {
@@ -467,7 +535,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 获取文件的创建时间描述
         /// </summary>
-        public virtual string CreationTime
+        public string CreationTime
         {
             get
             {
@@ -492,7 +560,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 获取文件大小描述
         /// </summary>
-        public virtual string Size
+        public string Size
         {
             get
             {

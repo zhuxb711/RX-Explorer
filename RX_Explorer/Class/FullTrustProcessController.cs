@@ -78,6 +78,8 @@ namespace RX_Explorer.Class
 
         private const string ExecuteType_SearchByEverything = "Execute_SearchByEverything";
 
+        private const string ExecuteType_GetHiddenItemInfo = "Execute_GetHiddenItemInfo";
+
         private static volatile FullTrustProcessController Instance;
 
         private static readonly object locker = new object();
@@ -283,7 +285,7 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                return WIN_Native_API.GetStorageItems(SearchResult);
+                                return WIN_Native_API.GetStorageItemInBatch(SearchResult);
                             }
                         }
                         else
@@ -319,6 +321,68 @@ namespace RX_Explorer.Class
             }
         }
 
+        public async Task<HiddenItemPackage> GetHiddenItemInfoAsync(string Path)
+        {
+            try
+            {
+                IsNowHasAnyActionExcuting = true;
+
+                if (Path.Any())
+                {
+                    if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(true))
+                    {
+                        ValueSet Value = new ValueSet
+                        {
+                            {"ExecuteType", ExecuteType_GetHiddenItemInfo},
+                            {"ExecutePath", Path}
+                        };
+
+                        AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                        if (Response.Status == AppServiceResponseStatus.Success)
+                        {
+                            if (Response.Message.TryGetValue("Success", out object Result))
+                            {
+                                return JsonConvert.DeserializeObject<HiddenItemPackage>(Convert.ToString(Result));
+                            }
+                            else
+                            {
+                                if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                                {
+                                    LogTracer.Log($"An unexpected error was threw in {nameof(GetHiddenItemInfoAsync)}, message: {ErrorMessage}");
+                                }
+
+                                return null;
+                            }
+                        }
+                        else
+                        {
+                            LogTracer.Log($"AppServiceResponse in {nameof(GetHiddenItemInfoAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                            return null;
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"{nameof(GetHiddenItemInfoAsync)}: Failed to connect AppService ");
+                        return null;
+                    }
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{ nameof(GetHiddenItemInfoAsync)} throw an error");
+                return null;
+            }
+            finally
+            {
+                IsNowHasAnyActionExcuting = false;
+            }
+        }
+
         public async Task<List<ContextMenuItem>> GetContextMenuItemsAsync(string Path, bool IncludeExtensionItem = false)
         {
             try
@@ -342,7 +406,7 @@ namespace RX_Explorer.Class
                         {
                             if (Response.Message.TryGetValue("Success", out object Result))
                             {
-                                return JsonConvert.DeserializeObject<List<(string, string, string)>>(Convert.ToString(Result)).Select((Item) => new ContextMenuItem(Item.Item1, Item.Item2, Item.Item3, Path)).ToList();
+                                return JsonConvert.DeserializeObject<List<ContextMenuPackage>>(Convert.ToString(Result)).Select((Item) => new ContextMenuItem(Item, Path)).ToList();
                             }
                             else
                             {

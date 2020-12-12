@@ -10,17 +10,41 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.Storage;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
     public sealed class SecureAreaStorageItem : FileSystemStorageItemBase
     {
-        public override BitmapImage Thumbnail
+        public string EncryptionLevel
         {
             get
             {
-                return new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
+                using (FileStream EncryptFileStream = GetStreamFromFile(AccessMode.Read))
+                {
+                    byte[] DecryptByteBuffer = new byte[20];
+
+                    EncryptFileStream.Read(DecryptByteBuffer, 0, DecryptByteBuffer.Length);
+
+                    if (Encoding.UTF8.GetString(DecryptByteBuffer).Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string Info)
+                    {
+                        string[] InfoGroup = Info.Split('|');
+                        
+                        if (InfoGroup.Length == 2)
+                        {
+                            return Convert.ToInt32(InfoGroup[0]) == 128 ? "AES-128bit" : "AES-256bit";
+                        }
+                        else
+                        {
+                            return Globalization.GetString("UnknownText");
+                        }
+                    }
+                    else
+                    {
+                        return Globalization.GetString("UnknownText");
+                    }
+                }
             }
         }
 
@@ -136,8 +160,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public SecureAreaStorageItem(FileSystemStorageItemBase Item) : base(Item.RawStorageItemData.GetValueOrDefault(), Item.StorageType, Item.Path, Item.CreationTimeRaw, Item.ModifiedTimeRaw)
+        public SecureAreaStorageItem(WIN_Native_API.WIN32_FIND_DATA Data, string Path, DateTimeOffset CreationTime, DateTimeOffset ModifiedTime) : base(Data, StorageItemTypes.File, Path, CreationTime, ModifiedTime)
         {
+            Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
         }
     }
 }

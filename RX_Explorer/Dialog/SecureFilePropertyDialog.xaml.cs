@@ -18,54 +18,25 @@ namespace RX_Explorer.Dialog
 
         public string Level { get; private set; }
 
-        private FileSystemStorageItemBase StorageItem;
+        private readonly SecureAreaStorageItem StorageItem;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public SecureFilePropertyDialog(FileSystemStorageItemBase Item)
+        public SecureFilePropertyDialog(SecureAreaStorageItem Item)
         {
-            if (Item == null)
-            {
-                throw new ArgumentNullException(nameof(Item), "Parameter could not be null");
-            }
-
             InitializeComponent();
 
-            StorageItem = Item;
+            StorageItem = Item ?? throw new ArgumentNullException(nameof(Item), "Parameter could not be null");
 
             Loading += SecureFilePropertyDialog_Loading;
         }
 
-        private async void SecureFilePropertyDialog_Loading(Windows.UI.Xaml.FrameworkElement sender, object args)
+        private void SecureFilePropertyDialog_Loading(Windows.UI.Xaml.FrameworkElement sender, object args)
         {
-            StorageFile Item = (await StorageItem.GetStorageItem().ConfigureAwait(true)) as StorageFile;
             FileSize = StorageItem.Size;
             FileName = StorageItem.Name;
             FileType = StorageItem.DisplayType;
-
-            using (Stream EncryptFileStream = await Item.OpenStreamForReadAsync().ConfigureAwait(true))
-            {
-                byte[] DecryptByteBuffer = new byte[20];
-
-                await EncryptFileStream.ReadAsync(DecryptByteBuffer, 0, DecryptByteBuffer.Length).ConfigureAwait(true);
-
-                if (Encoding.UTF8.GetString(DecryptByteBuffer).Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string Info)
-                {
-                    string[] InfoGroup = Info.Split('|');
-                    if (InfoGroup.Length == 2)
-                    {
-                        Level = Convert.ToInt32(InfoGroup[0]) == 128 ? "AES-128bit" : "AES-256bit";
-                    }
-                    else
-                    {
-                        Level = Globalization.GetString("UnknownText");
-                    }
-                }
-                else
-                {
-                    Level = Globalization.GetString("UnknownText");
-                }
-            }
+            Level = StorageItem.EncryptionLevel;
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FileSize)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FileName)));

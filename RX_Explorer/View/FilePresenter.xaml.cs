@@ -2040,7 +2040,7 @@ namespace RX_Explorer
         /// <returns>无</returns>
         private async Task UnZipAsync(FileSystemStorageItemBase Item, ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (WIN_Native_API.CreateDirectoryFromPath(Path.Combine(Path.GetDirectoryName(Item.Path), Path.GetFileNameWithoutExtension(Item.Name)), CreateDirectoryOption.OpenIfExist, out string NewFolderPath))
+            if (WIN_Native_API.CreateDirectoryFromPath(Path.Combine(Path.GetDirectoryName(Item.Path), Path.GetFileNameWithoutExtension(Item.Name)), CreateDirectoryOption.GenerateUniqueName, out string NewFolderPath))
             {
                 try
                 {
@@ -4554,7 +4554,7 @@ namespace RX_Explorer
                     {
                         if (e.Item is FileSystemStorageItemBase Item)
                         {
-                            await Item.LoadMoreProperty().ConfigureAwait(false);
+                            await Item.LoadMorePropertyAsync().ConfigureAwait(false);
                         }
                     });
                 }

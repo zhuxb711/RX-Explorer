@@ -13,16 +13,13 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Services.Store;
 using Windows.Storage;
-using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
-using Windows.Storage.Search;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer
 {
@@ -30,7 +27,7 @@ namespace RX_Explorer
     {
         private readonly ObservableCollection<SecureAreaStorageItem> SecureCollection = new ObservableCollection<SecureAreaStorageItem>();
 
-        private FileSystemStorageItemBase SecureFolder;
+        private readonly string SecureFolderPath = Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder");
 
         private string FileEncryptionAesKey;
 
@@ -254,7 +251,7 @@ namespace RX_Explorer
 
                 CoreWindow.GetForCurrentThread().KeyDown += SecureArea_KeyDown;
 
-                await StartLoadFile().ConfigureAwait(false);
+                LoadSecureFile();
             }
             catch (Exception ex)
             {
@@ -301,19 +298,15 @@ namespace RX_Explorer
             MainPage.ThisPage.Nav.Navigate(typeof(TabViewContainer), null, new DrillInNavigationTransitionInfo());
         }
 
-        private async Task StartLoadFile()
+        private void LoadSecureFile()
         {
             IsNewStart = false;
 
-            string SecureFolderPath = Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder");
-
             WIN_Native_API.CreateDirectoryFromPath(SecureFolderPath, CreateDirectoryOption.OpenIfExist, out _);
 
-            SecureFolder = WIN_Native_API.GetStorageItem(SecureFolderPath, ItemFilters.Folder);
-
-            foreach (FileSystemStorageItemBase Item in SecureFolder.GetChildrenItems(false, ItemFilters.File).Where((SLE)=>SLE.Type == ".sle"))
+            foreach (SecureAreaStorageItem Item in WIN_Native_API.GetStorageItems(SecureFolderPath, false, ItemFilters.File))
             {
-                SecureCollection.Add(new SecureAreaStorageItem(Item));
+                SecureCollection.Add(Item);
             }
 
             if (SecureCollection.Count == 0)
@@ -360,7 +353,7 @@ namespace RX_Explorer
                     {
                         if (WIN_Native_API.GetStorageItem(OriginFilePath, ItemFilters.File) is FileSystemStorageItemBase Item)
                         {
-                            if (await Item.EncryptAsync(SecureFolder.Path, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is SecureAreaStorageItem EncryptedFile)
+                            if (await Item.EncryptAsync(SecureFolderPath, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is SecureAreaStorageItem EncryptedFile)
                             {
                                 SecureCollection.Add(EncryptedFile);
 
@@ -441,7 +434,7 @@ namespace RX_Explorer
                         {
                             if (WIN_Native_API.GetStorageItem(OriginFilePath, ItemFilters.File) is FileSystemStorageItemBase Item)
                             {
-                                if (await Item.EncryptAsync(SecureFolder.Path, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is SecureAreaStorageItem EncryptedFile)
+                                if (await Item.EncryptAsync(SecureFolderPath, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is SecureAreaStorageItem EncryptedFile)
                                 {
                                     SecureCollection.Add(EncryptedFile);
 
@@ -639,7 +632,7 @@ namespace RX_Explorer
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is SecureAreaStorageItem Item)
                 {
                     if (SecureGridView.SelectedItems.Count > 1)
                     {
@@ -661,7 +654,7 @@ namespace RX_Explorer
 
         private async void Property_Click(object sender, RoutedEventArgs e)
         {
-            if (SecureGridView.SelectedItem is FileSystemStorageItemBase Item)
+            if (SecureGridView.SelectedItem is SecureAreaStorageItem Item)
             {
                 SecureFilePropertyDialog Dialog = new SecureFilePropertyDialog(Item);
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
@@ -670,7 +663,7 @@ namespace RX_Explorer
 
         private async void RenameFile_Click(object sender, RoutedEventArgs e)
         {
-            if (SecureGridView.SelectedItem is FileSystemStorageItemBase RenameItem)
+            if (SecureGridView.SelectedItem is SecureAreaStorageItem RenameItem)
             {
                 RenameDialog dialog = new RenameDialog(RenameItem);
 
@@ -825,7 +818,7 @@ namespace RX_Explorer
         {
             if (e.HoldingState == Windows.UI.Input.HoldingState.Started)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is SecureAreaStorageItem Item)
                 {
                     if (SecureGridView.SelectedItems.Count > 1)
                     {

@@ -179,7 +179,7 @@ namespace RX_Explorer.Class
 
                         if (CurrentCollection.All((Item) => Item.Path != Path) && WIN_Native_API.GetStorageItem(Path) is FileSystemStorageItemBase NewItem)
                         {
-                            await NewItem.LoadMoreProperty().ConfigureAwait(true);
+                            await NewItem.LoadMorePropertyAsync().ConfigureAwait(true);
 
                             int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, NewItem);
 

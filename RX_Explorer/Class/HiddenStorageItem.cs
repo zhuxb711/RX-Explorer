@@ -1,11 +1,18 @@
-﻿using System;
+﻿using ShareClassLibrary;
+using System;
+using System.IO;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
 using Windows.Storage;
+using Windows.UI.Core;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
     public sealed class HiddenStorageItem : FileSystemStorageItemBase
     {
+        private HiddenItemPackage DataPackage;
+
         public override Task<IStorageItem> GetStorageItem()
         {
             return Task.FromResult<IStorageItem>(null);
@@ -14,6 +21,31 @@ namespace RX_Explorer.Class
         public override void SetThumbnailOpacity(ThumbnailStatus Status)
         {
 
+        }
+
+        public override string DisplayType
+        {
+            get
+            {
+                return StorageType == StorageItemTypes.File ? (DataPackage?.DisplayType ?? string.Empty) : Globalization.GetString("Folder_Admin_DisplayType");
+            }
+        }
+
+        protected override async Task LoadMorePropertyCore()
+        {
+            DataPackage = await FullTrustProcessController.Current.GetHiddenItemInfoAsync(Path).ConfigureAwait(true);
+
+            if ((DataPackage?.IconData.Length).GetValueOrDefault() > 0)
+            {
+                BitmapImage Icon = new BitmapImage();
+
+                using (MemoryStream Stream = new MemoryStream(DataPackage.IconData))
+                {
+                    await Icon.SetSourceAsync(Stream.AsRandomAccessStream());
+                }
+
+                Thumbnail = Icon;
+            }
         }
 
         public HiddenStorageItem(WIN_Native_API.WIN32_FIND_DATA Data, StorageItemTypes StorageType, string Path, DateTimeOffset CreationTime, DateTimeOffset ModifiedTime) : base(Data, StorageType, Path, CreationTime, ModifiedTime)

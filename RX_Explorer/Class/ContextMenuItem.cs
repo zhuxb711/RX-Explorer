@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ShareClassLibrary;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
@@ -9,19 +10,37 @@ namespace RX_Explorer.Class
 {
     public sealed class ContextMenuItem : IEquatable<ContextMenuItem>
     {
-        public string Description { get; private set; }
+        public string Description
+        {
+            get
+            {
+                return DataPackage.Description;
+            }
+        }
 
-        public string Verb { get; private set; }
+        public string Verb
+        {
+            get
+            {
+                return DataPackage.Verb;
+            }
+        }
 
-        public byte[]? IconData { get; private set; }
+        public byte[] IconData
+        {
+            get
+            {
+                return DataPackage.IconData;
+            }
+        }
 
         public string BelongTo { get; private set; }
 
-        public ContextMenuItem(string Description, string Verb, string IconData, string BelongTo)
+        private readonly ContextMenuPackage DataPackage;
+
+        public ContextMenuItem(ContextMenuPackage DataPackage, string BelongTo)
         {
-            this.Description = Description;
-            this.Verb = Verb;
-            this.IconData = string.IsNullOrEmpty(IconData) ? null : Convert.FromBase64String(IconData);
+            this.DataPackage = DataPackage;
             this.BelongTo = BelongTo;
         }
 
@@ -58,7 +77,7 @@ namespace RX_Explorer.Class
             ImageControl.SetValue(Grid.ColumnProperty, 0);
             Gr.Children.Add(ImageControl);
 
-            if (IconData != null)
+            if (IconData.Length != 0)
             {
                 using (MemoryStream Stream = new MemoryStream(IconData))
                 {

@@ -158,6 +158,7 @@ namespace RX_Explorer.Class
         const uint FILE_NOTIFY_CHANGE_FILE_NAME = 0x1;
         const uint FILE_NOTIFY_CHANGE_DIR_NAME = 0x2;
         const uint FILE_NOTIFY_CHANGE_LAST_WRITE = 0x10;
+        static readonly string SecureFolderPath = Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder");
 
         private enum StateChangeType
         {
@@ -565,11 +566,11 @@ namespace RX_Explorer.Class
             hDir = IntPtr.Zero;
         }
 
-        public static IntPtr CreateDirectoryWatcher(string Path, Action<string> Added = null, Action<string> Removed = null, Action<string, string> Renamed = null, Action<string> Modified = null)
+        public static IntPtr CreateDirectoryWatcher(string FolderPath, Action<string> Added = null, Action<string> Removed = null, Action<string, string> Renamed = null, Action<string> Modified = null)
         {
             try
             {
-                IntPtr hDir = CreateFileFromApp(Path, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, IntPtr.Zero);
+                IntPtr hDir = CreateFileFromApp(FolderPath, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, IntPtr.Zero);
 
                 if (hDir == IntPtr.Zero || hDir.ToInt64() == -1)
                 {
@@ -616,27 +617,27 @@ namespace RX_Explorer.Class
                                             }
                                         case StateChangeType.Added_Action:
                                             {
-                                                Package.Item2?.Invoke(System.IO.Path.Combine(Path, FileName));
+                                                Package.Item2?.Invoke(Path.Combine(FolderPath, FileName));
                                                 break;
                                             }
                                         case StateChangeType.Removed_Action:
                                             {
-                                                Package.Item3?.Invoke(System.IO.Path.Combine(Path, FileName));
+                                                Package.Item3?.Invoke(Path.Combine(FolderPath, FileName));
                                                 break;
                                             }
                                         case StateChangeType.Modified_Action:
                                             {
-                                                Package.Item5?.Invoke(System.IO.Path.Combine(Path, FileName));
+                                                Package.Item5?.Invoke(Path.Combine(FolderPath, FileName));
                                                 break;
                                             }
                                         case StateChangeType.Rename_Action_OldName:
                                             {
-                                                OldPath = System.IO.Path.Combine(Path, FileName);
+                                                OldPath = Path.Combine(FolderPath, FileName);
                                                 break;
                                             }
                                         case StateChangeType.Rename_Action_NewName:
                                             {
-                                                Package.Item4?.Invoke(OldPath, System.IO.Path.Combine(Path, FileName));
+                                                Package.Item4?.Invoke(OldPath, Path.Combine(FolderPath, FileName));
                                                 break;
                                             }
                                     }
@@ -674,14 +675,14 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static bool CheckContainsAnyItem(string Path, ItemFilters Filter)
+        public static bool CheckContainsAnyItem(string FolderPath, ItemFilters Filter)
         {
-            if (string.IsNullOrWhiteSpace(Path))
+            if (string.IsNullOrWhiteSpace(FolderPath))
             {
-                throw new ArgumentException("Argument could not be empty", nameof(Path));
+                throw new ArgumentException("Argument could not be empty", nameof(FolderPath));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Path, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
 
             try
             {
@@ -759,14 +760,14 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static StorageItemTypes CheckType(string Path)
+        public static StorageItemTypes CheckType(string ItemPath)
         {
-            if (string.IsNullOrWhiteSpace(Path))
+            if (string.IsNullOrWhiteSpace(ItemPath))
             {
-                throw new ArgumentException("Argument could not be empty", nameof(Path));
+                throw new ArgumentException("Argument could not be empty", nameof(ItemPath));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(Path, FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(ItemPath, FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
 
             try
             {
@@ -798,19 +799,19 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static bool CheckIfHidden(string Path)
+        public static bool CheckIfHidden(string ItemPath)
         {
-            if (string.IsNullOrWhiteSpace(Path))
+            if (string.IsNullOrWhiteSpace(ItemPath))
             {
-                throw new ArgumentException("Argument could not be empty", nameof(Path));
+                throw new ArgumentException("Argument could not be empty", nameof(ItemPath));
             }
 
-            if (System.IO.Path.GetPathRoot(Path) == Path)
+            if (System.IO.Path.GetPathRoot(ItemPath) == ItemPath)
             {
                 return false;
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(Path, FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(ItemPath, FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
 
             try
             {
@@ -1056,18 +1057,22 @@ namespace RX_Explorer.Class
                                     {
                                         SearchResult.Add(new HiddenStorageItem(Data, StorageItemTypes.File, CurrentDataPath, CreationTime, ModifiedTime));
                                     }
-                                    else
+                                    else if (SecureFolderPath == FolderPath)
                                     {
-                                        if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                        if (Data.cFileName.EndsWith(".sle", StringComparison.OrdinalIgnoreCase))
                                         {
-                                            if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                SearchResult.Add(new HyperlinkStorageItem(Data, CurrentDataPath, CreationTime, ModifiedTime));
-                                            }
-                                            else
-                                            {
-                                                SearchResult.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, CurrentDataPath, CreationTime, ModifiedTime));
-                                            }
+                                            SearchResult.Add(new SecureAreaStorageItem(Data, Path.Combine(FolderPath, Data.cFileName), CreationTime, ModifiedTime));
+                                        }
+                                    }
+                                    else if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            SearchResult.Add(new HyperlinkStorageItem(Data, CurrentDataPath, CreationTime, ModifiedTime));
+                                        }
+                                        else
+                                        {
+                                            SearchResult.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, CurrentDataPath, CreationTime, ModifiedTime));
                                         }
                                     }
                                 }
@@ -1094,14 +1099,14 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static List<FileSystemStorageItemBase> GetStorageItems(string Path, bool IncludeHiddenItem, ItemFilters Filter)
+        public static List<FileSystemStorageItemBase> GetStorageItems(string FolderPath, bool IncludeHiddenItem, ItemFilters Filter)
         {
-            if (string.IsNullOrWhiteSpace(Path))
+            if (string.IsNullOrWhiteSpace(FolderPath))
             {
-                throw new ArgumentException("Argument could not be empty", nameof(Path));
+                throw new ArgumentException("Argument could not be empty", nameof(FolderPath));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Path, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
 
             try
             {
@@ -1127,11 +1132,11 @@ namespace RX_Explorer.Class
 
                                     if (Attribute.HasFlag(FileAttributes.Hidden))
                                     {
-                                        Result.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Path, Data.cFileName), CreationTime, ModifiedTime));
+                                        Result.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, Path.Combine(FolderPath, Data.cFileName), CreationTime, ModifiedTime));
                                     }
                                     else
                                     {
-                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, System.IO.Path.Combine(Path, Data.cFileName), CreationTime, ModifiedTime));
+                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, Path.Combine(FolderPath, Data.cFileName), CreationTime, ModifiedTime));
                                     }
                                 }
                             }
@@ -1145,20 +1150,24 @@ namespace RX_Explorer.Class
 
                                 if (Attribute.HasFlag(FileAttributes.Hidden))
                                 {
-                                    Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, System.IO.Path.Combine(Path, Data.cFileName), CreationTime, ModifiedTime));
+                                    Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, Path.Combine(FolderPath, Data.cFileName), CreationTime, ModifiedTime));
                                 }
-                                else
+                                else if (SecureFolderPath == FolderPath)
                                 {
-                                    if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                    if (Data.cFileName.EndsWith(".sle", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
-                                        {
-                                            Result.Add(new HyperlinkStorageItem(Data, System.IO.Path.Combine(Path, Data.cFileName), CreationTime, ModifiedTime));
-                                        }
-                                        else
-                                        {
-                                            Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, System.IO.Path.Combine(Path, Data.cFileName), CreationTime, ModifiedTime));
-                                        }
+                                        Result.Add(new SecureAreaStorageItem(Data, Path.Combine(FolderPath, Data.cFileName), CreationTime, ModifiedTime));
+                                    }
+                                }
+                                else if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        Result.Add(new HyperlinkStorageItem(Data, Path.Combine(FolderPath, Data.cFileName), CreationTime, ModifiedTime));
+                                    }
+                                    else
+                                    {
+                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, Path.Combine(FolderPath, Data.cFileName), CreationTime, ModifiedTime));
                                     }
                                 }
                             }
@@ -1185,16 +1194,16 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static FileSystemStorageItemBase GetStorageItem(string Path, ItemFilters Filter = ItemFilters.Folder | ItemFilters.File)
+        public static FileSystemStorageItemBase GetStorageItem(string ItemPath, ItemFilters Filter = ItemFilters.Folder | ItemFilters.File)
         {
-            if (string.IsNullOrWhiteSpace(Path))
+            if (string.IsNullOrWhiteSpace(ItemPath))
             {
-                throw new ArgumentNullException(nameof(Path), "Argument could not be null");
+                throw new ArgumentNullException(nameof(ItemPath), "Argument could not be null");
             }
 
             try
             {
-                IntPtr Ptr = FindFirstFileExFromApp(Path, FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+                IntPtr Ptr = FindFirstFileExFromApp(ItemPath, FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
 
                 try
                 {
@@ -1214,11 +1223,11 @@ namespace RX_Explorer.Class
 
                                 if (Attribute.HasFlag(FileAttributes.Hidden))
                                 {
-                                    return new HiddenStorageItem(Data, StorageItemTypes.Folder, Path, CreationTime, ModifiedTime);
+                                    return new HiddenStorageItem(Data, StorageItemTypes.Folder, ItemPath, CreationTime, ModifiedTime);
                                 }
                                 else
                                 {
-                                    return new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, Path, CreationTime, ModifiedTime);
+                                    return new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, ItemPath, CreationTime, ModifiedTime);
                                 }
                             }
                         }
@@ -1232,20 +1241,24 @@ namespace RX_Explorer.Class
 
                             if (Attribute.HasFlag(FileAttributes.Hidden))
                             {
-                                return new HiddenStorageItem(Data, StorageItemTypes.File, Path, CreationTime, ModifiedTime);
+                                return new HiddenStorageItem(Data, StorageItemTypes.File, ItemPath, CreationTime, ModifiedTime);
                             }
-                            else
+                            else if (SecureFolderPath == ItemPath)
                             {
-                                if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                if (Data.cFileName.EndsWith(".sle", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        return new HyperlinkStorageItem(Data, Path, CreationTime, ModifiedTime);
-                                    }
-                                    else
-                                    {
-                                        return new FileSystemStorageItemBase(Data, StorageItemTypes.File, Path, CreationTime, ModifiedTime);
-                                    }
+                                    return new SecureAreaStorageItem(Data, Path.Combine(ItemPath, Data.cFileName), CreationTime, ModifiedTime);
+                                }
+                            }
+                            else if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                            {
+                                if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    return new HyperlinkStorageItem(Data, ItemPath, CreationTime, ModifiedTime);
+                                }
+                                else
+                                {
+                                    return new FileSystemStorageItemBase(Data, StorageItemTypes.File, ItemPath, CreationTime, ModifiedTime);
                                 }
                             }
                         }
@@ -1270,7 +1283,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static List<FileSystemStorageItemBase> GetStorageItems(params string[] PathArray)
+        public static List<FileSystemStorageItemBase> GetStorageItemInBatch(params string[] PathArray)
         {
             if (PathArray.Length == 0 || PathArray.Any((Item) => string.IsNullOrWhiteSpace(Item)))
             {
@@ -1328,18 +1341,22 @@ namespace RX_Explorer.Class
                                 {
                                     Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, Path, CreationTime, ModifiedTime));
                                 }
-                                else
+                                else if (SecureFolderPath == Path)
                                 {
-                                    if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                    if (Data.cFileName.EndsWith(".sle", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
-                                        {
-                                            Result.Add(new HyperlinkStorageItem(Data, Path, CreationTime, ModifiedTime));
-                                        }
-                                        else
-                                        {
-                                            Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, Path, CreationTime, ModifiedTime));
-                                        }
+                                        Result.Add(new SecureAreaStorageItem(Data, System.IO.Path.Combine(Path, Data.cFileName), CreationTime, ModifiedTime));
+                                    }
+                                }
+                                else if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        Result.Add(new HyperlinkStorageItem(Data, Path, CreationTime, ModifiedTime));
+                                    }
+                                    else
+                                    {
+                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, Path, CreationTime, ModifiedTime));
                                     }
                                 }
                             }
@@ -1364,14 +1381,14 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static List<string> GetStorageItemsPath(string Path, bool IncludeHiddenItem, ItemFilters Filter)
+        public static List<string> GetStorageItemsPath(string FolderPath, bool IncludeHiddenItem, ItemFilters Filter)
         {
-            if (string.IsNullOrWhiteSpace(Path))
+            if (string.IsNullOrWhiteSpace(FolderPath))
             {
-                throw new ArgumentNullException(nameof(Path), "Argument could not be null");
+                throw new ArgumentNullException(nameof(FolderPath), "Argument could not be null");
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Path, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
 
             try
             {
@@ -1389,12 +1406,12 @@ namespace RX_Explorer.Class
                             {
                                 if (Data.cFileName != "." && Data.cFileName != "..")
                                 {
-                                    Result.Add(System.IO.Path.Combine(Path, Data.cFileName));
+                                    Result.Add(Path.Combine(FolderPath, Data.cFileName));
                                 }
                             }
                             else if (Filter.HasFlag(ItemFilters.File))
                             {
-                                Result.Add(System.IO.Path.Combine(Path, Data.cFileName));
+                                Result.Add(Path.Combine(FolderPath, Data.cFileName));
                             }
                         }
                     }

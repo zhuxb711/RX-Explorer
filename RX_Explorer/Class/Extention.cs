@@ -853,7 +853,18 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        _ = GetThumbnailTask.ContinueWith((task) => task.Result?.Dispose(), TaskScheduler.Default);
+                        _ = GetThumbnailTask.ContinueWith((task) =>
+                        {
+                            try
+                            {
+                                task.Result?.Dispose();
+                            }
+                            catch
+                            {
+
+                            }
+                        }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.Default);
+
                         Cancellation.Cancel();
 
                         if (!ToastNotificationManager.History.GetHistory().Any((Toast) => Toast.Tag == "DelayLoadNotification"))

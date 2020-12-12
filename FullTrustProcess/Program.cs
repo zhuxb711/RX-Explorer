@@ -3,6 +3,8 @@ using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
@@ -101,6 +103,28 @@ namespace FullTrustProcess
             {
                 switch (args.Request.Message["ExecuteType"])
                 {
+                    case "Execute_GetHiddenItemInfo":
+                        {
+                            string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);
+
+                            using (ShellItem Item = ShellItem.Open(ExecutePath))
+                            using (Image Thumbnail = Item.GetImage(new Size(128, 128), ShellItemGetImageOptions.BiggerSizeOk))
+                            using (Bitmap OriginBitmap = new Bitmap(Thumbnail))
+                            using (MemoryStream Stream = new MemoryStream())
+                            {
+                                OriginBitmap.MakeTransparent();
+                                OriginBitmap.Save(Stream, ImageFormat.Png);
+
+                                ValueSet Value = new ValueSet
+                                {
+                                    {"Success", JsonConvert.SerializeObject(new HiddenItemPackage(Item.FileInfo.TypeName, Stream.ToArray()))}
+                                };
+
+                                await args.Request.SendResponseAsync(Value);
+                            }
+
+                            break;
+                        }
                     case "Execute_CheckIfEverythingAvailable":
                         {
                             await args.Request.SendResponseAsync(new ValueSet
@@ -156,7 +180,7 @@ namespace FullTrustProcess
                             string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);
                             bool IncludeExtensionItem = Convert.ToBoolean(args.Request.Message["IncludeExtensionItem"]);
 
-                            List<(string, string, string)> ContextMenuItems = ContextMenu.FetchContextMenuItems(ExecutePath, IncludeExtensionItem);
+                            List<ContextMenuPackage> ContextMenuItems = ContextMenu.FetchContextMenuItems(ExecutePath, IncludeExtensionItem);
 
                             ValueSet Value = new ValueSet
                             {

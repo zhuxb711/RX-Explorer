@@ -116,7 +116,7 @@ namespace RX_Explorer.View
                 {
                     if (Item.StorageType == StorageItemTypes.File)
                     {
-                        await Item.LoadMoreProperty().ConfigureAwait(true);
+                        await Item.LoadMorePropertyAsync().ConfigureAwait(true);
                     }
 
                     args.ItemContainer.AllowFocusOnInteraction = false;
