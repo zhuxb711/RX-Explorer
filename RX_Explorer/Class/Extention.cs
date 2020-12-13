@@ -1,5 +1,4 @@
-﻿using Force.Crc32;
-using Google.Cloud.Translation.V2;
+﻿using Google.Cloud.Translation.V2;
 using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.Win32.SafeHandles;
 using NetworkAccess;
@@ -203,7 +202,7 @@ namespace RX_Explorer.Class
 
                         Flyout?.ShowAt(ListControl, Option);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         LogTracer.Log(ex, "An exception was threw when trying show flyout");
                     }
@@ -992,205 +991,66 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static string ComputeMD5Hash(this string Data)
+        public static Task<string> GetHashAsync<T>(this Stream InputStream, CancellationToken Token = default) where T : HashAlgorithm
         {
-            using (MD5 md5 = MD5.Create())
+            Func<string> ComputeFunction = new Func<string>(() =>
             {
-                byte[] hash = md5.ComputeHash(Encoding.UTF8.GetBytes(Data));
+                using (T Algorithm = (T)HashAlgorithm.Create(typeof(T).Name))
+                {
+                    byte[] Buffer = new byte[8192];
+
+                    while (!Token.IsCancellationRequested)
+                    {
+                        int CurrentReadCount = InputStream.Read(Buffer, 0, Buffer.Length);
+
+                        if (CurrentReadCount < Buffer.Length)
+                        {
+                            Algorithm.TransformFinalBlock(Buffer, 0, CurrentReadCount);
+                            break;
+                        }
+                        else
+                        {
+                            Algorithm.TransformBlock(Buffer, 0, CurrentReadCount, Buffer, 0);
+                        }
+                    }
+
+                    Token.ThrowIfCancellationRequested();
+
+                    StringBuilder builder = new StringBuilder();
+
+                    foreach (byte Bt in Algorithm.Hash)
+                    {
+                        builder.Append(Bt.ToString("x2"));
+                    }
+
+                    return builder.ToString();
+                }
+            });
+
+            if (InputStream.Length > 1073741824L * 2)
+            {
+                return Task.Factory.StartNew(ComputeFunction, Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            }
+            else
+            {
+                return Task.Factory.StartNew(ComputeFunction, Token, TaskCreationOptions.None, TaskScheduler.Default);
+            }
+        }
+
+        public static string GetHash<T>(this string InputString) where T : HashAlgorithm
+        {
+            using (T Algorithm = (T)HashAlgorithm.Create(typeof(T).Name))
+            {
+                byte[] Hash = Algorithm.ComputeHash(Encoding.UTF8.GetBytes(InputString));
 
                 StringBuilder builder = new StringBuilder();
-                for (int i = 0; i < hash.Length; i++)
+
+                foreach (byte Bt in Hash)
                 {
-                    _ = builder.Append(hash[i].ToString("x2"));
-                }
-                return builder.ToString();
-            }
-        }
-
-        public static string ComputeMD5Hash(this Stream Stream)
-        {
-            if (Stream == null)
-            {
-                throw new ArgumentNullException(nameof(Stream), "Argument could not be null");
-            }
-
-            using (MD5 md5 = MD5.Create())
-            {
-                Stream.Seek(0, SeekOrigin.Begin);
-
-                byte[] hash = md5.ComputeHash(Stream);
-
-                StringBuilder builder = new StringBuilder();
-                for (int i = 0; i < hash.Length; i++)
-                {
-                    _ = builder.Append(hash[i].ToString("x2"));
+                    builder.Append(Bt.ToString("x2"));
                 }
 
                 return builder.ToString();
-            }
-        }
-
-        public static async Task<string> ComputeMD5Hash(this StorageFile File, CancellationToken Token)
-        {
-            using (MD5 md5 = MD5.Create())
-            using (Stream stream = await File.OpenStreamForReadAsync().ConfigureAwait(false))
-            {
-                Token.Register((s) =>
-                {
-                    try
-                    {
-                        Stream Para = s as Stream;
-                        Para.Dispose();
-                    }
-                    catch
-                    {
-
-                    }
-                }, stream, false);
-
-                return await Task.Run(() =>
-                    {
-                        try
-                        {
-                            byte[] hash = md5.ComputeHash(stream);
-
-                            StringBuilder builder = new StringBuilder();
-
-                            for (int i = 0; i < hash.Length; i++)
-                            {
-                                _ = builder.Append(hash[i].ToString("x2"));
-                            }
-
-                            return builder.ToString();
-                        }
-                        catch
-                        {
-                            return string.Empty;
-                        }
-                    }).ConfigureAwait(false);
-            }
-        }
-
-        public static async Task<string> ComputeSHA1Hash(this StorageFile File, CancellationToken Token)
-        {
-            using (SHA1 SHA = SHA1.Create())
-            using (Stream stream = await File.OpenStreamForReadAsync().ConfigureAwait(false))
-            {
-                Token.Register((s) =>
-                {
-                    try
-                    {
-                        Stream Para = s as Stream;
-                        Para.Dispose();
-                    }
-                    catch
-                    {
-
-                    }
-                }, stream, false);
-
-                return await Task.Run(() =>
-                    {
-                        try
-                        {
-                            byte[] Hash = SHA.ComputeHash(stream);
-
-                            StringBuilder builder = new StringBuilder();
-
-                            for (int i = 0; i < Hash.Length; i++)
-                            {
-                                _ = builder.Append(Hash[i].ToString("x2"));
-                            }
-
-                            return builder.ToString();
-                        }
-                        catch
-                        {
-                            return string.Empty;
-                        }
-                    }).ConfigureAwait(false);
-            }
-        }
-
-        public static async Task<string> ComputeSHA256Hash(this StorageFile File, CancellationToken Token)
-        {
-            using (SHA256 SHA = SHA256.Create())
-            using (Stream stream = await File.OpenStreamForReadAsync().ConfigureAwait(false))
-            {
-                Token.Register((s) =>
-                {
-                    try
-                    {
-                        Stream Para = s as Stream;
-                        Para.Dispose();
-                    }
-                    catch
-                    {
-
-                    }
-                }, stream, false);
-
-                return await Task.Run(() =>
-                {
-                    try
-                    {
-                        byte[] Hash = SHA.ComputeHash(stream);
-
-                        StringBuilder builder = new StringBuilder();
-
-                        for (int i = 0; i < Hash.Length; i++)
-                        {
-                            _ = builder.Append(Hash[i].ToString("x2"));
-                        }
-
-                        return builder.ToString();
-                    }
-                    catch
-                    {
-                        return string.Empty;
-                    }
-                }).ConfigureAwait(false);
-            }
-        }
-
-        public static async Task<string> ComputeCrc32Hash(this StorageFile File, CancellationToken Token)
-        {
-            using (Crc32CAlgorithm Crc = new Crc32CAlgorithm(false))
-            using (Stream stream = await File.OpenStreamForReadAsync().ConfigureAwait(false))
-            {
-                Token.Register((s) =>
-                {
-                    try
-                    {
-                        Stream Para = s as Stream;
-                        Para.Dispose();
-                    }
-                    catch
-                    {
-
-                    }
-                }, stream, false);
-
-                return await Task.Run(() =>
-                {
-                    try
-                    {
-                        byte[] Hash = Crc.ComputeHash(stream);
-
-                        StringBuilder builder = new StringBuilder();
-
-                        for (int i = 0; i < Hash.Length; i++)
-                        {
-                            _ = builder.Append(Hash[i].ToString("x2"));
-                        }
-
-                        return builder.ToString();
-                    }
-                    catch
-                    {
-                        return string.Empty;
-                    }
-                }).ConfigureAwait(false);
             }
         }
     }

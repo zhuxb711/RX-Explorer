@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -63,8 +64,6 @@ namespace RX_Explorer
         private int ViewDropLock;
 
         private PointerEventHandler PointerPressedEventHandler;
-
-        private CancellationTokenSource HashCancellation;
 
         private ListViewBase itemPresenter;
         public ListViewBase ItemPresenter
@@ -1987,7 +1986,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    ZipDialog dialog = new ZipDialog(Path.GetFileNameWithoutExtension(Item.Name));
+                    ZipDialog dialog = new ZipDialog(Item);
 
                     if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
@@ -2072,7 +2071,11 @@ namespace RX_Explorer
 
                                 for (int i = 0; i < SplitFolderPath.Length - 1; i++)
                                 {
-                                    if (FileSystemStorageItemBase.Create(Path.Combine(TempFolderPath, SplitFolderPath[i]), StorageItemTypes.Folder, CreateOption.OpenIfExist) == null)
+                                    if (FileSystemStorageItemBase.Create(Path.Combine(TempFolderPath, SplitFolderPath[i]), StorageItemTypes.Folder, CreateOption.OpenIfExist) is FileSystemStorageItemBase NextFolder)
+                                    {
+                                        TempFolderPath = NextFolder.Path;
+                                    }
+                                    else
                                     {
                                         throw new UnauthorizedAccessException("Could not create directory");
                                     }
@@ -2628,7 +2631,7 @@ namespace RX_Explorer
             WiFiProvider = new WiFiShareProvider();
             WiFiProvider.ThreadExitedUnexpectly += WiFiProvider_ThreadExitedUnexpectly;
 
-            string Hash = SelectedItem.Path.ComputeMD5Hash();
+            string Hash = SelectedItem.Path.GetHash<MD5>();
             QRText.Text = WiFiProvider.CurrentUri + Hash;
             WiFiProvider.FilePathMap = new KeyValuePair<string, string>(Hash, SelectedItem.Path);
 
@@ -4132,7 +4135,7 @@ namespace RX_Explorer
                     return;
                 }
 
-                ZipDialog dialog = new ZipDialog(Path.GetFileNameWithoutExtension(Item.Name));
+                ZipDialog dialog = new ZipDialog(Item);
 
                 if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
@@ -5337,7 +5340,7 @@ namespace RX_Explorer
 
                 if (IsCompress)
                 {
-                    ZipDialog dialog = new ZipDialog(Globalization.GetString("Zip_Admin_Name_Text"));
+                    ZipDialog dialog = new ZipDialog();
 
                     if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
@@ -5442,81 +5445,81 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            try
+            if (WIN_Native_API.CheckExist(SelectedItem.Path))
             {
-                if (HashTeachTip.IsOpen)
+                try
                 {
-                    HashTeachTip.IsOpen = false;
-                }
+                    if (HashTeachTip.IsOpen)
+                    {
+                        HashTeachTip.IsOpen = false;
+                    }
 
-                await Task.Run(() =>
-                {
-                    SpinWait.SpinUntil(() => HashCancellation == null);
-                }).ConfigureAwait(true);
-
-                if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile Item)
-                {
-                    Hash_Crc32.IsEnabled = false;
                     Hash_SHA1.IsEnabled = false;
                     Hash_SHA256.IsEnabled = false;
                     Hash_MD5.IsEnabled = false;
 
-                    Hash_Crc32.Text = string.Empty;
                     Hash_SHA1.Text = string.Empty;
                     Hash_SHA256.Text = string.Empty;
                     Hash_MD5.Text = string.Empty;
 
                     await Task.Delay(500).ConfigureAwait(true);
+
                     HashTeachTip.Target = ItemPresenter.ContainerFromItem(SelectedItem) as FrameworkElement;
                     HashTeachTip.IsOpen = true;
 
-                    using (HashCancellation = new CancellationTokenSource())
+                    using (CancellationTokenSource HashCancellation = new CancellationTokenSource())
                     {
-                        Task<string> task1 = Item.ComputeSHA256Hash(HashCancellation.Token);
-                        Hash_SHA256.IsEnabled = true;
+                        try
+                        {
+                            HashTeachTip.Tag = HashCancellation;
 
-                        Task<string> task2 = Item.ComputeCrc32Hash(HashCancellation.Token);
-                        Hash_Crc32.IsEnabled = true;
+                            using (FileStream Stream1 = SelectedItem.GetStreamFromFile(AccessMode.Read))
+                            using (FileStream Stream2 = SelectedItem.GetStreamFromFile(AccessMode.Read))
+                            using (FileStream Stream3 = SelectedItem.GetStreamFromFile(AccessMode.Read))
+                            {
+                                Task Task1 = Stream1.GetHashAsync<SHA256>(HashCancellation.Token).ContinueWith((beforeTask) =>
+                                {
+                                    Hash_SHA256.Text = beforeTask.Result;
+                                    Hash_SHA256.IsEnabled = true;
+                                }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
 
-                        Task<string> task4 = Item.ComputeMD5Hash(HashCancellation.Token);
-                        Hash_MD5.IsEnabled = true;
+                                Task Task2 = Stream2.GetHashAsync<MD5>(HashCancellation.Token).ContinueWith((beforeTask) =>
+                                {
+                                    Hash_MD5.Text = beforeTask.Result;
+                                    Hash_MD5.IsEnabled = true;
+                                }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
 
-                        Task<string> task3 = Item.ComputeSHA1Hash(HashCancellation.Token);
-                        Hash_SHA1.IsEnabled = true;
+                                Task Task3 = Stream3.GetHashAsync<SHA1>(HashCancellation.Token).ContinueWith((beforeTask) =>
+                                {
+                                    Hash_SHA1.Text = beforeTask.Result;
+                                    Hash_SHA1.IsEnabled = true;
+                                }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
 
-                        Hash_MD5.Text = await task4.ConfigureAwait(true);
-                        Hash_Crc32.Text = await task2.ConfigureAwait(true);
-                        Hash_SHA1.Text = await task3.ConfigureAwait(true);
-                        Hash_SHA256.Text = await task1.ConfigureAwait(true);
+                                await Task.WhenAll(Task1, Task2, Task3).ConfigureAwait(true);
+                            }
+                        }
+                        finally
+                        {
+                            HashTeachTip.Tag = null;
+                        }
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    LogTracer.Log(ex, "Error: CalculateHash failed");
                 }
             }
-            catch (Exception ex)
+            else
             {
-                LogTracer.Log(ex, "Error: CalculateHash failed");
-            }
-            finally
-            {
-                HashCancellation = null;
-            }
-        }
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
 
-        private void Hash_Crc32_Copy_Click(object sender, RoutedEventArgs e)
-        {
-            DataPackage Package = new DataPackage();
-            Package.SetText(Hash_Crc32.Text);
-            Clipboard.SetContent(Package);
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+            }
         }
 
         private void Hash_SHA1_Copy_Click(object sender, RoutedEventArgs e)
@@ -5542,7 +5545,10 @@ namespace RX_Explorer
 
         private void HashTeachTip_Closing(TeachingTip sender, TeachingTipClosingEventArgs args)
         {
-            HashCancellation?.Cancel();
+            if (sender.Tag is CancellationTokenSource Source)
+            {
+                Source.Cancel();
+            }
         }
 
         private async void OpenInTerminal_Click(object sender, RoutedEventArgs e)

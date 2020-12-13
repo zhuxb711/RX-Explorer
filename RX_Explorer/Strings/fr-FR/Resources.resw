@@ -2541,4 +2541,7 @@ Les noms non valides incluent
   <data name="ProgramPickerDialog_MoreApp.Text" xml:space="preserve">
     <value>Afficher plus d'applications</value>
   </data>
+  <data name="HashPlaceHolderText" xml:space="preserve">
+    <value>Calculateur...</value>
+  </data>
 </root>

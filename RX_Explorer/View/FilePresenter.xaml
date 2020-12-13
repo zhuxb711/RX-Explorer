@@ -519,6 +519,7 @@
         <muxc:TeachingTip PreferredPlacement="Auto"
                           Title="WIFI分享"
                           x:Uid="WIFIShareTip"
+                          IsLightDismissEnabled="True"
                           HeroContentPlacement="Auto"
                           Closing="QRTeachTip_Closing"
                           x:Name="QRTeachTip">
@@ -557,6 +558,7 @@
         <muxc:TeachingTip PreferredPlacement="Auto"
                           Title="Hash计算"
                           x:Name="HashTeachTip"
+                          IsLightDismissEnabled="True"
                           x:Uid="HashTeachTip"
                           Closing="HashTeachTip_Closing">
             <muxc:TeachingTip.Content>
@@ -564,25 +566,9 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBox IsSpellCheckEnabled="False"
                                  IsReadOnly="True"
-                                 x:Name="Hash_Crc32"
-                                 Header="Crc32"
-                                 PlaceholderText="计算中..."
-                                 Width="245"
-                                 ToolTipService.ToolTip="{x:Bind Hash_Crc32.Text,Mode=OneWay}" />
-                        <Button Margin="5,0,0,0"
-                                x:Name="Hash_Crc32_Copy"
-                                VerticalAlignment="Bottom"
-                                Click="Hash_Crc32_Copy_Click">
-                            <FontIcon FontFamily="Segoe MDL2 Assets"
-                                      Glyph="&#xE8C8;" />
-                        </Button>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBox IsSpellCheckEnabled="False"
-                                 IsReadOnly="True"
                                  x:Name="Hash_MD5"
                                  Header="MD5"
-                                 PlaceholderText="计算中..."
+                                 PlaceholderText="{x:Bind Cls:Globalization.GetString('HashPlaceHolderText')}"
                                  ToolTipService.ToolTip="{x:Bind Hash_MD5.Text,Mode=OneWay}"
                                  Width="245" />
                         <Button Margin="5,0,0,0"
@@ -599,7 +585,7 @@
                                  IsReadOnly="True"
                                  Header="SHA-256"
                                  Name="Hash_SHA256"
-                                 PlaceholderText="计算中..."
+                                 PlaceholderText="{x:Bind Cls:Globalization.GetString('HashPlaceHolderText')}"
                                  ToolTipService.ToolTip="{x:Bind Hash_SHA256.Text,Mode=OneWay}"
                                  Width="245" />
                         <Button Margin="5,0,0,0"
@@ -615,7 +601,7 @@
                                  IsReadOnly="True"
                                  Header="SHA-1"
                                  Name="Hash_SHA1"
-                                 PlaceholderText="计算中..."
+                                 PlaceholderText="{x:Bind Cls:Globalization.GetString('HashPlaceHolderText')}"
                                  ToolTipService.ToolTip="{x:Bind Hash_SHA1.Text,Mode=OneWay}"
                                  Width="245" />
                         <Button Margin="5,0,0,0"

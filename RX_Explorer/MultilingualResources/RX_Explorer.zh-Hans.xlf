@@ -3369,6 +3369,10 @@ Invalid names include
           <source>Show more apps</source>
           <target state="translated">更多应用</target>
         </trans-unit>
+        <trans-unit id="HashPlaceHolderText" translate="yes" xml:space="preserve">
+          <source>Calculating...</source>
+          <target state="new">Calculating...</target>
+        </trans-unit>
       </group>
     </body>
   </file>

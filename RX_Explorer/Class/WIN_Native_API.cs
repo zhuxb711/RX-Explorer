@@ -338,7 +338,7 @@ namespace RX_Explorer.Class
                         {
                             case CreateOption.GenerateUniqueName:
                                 {
-                                    string UniquePath = GenerateUniquePath(NextPath);
+                                    string UniquePath = GenerateUniquePath(NextPath, StorageItemTypes.Folder);
 
                                     if (CreateDirectoryFromAppW(UniquePath, IntPtr.Zero))
                                     {
@@ -382,7 +382,7 @@ namespace RX_Explorer.Class
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 NewFolderPath = string.Empty;
                 LogTracer.Log(ex, "An exception was threw when createdirectory");
@@ -400,7 +400,7 @@ namespace RX_Explorer.Class
                         {
                             if (CheckExist(Path))
                             {
-                                string UniquePath = GenerateUniquePath(Path);
+                                string UniquePath = GenerateUniquePath(Path, StorageItemTypes.File);
 
                                 IntPtr Handle = CreateFileFromApp(UniquePath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
 
@@ -484,22 +484,43 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static string GenerateUniquePath(string Path)
+        public static string GenerateUniquePath(string Path, StorageItemTypes ItemType)
         {
             string UniquePath = Path;
-            string NameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(Path);
-            string Extension = System.IO.Path.GetExtension(Path);
-            string Directory = System.IO.Path.GetDirectoryName(Path);
 
-            for (ushort Count = 1; CheckExist(UniquePath); Count++)
+            if (ItemType == StorageItemTypes.File)
             {
-                if (Regex.IsMatch(NameWithoutExt, @".*\(\d+\)"))
+                string NameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(Path);
+                string Extension = System.IO.Path.GetExtension(Path);
+                string Directory = System.IO.Path.GetDirectoryName(Path);
+
+                for (ushort Count = 1; CheckExist(UniquePath); Count++)
                 {
-                    UniquePath = System.IO.Path.Combine(Directory, $"{NameWithoutExt.Substring(0, NameWithoutExt.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count}){Extension}");
+                    if (Regex.IsMatch(NameWithoutExt, @".*\(\d+\)"))
+                    {
+                        UniquePath = System.IO.Path.Combine(Directory, $"{NameWithoutExt.Substring(0, NameWithoutExt.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count}){Extension}");
+                    }
+                    else
+                    {
+                        UniquePath = System.IO.Path.Combine(Directory, $"{NameWithoutExt} ({Count}){Extension}");
+                    }
                 }
-                else
+            }
+            else
+            {
+                string Directory = System.IO.Path.GetDirectoryName(Path);
+                string Name = System.IO.Path.GetFileName(Path);
+
+                for (ushort Count = 1; CheckExist(UniquePath); Count++)
                 {
-                    UniquePath = System.IO.Path.Combine(Directory, $"{NameWithoutExt} ({Count}){Extension}");
+                    if (Regex.IsMatch(Name, @".*\(\d+\)"))
+                    {
+                        UniquePath = System.IO.Path.Combine(Directory, $"{Name.Substring(0, Name.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count})");
+                    }
+                    else
+                    {
+                        UniquePath = System.IO.Path.Combine(Directory, $"{Name} ({Count})");
+                    }
                 }
             }
 

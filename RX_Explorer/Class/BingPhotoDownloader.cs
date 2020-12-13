@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -43,7 +44,7 @@ namespace RX_Explorer.Class
 
                             using (Stream FileStream = await ExistFile.OpenStreamForReadAsync().ConfigureAwait(false))
                             {
-                                if (FileStream.ComputeMD5Hash() == TempFileStream.ComputeMD5Hash())
+                                if (await FileStream.GetHashAsync<MD5>().ConfigureAwait(true) == await TempFileStream.GetHashAsync<MD5>().ConfigureAwait(true))
                                 {
                                     return ExistFile;
                                 }

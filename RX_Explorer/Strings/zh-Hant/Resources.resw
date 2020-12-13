@@ -2541,4 +2541,7 @@
   <data name="ProgramPickerDialog_MoreApp.Text" xml:space="preserve">
     <value>顯示更多應用</value>
   </data>
+  <data name="HashPlaceHolderText" xml:space="preserve">
+    <value>正在計算...</value>
+  </data>
 </root>

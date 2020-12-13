@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace RX_Explorer.Class
@@ -16,7 +17,7 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public static string GetMD5FromKey(string OriginKey, int Length = 32)
         {
-            string MD5Hash = OriginKey.ComputeMD5Hash();
+            string MD5Hash = OriginKey.GetHash<MD5>();
 
             if (Length <= 32)
             {

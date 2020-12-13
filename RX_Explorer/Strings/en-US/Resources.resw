@@ -2646,4 +2646,7 @@ Invalid names include
   <data name="ProgramPickerDialog_MoreApp.Text" xml:space="preserve">
     <value>Show more apps</value>
   </data>
+  <data name="HashPlaceHolderText" xml:space="preserve">
+    <value>Calculating...</value>
+  </data>
 </root>
