@@ -21,7 +21,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                using (FileStream EncryptFileStream = GetStreamFromFile(AccessMode.Read))
+                using (FileStream EncryptFileStream = GetFileStreamFromFile(AccessMode.Read))
                 {
                     byte[] DecryptByteBuffer = new byte[20];
 
@@ -75,7 +75,7 @@ namespace RX_Explorer.Class
                         IV = Encoding.UTF8.GetBytes(IV)
                     })
                     {
-                        using (FileStream EncryptFileStream = GetStreamFromFile(AccessMode.Read))
+                        using (FileStream EncryptFileStream = GetFileStreamFromFile(AccessMode.Read))
                         {
                             byte[] DecryptByteBuffer = new byte[20];
 
@@ -111,7 +111,7 @@ namespace RX_Explorer.Class
 
                             if (Create(DecryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
                             {
-                                using (FileStream DecryptFileStream = Item.GetStreamFromFile(AccessMode.Exclusive))
+                                using (FileStream DecryptFileStream = Item.GetFileStreamFromFile(AccessMode.Exclusive))
                                 using (ICryptoTransform Decryptor = AES.CreateDecryptor(AES.Key, AES.IV))
                                 {
                                     byte[] PasswordConfirm = new byte[16];

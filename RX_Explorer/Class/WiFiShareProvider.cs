@@ -80,7 +80,7 @@ namespace RX_Explorer.Class
                                {
                                    if (FileSystemStorageItemBase.Open(FilePathMap.Value, ItemFilters.File) is FileSystemStorageItemBase ShareFile)
                                    {
-                                       using (FileStream Stream = ShareFile.GetStreamFromFile(AccessMode.Read))
+                                       using (FileStream Stream = ShareFile.GetFileStreamFromFile(AccessMode.Read))
                                        {
                                            try
                                            {

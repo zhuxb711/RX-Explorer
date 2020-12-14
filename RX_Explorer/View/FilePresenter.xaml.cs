@@ -22,6 +22,7 @@ using Windows.Devices.Input;
 using Windows.Devices.Radios;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
+using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
@@ -2048,7 +2049,7 @@ namespace RX_Explorer
             {
                 if (FileSystemStorageItemBase.Create(Path.Combine(Path.GetDirectoryName(Item.Path), Path.GetFileNameWithoutExtension(Item.Name)), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFolder)
                 {
-                    using (FileStream FileStream = Item.GetStreamFromFile(AccessMode.Exclusive))
+                    using (FileStream FileStream = Item.GetFileStreamFromFile(AccessMode.Exclusive))
                     using (ZipInputStream InputZipStream = new ZipInputStream(FileStream))
                     {
                         FileStream.Seek(0, SeekOrigin.Begin);
@@ -2091,7 +2092,7 @@ namespace RX_Explorer
                                 {
                                     if (FileSystemStorageItemBase.Create(Path.Combine(TempFolderPath, SplitFolderPath.Last()), StorageItemTypes.File, CreateOption.ReplaceExisting) is FileSystemStorageItemBase NewFile)
                                     {
-                                        using (FileStream NewFileStream = NewFile.GetStreamFromFile(AccessMode.Write))
+                                        using (FileStream NewFileStream = NewFile.GetFileStreamFromFile(AccessMode.Write))
                                         {
                                             await InputZipStream.CopyToAsync(NewFileStream).ConfigureAwait(true);
                                         }
@@ -2106,7 +2107,7 @@ namespace RX_Explorer
                             {
                                 if (FileSystemStorageItemBase.Create(Path.Combine(NewFolder.Path, Entry.Name), StorageItemTypes.File, CreateOption.ReplaceExisting) is FileSystemStorageItemBase NewFile)
                                 {
-                                    using (FileStream NewFileStream = NewFile.GetStreamFromFile(AccessMode.Write))
+                                    using (FileStream NewFileStream = NewFile.GetFileStreamFromFile(AccessMode.Write))
                                     {
                                         await InputZipStream.CopyToAsync(NewFileStream).ConfigureAwait(true);
                                     }
@@ -2178,7 +2179,7 @@ namespace RX_Explorer
             {
                 if (FileSystemStorageItemBase.Create(Path.Combine(Container.CurrentFolder.Path, NewZipName), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFile)
                 {
-                    using (FileStream NewFileStream = NewFile.GetStreamFromFile(AccessMode.Exclusive))
+                    using (FileStream NewFileStream = NewFile.GetFileStreamFromFile(AccessMode.Exclusive))
                     using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
                     {
                         OutputStream.SetLevel(ZipLevel);
@@ -2187,7 +2188,7 @@ namespace RX_Explorer
 
                         if (ZipTarget.StorageType == StorageItemTypes.File)
                         {
-                            using (FileStream FileStream = ZipTarget.GetStreamFromFile(AccessMode.Read))
+                            using (FileStream FileStream = ZipTarget.GetFileStreamFromFile(AccessMode.Read))
                             {
                                 ZipEntry NewEntry = new ZipEntry(ZipTarget.Name)
                                 {
@@ -2265,7 +2266,7 @@ namespace RX_Explorer
             {
                 if (FileSystemStorageItemBase.Create(Path.Combine(Container.CurrentFolder.Path, NewZipName), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFile)
                 {
-                    using (FileStream NewFileStream = NewFile.GetStreamFromFile(AccessMode.Exclusive))
+                    using (FileStream NewFileStream = NewFile.GetFileStreamFromFile(AccessMode.Exclusive))
                     using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
                     {
                         OutputStream.SetLevel(ZipLevel);
@@ -2292,7 +2293,7 @@ namespace RX_Explorer
                         {
                             if (StorageItem.StorageType == StorageItemTypes.File)
                             {
-                                using (FileStream FileStream = StorageItem.GetStreamFromFile(AccessMode.Read))
+                                using (FileStream FileStream = StorageItem.GetFileStreamFromFile(AccessMode.Read))
                                 {
                                     ZipEntry NewEntry = new ZipEntry(StorageItem.Name)
                                     {
@@ -2423,7 +2424,7 @@ namespace RX_Explorer
                     }
                     else if (Item.StorageType == StorageItemTypes.File)
                     {
-                        using (FileStream FileStream = Item.GetStreamFromFile(AccessMode.Read))
+                        using (FileStream FileStream = Item.GetFileStreamFromFile(AccessMode.Read))
                         {
                             ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/{Item.Name}")
                             {
@@ -2571,9 +2572,9 @@ namespace RX_Explorer
                 case ".tiff":
                     {
                         TranscodeImageDialog Dialog = null;
-                        using (FileStream OriginStream = SelectedItem.GetStreamFromFile(AccessMode.Read))
+                        using (IRandomAccessStream OriginStream = await SelectedItem.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read).ConfigureAwait(true))
                         {
-                            BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream.AsRandomAccessStream());
+                            BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
                             Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
                         }
 
@@ -5476,9 +5477,9 @@ namespace RX_Explorer
                         {
                             HashTeachTip.Tag = HashCancellation;
 
-                            using (FileStream Stream1 = SelectedItem.GetStreamFromFile(AccessMode.Read))
-                            using (FileStream Stream2 = SelectedItem.GetStreamFromFile(AccessMode.Read))
-                            using (FileStream Stream3 = SelectedItem.GetStreamFromFile(AccessMode.Read))
+                            using (FileStream Stream1 = SelectedItem.GetFileStreamFromFile(AccessMode.Read))
+                            using (FileStream Stream2 = SelectedItem.GetFileStreamFromFile(AccessMode.Read))
+                            using (FileStream Stream3 = SelectedItem.GetFileStreamFromFile(AccessMode.Read))
                             {
                                 Task Task1 = Stream1.GetHashAsync<SHA256>(HashCancellation.Token).ContinueWith((beforeTask) =>
                                 {

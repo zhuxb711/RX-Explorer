@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
+using Windows.Storage.Streams;
 using Windows.System;
 using Windows.System.UserProfile;
 using Windows.UI.Core;
@@ -279,9 +280,9 @@ namespace RX_Explorer
             FileSystemStorageItemBase Item = PhotoCollection[Flip.SelectedIndex].PhotoFile;
 
             TranscodeImageDialog Dialog = null;
-            using (FileStream OriginStream = Item.GetStreamFromFile(AccessMode.Read))
+            using (IRandomAccessStream OriginStream = await Item.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read).ConfigureAwait(true))
             {
-                BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream.AsRandomAccessStream());
+                BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
                 Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
             }
 
@@ -331,6 +332,7 @@ namespace RX_Explorer
                         Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
                     };
+
                     _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
                 catch (InvalidOperationException)

@@ -216,9 +216,9 @@ namespace RX_Explorer.Class
 
         public static string ToFileSizeDescription(this ulong SizeRaw)
         {
-            return SizeRaw / 1024d < 1024 ? Math.Round(SizeRaw / 1024d, 1, MidpointRounding.AwayFromZero).ToString("0.0") + " KB" :
-                   (SizeRaw / 1048576d < 1024 ? Math.Round(SizeRaw / 1048576d, 1, MidpointRounding.AwayFromZero).ToString("0.0") + " MB" :
-                   (SizeRaw / 1073741824d < 1024 ? Math.Round(SizeRaw / 1073741824d, 1, MidpointRounding.AwayFromZero).ToString("0.0") + " GB" :
+            return SizeRaw >> 10 < 1024 ? Math.Round(SizeRaw / 1024d, 1, MidpointRounding.AwayFromZero).ToString("0.0") + " KB" :
+                   (SizeRaw >> 20 < 1024 ? Math.Round(SizeRaw / 1048576d, 1, MidpointRounding.AwayFromZero).ToString("0.0") + " MB" :
+                   (SizeRaw >> 30 < 1024 ? Math.Round(SizeRaw / 1073741824d, 1, MidpointRounding.AwayFromZero).ToString("0.0") + " GB" :
                    Math.Round(SizeRaw / 1099511627776d, 1, MidpointRounding.AwayFromZero).ToString("0.0") + " TB"));
         }
 
@@ -1027,7 +1027,7 @@ namespace RX_Explorer.Class
                 }
             });
 
-            if (InputStream.Length > 1073741824L * 2)
+            if ((InputStream.Length >> 1) > 1073741824L)
             {
                 return Task.Factory.StartNew(ComputeFunction, Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
             }

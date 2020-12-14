@@ -60,7 +60,7 @@ namespace RX_Explorer
 
             try
             {
-                using (IRandomAccessStream PdfStream = PdfFile.GetStreamFromFile(AccessMode.Read).AsRandomAccessStream())
+                using (IRandomAccessStream PdfStream = await PdfFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read).ConfigureAwait(true))
                 {
                     try
                     {

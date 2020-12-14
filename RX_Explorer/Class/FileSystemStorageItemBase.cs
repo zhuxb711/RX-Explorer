@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
+using Windows.Storage.Streams;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Imaging;
@@ -217,7 +218,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual FileStream GetStreamFromFile(AccessMode Mode)
+        public virtual FileStream GetFileStreamFromFile(AccessMode Mode)
         {
             if (StorageType == StorageItemTypes.File)
             {
@@ -227,6 +228,11 @@ namespace RX_Explorer.Class
             {
                 return null;
             }
+        }
+
+        public virtual async Task<IRandomAccessStream> GetRandomAccessStreamFromFileAsync(FileAccessMode Mode)
+        {
+            return await FileRandomAccessStream.OpenAsync(Path, Mode, StorageOpenOptions.AllowReadersAndWriters, FileOpenDisposition.OpenExisting);
         }
 
         public virtual List<FileSystemStorageItemBase> GetChildrenItems(bool IncludeHiddenItems, ItemFilters Filter)
@@ -485,7 +491,7 @@ namespace RX_Explorer.Class
 
             string EncryptedFilePath = System.IO.Path.Combine(ExportFolderPath, $"{System.IO.Path.GetFileNameWithoutExtension(Name)}.sle");
 
-            using (FileStream EncryptFileStream = Create(EncryptedFilePath, StorageItemTypes.Folder, CreateOption.GenerateUniqueName).GetStreamFromFile(AccessMode.Write))
+            using (FileStream EncryptFileStream = Create(EncryptedFilePath, StorageItemTypes.Folder, CreateOption.GenerateUniqueName).GetFileStreamFromFile(AccessMode.Write))
             using (SecureString Secure = SecureAccessProvider.GetFileEncryptionAesIV(Package.Current))
             {
                 IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
@@ -502,7 +508,7 @@ namespace RX_Explorer.Class
                         IV = Encoding.UTF8.GetBytes(IV)
                     })
                     {
-                        using (FileStream OriginFileStream = GetStreamFromFile(AccessMode.Read))
+                        using (FileStream OriginFileStream = GetFileStreamFromFile(AccessMode.Read))
                         using (ICryptoTransform Encryptor = AES.CreateEncryptor())
                         {
                             byte[] Detail = Encoding.UTF8.GetBytes("$" + KeySize + "|" + Type + "$");

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using TagLib;
 using Windows.Media.Core;
@@ -19,6 +20,7 @@ namespace RX_Explorer
     public sealed partial class MediaPlayer : Page
     {
         private FileSystemStorageItemBase MediaFile;
+        private MediaSource Source;
 
         private readonly Dictionary<string, string> MIMEDictionary = new Dictionary<string, string>
         {
@@ -39,9 +41,9 @@ namespace RX_Explorer
 
         private async Task Initialize()
         {
-            using (FileStream Stream = MediaFile.GetStreamFromFile(AccessMode.Read))
+            using (IRandomAccessStream Stream = await MediaFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read).ConfigureAwait(true))
             {
-                MediaSource Source = MediaSource.CreateFromStream(Stream.AsRandomAccessStream(), MIMEDictionary[MediaFile.Type.ToLower()]);
+                Source = MediaSource.CreateFromStream(Stream, MIMEDictionary[MediaFile.Type.ToLower()]);
                 MediaPlaybackItem Item = new MediaPlaybackItem(Source);
 
                 switch (MediaFile.Type.ToLower())
@@ -98,7 +100,7 @@ namespace RX_Explorer
         {
             try
             {
-                using (FileStream FileStream = MediaFile.GetStreamFromFile(AccessMode.Read))
+                using (FileStream FileStream = MediaFile.GetFileStreamFromFile(AccessMode.Read))
                 using (var TagFile = TagLib.File.Create(new StreamFileAbstraction(MediaFile.Name, FileStream, FileStream)))
                 {
                     if (TagFile.Tag.Pictures != null && TagFile.Tag.Pictures.Length != 0)
@@ -140,7 +142,7 @@ namespace RX_Explorer
         {
             try
             {
-                using (FileStream FileStream = MediaFile.GetStreamFromFile(AccessMode.Read))
+                using (FileStream FileStream = MediaFile.GetFileStreamFromFile(AccessMode.Read))
                 using (var TagFile = TagLib.File.Create(new StreamFileAbstraction(MediaFile.Name, FileStream, FileStream)))
                 {
                     if (TagFile.Tag.AlbumArtists != null && TagFile.Tag.AlbumArtists.Length != 0)
@@ -181,11 +183,13 @@ namespace RX_Explorer
             MediaFile = null;
             MVControl.Source = null;
             Cover.Source = null;
+            Source.Dispose();
+            Source = null;
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            MediaFile = e?.Parameter as FileSystemStorageItemBase;
+            MediaFile = e.Parameter as FileSystemStorageItemBase;
             await Initialize().ConfigureAwait(false);
         }
 

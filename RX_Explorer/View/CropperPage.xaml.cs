@@ -310,28 +310,28 @@ namespace RX_Explorer
             LoadingControl.IsLoading = true;
             MainPage.ThisPage.IsAnyTaskRunning = true;
 
-            using (FileStream Stream = OriginFile.GetStreamFromFile(AccessMode.ReadWrite))
+            using (IRandomAccessStream Stream = await OriginFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.ReadWrite).ConfigureAwait(true))
             {
                 switch (OriginFile.Type.ToLower())
                 {
                     case ".png":
-                        await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Png).ConfigureAwait(true);
+                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Png).ConfigureAwait(true);
                         break;
                     case ".jpg":
                     case ".jpeg":
-                        await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Jpeg).ConfigureAwait(true);
+                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Jpeg).ConfigureAwait(true);
                         break;
                     case ".bmp":
-                        await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Bmp).ConfigureAwait(true);
+                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Bmp).ConfigureAwait(true);
                         break;
                     case ".gif":
-                        await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Gif).ConfigureAwait(true);
+                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Gif).ConfigureAwait(true);
                         break;
                     case ".tiff":
-                        await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Tiff).ConfigureAwait(true);
+                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Tiff).ConfigureAwait(true);
                         break;
                     default:
-                        await Cropper.SaveAsync(Stream.AsRandomAccessStream(), BitmapFileFormat.Png).ConfigureAwait(true);
+                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Png).ConfigureAwait(true);
                         break;
                 }
             }

@@ -9,6 +9,7 @@ using Windows.Media.Editing;
 using Windows.Media.MediaProperties;
 using Windows.Media.Transcoding;
 using Windows.Storage;
+using Windows.Storage.Streams;
 using Windows.UI.Core;
 using Windows.UI.Notifications;
 
@@ -197,73 +198,70 @@ namespace RX_Explorer.Class
         /// <param name="ScaleHeight">缩放高度</param>
         /// <param name="InterpolationMode">插值模式</param>
         /// <returns></returns>
-        public static Task TranscodeFromImageAsync(FileSystemStorageItemBase SourceFile, FileSystemStorageItemBase DestinationFile, bool IsEnableScale = false, uint ScaleWidth = default, uint ScaleHeight = default, BitmapInterpolationMode InterpolationMode = default)
+        public static async Task TranscodeFromImageAsync(FileSystemStorageItemBase SourceFile, FileSystemStorageItemBase DestinationFile, bool IsEnableScale = false, uint ScaleWidth = default, uint ScaleHeight = default, BitmapInterpolationMode InterpolationMode = default)
         {
-            return Task.Run(() =>
+            IsAnyTransformTaskRunning = true;
+
+            using (IRandomAccessStream OriginStream = await SourceFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read).ConfigureAwait(false))
             {
-                IsAnyTransformTaskRunning = true;
+                BitmapEncoder Encoder = null;
 
-                using (FileStream OriginStream = SourceFile.GetStreamFromFile(AccessMode.Read))
+                try
                 {
-                    BitmapEncoder Encoder = null;
-                    
-                    try
+                    BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
+
+                    using (SoftwareBitmap TranscodeImage = Decoder.GetSoftwareBitmapAsync().AsTask().Result)
+                    using (IRandomAccessStream TargetStream = await DestinationFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.ReadWrite).ConfigureAwait(false))
                     {
-                        BitmapDecoder Decoder = BitmapDecoder.CreateAsync(OriginStream.AsRandomAccessStream()).AsTask().Result;
-
-                        using (SoftwareBitmap TranscodeImage = Decoder.GetSoftwareBitmapAsync().AsTask().Result)
-                        using (FileStream TargetStream = DestinationFile.GetStreamFromFile(AccessMode.Write))
+                        Encoder = DestinationFile.Type.ToLower() switch
                         {
-                            Encoder = DestinationFile.Type.ToLower() switch
-                            {
-                                ".png" => BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, TargetStream.AsRandomAccessStream()).AsTask().Result,
-                                ".jpg" => BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, TargetStream.AsRandomAccessStream()).AsTask().Result,
-                                ".bmp" => BitmapEncoder.CreateAsync(BitmapEncoder.BmpEncoderId, TargetStream.AsRandomAccessStream()).AsTask().Result,
-                                ".heic" => BitmapEncoder.CreateAsync(BitmapEncoder.HeifEncoderId, TargetStream.AsRandomAccessStream()).AsTask().Result,
-                                ".tiff" => BitmapEncoder.CreateAsync(BitmapEncoder.TiffEncoderId, TargetStream.AsRandomAccessStream()).AsTask().Result,
-                                _ => throw new InvalidOperationException("Unsupport image format"),
-                            };
+                            ".png" => await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, TargetStream),
+                            ".jpg" => await BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, TargetStream),
+                            ".bmp" => await BitmapEncoder.CreateAsync(BitmapEncoder.BmpEncoderId, TargetStream),
+                            ".heic" => await BitmapEncoder.CreateAsync(BitmapEncoder.HeifEncoderId, TargetStream),
+                            ".tiff" => await BitmapEncoder.CreateAsync(BitmapEncoder.TiffEncoderId, TargetStream),
+                            _ => throw new InvalidOperationException("Unsupport image format"),
+                        };
 
-                            if (IsEnableScale)
-                            {
-                                Encoder.BitmapTransform.ScaledWidth = ScaleWidth;
-                                Encoder.BitmapTransform.ScaledHeight = ScaleHeight;
-                                Encoder.BitmapTransform.InterpolationMode = InterpolationMode;
-                            }
-
-                            Encoder.SetSoftwareBitmap(TranscodeImage);
-                            Encoder.IsThumbnailGenerated = true;
-                            Encoder.FlushAsync().AsTask().Wait();
-                        }
-                    }
-                    catch (Exception err)
-                    {
-                        if (Encoder != null && err.HResult == unchecked((int)0x88982F81))
+                        if (IsEnableScale)
                         {
-                            Encoder.IsThumbnailGenerated = false;
-                            Encoder.FlushAsync().AsTask().Wait();
+                            Encoder.BitmapTransform.ScaledWidth = ScaleWidth;
+                            Encoder.BitmapTransform.ScaledHeight = ScaleHeight;
+                            Encoder.BitmapTransform.InterpolationMode = InterpolationMode;
                         }
-                        else
-                        {
-                            DestinationFile.PermanentDelete();
 
-                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("EnDecode_Dialog_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                _ = await dialog.ShowAsync().ConfigureAwait(true);
-                            }).AsTask().Wait();
-                        }
+                        Encoder.SetSoftwareBitmap(TranscodeImage);
+                        Encoder.IsThumbnailGenerated = true;
+                        await Encoder.FlushAsync();
                     }
                 }
+                catch (Exception err)
+                {
+                    if (Encoder != null && err.HResult == unchecked((int)0x88982F81))
+                    {
+                        Encoder.IsThumbnailGenerated = false;
+                        await Encoder.FlushAsync();
+                    }
+                    else
+                    {
+                        DestinationFile.PermanentDelete();
 
-                IsAnyTransformTaskRunning = false;
-            });
+                        await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                        {
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("EnDecode_Dialog_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            _ = await dialog.ShowAsync().ConfigureAwait(true);
+                        });
+                    }
+                }
+            }
+
+            IsAnyTransformTaskRunning = false;
         }
 
         /// <summary>

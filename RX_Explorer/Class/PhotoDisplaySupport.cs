@@ -73,7 +73,7 @@ namespace RX_Explorer.Class
 
                 try
                 {
-                    using (IRandomAccessStream Stream = PhotoFile.GetStreamFromFile(AccessMode.Read).AsRandomAccessStream())
+                    using (IRandomAccessStream Stream = await PhotoFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read).ConfigureAwait(true))
                     {
                         if (BitmapSource == null)
                         {
@@ -128,7 +128,7 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public async Task UpdateImage()
         {
-            using (IRandomAccessStream Stream = PhotoFile.GetStreamFromFile(AccessMode.Read).AsRandomAccessStream())
+            using (IRandomAccessStream Stream = await PhotoFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read).ConfigureAwait(true))
             {
                 await BitmapSource.SetSourceAsync(Stream);
             }
@@ -144,7 +144,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                using (IRandomAccessStream Stream = PhotoFile.GetStreamFromFile(AccessMode.Read).AsRandomAccessStream())
+                using (IRandomAccessStream Stream = await PhotoFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read).ConfigureAwait(true))
                 {
                     BitmapDecoder decoder = await BitmapDecoder.CreateAsync(Stream);
 

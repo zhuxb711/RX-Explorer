@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Storage.Streams;
 using FileAttributes = System.IO.FileAttributes;
 
 namespace RX_Explorer.Class

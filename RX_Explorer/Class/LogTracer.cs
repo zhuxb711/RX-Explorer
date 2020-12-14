@@ -326,7 +326,7 @@ namespace RX_Explorer.Class
                         Locker.WaitOne();
                     }
 
-                    using (FileStream LogFileStream = FileSystemStorageItemBase.Create(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName), StorageItemTypes.File, CreateOption.OpenIfExist).GetStreamFromFile(AccessMode.Exclusive))
+                    using (FileStream LogFileStream = FileSystemStorageItemBase.Create(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName), StorageItemTypes.File, CreateOption.OpenIfExist).GetFileStreamFromFile(AccessMode.Exclusive))
                     {
                         LogFileStream.Seek(0, SeekOrigin.End);
 

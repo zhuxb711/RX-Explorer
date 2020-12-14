@@ -28,7 +28,7 @@ namespace RX_Explorer
 
             try
             {
-                using (FileStream Stream = TextFile.GetStreamFromFile(AccessMode.Read))
+                using (FileStream Stream = TextFile.GetFileStreamFromFile(AccessMode.Read))
                 using (StreamReader Reader = new StreamReader(Stream))
                 {
                     Text.Text = await Reader.ReadToEndAsync().ConfigureAwait(true);
@@ -39,7 +39,7 @@ namespace RX_Explorer
                 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
                 Encoding GBKEncoding = Encoding.GetEncoding("GBK");
 
-                using (FileStream Stream = TextFile.GetStreamFromFile(AccessMode.Read))
+                using (FileStream Stream = TextFile.GetFileStreamFromFile(AccessMode.Read))
                 using (StreamReader Reader = new StreamReader(Stream, GBKEncoding))
                 {
                     Text.Text = await Reader.ReadToEndAsync().ConfigureAwait(true);
@@ -72,7 +72,7 @@ namespace RX_Explorer
 
         private async void Save_Click(object sender, RoutedEventArgs e)
         {
-            using (FileStream Stream = TextFile.GetStreamFromFile(AccessMode.Write))
+            using (FileStream Stream = TextFile.GetFileStreamFromFile(AccessMode.Write))
             using(StreamWriter Writer = new StreamWriter(Stream))
             {
                 await Writer.WriteAsync(Text.Text).ConfigureAwait(true);
