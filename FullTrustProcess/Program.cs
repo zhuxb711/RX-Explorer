@@ -53,6 +53,7 @@ namespace FullTrustProcess
                     PackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t"
                 };
                 Connection.RequestReceived += Connection_RequestReceived;
+                Connection.ServiceClosed += Connection_ServiceClosed;
 
                 if (await Connection.OpenAsync() == AppServiceConnectionStatus.Success)
                 {
@@ -95,6 +96,11 @@ namespace FullTrustProcess
             }
         }
 
+        private static void Connection_ServiceClosed(AppServiceConnection sender, AppServiceClosedEventArgs args)
+        {
+            ExitLocker.Set();
+        }
+
         private async static void Connection_RequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
         {
             AppServiceDeferral Deferral = args.GetDeferral();
@@ -103,6 +109,19 @@ namespace FullTrustProcess
             {
                 switch (args.Request.Message["ExecuteType"])
                 {
+                    case "Execute_GetMIMEContentType":
+                        {
+                            string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);
+
+                            ValueSet Value = new ValueSet
+                            {
+                                { "Success", MIMEHelper.GetMIMEFromPath(ExecutePath)}
+                            };
+
+                            await args.Request.SendResponseAsync(Value);
+
+                            break;
+                        }
                     case "Execute_GetHiddenItemInfo":
                         {
                             string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);
@@ -400,29 +419,6 @@ namespace FullTrustProcess
                             {
                                 SetWindowsZPosition(Process);
                                 Process.WaitForExit();
-                            }
-
-                            ValueSet Value = new ValueSet
-                            {
-                                { "Success", string.Empty }
-                            };
-
-                            await args.Request.SendResponseAsync(Value);
-
-                            break;
-                        }
-                    case "Execute_RemoveHiddenAttribute":
-                        {
-                            string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);
-
-                            if (File.Exists(ExecutePath))
-                            {
-                                File.SetAttributes(ExecutePath, File.GetAttributes(ExecutePath) & ~FileAttributes.Hidden);
-                            }
-                            else if (Directory.Exists(ExecutePath))
-                            {
-                                DirectoryInfo Info = new DirectoryInfo(ExecutePath);
-                                Info.Attributes &= ~FileAttributes.Hidden;
                             }
 
                             ValueSet Value = new ValueSet

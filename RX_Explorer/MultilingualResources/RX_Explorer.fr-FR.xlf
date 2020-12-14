@@ -2809,10 +2809,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Failed to get the contents of the clipboard</source>
           <target state="translated">Impossible d'obtenir le contenu du presse-papiers</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_RemoveHiddenError_Content" translate="yes" xml:space="preserve">
-          <source>Cannot remove hidden attributes</source>
-          <target state="translated">Impossible de supprimer les attributs masqués</target>
-        </trans-unit>
         <trans-unit id="RemoveHiddenProperty.Label" translate="yes" xml:space="preserve">
           <source>Remove hidden attributes</source>
           <target state="translated">Supprimer les attributs masqués</target>

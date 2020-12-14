@@ -2254,9 +2254,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_FailToGetClipboardError_Content" xml:space="preserve">
     <value>Failed to get the contents of the clipboard</value>
   </data>
-  <data name="QueueDialog_RemoveHiddenError_Content" xml:space="preserve">
-    <value>Cannot remove hidden attributes</value>
-  </data>
   <data name="RemoveHiddenProperty.Label" xml:space="preserve">
     <value>Remove hidden attributes</value>
   </data>

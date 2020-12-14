@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Networking;
 using Windows.Networking.Connectivity;
-using Windows.Storage;
 
 namespace RX_Explorer.Class
 {
@@ -62,6 +61,7 @@ namespace RX_Explorer.Class
             }
 
             IsListeningThreadWorking = true;
+
             try
             {
                 Listener.Start();
@@ -70,28 +70,36 @@ namespace RX_Explorer.Class
                 {
                     HttpListenerContext Context = await Listener.GetContextAsync().ConfigureAwait(false);
 
-                    _ = Task.Factory.StartNew((Para) =>
+                    _ = Task.Factory.StartNew(async(Para) =>
                        {
                            try
                            {
                                HttpListenerContext HttpContext = Para as HttpListenerContext;
+                               
                                if (HttpContext.Request.Url.LocalPath.Substring(1) == FilePathMap.Key)
                                {
-                                   StorageFile File = StorageFile.GetFileFromPathAsync(FilePathMap.Value).AsTask().Result;
-                                   using (Stream FileStream = File.OpenStreamForReadAsync().Result)
+                                   if (FileSystemStorageItemBase.Open(FilePathMap.Value, ItemFilters.File) is FileSystemStorageItemBase ShareFile)
                                    {
-                                       Context.Response.ContentLength64 = FileStream.Length;
-                                       Context.Response.ContentType = File.ContentType;
-                                       Context.Response.AddHeader("Content-Disposition", $"Attachment;filename={Uri.EscapeDataString(File.Name)}");
+                                       using (FileStream Stream = ShareFile.GetStreamFromFile(AccessMode.Read))
+                                       {
+                                           try
+                                           {
+                                               Context.Response.AddHeader("Pragma", "No-cache");
+                                               Context.Response.AddHeader("Cache-Control", "No-cache");
+                                               Context.Response.AddHeader("Content-Disposition", $"Attachment;filename={Uri.EscapeDataString(ShareFile.Name)}");
+                                               Context.Response.ContentLength64 = Stream.Length;
+                                               Context.Response.ContentType = "application/octet-stream";
 
-                                       try
-                                       {
-                                           FileStream.CopyTo(Context.Response.OutputStream);
-                                       }
-                                       catch (HttpListenerException) { }
-                                       finally
-                                       {
-                                           Context.Response.Close();
+                                               Stream.CopyTo(Context.Response.OutputStream);
+                                           }
+                                           catch (HttpListenerException ex)
+                                           {
+                                               LogTracer.Log(ex);
+                                           }
+                                           finally
+                                           {
+                                               Context.Response.Close();
+                                           }
                                        }
                                    }
                                }
@@ -111,6 +119,7 @@ namespace RX_Explorer.Class
                            }
                            catch (Exception e)
                            {
+                               LogTracer.Log(e);
                                ThreadExitedUnexpectly?.Invoke(this, e);
                            }
                        }, Context, Cancellation.Token, TaskCreationOptions.LongRunning, TaskScheduler.Current);

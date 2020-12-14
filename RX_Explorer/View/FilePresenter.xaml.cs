@@ -191,7 +191,7 @@ namespace RX_Explorer
             CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
             CoreVirtualKeyStates ShiftState = sender.GetKeyState(VirtualKey.Shift);
 
-            bool AnyCommandBarFlyoutOpened = LnkItemFlyout.IsOpen || EmptyFlyout.IsOpen || FolderFlyout.IsOpen || FileFlyout.IsOpen || HiddenItemFlyout.IsOpen || MixedFlyout.IsOpen;
+            bool AnyCommandBarFlyoutOpened = LnkItemFlyout.IsOpen || EmptyFlyout.IsOpen || FolderFlyout.IsOpen || FileFlyout.IsOpen || MixedFlyout.IsOpen;
 
             if (!QueueContentDialog.IsRunningOrWaiting && !MainPage.ThisPage.IsAnyTaskRunning && !AnyCommandBarFlyoutOpened)
             {
@@ -435,7 +435,6 @@ namespace RX_Explorer
             FolderFlyout.Hide();
             EmptyFlyout.Hide();
             MixedFlyout.Hide();
-            HiddenItemFlyout.Hide();
             LnkItemFlyout.Hide();
         }
 
@@ -4092,7 +4091,11 @@ namespace RX_Explorer
                             }
                         default:
                             {
-                                FileSystemStorageItemBase.Create(Path.Combine(Container.CurrentFolder.Path, Dialog.NewFileName), StorageItemTypes.File, CreateOption.GenerateUniqueName);
+                                if(FileSystemStorageItemBase.Create(Path.Combine(Container.CurrentFolder.Path, Dialog.NewFileName), StorageItemTypes.File, CreateOption.GenerateUniqueName) == null)
+                                {
+                                    throw new UnauthorizedAccessException();
+                                }
+
                                 break;
                             }
                     }
@@ -5769,54 +5772,6 @@ namespace RX_Explorer
             await Ctrl_Z_Click().ConfigureAwait(false);
         }
 
-        private async void RemoveHidden_Click(object sender, RoutedEventArgs e)
-        {
-            CloseAllFlyout();
-
-            if (await FullTrustProcessController.Current.RemoveHiddenAttributeAsync(SelectedItem.Path).ConfigureAwait(true))
-            {
-                if (FileSystemStorageItemBase.Open(SelectedItem.Path) is FileSystemStorageItemBase Item)
-                {
-                    int Index = FileCollection.IndexOf(SelectedItem);
-
-                    if (Index != -1)
-                    {
-                        FileCollection.Remove(SelectedItem);
-                        FileCollection.Insert(Index, Item);
-                    }
-                    else
-                    {
-                        FileCollection.Add(Item);
-                    }
-
-                    ItemPresenter.UpdateLayout();
-
-                    SelectedItem = Item;
-                }
-            }
-            else
-            {
-                QueueContentDialog Dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_RemoveHiddenError_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                _ = await Dialog.ShowAsync().ConfigureAwait(false);
-            }
-        }
-
-        private async void OpenHiddenItemExplorer_Click(object sender, RoutedEventArgs e)
-        {
-            CloseAllFlyout();
-
-            if (!await Launcher.LaunchFolderPathAsync(SelectedItem.Path))
-            {
-                await Launcher.LaunchFolderPathAsync(Path.GetDirectoryName(SelectedItem.Path));
-            }
-        }
-
         private void NameEditBox_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
         {
             if (args.NewText.Any((Item) => Path.GetInvalidFileNameChars().Contains(Item)))
@@ -6563,10 +6518,8 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    try
+                    if (FileSystemStorageItemBase.Open(Item.LinkTargetPath, ItemFilters.Folder) is FileSystemStorageItemBase ParentFolder)
                     {
-                        StorageFolder ParentFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetDirectoryName(Item.LinkTargetPath));
-
                         await Container.DisplayItemsInFolder(ParentFolder).ConfigureAwait(true);
 
                         if (FileCollection.FirstOrDefault((SItem) => SItem.Path == Item.LinkTargetPath) is FileSystemStorageItemBase Target)
@@ -6575,7 +6528,7 @@ namespace RX_Explorer
                             SelectedItem = Target;
                         }
                     }
-                    catch
+                    else
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {

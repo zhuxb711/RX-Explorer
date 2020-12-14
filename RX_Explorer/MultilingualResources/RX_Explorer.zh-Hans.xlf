@@ -2809,10 +2809,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Failed to get the contents of the clipboard</source>
           <target state="translated">无法获取剪贴板的内容</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_RemoveHiddenError_Content" translate="yes" xml:space="preserve">
-          <source>Cannot remove hidden attributes</source>
-          <target state="translated">无法移除隐藏属性</target>
-        </trans-unit>
         <trans-unit id="RemoveHiddenProperty.Label" translate="yes" xml:space="preserve">
           <source>Remove hidden attributes</source>
           <target state="translated">尝试移除隐藏属性</target>

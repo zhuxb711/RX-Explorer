@@ -32,8 +32,6 @@ namespace RX_Explorer.Class
 
         private const string ExeuteType_RequestCreateNewPipe = "Execute_RequestCreateNewPipe";
 
-        private const string ExecuteType_RemoveHiddenAttribute = "Execute_RemoveHiddenAttribute";
-
         private const string ExecuteType_InterceptWinE = "Execute_Intercept_Win_E";
 
         private const string ExecuteType_RestoreWinE = "Execute_Restore_Win_E";
@@ -79,6 +77,8 @@ namespace RX_Explorer.Class
         private const string ExecuteType_SearchByEverything = "Execute_SearchByEverything";
 
         private const string ExecuteType_GetHiddenItemInfo = "Execute_GetHiddenItemInfo";
+
+        private const string ExecuteType_GetMIMEContentType = "Execute_GetMIMEContentType";
 
         private static volatile FullTrustProcessController Instance;
 
@@ -196,6 +196,61 @@ namespace RX_Explorer.Class
             {
                 LogTracer.Log(ex, $"An unexpected error was threw in {nameof(ConnectToFullTrustProcessorAsync)}");
                 return IsConnected = false;
+            }
+        }
+
+        public async Task<string> GetMIMEContentType(string Path)
+        {
+            try
+            {
+                IsNowHasAnyActionExcuting = true;
+
+                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(true))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExecuteType", ExecuteType_GetMIMEContentType},
+                        {"ExecutePath", Path}
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Success", out object MIME))
+                        {
+                            return Convert.ToString(MIME);
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(GetMIMEContentType)}, message: {ErrorMessage}");
+                            }
+
+                            return string.Empty;
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"AppServiceResponse in {nameof(GetMIMEContentType)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        return string.Empty;
+                    }
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(GetMIMEContentType)}: Failed to connect AppService ");
+                    return string.Empty;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{ nameof(GetMIMEContentType)} throw an error");
+                return string.Empty;
+            }
+            finally
+            {
+                IsNowHasAnyActionExcuting = false;
             }
         }
 
@@ -859,61 +914,6 @@ namespace RX_Explorer.Class
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"{nameof(RestoreWindowsPlusEAsync)} throw an error");
-                return false;
-            }
-            finally
-            {
-                IsNowHasAnyActionExcuting = false;
-            }
-        }
-
-        public async Task<bool> RemoveHiddenAttributeAsync(string Path)
-        {
-            try
-            {
-                IsNowHasAnyActionExcuting = true;
-
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
-                {
-                    ValueSet Value = new ValueSet
-                    {
-                        {"ExecuteType", ExecuteType_RemoveHiddenAttribute},
-                        {"ExecutePath", Path},
-                    };
-
-                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
-
-                    if (Response.Status == AppServiceResponseStatus.Success)
-                    {
-                        if (Response.Message.ContainsKey("Success"))
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
-                            {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(RemoveHiddenAttributeAsync)}, message: {ErrorMessage}");
-                            }
-
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        LogTracer.Log($"AppServiceResponse in {nameof(RemoveHiddenAttributeAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return false;
-                    }
-                }
-                else
-                {
-                    LogTracer.Log($"{nameof(RemoveHiddenAttributeAsync)}: Failed to connect AppService");
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{nameof(RemoveHiddenAttributeAsync)} throw an error");
                 return false;
             }
             finally

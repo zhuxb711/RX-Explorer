@@ -2125,9 +2125,6 @@
   <data name="QueueDialog_FailToGetClipboardError_Content" xml:space="preserve">
     <value>Impossible d'obtenir le contenu du presse-papiers</value>
   </data>
-  <data name="QueueDialog_RemoveHiddenError_Content" xml:space="preserve">
-    <value>Impossible de supprimer les attributs masqués</value>
-  </data>
   <data name="RemoveHiddenProperty.Label" xml:space="preserve">
     <value>Supprimer les attributs masqués</value>
   </data>

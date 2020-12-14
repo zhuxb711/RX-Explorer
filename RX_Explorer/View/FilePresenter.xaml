@@ -25,47 +25,6 @@
 
         <Cls:EmptyTextFiliterConverter x:Key="EmptyTextFiliter" />
 
-        <muxc:CommandBarFlyout x:Name="HiddenItemFlyout"
-                               Placement="RightEdgeAlignedTop">
-            <AppBarButton Icon="Copy"
-                          ToolTipService.ToolTip="复制"
-                          x:Uid="FileCopy"
-                          Click="Copy_Click" />
-            <AppBarButton Icon="Cut"
-                          ToolTipService.ToolTip="剪切"
-                          x:Uid="FileCut"
-                          Click="Cut_Click" />
-            <AppBarButton Icon="Delete"
-                          ToolTipService.ToolTip="删除"
-                          x:Uid="FileDelete"
-                          Click="Delete_Click" />
-            <muxc:CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Label="使用系统管理器打开"
-                              x:Uid="SystemManagerOpen"
-                              x:Name="OpenHiddenItemExplorer"
-                              Click="OpenHiddenItemExplorer_Click">
-                    <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets"
-                                  Glyph="&#xEC50;" />
-                    </AppBarButton.Icon>
-                    <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Modifiers="Shift"
-                                             Key="E"
-                                             IsEnabled="False" />
-                    </AppBarButton.KeyboardAccelerators>
-                </AppBarButton>
-                <AppBarButton Label="尝试移除隐藏属性"
-                              Name="RemoveHidden"
-                              x:Uid="RemoveHiddenProperty"
-                              Click="RemoveHidden_Click">
-                    <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets"
-                                  Glyph="&#xF5EF;" />
-                    </AppBarButton.Icon>
-                </AppBarButton>
-            </muxc:CommandBarFlyout.SecondaryCommands>
-        </muxc:CommandBarFlyout>
-
         <muxc:CommandBarFlyout x:Name="LnkItemFlyout"
                                Placement="RightEdgeAlignedTop">
             <AppBarButton Icon="Copy"
@@ -519,7 +478,6 @@
         <muxc:TeachingTip PreferredPlacement="Auto"
                           Title="WIFI分享"
                           x:Uid="WIFIShareTip"
-                          IsLightDismissEnabled="True"
                           HeroContentPlacement="Auto"
                           Closing="QRTeachTip_Closing"
                           x:Name="QRTeachTip">

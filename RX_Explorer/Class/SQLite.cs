@@ -674,9 +674,9 @@ namespace RX_Explorer.Class
         {
             List<string> HistoryList = new List<string>();
 
-            using (SqliteCommand Command = new SqliteCommand("Select * From SearchHistory Where SearchText Like @Target", Connection))
+            using (SqliteCommand Command = new SqliteCommand("Select * From SearchHistory Where SearchText Like @Target Order By rowid Desc", Connection))
             {
-                Command.Parameters.AddWithValue("@Target", "%" + Target + "%");
+                Command.Parameters.AddWithValue("@Target", $"%{Target}%");
 
                 using (SqliteDataReader Query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
                 {
@@ -684,6 +684,7 @@ namespace RX_Explorer.Class
                     {
                         HistoryList.Add(Query[0].ToString());
                     }
+
                     return HistoryList;
                 }
             }

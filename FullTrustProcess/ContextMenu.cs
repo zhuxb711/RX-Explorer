@@ -21,9 +21,8 @@ namespace FullTrustProcess
                 if (File.Exists(Path) || Directory.Exists(Path))
                 {
                     using (ShellItem Item = ShellItem.Open(Path))
-                    using (ShellFolder ParentFolder = Item == ShellFolder.Desktop ? ShellFolder.Desktop : Item.Parent)
                     {
-                        Shell32.IContextMenu Context = ParentFolder.GetChildrenUIObjects<Shell32.IContextMenu>(null, Item);
+                        Shell32.IContextMenu Context = Item.GetHandler<Shell32.IContextMenu>();
 
                         try
                         {

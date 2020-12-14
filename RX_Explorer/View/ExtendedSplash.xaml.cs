@@ -177,7 +177,7 @@ namespace RX_Explorer
         {
             try
             {
-                _ = await StorageFolder.GetFolderFromPathAsync(Environment.GetLogicalDrives().FirstOrDefault());
+                await StorageFolder.GetFolderFromPathAsync(Environment.GetLogicalDrives().FirstOrDefault());
                 return true;
             }
             catch

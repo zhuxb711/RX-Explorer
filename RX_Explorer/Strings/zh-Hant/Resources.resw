@@ -2128,9 +2128,6 @@
   <data name="QueueDialog_FailToGetClipboardError_Content" xml:space="preserve">
     <value>無法取得剪貼簿的內容</value>
   </data>
-  <data name="QueueDialog_RemoveHiddenError_Content" xml:space="preserve">
-    <value>無法刪除隱藏的屬性</value>
-  </data>
   <data name="RemoveHiddenProperty.Label" xml:space="preserve">
     <value>刪除隱藏的屬性</value>
   </data>

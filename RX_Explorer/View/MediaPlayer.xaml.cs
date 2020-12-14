@@ -39,42 +39,53 @@ namespace RX_Explorer
 
         private async Task Initialize()
         {
-            using (IRandomAccessStream Stream = MediaFile.GetStreamFromFile(AccessMode.Read).AsRandomAccessStream())
-            using (MediaSource Source = MediaSource.CreateFromStream(Stream, MIMEDictionary[MediaFile.Type]))
+            using (FileStream Stream = MediaFile.GetStreamFromFile(AccessMode.Read))
             {
+                MediaSource Source = MediaSource.CreateFromStream(Stream.AsRandomAccessStream(), MIMEDictionary[MediaFile.Type.ToLower()]);
                 MediaPlaybackItem Item = new MediaPlaybackItem(Source);
 
-                if (MediaFile.Type == ".mp3" || MediaFile.Type == ".flac" || MediaFile.Type == ".wma" || MediaFile.Type == ".m4a")
+                switch (MediaFile.Type.ToLower())
                 {
-                    MusicCover.Visibility = Visibility.Visible;
+                    case ".mp3":
+                    case ".flac":
+                    case ".wma":
+                    case ".m4a":
+                        {
+                            MusicCover.Visibility = Visibility.Visible;
 
-                    MediaItemDisplayProperties Props = Item.GetDisplayProperties();
-                    Props.Type = Windows.Media.MediaPlaybackType.Music;
-                    Props.MusicProperties.Title = MediaFile.DisplayName;
+                            MediaItemDisplayProperties Props = Item.GetDisplayProperties();
+                            Props.Type = Windows.Media.MediaPlaybackType.Music;
+                            Props.MusicProperties.Title = MediaFile.DisplayName;
+                            Props.MusicProperties.AlbumArtist = GetArtist();
 
-                    try
-                    {
-                        Props.MusicProperties.AlbumArtist = await GetMusicCoverAsync().ConfigureAwait(true);
-                    }
-                    catch (Exception)
-                    {
-                        Cover.Visibility = Visibility.Collapsed;
-                    }
-                    Item.ApplyDisplayProperties(Props);
+                            Item.ApplyDisplayProperties(Props);
 
-                    Display.Text = $"{Globalization.GetString("Media_Tip_Text")} {MediaFile.DisplayName}";
-                    MVControl.Source = Item;
-                }
-                else
-                {
-                    MusicCover.Visibility = Visibility.Collapsed;
+                            if (await GetMusicCoverAsync().ConfigureAwait(true) is BitmapImage Thumbnail)
+                            {
+                                Cover.Source = Thumbnail;
+                                Cover.Visibility = Visibility.Visible;
+                            }
+                            else
+                            {
+                                Cover.Visibility = Visibility.Collapsed;
+                            }
 
-                    MediaItemDisplayProperties Props = Item.GetDisplayProperties();
-                    Props.Type = Windows.Media.MediaPlaybackType.Video;
-                    Props.VideoProperties.Title = MediaFile.DisplayName;
-                    Item.ApplyDisplayProperties(Props);
+                            Display.Text = $"{Globalization.GetString("Media_Tip_Text")} {MediaFile.DisplayName}";
+                            MVControl.Source = Item;
+                            break;
+                        }
+                    default:
+                        {
+                            MusicCover.Visibility = Visibility.Collapsed;
 
-                    MVControl.Source = Item;
+                            MediaItemDisplayProperties Props = Item.GetDisplayProperties();
+                            Props.Type = Windows.Media.MediaPlaybackType.Video;
+                            Props.VideoProperties.Title = MediaFile.DisplayName;
+                            Item.ApplyDisplayProperties(Props);
+
+                            MVControl.Source = Item;
+                            break;
+                        }
                 }
             }
         }
@@ -83,59 +94,84 @@ namespace RX_Explorer
         /// 异步获取音乐封面
         /// </summary>
         /// <returns>艺术家名称</returns>
-        private async Task<string> GetMusicCoverAsync()
+        private async Task<BitmapImage> GetMusicCoverAsync()
         {
-            using (FileStream FileStream = MediaFile.GetStreamFromFile(AccessMode.Read))
-            using (var TagFile = TagLib.File.Create(new StreamFileAbstraction(MediaFile.Name, FileStream, FileStream)))
+            try
             {
-                if (TagFile.Tag.Pictures != null && TagFile.Tag.Pictures.Length != 0)
+                using (FileStream FileStream = MediaFile.GetStreamFromFile(AccessMode.Read))
+                using (var TagFile = TagLib.File.Create(new StreamFileAbstraction(MediaFile.Name, FileStream, FileStream)))
                 {
-                    var ImageData = TagFile.Tag.Pictures[0].Data.Data;
+                    if (TagFile.Tag.Pictures != null && TagFile.Tag.Pictures.Length != 0)
+                    {
+                        var ImageData = TagFile.Tag.Pictures[0].Data.Data;
 
-                    if (ImageData != null && ImageData.Length != 0)
-                    {
-                        using (MemoryStream ImageStream = new MemoryStream(ImageData))
+                        if (ImageData != null && ImageData.Length != 0)
                         {
-                            BitmapImage bitmap = new BitmapImage
+                            using (MemoryStream ImageStream = new MemoryStream(ImageData))
                             {
-                                DecodePixelHeight = 250,
-                                DecodePixelWidth = 250
-                            };
-                            Cover.Source = bitmap;
-                            await bitmap.SetSourceAsync(ImageStream.AsRandomAccessStream());
+                                BitmapImage bitmap = new BitmapImage
+                                {
+                                    DecodePixelHeight = 250,
+                                    DecodePixelWidth = 250
+                                };
+                                await bitmap.SetSourceAsync(ImageStream.AsRandomAccessStream());
+
+                                return bitmap;
+                            }
                         }
-                        Cover.Visibility = Visibility.Visible;
+                        else
+                        {
+                            return null;
+                        }
                     }
                     else
                     {
-                        Cover.Visibility = Visibility.Collapsed;
+                        return null;
                     }
                 }
-                else
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private string GetArtist()
+        {
+            try
+            {
+                using (FileStream FileStream = MediaFile.GetStreamFromFile(AccessMode.Read))
+                using (var TagFile = TagLib.File.Create(new StreamFileAbstraction(MediaFile.Name, FileStream, FileStream)))
                 {
-                    Cover.Visibility = Visibility.Collapsed;
-                }
-                if (TagFile.Tag.AlbumArtists != null && TagFile.Tag.AlbumArtists.Length != 0)
-                {
-                    string Artist = "";
-                    if (TagFile.Tag.AlbumArtists.Length == 1)
+                    if (TagFile.Tag.AlbumArtists != null && TagFile.Tag.AlbumArtists.Length != 0)
                     {
-                        return TagFile.Tag.AlbumArtists[0];
+                        string Artist = "";
+
+                        if (TagFile.Tag.AlbumArtists.Length == 1)
+                        {
+                            return TagFile.Tag.AlbumArtists[0];
+                        }
+                        else
+                        {
+                            Artist = TagFile.Tag.AlbumArtists[0];
+                        }
+
+                        foreach (var item in TagFile.Tag.AlbumArtists)
+                        {
+                            Artist = Artist + "/" + item;
+                        }
+
+                        return Artist;
                     }
                     else
                     {
-                        Artist = TagFile.Tag.AlbumArtists[0];
+                        return Globalization.GetString("UnknownText");
                     }
-                    foreach (var item in TagFile.Tag.AlbumArtists)
-                    {
-                        Artist = Artist + "/" + item;
-                    }
-                    return Artist;
                 }
-                else
-                {
-                    return Globalization.GetString("UnknownText");
-                }
+            }
+            catch
+            {
+                return Globalization.GetString("UnknownText");
             }
         }
 
