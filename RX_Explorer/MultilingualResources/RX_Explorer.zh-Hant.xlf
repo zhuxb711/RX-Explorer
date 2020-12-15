@@ -2558,7 +2558,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated" state-qualifier="tm-suggestion">白色</target>
         </trans-unit>
         <trans-unit id="Folder_Admin_DisplayType" translate="yes" xml:space="preserve">
-          <source>Folder</source>
+          <source>File folder</source>
           <target state="translated" state-qualifier="tm-suggestion">資料夾</target>
         </trans-unit>
         <trans-unit id="Application_Admin_Name" translate="yes" xml:space="preserve">

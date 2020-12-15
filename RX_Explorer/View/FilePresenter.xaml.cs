@@ -2381,7 +2381,7 @@ namespace RX_Explorer
 
         private async Task ZipFolderCore(FileSystemStorageItemBase Folder, ZipOutputStream OutputStream, string BaseFolderName, ProgressChangedEventHandler ProgressHandler = null)
         {
-            List<FileSystemStorageItemBase> PathList = Folder.GetChildrenItems(true, ItemFilters.File | ItemFilters.Folder);
+            List<FileSystemStorageItemBase> PathList = Folder.GetChildrenItems(true);
 
             if (PathList.Count == 0)
             {

@@ -2063,7 +2063,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>White</value>
   </data>
   <data name="Folder_Admin_DisplayType" xml:space="preserve">
-    <value>Folder</value>
+    <value>File folder</value>
   </data>
   <data name="Application_Admin_Name" xml:space="preserve">
     <value>Application</value>

@@ -886,8 +886,9 @@ namespace RX_Explorer
                     }
                     else if (CommonAccessCollection.FrameFileControlDic.TryGetValue(frame, out FileControl Control))
                     {
+                        Uri NewWindowActivationUri = new Uri($"rx-explorer:{Uri.EscapeDataString(Control.CurrentFolder.Path)}");
                         await CleanUpAndRemoveTabItem(args.Tab).ConfigureAwait(true);
-                        await Launcher.LaunchUriAsync(new Uri($"rx-explorer:{Uri.EscapeDataString(Control.CurrentFolder.Path)}"));
+                        await Launcher.LaunchUriAsync(NewWindowActivationUri);
                     }
                 }
             }

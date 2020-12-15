@@ -2525,7 +2525,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">白色</target>
         </trans-unit>
         <trans-unit id="Folder_Admin_DisplayType" translate="yes" xml:space="preserve">
-          <source>Folder</source>
+          <source>File folder</source>
           <target state="translated">文件夹</target>
         </trans-unit>
         <trans-unit id="Application_Admin_Name" translate="yes" xml:space="preserve">

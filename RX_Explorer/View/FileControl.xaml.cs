@@ -595,7 +595,7 @@ namespace RX_Explorer
 
                 Presenter.FileCollection.Clear();
 
-                List<FileSystemStorageItemBase> ItemList = SortCollectionGenerator.Current.GetSortedCollection(CurrentFolder.GetChildrenItems(SettingControl.IsDisplayHiddenItem, ItemFilters.File | ItemFilters.Folder));
+                List<FileSystemStorageItemBase> ItemList = SortCollectionGenerator.Current.GetSortedCollection(CurrentFolder.GetChildrenItems(SettingControl.IsDisplayHiddenItem));
 
                 Presenter.HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
                 Presenter.StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", ItemList.Count.ToString());
@@ -1432,11 +1432,11 @@ namespace RX_Explorer
 
                                 if (string.IsNullOrEmpty(FileName))
                                 {
-                                    sender.ItemsSource = FileSystemStorageItemBase.Open(DirectoryPath).GetChildrenItems(SettingControl.IsDisplayHiddenItem, ItemFilters.Folder).Take(20).Select((It) => It.Path);
+                                    sender.ItemsSource = FileSystemStorageItemBase.Open(DirectoryPath).GetChildrenItems(SettingControl.IsDisplayHiddenItem).Take(20).Select((It) => It.Path);
                                 }
                                 else
                                 {
-                                    sender.ItemsSource = FileSystemStorageItemBase.Open(DirectoryPath).GetChildrenItems(SettingControl.IsDisplayHiddenItem, ItemFilters.Folder).Where((Item) => Item.Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase)).Take(20).Select((It) => It.Path);
+                                    sender.ItemsSource = FileSystemStorageItemBase.Open(DirectoryPath).GetChildrenItems(SettingControl.IsDisplayHiddenItem).Where((Item) => Item.Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase)).Take(20).Select((It) => It.Path);
                                 }
                             }
                         }

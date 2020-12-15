@@ -1912,7 +1912,7 @@
     <value>Blanc</value>
   </data>
   <data name="Folder_Admin_DisplayType" xml:space="preserve">
-    <value>Dossier</value>
+    <value>Dossier de fichiers</value>
   </data>
   <data name="Application_Admin_Name" xml:space="preserve">
     <value>Application</value>

@@ -235,7 +235,7 @@ namespace RX_Explorer.Class
             return await FileRandomAccessStream.OpenAsync(Path, Mode, StorageOpenOptions.AllowReadersAndWriters, FileOpenDisposition.OpenExisting);
         }
 
-        public virtual List<FileSystemStorageItemBase> GetChildrenItems(bool IncludeHiddenItems, ItemFilters Filter)
+        public virtual List<FileSystemStorageItemBase> GetChildrenItems(bool IncludeHiddenItems, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder)
         {
             if (StorageType == StorageItemTypes.Folder)
             {
