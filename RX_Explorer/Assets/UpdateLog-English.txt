@@ -1,4 +1,37 @@
 ﻿*****
+###What's new in Ver.5.8.0.0
+
+#####Feature update
+
+>#####Added access to hidden folders and files
+
+>#####"Open with" has now been extended to all available applications, and will be classified according to recommendation or not
+
+#####Performance improvement
+
+>#####Improve the performance of a large number of file operations, such as the speed of compressing and decompressing a folder containing a large number of files
+
+>#####Improved the average speed when calculating the hash, and automatically arrange independent calculation threads for large files
+
+#####Bug fix
+
+>#####Improved the OpenCV image processing algorithm to avoid the problem that only solid color blocks may be retained when processing some application icons
+
+>#####Fixed the problem that may cause a crash if the file or folder pointed to by the lnk file does not exist
+
+>#####Fixed the problem that dragging and dropping tabs to the outside and releasing it may crash in some cases
+
+>#####Fixed the problem of conflict between multiple selection mode and box selection mode. This problem may cause multiple selection of files
+
+>#####Fixed the problem that you may not be able to use box selection in the blank space
+
+>#####Fixed the problem that the search results are always empty if the search content contains non-English characters when searching with the Everything search engine
+
+>#####Fixed the problem of searching records in wrong order
+
+>#####Fixed the problem of not being able to jump to the corresponding folder when entering the address ending with "\" in the address bar
+
+*****
 ###What's new in Ver.5.7.4.0
 
 #####Feature update

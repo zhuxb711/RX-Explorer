@@ -1113,6 +1113,8 @@ namespace RX_Explorer
                 QueryText = args.ChosenSuggestion.ToString();
             }
 
+            QueryText = QueryText.TrimEnd('\\');
+
             if (QueryText == CurrentFolder.Path)
             {
                 return;

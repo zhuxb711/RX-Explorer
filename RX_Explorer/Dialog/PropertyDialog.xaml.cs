@@ -81,7 +81,7 @@ namespace RX_Explorer.Dialog
                         }
                         else
                         {
-                            switch (File.FileType)
+                            switch (File.FileType.ToLower())
                             {
                                 case ".flv":
                                 case ".rmvb":

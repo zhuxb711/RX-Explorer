@@ -1,4 +1,37 @@
 ﻿*****
+###Quoi de neuf dans la version 5.8.0.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Ajout de l'accès aux dossiers et fichiers cachés
+
+>#####"Ouvrir avec" a maintenant été étendu à toutes les applications disponibles, et sera classé selon la recommandation ou non
+
+#####Amélioration des performances
+
+>#####Améliorez les performances d'un grand nombre d'opérations sur les fichiers, telles que la vitesse de compression et de décompression d'un dossier contenant un grand nombre de fichiers
+
+>#####Amélioration de la vitesse moyenne lors du calcul du hachage et organisation automatique des threads de calcul indépendants pour les gros fichiers
+
+#####Correction d'un bug
+
+>#####Amélioration de l'algorithme de traitement d'image OpenCV pour éviter le problème que seuls les blocs de couleur unie peuvent être conservés lors du traitement de certaines icônes d'application
+
+>#####Correction du problème pouvant provoquer un plantage si le fichier ou dossier pointé par le fichier lnk n'existe pas
+
+>#####Correction du problème qui faisait que glisser-déposer des onglets vers l'extérieur et les libérer pouvait planter dans certains cas
+
+>#####Correction du problème de conflit entre le mode de sélection multiple et le mode de sélection de boîte. Ce problème peut provoquer une sélection multiple de fichiers
+
+>#####Correction du problème selon lequel vous ne pourrez peut-être pas utiliser la sélection de boîte dans l'espace vide
+
+>#####Correction du problème selon lequel les résultats de la recherche sont toujours vides si le contenu de la recherche contient des caractères non anglais lors de la recherche avec le moteur de recherche Everything
+
+>#####Correction du problème de recherche des enregistrements dans le mauvais ordre
+
+>#####Correction du problème de ne pas pouvoir accéder au dossier correspondant lors de la saisie de l'adresse se terminant par "\" dans la barre d'adresse
+
+*****
 ###Quoi de neuf dans la version 5.7.4.0
 
 ##### Mise à jour des fonctionnalités

@@ -174,7 +174,7 @@ namespace RX_Explorer.Dialog
 
             if (CurrentUseProgramList.Items.Count == 0)
             {
-                switch (OpenFile.Type)
+                switch (OpenFile.Type.ToLower())
                 {
                     case ".jpg":
                     case ".png":
@@ -222,7 +222,7 @@ namespace RX_Explorer.Dialog
                 Title1.Text = Globalization.GetString("ProgramPicker_Dialog_Title_1");
                 Title2.Text = Globalization.GetString("ProgramPicker_Dialog_Title_2");
 
-                switch (OpenFile.Type)
+                switch (OpenFile.Type.ToLower())
                 {
                     case ".jpg":
                     case ".png":
