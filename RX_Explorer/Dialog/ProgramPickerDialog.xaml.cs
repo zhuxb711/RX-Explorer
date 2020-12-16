@@ -87,71 +87,78 @@ namespace RX_Explorer.Dialog
                 LogTracer.Log(ex, "An exception was threw when fetching association data");
             }
 
-            foreach (AssociationPackage Package in await SQLite.Current.GetProgramPickerRecordAsync(OpenFile.Type, false).ConfigureAwait(true))
+            try
             {
-                try
+                foreach (AssociationPackage Package in await SQLite.Current.GetProgramPickerRecordAsync(OpenFile.Type, false).ConfigureAwait(true))
                 {
-                    if (WIN_Native_API.CheckExist(Package.ExecutablePath))
+                    try
                     {
-                        StorageFile ExecuteFile = await StorageFile.GetFileFromPathAsync(Package.ExecutablePath);
-
-                        IDictionary<string, object> PropertiesDictionary = await ExecuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" });
-
-                        string ExtraAppName = string.Empty;
-
-                        if (PropertiesDictionary.TryGetValue("System.FileDescription", out object DescriptionRaw))
+                        if (WIN_Native_API.CheckExist(Package.ExecutablePath))
                         {
-                            ExtraAppName = Convert.ToString(DescriptionRaw);
-                        }
+                            StorageFile ExecuteFile = await StorageFile.GetFileFromPathAsync(Package.ExecutablePath);
 
-                        if (await ExecuteFile.GetThumbnailRawStreamAsync().ConfigureAwait(true) is IRandomAccessStream ThumbnailStream)
-                        {
-                            using (ThumbnailStream)
+                            IDictionary<string, object> PropertiesDictionary = await ExecuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" });
+
+                            string ExtraAppName = string.Empty;
+
+                            if (PropertiesDictionary.TryGetValue("System.FileDescription", out object DescriptionRaw))
                             {
-                                BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(ThumbnailStream);
-                                using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
-                                using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
-                                using (InMemoryRandomAccessStream ResizeBitmapStream = new InMemoryRandomAccessStream())
+                                ExtraAppName = Convert.ToString(DescriptionRaw);
+                            }
+
+                            if (await ExecuteFile.GetThumbnailRawStreamAsync().ConfigureAwait(true) is IRandomAccessStream ThumbnailStream)
+                            {
+                                using (ThumbnailStream)
                                 {
-                                    BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, ResizeBitmapStream);
-                                    Encoder.SetSoftwareBitmap(ResizeBitmap);
-                                    await Encoder.FlushAsync();
-
-                                    BitmapImage ThumbnailBitmap = new BitmapImage();
-                                    await ThumbnailBitmap.SetSourceAsync(ResizeBitmapStream);
-
-                                    if (Package.IsRecommanded)
+                                    BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(ThumbnailStream);
+                                    using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                                    using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
+                                    using (InMemoryRandomAccessStream ResizeBitmapStream = new InMemoryRandomAccessStream())
                                     {
-                                        RecommandList.Add(new ProgramPickerItem(ThumbnailBitmap, string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path));
+                                        BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, ResizeBitmapStream);
+                                        Encoder.SetSoftwareBitmap(ResizeBitmap);
+                                        await Encoder.FlushAsync();
+
+                                        BitmapImage ThumbnailBitmap = new BitmapImage();
+                                        await ThumbnailBitmap.SetSourceAsync(ResizeBitmapStream);
+
+                                        if (Package.IsRecommanded)
+                                        {
+                                            RecommandList.Add(new ProgramPickerItem(ThumbnailBitmap, string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path));
+                                        }
+                                        else
+                                        {
+                                            NotRecommandList.Add(new ProgramPickerItem(ThumbnailBitmap, string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path));
+                                        }
                                     }
-                                    else
-                                    {
-                                        NotRecommandList.Add(new ProgramPickerItem(ThumbnailBitmap, string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path));
-                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (Package.IsRecommanded)
+                                {
+                                    RecommandList.Add(new ProgramPickerItem(new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? new Uri("ms-appx:///Assets/Page_Solid_White.png") : new Uri("ms-appx:///Assets/Page_Solid_Black.png")), string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path));
+                                }
+                                else
+                                {
+                                    NotRecommandList.Add(new ProgramPickerItem(new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? new Uri("ms-appx:///Assets/Page_Solid_White.png") : new Uri("ms-appx:///Assets/Page_Solid_Black.png")), string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path));
                                 }
                             }
                         }
                         else
                         {
-                            if (Package.IsRecommanded)
-                            {
-                                RecommandList.Add(new ProgramPickerItem(new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? new Uri("ms-appx:///Assets/Page_Solid_White.png") : new Uri("ms-appx:///Assets/Page_Solid_Black.png")), string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path));
-                            }
-                            else
-                            {
-                                NotRecommandList.Add(new ProgramPickerItem(new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? new Uri("ms-appx:///Assets/Page_Solid_White.png") : new Uri("ms-appx:///Assets/Page_Solid_Black.png")), string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path));
-                            }
+                            await SQLite.Current.DeleteProgramPickerRecordAsync(Package).ConfigureAwait(true);
                         }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        await SQLite.Current.DeleteProgramPickerRecordAsync(Package).ConfigureAwait(true);
+                        LogTracer.Log(ex, "An exception was threw trying add to ApplicationList");
                     }
                 }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "An exception was threw trying add to ApplicationList");
-                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "An exception was threw when fetching association data");
             }
 
             string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(OpenFile.Type).ConfigureAwait(true);

@@ -157,7 +157,8 @@ namespace MaintenanceTask
                     }
                 }
 
-                using (SqliteCommand Command = new SqliteCommand("Alter Table ProgramPicker Add Column IsDefault Text;Alter Table ProgramPicker Add Column IsRecommanded Text", Connection))
+                using (SqliteCommand Command = new SqliteCommand(@"Alter Table ProgramPicker Add Column IsDefault Text Default 'False' Check(IsDefault In ('True','False'));
+                                                                   Alter Table ProgramPicker Add Column IsRecommanded Text Default 'False' Check(IsDefault In ('True','False'))", Connection))
                 {
                     await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }

@@ -64,7 +64,7 @@ namespace RX_Explorer.Class
                                 Create Table If Not Exists Library (Path Text Not Null, Type Text Not Null, Primary Key (Path));
                                 Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));
                                 Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));
-                                Create Table If Not Exists ProgramPicker (FileType Text Not Null, Path Text Not Null, IsDefault Text, IsRecommanded Text, Primary Key(FileType, Path));
+                                Create Table If Not Exists ProgramPicker (FileType Text Not Null, Path Text Not Null, IsDefault Text Default 'False' Check(IsDefault In ('True','False')), IsRecommanded Text Default 'False' Check(IsRecommanded In ('True','False')), Primary Key(FileType, Path));
                                 Create Table If Not Exists TerminalProfile (Name Text Not Null, Path Text Not Null, Argument Text Not Null, RunAsAdmin Text Not Null, Primary Key(Name));
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture1.jpg');
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture2.jpg');
@@ -262,15 +262,16 @@ namespace RX_Explorer.Class
                 {
                     while (Reader.Read())
                     {
+                        //Reader.IsDBNull check is for the user who updated to v5.8.0 and v5.8.0 have DatabaseTable defect on 'ProgramPicker', maybe we could delete this check after several version
                         if (IncludeUWPApplication)
                         {
-                            Result.Add(new AssociationPackage(Extension, Convert.ToString(Reader[1]), Convert.ToBoolean(Reader[3])));
+                            Result.Add(new AssociationPackage(Extension, Convert.ToString(Reader[1]), !Reader.IsDBNull(3) && Convert.ToBoolean(Reader[3])));
                         }
                         else
                         {
                             if (Path.IsPathRooted(Convert.ToString(Reader[1])))
                             {
-                                Result.Add(new AssociationPackage(Extension, Convert.ToString(Reader[1]), Convert.ToBoolean(Reader[3])));
+                                Result.Add(new AssociationPackage(Extension, Convert.ToString(Reader[1]), !Reader.IsDBNull(3) && Convert.ToBoolean(Reader[3])));
                             }
                         }
                     }
