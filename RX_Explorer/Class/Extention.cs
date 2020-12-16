@@ -1039,18 +1039,25 @@ namespace RX_Explorer.Class
 
         public static string GetHash<T>(this string InputString) where T : HashAlgorithm
         {
-            using (T Algorithm = (T)HashAlgorithm.Create(typeof(T).Name))
+            if (string.IsNullOrEmpty(InputString))
             {
-                byte[] Hash = Algorithm.ComputeHash(Encoding.UTF8.GetBytes(InputString));
-
-                StringBuilder builder = new StringBuilder();
-
-                foreach (byte Bt in Hash)
+                return string.Empty;
+            }
+            else
+            {
+                using (T Algorithm = (T)HashAlgorithm.Create(typeof(T).Name))
                 {
-                    builder.Append(Bt.ToString("x2"));
-                }
+                    byte[] Hash = Algorithm.ComputeHash(Encoding.UTF8.GetBytes(InputString));
 
-                return builder.ToString();
+                    StringBuilder builder = new StringBuilder();
+
+                    foreach (byte Bt in Hash)
+                    {
+                        builder.Append(Bt.ToString("x2"));
+                    }
+
+                    return builder.ToString();
+                }
             }
         }
     }

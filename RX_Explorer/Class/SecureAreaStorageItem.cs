@@ -167,9 +167,17 @@ namespace RX_Explorer.Class
             }
         }
 
+        public override BitmapImage Thumbnail
+        {
+            get
+            {
+                return new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
+            }
+        }
+
         public SecureAreaStorageItem(WIN_Native_API.WIN32_FIND_DATA Data, string Path, DateTimeOffset CreationTime, DateTimeOffset ModifiedTime) : base(Data, StorageItemTypes.File, Path, CreationTime, ModifiedTime)
         {
-            Thumbnail = new BitmapImage(new Uri("ms-appx:///Assets/LockFile.png"));
+            
         }
     }
 }

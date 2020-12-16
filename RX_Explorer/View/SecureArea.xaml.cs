@@ -29,9 +29,25 @@ namespace RX_Explorer
 
         private FileSystemStorageItemBase SecureFolder;
 
-        private string FileEncryptionAesKey;
+        private string EncryptionAESKey
+        {
+            get
+            {
+                return KeyGenerator.GetMD5WithLength(UnlockPassword, 16);
+            }
+        }
 
-        private string UnlockPassword;
+        private string UnlockPassword
+        {
+            get
+            {
+                return CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword"); ;
+            }
+            set
+            {
+                CredentialProtector.RequestProtectPassword("SecureAreaPrimaryPassword", value);
+            }
+        }
 
         private int AESKeySize;
 
@@ -66,8 +82,6 @@ namespace RX_Explorer
 
                 if (ApplicationData.Current.LocalSettings.Values.ContainsKey("IsFirstEnterSecureArea"))
                 {
-                    UnlockPassword = CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword");
-                    FileEncryptionAesKey = KeyGenerator.GetMD5FromKey(UnlockPassword, 16);
                     AESKeySize = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"]);
 
                     if (ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] is not string LockMode || LockMode != nameof(CloseLockMode) || IsNewStart)
@@ -227,8 +241,6 @@ namespace RX_Explorer
                     {
                         AESKeySize = Dialog.AESKeySize;
                         UnlockPassword = Dialog.Password;
-                        FileEncryptionAesKey = KeyGenerator.GetMD5FromKey(UnlockPassword, 16);
-                        CredentialProtector.RequestProtectPassword("SecureAreaPrimaryPassword", UnlockPassword);
 
                         ApplicationData.Current.LocalSettings.Values["SecureAreaAESKeySize"] = Dialog.AESKeySize;
                         ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = Dialog.IsEnableWindowsHello;
@@ -242,7 +254,6 @@ namespace RX_Explorer
                         }
 
                         GoBack();
-
                         return;
                     }
                 }
@@ -353,7 +364,7 @@ namespace RX_Explorer
                     {
                         if (FileSystemStorageItemBase.Open(OriginFilePath, ItemFilters.File) is FileSystemStorageItemBase Item)
                         {
-                            if (await Item.EncryptAsync(SecureFolder.Path, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is SecureAreaStorageItem EncryptedFile)
+                            if (await Item.EncryptAsync(SecureFolder.Path, EncryptionAESKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is SecureAreaStorageItem EncryptedFile)
                             {
                                 SecureCollection.Add(EncryptedFile);
 
@@ -434,7 +445,7 @@ namespace RX_Explorer
                         {
                             if (FileSystemStorageItemBase.Open(OriginFilePath, ItemFilters.File) is FileSystemStorageItemBase Item)
                             {
-                                if (await Item.EncryptAsync(SecureFolder.Path, FileEncryptionAesKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is SecureAreaStorageItem EncryptedFile)
+                                if (await Item.EncryptAsync(SecureFolder.Path, EncryptionAESKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is SecureAreaStorageItem EncryptedFile)
                                 {
                                     SecureCollection.Add(EncryptedFile);
 
@@ -554,7 +565,7 @@ namespace RX_Explorer
 
                     foreach (SecureAreaStorageItem Item in SecureGridView.SelectedItems.ToArray())
                     {
-                        if (await Item.DecryptAsync(Folder.Path, FileEncryptionAesKey, Cancellation.Token).ConfigureAwait(true) is FileSystemStorageItemBase)
+                        if (await Item.DecryptAsync(Folder.Path, EncryptionAESKey, Cancellation.Token).ConfigureAwait(true) is FileSystemStorageItemBase)
                         {
                             SecureCollection.Remove(Item);
 

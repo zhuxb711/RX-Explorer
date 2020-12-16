@@ -1030,7 +1030,7 @@ namespace RX_Explorer.Class
                                     {
                                         if (Data.cFileName.EndsWith(".sle", StringComparison.OrdinalIgnoreCase))
                                         {
-                                            SearchResult.Add(new SecureAreaStorageItem(Data, Path.Combine(FolderPath, Data.cFileName), CreationTime, ModifiedTime));
+                                            SearchResult.Add(new SecureAreaStorageItem(Data, CurrentDataPath, CreationTime, ModifiedTime));
                                         }
                                     }
                                     else if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
@@ -1093,6 +1093,8 @@ namespace RX_Explorer.Class
                             {
                                 if (Data.cFileName != "." && Data.cFileName != "..")
                                 {
+                                    string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
+
                                     FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
                                     DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
 
@@ -1101,16 +1103,18 @@ namespace RX_Explorer.Class
 
                                     if (Attribute.HasFlag(FileAttributes.Hidden))
                                     {
-                                        Result.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, Path.Combine(FolderPath, Data.cFileName), CreationTime, ModifiedTime));
+                                        Result.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, CurrentDataPath, CreationTime, ModifiedTime));
                                     }
                                     else
                                     {
-                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, Path.Combine(FolderPath, Data.cFileName), CreationTime, ModifiedTime));
+                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, CurrentDataPath, CreationTime, ModifiedTime));
                                     }
                                 }
                             }
                             else if (Filter.HasFlag(ItemFilters.File))
                             {
+                                string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
+
                                 FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
                                 DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
 
@@ -1119,24 +1123,24 @@ namespace RX_Explorer.Class
 
                                 if (Attribute.HasFlag(FileAttributes.Hidden))
                                 {
-                                    Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, Path.Combine(FolderPath, Data.cFileName), CreationTime, ModifiedTime));
+                                    Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, CurrentDataPath, CreationTime, ModifiedTime));
                                 }
                                 else if (SecureFolderPath == FolderPath)
                                 {
                                     if (Data.cFileName.EndsWith(".sle", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        Result.Add(new SecureAreaStorageItem(Data, Path.Combine(FolderPath, Data.cFileName), CreationTime, ModifiedTime));
+                                        Result.Add(new SecureAreaStorageItem(Data, CurrentDataPath, CreationTime, ModifiedTime));
                                     }
                                 }
                                 else if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                                 {
                                     if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        Result.Add(new HyperlinkStorageItem(Data, Path.Combine(FolderPath, Data.cFileName), CreationTime, ModifiedTime));
+                                        Result.Add(new HyperlinkStorageItem(Data, CurrentDataPath, CreationTime, ModifiedTime));
                                     }
                                     else
                                     {
-                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, Path.Combine(FolderPath, Data.cFileName), CreationTime, ModifiedTime));
+                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, CurrentDataPath, CreationTime, ModifiedTime));
                                     }
                                 }
                             }
@@ -1212,11 +1216,11 @@ namespace RX_Explorer.Class
                             {
                                 return new HiddenStorageItem(Data, StorageItemTypes.File, ItemPath, CreationTime, ModifiedTime);
                             }
-                            else if (SecureFolderPath == ItemPath)
+                            else if (SecureFolderPath == Path.GetDirectoryName(ItemPath))
                             {
                                 if (Data.cFileName.EndsWith(".sle", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    return new SecureAreaStorageItem(Data, Path.Combine(ItemPath, Data.cFileName), CreationTime, ModifiedTime);
+                                    return new SecureAreaStorageItem(Data, ItemPath, CreationTime, ModifiedTime);
                                 }
                             }
                             else if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
@@ -1310,11 +1314,11 @@ namespace RX_Explorer.Class
                                 {
                                     Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, Path, CreationTime, ModifiedTime));
                                 }
-                                else if (SecureFolderPath == Path)
+                                else if (SecureFolderPath == System.IO.Path.GetDirectoryName(Path))
                                 {
                                     if (Data.cFileName.EndsWith(".sle", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        Result.Add(new SecureAreaStorageItem(Data, System.IO.Path.Combine(Path, Data.cFileName), CreationTime, ModifiedTime));
+                                        Result.Add(new SecureAreaStorageItem(Data, Path, CreationTime, ModifiedTime));
                                     }
                                 }
                                 else if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))

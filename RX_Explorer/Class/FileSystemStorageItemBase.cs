@@ -46,7 +46,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 获取此文件的缩略图
         /// </summary>
-        public BitmapImage Thumbnail
+        public virtual BitmapImage Thumbnail
         {
             get
             {
@@ -69,7 +69,7 @@ namespace RX_Explorer.Class
             protected set => Inner_Thumbnail = value;
         }
 
-        protected BitmapImage Inner_Thumbnail { get; set; }
+        private BitmapImage Inner_Thumbnail { get; set; }
 
         public WIN_Native_API.WIN32_FIND_DATA? RawStorageItemData { get; }
 
@@ -491,76 +491,83 @@ namespace RX_Explorer.Class
 
             string EncryptedFilePath = System.IO.Path.Combine(ExportFolderPath, $"{System.IO.Path.GetFileNameWithoutExtension(Name)}.sle");
 
-            using (FileStream EncryptFileStream = Create(EncryptedFilePath, StorageItemTypes.Folder, CreateOption.GenerateUniqueName).GetFileStreamFromFile(AccessMode.Write))
-            using (SecureString Secure = SecureAccessProvider.GetFileEncryptionAesIV(Package.Current))
+            if (Create(EncryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase EncryptedFile)
             {
-                IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
-                string IV = Marshal.PtrToStringBSTR(Bstr);
-
-                try
+                using (FileStream EncryptFileStream = EncryptedFile.GetFileStreamFromFile(AccessMode.Write))
+                using (SecureString Secure = SecureAccessProvider.GetFileEncryptionAesIV(Package.Current))
                 {
-                    using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
+                    IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
+                    string IV = Marshal.PtrToStringBSTR(Bstr);
+
+                    try
                     {
-                        KeySize = KeySize,
-                        Key = KeyArray,
-                        Mode = CipherMode.CBC,
-                        Padding = PaddingMode.Zeros,
-                        IV = Encoding.UTF8.GetBytes(IV)
-                    })
-                    {
-                        using (FileStream OriginFileStream = GetFileStreamFromFile(AccessMode.Read))
-                        using (ICryptoTransform Encryptor = AES.CreateEncryptor())
+                        using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                         {
-                            byte[] Detail = Encoding.UTF8.GetBytes("$" + KeySize + "|" + Type + "$");
-                            await EncryptFileStream.WriteAsync(Detail, 0, Detail.Length, CancelToken).ConfigureAwait(false);
-
-                            byte[] PasswordFlag = Encoding.UTF8.GetBytes("PASSWORD_CORRECT");
-                            byte[] EncryptPasswordFlag = Encryptor.TransformFinalBlock(PasswordFlag, 0, PasswordFlag.Length);
-                            await EncryptFileStream.WriteAsync(EncryptPasswordFlag, 0, EncryptPasswordFlag.Length, CancelToken).ConfigureAwait(false);
-
-                            using (CryptoStream TransformStream = new CryptoStream(EncryptFileStream, Encryptor, CryptoStreamMode.Write))
+                            KeySize = KeySize,
+                            Key = KeyArray,
+                            Mode = CipherMode.CBC,
+                            Padding = PaddingMode.Zeros,
+                            IV = Encoding.UTF8.GetBytes(IV)
+                        })
+                        {
+                            using (FileStream OriginFileStream = GetFileStreamFromFile(AccessMode.Read))
+                            using (ICryptoTransform Encryptor = AES.CreateEncryptor())
                             {
-                                await OriginFileStream.CopyToAsync(TransformStream, 8192, CancelToken).ConfigureAwait(false);
-                                TransformStream.FlushFinalBlock();
+                                byte[] Detail = Encoding.UTF8.GetBytes("$" + KeySize + "|" + Type + "$");
+                                await EncryptFileStream.WriteAsync(Detail, 0, Detail.Length, CancelToken).ConfigureAwait(false);
+
+                                byte[] PasswordFlag = Encoding.UTF8.GetBytes("PASSWORD_CORRECT");
+                                byte[] EncryptPasswordFlag = Encryptor.TransformFinalBlock(PasswordFlag, 0, PasswordFlag.Length);
+                                await EncryptFileStream.WriteAsync(EncryptPasswordFlag, 0, EncryptPasswordFlag.Length, CancelToken).ConfigureAwait(false);
+
+                                using (CryptoStream TransformStream = new CryptoStream(EncryptFileStream, Encryptor, CryptoStreamMode.Write))
+                                {
+                                    await OriginFileStream.CopyToAsync(TransformStream, 8192, CancelToken).ConfigureAwait(false);
+                                    TransformStream.FlushFinalBlock();
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        WIN_Native_API.DeleteFromPath(EncryptedFilePath);
+                        throw;
+                    }
+                    finally
+                    {
+                        Marshal.ZeroFreeBSTR(Bstr);
+                        unsafe
+                        {
+                            fixed (char* ClearPtr = IV)
+                            {
+                                for (int i = 0; i < IV.Length; i++)
+                                {
+                                    ClearPtr[i] = '\0';
+                                }
                             }
                         }
                     }
                 }
-                catch(Exception)
+
+                switch (Open(EncryptedFile.Path, ItemFilters.File))
                 {
-                    WIN_Native_API.DeleteFromPath(EncryptedFilePath);
-                    throw;
-                }
-                finally
-                {
-                    Marshal.ZeroFreeBSTR(Bstr);
-                    unsafe
-                    {
-                        fixed (char* ClearPtr = IV)
+                    case SecureAreaStorageItem SItem:
                         {
-                            for (int i = 0; i < IV.Length; i++)
-                            {
-                                ClearPtr[i] = '\0';
-                            }
+                            return SItem;
                         }
-                    }
+                    case FileSystemStorageItemBase Item:
+                        {
+                            return new SecureAreaStorageItem(Item.RawStorageItemData.GetValueOrDefault(), Item.Path, Item.CreationTimeRaw, Item.ModifiedTimeRaw);
+                        }
+                    default:
+                        {
+                            return null;
+                        }
                 }
             }
-
-            switch (WIN_Native_API.GetStorageItem(EncryptedFilePath, ItemFilters.File))
+            else
             {
-                case SecureAreaStorageItem SItem:
-                    {
-                        return SItem;
-                    }
-                case FileSystemStorageItemBase Item:
-                    {
-                        return new SecureAreaStorageItem(Item.RawStorageItemData.GetValueOrDefault(), Item.Path, Item.CreationTimeRaw, Item.ModifiedTimeRaw);
-                    }
-                default:
-                    {
-                        return null;
-                    }
+                return null;
             }
         }
 

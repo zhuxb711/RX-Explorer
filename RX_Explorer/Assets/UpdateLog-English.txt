@@ -1,4 +1,13 @@
 ﻿*****
+###What's new in Ver.5.8.1.0
+
+#####Bug fix
+
+>#####Fixed the problem of unable to import files to the Secure Area
+
+>#####Fixed related issues caused by database defects, which may cause a crash
+
+*****
 ###What's new in Ver.5.8.0.0
 
 #####Feature update

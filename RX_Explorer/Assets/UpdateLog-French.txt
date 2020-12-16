@@ -1,4 +1,13 @@
 ﻿*****
+###Quoi de neuf dans la version 5.8.1.0
+
+#####Correction d'un bug
+
+>#####Correction du problème de l'impossibilité d'importer des fichiers dans la zone sécurisée
+
+>#####Correction de problèmes liés causés par des défauts de base de données, qui peuvent provoquer un crash
+
+*****
 ###Quoi de neuf dans la version 5.8.0.0
 
 #####Mise à jour des fonctionnalités

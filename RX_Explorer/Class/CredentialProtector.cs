@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Windows.Security.Credentials;
 
 namespace RX_Explorer.Class
@@ -15,22 +16,30 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public static string GetPasswordFromProtector(string Name)
         {
-            PasswordVault Vault = new PasswordVault();
-
-            if (Vault.RetrieveAll().Any((Cre) => Cre.Resource == "RX_Secure_Vault" && Cre.UserName == Name))
+            try
             {
-                if (Vault.Retrieve("RX_Secure_Vault", Name) is PasswordCredential Credential)
+                PasswordVault Vault = new PasswordVault();
+
+                if (Vault.RetrieveAll().Any((Cre) => Cre.Resource == "RX_Secure_Vault" && Cre.UserName == Name))
                 {
-                    Credential.RetrievePassword();
-                    return Credential.Password;
+                    if (Vault.Retrieve("RX_Secure_Vault", Name) is PasswordCredential Credential)
+                    {
+                        Credential.RetrievePassword();
+                        return Credential.Password;
+                    }
+                    else
+                    {
+                        return string.Empty;
+                    }
                 }
                 else
                 {
                     return string.Empty;
                 }
             }
-            else
+            catch (Exception ex)
             {
+                LogTracer.Log(ex);
                 return string.Empty;
             }
         }
@@ -42,14 +51,21 @@ namespace RX_Explorer.Class
         /// <param name="Password">密码</param>
         public static void RequestProtectPassword(string Name, string Password)
         {
-            PasswordVault Vault = new PasswordVault();
-
-            foreach (PasswordCredential Credential in Vault.RetrieveAll().Where((Cre) => Cre.Resource == "RX_Secure_Vault" && Cre.UserName == Name))
+            try
             {
-                Vault.Remove(Credential);
-            }
+                PasswordVault Vault = new PasswordVault();
 
-            Vault.Add(new PasswordCredential("RX_Secure_Vault", Name, Password));
+                foreach (PasswordCredential Credential in Vault.RetrieveAll().Where((Cre) => Cre.Resource == "RX_Secure_Vault" && Cre.UserName == Name))
+                {
+                    Vault.Remove(Credential);
+                }
+
+                Vault.Add(new PasswordCredential("RX_Secure_Vault", Name, Password));
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex);
+            }
         }
     }
 }

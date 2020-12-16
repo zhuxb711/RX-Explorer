@@ -185,7 +185,7 @@ namespace RX_Explorer.Class
         public async Task SetProgramPickerRecordAsync(params AssociationPackage[] Packages)
         {
             StringBuilder AddPathBuilder = new StringBuilder();
-            
+
             foreach (AssociationPackage Package in Packages)
             {
                 AddPathBuilder.Append($"Insert Or Ignore Into ProgramPicker Values ('{Package.Extension}', '{Package.ExecutablePath}', 'False', '{Package.IsRecommanded}');");
@@ -252,35 +252,43 @@ namespace RX_Explorer.Class
 
         public async Task<List<AssociationPackage>> GetProgramPickerRecordAsync(string Extension, bool IncludeUWPApplication)
         {
-            List<AssociationPackage> Result = new List<AssociationPackage>();
-
-            using (SqliteCommand Command = new SqliteCommand("Select * From ProgramPicker Where FileType = @FileType", Connection))
+            try
             {
-                Command.Parameters.AddWithValue("@FileType", Extension);
+                List<AssociationPackage> Result = new List<AssociationPackage>();
 
-                using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
+                using (SqliteCommand Command = new SqliteCommand("Select * From ProgramPicker Where FileType = @FileType", Connection))
                 {
-                    while (Reader.Read())
+                    Command.Parameters.AddWithValue("@FileType", Extension);
+
+                    using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
                     {
-                        //Reader.IsDBNull check is for the user who updated to v5.8.0 and v5.8.0 have DatabaseTable defect on 'ProgramPicker', maybe we could delete this check after several version
-                        if (IncludeUWPApplication)
+                        while (Reader.Read())
                         {
-                            Result.Add(new AssociationPackage(Extension, Convert.ToString(Reader[1]), !Reader.IsDBNull(3) && Convert.ToBoolean(Reader[3])));
-                        }
-                        else
-                        {
-                            if (Path.IsPathRooted(Convert.ToString(Reader[1])))
+                            //Reader.IsDBNull check is for the user who updated to v5.8.0 and v5.8.0 have DatabaseTable defect on 'ProgramPicker', maybe we could delete this check after several version
+                            if (IncludeUWPApplication)
                             {
                                 Result.Add(new AssociationPackage(Extension, Convert.ToString(Reader[1]), !Reader.IsDBNull(3) && Convert.ToBoolean(Reader[3])));
+                            }
+                            else
+                            {
+                                if (Path.IsPathRooted(Convert.ToString(Reader[1])))
+                                {
+                                    Result.Add(new AssociationPackage(Extension, Convert.ToString(Reader[1]), !Reader.IsDBNull(3) && Convert.ToBoolean(Reader[3])));
+                                }
                             }
                         }
                     }
                 }
+
+                Result.Reverse();
+
+                return Result;
             }
-
-            Result.Reverse();
-
-            return Result;
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "An exception was threw when reading association data from database");
+                return new List<AssociationPackage>(0);
+            }
         }
 
         public async Task DeleteProgramPickerRecordAsync(AssociationPackage Package)
