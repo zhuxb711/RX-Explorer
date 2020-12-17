@@ -17,17 +17,17 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public static string GetMD5WithLength(string OriginKey, int Length = 32)
         {
-                string MD5Hash = OriginKey.GetHash<MD5>();
+            string MD5Hash = OriginKey.GetHash<MD5>();
 
-                if (Length <= 32)
-                {
-                    return MD5Hash.Substring((32 - Length) / 2, Length);
-                }
-                else
-                {
-                    string Result = MD5Hash;
-                    return Result + Result.Substring(0, Length - 32);
-                }
+            if (Length <= 32)
+            {
+                return MD5Hash.Substring((32 - Length) / 2, Length);
+            }
+            else
+            {
+                string Result = MD5Hash;
+                return Result + Result.Substring(0, Length - 32);
+            }
         }
 
         /// <summary>

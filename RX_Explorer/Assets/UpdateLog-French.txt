@@ -5,6 +5,8 @@
 
 >#####Correction du problème de l'impossibilité d'importer des fichiers dans la zone sécurisée
 
+>#####Correction d'un problème qui pouvait provoquer un crash lors de l'entrée dans la zone sécurisée
+
 >#####Correction de problèmes liés causés par des défauts de base de données, qui peuvent provoquer un crash
 
 *****

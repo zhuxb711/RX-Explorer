@@ -5,6 +5,8 @@
 
 >#####Fixed the problem of unable to import files to the Secure Area
 
+>#####Fixed an issue that could cause a crash when entering the Secure Area
+
 >#####Fixed related issues caused by database defects, which may cause a crash
 
 *****

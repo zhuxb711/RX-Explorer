@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
@@ -1045,7 +1046,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (T Algorithm = (T)HashAlgorithm.Create(typeof(T).Name))
+                using (T Algorithm = (T)typeof(T).GetMethod("Create", Array.Empty<Type>()).Invoke(null,null))
                 {
                     byte[] Hash = Algorithm.ComputeHash(Encoding.UTF8.GetBytes(InputString));
 
