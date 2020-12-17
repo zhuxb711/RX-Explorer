@@ -789,7 +789,9 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (SelectedItems.Count > 0)
+            List<FileSystemStorageItemBase> SelectedItemsCopy = SelectedItems;
+
+            if (SelectedItemsCopy.Count > 0)
             {
                 try
                 {
@@ -800,24 +802,29 @@ namespace RX_Explorer
                         RequestedOperation = DataPackageOperation.Copy
                     };
 
-                    List<IStorageItem> TempItemList = new List<IStorageItem>(SelectedItems.Count);
+                    IEnumerable<FileSystemStorageItemBase> StorageItems = SelectedItemsCopy.Where((Item) => Item is not (HyperlinkStorageItem or HiddenStorageItem));
 
-                    foreach (FileSystemStorageItemBase Item in SelectedItems.Where((Item) => Item is not (HyperlinkStorageItem or HiddenStorageItem)))
+                    if (StorageItems.Any())
                     {
-                        if (await Item.GetStorageItem().ConfigureAwait(true) is IStorageItem It)
+                        List<IStorageItem> TempItemList = new List<IStorageItem>();
+
+                        foreach (FileSystemStorageItemBase Item in StorageItems)
                         {
-                            TempItemList.Add(It);
+                            if (await Item.GetStorageItem().ConfigureAwait(true) is IStorageItem It)
+                            {
+                                TempItemList.Add(It);
+                            }
+                        }
+
+                        if (TempItemList.Count > 0)
+                        {
+                            Package.SetStorageItems(TempItemList, false);
                         }
                     }
 
-                    if (TempItemList.Count > 0)
-                    {
-                        Package.SetStorageItems(TempItemList, false);
-                    }
+                    IEnumerable<FileSystemStorageItemBase> NotStorageItems = SelectedItemsCopy.Where((Item) => Item is HyperlinkStorageItem or HiddenStorageItem);
 
-                    List<FileSystemStorageItemBase> NotStorageItems = SelectedItems.Where((Item) => Item is HyperlinkStorageItem or HiddenStorageItem).ToList();
-
-                    if (NotStorageItems.Count > 0)
+                    if (NotStorageItems.Any())
                     {
                         StringBuilder Builder = new StringBuilder("<head>RX-Explorer-TransferNotStorageItem</head>");
 
@@ -1202,7 +1209,9 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (SelectedItems.Count > 0)
+            List<FileSystemStorageItemBase> SelectedItemsCopy = SelectedItems;
+
+            if (SelectedItemsCopy.Count > 0)
             {
                 try
                 {
@@ -1213,22 +1222,29 @@ namespace RX_Explorer
                         RequestedOperation = DataPackageOperation.Move
                     };
 
-                    List<IStorageItem> TempItemList = new List<IStorageItem>(SelectedItems.Count);
-                    foreach (FileSystemStorageItemBase Item in SelectedItems.Where((Item) => Item is not (HyperlinkStorageItem or HiddenStorageItem)))
+                    IEnumerable<FileSystemStorageItemBase> StorageItems = SelectedItemsCopy.Where((Item) => Item is not (HyperlinkStorageItem or HiddenStorageItem));
+
+                    if (StorageItems.Any())
                     {
-                        if (await Item.GetStorageItem().ConfigureAwait(true) is IStorageItem It)
+                        List<IStorageItem> TempItemList = new List<IStorageItem>();
+
+                        foreach (FileSystemStorageItemBase Item in StorageItems)
                         {
-                            TempItemList.Add(It);
+                            if (await Item.GetStorageItem().ConfigureAwait(true) is IStorageItem It)
+                            {
+                                TempItemList.Add(It);
+                            }
+                        }
+
+                        if (TempItemList.Count > 0)
+                        {
+                            Package.SetStorageItems(TempItemList, false);
                         }
                     }
 
-                    if (TempItemList.Count > 0)
-                    {
-                        Package.SetStorageItems(TempItemList, false);
-                    }
-
-                    List<FileSystemStorageItemBase> NotStorageItems = SelectedItems.Where((Item) => Item is HyperlinkStorageItem or HiddenStorageItem).ToList();
-                    if (NotStorageItems.Count > 0)
+                    IEnumerable<FileSystemStorageItemBase> NotStorageItems = SelectedItemsCopy.Where((Item) => Item is HyperlinkStorageItem or HiddenStorageItem);
+                    
+                    if (NotStorageItems.Any())
                     {
                         StringBuilder Builder = new StringBuilder("<head>RX-Explorer-TransferNotStorageItem</head>");
 
@@ -1243,7 +1259,7 @@ namespace RX_Explorer
                     Clipboard.SetContent(Package);
 
                     FileCollection.Where((Item) => Item.ThumbnailOpacity != 1d).ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.Normal));
-                    SelectedItems.ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.ReduceOpacity));
+                    SelectedItemsCopy.ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.ReduceOpacity));
                 }
                 catch
                 {
@@ -4652,38 +4668,42 @@ namespace RX_Explorer
             {
                 List<FileSystemStorageItemBase> DragList = SelectedItems;
 
-                List<IStorageItem> TempList = new List<IStorageItem>(DragList.Count);
-
-                foreach (FileSystemStorageItemBase StorageItem in DragList.Where((Item) => Item is not (HyperlinkStorageItem or HiddenStorageItem)))
+                foreach(FileSystemStorageItemBase Item in DragList)
                 {
-                    if (ItemPresenter.ContainerFromItem(StorageItem) is SelectorItem SItem && SItem.ContentTemplateRoot.FindChildOfType<TextBox>() is TextBox NameEditBox)
+                    if (ItemPresenter.ContainerFromItem(Item) is SelectorItem SItem && SItem.ContentTemplateRoot.FindChildOfType<TextBox>() is TextBox NameEditBox)
                     {
                         NameEditBox.Visibility = Visibility.Collapsed;
                     }
+                }
 
-                    if (await StorageItem.GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
+                IEnumerable<FileSystemStorageItemBase> StorageItems = DragList.Where((Item) => Item is not (HyperlinkStorageItem or HiddenStorageItem));
+
+                if (StorageItems.Any())
+                {
+                    List<IStorageItem> TempList = new List<IStorageItem>();
+
+                    foreach (FileSystemStorageItemBase StorageItem in StorageItems)
                     {
-                        TempList.Add(Item);
+                        if (await StorageItem.GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
+                        {
+                            TempList.Add(Item);
+                        }
+                    }
+
+                    if (TempList.Count > 0)
+                    {
+                        args.Data.SetStorageItems(TempList, false);
                     }
                 }
 
-                if (TempList.Count > 0)
-                {
-                    args.Data.SetStorageItems(TempList, false);
-                }
-
-                List<FileSystemStorageItemBase> NotStorageItems = DragList.Where((Item) => Item is HyperlinkStorageItem or HiddenStorageItem).ToList();
-                if (NotStorageItems.Count > 0)
+                IEnumerable<FileSystemStorageItemBase> NotStorageItems = DragList.Where((Item) => Item is HyperlinkStorageItem or HiddenStorageItem);
+                
+                if (NotStorageItems.Any())
                 {
                     StringBuilder Builder = new StringBuilder("<head>RX-Explorer-TransferNotStorageItem</head>");
 
                     foreach (FileSystemStorageItemBase Item in NotStorageItems)
                     {
-                        if (ItemPresenter.ContainerFromItem(Item) is SelectorItem SItem && SItem.ContentTemplateRoot.FindChildOfType<TextBox>() is TextBox NameEditBox)
-                        {
-                            NameEditBox.Visibility = Visibility.Collapsed;
-                        }
-
                         Builder.Append($"<p>{Item.Path}</p>");
                     }
 
