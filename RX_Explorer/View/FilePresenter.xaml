@@ -803,33 +803,61 @@
                                 <ColumnDefinition MinWidth="50"
                                                   Width="*" />
                             </Grid.ColumnDefinitions>
-                            <Button HorizontalContentAlignment="Stretch"
-                                    HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Stretch"
-                                    IsDoubleTapEnabled="True"
-                                    DoubleTapped="ListHeader_DoubleTapped"
-                                    Grid.Column="0"
-                                    x:Name="ListHeaderName"
-                                    Click="ListHeaderName_Click"
-                                    Background="{StaticResource ElementAcrylicBrush}"
-                                    Style="{StaticResource ListHeaderButtonStyle}">
-                                <RelativePanel>
-                                    <TextBlock Text="名称"
-                                               FontSize="14"
-                                               x:Uid="SearchName"
-                                               TextTrimming="CharacterEllipsis"
-                                               RelativePanel.LeftOf="SortIndicator1"
-                                               RelativePanel.AlignLeftWithPanel="True"
-                                               RelativePanel.AlignVerticalCenterWithPanel="True" />
-                                    <Viewbox RelativePanel.AlignRightWithPanel="True"
-                                             RelativePanel.AlignVerticalCenterWithPanel="True"
-                                             x:Name="SortIndicator1"
-                                             Height="12"
-                                             Width="12"
-                                             Child="{x:Bind Indicator1Icon,Mode=OneWay}"
-                                             Visibility="{x:Bind Indicator1Visibility,Mode=OneWay}" />
-                                </RelativePanel>
-                            </Button>
+                            <RelativePanel Grid.Column="0">
+                                <Button HorizontalContentAlignment="Stretch"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        IsDoubleTapEnabled="True"
+                                        DoubleTapped="ListHeader_DoubleTapped"
+                                        x:Name="ListHeaderName"
+                                        Click="ListHeaderName_Click"
+                                        RelativePanel.LeftOf="NameFilterHeader"
+                                        RelativePanel.AlignLeftWithPanel="True"
+                                        Background="{StaticResource ElementAcrylicBrush}"
+                                        Style="{StaticResource ListHeaderButtonStyle}">
+                                    <RelativePanel>
+                                        <TextBlock Text="名称"
+                                                   FontSize="14"
+                                                   x:Uid="SearchName"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   RelativePanel.LeftOf="SortIndicator1"
+                                                   RelativePanel.AlignLeftWithPanel="True"
+                                                   RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                        <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                                 RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                 x:Name="SortIndicator1"
+                                                 Height="12"
+                                                 Width="12"
+                                                 Child="{x:Bind Indicator1Icon,Mode=OneWay}"
+                                                 Visibility="{x:Bind Indicator1Visibility,Mode=OneWay}" />
+                                    </RelativePanel>
+                                </Button>
+                                <Button HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        x:Name="NameFilterHeader"
+                                        Background="{StaticResource ElementAcrylicBrush}"
+                                        Style="{StaticResource ListHeaderButtonStyle}"
+                                        RelativePanel.AlignRightWithPanel="True">
+                                    <Button.Flyout>
+                                        <Flyout Placement="BottomEdgeAlignedLeft">
+                                            <Flyout.FlyoutPresenterStyle>
+                                                <Style TargetType="FlyoutPresenter">
+                                                    <Setter Property="CornerRadius"
+                                                            Value="0" />
+                                                    <Setter Property="Background"
+                                                            Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
+                                                </Style>
+                                            </Flyout.FlyoutPresenterStyle>
+                                            <StackPanel Width="200">
+                                                <CheckBox Content="A - G"/>
+                                                <CheckBox Content="H - N" />
+                                                <CheckBox Content="O - T"/>
+                                                <CheckBox Content="U - Z" />
+                                            </StackPanel>
+                                        </Flyout>
+                                    </Button.Flyout>
+                                </Button>
+                            </RelativePanel>
                             <Button HorizontalContentAlignment="Stretch"
                                     HorizontalAlignment="Stretch"
                                     VerticalAlignment="Stretch"

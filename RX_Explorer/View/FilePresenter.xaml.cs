@@ -2269,12 +2269,10 @@ namespace RX_Explorer
         /// <summary>
         /// 执行ZIP文件创建功能
         /// </summary>
-        /// <param name="FileList">待压缩文件</param>
+        /// <param name="ZipItemGroup">待压缩文件</param>
         /// <param name="NewZipName">生成的Zip文件名</param>
         /// <param name="ZipLevel">压缩等级</param>
-        /// <param name="EnableCryption">是否启用加密</param>
-        /// <param name="Size">AES加密密钥长度</param>
-        /// <param name="Password">密码</param>
+        /// <param name="ProgressHandler">进度通知</param>
         /// <returns>无</returns>
         private async Task CreateZipAsync(IEnumerable<FileSystemStorageItemBase> ZipItemGroup, string NewZipName, int ZipLevel, ProgressChangedEventHandler ProgressHandler = null)
         {
@@ -2299,7 +2297,7 @@ namespace RX_Explorer
                             }
                             else
                             {
-                                TotalSize += Convert.ToInt64(WIN_Native_API.CalculateFolderSize(StorageItem.Path));
+                                TotalSize += Convert.ToInt64(await Task.Run(() => WIN_Native_API.CalculateFolderSize(StorageItem.Path)).ConfigureAwait(false));
                             }
                         }
 
@@ -2335,19 +2333,19 @@ namespace RX_Explorer
                             }
                             else
                             {
-                                long InnerFolderSixe = Convert.ToInt64(WIN_Native_API.CalculateFolderSize(StorageItem.Path));
+                                long InnerFolderSize = Convert.ToInt64(await Task.Run(() => WIN_Native_API.CalculateFolderSize(StorageItem.Path)).ConfigureAwait(false));
 
                                 await ZipFolderCore(StorageItem, OutputStream, StorageItem.Name, (s, e) =>
                                 {
                                     if (TotalSize > 0)
                                     {
-                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * InnerFolderSixe)) * 100d / TotalSize)), null));
+                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * InnerFolderSize)) * 100d / TotalSize)), null));
                                     }
                                 }).ConfigureAwait(false);
 
                                 if (TotalSize > 0)
                                 {
-                                    CurrentPosition += InnerFolderSixe;
+                                    CurrentPosition += InnerFolderSize;
 
                                     await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                                     {
@@ -2410,7 +2408,7 @@ namespace RX_Explorer
             }
             else
             {
-                long TotalSize = Convert.ToInt64(WIN_Native_API.CalculateFolderSize(Folder.Path));
+                long TotalSize = Convert.ToInt64(await Task.Run(() => WIN_Native_API.CalculateFolderSize(Folder.Path)).ConfigureAwait(false));
 
                 long CurrentPosition = 0;
 
@@ -2418,19 +2416,19 @@ namespace RX_Explorer
                 {
                     if (Item.StorageType == StorageItemTypes.Folder)
                     {
-                        long InnerFolderSixe = Convert.ToInt64(WIN_Native_API.CalculateFolderSize(Item.Path));
+                        long InnerFolderSize = Convert.ToInt64(await Task.Run(() => WIN_Native_API.CalculateFolderSize(Item.Path)).ConfigureAwait(false));
 
                         await ZipFolderCore(Item, OutputStream, $"{BaseFolderName}/{Item.Name}", ProgressHandler: (s, e) =>
                         {
                             if (TotalSize > 0)
                             {
-                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * InnerFolderSixe)) * 100d / TotalSize)), null));
+                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * InnerFolderSize)) * 100d / TotalSize)), null));
                             }
                         }).ConfigureAwait(false);
 
                         if (TotalSize > 0)
                         {
-                            CurrentPosition += InnerFolderSixe;
+                            CurrentPosition += InnerFolderSize;
 
                             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                             {
