@@ -803,7 +803,11 @@
                                 <ColumnDefinition MinWidth="50"
                                                   Width="*" />
                             </Grid.ColumnDefinitions>
-                            <RelativePanel Grid.Column="0">
+                            <RelativePanel Grid.Column="0"
+                                           VerticalAlignment="Stretch"
+                                           HorizontalAlignment="Stretch"
+                                           PointerEntered="ListHeaderRelativePanel_PointerEntered"
+                                           PointerExited="ListHeaderRelativePanel_PointerExited">
                                 <Button HorizontalContentAlignment="Stretch"
                                         HorizontalAlignment="Stretch"
                                         VerticalAlignment="Stretch"
@@ -811,6 +815,7 @@
                                         DoubleTapped="ListHeader_DoubleTapped"
                                         x:Name="ListHeaderName"
                                         Click="ListHeaderName_Click"
+                                        Height="35"
                                         RelativePanel.LeftOf="NameFilterHeader"
                                         RelativePanel.AlignLeftWithPanel="True"
                                         Background="{StaticResource ElementAcrylicBrush}"
@@ -835,11 +840,22 @@
                                 <Button HorizontalAlignment="Stretch"
                                         VerticalAlignment="Stretch"
                                         x:Name="NameFilterHeader"
+                                        Visibility="Collapsed"
+                                        Height="35"
+                                        Width="25"
+                                        Padding="2"
                                         Background="{StaticResource ElementAcrylicBrush}"
                                         Style="{StaticResource ListHeaderButtonStyle}"
                                         RelativePanel.AlignRightWithPanel="True">
+                                    <Viewbox Width="10">
+                                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                  Glyph="&#xE96E;" />
+                                    </Viewbox>
                                     <Button.Flyout>
-                                        <Flyout Placement="BottomEdgeAlignedLeft">
+                                        <Flyout Placement="BottomEdgeAlignedLeft"
+                                                x:Name="NameFilterFlyout"
+                                                Opening="FilterFlyout_Opening"
+                                                Closing="FilterFlyout_Closing">
                                             <Flyout.FlyoutPresenterStyle>
                                                 <Style TargetType="FlyoutPresenter">
                                                     <Setter Property="CornerRadius"
@@ -858,33 +874,77 @@
                                     </Button.Flyout>
                                 </Button>
                             </RelativePanel>
-                            <Button HorizontalContentAlignment="Stretch"
-                                    HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Stretch"
-                                    IsDoubleTapEnabled="True"
-                                    DoubleTapped="ListHeader_DoubleTapped"
-                                    Grid.Column="1"
-                                    Name="ListHeaderModifiedTime"
-                                    Click="ListHeaderModifiedTime_Click"
-                                    Background="{StaticResource ElementAcrylicBrush}"
-                                    Style="{StaticResource ListHeaderButtonStyle}">
-                                <RelativePanel>
-                                    <TextBlock Text="修改日期"
-                                               FontSize="14"
-                                               x:Uid="SearchModified"
-                                               TextTrimming="CharacterEllipsis"
-                                               RelativePanel.LeftOf="SortIndicator2"
-                                               RelativePanel.AlignLeftWithPanel="True"
-                                               RelativePanel.AlignVerticalCenterWithPanel="True" />
-                                    <Viewbox RelativePanel.AlignRightWithPanel="True"
-                                             RelativePanel.AlignVerticalCenterWithPanel="True"
-                                             x:Name="SortIndicator2"
-                                             Height="12"
-                                             Width="12"
-                                             Child="{x:Bind Indicator2Icon,Mode=OneWay}"
-                                             Visibility="{x:Bind Indicator2Visibility,Mode=OneWay}" />
-                                </RelativePanel>
-                            </Button>
+                            <RelativePanel Grid.Column="1"
+                                           VerticalAlignment="Stretch"
+                                           HorizontalAlignment="Stretch"
+                                           PointerEntered="ListHeaderRelativePanel_PointerEntered"
+                                           PointerExited="ListHeaderRelativePanel_PointerExited">
+                                <Button HorizontalContentAlignment="Stretch"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        Height="35"
+                                        IsDoubleTapEnabled="True"
+                                        DoubleTapped="ListHeader_DoubleTapped"
+                                        Name="ListHeaderModifiedTime"
+                                        Click="ListHeaderModifiedTime_Click"
+                                        RelativePanel.LeftOf="ModTimeFilterHeader"
+                                        RelativePanel.AlignLeftWithPanel="True"
+                                        Background="{StaticResource ElementAcrylicBrush}"
+                                        Style="{StaticResource ListHeaderButtonStyle}">
+                                    <RelativePanel>
+                                        <TextBlock Text="修改日期"
+                                                   FontSize="14"
+                                                   x:Uid="SearchModified"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   RelativePanel.LeftOf="SortIndicator2"
+                                                   RelativePanel.AlignLeftWithPanel="True"
+                                                   RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                        <Viewbox RelativePanel.AlignRightWithPanel="True"
+                                                 RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                 x:Name="SortIndicator2"
+                                                 Height="12"
+                                                 Width="12"
+                                                 Child="{x:Bind Indicator2Icon,Mode=OneWay}"
+                                                 Visibility="{x:Bind Indicator2Visibility,Mode=OneWay}" />
+                                    </RelativePanel>
+                                </Button>
+                                <Button HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        x:Name="ModTimeFilterHeader"
+                                        Visibility="Collapsed"
+                                        Height="35"
+                                        Width="25"
+                                        Padding="2"
+                                        Background="{StaticResource ElementAcrylicBrush}"
+                                        Style="{StaticResource ListHeaderButtonStyle}"
+                                        RelativePanel.AlignRightWithPanel="True">
+                                    <Viewbox Width="10">
+                                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                  Glyph="&#xE96E;" />
+                                    </Viewbox>
+                                    <Button.Flyout>
+                                        <Flyout Placement="BottomEdgeAlignedLeft"
+                                                x:Name="ModTimeFilterFlyout"
+                                                Opening="FilterFlyout_Opening"
+                                                Closing="FilterFlyout_Closing">
+                                            <Flyout.FlyoutPresenterStyle>
+                                                <Style TargetType="FlyoutPresenter">
+                                                    <Setter Property="CornerRadius"
+                                                            Value="0" />
+                                                    <Setter Property="Background"
+                                                            Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
+                                                </Style>
+                                            </Flyout.FlyoutPresenterStyle>
+                                            <StackPanel Width="200">
+                                                <CheckBox Content="A - G" />
+                                                <CheckBox Content="H - N" />
+                                                <CheckBox Content="O - T" />
+                                                <CheckBox Content="U - Z" />
+                                            </StackPanel>
+                                        </Flyout>
+                                    </Button.Flyout>
+                                </Button>
+                            </RelativePanel>
                             <Button Grid.Column="2"
                                     HorizontalContentAlignment="Stretch"
                                     IsDoubleTapEnabled="True"

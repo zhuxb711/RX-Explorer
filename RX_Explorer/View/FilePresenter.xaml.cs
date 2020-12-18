@@ -1243,7 +1243,7 @@ namespace RX_Explorer
                     }
 
                     IEnumerable<FileSystemStorageItemBase> NotStorageItems = SelectedItemsCopy.Where((Item) => Item is HyperlinkStorageItem or HiddenStorageItem);
-                    
+
                     if (NotStorageItems.Any())
                     {
                         StringBuilder Builder = new StringBuilder("<head>RX-Explorer-TransferNotStorageItem</head>");
@@ -4106,7 +4106,7 @@ namespace RX_Explorer
                             }
                         default:
                             {
-                                if(FileSystemStorageItemBase.Create(Path.Combine(Container.CurrentFolder.Path, Dialog.NewFileName), StorageItemTypes.File, CreateOption.GenerateUniqueName) == null)
+                                if (FileSystemStorageItemBase.Create(Path.Combine(Container.CurrentFolder.Path, Dialog.NewFileName), StorageItemTypes.File, CreateOption.GenerateUniqueName) == null)
                                 {
                                     throw new UnauthorizedAccessException();
                                 }
@@ -4666,7 +4666,7 @@ namespace RX_Explorer
             {
                 List<FileSystemStorageItemBase> DragList = SelectedItems;
 
-                foreach(FileSystemStorageItemBase Item in DragList)
+                foreach (FileSystemStorageItemBase Item in DragList)
                 {
                     if (ItemPresenter.ContainerFromItem(Item) is SelectorItem SItem && SItem.ContentTemplateRoot.FindChildOfType<TextBox>() is TextBox NameEditBox)
                     {
@@ -4695,7 +4695,7 @@ namespace RX_Explorer
                 }
 
                 IEnumerable<FileSystemStorageItemBase> NotStorageItems = DragList.Where((Item) => Item is HyperlinkStorageItem or HiddenStorageItem);
-                
+
                 if (NotStorageItems.Any())
                 {
                     StringBuilder Builder = new StringBuilder("<head>RX-Explorer-TransferNotStorageItem</head>");
@@ -6616,6 +6616,46 @@ namespace RX_Explorer
             {
                 e.Handled = true;
             }
+        }
+
+        private void ListHeaderRelativePanel_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            if ((sender as FrameworkElement).FindChildOfName<Button>("NameFilterHeader") is Button NameFilterBtn)
+            {
+                NameFilterBtn.Visibility = Visibility.Visible;
+            }
+            else if ((sender as FrameworkElement).FindChildOfName<Button>("ModTimeFilterHeader") is Button ModTimeFilterBtn)
+            {
+                ModTimeFilterBtn.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void ListHeaderRelativePanel_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            if ((sender as FrameworkElement).FindChildOfName<Button>("NameFilterHeader") is Button NameFilterBtn)
+            {
+                if (!NameFilterBtn.Flyout.IsOpen)
+                {
+                    NameFilterBtn.Visibility = Visibility.Collapsed;
+                }
+            }
+            else if ((sender as FrameworkElement).FindChildOfName<Button>("ModTimeFilterHeader") is Button ModTimeFilterBtn)
+            {
+                if (!ModTimeFilterBtn.Flyout.IsOpen)
+                {
+                    ModTimeFilterBtn.Visibility = Visibility.Collapsed;
+                }
+            }
+        }
+
+        private void FilterFlyout_Opening(object sender, object e)
+        {
+
+        }
+
+        private void FilterFlyout_Closing(FlyoutBase sender, FlyoutBaseClosingEventArgs args)
+        {
+            sender.Target.Visibility = Visibility.Collapsed;
         }
     }
 }
