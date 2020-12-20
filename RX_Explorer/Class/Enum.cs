@@ -2,6 +2,37 @@
 
 namespace RX_Explorer.Class
 {
+    [Flags]
+    public enum NameFilterCondition
+    {
+        None = 0,
+        From_A_To_G = 1,
+        From_H_To_N = 2,
+        From_O_To_T = 4,
+        From_U_To_Z = 8,
+        Other = 16
+    }
+
+    [Flags]
+    public enum ModTimeFilterCondition
+    {
+        None = 0,
+        Range = 1,
+        One_Month_Ago = 2,
+        Three_Month_Ago = 4,
+        Long_Ago = 8
+    }
+
+    [Flags]
+    public enum SizeFilterCondition
+    {
+        None = 0,
+        Smaller = 1,
+        Medium = 2,
+        Larger = 4,
+        Huge = 8
+    }
+
     public enum CreateOption
     {
         OpenIfExist,

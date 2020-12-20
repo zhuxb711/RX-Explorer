@@ -593,12 +593,17 @@ namespace RX_Explorer
                     }
                 }
 
-                Presenter.FileCollection.Clear();
-
                 List<FileSystemStorageItemBase> ItemList = SortCollectionGenerator.Current.GetSortedCollection(CurrentFolder.GetChildrenItems(SettingControl.IsDisplayHiddenItem));
 
                 Presenter.HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
                 Presenter.StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", ItemList.Count.ToString());
+
+                if (Presenter.ListViewControl?.Header is ListViewHeaderController Instance)
+                {
+                    Instance.Filter.SetDataSource(ItemList);
+                }
+
+                Presenter.FileCollection.Clear();
 
                 for (int i = 0; i < ItemList.Count; i++)
                 {
@@ -2365,11 +2370,6 @@ namespace RX_Explorer
 
             EnterLock.Dispose();
             AreaWatcher.Dispose();
-
-            if (Presenter.ListViewControl?.Header is SortIndicatorController Instance)
-            {
-                SortIndicatorController.RemoveInstance(Instance);
-            }
         }
 
         private void Presenter_PointerWheelChanged(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)

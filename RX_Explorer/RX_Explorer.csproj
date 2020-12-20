@@ -163,11 +163,13 @@
     <Compile Include="Class\ContextMenuItem.cs" />
     <Compile Include="Class\Enum.cs" />
     <Compile Include="Class\Exception.cs" />
+    <Compile Include="Class\FilterController.cs" />
     <Compile Include="Class\HiddenStorageItem.cs" />
     <Compile Include="Class\HyperlinkStorageItem.cs" />
     <Compile Include="Class\IUknownInterface.cs" />
     <Compile Include="Class\JumpListController.cs" />
     <Compile Include="Class\ListViewBaseSelectionExtention.cs" />
+    <Compile Include="Class\ListViewHeaderController.cs" />
     <Compile Include="Class\MSStoreHelper.cs" />
     <Compile Include="Class\OperationRecorder.cs" />
     <Compile Include="Class\PipeLineController.cs" />

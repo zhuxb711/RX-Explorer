@@ -109,6 +109,17 @@ namespace RX_Explorer
 
                         ListViewControl.ItemsSource = FileCollection;
                         ListViewRefreshContainer.Visibility = Visibility.Visible;
+
+                        if (value.Header == null)
+                        {
+                            value.Header = ListViewHeaderController.Create();
+                        }
+
+                        if (value.Header is ListViewHeaderController Instance)
+                        {
+                            Instance.Filter.RefreshListRequested -= Filter_RefreshListRequested;
+                            Instance.Filter.RefreshListRequested += Filter_RefreshListRequested;
+                        }
                     }
 
                     itemPresenter = value;
@@ -6628,6 +6639,14 @@ namespace RX_Explorer
             {
                 ModTimeFilterBtn.Visibility = Visibility.Visible;
             }
+            else if ((sender as FrameworkElement).FindChildOfName<Button>("TypeFilterHeader") is Button TypeFilterBtn)
+            {
+                TypeFilterBtn.Visibility = Visibility.Visible;
+            }
+            else if ((sender as FrameworkElement).FindChildOfName<Button>("SizeFilterHeader") is Button SizeFilterBtn)
+            {
+                SizeFilterBtn.Visibility = Visibility.Visible;
+            }
         }
 
         private void ListHeaderRelativePanel_PointerExited(object sender, PointerRoutedEventArgs e)
@@ -6646,16 +6665,232 @@ namespace RX_Explorer
                     ModTimeFilterBtn.Visibility = Visibility.Collapsed;
                 }
             }
-        }
-
-        private void FilterFlyout_Opening(object sender, object e)
-        {
-
+            else if ((sender as FrameworkElement).FindChildOfName<Button>("TypeFilterHeader") is Button TypeFilterBtn)
+            {
+                if (!TypeFilterBtn.Flyout.IsOpen)
+                {
+                    TypeFilterBtn.Visibility = Visibility.Collapsed;
+                }
+            }
+            else if ((sender as FrameworkElement).FindChildOfName<Button>("SizeFilterHeader") is Button SizeFilterBtn)
+            {
+                if (!SizeFilterBtn.Flyout.IsOpen)
+                {
+                    SizeFilterBtn.Visibility = Visibility.Collapsed;
+                }
+            }
         }
 
         private void FilterFlyout_Closing(FlyoutBase sender, FlyoutBaseClosingEventArgs args)
         {
             sender.Target.Visibility = Visibility.Collapsed;
+        }
+
+        //private void FilterCheckBox_Checked(object sender, RoutedEventArgs e)
+        //{
+        //    if (sender is CheckBox Box)
+        //    {
+        //        switch (Box.Tag)
+        //        {
+        //            case "NameFilterCheckBox1":
+        //                {
+        //                    FilterController.AddNameCondition(NameFilterCondition.From_A_To_G);
+        //                    break;
+        //                }
+        //            case "NameFilterCheckBox2":
+        //                {
+        //                    FilterController.AddNameCondition(NameFilterCondition.From_H_To_N);
+        //                    break;
+        //                }
+        //            case "NameFilterCheckBox3":
+        //                {
+        //                    FilterController.AddNameCondition(NameFilterCondition.From_O_To_T);
+        //                    break;
+        //                }
+        //            case "NameFilterCheckBox4":
+        //                {
+        //                    FilterController.AddNameCondition(NameFilterCondition.From_U_To_Z);
+        //                    break;
+        //                }
+        //            case "NameFilterCheckBox5":
+        //                {
+        //                    FilterController.AddNameCondition(NameFilterCondition.Other);
+        //                    break;
+        //                }
+        //            case "ModTimeFilterCheckBox1":
+        //                {
+        //                    if (Box.FindChildOfName<CalendarDatePicker>("ModTimeFilterFromDatePicker") is CalendarDatePicker FromPicker && Box.FindChildOfName<CalendarDatePicker>("ModTimeFilterToDatePicker") is CalendarDatePicker ToPicker)
+        //                    {
+        //                        if (FromPicker.Date == null && ToPicker.Date == null)
+        //                        {
+        //                            return;
+        //                        }
+        //                        else
+        //                        {
+        //                            FilterController.AddModTimeCondition(ModTimeFilterCondition.Range, FromPicker.Date.GetValueOrDefault(), ToPicker.Date.GetValueOrDefault());
+        //                        }
+        //                    }
+        //                    break;
+        //                }
+        //            case "ModTimeFilterCheckBox2":
+        //                {
+        //                    FilterController.AddModTimeCondition(ModTimeFilterCondition.One_Month_Ago);
+        //                    break;
+        //                }
+        //            case "ModTimeFilterCheckBox3":
+        //                {
+        //                    FilterController.AddModTimeCondition(ModTimeFilterCondition.Three_Month_Ago);
+        //                    break;
+        //                }
+        //            case "ModTimeFilterCheckBox4":
+        //                {
+        //                    FilterController.AddModTimeCondition(ModTimeFilterCondition.Long_Ago);
+        //                    break;
+        //                }
+        //            case "TypeFilterCheckBox":
+        //                {
+        //                    if (Box.FindChildOfType<TextBlock>() is TextBlock Block)
+        //                    {
+        //                        FilterController.AddTypeCondition(Block.Text);
+        //                    }
+        //                    break;
+        //                }
+        //            case "SizeFilterCheckBox1":
+        //                {
+        //                    FilterController.AddSizeCondition(SizeFilterCondition.Smaller);
+        //                    break;
+        //                }
+        //            case "SizeFilterCheckBox2":
+        //                {
+        //                    FilterController.AddSizeCondition(SizeFilterCondition.Medium);
+        //                    break;
+        //                }
+        //            case "SizeFilterCheckBox3":
+        //                {
+        //                    FilterController.AddSizeCondition(SizeFilterCondition.Larger);
+        //                    break;
+        //                }
+        //            case "SizeFilterCheckBox4":
+        //                {
+        //                    FilterController.AddSizeCondition(SizeFilterCondition.Huge);
+        //                    break;
+        //                }
+        //        }
+
+        //        FileCollection.Clear();
+
+        //        foreach (var Item in FilterController.GetFilterCollection())
+        //        {
+        //            FileCollection.Add(Item);
+        //        }
+        //    }
+        //}
+
+        //private async void FilterCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        //{
+        //    if (sender is CheckBox Box)
+        //    {
+        //        switch (Box.Tag)
+        //        {
+        //            case "NameFilterCheckBox1":
+        //                {
+        //                    FilterController.RemoveNameCondition(NameFilterCondition.From_A_To_G);
+        //                    break;
+        //                }
+        //            case "NameFilterCheckBox2":
+        //                {
+        //                    FilterController.RemoveNameCondition(NameFilterCondition.From_H_To_N);
+        //                    break;
+        //                }
+        //            case "NameFilterCheckBox3":
+        //                {
+        //                    FilterController.RemoveNameCondition(NameFilterCondition.From_O_To_T);
+        //                    break;
+        //                }
+        //            case "NameFilterCheckBox4":
+        //                {
+        //                    FilterController.RemoveNameCondition(NameFilterCondition.From_U_To_Z);
+        //                    break;
+        //                }
+        //            case "NameFilterCheckBox5":
+        //                {
+        //                    FilterController.RemoveNameCondition(NameFilterCondition.Other);
+        //                    break;
+        //                }
+        //            case "ModTimeFilterCheckBox1":
+        //                {
+        //                    FilterController.RemoveModTimeCondition(ModTimeFilterCondition.Range);
+        //                    break;
+        //                }
+        //            case "ModTimeFilterCheckBox2":
+        //                {
+        //                    FilterController.RemoveModTimeCondition(ModTimeFilterCondition.One_Month_Ago);
+        //                    break;
+        //                }
+        //            case "ModTimeFilterCheckBox3":
+        //                {
+        //                    FilterController.RemoveModTimeCondition(ModTimeFilterCondition.Three_Month_Ago);
+        //                    break;
+        //                }
+        //            case "ModTimeFilterCheckBox4":
+        //                {
+        //                    FilterController.RemoveModTimeCondition(ModTimeFilterCondition.Long_Ago);
+        //                    break;
+        //                }
+        //            case "TypeFilterCheckBox":
+        //                {
+        //                    if (Box.FindChildOfType<TextBlock>() is TextBlock Block)
+        //                    {
+        //                        FilterController.RemoveTypeCondition(Block.Text);
+        //                    }
+        //                    break;
+        //                }
+        //            case "SizeFilterCheckBox1":
+        //                {
+        //                    FilterController.RemoveSizeCondition(SizeFilterCondition.Smaller);
+        //                    break;
+        //                }
+        //            case "SizeFilterCheckBox2":
+        //                {
+        //                    FilterController.RemoveSizeCondition(SizeFilterCondition.Medium);
+        //                    break;
+        //                }
+        //            case "SizeFilterCheckBox3":
+        //                {
+        //                    FilterController.RemoveSizeCondition(SizeFilterCondition.Larger);
+        //                    break;
+        //                }
+        //            case "SizeFilterCheckBox4":
+        //                {
+        //                    FilterController.RemoveSizeCondition(SizeFilterCondition.Huge);
+        //                    break;
+        //                }
+        //        }
+
+        //        if (FilterController.AnyConditionApplied)
+        //        {
+        //            FileCollection.Clear();
+
+        //            foreach (var Item in FilterController.GetFilterCollection())
+        //            {
+        //                FileCollection.Add(Item);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(true);
+        //        }
+        //    }
+        //}
+
+        private void Filter_RefreshListRequested(object sender, List<FileSystemStorageItemBase> e)
+        {
+            FileCollection.Clear();
+
+            foreach (var Item in e)
+            {
+                FileCollection.Add(Item);
+            }
         }
     }
 }

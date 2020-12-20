@@ -6,7 +6,7 @@ using Windows.UI.Xaml.Controls;
 
 namespace RX_Explorer.Class
 {
-    public sealed class SortIndicatorController : INotifyPropertyChanged
+    public sealed class SortIndicatorController : INotifyPropertyChanged, IDisposable
     {
         public Visibility Indicator1Visibility { get; private set; }
 
@@ -31,21 +31,6 @@ namespace RX_Explorer.Class
         public event PropertyChangedEventHandler PropertyChanged;
 
         private static readonly List<SortIndicatorController> CurrentInstance = new List<SortIndicatorController>();
-
-        public static SortIndicatorController CreateNewInstance()
-        {
-            SortIndicatorController NewInstance = new SortIndicatorController();
-            CurrentInstance.Add(NewInstance);
-            return NewInstance;
-        }
-
-        public static void RemoveInstance(SortIndicatorController Instance)
-        {
-            if (CurrentInstance.Contains(Instance))
-            {
-                CurrentInstance.Remove(Instance);
-            }
-        }
 
         public static void SetIndicatorStatus(SortTarget Target, SortDirection Direction)
         {
@@ -119,9 +104,25 @@ namespace RX_Explorer.Class
             Instance.PropertyChanged?.Invoke(Instance, new PropertyChangedEventArgs(nameof(Indicator4Visibility)));
         }
 
-        private SortIndicatorController()
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+
+            if (CurrentInstance.Contains(this))
+            {
+                CurrentInstance.Remove(this);
+            }
+        }
+
+        ~SortIndicatorController()
+        {
+            Dispose();
+        }
+
+        public SortIndicatorController()
         {
             SetIndicatorCore(this, SortCollectionGenerator.Current.SortTarget, SortCollectionGenerator.Current.SortDirection);
+            CurrentInstance.Add(this);
         }
     }
 }

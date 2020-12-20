@@ -1010,7 +1010,13 @@ namespace RX_Explorer
                 {
                     if (frame.Content is FileControl Control)
                     {
+                        if (Control.Presenter.ListViewControl?.Header is ListViewHeaderController Controller)
+                        {
+                            Controller.Dispose();
+                        }
+
                         Control.Dispose();
+
                         break;
                     }
                     else
