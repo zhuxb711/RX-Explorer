@@ -704,7 +704,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(Path));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.GetPathRoot(Path) == Path ? System.IO.Path.Combine(Path, "*") : Path, FINDEX_INFO_LEVELS.FindExInfoBasic, out _, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(Path.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out _, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
 
             try
             {
@@ -736,7 +736,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(ItemPath));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(ItemPath, FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
 
             try
             {
@@ -775,12 +775,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(ItemPath));
             }
 
-            if (System.IO.Path.GetPathRoot(ItemPath) == ItemPath)
-            {
-                return false;
-            }
-
-            IntPtr Ptr = FindFirstFileExFromApp(ItemPath, FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
 
             try
             {
@@ -869,7 +864,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(FilePath));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(FilePath, FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(FilePath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
 
             try
             {
@@ -1176,7 +1171,7 @@ namespace RX_Explorer.Class
 
             try
             {
-                IntPtr Ptr = FindFirstFileExFromApp(ItemPath, FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+                IntPtr Ptr = FindFirstFileExFromApp(ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
 
                 try
                 {
@@ -1263,18 +1258,13 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(PathArray));
             }
 
-            if (PathArray.Any((Item) => Path.GetPathRoot(Item) == Item))
-            {
-                throw new ArgumentException("Unsupport for root directory", nameof(PathArray));
-            }
-
             try
             {
                 List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>(PathArray.Length);
 
                 foreach (string Path in PathArray)
                 {
-                    IntPtr Ptr = FindFirstFileExFromApp(Path, FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+                    IntPtr Ptr = FindFirstFileExFromApp(Path.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
 
                     try
                     {

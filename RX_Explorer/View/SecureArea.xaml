@@ -268,6 +268,7 @@
                         Margin="0,10,0,0"
                         x:Uid="SecureAreaImportCancelButton"
                         Name="CancelButton"
+                        FontSize="12"
                         HorizontalAlignment="Stretch"
                         Click="CancelButton_Click"
                         Style="{ThemeResource ButtonRevealStyle}" />
