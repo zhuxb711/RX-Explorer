@@ -284,6 +284,7 @@
                 <FlyoutBase.AttachedFlyout>
                     <Flyout x:Name="SearchEngineFlyout"
                             Placement="BottomEdgeAlignedRight"
+                            Opening="SearchEngineFlyout_Opening"
                             Opened="SearchEngineFlyout_Opened"
                             Closed="SearchEngineFlyout_Closed">
                         <StackPanel MinWidth="240"
@@ -292,7 +293,7 @@
                                          x:Uid="SearchInDefaultEngine"
                                          GroupName="SearchEngine"
                                          Name="SearchInDefaultEngine"
-                                         IsChecked="True" />
+                                         Checked="SearchEngineChoiceSave_Checked"/>
                             <StackPanel Orientation="Horizontal"
                                         Visibility="{x:Bind SearchInDefaultEngine.IsChecked, Mode=OneWay}">
                                 <Line X1="10"
@@ -306,15 +307,21 @@
                                               FontSize="13"
                                               x:Uid="SearchEngineIgnoreCase"
                                               IsChecked="True"
-                                              x:Name="BuiltInEngineIgnoreCase" />
+                                              x:Name="BuiltInEngineIgnoreCase"
+                                              Checked="SeachEngineOptionSave_Checked"
+                                              Unchecked="SeachEngineOptionSave_UnChecked"/>
                                     <CheckBox Content="使用正则表达式"
                                               x:Uid="SearchEngineUseRegex"
                                               x:Name="BuiltInEngineIncludeRegex"
-                                              FontSize="13" />
+                                              FontSize="13"
+                                              Checked="SeachEngineOptionSave_Checked"
+                                              Unchecked="SeachEngineOptionSave_UnChecked" />
                                     <CheckBox Content="搜索所有子文件夹"
                                               Name="BuiltInSearchAllSubFolders"
                                               FontSize="13" 
-                                              x:Uid="SearchEngineAllSubFolders"/>
+                                              x:Uid="SearchEngineAllSubFolders"
+                                              Checked="SeachEngineOptionSave_Checked"
+                                              Unchecked="SeachEngineOptionSave_UnChecked"/>
                                 </StackPanel>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
@@ -322,7 +329,8 @@
                                              GroupName="SearchEngine"
                                              x:Uid="SearchInEverythingEngine"
                                              Name="SearchInEverythingEngine"
-                                             Content="使用Everything搜索引擎 (较快)" />
+                                             Content="使用Everything搜索引擎 (较快)"
+                                             Checked="SearchEngineChoiceSave_Checked"/>
                                 <Viewbox Margin="10,8,0,0"
                                          Height="15"
                                          Visibility="{x:Bind SearchInEverythingEngine.IsEnabled, Converter={StaticResource InverseConverter}, Mode=OneWay}"
@@ -345,17 +353,23 @@
                                               x:Uid="SearchEngineIgnoreCase"
                                               FontSize="13"
                                               IsChecked="True"
-                                              x:Name="EverythingEngineIgnoreCase" />
+                                              x:Name="EverythingEngineIgnoreCase"
+                                              Checked="SeachEngineOptionSave_Checked"
+                                              Unchecked="SeachEngineOptionSave_UnChecked" />
                                     <CheckBox Content="使用正则表达式"
                                               x:Uid="SearchEngineUseRegex"
                                               x:Name="EverythingEngineIncludeRegex"
+                                              Checked="SeachEngineOptionSave_Checked"
+                                              Unchecked="SeachEngineOptionSave_UnChecked"
                                               FontSize="13" />
                                     <CheckBox Content="全局搜索"
                                               x:Uid="SearchEngineGlobeSearch"
                                               IsChecked="{x:Bind EverythingEngineIncludeRegex.IsChecked, Mode=OneWay}"
                                               IsEnabled="{x:Bind EverythingEngineIncludeRegex.IsChecked, Mode=OneWay, Converter={StaticResource InverseConverter}}"
                                               x:Name="EverythingEngineSearchGloble"
-                                              FontSize="13" />
+                                              FontSize="13"
+                                              Checked="SeachEngineOptionSave_Checked"
+                                              Unchecked="SeachEngineOptionSave_UnChecked"/>
                                     <ComboBox IsEditable="True"
                                               Header="搜索结果限制"
                                               x:Uid="SearchEngineLimitResult"

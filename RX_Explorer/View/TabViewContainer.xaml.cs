@@ -719,7 +719,7 @@ namespace RX_Explorer
                     Item.PointerPressed += Item_PointerPressed;
                     Item.DoubleTapped += Item_DoubleTapped;
 
-                    if (PathForNewTab != null)
+                    if (!string.IsNullOrEmpty(PathForNewTab) && WIN_Native_API.CheckExist(PathForNewTab))
                     {
                         frame.Navigate(typeof(ThisPC), new WeakReference<TabViewItem>(Item), new SuppressNavigationTransitionInfo());
 

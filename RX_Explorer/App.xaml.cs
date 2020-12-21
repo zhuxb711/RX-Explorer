@@ -151,7 +151,7 @@ namespace RX_Explorer
                     ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen, $"PathActivate||{e.Arguments}");
                     Window.Current.Content = extendedSplash;
                 }
-                else 
+                else
                 {
                     ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen);
                     Window.Current.Content = extendedSplash;
@@ -181,13 +181,13 @@ namespace RX_Explorer
                         {
                             string Path = string.Join(" ", Arguments.Skip(1));
 
-                            if (Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase))
+                            if (string.IsNullOrWhiteSpace(Path) || Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase))
                             {
                                 await TabContainer.CreateNewTabAndOpenTargetFolder(string.Empty).ConfigureAwait(true);
                             }
                             else
                             {
-                                await TabContainer.CreateNewTabAndOpenTargetFolder(Path).ConfigureAwait(true);
+                                await TabContainer.CreateNewTabAndOpenTargetFolder(Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path).ConfigureAwait(true);
                             }
                         }
                         else
@@ -200,10 +200,18 @@ namespace RX_Explorer
                 {
                     string Path = string.Join(" ", Arguments.Skip(1));
 
-                    if (Arguments.Length > 1 && !Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase))
+                    if (Arguments.Length > 1)
                     {
-                        ExtendedSplash extendedSplash = new ExtendedSplash(CmdArgs.SplashScreen, $"PathActivate||{Path}");
-                        Window.Current.Content = extendedSplash;
+                        if (string.IsNullOrWhiteSpace(Path) || Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase))
+                        {
+                            ExtendedSplash extendedSplash = new ExtendedSplash(CmdArgs.SplashScreen);
+                            Window.Current.Content = extendedSplash;
+                        }
+                        else
+                        {
+                            ExtendedSplash extendedSplash = new ExtendedSplash(CmdArgs.SplashScreen, $"PathActivate||{(Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path)}");
+                            Window.Current.Content = extendedSplash;
+                        }
                     }
                     else
                     {
@@ -225,7 +233,7 @@ namespace RX_Explorer
                     Window.Current.Content = extendedSplash;
                 }
             }
-            else if(args is not ToastNotificationActivatedEventArgs)
+            else if (args is not ToastNotificationActivatedEventArgs)
             {
                 ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
                 Window.Current.Content = extendedSplash;

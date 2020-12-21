@@ -235,6 +235,7 @@ namespace RX_Explorer
                             }
                             else
                             {
+                                ApplicationData.Current.LocalSettings.Values["EverythingEngineIncludeRegex"] = true;
                                 break;
                             }
                         }
@@ -2521,7 +2522,7 @@ namespace RX_Explorer
         private void SearchEngineFlyout_Opened(object sender, object e)
         {
             MainPage.ThisPage.IsAnyTaskRunning = true;
-            _ = SearchEngineConfirm.Focus(FocusState.Programmatic);
+            SearchEngineConfirm.Focus(FocusState.Programmatic);
         }
 
         private void SearchEngineFlyout_Closed(object sender, object e)
@@ -2532,6 +2533,182 @@ namespace RX_Explorer
         private void EverythingQuestion_Tapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
             EverythingTip.IsOpen = true;
+        }
+
+        private void SeachEngineOptionSave_Checked(object sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox Box)
+            {
+                switch (Box.Name)
+                {
+                    case "EverythingEngineIgnoreCase":
+                        {
+                            ApplicationData.Current.LocalSettings.Values["EverythingEngineIgnoreCase"] = true;
+                            break;
+                        }
+                    case "EverythingEngineIncludeRegex":
+                        {
+                            ApplicationData.Current.LocalSettings.Values["EverythingEngineIncludeRegex"] = true;
+                            break;
+                        }
+                    case "EverythingEngineSearchGloble":
+                        {
+                            ApplicationData.Current.LocalSettings.Values["EverythingEngineSearchGloble"] = true;
+                            break;
+                        }
+                    case "BuiltInEngineIgnoreCase":
+                        {
+                            ApplicationData.Current.LocalSettings.Values["BuiltInEngineIgnoreCase"] = true;
+                            break;
+                        }
+                    case "BuiltInEngineIncludeRegex":
+                        {
+                            ApplicationData.Current.LocalSettings.Values["BuiltInEngineIncludeRegex"] = true;
+                            break;
+                        }
+                    case "BuiltInSearchAllSubFolders":
+                        {
+                            ApplicationData.Current.LocalSettings.Values["BuiltInSearchAllSubFolders"] = true;
+                            break;
+                        }
+                }
+            }
+        }
+
+        private void SeachEngineOptionSave_UnChecked(object sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox Box)
+            {
+                switch (Box.Name)
+                {
+                    case "EverythingEngineIgnoreCase":
+                        {
+                            ApplicationData.Current.LocalSettings.Values["EverythingEngineIgnoreCase"] = false;
+                            break;
+                        }
+                    case "EverythingEngineIncludeRegex":
+                        {
+                            ApplicationData.Current.LocalSettings.Values["EverythingEngineIncludeRegex"] = false;
+                            break;
+                        }
+                    case "EverythingEngineSearchGloble":
+                        {
+                            ApplicationData.Current.LocalSettings.Values["EverythingEngineSearchGloble"] = false;
+                            break;
+                        }
+                    case "BuiltInEngineIgnoreCase":
+                        {
+                            ApplicationData.Current.LocalSettings.Values["BuiltInEngineIgnoreCase"] = false;
+                            break;
+                        }
+                    case "BuiltInEngineIncludeRegex":
+                        {
+                            ApplicationData.Current.LocalSettings.Values["BuiltInEngineIncludeRegex"] = false;
+                            break;
+                        }
+                    case "BuiltInSearchAllSubFolders":
+                        {
+                            ApplicationData.Current.LocalSettings.Values["BuiltInSearchAllSubFolders"] = false;
+                            break;
+                        }
+                }
+            }
+        }
+
+        private void SearchEngineChoiceSave_Checked(object sender, RoutedEventArgs e)
+        {
+            if (sender is RadioButton Btn)
+            {
+                switch (Btn.Name)
+                {
+                    case "SearchInDefaultEngine":
+                        {
+                            ApplicationData.Current.LocalSettings.Values["SearchEngineChoice"] = "Default";
+                            break;
+                        }
+                    case "SearchInEverythingEngine":
+                        {
+                            ApplicationData.Current.LocalSettings.Values["SearchEngineChoice"] = "Everything";
+                            break;
+                        }
+                }
+            }
+        }
+
+        private void SearchEngineFlyout_Opening(object sender, object e)
+        {
+            if (ApplicationData.Current.LocalSettings.Values.TryGetValue("SearchEngineChoice", out object Choice))
+            {
+                if (Convert.ToString(Choice) == "Default")
+                {
+                    SearchInDefaultEngine.IsChecked = true;
+                    SearchInEverythingEngine.IsChecked = false;
+                }
+                else
+                {
+                    SearchInEverythingEngine.IsChecked = true;
+                    SearchInDefaultEngine.IsChecked = false;
+                }
+            }
+            else
+            {
+                SearchInDefaultEngine.IsChecked = true;
+                SearchInEverythingEngine.IsChecked = false;
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values.TryGetValue("EverythingEngineIgnoreCase", out object EverythingIgnoreCase))
+            {
+                EverythingEngineIgnoreCase.IsChecked = Convert.ToBoolean(EverythingIgnoreCase);
+            }
+            else
+            {
+                EverythingEngineIgnoreCase.IsChecked = true;
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values.TryGetValue("EverythingEngineIncludeRegex", out object EverythingIncludeRegex))
+            {
+                EverythingEngineIncludeRegex.IsChecked = Convert.ToBoolean(EverythingIncludeRegex);
+            }
+            else
+            {
+                EverythingEngineIncludeRegex.IsChecked = false;
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values.TryGetValue("EverythingEngineSearchGloble", out object EverythingSearchGloble))
+            {
+                EverythingEngineSearchGloble.IsChecked = Convert.ToBoolean(EverythingSearchGloble);
+            }
+            else
+            {
+                EverythingEngineSearchGloble.IsChecked = false;
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values.TryGetValue("BuiltInEngineIgnoreCase", out object BuiltInIgnoreCase))
+            {
+                BuiltInEngineIgnoreCase.IsChecked = Convert.ToBoolean(BuiltInIgnoreCase);
+            }
+            else
+            {
+                BuiltInEngineIgnoreCase.IsChecked = true;
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values.TryGetValue("BuiltInEngineIncludeRegex", out object BuiltInIncludeRegex))
+            {
+                BuiltInEngineIncludeRegex.IsChecked = Convert.ToBoolean(BuiltInIncludeRegex);
+            }
+            else
+            {
+                BuiltInEngineIncludeRegex.IsChecked = false;
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values.TryGetValue("BuiltInSearchAllSubFolders", out object BuiltInSearchSubFolders))
+            {
+                BuiltInSearchAllSubFolders.IsChecked = Convert.ToBoolean(BuiltInSearchSubFolders);
+            }
+            else
+            {
+                BuiltInSearchAllSubFolders.IsChecked = false;
+            }
         }
     }
 }
