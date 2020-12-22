@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -143,24 +144,44 @@ namespace MaintenanceTask
                     await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
 
+                bool HasIsDefaultColumn = false;
+                bool HasIsRecommandColumn = false;
+
                 using (SqliteCommand Command = new SqliteCommand("PRAGMA table_info('ProgramPicker')", Connection))
+                using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
                 {
-                    using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
+                    while (Reader.Read())
                     {
-                        while (Reader.Read())
+                        switch (Convert.ToString(Reader[1]))
                         {
-                            if (Convert.ToString(Reader[1]) == "IsDefault")
-                            {
-                                return;
-                            }
+                            case "IsRecommanded":
+                                HasIsRecommandColumn = true;
+                                break;
+                            case "IsDefault":
+                                HasIsDefaultColumn = true;
+                                break;
                         }
                     }
                 }
 
-                using (SqliteCommand Command = new SqliteCommand(@"Alter Table ProgramPicker Add Column IsDefault Text Default 'False' Check(IsDefault In ('True','False'));
-                                                                   Alter Table ProgramPicker Add Column IsRecommanded Text Default 'False' Check(IsDefault In ('True','False'))", Connection))
+                StringBuilder Builder = new StringBuilder();
+
+                if (!HasIsDefaultColumn)
                 {
-                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    Builder.AppendLine("Alter Table ProgramPicker Add Column IsDefault Text Default 'False' Check(IsDefault In ('True','False'));");
+                }
+
+                if (!HasIsRecommandColumn)
+                {
+                    Builder.AppendLine("Alter Table ProgramPicker Add Column IsRecommanded Text Default 'False' Check(IsDefault In ('True','False'));");
+                }
+
+                if (Builder.Length > 0)
+                {
+                    using (SqliteCommand Command = new SqliteCommand(Builder.ToString(), Connection))
+                    {
+                        await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    }
                 }
             }
             catch (Exception ex)

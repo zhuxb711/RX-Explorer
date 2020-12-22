@@ -43,8 +43,15 @@ namespace RX_Explorer.Class
                             }
 
                             using (Stream FileStream = await ExistFile.OpenStreamForReadAsync().ConfigureAwait(false))
+                            using (MD5 MD5Alg1 = MD5.Create())
+                            using (MD5 MD5Alg2 = MD5.Create())
                             {
-                                if (await FileStream.GetHashAsync<MD5>().ConfigureAwait(true) == await TempFileStream.GetHashAsync<MD5>().ConfigureAwait(true))
+                                Task<string> CalTask1 = MD5Alg1.GetHashAsync(FileStream);
+                                Task<string> CalTask2 = MD5Alg2.GetHashAsync(TempFileStream);
+
+                                await Task.WhenAll(CalTask1, CalTask2);
+
+                                if (CalTask1.Result == CalTask2.Result)
                                 {
                                     return ExistFile;
                                 }

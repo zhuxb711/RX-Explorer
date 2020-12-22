@@ -274,8 +274,6 @@ namespace RX_Explorer.Dialog
                 OtherProgramList.SelectedIndex = 0;
             }
 
-            await Task.Delay(500).ConfigureAwait(true);
-
             LoadingText.Visibility = Visibility.Collapsed;
             WholeArea.Visibility = Visibility.Visible;
         }
@@ -294,7 +292,7 @@ namespace RX_Explorer.Dialog
             CurrentUseProgramList.SelectionChanged += CurrentUseProgramList_SelectionChanged;
         }
 
-        private async void BowserApp_Click(object sender, RoutedEventArgs e)
+        private async void BrowserApp_Click(object sender, RoutedEventArgs e)
         {
             FileOpenPicker Picker = new FileOpenPicker
             {
@@ -362,6 +360,10 @@ namespace RX_Explorer.Dialog
                     {
                         await SQLite.Current.SetDefaultProgramPickerRecordAsync(OpenFile.Type, OtherItem.Path).ConfigureAwait(true);
                     }
+                }
+                else
+                {
+                    args.Cancel = true;
                 }
             }
             catch (Exception ex)

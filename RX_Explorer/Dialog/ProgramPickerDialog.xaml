@@ -100,7 +100,7 @@
                                  x:Uid="ProgramPickerDialogPickOther"
                                  Name="BowserApp"
                                  Margin="0,10,0,0"
-                                 Click="BowserApp_Click" />
+                                 Click="BrowserApp_Click" />
                 <CheckBox Content="默认使用此应用打开该类型文件"
                           x:Uid="ProgramPickerDialogUseAsAdmin"
                           Margin="0,10,0,0"

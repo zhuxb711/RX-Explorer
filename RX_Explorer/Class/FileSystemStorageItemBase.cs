@@ -1,10 +1,8 @@
-﻿using Microsoft.Win32.SafeHandles;
-using NetworkAccess;
+﻿using NetworkAccess;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
@@ -513,17 +511,16 @@ namespace RX_Explorer.Class
                             using (FileStream OriginFileStream = GetFileStreamFromFile(AccessMode.Read))
                             using (ICryptoTransform Encryptor = AES.CreateEncryptor())
                             {
-                                byte[] Detail = Encoding.UTF8.GetBytes("$" + KeySize + "|" + Type + "$");
-                                await EncryptFileStream.WriteAsync(Detail, 0, Detail.Length, CancelToken).ConfigureAwait(false);
+                                byte[] ExtraInfoPart1 = Encoding.UTF8.GetBytes($"${KeySize}|{System.IO.Path.GetExtension(Path)}$");
+                                await EncryptFileStream.WriteAsync(ExtraInfoPart1, 0, ExtraInfoPart1.Length).ConfigureAwait(false);
 
-                                byte[] PasswordFlag = Encoding.UTF8.GetBytes("PASSWORD_CORRECT");
-                                byte[] EncryptPasswordFlag = Encryptor.TransformFinalBlock(PasswordFlag, 0, PasswordFlag.Length);
-                                await EncryptFileStream.WriteAsync(EncryptPasswordFlag, 0, EncryptPasswordFlag.Length, CancelToken).ConfigureAwait(false);
+                                byte[] PasswordConfirm = Encoding.UTF8.GetBytes("PASSWORD_CORRECT");
+                                byte[] PasswordConfirmEncrypted = Encryptor.TransformFinalBlock(PasswordConfirm, 0, PasswordConfirm.Length);
+                                await EncryptFileStream.WriteAsync(PasswordConfirmEncrypted, 0, PasswordConfirmEncrypted.Length).ConfigureAwait(false);
 
                                 using (CryptoStream TransformStream = new CryptoStream(EncryptFileStream, Encryptor, CryptoStreamMode.Write))
                                 {
-                                    await OriginFileStream.CopyToAsync(TransformStream, 8192, CancelToken).ConfigureAwait(false);
-                                    TransformStream.FlushFinalBlock();
+                                    await OriginFileStream.CopyToAsync(TransformStream, 2048, CancelToken).ConfigureAwait(false);
                                 }
                             }
                         }

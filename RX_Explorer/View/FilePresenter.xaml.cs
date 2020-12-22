@@ -1849,26 +1849,12 @@ namespace RX_Explorer
                     {
                         if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
                         {
-                            //if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
-                            //{
-                            //    MixZip.IsEnabled = false;
-                            //}
-                            //else
-                            //{
-                            //    MixZip.IsEnabled = true;
-                            //}
-
                             await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(MixedFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                         }
                         else
                         {
                             SelectedItem = Context;
 
-                            //if (Context is HiddenStorageItem)
-                            //{
-                            //    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(HiddenItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
-                            //}
-                            //else 
                             if (Context is HyperlinkStorageItem)
                             {
                                 await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
@@ -1900,26 +1886,12 @@ namespace RX_Explorer
                             {
                                 if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
                                 {
-                                    //if (SelectedItems.Any((Item) => Item is HiddenStorageItem))
-                                    //{
-                                    //    MixZip.IsEnabled = false;
-                                    //}
-                                    //else
-                                    //{
-                                    //    MixZip.IsEnabled = true;
-                                    //}
-
                                     await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(MixedFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                                 }
                                 else
                                 {
                                     if (SelectedItem == Context)
                                     {
-                                        //if (Context is HiddenStorageItem)
-                                        //{
-                                        //    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(HiddenItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
-                                        //}
-                                        //else 
                                         if (Context is HyperlinkStorageItem)
                                         {
                                             await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
@@ -1935,11 +1907,6 @@ namespace RX_Explorer
                                         {
                                             SelectedItem = Context;
 
-                                            //if (Context is HiddenStorageItem)
-                                            //{
-                                            //    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(HiddenItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
-                                            //}
-                                            //else 
                                             if (Context is HyperlinkStorageItem)
                                             {
                                                 await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
@@ -2656,9 +2623,12 @@ namespace RX_Explorer
             WiFiProvider = new WiFiShareProvider();
             WiFiProvider.ThreadExitedUnexpectly += WiFiProvider_ThreadExitedUnexpectly;
 
-            string Hash = SelectedItem.Path.GetHash<MD5>();
-            QRText.Text = WiFiProvider.CurrentUri + Hash;
-            WiFiProvider.FilePathMap = new KeyValuePair<string, string>(Hash, SelectedItem.Path);
+            using (MD5 MD5Alg = MD5.Create())
+            {
+                string Hash = MD5Alg.GetHash(SelectedItem.Path);
+                QRText.Text = WiFiProvider.CurrentUri + Hash;
+                WiFiProvider.FilePathMap = new KeyValuePair<string, string>(Hash, SelectedItem.Path);
+            }
 
             QrCodeEncodingOptions options = new QrCodeEncodingOptions()
             {
@@ -5509,20 +5479,23 @@ namespace RX_Explorer
                             using (FileStream Stream1 = SelectedItem.GetFileStreamFromFile(AccessMode.Read))
                             using (FileStream Stream2 = SelectedItem.GetFileStreamFromFile(AccessMode.Read))
                             using (FileStream Stream3 = SelectedItem.GetFileStreamFromFile(AccessMode.Read))
+                            using (SHA256 SHA256Alg = SHA256.Create())
+                            using (MD5 MD5Alg = MD5.Create())
+                            using (SHA1 SHA1Alg = SHA1.Create())
                             {
-                                Task Task1 = Stream1.GetHashAsync<SHA256>(HashCancellation.Token).ContinueWith((beforeTask) =>
+                                Task Task1 = SHA256Alg.GetHashAsync(Stream1, HashCancellation.Token).ContinueWith((beforeTask) =>
                                 {
                                     Hash_SHA256.Text = beforeTask.Result;
                                     Hash_SHA256.IsEnabled = true;
                                 }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
 
-                                Task Task2 = Stream2.GetHashAsync<MD5>(HashCancellation.Token).ContinueWith((beforeTask) =>
+                                Task Task2 = MD5Alg.GetHashAsync(Stream2, HashCancellation.Token).ContinueWith((beforeTask) =>
                                 {
                                     Hash_MD5.Text = beforeTask.Result;
                                     Hash_MD5.IsEnabled = true;
                                 }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
 
-                                Task Task3 = Stream3.GetHashAsync<SHA1>(HashCancellation.Token).ContinueWith((beforeTask) =>
+                                Task Task3 = SHA1Alg.GetHashAsync(Stream3, HashCancellation.Token).ContinueWith((beforeTask) =>
                                 {
                                     Hash_SHA1.Text = beforeTask.Result;
                                     Hash_SHA1.IsEnabled = true;
@@ -6685,203 +6658,6 @@ namespace RX_Explorer
         {
             sender.Target.Visibility = Visibility.Collapsed;
         }
-
-        //private void FilterCheckBox_Checked(object sender, RoutedEventArgs e)
-        //{
-        //    if (sender is CheckBox Box)
-        //    {
-        //        switch (Box.Tag)
-        //        {
-        //            case "NameFilterCheckBox1":
-        //                {
-        //                    FilterController.AddNameCondition(NameFilterCondition.From_A_To_G);
-        //                    break;
-        //                }
-        //            case "NameFilterCheckBox2":
-        //                {
-        //                    FilterController.AddNameCondition(NameFilterCondition.From_H_To_N);
-        //                    break;
-        //                }
-        //            case "NameFilterCheckBox3":
-        //                {
-        //                    FilterController.AddNameCondition(NameFilterCondition.From_O_To_T);
-        //                    break;
-        //                }
-        //            case "NameFilterCheckBox4":
-        //                {
-        //                    FilterController.AddNameCondition(NameFilterCondition.From_U_To_Z);
-        //                    break;
-        //                }
-        //            case "NameFilterCheckBox5":
-        //                {
-        //                    FilterController.AddNameCondition(NameFilterCondition.Other);
-        //                    break;
-        //                }
-        //            case "ModTimeFilterCheckBox1":
-        //                {
-        //                    if (Box.FindChildOfName<CalendarDatePicker>("ModTimeFilterFromDatePicker") is CalendarDatePicker FromPicker && Box.FindChildOfName<CalendarDatePicker>("ModTimeFilterToDatePicker") is CalendarDatePicker ToPicker)
-        //                    {
-        //                        if (FromPicker.Date == null && ToPicker.Date == null)
-        //                        {
-        //                            return;
-        //                        }
-        //                        else
-        //                        {
-        //                            FilterController.AddModTimeCondition(ModTimeFilterCondition.Range, FromPicker.Date.GetValueOrDefault(), ToPicker.Date.GetValueOrDefault());
-        //                        }
-        //                    }
-        //                    break;
-        //                }
-        //            case "ModTimeFilterCheckBox2":
-        //                {
-        //                    FilterController.AddModTimeCondition(ModTimeFilterCondition.One_Month_Ago);
-        //                    break;
-        //                }
-        //            case "ModTimeFilterCheckBox3":
-        //                {
-        //                    FilterController.AddModTimeCondition(ModTimeFilterCondition.Three_Month_Ago);
-        //                    break;
-        //                }
-        //            case "ModTimeFilterCheckBox4":
-        //                {
-        //                    FilterController.AddModTimeCondition(ModTimeFilterCondition.Long_Ago);
-        //                    break;
-        //                }
-        //            case "TypeFilterCheckBox":
-        //                {
-        //                    if (Box.FindChildOfType<TextBlock>() is TextBlock Block)
-        //                    {
-        //                        FilterController.AddTypeCondition(Block.Text);
-        //                    }
-        //                    break;
-        //                }
-        //            case "SizeFilterCheckBox1":
-        //                {
-        //                    FilterController.AddSizeCondition(SizeFilterCondition.Smaller);
-        //                    break;
-        //                }
-        //            case "SizeFilterCheckBox2":
-        //                {
-        //                    FilterController.AddSizeCondition(SizeFilterCondition.Medium);
-        //                    break;
-        //                }
-        //            case "SizeFilterCheckBox3":
-        //                {
-        //                    FilterController.AddSizeCondition(SizeFilterCondition.Larger);
-        //                    break;
-        //                }
-        //            case "SizeFilterCheckBox4":
-        //                {
-        //                    FilterController.AddSizeCondition(SizeFilterCondition.Huge);
-        //                    break;
-        //                }
-        //        }
-
-        //        FileCollection.Clear();
-
-        //        foreach (var Item in FilterController.GetFilterCollection())
-        //        {
-        //            FileCollection.Add(Item);
-        //        }
-        //    }
-        //}
-
-        //private async void FilterCheckBox_Unchecked(object sender, RoutedEventArgs e)
-        //{
-        //    if (sender is CheckBox Box)
-        //    {
-        //        switch (Box.Tag)
-        //        {
-        //            case "NameFilterCheckBox1":
-        //                {
-        //                    FilterController.RemoveNameCondition(NameFilterCondition.From_A_To_G);
-        //                    break;
-        //                }
-        //            case "NameFilterCheckBox2":
-        //                {
-        //                    FilterController.RemoveNameCondition(NameFilterCondition.From_H_To_N);
-        //                    break;
-        //                }
-        //            case "NameFilterCheckBox3":
-        //                {
-        //                    FilterController.RemoveNameCondition(NameFilterCondition.From_O_To_T);
-        //                    break;
-        //                }
-        //            case "NameFilterCheckBox4":
-        //                {
-        //                    FilterController.RemoveNameCondition(NameFilterCondition.From_U_To_Z);
-        //                    break;
-        //                }
-        //            case "NameFilterCheckBox5":
-        //                {
-        //                    FilterController.RemoveNameCondition(NameFilterCondition.Other);
-        //                    break;
-        //                }
-        //            case "ModTimeFilterCheckBox1":
-        //                {
-        //                    FilterController.RemoveModTimeCondition(ModTimeFilterCondition.Range);
-        //                    break;
-        //                }
-        //            case "ModTimeFilterCheckBox2":
-        //                {
-        //                    FilterController.RemoveModTimeCondition(ModTimeFilterCondition.One_Month_Ago);
-        //                    break;
-        //                }
-        //            case "ModTimeFilterCheckBox3":
-        //                {
-        //                    FilterController.RemoveModTimeCondition(ModTimeFilterCondition.Three_Month_Ago);
-        //                    break;
-        //                }
-        //            case "ModTimeFilterCheckBox4":
-        //                {
-        //                    FilterController.RemoveModTimeCondition(ModTimeFilterCondition.Long_Ago);
-        //                    break;
-        //                }
-        //            case "TypeFilterCheckBox":
-        //                {
-        //                    if (Box.FindChildOfType<TextBlock>() is TextBlock Block)
-        //                    {
-        //                        FilterController.RemoveTypeCondition(Block.Text);
-        //                    }
-        //                    break;
-        //                }
-        //            case "SizeFilterCheckBox1":
-        //                {
-        //                    FilterController.RemoveSizeCondition(SizeFilterCondition.Smaller);
-        //                    break;
-        //                }
-        //            case "SizeFilterCheckBox2":
-        //                {
-        //                    FilterController.RemoveSizeCondition(SizeFilterCondition.Medium);
-        //                    break;
-        //                }
-        //            case "SizeFilterCheckBox3":
-        //                {
-        //                    FilterController.RemoveSizeCondition(SizeFilterCondition.Larger);
-        //                    break;
-        //                }
-        //            case "SizeFilterCheckBox4":
-        //                {
-        //                    FilterController.RemoveSizeCondition(SizeFilterCondition.Huge);
-        //                    break;
-        //                }
-        //        }
-
-        //        if (FilterController.AnyConditionApplied)
-        //        {
-        //            FileCollection.Clear();
-
-        //            foreach (var Item in FilterController.GetFilterCollection())
-        //            {
-        //                FileCollection.Add(Item);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            await Container.DisplayItemsInFolder(Container.CurrentFolder, true).ConfigureAwait(true);
-        //        }
-        //    }
-        //}
 
         private void Filter_RefreshListRequested(object sender, List<FileSystemStorageItemBase> e)
         {

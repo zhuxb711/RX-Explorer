@@ -1,6 +1,5 @@
 ﻿using NetworkAccess;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -30,7 +29,7 @@ namespace RX_Explorer.Class
                     if (Encoding.UTF8.GetString(DecryptByteBuffer).Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string Info)
                     {
                         string[] InfoGroup = Info.Split('|');
-                        
+
                         if (InfoGroup.Length == 2)
                         {
                             return Convert.ToInt32(InfoGroup[0]) == 128 ? "AES-128bit" : "AES-256bit";
@@ -77,66 +76,95 @@ namespace RX_Explorer.Class
                     {
                         using (FileStream EncryptFileStream = GetFileStreamFromFile(AccessMode.Read))
                         {
-                            byte[] DecryptByteBuffer = new byte[20];
+                            StringBuilder Builder = new StringBuilder();
 
-                            await EncryptFileStream.ReadAsync(DecryptByteBuffer, 0, DecryptByteBuffer.Length, CancelToken).ConfigureAwait(false);
-
-                            string FileType;
-
-                            if (Encoding.UTF8.GetString(DecryptByteBuffer).Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string Info)
+                            using (StreamReader Reader = new StreamReader(EncryptFileStream, Encoding.UTF8, true, 64, true))
                             {
-                                string[] InfoGroup = Info.Split('|');
-
-                                if (InfoGroup.Length == 2)
+                                for (int Count = 0; Reader.Peek() >= 0; Count++)
                                 {
-                                    int KeySize = Convert.ToInt32(InfoGroup[0]);
-                                    FileType = InfoGroup[1];
+                                    if (Count > 64)
+                                    {
+                                        throw new FileDamagedException("File damaged, could not be decrypted");
+                                    }
 
-                                    AES.KeySize = KeySize;
+                                    char NextChar = (char)Reader.Read();
 
-                                    int KeyLengthNeed = KeySize / 8;
-                                    AES.Key = Key.Length > KeyLengthNeed ? Encoding.UTF8.GetBytes(Key.Substring(0, KeyLengthNeed)) : Encoding.UTF8.GetBytes(Key.PadRight(KeyLengthNeed, '0'));
+                                    if (Builder.Length > 0 && NextChar == '$')
+                                    {
+                                        Builder.Append(NextChar);
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        Builder.Append(NextChar);
+                                    }
+                                }
+                            }
+
+                            string RawInfoData = Builder.ToString();
+
+                            if (string.IsNullOrWhiteSpace(RawInfoData))
+                            {
+                                throw new FileDamagedException("File damaged, could not be decrypted");
+                            }
+                            else
+                            {
+                                if (RawInfoData.Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string InfoData)
+                                {
+                                    string[] InfoGroup = InfoData.Split('|');
+
+                                    if (InfoGroup.Length == 2)
+                                    {
+                                        string FileType = InfoGroup[1];
+
+                                        AES.KeySize = Convert.ToInt32(InfoGroup[0]);
+
+                                        int KeyLengthNeed = AES.KeySize / 8;
+
+                                        AES.Key = Key.Length > KeyLengthNeed ? Encoding.UTF8.GetBytes(Key.Substring(0, KeyLengthNeed)) : Encoding.UTF8.GetBytes(Key.PadRight(KeyLengthNeed, '0'));
+
+                                        DecryptedFilePath = System.IO.Path.Combine(ExportFolderPath, $"{System.IO.Path.GetFileNameWithoutExtension(Name)}{FileType}");
+
+                                        if (Create(DecryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
+                                        {
+                                            using (FileStream DecryptFileStream = Item.GetFileStreamFromFile(AccessMode.Exclusive))
+                                            using (ICryptoTransform Decryptor = AES.CreateDecryptor(AES.Key, AES.IV))
+                                            {
+                                                EncryptFileStream.Seek(RawInfoData.Length, SeekOrigin.Begin);
+
+                                                byte[] PasswordConfirm = new byte[16];
+
+                                                await EncryptFileStream.ReadAsync(PasswordConfirm, 0, PasswordConfirm.Length).ConfigureAwait(false);
+
+                                                if (Encoding.UTF8.GetString(Decryptor.TransformFinalBlock(PasswordConfirm, 0, PasswordConfirm.Length)) == "PASSWORD_CORRECT")
+                                                {
+                                                    using (CryptoStream TransformStream = new CryptoStream(EncryptFileStream, Decryptor, CryptoStreamMode.Read))
+                                                    {
+                                                        await TransformStream.CopyToAsync(DecryptFileStream, 2048, CancelToken).ConfigureAwait(false);
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    throw new PasswordErrorException("Password is not correct");
+                                                }
+                                            }
+
+                                            return Open(DecryptedFilePath, ItemFilters.File);
+                                        }
+                                        else
+                                        {
+                                            throw new Exception("Could not create a new file");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        throw new FileDamagedException("File damaged, could not be decrypted");
+                                    }
                                 }
                                 else
                                 {
                                     throw new FileDamagedException("File damaged, could not be decrypted");
                                 }
-                            }
-                            else
-                            {
-                                throw new FileDamagedException("File damaged, could not be decrypted");
-                            }
-
-                            DecryptedFilePath = System.IO.Path.Combine(ExportFolderPath, $"{System.IO.Path.GetFileNameWithoutExtension(Name)}{FileType}");
-
-                            if (Create(DecryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
-                            {
-                                using (FileStream DecryptFileStream = Item.GetFileStreamFromFile(AccessMode.Exclusive))
-                                using (ICryptoTransform Decryptor = AES.CreateDecryptor(AES.Key, AES.IV))
-                                {
-                                    byte[] PasswordConfirm = new byte[16];
-                                    EncryptFileStream.Seek(Info.Length + 2, SeekOrigin.Begin);
-                                    await EncryptFileStream.ReadAsync(PasswordConfirm, 0, PasswordConfirm.Length, CancelToken).ConfigureAwait(false);
-
-                                    if (Encoding.UTF8.GetString(Decryptor.TransformFinalBlock(PasswordConfirm, 0, PasswordConfirm.Length)) == "PASSWORD_CORRECT")
-                                    {
-                                        using (CryptoStream TransformStream = new CryptoStream(DecryptFileStream, Decryptor, CryptoStreamMode.Write))
-                                        {
-                                            await EncryptFileStream.CopyToAsync(TransformStream, 8192, CancelToken).ConfigureAwait(false);
-                                            TransformStream.FlushFinalBlock();
-                                        }
-                                    }
-                                    else
-                                    {
-                                        throw new PasswordErrorException("Password is not correct");
-                                    }
-                                }
-
-                                return Open(DecryptedFilePath, ItemFilters.File);
-                            }
-                            else
-                            {
-                                throw new Exception("Could not create a new file");
                             }
                         }
                     }
@@ -177,7 +205,7 @@ namespace RX_Explorer.Class
 
         public SecureAreaStorageItem(WIN_Native_API.WIN32_FIND_DATA Data, string Path, DateTimeOffset CreationTime, DateTimeOffset ModifiedTime) : base(Data, StorageItemTypes.File, Path, CreationTime, ModifiedTime)
         {
-            
+
         }
     }
 }

@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
@@ -46,13 +45,18 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Flyout), "Argument could not be null");
             }
 
+            if (FullTrustProcessController.Current.IsNowHasAnyActionExcuting)
+            {
+                return;
+            }
+
             try
             {
                 ListControl.ContextFlyout = null;
 
                 string SelectedPath;
 
-                if (ListControl.SelectedItems.Count <= 1 && !FullTrustProcessController.Current.IsNowHasAnyActionExcuting)
+                if (ListControl.SelectedItems.Count <= 1)
                 {
                     if (ListControl.SelectedItem is FileSystemStorageItemBase Selected)
                     {
@@ -698,19 +702,25 @@ namespace RX_Explorer.Class
         {
             Queue<DependencyObject> ObjectQueue = new Queue<DependencyObject>();
             ObjectQueue.Enqueue(root);
+
             while (ObjectQueue.Count > 0)
             {
                 DependencyObject Current = ObjectQueue.Dequeue();
+
                 if (Current != null)
                 {
                     for (int i = 0; i < VisualTreeHelper.GetChildrenCount(Current); i++)
                     {
                         DependencyObject ChildObject = VisualTreeHelper.GetChild(Current, i);
+
                         if (ChildObject is T TypedChild)
                         {
                             return TypedChild;
                         }
-                        ObjectQueue.Enqueue(ChildObject);
+                        else
+                        {
+                            ObjectQueue.Enqueue(ChildObject);
+                        }
                     }
                 }
             }
@@ -728,39 +738,49 @@ namespace RX_Explorer.Class
         {
             Queue<DependencyObject> ObjectQueue = new Queue<DependencyObject>();
             ObjectQueue.Enqueue(root);
+
             while (ObjectQueue.Count > 0)
             {
                 DependencyObject Current = ObjectQueue.Dequeue();
+
                 if (Current != null)
                 {
                     for (int i = 0; i < VisualTreeHelper.GetChildrenCount(Current); i++)
                     {
                         DependencyObject ChildObject = VisualTreeHelper.GetChild(Current, i);
-                        if (ChildObject is T TypedChild && (TypedChild as FrameworkElement).Name == name)
+
+                        if (ChildObject is T TypedChild && (TypedChild as FrameworkElement)?.Name == name)
                         {
                             return TypedChild;
                         }
-                        ObjectQueue.Enqueue(ChildObject);
+                        else
+                        {
+                            ObjectQueue.Enqueue(ChildObject);
+                        }
                     }
                 }
             }
+
             return null;
         }
 
         public static T FindParentOfType<T>(this DependencyObject child) where T : DependencyObject
         {
-            T Parent = null;
             DependencyObject CurrentParent = VisualTreeHelper.GetParent(child);
+
             while (CurrentParent != null)
             {
                 if (CurrentParent is T CParent)
                 {
-                    Parent = CParent;
-                    break;
+                    return CParent;
                 }
-                CurrentParent = VisualTreeHelper.GetParent(CurrentParent);
+                else
+                {
+                    CurrentParent = VisualTreeHelper.GetParent(CurrentParent);
+                }
             }
-            return Parent;
+
+            return null;
         }
 
         public static async Task<ulong> GetSizeRawDataAsync(this IStorageItem Item)
@@ -833,7 +853,7 @@ namespace RX_Explorer.Class
                             }
                     }
 
-                    bool IsSuccess = await Task.Run(() => SpinWait.SpinUntil(() => GetThumbnailTask.IsCompleted, 2000)).ConfigureAwait(true);
+                    bool IsSuccess = await Task.Run(() => SpinWait.SpinUntil(() => GetThumbnailTask.IsCompleted, 3000)).ConfigureAwait(true);
 
                     if (IsSuccess)
                     {
@@ -992,40 +1012,37 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static Task<string> GetHashAsync<T>(this Stream InputStream, CancellationToken Token = default) where T : HashAlgorithm
+        public static Task<string> GetHashAsync(this HashAlgorithm Algorithm, Stream InputStream, CancellationToken Token = default)
         {
             Func<string> ComputeFunction = new Func<string>(() =>
             {
-                using (T Algorithm = (T)HashAlgorithm.Create(typeof(T).Name))
+                byte[] Buffer = new byte[8192];
+
+                while (!Token.IsCancellationRequested)
                 {
-                    byte[] Buffer = new byte[8192];
+                    int CurrentReadCount = InputStream.Read(Buffer, 0, Buffer.Length);
 
-                    while (!Token.IsCancellationRequested)
+                    if (CurrentReadCount < Buffer.Length)
                     {
-                        int CurrentReadCount = InputStream.Read(Buffer, 0, Buffer.Length);
-
-                        if (CurrentReadCount < Buffer.Length)
-                        {
-                            Algorithm.TransformFinalBlock(Buffer, 0, CurrentReadCount);
-                            break;
-                        }
-                        else
-                        {
-                            Algorithm.TransformBlock(Buffer, 0, CurrentReadCount, Buffer, 0);
-                        }
+                        Algorithm.TransformFinalBlock(Buffer, 0, CurrentReadCount);
+                        break;
                     }
-
-                    Token.ThrowIfCancellationRequested();
-
-                    StringBuilder builder = new StringBuilder();
-
-                    foreach (byte Bt in Algorithm.Hash)
+                    else
                     {
-                        builder.Append(Bt.ToString("x2"));
+                        Algorithm.TransformBlock(Buffer, 0, CurrentReadCount, Buffer, 0);
                     }
-
-                    return builder.ToString();
                 }
+
+                Token.ThrowIfCancellationRequested();
+
+                StringBuilder builder = new StringBuilder();
+
+                foreach (byte Bt in Algorithm.Hash)
+                {
+                    builder.Append(Bt.ToString("x2"));
+                }
+
+                return builder.ToString();
             });
 
             if ((InputStream.Length >> 1) > 1073741824L)
@@ -1038,7 +1055,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static string GetHash<T>(this string InputString) where T : HashAlgorithm
+        public static string GetHash(this HashAlgorithm Algorithm, string InputString)
         {
             if (string.IsNullOrEmpty(InputString))
             {
@@ -1046,19 +1063,16 @@ namespace RX_Explorer.Class
             }
             else
             {
-                using (T Algorithm = (T)typeof(T).GetMethod("Create", Array.Empty<Type>()).Invoke(null,null))
+                byte[] Hash = Algorithm.ComputeHash(Encoding.UTF8.GetBytes(InputString));
+
+                StringBuilder builder = new StringBuilder();
+
+                foreach (byte Bt in Hash)
                 {
-                    byte[] Hash = Algorithm.ComputeHash(Encoding.UTF8.GetBytes(InputString));
-
-                    StringBuilder builder = new StringBuilder();
-
-                    foreach (byte Bt in Hash)
-                    {
-                        builder.Append(Bt.ToString("x2"));
-                    }
-
-                    return builder.ToString();
+                    builder.Append(Bt.ToString("x2"));
                 }
+
+                return builder.ToString();
             }
         }
     }
