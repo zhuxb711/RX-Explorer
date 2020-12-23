@@ -3369,6 +3369,46 @@ Les noms non valides incluent
           <source>Calculating...</source>
           <target state="translated">Calculateur...</target>
         </trans-unit>
+        <trans-unit id="ModTimeFilterCheckBox2Text.Text" translate="yes" xml:space="preserve">
+          <source>Last month</source>
+          <target state="translated">Le mois dernier</target>
+        </trans-unit>
+        <trans-unit id="ModTimeFilterCheckBox3Text.Text" translate="yes" xml:space="preserve">
+          <source>Last three months</source>
+          <target state="translated">Trois derniers mois</target>
+        </trans-unit>
+        <trans-unit id="ModTimeFilterCheckBox4Text.Text" translate="yes" xml:space="preserve">
+          <source>A long time ago</source>
+          <target state="translated">Il y a longtemps</target>
+        </trans-unit>
+        <trans-unit id="ModTimeFilterFromDate.Header" translate="yes" xml:space="preserve">
+          <source>From:</source>
+          <target state="translated">Heure de début:</target>
+        </trans-unit>
+        <trans-unit id="ModTimeFilterToDate.Header" translate="yes" xml:space="preserve">
+          <source>To:</source>
+          <target state="translated">Heure de fin:</target>
+        </trans-unit>
+        <trans-unit id="NameFilterCheckBox5Text.Text" translate="yes" xml:space="preserve">
+          <source>Others</source>
+          <target state="translated">Autres</target>
+        </trans-unit>
+        <trans-unit id="SizeFilterCheckBox1Text.Text" translate="yes" xml:space="preserve">
+          <source>Small (≤1MB)</source>
+          <target state="translated">Petit (≤1MB)</target>
+        </trans-unit>
+        <trans-unit id="SizeFilterCheckBox2Text.Text" translate="yes" xml:space="preserve">
+          <source>Medium (1MB - 128MB)</source>
+          <target state="translated">Moyen (1MB - 128MB)</target>
+        </trans-unit>
+        <trans-unit id="SizeFilterCheckBox3Text.Text" translate="yes" xml:space="preserve">
+          <source>Large (128MB - 1GB)</source>
+          <target state="translated">Grand (128MB - 1GB)</target>
+        </trans-unit>
+        <trans-unit id="SizeFilterCheckBox4Text.Text" translate="yes" xml:space="preserve">
+          <source>Huge (≥1GB)</source>
+          <target state="translated">Énorme (≥1GB)</target>
+        </trans-unit>
       </group>
     </body>
   </file>

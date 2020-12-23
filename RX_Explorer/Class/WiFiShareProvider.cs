@@ -70,7 +70,7 @@ namespace RX_Explorer.Class
                 {
                     HttpListenerContext Context = await Listener.GetContextAsync().ConfigureAwait(false);
 
-                    _ = Task.Factory.StartNew(async(Para) =>
+                    _ = Task.Factory.StartNew((Para) =>
                        {
                            try
                            {

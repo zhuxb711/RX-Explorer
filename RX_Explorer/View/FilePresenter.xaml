@@ -918,7 +918,8 @@
                                                                       Glyph="&#xE81E;" />
                                                         </Viewbox>
                                                         <TextBlock Margin="10,0,0,0"
-                                                                   Text="其他" />
+                                                                   Text="其他"
+                                                                   x:Name="NameFilterCheckBox5Text"/>
                                                     </StackPanel>
                                                 </CheckBox>
                                             </StackPanel>
@@ -999,11 +1000,13 @@
                                                         <StackPanel Margin="10,0,0,0">
                                                             <CalendarDatePicker Header="起始日期:"
                                                                                 Width="180"
+                                                                                x:Uid="ModTimeFilterFromDate"
                                                                                 Date="{x:Bind Filter.FromDate,Mode=TwoWay}"
                                                                                 MaxDate="{x:Bind Filter.FromDateMax,Mode=OneWay}"
                                                                                 x:Name="ModTimeFilterFromDatePicker"/>
                                                             <CalendarDatePicker Header="结束日期:"
                                                                                 Width="180"
+                                                                                x:Uid="ModTimeFilterToDate"
                                                                                 Margin="0,5,0,0"
                                                                                 Date="{x:Bind Filter.ToDate,Mode=TwoWay}"
                                                                                 MaxDate="{x:Bind System:DateTimeOffset.Now}"
@@ -1019,7 +1022,8 @@
                                                                       Glyph="&#xE81E;" />
                                                         </Viewbox>
                                                         <TextBlock Margin="10,0,0,0"
-                                                                   Text="近一个月" />
+                                                                   Text="近一个月" 
+                                                                   x:Uid="ModTimeFilterCheckBox2Text"/>
                                                     </StackPanel>
                                                 </CheckBox>
                                                 <CheckBox IsChecked="{x:Bind Filter.ModTimeFilterCheckBox3,Mode=TwoWay}">
@@ -1030,7 +1034,8 @@
                                                                       Glyph="&#xE81E;" />
                                                         </Viewbox>
                                                         <TextBlock Margin="10,0,0,0"
-                                                                   Text="近三个月" />
+                                                                   Text="近三个月"
+                                                                   x:Uid="ModTimeFilterCheckBox3Text" />
                                                     </StackPanel>
                                                 </CheckBox>
                                                 <CheckBox IsChecked="{x:Bind Filter.ModTimeFilterCheckBox4,Mode=TwoWay}">
@@ -1041,7 +1046,8 @@
                                                                       Glyph="&#xE81E;" />
                                                         </Viewbox>
                                                         <TextBlock Margin="10,0,0,0"
-                                                                   Text="很久之前" />
+                                                                   Text="很久之前"
+                                                                   x:Uid="ModTimeFilterCheckBox4Text" />
                                                     </StackPanel>
                                                 </CheckBox>
                                             </StackPanel>
@@ -1188,7 +1194,8 @@
                                                                       Glyph="&#xE81E;" />
                                                         </Viewbox>
                                                         <TextBlock Margin="10,0,0,0"
-                                                                   Text="较小 (≤1MB)" />
+                                                                   Text="较小 (≤1MB)"
+                                                                   x:Uid="SizeFilterCheckBox1Text"/>
                                                     </StackPanel>
                                                 </CheckBox>
                                                 <CheckBox IsChecked="{x:Bind Filter.SizeFilterCheckBox2,Mode=TwoWay}">
@@ -1199,7 +1206,8 @@
                                                                       Glyph="&#xE81E;" />
                                                         </Viewbox>
                                                         <TextBlock Margin="10,0,0,0"
-                                                                   Text="中等 (1MB - 128MB)" />
+                                                                   Text="中等 (1MB - 128MB)"
+                                                                   x:Uid="SizeFilterCheckBox2Text" />
                                                     </StackPanel>
                                                 </CheckBox>
                                                 <CheckBox IsChecked="{x:Bind Filter.SizeFilterCheckBox3,Mode=TwoWay}">
@@ -1210,7 +1218,8 @@
                                                                       Glyph="&#xE81E;" />
                                                         </Viewbox>
                                                         <TextBlock Margin="10,0,0,0"
-                                                                   Text="较大 (128MB - 1GB)" />
+                                                                   Text="较大 (128MB - 1GB)"
+                                                                   x:Uid="SizeFilterCheckBox3Text" />
                                                     </StackPanel>
                                                 </CheckBox>
                                                 <CheckBox IsChecked="{x:Bind Filter.SizeFilterCheckBox4,Mode=TwoWay}">
@@ -1221,7 +1230,8 @@
                                                                       Glyph="&#xE81E;" />
                                                         </Viewbox>
                                                         <TextBlock Margin="10,0,0,0"
-                                                                   Text="超大 (≥1GB)" />
+                                                                   Text="超大 (≥1GB)"
+                                                                   x:Uid="SizeFilterCheckBox4Text"/>
                                                     </StackPanel>
                                                 </CheckBox>
                                             </StackPanel>

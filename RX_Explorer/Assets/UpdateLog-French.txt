@@ -1,4 +1,35 @@
 ﻿*****
+###Quoi de neuf dans la version 5.8.5.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Ajout de la fonction d'enregistrement des paramètres de recherche
+
+>#####Ajout d'une nouvelle fonction de filtrage de fichiers en mode "Détaillé"
+
+>#####Ajout du mode dossier et de la fonction d'enregistrement de la configuration de tri
+
+>#####Ajout de la reconnaissance de commande en ligne de commande, telle que "RX-Explorer.exe ." peut être démarré dans le répertoire courant de la ligne de commande
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel l'application par défaut ne pouvait pas être définie
+
+>#####Correction du problème selon lequel le chemin du fichier ne peut pas être comparé correctement
+
+>#####Correction du problème qui pouvait empêcher l'utilisation normale de la zone de sécurité
+
+>#####Correction du problème d'affichage anormal après le changement de mode dans certains cas
+
+>#####Correction du problème selon lequel RX ne peut pas afficher le contenu normalement si le chemin de démarrage est incorrect
+
+>#####Correction du problème qui empêchait "avant" ou "arrière" d'accéder au répertoire racine du disque
+
+>#####Correction du problème de blocage de l'interface de l'interface utilisateur lors de la compression ou de la décompression de très gros dossiers
+
+>#####Correction de quelques autres problèmes pouvant provoquer un crash
+
+*****
 ###Quoi de neuf dans la version 5.8.1.0
 
 #####Correction d'un bug

@@ -2541,4 +2541,34 @@ Les noms non valides incluent
   <data name="HashPlaceHolderText" xml:space="preserve">
     <value>Calculateur...</value>
   </data>
+  <data name="ModTimeFilterCheckBox2Text.Text" xml:space="preserve">
+    <value>Le mois dernier</value>
+  </data>
+  <data name="ModTimeFilterCheckBox3Text.Text" xml:space="preserve">
+    <value>Trois derniers mois</value>
+  </data>
+  <data name="ModTimeFilterCheckBox4Text.Text" xml:space="preserve">
+    <value>Il y a longtemps</value>
+  </data>
+  <data name="ModTimeFilterFromDate.Header" xml:space="preserve">
+    <value>Heure de début:</value>
+  </data>
+  <data name="ModTimeFilterToDate.Header" xml:space="preserve">
+    <value>Heure de fin:</value>
+  </data>
+  <data name="NameFilterCheckBox5Text.Text" xml:space="preserve">
+    <value>Autres</value>
+  </data>
+  <data name="SizeFilterCheckBox1Text.Text" xml:space="preserve">
+    <value>Petit (≤1MB)</value>
+  </data>
+  <data name="SizeFilterCheckBox2Text.Text" xml:space="preserve">
+    <value>Moyen (1MB - 128MB)</value>
+  </data>
+  <data name="SizeFilterCheckBox3Text.Text" xml:space="preserve">
+    <value>Grand (128MB - 1GB)</value>
+  </data>
+  <data name="SizeFilterCheckBox4Text.Text" xml:space="preserve">
+    <value>Énorme (≥1GB)</value>
+  </data>
 </root>

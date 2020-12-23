@@ -2538,4 +2538,37 @@
   <data name="ProgramPickerDialog_MoreApp.Text" xml:space="preserve">
     <value>更多应用</value>
   </data>
+  <data name="HashPlaceHolderText" xml:space="preserve">
+    <value>计算中...</value>
+  </data>
+  <data name="ModTimeFilterCheckBox2Text.Text" xml:space="preserve">
+    <value>近一个月</value>
+  </data>
+  <data name="ModTimeFilterCheckBox3Text.Text" xml:space="preserve">
+    <value>近三个月</value>
+  </data>
+  <data name="ModTimeFilterCheckBox4Text.Text" xml:space="preserve">
+    <value>很久之前</value>
+  </data>
+  <data name="ModTimeFilterFromDate.Header" xml:space="preserve">
+    <value>起始日期:</value>
+  </data>
+  <data name="ModTimeFilterToDate.Header" xml:space="preserve">
+    <value>结束日期:</value>
+  </data>
+  <data name="NameFilterCheckBox5Text.Text" xml:space="preserve">
+    <value>其他</value>
+  </data>
+  <data name="SizeFilterCheckBox1Text.Text" xml:space="preserve">
+    <value>较小 (≤1MB)</value>
+  </data>
+  <data name="SizeFilterCheckBox2Text.Text" xml:space="preserve">
+    <value>中等 (1MB - 128MB)</value>
+  </data>
+  <data name="SizeFilterCheckBox3Text.Text" xml:space="preserve">
+    <value>较大 (128MB - 1GB)</value>
+  </data>
+  <data name="SizeFilterCheckBox4Text.Text" xml:space="preserve">
+    <value>超大 (≥1GB)</value>
+  </data>
 </root>

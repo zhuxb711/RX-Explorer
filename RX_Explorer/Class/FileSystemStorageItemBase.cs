@@ -731,7 +731,7 @@ namespace RX_Explorer.Class
             {
                 if (obj is FileSystemStorageItemBase Item)
                 {
-                    return Item.Path.Equals(Path);
+                    return Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase);
                 }
                 else
                 {
@@ -759,7 +759,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return other.Path.Equals(Path);
+                    return other.Path.Equals(Path, StringComparison.OrdinalIgnoreCase);
                 }
             }
         }
@@ -778,7 +778,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return left.Path == right.Path;
+                    return left.Path.Equals(right.Path, StringComparison.OrdinalIgnoreCase);
                 }
             }
         }
@@ -797,7 +797,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    return left.Path != right.Path;
+                    return !left.Path.Equals(right.Path, StringComparison.OrdinalIgnoreCase);
                 }
             }
         }

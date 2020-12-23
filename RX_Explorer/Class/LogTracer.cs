@@ -36,8 +36,6 @@ namespace RX_Explorer.Class
 
         private static readonly AutoResetEvent Locker = new AutoResetEvent(false);
 
-        private static StorageFile LogFile;
-
         private static bool ExitSignal;
 
         static LogTracer()

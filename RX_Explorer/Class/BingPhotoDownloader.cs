@@ -49,17 +49,18 @@ namespace RX_Explorer.Class
                                 Task<string> CalTask1 = MD5Alg1.GetHashAsync(FileStream);
                                 Task<string> CalTask2 = MD5Alg2.GetHashAsync(TempFileStream);
 
-                                await Task.WhenAll(CalTask1, CalTask2);
+                                string [] ResultArray = await Task.WhenAll(CalTask1, CalTask2).ConfigureAwait(false);
 
-                                if (CalTask1.Result == CalTask2.Result)
+                                if (ResultArray[0] == ResultArray[1])
                                 {
                                     return ExistFile;
                                 }
                             }
 
+                            TempFileStream.Seek(0, SeekOrigin.Begin);
+
                             using (StorageStreamTransaction Transaction = await ExistFile.OpenTransactedWriteAsync())
                             {
-                                TempFileStream.Seek(0, SeekOrigin.Begin);
                                 await TempFileStream.CopyToAsync(Transaction.Stream.AsStreamForWrite()).ConfigureAwait(false);
                                 await Transaction.CommitAsync();
                             }

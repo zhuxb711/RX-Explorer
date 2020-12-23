@@ -122,16 +122,6 @@ namespace RX_Explorer
 
             EverythingTip.Subtitle = Globalization.GetString("EverythingQuestionSubtitle");
 
-            if (ApplicationData.Current.LocalSettings.Values["FilePresenterDisplayMode"] is int Index)
-            {
-                ItemDisplayMode.SelectedIndex = Index;
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["FilePresenterDisplayMode"] = 1;
-                ItemDisplayMode.SelectedIndex = 1;
-            }
-
             Loaded += FileControl_Loaded;
         }
 
@@ -235,7 +225,6 @@ namespace RX_Explorer
                             }
                             else
                             {
-                                ApplicationData.Current.LocalSettings.Values["EverythingEngineIncludeRegex"] = true;
                                 break;
                             }
                         }
@@ -594,6 +583,14 @@ namespace RX_Explorer
                     }
                 }
 
+                Presenter.FileCollection.Clear();
+
+                PathConfiguration Config = await SQLite.Current.GetPathConfiguration(FolderPath).ConfigureAwait(true);
+
+                await SortCollectionGenerator.Current.ModifySortWayAsync(FolderPath, Config.SortColumn, Config.SortDirection).ConfigureAwait(true);
+
+                ItemDisplayMode.SelectedIndex = Config.DisplayModeIndex.GetValueOrDefault();
+
                 List<FileSystemStorageItemBase> ItemList = SortCollectionGenerator.Current.GetSortedCollection(CurrentFolder.GetChildrenItems(SettingControl.IsDisplayHiddenItem));
 
                 Presenter.HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
@@ -603,8 +600,6 @@ namespace RX_Explorer
                 {
                     Instance.Filter.SetDataSource(ItemList);
                 }
-
-                Presenter.FileCollection.Clear();
 
                 for (int i = 0; i < ItemList.Count; i++)
                 {
@@ -1023,9 +1018,9 @@ namespace RX_Explorer
                 return;
             }
 
-            if (FolderTree.RootNodes.Any((Node) => (Node.Content as TreeViewNodeContent).Path == CurrentFolder.Path))
+            if (FolderTree.RootNodes.Any((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
             {
-                if (CommonAccessCollection.HardDeviceList.FirstOrDefault((Device) => Device.Folder.Path == CurrentFolder.Path) is HardDeviceInfo Info)
+                if (CommonAccessCollection.HardDeviceList.FirstOrDefault((Device) => Device.Folder.Path.Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)) is HardDeviceInfo Info)
                 {
                     DeviceInfoDialog dialog = new DeviceInfoDialog(Info);
                     _ = await dialog.ShowAsync().ConfigureAwait(true);
@@ -1310,7 +1305,7 @@ namespace RX_Explorer
             {
                 QueryText = await CommonEnvironmentVariables.ReplaceVariableAndGetActualPath(QueryText).ConfigureAwait(true);
 
-                if (Path.IsPathRooted(QueryText) && CommonAccessCollection.HardDeviceList.FirstOrDefault((Drive) => Drive.Folder.Path == Path.GetPathRoot(QueryText)) is HardDeviceInfo Device)
+                if (Path.IsPathRooted(QueryText) && CommonAccessCollection.HardDeviceList.FirstOrDefault((Drive) => Drive.Folder.Path.Equals(Path.GetPathRoot(QueryText), StringComparison.OrdinalIgnoreCase)) is HardDeviceInfo Device)
                 {
                     if (Device.IsLockedByBitlocker)
                     {
@@ -1425,7 +1420,7 @@ namespace RX_Explorer
 
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                if (Path.IsPathRooted(sender.Text) && CommonAccessCollection.HardDeviceList.Any((Drive) => Drive.Folder.Path == Path.GetPathRoot(sender.Text)))
+                if (Path.IsPathRooted(sender.Text) && CommonAccessCollection.HardDeviceList.Any((Drive) => Drive.Folder.Path.Equals(Path.GetPathRoot(sender.Text), StringComparison.OrdinalIgnoreCase)))
                 {
                     if (Interlocked.Exchange(ref TextChangeLockResource, 1) == 0)
                     {
@@ -1474,7 +1469,7 @@ namespace RX_Explorer
                         {
                             await DisplayItemsInFolder(Path.GetDirectoryName(CurrentFolder.Path)).ConfigureAwait(true);
 
-                            if (Presenter.FileCollection.Where((Item) => Item.StorageType == StorageItemTypes.Folder).FirstOrDefault((Item) => Item.Path == CurrentFolderPath) is FileSystemStorageItemBase Folder)
+                            if (Presenter.FileCollection.Where((Item) => Item.StorageType == StorageItemTypes.Folder).FirstOrDefault((Item) => Item.Path.Equals(CurrentFolderPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Folder)
                             {
                                 Presenter.SelectedItem = Folder;
                                 Presenter.ItemPresenter.ScrollIntoView(Folder, ScrollIntoViewAlignment.Leading);
@@ -1516,7 +1511,7 @@ namespace RX_Explorer
 
                             await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(true);
 
-                            if (!string.IsNullOrEmpty(SelectedPath) && Presenter.FileCollection.FirstOrDefault((Item) => Item.Path == SelectedPath) is FileSystemStorageItemBase Item)
+                            if (!string.IsNullOrEmpty(SelectedPath) && Presenter.FileCollection.FirstOrDefault((Item) => Item.Path.Equals(SelectedPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
                             {
                                 Presenter.SelectedItem = Item;
                                 Presenter.ItemPresenter.ScrollIntoView(Folder, ScrollIntoViewAlignment.Leading);
@@ -1579,7 +1574,7 @@ namespace RX_Explorer
 
                             await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(true);
 
-                            if (!string.IsNullOrEmpty(SelectedPath) && Presenter.FileCollection.FirstOrDefault((Item) => Item.Path == SelectedPath) is FileSystemStorageItemBase Item)
+                            if (!string.IsNullOrEmpty(SelectedPath) && Presenter.FileCollection.FirstOrDefault((Item) => Item.Path.Equals(SelectedPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
                             {
                                 Presenter.SelectedItem = Item;
                                 Presenter.ItemPresenter.ScrollIntoView(Folder, ScrollIntoViewAlignment.Leading);
@@ -1637,8 +1632,6 @@ namespace RX_Explorer
 
         private async void ItemDisplayMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ApplicationData.Current.LocalSettings.Values["FilePresenterDisplayMode"] = ItemDisplayMode.SelectedIndex;
-
             switch (ItemDisplayMode.SelectedIndex)
             {
                 case 0:
@@ -1648,16 +1641,20 @@ namespace RX_Explorer
                         Presenter.GridViewControl.ItemTemplate = Presenter.GridViewTileDataTemplate;
                         Presenter.GridViewControl.ItemsPanel = Presenter.HorizontalGridViewPanel;
 
-                        if (Presenter.GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
+                        while (true)
                         {
-                            Scroll.HorizontalScrollMode = ScrollMode.Disabled;
-                            Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
-                            Scroll.VerticalScrollMode = ScrollMode.Auto;
-                            Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-                        }
-                        else
-                        {
-                            await Task.Delay(300).ConfigureAwait(true);
+                            if (Presenter.GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
+                            {
+                                Scroll.HorizontalScrollMode = ScrollMode.Disabled;
+                                Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
+                                Scroll.VerticalScrollMode = ScrollMode.Auto;
+                                Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+                                break;
+                            }
+                            else
+                            {
+                                await Task.Delay(300).ConfigureAwait(true);
+                            }
                         }
 
                         break;
@@ -1699,16 +1696,20 @@ namespace RX_Explorer
                         Presenter.GridViewControl.ItemTemplate = Presenter.GridViewLargeImageDataTemplate;
                         Presenter.GridViewControl.ItemsPanel = Presenter.HorizontalGridViewPanel;
 
-                        if (Presenter.GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
+                        while (true)
                         {
-                            Scroll.HorizontalScrollMode = ScrollMode.Disabled;
-                            Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
-                            Scroll.VerticalScrollMode = ScrollMode.Auto;
-                            Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-                        }
-                        else
-                        {
-                            await Task.Delay(300).ConfigureAwait(true);
+                            if (Presenter.GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
+                            {
+                                Scroll.HorizontalScrollMode = ScrollMode.Disabled;
+                                Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
+                                Scroll.VerticalScrollMode = ScrollMode.Auto;
+                                Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+                                break;
+                            }
+                            else
+                            {
+                                await Task.Delay(300).ConfigureAwait(true);
+                            }
                         }
 
                         break;
@@ -1720,16 +1721,20 @@ namespace RX_Explorer
                         Presenter.GridViewControl.ItemTemplate = Presenter.GridViewMediumImageDataTemplate;
                         Presenter.GridViewControl.ItemsPanel = Presenter.HorizontalGridViewPanel;
 
-                        if (Presenter.GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
+                        while (true)
                         {
-                            Scroll.HorizontalScrollMode = ScrollMode.Disabled;
-                            Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
-                            Scroll.VerticalScrollMode = ScrollMode.Auto;
-                            Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-                        }
-                        else
-                        {
-                            await Task.Delay(300).ConfigureAwait(true);
+                            if (Presenter.GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
+                            {
+                                Scroll.HorizontalScrollMode = ScrollMode.Disabled;
+                                Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
+                                Scroll.VerticalScrollMode = ScrollMode.Auto;
+                                Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+                                break;
+                            }
+                            else
+                            {
+                                await Task.Delay(300).ConfigureAwait(true);
+                            }
                         }
 
                         break;
@@ -1741,21 +1746,27 @@ namespace RX_Explorer
                         Presenter.GridViewControl.ItemTemplate = Presenter.GridViewSmallImageDataTemplate;
                         Presenter.GridViewControl.ItemsPanel = Presenter.HorizontalGridViewPanel;
 
-                        if (Presenter.GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
+                        while (true)
                         {
-                            Scroll.HorizontalScrollMode = ScrollMode.Disabled;
-                            Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
-                            Scroll.VerticalScrollMode = ScrollMode.Auto;
-                            Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-                        }
-                        else
-                        {
-                            await Task.Delay(300).ConfigureAwait(true);
+                            if (Presenter.GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
+                            {
+                                Scroll.HorizontalScrollMode = ScrollMode.Disabled;
+                                Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
+                                Scroll.VerticalScrollMode = ScrollMode.Auto;
+                                Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+                                break;
+                            }
+                            else
+                            {
+                                await Task.Delay(300).ConfigureAwait(true);
+                            }
                         }
 
                         break;
                     }
             }
+
+            await SQLite.Current.SetPathConfiguration(new PathConfiguration(CurrentFolder.Path, ItemDisplayMode.SelectedIndex)).ConfigureAwait(false);
         }
 
         private void AddressBox_KeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
@@ -2478,11 +2489,11 @@ namespace RX_Explorer
             }
         }
 
-        private async void OpenFolderInNewTab_Click(object sender, RoutedEventArgs e)
+        private void OpenFolderInNewTab_Click(object sender, RoutedEventArgs e)
         {
             if (CurrentFolder != null)
             {
-                await TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(CurrentFolder.Path).ConfigureAwait(false);
+                TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(CurrentFolder.Path);
             }
         }
 

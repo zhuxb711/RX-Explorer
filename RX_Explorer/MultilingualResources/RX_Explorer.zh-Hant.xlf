@@ -3369,6 +3369,46 @@ Invalid names include
           <source>Calculating...</source>
           <target state="translated">正在計算...</target>
         </trans-unit>
+        <trans-unit id="ModTimeFilterCheckBox2Text.Text" translate="yes" xml:space="preserve">
+          <source>Last month</source>
+          <target state="translated">上個月</target>
+        </trans-unit>
+        <trans-unit id="ModTimeFilterCheckBox3Text.Text" translate="yes" xml:space="preserve">
+          <source>Last three months</source>
+          <target state="translated">最近三個月</target>
+        </trans-unit>
+        <trans-unit id="ModTimeFilterCheckBox4Text.Text" translate="yes" xml:space="preserve">
+          <source>A long time ago</source>
+          <target state="translated">很久以前</target>
+        </trans-unit>
+        <trans-unit id="ModTimeFilterFromDate.Header" translate="yes" xml:space="preserve">
+          <source>From:</source>
+          <target state="translated">開始時間:</target>
+        </trans-unit>
+        <trans-unit id="ModTimeFilterToDate.Header" translate="yes" xml:space="preserve">
+          <source>To:</source>
+          <target state="translated">結束時間:</target>
+        </trans-unit>
+        <trans-unit id="NameFilterCheckBox5Text.Text" translate="yes" xml:space="preserve">
+          <source>Others</source>
+          <target state="translated">其他</target>
+        </trans-unit>
+        <trans-unit id="SizeFilterCheckBox1Text.Text" translate="yes" xml:space="preserve">
+          <source>Small (≤1MB)</source>
+          <target state="translated">較小 (≤1MB)</target>
+        </trans-unit>
+        <trans-unit id="SizeFilterCheckBox2Text.Text" translate="yes" xml:space="preserve">
+          <source>Medium (1MB - 128MB)</source>
+          <target state="translated">中等 (1MB - 128MB)</target>
+        </trans-unit>
+        <trans-unit id="SizeFilterCheckBox3Text.Text" translate="yes" xml:space="preserve">
+          <source>Large (128MB - 1GB)</source>
+          <target state="translated">較大 (128MB - 1GB)</target>
+        </trans-unit>
+        <trans-unit id="SizeFilterCheckBox4Text.Text" translate="yes" xml:space="preserve">
+          <source>Huge (≥1GB)</source>
+          <target state="translated">龐大 (≥1GB)</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -60,12 +60,13 @@ namespace RX_Explorer.Class
         private void InitializeDatabase()
         {
             string Command = $@"Create Table If Not Exists SearchHistory (SearchText Text Not Null, Primary Key (SearchText));
-                                Create Table If Not Exists QuickStart (Name Text Not Null, FullPath Text Not Null, Protocal Text Not Null, Type Text Not Null, Primary Key (Name,FullPath,Protocal,Type));
-                                Create Table If Not Exists Library (Path Text Not Null, Type Text Not Null, Primary Key (Path));
-                                Create Table If Not Exists PathHistory (Path Text Not Null, Primary Key (Path));
+                                Create Table If Not Exists QuickStart (Name Text Not Null, FullPath Text Not Null Collate NoCase, Protocal Text Not Null, Type Text Not Null, Primary Key (Name,FullPath,Protocal,Type));
+                                Create Table If Not Exists Library (Path Text Not Null Collate NoCase, Type Text Not Null, Primary Key (Path));
+                                Create Table If Not Exists PathHistory (Path Text Not Null Collate NoCase, Primary Key (Path));
                                 Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));
-                                Create Table If Not Exists ProgramPicker (FileType Text Not Null, Path Text Not Null, IsDefault Text Default 'False' Check(IsDefault In ('True','False')), IsRecommanded Text Default 'False' Check(IsRecommanded In ('True','False')), Primary Key(FileType, Path));
-                                Create Table If Not Exists TerminalProfile (Name Text Not Null, Path Text Not Null, Argument Text Not Null, RunAsAdmin Text Not Null, Primary Key(Name));
+                                Create Table If Not Exists ProgramPicker (FileType Text Not Null, Path Text Not Null Collate NoCase, IsDefault Text Default 'False' Check(IsDefault In ('True','False')), IsRecommanded Text Default 'False' Check(IsRecommanded In ('True','False')), Primary Key(FileType, Path));
+                                Create Table If Not Exists TerminalProfile (Name Text Not Null, Path Text Not Null Collate NoCase, Argument Text Not Null, RunAsAdmin Text Not Null, Primary Key(Name));
+                                Create Table If Not Exists PathConfiguration (Path Text Not Null Collate NoCase, DisplayMode Integer Default 1 Check(DisplayMode In (0,1,2,3,4,5)), SortColumn Text Default 'Name' Check(SortColumn In ('Name','ModifiedTime','Type','Size')), SortDirection Text Default 'Ascending' Check(SortDirection In ('Ascending','Descending')), Primary Key(Path));
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture1.jpg');
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture2.jpg');
                                 Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture3.jpg');
@@ -90,6 +91,71 @@ namespace RX_Explorer.Class
             }
 
             ApplicationData.Current.LocalSettings.Values["DatabaseInit"] = true;
+        }
+
+        public async Task SetPathConfiguration(PathConfiguration Configuration)
+        {
+            bool ShouldCreateNew = true;
+
+            using (SqliteCommand Command = new SqliteCommand("Select Count(*) From PathConfiguration Where Path = @Path", Connection))
+            {
+                Command.Parameters.AddWithValue("@Path", Configuration.Path);
+
+                if (Convert.ToInt32(await Command.ExecuteScalarAsync().ConfigureAwait(false)) > 0)
+                {
+                    ShouldCreateNew = false;
+                }
+            }
+
+            StringBuilder Builder = new StringBuilder();
+
+            if (ShouldCreateNew)
+            {
+                Builder.Append($"Insert Into PathConfiguration (Path) Values ('{Configuration.Path}');");
+            }
+
+            using (SqliteCommand Command = new SqliteCommand())
+            {
+                if (Configuration.DisplayModeIndex.HasValue)
+                {
+                    Builder.Append($"Update PathConfiguration Set DisplayMode = {Configuration.DisplayModeIndex.Value} Where Path = '{Configuration.Path}';");
+                }
+
+                if (Configuration.SortColumn.HasValue)
+                {
+                    Builder.Append($"Update PathConfiguration Set SortColumn = '{Enum.GetName(typeof(SortTarget), Configuration.SortColumn)}' Where Path = '{Configuration.Path}';");
+                }
+
+                if (Configuration.SortDirection.HasValue)
+                {
+                    Builder.Append($"Update PathConfiguration Set SortDirection = '{Enum.GetName(typeof(SortDirection), Configuration.SortDirection)}' Where Path = '{Configuration.Path}';");
+                }
+
+                Command.CommandText = Builder.ToString();
+                Command.Connection = Connection;
+
+                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+            }
+        }
+
+        public async Task<PathConfiguration> GetPathConfiguration(string Path)
+        {
+            using (SqliteCommand Command = new SqliteCommand("Select * From PathConfiguration Where Path = @Path", Connection))
+            {
+                Command.Parameters.AddWithValue("@Path", Path);
+
+                using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
+                {
+                    if (Reader.Read())
+                    {
+                        return new PathConfiguration(Path, Convert.ToInt32(Reader[1]), Enum.Parse<SortTarget>(Convert.ToString(Reader[2])), Enum.Parse<SortDirection>(Convert.ToString(Reader[3])));
+                    }
+                    else
+                    {
+                        return new PathConfiguration(Path, 1, SortTarget.Name, SortDirection.Ascending);
+                    }
+                }
+            }
         }
 
         public async Task<List<TerminalProfile>> GetAllTerminalProfile()
@@ -242,7 +308,7 @@ namespace RX_Explorer.Class
                 await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
 
-            using (SqliteCommand Command = new SqliteCommand("Update ProgramPicker Set IsDefault = 'True' Where FileType = @FileType And Path = @Path", Connection))
+            using (SqliteCommand Command = new SqliteCommand("Update ProgramPicker Set IsDefault = 'True' Where FileType = @FileType And Path = @Path Collate NoCase", Connection))
             {
                 Command.Parameters.AddWithValue("@FileType", FileType);
                 Command.Parameters.AddWithValue("@Path", Path);
@@ -273,6 +339,7 @@ namespace RX_Explorer.Class
                             {
                                 if (Path.IsPathRooted(Convert.ToString(Reader[1])))
                                 {
+                                    System.Diagnostics.Debug.WriteLine($"{Reader[0]}  {Reader[1]}  {Reader[2]}  {Reader[3]}");
                                     Result.Add(new AssociationPackage(Extension, Convert.ToString(Reader[1]), !Reader.IsDBNull(3) && Convert.ToBoolean(Reader[3])));
                                 }
                             }

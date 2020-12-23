@@ -345,7 +345,7 @@ namespace RX_Explorer
             if (Microsoft.Toolkit.Uwp.Helpers.SystemInformation.IsAppUpdated || Microsoft.Toolkit.Uwp.Helpers.SystemInformation.IsFirstRun)
             {
                 WhatIsNew Dialog = new WhatIsNew();
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                await Dialog.ShowAsync().ConfigureAwait(true);
             }
         }
 

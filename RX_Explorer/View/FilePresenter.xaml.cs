@@ -305,12 +305,12 @@ namespace RX_Explorer
                             {
                                 if (Item.StorageType == StorageItemTypes.Folder)
                                 {
-                                    await TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(Item.Path).ConfigureAwait(false);
+                                    TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(Item.Path);
                                 }
                             }
                             else
                             {
-                                await TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(string.Empty).ConfigureAwait(false);
+                                TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(string.Empty);
                             }
 
                             break;
@@ -466,7 +466,7 @@ namespace RX_Explorer
                         {
                             case "Move":
                                 {
-                                    if (Container.CurrentFolder.Path == Path.GetDirectoryName(SplitGroup[3]))
+                                    if (Container.CurrentFolder.Path.Equals(Path.GetDirectoryName(SplitGroup[3]), StringComparison.OrdinalIgnoreCase))
                                     {
                                         if (FileSystemStorageItemBase.Open(Path.GetDirectoryName(SplitGroup[0]), ItemFilters.Folder) is FileSystemStorageItemBase OriginFolder)
                                         {
@@ -530,7 +530,7 @@ namespace RX_Explorer
                                             throw new DirectoryNotFoundException();
                                         }
                                     }
-                                    else if (Container.CurrentFolder.Path == Path.GetDirectoryName(SplitGroup[0]))
+                                    else if (Container.CurrentFolder.Path.Equals(Path.GetDirectoryName(SplitGroup[0]), StringComparison.OrdinalIgnoreCase))
                                     {
                                         switch (SplitGroup[2])
                                         {
@@ -676,7 +676,7 @@ namespace RX_Explorer
                                 }
                             case "Copy":
                                 {
-                                    if (Container.CurrentFolder.Path == Path.GetDirectoryName(SplitGroup[3]))
+                                    if (Container.CurrentFolder.Path.Equals(Path.GetDirectoryName(SplitGroup[3]), StringComparison.OrdinalIgnoreCase))
                                     {
                                         switch (SplitGroup[2])
                                         {
@@ -1780,7 +1780,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void ViewControl_PointerPressed(object sender, PointerRoutedEventArgs e)
+        private void ViewControl_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
             {
@@ -1790,7 +1790,7 @@ namespace RX_Explorer
                 {
                     SelectionExtention.Disable();
                     SelectedItem = Item;
-                    await TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(Item.Path).ConfigureAwait(false);
+                    TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(Item.Path);
                 }
                 else if ((e.OriginalSource as FrameworkElement).FindParentOfType<SelectorItem>() != null)
                 {
@@ -2710,9 +2710,9 @@ namespace RX_Explorer
                 return;
             }
 
-            if (Container.CurrentFolder.Path == Path.GetPathRoot(Container.CurrentFolder.Path))
+            if (Container.CurrentFolder.Path.Equals(Path.GetPathRoot(Container.CurrentFolder.Path), StringComparison.OrdinalIgnoreCase))
             {
-                if (CommonAccessCollection.HardDeviceList.FirstOrDefault((Device) => Device.Folder.Path == Container.CurrentFolder.Path) is HardDeviceInfo Info)
+                if (CommonAccessCollection.HardDeviceList.FirstOrDefault((Device) => Device.Folder.Path.Equals(Container.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)) is HardDeviceInfo Info)
                 {
                     DeviceInfoDialog dialog = new DeviceInfoDialog(Info);
                     _ = await dialog.ShowAsync().ConfigureAwait(true);
@@ -2755,7 +2755,7 @@ namespace RX_Explorer
                 {
                     while (true)
                     {
-                        if (FileCollection.FirstOrDefault((Item) => Item.Path == NewFolder.Path) is FileSystemStorageItemBase NewItem)
+                        if (FileCollection.FirstOrDefault((Item) => Item == NewFolder) is FileSystemStorageItemBase NewItem)
                         {
                             ItemPresenter.UpdateLayout();
 
@@ -3918,11 +3918,11 @@ namespace RX_Explorer
             }
         }
 
-        private void ListHeaderName_Click(object sender, RoutedEventArgs e)
+        private async void ListHeaderName_Click(object sender, RoutedEventArgs e)
         {
             if (SortCollectionGenerator.Current.SortDirection == SortDirection.Ascending)
             {
-                SortCollectionGenerator.Current.ModifySortWay(SortTarget.Name, SortDirection.Descending);
+                await SortCollectionGenerator.Current.ModifySortWayAsync(Container.CurrentFolder.Path, SortTarget.Name, SortDirection.Descending).ConfigureAwait(true);
 
                 List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
@@ -3935,7 +3935,7 @@ namespace RX_Explorer
             }
             else
             {
-                SortCollectionGenerator.Current.ModifySortWay(SortTarget.Name, SortDirection.Ascending);
+                await SortCollectionGenerator.Current.ModifySortWayAsync(Container.CurrentFolder.Path, SortTarget.Name, SortDirection.Ascending).ConfigureAwait(true);
 
                 List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
@@ -3948,11 +3948,11 @@ namespace RX_Explorer
             }
         }
 
-        private void ListHeaderModifiedTime_Click(object sender, RoutedEventArgs e)
+        private async void ListHeaderModifiedTime_Click(object sender, RoutedEventArgs e)
         {
             if (SortCollectionGenerator.Current.SortDirection == SortDirection.Ascending)
             {
-                SortCollectionGenerator.Current.ModifySortWay(SortTarget.ModifiedTime, SortDirection.Descending);
+                await SortCollectionGenerator.Current.ModifySortWayAsync(Container.CurrentFolder.Path, SortTarget.ModifiedTime, SortDirection.Descending).ConfigureAwait(true);
 
                 List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
@@ -3965,7 +3965,7 @@ namespace RX_Explorer
             }
             else
             {
-                SortCollectionGenerator.Current.ModifySortWay(SortTarget.ModifiedTime, SortDirection.Ascending);
+                await SortCollectionGenerator.Current.ModifySortWayAsync(Container.CurrentFolder.Path, SortTarget.ModifiedTime, SortDirection.Ascending).ConfigureAwait(true);
 
                 List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
@@ -3978,11 +3978,11 @@ namespace RX_Explorer
             }
         }
 
-        private void ListHeaderType_Click(object sender, RoutedEventArgs e)
+        private async void ListHeaderType_Click(object sender, RoutedEventArgs e)
         {
             if (SortCollectionGenerator.Current.SortDirection == SortDirection.Ascending)
             {
-                SortCollectionGenerator.Current.ModifySortWay(SortTarget.Type, SortDirection.Descending);
+                await SortCollectionGenerator.Current.ModifySortWayAsync(Container.CurrentFolder.Path, SortTarget.Type, SortDirection.Descending).ConfigureAwait(true);
 
                 List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
@@ -3995,7 +3995,7 @@ namespace RX_Explorer
             }
             else
             {
-                SortCollectionGenerator.Current.ModifySortWay(SortTarget.Type, SortDirection.Ascending);
+                await SortCollectionGenerator.Current.ModifySortWayAsync(Container.CurrentFolder.Path, SortTarget.Type, SortDirection.Ascending).ConfigureAwait(true);
 
                 List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
@@ -4008,11 +4008,11 @@ namespace RX_Explorer
             }
         }
 
-        private void ListHeaderSize_Click(object sender, RoutedEventArgs e)
+        private async void ListHeaderSize_Click(object sender, RoutedEventArgs e)
         {
             if (SortCollectionGenerator.Current.SortDirection == SortDirection.Ascending)
             {
-                SortCollectionGenerator.Current.ModifySortWay(SortTarget.Size, SortDirection.Descending);
+                await SortCollectionGenerator.Current.ModifySortWayAsync(Container.CurrentFolder.Path, SortTarget.Size, SortDirection.Descending).ConfigureAwait(true);
 
                 List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
                 FileCollection.Clear();
@@ -4025,7 +4025,7 @@ namespace RX_Explorer
             }
             else
             {
-                SortCollectionGenerator.Current.ModifySortWay(SortTarget.Size, SortDirection.Ascending);
+                await SortCollectionGenerator.Current.ModifySortWayAsync(Container.CurrentFolder.Path, SortTarget.Size, SortDirection.Ascending).ConfigureAwait(true);
 
                 List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
                 FileCollection.Clear();
@@ -4406,7 +4406,7 @@ namespace RX_Explorer
 
                         if ((sender as SelectorItem).Content is FileSystemStorageItemBase TargetFolder)
                         {
-                            if (DragItemList.Any((Item) => Item.Path == TargetFolder.Path))
+                            if (DragItemList.Any((Item) => Item.Path.Equals(TargetFolder.Path, StringComparison.OrdinalIgnoreCase)))
                             {
                                 QueueContentDialog Dialog = new QueueContentDialog
                                 {
@@ -4970,7 +4970,7 @@ namespace RX_Explorer
                     {
                         List<IStorageItem> DragItemList = (await e.DataView.GetStorageItemsAsync()).ToList();
 
-                        if (DragItemList.Any((Item) => Item.Path == Container.CurrentFolder.Path))
+                        if (DragItemList.Any((Item) => Item.Path.Equals(Container.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
                         {
                             QueueContentDialog Dialog = new QueueContentDialog
                             {
@@ -5600,13 +5600,13 @@ namespace RX_Explorer
             }
         }
 
-        private async void OpenFolderInNewTab_Click(object sender, RoutedEventArgs e)
+        private void OpenFolderInNewTab_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
             if (SelectedItem is FileSystemStorageItemBase Item && Item.StorageType == StorageItemTypes.Folder)
             {
-                await TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(Item.Path).ConfigureAwait(false);
+                TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(Item.Path);
             }
         }
 
@@ -5789,11 +5789,11 @@ namespace RX_Explorer
             }
         }
 
-        private void OrderByName_Click(object sender, RoutedEventArgs e)
+        private async void OrderByName_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            SortCollectionGenerator.Current.ModifySortWay(SortTarget.Name, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+            await SortCollectionGenerator.Current.ModifySortWayAsync(Container.CurrentFolder.Path, SortTarget.Name, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending).ConfigureAwait(true);
 
             List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
@@ -5805,11 +5805,11 @@ namespace RX_Explorer
             }
         }
 
-        private void OrderByTime_Click(object sender, RoutedEventArgs e)
+        private async void OrderByTime_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            SortCollectionGenerator.Current.ModifySortWay(SortTarget.ModifiedTime, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+            await SortCollectionGenerator.Current.ModifySortWayAsync(Container.CurrentFolder.Path, SortTarget.ModifiedTime, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending).ConfigureAwait(true);
 
             List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
@@ -5821,11 +5821,11 @@ namespace RX_Explorer
             }
         }
 
-        private void OrderByType_Click(object sender, RoutedEventArgs e)
+        private async void OrderByType_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            SortCollectionGenerator.Current.ModifySortWay(SortTarget.Type, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+            await SortCollectionGenerator.Current.ModifySortWayAsync(Container.CurrentFolder.Path, SortTarget.Type, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending).ConfigureAwait(true);
 
             List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
@@ -5837,11 +5837,11 @@ namespace RX_Explorer
             }
         }
 
-        private void OrderBySize_Click(object sender, RoutedEventArgs e)
+        private async void OrderBySize_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            SortCollectionGenerator.Current.ModifySortWay(SortTarget.Size, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+            await SortCollectionGenerator.Current.ModifySortWayAsync(Container.CurrentFolder.Path, SortTarget.Size, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending).ConfigureAwait(true);
 
             List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
@@ -5853,11 +5853,11 @@ namespace RX_Explorer
             }
         }
 
-        private void Desc_Click(object sender, RoutedEventArgs e)
+        private async void Desc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            SortCollectionGenerator.Current.ModifySortWay(SortDirection: SortDirection.Descending);
+            await SortCollectionGenerator.Current.ModifySortWayAsync(Container.CurrentFolder.Path, SortDirection: SortDirection.Descending).ConfigureAwait(true);
 
             List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
@@ -5869,11 +5869,11 @@ namespace RX_Explorer
             }
         }
 
-        private void Asc_Click(object sender, RoutedEventArgs e)
+        private async void Asc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            SortCollectionGenerator.Current.ModifySortWay(SortDirection: SortDirection.Ascending);
+            await SortCollectionGenerator.Current.ModifySortWayAsync(Container.CurrentFolder.Path, SortDirection: SortDirection.Ascending).ConfigureAwait(true);
 
             List<FileSystemStorageItemBase> SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
 
@@ -6525,7 +6525,7 @@ namespace RX_Explorer
                     {
                         await Container.DisplayItemsInFolder(ParentFolder).ConfigureAwait(true);
 
-                        if (FileCollection.FirstOrDefault((SItem) => SItem.Path == Item.LinkTargetPath) is FileSystemStorageItemBase Target)
+                        if (FileCollection.FirstOrDefault((SItem) => SItem.Path.Equals(Item.LinkTargetPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Target)
                         {
                             ItemPresenter.ScrollIntoView(Target);
                             SelectedItem = Target;

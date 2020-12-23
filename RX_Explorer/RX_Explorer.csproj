@@ -172,6 +172,7 @@
     <Compile Include="Class\ListViewHeaderController.cs" />
     <Compile Include="Class\MSStoreHelper.cs" />
     <Compile Include="Class\OperationRecorder.cs" />
+    <Compile Include="Class\PathConfiguration.cs" />
     <Compile Include="Class\PipeLineController.cs" />
     <Compile Include="Class\RecycleStorageItem.cs" />
     <Compile Include="Class\SecureAreaStorageItem.cs" />

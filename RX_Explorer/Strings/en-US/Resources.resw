@@ -2646,4 +2646,34 @@ Invalid names include
   <data name="HashPlaceHolderText" xml:space="preserve">
     <value>Calculating...</value>
   </data>
+  <data name="ModTimeFilterCheckBox2Text.Text" xml:space="preserve">
+    <value>Last month</value>
+  </data>
+  <data name="ModTimeFilterCheckBox3Text.Text" xml:space="preserve">
+    <value>Last three months</value>
+  </data>
+  <data name="ModTimeFilterCheckBox4Text.Text" xml:space="preserve">
+    <value>A long time ago</value>
+  </data>
+  <data name="ModTimeFilterFromDate.Header" xml:space="preserve">
+    <value>From:</value>
+  </data>
+  <data name="ModTimeFilterToDate.Header" xml:space="preserve">
+    <value>To:</value>
+  </data>
+  <data name="NameFilterCheckBox5Text.Text" xml:space="preserve">
+    <value>Others</value>
+  </data>
+  <data name="SizeFilterCheckBox1Text.Text" xml:space="preserve">
+    <value>Small (≤1MB)</value>
+  </data>
+  <data name="SizeFilterCheckBox2Text.Text" xml:space="preserve">
+    <value>Medium (1MB - 128MB)</value>
+  </data>
+  <data name="SizeFilterCheckBox3Text.Text" xml:space="preserve">
+    <value>Large (128MB - 1GB)</value>
+  </data>
+  <data name="SizeFilterCheckBox4Text.Text" xml:space="preserve">
+    <value>Huge (≥1GB)</value>
+  </data>
 </root>

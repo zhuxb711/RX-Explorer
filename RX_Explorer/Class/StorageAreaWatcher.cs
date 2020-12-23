@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
-using Windows.Storage;
 using Windows.UI.Core;
 
 namespace RX_Explorer.Class
@@ -59,7 +58,7 @@ namespace RX_Explorer.Class
 
                     try
                     {
-                        if (CurrentCollection.FirstOrDefault((Item) => Item.Path == Path) is FileSystemStorageItemBase Item)
+                        if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
                         {
                             await Item.Update().ConfigureAwait(false);
                         }
@@ -86,9 +85,9 @@ namespace RX_Explorer.Class
                     {
                         await Locker.WaitAsync().ConfigureAwait(true);
 
-                        if (CurrentCollection.FirstOrDefault((Item) => Item.Path == OldPath) is FileSystemStorageItemBase OlderItem)
+                        if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(OldPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase OlderItem)
                         {
-                            if (CurrentCollection.FirstOrDefault((Item) => Item.Path == NewPath) is FileSystemStorageItemBase ExistItem)
+                            if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(NewPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase ExistItem)
                             {
                                 await ExistItem.Replace(NewPath).ConfigureAwait(true);
 
@@ -145,7 +144,7 @@ namespace RX_Explorer.Class
                     {
                         await Locker.WaitAsync().ConfigureAwait(true);
 
-                        if (CurrentCollection.FirstOrDefault((Item) => Item.Path == Path) is FileSystemStorageItemBase Item)
+                        if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
                         {
                             CurrentCollection.Remove(Item);
                         }

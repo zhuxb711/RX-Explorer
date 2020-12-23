@@ -334,7 +334,7 @@ namespace RX_Explorer.Class
                 {
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                     {
-                        if (Node.Children.FirstOrDefault((Item) => (Item.Content as TreeViewNodeContent)?.Path == RemovePath) is TreeViewNode RemoveNode)
+                        if (Node.Children.Where((Item) => Item.Content is TreeViewNodeContent).FirstOrDefault((Item) => (Item.Content as TreeViewNodeContent).Path.Equals(RemovePath, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RemoveNode)
                         {
                             Node.Children.Remove(RemoveNode);
                         }
@@ -373,7 +373,7 @@ namespace RX_Explorer.Class
 
             if (NextPathLevel == Analysis.FullPath)
             {
-                if ((Node.Content as TreeViewNodeContent).Path == NextPathLevel)
+                if ((Node.Content as TreeViewNodeContent).Path.Equals(NextPathLevel, StringComparison.OrdinalIgnoreCase))
                 {
                     return Node;
                 }
@@ -381,7 +381,7 @@ namespace RX_Explorer.Class
                 {
                     if (DoNotExpandNodeWhenSearching)
                     {
-                        if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path == NextPathLevel) is TreeViewNode TargetNode)
+                        if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path.Equals(NextPathLevel, StringComparison.OrdinalIgnoreCase)) is TreeViewNode TargetNode)
                         {
                             return TargetNode;
                         }
@@ -394,7 +394,7 @@ namespace RX_Explorer.Class
                     {
                         for (int i = 0; i < 10; i++)
                         {
-                            if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path == NextPathLevel) is TreeViewNode TargetNode)
+                            if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path.Equals(NextPathLevel, StringComparison.OrdinalIgnoreCase)) is TreeViewNode TargetNode)
                             {
                                 return TargetNode;
                             }
@@ -410,7 +410,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                if ((Node.Content as TreeViewNodeContent).Path == NextPathLevel)
+                if ((Node.Content as TreeViewNodeContent).Path.Equals(NextPathLevel, StringComparison.OrdinalIgnoreCase))
                 {
                     return await GetChildNodeAsync(Node, Analysis, DoNotExpandNodeWhenSearching).ConfigureAwait(true);
                 }
@@ -418,7 +418,7 @@ namespace RX_Explorer.Class
                 {
                     if (DoNotExpandNodeWhenSearching)
                     {
-                        if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path == NextPathLevel) is TreeViewNode TargetNode)
+                        if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path.Equals(NextPathLevel, StringComparison.OrdinalIgnoreCase)) is TreeViewNode TargetNode)
                         {
                             return await GetChildNodeAsync(TargetNode, Analysis, DoNotExpandNodeWhenSearching).ConfigureAwait(true);
                         }
@@ -431,7 +431,7 @@ namespace RX_Explorer.Class
                     {
                         for (int i = 0; i < 10; i++)
                         {
-                            if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path == NextPathLevel) is TreeViewNode TargetNode)
+                            if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path.Equals(NextPathLevel, StringComparison.OrdinalIgnoreCase)) is TreeViewNode TargetNode)
                             {
                                 return await GetChildNodeAsync(TargetNode, Analysis, DoNotExpandNodeWhenSearching).ConfigureAwait(true);
                             }
@@ -1045,7 +1045,7 @@ namespace RX_Explorer.Class
                 return builder.ToString();
             });
 
-            if ((InputStream.Length >> 1) > 1073741824L)
+            if ((InputStream.Length >> 30) >= 2)
             {
                 return Task.Factory.StartNew(ComputeFunction, Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
             }

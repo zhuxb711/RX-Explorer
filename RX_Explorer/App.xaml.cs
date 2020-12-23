@@ -120,7 +120,7 @@ namespace RX_Explorer
             e.Handled = true;
         }
 
-        protected override async void OnLaunched(LaunchActivatedEventArgs e)
+        protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
             Microsoft.Toolkit.Uwp.Helpers.SystemInformation.TrackAppUse(e);
 
@@ -136,11 +136,11 @@ namespace RX_Explorer
                 {
                     if (!string.IsNullOrWhiteSpace(e.Arguments) && WIN_Native_API.CheckExist(e.Arguments))
                     {
-                        await TabContainer.CreateNewTabAndOpenTargetFolder(e.Arguments).ConfigureAwait(true);
+                        TabContainer.CreateNewTabAndOpenTargetFolder(e.Arguments);
                     }
                     else
                     {
-                        await TabContainer.CreateNewTabAndOpenTargetFolder(string.Empty).ConfigureAwait(true);
+                        TabContainer.CreateNewTabAndOpenTargetFolder(string.Empty);
                     }
                 }
             }
@@ -161,7 +161,7 @@ namespace RX_Explorer
             Window.Current.Activate();
         }
 
-        protected override async void OnActivated(IActivatedEventArgs args)
+        protected override void OnActivated(IActivatedEventArgs args)
         {
             ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
             TitleBar.ButtonBackgroundColor = Colors.Transparent;
@@ -183,16 +183,16 @@ namespace RX_Explorer
 
                             if (string.IsNullOrWhiteSpace(Path) || Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase))
                             {
-                                await TabContainer.CreateNewTabAndOpenTargetFolder(string.Empty).ConfigureAwait(true);
+                                TabContainer.CreateNewTabAndOpenTargetFolder(string.Empty);
                             }
                             else
                             {
-                                await TabContainer.CreateNewTabAndOpenTargetFolder(Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path).ConfigureAwait(true);
+                                TabContainer.CreateNewTabAndOpenTargetFolder(Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path);
                             }
                         }
                         else
                         {
-                            await TabContainer.CreateNewTabAndOpenTargetFolder(string.Empty).ConfigureAwait(true);
+                            TabContainer.CreateNewTabAndOpenTargetFolder(string.Empty);
                         }
                     }
                 }
@@ -256,7 +256,7 @@ namespace RX_Explorer
                 {
                     if (mainPageFrame.Content is MainPage mainPage && mainPage.Nav.Content is TabViewContainer tabViewContainer)
                     {
-                        _ = tabViewContainer.CreateNewTabAndOpenTargetFolder(args.Files[0].Path);
+                        tabViewContainer.CreateNewTabAndOpenTargetFolder(args.Files[0].Path);
                     }
                 }
                 else

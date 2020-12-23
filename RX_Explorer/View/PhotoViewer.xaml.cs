@@ -80,7 +80,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    int LastSelectIndex = FileList.FindIndex((Photo) => Photo.Path == SelectedPhotoPath);
+                    int LastSelectIndex = FileList.FindIndex((Photo) => Photo.Path.Equals(SelectedPhotoPath,StringComparison.OrdinalIgnoreCase));
                     if (LastSelectIndex < 0 || LastSelectIndex >= FileList.Count)
                     {
                         LastSelectIndex = 0;

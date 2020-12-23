@@ -704,7 +704,7 @@ namespace RX_Explorer
 
             if (Device != null)
             {
-                if (Device.Path == Path.GetPathRoot(Device.Path) && DriveInfo.GetDrives().Where((Drive) => Drive.DriveType == DriveType.Fixed || Drive.DriveType == DriveType.Removable).Any((Item) => Item.RootDirectory.FullName == Device.Path))
+                if (Device.Path.Equals(Path.GetPathRoot(Device.Path), StringComparison.OrdinalIgnoreCase) && DriveInfo.GetDrives().Where((Drive) => Drive.DriveType == DriveType.Fixed || Drive.DriveType == DriveType.Removable).Any((Item) => Item.RootDirectory.FullName == Device.Path))
                 {
                     if (CommonAccessCollection.HardDeviceList.All((Item) => Item.Folder.Path != Device.Path))
                     {
@@ -919,7 +919,7 @@ namespace RX_Explorer
 
             if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
             {
-                if (CommonAccessCollection.LibraryFolderList.Any((Library) => Library.Folder.Path == Folder.Path))
+                if (CommonAccessCollection.LibraryFolderList.Any((Library) => Library.Folder.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {

@@ -2541,4 +2541,34 @@
   <data name="HashPlaceHolderText" xml:space="preserve">
     <value>正在計算...</value>
   </data>
+  <data name="ModTimeFilterCheckBox2Text.Text" xml:space="preserve">
+    <value>上個月</value>
+  </data>
+  <data name="ModTimeFilterCheckBox3Text.Text" xml:space="preserve">
+    <value>最近三個月</value>
+  </data>
+  <data name="ModTimeFilterCheckBox4Text.Text" xml:space="preserve">
+    <value>很久以前</value>
+  </data>
+  <data name="ModTimeFilterFromDate.Header" xml:space="preserve">
+    <value>開始時間:</value>
+  </data>
+  <data name="ModTimeFilterToDate.Header" xml:space="preserve">
+    <value>結束時間:</value>
+  </data>
+  <data name="NameFilterCheckBox5Text.Text" xml:space="preserve">
+    <value>其他</value>
+  </data>
+  <data name="SizeFilterCheckBox1Text.Text" xml:space="preserve">
+    <value>較小 (≤1MB)</value>
+  </data>
+  <data name="SizeFilterCheckBox2Text.Text" xml:space="preserve">
+    <value>中等 (1MB - 128MB)</value>
+  </data>
+  <data name="SizeFilterCheckBox3Text.Text" xml:space="preserve">
+    <value>較大 (128MB - 1GB)</value>
+  </data>
+  <data name="SizeFilterCheckBox4Text.Text" xml:space="preserve">
+    <value>龐大 (≥1GB)</value>
+  </data>
 </root>

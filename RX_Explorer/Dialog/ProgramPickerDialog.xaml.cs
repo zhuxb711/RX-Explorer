@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
@@ -159,13 +158,13 @@ namespace RX_Explorer.Dialog
 
             if (!string.IsNullOrEmpty(AdminExecutablePath))
             {
-                if (RecommandList.FirstOrDefault((Item) => Item.Path == AdminExecutablePath) is ProgramPickerItem RecommandItem)
+                if (RecommandList.FirstOrDefault((Item) => Item.Path.Equals(AdminExecutablePath, StringComparison.OrdinalIgnoreCase)) is ProgramPickerItem RecommandItem)
                 {
                     CurrentUseProgramList.Items.Add(RecommandItem);
                     CurrentUseProgramList.SelectedIndex = 0;
                     RecommandList.Remove(RecommandItem);
                 }
-                else if (NotRecommandList.FirstOrDefault((Item) => Item.Path == AdminExecutablePath) is ProgramPickerItem NotRecommandItem)
+                else if (NotRecommandList.FirstOrDefault((Item) => Item.Path.Equals(AdminExecutablePath, StringComparison.OrdinalIgnoreCase)) is ProgramPickerItem NotRecommandItem)
                 {
                     CurrentUseProgramList.Items.Add(NotRecommandItem);
                     CurrentUseProgramList.SelectedIndex = 0;

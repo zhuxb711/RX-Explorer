@@ -197,7 +197,7 @@ namespace RX_Explorer
             }
         }
 
-        public async Task CreateNewTabAndOpenTargetFolder(string Path, int? InsertIndex = null)
+        public void CreateNewTabAndOpenTargetFolder(string Path, int? InsertIndex = null)
         {
             int Index = InsertIndex ?? (TabViewControl?.TabItems.Count ?? 0);
 
@@ -278,7 +278,7 @@ namespace RX_Explorer
                     }
                 }
 
-                foreach (string PortDevice in AllBaseDevice.Where((Path) => PortableDevice.Any((Item) => Item.Path == Path)))
+                foreach (string PortDevice in AllBaseDevice.Where((Path) => PortableDevice.Any((Item) => Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))))
                 {
                     AllBaseDevice.Remove(PortDevice);
                 }
@@ -386,13 +386,13 @@ namespace RX_Explorer
 
             if (MainPage.ThisPage.IsPathActivate)
             {
-                await CreateNewTabAndOpenTargetFolder(MainPage.ThisPage.ActivatePath).ConfigureAwait(true);
+                CreateNewTabAndOpenTargetFolder(MainPage.ThisPage.ActivatePath);
 
                 MainPage.ThisPage.IsPathActivate = false;
             }
             else
             {
-                await CreateNewTabAndOpenTargetFolder(string.Empty).ConfigureAwait(true);
+                CreateNewTabAndOpenTargetFolder(string.Empty);
             }
 
             try
@@ -973,12 +973,12 @@ namespace RX_Explorer
                         {
                             case "ThisPC":
                                 {
-                                    await CreateNewTabAndOpenTargetFolder(string.Empty, InsertIndex).ConfigureAwait(true);
+                                    CreateNewTabAndOpenTargetFolder(string.Empty, InsertIndex);
                                     break;
                                 }
                             case "FileControl":
                                 {
-                                    await CreateNewTabAndOpenTargetFolder(Split[1], InsertIndex).ConfigureAwait(true);
+                                    CreateNewTabAndOpenTargetFolder(Split[1], InsertIndex);
                                     break;
                                 }
                         }

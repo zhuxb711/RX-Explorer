@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.Storage;
 
 namespace RX_Explorer.Class
@@ -26,7 +27,7 @@ namespace RX_Explorer.Class
 
         public SortDirection SortDirection { get; private set; }
 
-        public void ModifySortWay(SortTarget? SortTarget = null, SortDirection? SortDirection = null)
+        public async Task ModifySortWayAsync(string Path, SortTarget? SortTarget = null, SortDirection? SortDirection = null)
         {
             if (SortTarget == Class.SortTarget.OriginPath || SortTarget == Class.SortTarget.Path)
             {
@@ -36,14 +37,14 @@ namespace RX_Explorer.Class
             if (SortTarget.HasValue)
             {
                 this.SortTarget = SortTarget.Value;
-                ApplicationData.Current.LocalSettings.Values["CollectionSortTarget"] = Enum.GetName(typeof(SortTarget), SortTarget);
             }
 
             if (SortDirection.HasValue)
             {
                 this.SortDirection = SortDirection.Value;
-                ApplicationData.Current.LocalSettings.Values["CollectionSortDirection"] = Enum.GetName(typeof(SortDirection), SortDirection);
             }
+
+            await SQLite.Current.SetPathConfiguration(new PathConfiguration(Path, this.SortTarget, this.SortDirection)).ConfigureAwait(true);
 
             SortIndicatorController.SetIndicatorStatus(this.SortTarget, this.SortDirection);
         }
@@ -300,23 +301,8 @@ namespace RX_Explorer.Class
 
         private SortCollectionGenerator()
         {
-            if (ApplicationData.Current.LocalSettings.Values.TryGetValue("CollectionSortTarget", out object Target))
-            {
-                SortTarget = Enum.Parse<SortTarget>(Convert.ToString(Target));
-            }
-            else
-            {
-                SortTarget = SortTarget.Name;
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values.TryGetValue("CollectionSortDirection", out object Direction))
-            {
-                SortDirection = Enum.Parse<SortDirection>(Convert.ToString(Direction));
-            }
-            else
-            {
-                SortDirection = SortDirection.Ascending;
-            }
+            SortTarget = SortTarget.Name;
+            SortDirection = SortDirection.Ascending;
         }
     }
 }

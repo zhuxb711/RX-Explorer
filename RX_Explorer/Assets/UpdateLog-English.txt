@@ -1,4 +1,35 @@
 ﻿*****
+###What's new in Ver.5.8.5.0
+
+#####Feature update
+
+>#####Add search settings save function
+
+>#####Added new file filtering function in "Detailed" mode
+
+>#####Added folder mode and sorting configuration saving function
+
+>#####Added command line command recognition, such as "RX-Explorer.exe ." can be started in the current directory of the command line
+
+#####Bug fix
+
+>#####Fixed the problem that the default application could not be set
+
+>#####Fixed the problem that the file path cannot be compared correctly
+
+>#####Fixed the problem that may cause the Security Area to not be used normally
+
+>#####Fixed the problem of abnormal display after switching modes in some cases
+
+>#####Fixed the problem that RX cannot display content normally if the startup path is incorrect
+
+>#####Fixed the problem that "forward" or "backward" cannot access the disk root directory
+
+>#####Fixed the problem that the UI interface may get stuck when compressing or decompressing very large folders
+
+>#####Fixed some other problems that may cause a crash
+
+*****
 ###What's new in Ver.5.8.1.0
 
 #####Bug fix

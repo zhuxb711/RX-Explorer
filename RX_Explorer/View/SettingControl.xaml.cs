@@ -784,7 +784,7 @@ namespace RX_Explorer
 
                         _ = await Dialog1.ShowAsync().ConfigureAwait(true);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         QueueContentDialog Dialog1 = new QueueContentDialog
                         {
