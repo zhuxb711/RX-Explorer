@@ -2657,8 +2657,16 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    SearchInEverythingEngine.IsChecked = true;
-                    SearchInDefaultEngine.IsChecked = false;
+                    if (SearchInEverythingEngine.IsEnabled)
+                    {
+                        SearchInEverythingEngine.IsChecked = true;
+                        SearchInDefaultEngine.IsChecked = false;
+                    }
+                    else
+                    {
+                        SearchInDefaultEngine.IsChecked = true;
+                        SearchInEverythingEngine.IsChecked = false;
+                    }
                 }
             }
             else

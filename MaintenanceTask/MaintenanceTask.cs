@@ -28,7 +28,7 @@ namespace MaintenanceTask
                 using (SqliteConnection Connection = GetSQLConnection())
                 {
                     await ClearAddressBarHistory(Connection).ConfigureAwait(true);
-                    await UpdateProgramPickerTable(Connection).ConfigureAwait(true);
+                    await UpdateSQLiteDataBase(Connection).ConfigureAwait(true);
                 }
 
                 //The following code is used to update the globalization problem of the ContextMenu in the old version
@@ -135,10 +135,15 @@ namespace MaintenanceTask
             }
         }
 
-        private async Task UpdateProgramPickerTable(SqliteConnection Connection)
+        private async Task UpdateSQLiteDataBase(SqliteConnection Connection)
         {
             try
             {
+                using (SqliteCommand Command = new SqliteCommand("Create Table If Not Exists PathConfiguration (Path Text Not Null Collate NoCase, DisplayMode Integer Default 1 Check(DisplayMode In (0,1,2,3,4,5)), SortColumn Text Default 'Name' Check(SortColumn In ('Name','ModifiedTime','Type','Size')), SortDirection Text Default 'Ascending' Check(SortDirection In ('Ascending','Descending')), Primary Key(Path))", Connection))
+                {
+                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                }
+
                 using (SqliteCommand Command = new SqliteCommand("Delete From ProgramPicker Where FileType = '.*'", Connection))
                 {
                     await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
@@ -186,7 +191,7 @@ namespace MaintenanceTask
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"An exception was threw in {nameof(UpdateProgramPickerTable)}, message: {ex.Message}");
+                Debug.WriteLine($"An exception was threw in {nameof(UpdateSQLiteDataBase)}, message: {ex.Message}");
             }
         }
 
