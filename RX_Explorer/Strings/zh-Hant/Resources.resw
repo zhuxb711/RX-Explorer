@@ -2571,4 +2571,19 @@
   <data name="SizeFilterCheckBox4Text.Text" xml:space="preserve">
     <value>龐大 (≥1GB)</value>
   </data>
+  <data name="QueueDialog_CouldReadWriteFile_Content" xml:space="preserve">
+    <value>無法讀取或寫入文件</value>
+  </data>
+  <data name="TextViewer_EncodingErrorTip.Subtitle" xml:space="preserve">
+    <value>編碼不正確，請重新輸入編碼</value>
+  </data>
+  <data name="TextViewer_EncodingErrorTip.Title" xml:space="preserve">
+    <value>編碼錯誤</value>
+  </data>
+  <data name="TextViewer_EncodingProfilePlaceholerText.PlaceholderText" xml:space="preserve">
+    <value>輸入編碼或代碼頁的名稱</value>
+  </data>
+  <data name="TextViewer_EncodingProfileText.Text" xml:space="preserve">
+    <value>編碼方式:</value>
+  </data>
 </root>

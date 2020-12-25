@@ -8,6 +8,17 @@
       mc:Ignorable="d"
       NavigationCacheMode="Enabled"
       Background="Transparent">
+
+    <Page.Resources>
+        <muxc:TeachingTip Target="{x:Bind EncodingProfile}"
+                          x:Name="InvalidTip"
+                          PreferredPlacement="Bottom"
+                          IsLightDismissEnabled="True"
+                          x:Uid="TextViewer_EncodingErrorTip"
+                          Title="编码格式错误"
+                          Subtitle="编码格式不正确，请重新设置编码格式"/>
+    </Page.Resources>
+    
     <Grid Padding="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -19,6 +30,24 @@
                     Background="Transparent"
                     IsOpen="False"
                     DefaultLabelPosition="Right">
+            <AppBarElementContainer VerticalAlignment="Stretch"
+                                    VerticalContentAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="编码格式:"
+                               x:Uid="TextViewer_EncodingProfileText"
+                               VerticalAlignment="Center"/>
+                    <ComboBox MinWidth="200"
+                              Margin="5,0,0,0"
+                              x:Name="EncodingProfile"
+                              IsEditable="True"
+                              x:Uid="TextViewer_EncodingProfilePlaceholerText"
+                              PlaceholderText="输入编码格式的名称或CodePage"
+                              TextSubmitted="EncodingProfile_TextSubmitted"
+                              DisplayMemberPath="DisplayName"
+                              SelectionChanged="EncodingProfile_SelectionChanged" />
+                </StackPanel>
+            </AppBarElementContainer>
+            <AppBarSeparator />
             <AppBarButton Icon="Save"
                           x:Uid="TextViewerSave"
                           Label="保存"

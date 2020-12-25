@@ -2676,4 +2676,19 @@ Invalid names include
   <data name="SizeFilterCheckBox4Text.Text" xml:space="preserve">
     <value>Huge (≥1GB)</value>
   </data>
+  <data name="QueueDialog_CouldReadWriteFile_Content" xml:space="preserve">
+    <value>Cannot read or write file</value>
+  </data>
+  <data name="TextViewer_EncodingErrorTip.Title" xml:space="preserve">
+    <value>Encoding error</value>
+  </data>
+  <data name="TextViewer_EncodingErrorTip.Subtitle" xml:space="preserve">
+    <value>The encoding is incorrect, please re-enter the encoding</value>
+  </data>
+  <data name="TextViewer_EncodingProfilePlaceholerText.PlaceholderText" xml:space="preserve">
+    <value>Enter the name of encoding or codepage</value>
+  </data>
+  <data name="TextViewer_EncodingProfileText.Text" xml:space="preserve">
+    <value>Encoding:</value>
+  </data>
 </root>

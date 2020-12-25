@@ -2571,4 +2571,19 @@ Les noms non valides incluent
   <data name="SizeFilterCheckBox4Text.Text" xml:space="preserve">
     <value>Énorme (≥1GB)</value>
   </data>
+  <data name="QueueDialog_CouldReadWriteFile_Content" xml:space="preserve">
+    <value>Impossible de lire ou d'écrire le fichier</value>
+  </data>
+  <data name="TextViewer_EncodingErrorTip.Subtitle" xml:space="preserve">
+    <value>L'encodage est incorrect, veuillez saisir à nouveau l'encodage</value>
+  </data>
+  <data name="TextViewer_EncodingErrorTip.Title" xml:space="preserve">
+    <value>Erreur d'encodage</value>
+  </data>
+  <data name="TextViewer_EncodingProfilePlaceholerText.PlaceholderText" xml:space="preserve">
+    <value>Entrez le nom de l'encodage ou de la page de codes</value>
+  </data>
+  <data name="TextViewer_EncodingProfileText.Text" xml:space="preserve">
+    <value>Codage:</value>
+  </data>
 </root>

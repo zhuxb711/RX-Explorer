@@ -3409,6 +3409,26 @@ Les noms non valides incluent
           <source>Huge (≥1GB)</source>
           <target state="translated">Énorme (≥1GB)</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_CouldReadWriteFile_Content" translate="yes" xml:space="preserve">
+          <source>Cannot read or write file</source>
+          <target state="translated">Impossible de lire ou d'écrire le fichier</target>
+        </trans-unit>
+        <trans-unit id="TextViewer_EncodingErrorTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>The encoding is incorrect, please re-enter the encoding</source>
+          <target state="translated">L'encodage est incorrect, veuillez saisir à nouveau l'encodage</target>
+        </trans-unit>
+        <trans-unit id="TextViewer_EncodingErrorTip.Title" translate="yes" xml:space="preserve">
+          <source>Encoding error</source>
+          <target state="translated">Erreur d'encodage</target>
+        </trans-unit>
+        <trans-unit id="TextViewer_EncodingProfilePlaceholerText.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter the name of encoding or codepage</source>
+          <target state="translated">Entrez le nom de l'encodage ou de la page de codes</target>
+        </trans-unit>
+        <trans-unit id="TextViewer_EncodingProfileText.Text" translate="yes" xml:space="preserve">
+          <source>Encoding:</source>
+          <target state="translated">Codage:</target>
+        </trans-unit>
       </group>
     </body>
   </file>

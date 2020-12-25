@@ -3409,6 +3409,26 @@ Invalid names include
           <source>Huge (≥1GB)</source>
           <target state="translated">龐大 (≥1GB)</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_CouldReadWriteFile_Content" translate="yes" xml:space="preserve">
+          <source>Cannot read or write file</source>
+          <target state="translated">無法讀取或寫入文件</target>
+        </trans-unit>
+        <trans-unit id="TextViewer_EncodingErrorTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>The encoding is incorrect, please re-enter the encoding</source>
+          <target state="translated">編碼不正確，請重新輸入編碼</target>
+        </trans-unit>
+        <trans-unit id="TextViewer_EncodingErrorTip.Title" translate="yes" xml:space="preserve">
+          <source>Encoding error</source>
+          <target state="translated">編碼錯誤</target>
+        </trans-unit>
+        <trans-unit id="TextViewer_EncodingProfilePlaceholerText.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter the name of encoding or codepage</source>
+          <target state="translated">輸入編碼或代碼頁的名稱</target>
+        </trans-unit>
+        <trans-unit id="TextViewer_EncodingProfileText.Text" translate="yes" xml:space="preserve">
+          <source>Encoding:</source>
+          <target state="translated">編碼方式:</target>
+        </trans-unit>
       </group>
     </body>
   </file>
