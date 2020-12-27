@@ -139,6 +139,11 @@ namespace MaintenanceTask
         {
             try
             {
+                using (SqliteCommand Command = new SqliteCommand("Update TerminalProfile Set Argument = '-NoExit -Command \"Set-Location ''[CurrentLocation]''\"' Where Name = 'Powershell'", Connection))
+                {
+                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                }
+
                 using (SqliteCommand Command = new SqliteCommand("Create Table If Not Exists PathConfiguration (Path Text Not Null Collate NoCase, DisplayMode Integer Default 1 Check(DisplayMode In (0,1,2,3,4,5)), SortColumn Text Default 'Name' Check(SortColumn In ('Name','ModifiedTime','Type','Size')), SortDirection Text Default 'Ascending' Check(SortDirection In ('Ascending','Descending')), Primary Key(Path))", Connection))
                 {
                     await Command.ExecuteNonQueryAsync().ConfigureAwait(false);

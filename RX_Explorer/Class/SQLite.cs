@@ -59,31 +59,31 @@ namespace RX_Explorer.Class
         /// </summary>
         private void InitializeDatabase()
         {
-            string Command = $@"Create Table If Not Exists SearchHistory (SearchText Text Not Null, Primary Key (SearchText));
-                                Create Table If Not Exists QuickStart (Name Text Not Null, FullPath Text Not Null Collate NoCase, Protocal Text Not Null, Type Text Not Null, Primary Key (Name,FullPath,Protocal,Type));
-                                Create Table If Not Exists Library (Path Text Not Null Collate NoCase, Type Text Not Null, Primary Key (Path));
-                                Create Table If Not Exists PathHistory (Path Text Not Null Collate NoCase, Primary Key (Path));
-                                Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));
-                                Create Table If Not Exists ProgramPicker (FileType Text Not Null, Path Text Not Null Collate NoCase, IsDefault Text Default 'False' Check(IsDefault In ('True','False')), IsRecommanded Text Default 'False' Check(IsRecommanded In ('True','False')), Primary Key(FileType, Path));
-                                Create Table If Not Exists TerminalProfile (Name Text Not Null, Path Text Not Null Collate NoCase, Argument Text Not Null, RunAsAdmin Text Not Null, Primary Key(Name));
-                                Create Table If Not Exists PathConfiguration (Path Text Not Null Collate NoCase, DisplayMode Integer Default 1 Check(DisplayMode In (0,1,2,3,4,5)), SortColumn Text Default 'Name' Check(SortColumn In ('Name','ModifiedTime','Type','Size')), SortDirection Text Default 'Ascending' Check(SortDirection In ('Ascending','Descending')), Primary Key(Path));
-                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture1.jpg');
-                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture2.jpg');
-                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture3.jpg');
-                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture4.jpg');
-                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture5.jpg');
-                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture6.jpg');
-                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture7.jpg');
-                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture8.jpg');
-                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture9.jpg');
-                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture10.jpg');
-                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture11.jpg');
-                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture12.jpg');
-                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture13.jpg');
-                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture14.jpg');
-                                Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture15.jpg');
-                                Insert Or Ignore Into TerminalProfile Values ('Powershell', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe")}', '-NoExit -Command Set-Location [CurrentLocation]', 'True');
-                                Insert Or Ignore Into TerminalProfile Values ('CMD', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe")}', '/k cd /d [CurrentLocation]', 'True');";
+            string Command = "Create Table If Not Exists SearchHistory (SearchText Text Not Null, Primary Key (SearchText));"
+                           + "Create Table If Not Exists QuickStart (Name Text Not Null, FullPath Text Not Null Collate NoCase, Protocal Text Not Null, Type Text Not Null, Primary Key (Name,FullPath,Protocal,Type));"
+                           + "Create Table If Not Exists Library (Path Text Not Null Collate NoCase, Type Text Not Null, Primary Key (Path));"
+                           + "Create Table If Not Exists PathHistory (Path Text Not Null Collate NoCase, Primary Key (Path));"
+                           + "Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));"
+                           + "Create Table If Not Exists ProgramPicker (FileType Text Not Null, Path Text Not Null Collate NoCase, IsDefault Text Default 'False' Check(IsDefault In ('True','False')), IsRecommanded Text Default 'False' Check(IsRecommanded In ('True','False')), Primary Key(FileType, Path));"
+                           + "Create Table If Not Exists TerminalProfile (Name Text Not Null, Path Text Not Null Collate NoCase, Argument Text Not Null, RunAsAdmin Text Not Null, Primary Key(Name));"
+                           + "Create Table If Not Exists PathConfiguration (Path Text Not Null Collate NoCase, DisplayMode Integer Default 1 Check(DisplayMode In (0,1,2,3,4,5)), SortColumn Text Default 'Name' Check(SortColumn In ('Name','ModifiedTime','Type','Size')), SortDirection Text Default 'Ascending' Check(SortDirection In ('Ascending','Descending')), Primary Key(Path));"
+                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture1.jpg');"
+                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture2.jpg');"
+                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture3.jpg');"
+                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture4.jpg');"
+                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture5.jpg');"
+                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture6.jpg');"
+                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture7.jpg');"
+                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture8.jpg');"
+                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture9.jpg');"
+                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture10.jpg');"
+                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture11.jpg');"
+                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture12.jpg');"
+                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture13.jpg');"
+                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture14.jpg');"
+                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture15.jpg');"
+                           + $"Insert Or Ignore Into TerminalProfile Values ('Powershell', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe")}', '-NoExit -Command \"Set-Location ''[CurrentLocation]''\"', 'True');"
+                           + $"Insert Or Ignore Into TerminalProfile Values ('CMD', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe")}', '/k cd /d [CurrentLocation]', 'True');";
 
             using (SqliteCommand CreateTable = new SqliteCommand(Command, Connection))
             {

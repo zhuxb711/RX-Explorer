@@ -5566,7 +5566,7 @@ namespace RX_Explorer
             Retry:
                 try
                 {
-                    await FullTrustProcessController.Current.RunAsync(Profile.Path, Profile.RunAsAdmin, false, false, Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value == "[CurrentLocation]" ? Container.CurrentFolder.Path : Mat.Value).ToArray()).ConfigureAwait(false);
+                    await FullTrustProcessController.Current.RunAsync(Profile.Path, Profile.RunAsAdmin, false, false, Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value.Contains("[CurrentLocation]") ? Mat.Value.Replace("[CurrentLocation]", Container.CurrentFolder.Path) : Mat.Value).ToArray()).ConfigureAwait(false);
                 }
                 catch (InvalidOperationException)
                 {
