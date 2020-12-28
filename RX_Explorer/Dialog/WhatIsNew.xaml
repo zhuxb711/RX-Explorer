@@ -21,6 +21,7 @@
                                   Header5FontSize="14"
                                   Header3Foreground="{ThemeResource SystemControlForegroundAccentBrush}"
                                   Background="Transparent"
+                                  LinkClicked="MarkDown_LinkClicked"
                                   SchemeList="companyportal,randomscheme" />
         </ScrollViewer>
     </Grid>

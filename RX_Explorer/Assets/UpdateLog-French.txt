@@ -1,4 +1,21 @@
 ﻿*****
+###Quoi de neuf dans la version 5.8.6.0
+
+#####Mise à jour des fonctionnalités
+
+>#####La visionneuse de texte peut désormais spécifier le format d'encodage
+
+#####Amélioration des performances
+
+>#####Améliore légèrement la vitesse de traitement d'OpenCV de grandes images, éliminant certaines étapes d'indexation inutiles
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel Powershell ne pouvait pas être utilisé pour ouvrir un chemin avec des espaces [PR #71](https://github.com/zhuxb711/RX-Explorer/pull/71)
+
+>#####Correction de quelques problèmes de traduction
+
+*****
 ###Quoi de neuf dans la version 5.8.5.0
 
 #####Mise à jour des fonctionnalités

@@ -220,27 +220,27 @@ namespace ComputerVision
                 Cv2.CvtColor(inputMat, temp, ColorConversionCodes.BGRA2BGR);
 
                 int[] HistRGB = new int[767];
-                Array.Fill(HistRGB, 0);
 
                 int MaxVal = 0;
+                
                 for (int i = 0; i < inputMat.Rows; i++)
                 {
                     for (int j = 0; j < inputMat.Cols; j++)
                     {
-                        MaxVal = Math.Max(MaxVal, temp.At<Vec3b>(i, j)[0]);
-                        MaxVal = Math.Max(MaxVal, temp.At<Vec3b>(i, j)[1]);
-                        MaxVal = Math.Max(MaxVal, temp.At<Vec3b>(i, j)[2]);
+                        Vec3b Vec = temp.At<Vec3b>(i, j);
 
-                        HistRGB[temp.At<Vec3b>(i, j)[0] + temp.At<Vec3b>(i, j)[1] + temp.At<Vec3b>(i, j)[2]]++;
+                        MaxVal = Math.Max(Math.Max(Math.Max(MaxVal, Vec.Item0), Vec.Item1), Vec.Item2);
+
+                        HistRGB[Vec.Item0 + Vec.Item1 + Vec.Item2]++;
                     }
                 }
 
                 int Threshold = 0;
-                int sum = 0;
+                int Sum = 0;
                 for (int i = 766; i >= 0; i--)
                 {
-                    sum += HistRGB[i];
-                    if (sum > inputMat.Rows * inputMat.Cols * 0.1)
+                    Sum += HistRGB[i];
+                    if (Sum > inputMat.Rows * inputMat.Cols * 0.1)
                     {
                         Threshold = i;
                         break;
@@ -250,32 +250,37 @@ namespace ComputerVision
                 int AvgB = 0;
                 int AvgG = 0;
                 int AvgR = 0;
-                int cnt = 0;
+                int Cnt = 0;
                 for (int i = 0; i < inputMat.Rows; i++)
                 {
                     for (int j = 0; j < inputMat.Cols; j++)
                     {
-                        int sumP = temp.At<Vec3b>(i, j)[0] + temp.At<Vec3b>(i, j)[1] + temp.At<Vec3b>(i, j)[2];
-                        if (sumP > Threshold)
+                        Vec3b Vec = temp.At<Vec3b>(i, j);
+
+                        int SumP = Vec.Item0 + Vec.Item1 + Vec.Item2;
+                        
+                        if (SumP > Threshold)
                         {
-                            AvgB += temp.At<Vec3b>(i, j)[0];
-                            AvgG += temp.At<Vec3b>(i, j)[1];
-                            AvgR += temp.At<Vec3b>(i, j)[2];
-                            cnt++;
+                            AvgB += Vec.Item0;
+                            AvgG += Vec.Item1;
+                            AvgR += Vec.Item2;
+                            Cnt++;
                         }
                     }
                 }
 
-                AvgB /= cnt;
-                AvgG /= cnt;
-                AvgR /= cnt;
+                AvgB /= Cnt;
+                AvgG /= Cnt;
+                AvgR /= Cnt;
                 for (int i = 0; i < inputMat.Rows; i++)
                 {
                     for (int j = 0; j < inputMat.Cols; j++)
                     {
-                        int Blue = temp.At<Vec3b>(i, j)[0] * MaxVal / AvgB;
-                        int Green = temp.At<Vec3b>(i, j)[1] * MaxVal / AvgG;
-                        int Red = temp.At<Vec3b>(i, j)[2] * MaxVal / AvgR;
+                        Vec3b Vec = temp.At<Vec3b>(i, j);
+                        
+                        int Blue = Vec.Item0 * MaxVal / AvgB;
+                        int Green = Vec.Item1 * MaxVal / AvgG;
+                        int Red = Vec.Item2 * MaxVal / AvgR;
 
                         if (Red > 255)
                         {
@@ -304,9 +309,7 @@ namespace ComputerVision
                             Blue = 0;
                         }
 
-                        temp.At<Vec3b>(i, j)[0] = (byte)Blue;
-                        temp.At<Vec3b>(i, j)[1] = (byte)Green;
-                        temp.At<Vec3b>(i, j)[2] = (byte)Red;
+                        temp.At<Vec3b>(i, j) = new Vec3b((byte)Blue, (byte)Green, (byte)Red);
                     }
                 }
 
@@ -533,10 +536,12 @@ namespace ComputerVision
                             mosaicRect = new Rect(j, i, level, level);
                         }
 
+                        Vec3b Vec = outputMat.At<Vec3b>(i, j);
+
                         Scalar scalar = new Scalar(
-                            outputMat.At<Vec3b>(i, j)[0],
-                            outputMat.At<Vec3b>(i, j)[1],
-                            outputMat.At<Vec3b>(i, j)[2]);
+                            Vec.Item0,
+                            Vec.Item1,
+                            Vec.Item2);
 
                         outputMat[mosaicRect] = new Mat(mosaicRect.Size, MatType.CV_8UC3, scalar);
                     }

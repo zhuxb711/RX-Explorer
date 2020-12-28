@@ -1,4 +1,21 @@
 ﻿*****
+###What's new in Ver.5.8.6.0
+
+#####Feature update
+
+>#####Text viewer can now specify encoding format
+
+#####Performance improvement
+
+>#####Slightly improves the speed of OpenCV processing large images, eliminating some unnecessary indexing steps
+
+#####Bug fix
+
+>#####Fixed the problem that Powershell could not be used to open a path with spaces [PR #71](https://github.com/zhuxb711/RX-Explorer/pull/71)
+
+>#####Fixed some translation problems
+
+*****
 ###What's new in Ver.5.8.5.0
 
 #####Feature update

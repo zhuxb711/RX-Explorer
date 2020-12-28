@@ -1,6 +1,7 @@
 ﻿using RX_Explorer.Class;
 using System;
 using Windows.Storage;
+using Windows.System;
 
 namespace RX_Explorer.Dialog
 {
@@ -41,6 +42,11 @@ namespace RX_Explorer.Dialog
                         break;
                     }
             }
+        }
+
+        private async void MarkDown_LinkClicked(object sender, Microsoft.Toolkit.Uwp.UI.Controls.LinkClickedEventArgs e)
+        {
+            await Launcher.LaunchUriAsync(new Uri(e.Link));
         }
     }
 }
