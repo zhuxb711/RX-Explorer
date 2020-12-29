@@ -34,7 +34,9 @@ namespace RX_Explorer.Class
 
                         using (Stream TempFileStream = (await TempFile.OpenAsync(FileAccessMode.ReadWrite)).AsStream())
                         {
-                            HttpWebRequest Request = (HttpWebRequest)WebRequest.Create(new Uri($"https://www.bing.com{Path}"));
+                            HttpWebRequest Request = WebRequest.CreateHttp(new Uri($"https://www.bing.com{Path}"));
+                            Request.Timeout = 8000;
+                            Request.ReadWriteTimeout = 6000;
 
                             using (WebResponse Response = await Request.GetResponseAsync().ConfigureAwait(false))
                             using (Stream ResponseStream = Response.GetResponseStream())
@@ -92,7 +94,9 @@ namespace RX_Explorer.Class
 
                     using (Stream TempFileStream = (await TempFile.OpenAsync(FileAccessMode.ReadWrite)).AsStream())
                     {
-                        HttpWebRequest Request = (HttpWebRequest)WebRequest.Create(new Uri($"https://www.bing.com{Path}"));
+                        HttpWebRequest Request = WebRequest.CreateHttp(new Uri($"https://www.bing.com{Path}"));
+                        Request.Timeout = 8000;
+                        Request.ReadWriteTimeout = 6000;
 
                         using (WebResponse Response = await Request.GetResponseAsync().ConfigureAwait(false))
                         using (Stream ResponseStream = Response.GetResponseStream())
@@ -124,7 +128,9 @@ namespace RX_Explorer.Class
         {
             try
             {
-                HttpWebRequest Request = (HttpWebRequest)WebRequest.Create(new Uri("http://cn.bing.com/HPImageArchive.aspx?idx=0&n=1"));
+                HttpWebRequest Request = WebRequest.CreateHttp(new Uri("http://cn.bing.com/HPImageArchive.aspx?idx=0&n=1"));
+                Request.Timeout = 2000;
+                Request.ReadWriteTimeout = 2000;
 
                 using (WebResponse Response = await Request.GetResponseAsync().ConfigureAwait(false))
                 using (Stream ResponseStream = Response.GetResponseStream())
