@@ -79,10 +79,17 @@ namespace RX_Explorer
                 {
                     try
                     {
-                        using (FileStream Stream = FileSystemStorageItemBase.Create(TextFile.Path, StorageItemTypes.File, CreateOption.ReplaceExisting).GetFileStreamFromFile(AccessMode.Write))
-                        using (StreamWriter Writer = new StreamWriter(Stream, CurrentEncoding))
+                        if (await FileSystemStorageItemBase.CreateAsync(TextFile.Path, StorageItemTypes.File, CreateOption.ReplaceExisting).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                         {
-                            await Writer.WriteAsync(Text.Text).ConfigureAwait(true);
+                            using (FileStream Stream = Item.GetFileStreamFromFile(AccessMode.Write))
+                            using (StreamWriter Writer = new StreamWriter(Stream, CurrentEncoding))
+                            {
+                                await Writer.WriteAsync(Text.Text).ConfigureAwait(true);
+                            }
+                        }
+                        else
+                        {
+                            throw new FileNotFoundException();
                         }
                     }
                     catch

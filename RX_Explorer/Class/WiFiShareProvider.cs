@@ -70,15 +70,15 @@ namespace RX_Explorer.Class
                 {
                     HttpListenerContext Context = await Listener.GetContextAsync().ConfigureAwait(false);
 
-                    _ = Task.Factory.StartNew((Para) =>
+                    _ = Task.Factory.StartNew(async (Para) =>
                        {
                            try
                            {
                                HttpListenerContext HttpContext = Para as HttpListenerContext;
-                               
+
                                if (HttpContext.Request.Url.LocalPath.Substring(1) == FilePathMap.Key)
                                {
-                                   if (FileSystemStorageItemBase.Open(FilePathMap.Value, ItemFilters.File) is FileSystemStorageItemBase ShareFile)
+                                   if (await FileSystemStorageItemBase.OpenAsync(FilePathMap.Value, ItemFilters.File).ConfigureAwait(true) is FileSystemStorageItemBase ShareFile)
                                    {
                                        using (FileStream Stream = ShareFile.GetFileStreamFromFile(AccessMode.Read))
                                        {

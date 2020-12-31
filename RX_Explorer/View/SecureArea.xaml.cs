@@ -262,7 +262,7 @@ namespace RX_Explorer
 
                 CoreWindow.GetForCurrentThread().KeyDown += SecureArea_KeyDown;
 
-                LoadSecureFile();
+                await LoadSecureFile().ConfigureAwait(true);
             }
             catch (Exception ex)
             {
@@ -309,11 +309,11 @@ namespace RX_Explorer
             MainPage.ThisPage.Nav.Navigate(typeof(TabViewContainer), null, new DrillInNavigationTransitionInfo());
         }
 
-        private void LoadSecureFile()
+        private async Task LoadSecureFile()
         {
             IsNewStart = false;
 
-            SecureFolder = FileSystemStorageItemBase.Create(Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder"), StorageItemTypes.Folder, CreateOption.OpenIfExist);
+            SecureFolder = await FileSystemStorageItemBase.CreateAsync(Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder"), StorageItemTypes.Folder, CreateOption.OpenIfExist).ConfigureAwait(true);
 
             foreach (SecureAreaStorageItem Item in SecureFolder.GetChildrenItems(false, ItemFilters.File))
             {
@@ -362,7 +362,7 @@ namespace RX_Explorer
                 {
                     foreach (string OriginFilePath in FileList.Select((Item) => Item.Path))
                     {
-                        if (FileSystemStorageItemBase.Open(OriginFilePath, ItemFilters.File) is FileSystemStorageItemBase Item)
+                        if (await FileSystemStorageItemBase.OpenAsync(OriginFilePath, ItemFilters.File).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                         {
                             if (await Item.EncryptAsync(SecureFolder.Path, EncryptionAESKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is SecureAreaStorageItem EncryptedFile)
                             {
@@ -443,7 +443,7 @@ namespace RX_Explorer
                     {
                         foreach (string OriginFilePath in Items.Select((Item) => Item.Path))
                         {
-                            if (FileSystemStorageItemBase.Open(OriginFilePath, ItemFilters.File) is FileSystemStorageItemBase Item)
+                            if (await FileSystemStorageItemBase.OpenAsync(OriginFilePath, ItemFilters.File).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                             {
                                 if (await Item.EncryptAsync(SecureFolder.Path, EncryptionAESKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is SecureAreaStorageItem EncryptedFile)
                                 {

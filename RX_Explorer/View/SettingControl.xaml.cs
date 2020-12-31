@@ -704,7 +704,7 @@ namespace RX_Explorer
                     LoadingControl.IsLoading = true;
                     MainPage.ThisPage.IsAnyTaskRunning = true;
 
-                    FileSystemStorageItemBase SecureFolder = FileSystemStorageItemBase.Create(Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder"), StorageItemTypes.Folder, CreateOption.OpenIfExist);
+                    FileSystemStorageItemBase SecureFolder = await FileSystemStorageItemBase.CreateAsync(Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder"), StorageItemTypes.Folder, CreateOption.OpenIfExist).ConfigureAwait(true);
                     
                     string FileEncryptionAesKey = KeyGenerator.GetMD5WithLength(CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword"), 16);
 

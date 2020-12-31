@@ -534,53 +534,22 @@ namespace RX_Explorer
                     RecordIndex = GoAndBackRecord.Count - 1;
                 }
 
-                if (WIN_Native_API.CheckIfHidden(FolderPath))
+                if (await FileSystemStorageItemBase.OpenAsync(FolderPath, ItemFilters.Folder).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                 {
-                    if (FileSystemStorageItemBase.Open(FolderPath, ItemFilters.Folder) is FileSystemStorageItemBase Item)
-                    {
-                        CurrentFolder = Item;
-                    }
-                    else
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-
-                        return;
-                    }
+                    CurrentFolder = Item;
                 }
                 else
                 {
-                    try
+                    QueueContentDialog dialog = new QueueContentDialog
                     {
-                        StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(FolderPath);
-                        CurrentFolder = new FileSystemStorageItemBase(Folder, Folder.DateCreated, await Folder.GetModifiedTimeAsync().ConfigureAwait(true));
-                    }
-                    catch
-                    {
-                        if (FileSystemStorageItemBase.Open(FolderPath, ItemFilters.Folder) is FileSystemStorageItemBase Item)
-                        {
-                            CurrentFolder = Item;
-                        }
-                        else
-                        {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
 
-                            _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
 
-                            return;
-                        }
-                    }
+                    return;
                 }
 
                 Presenter.FileCollection.Clear();
@@ -974,7 +943,7 @@ namespace RX_Explorer
         {
             if (WIN_Native_API.CheckExist(CurrentFolder.Path))
             {
-                if (FileSystemStorageItemBase.Create(Path.Combine(CurrentFolder.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) == null)
+                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(CurrentFolder.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) == null)
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -1260,7 +1229,7 @@ namespace RX_Explorer
 
             if (ProtentialPath1 != QueryText && WIN_Native_API.CheckExist(ProtentialPath1))
             {
-                if (FileSystemStorageItemBase.Open(ProtentialPath1) is FileSystemStorageItemBase Item)
+                if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath1).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                 {
                     await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
 
@@ -1274,7 +1243,7 @@ namespace RX_Explorer
             }
             else if (ProtentialPath2 != QueryText && WIN_Native_API.CheckExist(ProtentialPath2))
             {
-                if (FileSystemStorageItemBase.Open(ProtentialPath2) is FileSystemStorageItemBase Item)
+                if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath2).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                 {
                     await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
 
@@ -1288,7 +1257,7 @@ namespace RX_Explorer
             }
             else if (ProtentialPath3 != QueryText && WIN_Native_API.CheckExist(ProtentialPath3))
             {
-                if (FileSystemStorageItemBase.Open(ProtentialPath3) is FileSystemStorageItemBase Item)
+                if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath3).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                 {
                     await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
 
@@ -1355,7 +1324,7 @@ namespace RX_Explorer
                         }
                     }
 
-                    if (FileSystemStorageItemBase.Open(QueryText) is FileSystemStorageItemBase Item)
+                    if (await FileSystemStorageItemBase.OpenAsync(QueryText).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                     {
                         if (Item.StorageType == StorageItemTypes.File)
                         {
@@ -1414,7 +1383,7 @@ namespace RX_Explorer
             }
         }
 
-        private void AddressBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        private async void AddressBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
             AddressBoxTextBackup = sender.Text;
 
@@ -1431,13 +1400,20 @@ namespace RX_Explorer
                                 string DirectoryPath = Path.GetPathRoot(sender.Text) == sender.Text ? sender.Text : Path.GetDirectoryName(sender.Text);
                                 string FileName = Path.GetFileName(sender.Text);
 
-                                if (string.IsNullOrEmpty(FileName))
+                                if (await FileSystemStorageItemBase.OpenAsync(DirectoryPath).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                                 {
-                                    sender.ItemsSource = FileSystemStorageItemBase.Open(DirectoryPath).GetChildrenItems(SettingControl.IsDisplayHiddenItem).Take(20).Select((It) => It.Path);
+                                    if (string.IsNullOrEmpty(FileName))
+                                    {
+                                        sender.ItemsSource = Item.GetChildrenItems(SettingControl.IsDisplayHiddenItem).Take(20).Select((It) => It.Path);
+                                    }
+                                    else
+                                    {
+                                        sender.ItemsSource = Item.GetChildrenItems(SettingControl.IsDisplayHiddenItem).Where((Item) => Item.Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase)).Take(20).Select((It) => It.Path);
+                                    }
                                 }
                                 else
                                 {
-                                    sender.ItemsSource = FileSystemStorageItemBase.Open(DirectoryPath).GetChildrenItems(SettingControl.IsDisplayHiddenItem).Where((Item) => Item.Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase)).Take(20).Select((It) => It.Path);
+                                    sender.ItemsSource = null;
                                 }
                             }
                         }
@@ -1503,18 +1479,18 @@ namespace RX_Explorer
 
                         (Path, SelectedPath) = GoAndBackRecord[--RecordIndex];
 
-                        if (FileSystemStorageItemBase.Open(Path, ItemFilters.Folder) is FileSystemStorageItemBase Folder)
+                        if (WIN_Native_API.CheckExist(Path))
                         {
                             IsBackOrForwardAction = true;
 
-                            await DisplayItemsInFolder(Folder).ConfigureAwait(true);
+                            await DisplayItemsInFolder(Path).ConfigureAwait(true);
 
-                            await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(true);
+                            await SQLite.Current.SetPathHistoryAsync(Path).ConfigureAwait(true);
 
                             if (!string.IsNullOrEmpty(SelectedPath) && Presenter.FileCollection.FirstOrDefault((Item) => Item.Path.Equals(SelectedPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
                             {
                                 Presenter.SelectedItem = Item;
-                                Presenter.ItemPresenter.ScrollIntoView(Folder, ScrollIntoViewAlignment.Leading);
+                                Presenter.ItemPresenter.ScrollIntoView(Item, ScrollIntoViewAlignment.Leading);
                             }
                         }
                         else
@@ -1566,18 +1542,18 @@ namespace RX_Explorer
 
                         (Path, SelectedPath) = GoAndBackRecord[++RecordIndex];
 
-                        if (FileSystemStorageItemBase.Open(Path, ItemFilters.Folder) is FileSystemStorageItemBase Folder)
+                        if (WIN_Native_API.CheckExist(Path))
                         {
                             IsBackOrForwardAction = true;
 
-                            await DisplayItemsInFolder(Folder).ConfigureAwait(true);
+                            await DisplayItemsInFolder(Path).ConfigureAwait(true);
 
-                            await SQLite.Current.SetPathHistoryAsync(Folder.Path).ConfigureAwait(true);
+                            await SQLite.Current.SetPathHistoryAsync(Path).ConfigureAwait(true);
 
                             if (!string.IsNullOrEmpty(SelectedPath) && Presenter.FileCollection.FirstOrDefault((Item) => Item.Path.Equals(SelectedPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
                             {
                                 Presenter.SelectedItem = Item;
-                                Presenter.ItemPresenter.ScrollIntoView(Folder, ScrollIntoViewAlignment.Leading);
+                                Presenter.ItemPresenter.ScrollIntoView(Item, ScrollIntoViewAlignment.Leading);
                             }
                         }
                         else

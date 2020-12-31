@@ -468,7 +468,7 @@ namespace RX_Explorer
                                 {
                                     if (Container.CurrentFolder.Path.Equals(Path.GetDirectoryName(SplitGroup[3]), StringComparison.OrdinalIgnoreCase))
                                     {
-                                        if (FileSystemStorageItemBase.Open(Path.GetDirectoryName(SplitGroup[0]), ItemFilters.Folder) is FileSystemStorageItemBase OriginFolder)
+                                        if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(SplitGroup[0]), ItemFilters.Folder).ConfigureAwait(true) is FileSystemStorageItemBase OriginFolder)
                                         {
                                             switch (SplitGroup[2])
                                             {
@@ -485,7 +485,7 @@ namespace RX_Explorer
                                                                 }
                                                             }, true).ConfigureAwait(true);
                                                         }
-                                                        else if (FileSystemStorageItemBase.Open(Path.Combine(Container.CurrentFolder.Path, Path.GetFileName(SplitGroup[3])), ItemFilters.File) is FileSystemStorageItemBase Item)
+                                                        else if (await FileSystemStorageItemBase.OpenAsync(Path.Combine(Container.CurrentFolder.Path, Path.GetFileName(SplitGroup[3])), ItemFilters.File).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                                                         {
                                                             await FullTrustProcessController.Current.MoveAsync(Item.Path, OriginFolder.Path, (s, arg) =>
                                                             {
@@ -505,7 +505,7 @@ namespace RX_Explorer
                                                     }
                                                 case "Folder":
                                                     {
-                                                        if (FileSystemStorageItemBase.Open(Path.Combine(Container.CurrentFolder.Path, Path.GetFileName(SplitGroup[3])), ItemFilters.Folder) is FileSystemStorageItemBase Item)
+                                                        if (await FileSystemStorageItemBase.OpenAsync(Path.Combine(Container.CurrentFolder.Path, Path.GetFileName(SplitGroup[3])), ItemFilters.Folder).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                                                         {
                                                             await FullTrustProcessController.Current.MoveAsync(Item.Path, OriginFolder.Path, (s, arg) =>
                                                             {
@@ -553,7 +553,7 @@ namespace RX_Explorer
 
                                                         if (WIN_Native_API.CheckExist(TargetFolderPath))
                                                         {
-                                                            if (FileSystemStorageItemBase.Open(Path.Combine(TargetFolderPath, Path.GetFileName(SplitGroup[3])), ItemFilters.File) is FileSystemStorageItemBase Item)
+                                                            if (await FileSystemStorageItemBase.OpenAsync(Path.Combine(TargetFolderPath, Path.GetFileName(SplitGroup[3])), ItemFilters.File).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                                                             {
                                                                 await FullTrustProcessController.Current.MoveAsync(Item.Path, Container.CurrentFolder.Path, (s, arg) =>
                                                                 {
@@ -579,7 +579,7 @@ namespace RX_Explorer
                                                 }
                                             case "Folder":
                                                 {
-                                                    if (FileSystemStorageItemBase.Open(SplitGroup[3], ItemFilters.Folder) is FileSystemStorageItemBase Item)
+                                                    if (await FileSystemStorageItemBase.OpenAsync(SplitGroup[3], ItemFilters.Folder).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                                                     {
                                                         await FullTrustProcessController.Current.MoveAsync(Item.Path, Container.CurrentFolder.Path, (s, arg) =>
                                                         {
@@ -601,7 +601,7 @@ namespace RX_Explorer
                                     }
                                     else
                                     {
-                                        if (FileSystemStorageItemBase.Open(Path.GetDirectoryName(SplitGroup[0]), ItemFilters.Folder) is FileSystemStorageItemBase OriginFolder)
+                                        if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(SplitGroup[0]), ItemFilters.Folder).ConfigureAwait(true) is FileSystemStorageItemBase OriginFolder)
                                         {
                                             switch (SplitGroup[2])
                                             {
@@ -620,7 +620,7 @@ namespace RX_Explorer
                                                         }
                                                         else
                                                         {
-                                                            if (FileSystemStorageItemBase.Open(SplitGroup[3], ItemFilters.File) is FileSystemStorageItemBase File)
+                                                            if (await FileSystemStorageItemBase.OpenAsync(SplitGroup[3], ItemFilters.File).ConfigureAwait(true) is FileSystemStorageItemBase File)
                                                             {
                                                                 await FullTrustProcessController.Current.MoveAsync(File.Path, OriginFolder.Path, (s, arg) =>
                                                                 {
@@ -641,7 +641,7 @@ namespace RX_Explorer
                                                     }
                                                 case "Folder":
                                                     {
-                                                        if (FileSystemStorageItemBase.Open(SplitGroup[3], ItemFilters.Folder) is FileSystemStorageItemBase Folder)
+                                                        if (await FileSystemStorageItemBase.OpenAsync(SplitGroup[3], ItemFilters.Folder).ConfigureAwait(true) is FileSystemStorageItemBase Folder)
                                                         {
                                                             await FullTrustProcessController.Current.MoveAsync(Folder.Path, OriginFolder.Path, (s, arg) =>
                                                             {
@@ -693,7 +693,7 @@ namespace RX_Explorer
                                                             }
                                                         }, true).ConfigureAwait(true);
                                                     }
-                                                    else if (FileSystemStorageItemBase.Open(Path.Combine(Container.CurrentFolder.Path, Path.GetFileName(SplitGroup[3])), ItemFilters.File) is FileSystemStorageItemBase File)
+                                                    else if (await FileSystemStorageItemBase.OpenAsync(Path.Combine(Container.CurrentFolder.Path, Path.GetFileName(SplitGroup[3])), ItemFilters.File).ConfigureAwait(true) is FileSystemStorageItemBase File)
                                                     {
                                                         await FullTrustProcessController.Current.DeleteAsync(File.Path, true, (s, arg) =>
                                                         {
@@ -713,7 +713,7 @@ namespace RX_Explorer
                                                 }
                                             case "Folder":
                                                 {
-                                                    if (FileSystemStorageItemBase.Open(Path.Combine(Container.CurrentFolder.Path, Path.GetFileName(SplitGroup[3])), ItemFilters.Folder) is FileSystemStorageItemBase Folder)
+                                                    if (await FileSystemStorageItemBase.OpenAsync(Path.Combine(Container.CurrentFolder.Path, Path.GetFileName(SplitGroup[3])), ItemFilters.Folder).ConfigureAwait(true) is FileSystemStorageItemBase Folder)
                                                     {
                                                         await FullTrustProcessController.Current.DeleteAsync(Folder.Path, true, (s, arg) =>
                                                         {
@@ -2041,7 +2041,7 @@ namespace RX_Explorer
         {
             try
             {
-                if (FileSystemStorageItemBase.Create(Path.Combine(Path.GetDirectoryName(Item.Path), Path.GetFileNameWithoutExtension(Item.Name)), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFolder)
+                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(Path.GetDirectoryName(Item.Path), Path.GetFileNameWithoutExtension(Item.Name)), StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase NewFolder)
                 {
                     using (FileStream FileStream = Item.GetFileStreamFromFile(AccessMode.Exclusive))
                     using (ZipInputStream InputZipStream = new ZipInputStream(FileStream))
@@ -2065,7 +2065,7 @@ namespace RX_Explorer
 
                                 for (int i = 0; i < SplitFolderPath.Length - 1; i++)
                                 {
-                                    if (FileSystemStorageItemBase.Create(Path.Combine(TempFolderPath, SplitFolderPath[i]), StorageItemTypes.Folder, CreateOption.OpenIfExist) is FileSystemStorageItemBase NextFolder)
+                                    if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TempFolderPath, SplitFolderPath[i]), StorageItemTypes.Folder, CreateOption.OpenIfExist).ConfigureAwait(true) is FileSystemStorageItemBase NextFolder)
                                     {
                                         TempFolderPath = NextFolder.Path;
                                     }
@@ -2077,14 +2077,14 @@ namespace RX_Explorer
 
                                 if (Entry.Name.Last() == '/')
                                 {
-                                    if (FileSystemStorageItemBase.Create(Path.Combine(TempFolderPath, SplitFolderPath.Last()), StorageItemTypes.Folder, CreateOption.OpenIfExist) == null)
+                                    if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TempFolderPath, SplitFolderPath.Last()), StorageItemTypes.Folder, CreateOption.OpenIfExist).ConfigureAwait(true) == null)
                                     {
                                         throw new UnauthorizedAccessException("Could not create directory");
                                     }
                                 }
                                 else
                                 {
-                                    if (FileSystemStorageItemBase.Create(Path.Combine(TempFolderPath, SplitFolderPath.Last()), StorageItemTypes.File, CreateOption.ReplaceExisting) is FileSystemStorageItemBase NewFile)
+                                    if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TempFolderPath, SplitFolderPath.Last()), StorageItemTypes.File, CreateOption.ReplaceExisting).ConfigureAwait(true) is FileSystemStorageItemBase NewFile)
                                     {
                                         using (FileStream NewFileStream = NewFile.GetFileStreamFromFile(AccessMode.Write))
                                         {
@@ -2099,7 +2099,7 @@ namespace RX_Explorer
                             }
                             else
                             {
-                                if (FileSystemStorageItemBase.Create(Path.Combine(NewFolder.Path, Entry.Name), StorageItemTypes.File, CreateOption.ReplaceExisting) is FileSystemStorageItemBase NewFile)
+                                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(NewFolder.Path, Entry.Name), StorageItemTypes.File, CreateOption.ReplaceExisting).ConfigureAwait(true) is FileSystemStorageItemBase NewFile)
                                 {
                                     using (FileStream NewFileStream = NewFile.GetFileStreamFromFile(AccessMode.Write))
                                     {
@@ -2171,7 +2171,7 @@ namespace RX_Explorer
         {
             try
             {
-                if (FileSystemStorageItemBase.Create(Path.Combine(Container.CurrentFolder.Path, NewZipName), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFile)
+                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(Container.CurrentFolder.Path, NewZipName), StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase NewFile)
                 {
                     using (FileStream NewFileStream = NewFile.GetFileStreamFromFile(AccessMode.Exclusive))
                     using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
@@ -2256,7 +2256,7 @@ namespace RX_Explorer
         {
             try
             {
-                if (FileSystemStorageItemBase.Create(Path.Combine(Container.CurrentFolder.Path, NewZipName), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFile)
+                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(Container.CurrentFolder.Path, NewZipName), StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase NewFile)
                 {
                     using (FileStream NewFileStream = NewFile.GetFileStreamFromFile(AccessMode.Exclusive))
                     using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
@@ -2520,11 +2520,21 @@ namespace RX_Explorer
                                 {
                                     string DestFilePath = Path.Combine(Container.CurrentFolder.Path, $"{Source.Path}.{dialog.MediaTranscodeEncodingProfile.ToLower()}");
 
-                                    FileSystemStorageItemBase.Create(DestFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName);
-
-                                    StorageFile DestinationFile = await StorageFile.GetFileFromPathAsync(DestFilePath);
-
-                                    await GeneralTransformer.TranscodeFromAudioOrVideoAsync(Source, DestinationFile, dialog.MediaTranscodeEncodingProfile, dialog.MediaTranscodeQuality, dialog.SpeedUp).ConfigureAwait(true);
+                                    if (await FileSystemStorageItemBase.CreateAsync(DestFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase Item)
+                                    {
+                                        if (await Item.GetStorageItem().ConfigureAwait(true) is StorageFile DestinationFile)
+                                        {
+                                            await GeneralTransformer.TranscodeFromAudioOrVideoAsync(Source, DestinationFile, dialog.MediaTranscodeEncodingProfile, dialog.MediaTranscodeQuality, dialog.SpeedUp).ConfigureAwait(true);
+                                        }
+                                        else
+                                        {
+                                            throw new FileNotFoundException();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        throw new FileNotFoundException();
+                                    }
                                 }
                                 catch (Exception)
                                 {
@@ -2751,7 +2761,7 @@ namespace RX_Explorer
 
             if (WIN_Native_API.CheckExist(Container.CurrentFolder.Path))
             {
-                if (FileSystemStorageItemBase.Create(Path.Combine(Container.CurrentFolder.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFolder)
+                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(Container.CurrentFolder.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase NewFolder)
                 {
                     while (true)
                     {
@@ -4058,17 +4068,17 @@ namespace RX_Explorer
                     {
                         case ".zip":
                             {
-                                SpecialTypeGenerator.Current.CreateZipFile(Container.CurrentFolder.Path, Dialog.NewFileName);
+                                await SpecialTypeGenerator.Current.CreateZipFile(Container.CurrentFolder.Path, Dialog.NewFileName).ConfigureAwait(true);
                                 break;
                             }
                         case ".rtf":
                             {
-                                SpecialTypeGenerator.Current.CreateRtfFile(Container.CurrentFolder.Path, Dialog.NewFileName);
+                                await SpecialTypeGenerator.Current.CreateRtfFile(Container.CurrentFolder.Path, Dialog.NewFileName).ConfigureAwait(true);
                                 break;
                             }
                         case ".xlsx":
                             {
-                                SpecialTypeGenerator.Current.CreateExcelFile(Container.CurrentFolder.Path, Dialog.NewFileName);
+                                await SpecialTypeGenerator.Current.CreateExcelFile(Container.CurrentFolder.Path, Dialog.NewFileName).ConfigureAwait(true);
                                 break;
                             }
                         case ".lnk":
@@ -4087,7 +4097,7 @@ namespace RX_Explorer
                             }
                         default:
                             {
-                                if (FileSystemStorageItemBase.Create(Path.Combine(Container.CurrentFolder.Path, Dialog.NewFileName), StorageItemTypes.File, CreateOption.GenerateUniqueName) == null)
+                                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(Container.CurrentFolder.Path, Dialog.NewFileName), StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(true) == null)
                                 {
                                     throw new UnauthorizedAccessException();
                                 }
@@ -6521,7 +6531,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if (FileSystemStorageItemBase.Open(Item.LinkTargetPath, ItemFilters.Folder) is FileSystemStorageItemBase ParentFolder)
+                    if (await FileSystemStorageItemBase.OpenAsync(Item.LinkTargetPath, ItemFilters.Folder).ConfigureAwait(true) is FileSystemStorageItemBase ParentFolder)
                     {
                         await Container.DisplayItemsInFolder(ParentFolder).ConfigureAwait(true);
 

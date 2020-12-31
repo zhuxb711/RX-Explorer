@@ -10,7 +10,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
-using Windows.Storage.Streams;
 using FileAttributes = System.IO.FileAttributes;
 
 namespace RX_Explorer.Class
@@ -704,7 +703,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(Path));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(Path.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out _, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.GetPathRoot(Path) == Path ? System.IO.Path.Combine(Path, "*") : Path.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out _, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
 
             try
             {
@@ -714,7 +713,6 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
                     return false;
                 }
             }
@@ -736,7 +734,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(ItemPath));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(Path.GetPathRoot(ItemPath) == ItemPath ? Path.Combine(ItemPath, "*") : ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
 
             try
             {
@@ -773,6 +771,11 @@ namespace RX_Explorer.Class
             if (string.IsNullOrWhiteSpace(ItemPath))
             {
                 throw new ArgumentException("Argument could not be empty", nameof(ItemPath));
+            }
+
+            if (Path.GetPathRoot(ItemPath) == ItemPath)
+            {
+                return false;
             }
 
             IntPtr Ptr = FindFirstFileExFromApp(ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);

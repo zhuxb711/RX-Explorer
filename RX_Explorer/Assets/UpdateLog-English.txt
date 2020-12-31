@@ -1,4 +1,13 @@
 ﻿*****
+###What's new in Ver.5.8.7.0
+
+#####Bug fix
+
+>#####Fixed the problem that some functions always failed in a specific folder
+
+>#####Fixed the problem of waiting too long for Bing picture background download, which may cause too slow startup
+
+*****
 ###What's new in Ver.5.8.6.0
 
 #####Feature update

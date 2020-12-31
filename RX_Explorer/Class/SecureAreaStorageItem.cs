@@ -125,7 +125,7 @@ namespace RX_Explorer.Class
 
                                         DecryptedFilePath = System.IO.Path.Combine(ExportFolderPath, $"{System.IO.Path.GetFileNameWithoutExtension(Name)}{FileType}");
 
-                                        if (Create(DecryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
+                                        if (await CreateAsync(DecryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageItemBase Item)
                                         {
                                             using (FileStream DecryptFileStream = Item.GetFileStreamFromFile(AccessMode.Exclusive))
                                             using (ICryptoTransform Decryptor = AES.CreateDecryptor(AES.Key, AES.IV))
@@ -149,7 +149,7 @@ namespace RX_Explorer.Class
                                                 }
                                             }
 
-                                            return Open(DecryptedFilePath, ItemFilters.File);
+                                            return await OpenAsync(DecryptedFilePath, ItemFilters.File).ConfigureAwait(false);
                                         }
                                         else
                                         {

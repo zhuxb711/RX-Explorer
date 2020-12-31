@@ -1472,7 +1472,7 @@ namespace RX_Explorer.Class
 
                                     if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
                                     {
-                                        if (FileSystemStorageItemBase.Create(TargetPath, StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFolder)
+                                        if (await FileSystemStorageItemBase.CreateAsync(TargetPath, StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase NewFolder)
                                         {
                                             MessageList.Add(new KeyValuePair<string, string>(SourcePath, Path.GetFileName(NewFolder.Path)));
                                         }
@@ -1631,7 +1631,7 @@ namespace RX_Explorer.Class
 
                                         if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
                                         {
-                                            if (FileSystemStorageItemBase.Create(TargetPath, StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFolder)
+                                            if (await FileSystemStorageItemBase.CreateAsync(TargetPath, StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase NewFolder)
                                             {
                                                 MessageList.Add(new KeyValuePair<string, string>(SourcePath, Path.GetFileName(NewFolder.Path)));
                                             }

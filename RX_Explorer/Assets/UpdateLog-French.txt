@@ -1,4 +1,13 @@
 ﻿*****
+###Quoi de neuf dans la version 5.8.7.0
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel certaines fonctions échouaient toujours dans un dossier spécifique
+
+>#####Correction du problème d'attente trop longue pour le téléchargement de l'arrière-plan de l'image Bing, ce qui pouvait entraîner un démarrage trop lent
+
+*****
 ###Quoi de neuf dans la version 5.8.6.0
 
 #####Mise à jour des fonctionnalités

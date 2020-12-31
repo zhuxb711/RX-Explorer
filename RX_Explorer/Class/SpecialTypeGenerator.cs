@@ -4,6 +4,7 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using ICSharpCode.SharpZipLib.Zip;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml.Controls;
@@ -39,7 +40,7 @@ namespace RX_Explorer.Class
 
         }
 
-        public void CreateZipFile(string TargetFolder, string Name)
+        public async Task CreateZipFile(string TargetFolder, string Name)
         {
             if (TargetFolder == null)
             {
@@ -56,7 +57,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("The extension must be .zip", nameof(Name));
             }
 
-            if (FileSystemStorageItemBase.Create(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
+            if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase Item)
             {
                 try
                 {
@@ -79,7 +80,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public void CreateRtfFile(string TargetFolder, string Name)
+        public async Task CreateRtfFile(string TargetFolder, string Name)
         {
             if (TargetFolder == null)
             {
@@ -96,7 +97,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("The extension must be .rtf", nameof(Name));
             }
 
-            if (FileSystemStorageItemBase.Create(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
+            if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase Item)
             {
                 try
                 {
@@ -125,7 +126,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public void CreateExcelFile(string TargetFolder, string Name)
+        public async Task CreateExcelFile(string TargetFolder, string Name)
         {
             if (TargetFolder == null)
             {
@@ -142,7 +143,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("The extension must be .xlsx", nameof(Name));
             }
 
-            if (FileSystemStorageItemBase.Create(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
+            if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase Item)
             {
                 try
                 {

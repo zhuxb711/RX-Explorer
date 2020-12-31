@@ -64,49 +64,56 @@ namespace RX_Explorer
 
                 Behavior.Attach(Flip);
 
-                List<FileSystemStorageItemBase> FileList = FileSystemStorageItemBase.Open(Path.GetDirectoryName(SelectedPhotoPath), ItemFilters.Folder).GetChildrenItems(SettingControl.IsDisplayHiddenItem, ItemFilters.File).Where((Item) => Item.Type.Equals(".png", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".bmp", StringComparison.OrdinalIgnoreCase)).ToList();
-
-                if (FileList.Count == 0)
+                if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(SelectedPhotoPath), ItemFilters.Folder).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("Queue_Dialog_ImageReadError_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    List<FileSystemStorageItemBase> FileList = Item.GetChildrenItems(SettingControl.IsDisplayHiddenItem, ItemFilters.File).Where((Item) => Item.Type.Equals(".png", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".bmp", StringComparison.OrdinalIgnoreCase)).ToList();
 
-                    Frame.GoBack();
+                    if (FileList.Count == 0)
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("Queue_Dialog_ImageReadError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
+                        };
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+
+                        Frame.GoBack();
+                    }
+                    else
+                    {
+                        int LastSelectIndex = FileList.FindIndex((Photo) => Photo.Path.Equals(SelectedPhotoPath, StringComparison.OrdinalIgnoreCase));
+                        if (LastSelectIndex < 0 || LastSelectIndex >= FileList.Count)
+                        {
+                            LastSelectIndex = 0;
+                        }
+
+                        PhotoCollection = new ObservableCollection<PhotoDisplaySupport>(FileList.Select((Item) => new PhotoDisplaySupport(Item)));
+                        Flip.ItemsSource = PhotoCollection;
+
+                        if (!await PhotoCollection[LastSelectIndex].ReplaceThumbnailBitmapAsync().ConfigureAwait(true))
+                        {
+                            CouldnotLoadTip.Visibility = Visibility.Visible;
+                        }
+
+                        for (int i = LastSelectIndex - 5 > 0 ? LastSelectIndex - 5 : 0; i <= (LastSelectIndex + 5 < PhotoCollection.Count - 1 ? LastSelectIndex + 5 : PhotoCollection.Count - 1) && !Cancellation.IsCancellationRequested; i++)
+                        {
+                            await PhotoCollection[i].GenerateThumbnailAsync().ConfigureAwait(true);
+                        }
+
+                        if (!Cancellation.IsCancellationRequested)
+                        {
+                            Flip.SelectedIndex = LastSelectIndex;
+                            Flip.SelectionChanged += Flip_SelectionChanged;
+                            Flip.SelectionChanged += Flip_SelectionChanged1;
+
+                            await EnterAnimation.BeginAsync().ConfigureAwait(true);
+                        }
+                    }
                 }
                 else
                 {
-                    int LastSelectIndex = FileList.FindIndex((Photo) => Photo.Path.Equals(SelectedPhotoPath,StringComparison.OrdinalIgnoreCase));
-                    if (LastSelectIndex < 0 || LastSelectIndex >= FileList.Count)
-                    {
-                        LastSelectIndex = 0;
-                    }
-
-                    PhotoCollection = new ObservableCollection<PhotoDisplaySupport>(FileList.Select((Item) => new PhotoDisplaySupport(Item)));
-                    Flip.ItemsSource = PhotoCollection;
-
-                    if (!await PhotoCollection[LastSelectIndex].ReplaceThumbnailBitmapAsync().ConfigureAwait(true))
-                    {
-                        CouldnotLoadTip.Visibility = Visibility.Visible;
-                    }
-
-                    for (int i = LastSelectIndex - 5 > 0 ? LastSelectIndex - 5 : 0; i <= (LastSelectIndex + 5 < PhotoCollection.Count - 1 ? LastSelectIndex + 5 : PhotoCollection.Count - 1) && !Cancellation.IsCancellationRequested; i++)
-                    {
-                        await PhotoCollection[i].GenerateThumbnailAsync().ConfigureAwait(true);
-                    }
-
-                    if (!Cancellation.IsCancellationRequested)
-                    {
-                        Flip.SelectedIndex = LastSelectIndex;
-                        Flip.SelectionChanged += Flip_SelectionChanged;
-                        Flip.SelectionChanged += Flip_SelectionChanged1;
-
-                        await EnterAnimation.BeginAsync().ConfigureAwait(true);
-                    }
+                    throw new FileNotFoundException();
                 }
             }
             catch (Exception ex)

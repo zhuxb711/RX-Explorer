@@ -52,7 +52,7 @@ namespace RX_Explorer.Dialog
         {
             if (await Picker.PickSaveFileAsync() is StorageFile File)
             {
-                TargetFile = FileSystemStorageItemBase.Open(File.Path, ItemFilters.File);
+                TargetFile = await FileSystemStorageItemBase.OpenAsync(File.Path, ItemFilters.File).ConfigureAwait(false);
             }
         }
 

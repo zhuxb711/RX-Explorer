@@ -313,7 +313,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        private static void LogProcessThread()
+        private static async void LogProcessThread()
         {
             while (!ExitSignal)
             {
@@ -324,19 +324,22 @@ namespace RX_Explorer.Class
                         Locker.WaitOne();
                     }
 
-                    using (FileStream LogFileStream = FileSystemStorageItemBase.Create(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName), StorageItemTypes.File, CreateOption.OpenIfExist).GetFileStreamFromFile(AccessMode.Exclusive))
+                    if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName), StorageItemTypes.File, CreateOption.OpenIfExist) is FileSystemStorageItemBase Item)
                     {
-                        LogFileStream.Seek(0, SeekOrigin.End);
-
-                        using (StreamWriter Writer = new StreamWriter(LogFileStream, Encoding.Unicode, 1024, true))
+                        using (FileStream LogFileStream = Item.GetFileStreamFromFile(AccessMode.Exclusive))
                         {
-                            while (LogQueue.TryDequeue(out string LogItem))
-                            {
-                                Writer.WriteLine(LogItem);
-                                Debug.WriteLine(LogItem);
-                            }
+                            LogFileStream.Seek(0, SeekOrigin.End);
 
-                            Writer.Flush();
+                            using (StreamWriter Writer = new StreamWriter(LogFileStream, Encoding.Unicode, 1024, true))
+                            {
+                                while (LogQueue.TryDequeue(out string LogItem))
+                                {
+                                    Writer.WriteLine(LogItem);
+                                    Debug.WriteLine(LogItem);
+                                }
+
+                                Writer.Flush();
+                            }
                         }
                     }
                 }

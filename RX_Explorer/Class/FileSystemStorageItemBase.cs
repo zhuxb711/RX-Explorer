@@ -77,38 +77,142 @@ namespace RX_Explorer.Class
 
         protected static readonly BitmapImage Const_File_Black_Image = new BitmapImage(new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
 
-        public static FileSystemStorageItemBase Open(string Path, ItemFilters Filters = ItemFilters.File | ItemFilters.Folder)
+        public static async Task<FileSystemStorageItemBase> OpenAsync(string Path, ItemFilters Filters = ItemFilters.File | ItemFilters.Folder)
         {
-            return WIN_Native_API.GetStorageItem(Path, Filters);
-        }
-
-        public static FileSystemStorageItemBase Create(string Path, StorageItemTypes ItemTypes, CreateOption Option)
-        {
-            if (ItemTypes == StorageItemTypes.File)
+            if (System.IO.Path.GetPathRoot(Path) != Path && WIN_Native_API.GetStorageItem(Path, Filters) is FileSystemStorageItemBase Item)
             {
-                if (WIN_Native_API.CreateFileFromPath(Path, Option, out string NewPath))
-                {
-                    return Open(NewPath, ItemFilters.File);
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            else if (ItemTypes == StorageItemTypes.Folder)
-            {
-                if (WIN_Native_API.CreateDirectoryFromPath(Path, Option, out string NewPath))
-                {
-                    return Open(NewPath, ItemFilters.Folder);
-                }
-                else
-                {
-                    return null;
-                }
+                return Item;
             }
             else
             {
+                LogTracer.Log($"Native API could not found the path: \"{Path}\", fall back to UWP storage API");
+
+                if (Filters.HasFlag(ItemFilters.File))
+                {
+                    try
+                    {
+                        StorageFile File = await StorageFile.GetFileFromPathAsync(Path);
+                        return new FileSystemStorageItemBase(File, await File.GetSizeRawDataAsync().ConfigureAwait(false), await File.GetThumbnailBitmapAsync().ConfigureAwait(false), File.DateCreated, await File.GetModifiedTimeAsync().ConfigureAwait(false));
+                    }
+                    catch
+                    {
+                        LogTracer.Log($"UWP storage API could not found file: \"{Path}\"");
+                    }
+                }
+
+                if (Filters.HasFlag(ItemFilters.Folder))
+                {
+                    try
+                    {
+                        StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
+                        return new FileSystemStorageItemBase(Folder, Folder.DateCreated, await Folder.GetModifiedTimeAsync().ConfigureAwait(false));
+                    }
+                    catch
+                    {
+                        LogTracer.Log($"UWP storage API could not found folder: \"{Path}\"");
+                    }
+                }
+
                 return null;
+            }
+        }
+
+        public static async Task<FileSystemStorageItemBase> CreateAsync(string Path, StorageItemTypes ItemTypes, CreateOption Option)
+        {
+            switch (ItemTypes)
+            {
+                case StorageItemTypes.File:
+                    {
+                        if (WIN_Native_API.CreateFileFromPath(Path, Option, out string NewPath))
+                        {
+                            return await OpenAsync(NewPath, ItemFilters.File);
+                        }
+                        else
+                        {
+                            LogTracer.Log($"Native API could not create file: \"{Path}\", fall back to UWP storage API");
+
+                            try
+                            {
+                                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(System.IO.Path.GetDirectoryName(Path));
+
+                                switch (Option)
+                                {
+                                    case CreateOption.GenerateUniqueName:
+                                        {
+                                            StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
+                                            return new FileSystemStorageItemBase(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(false), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(false), NewFile.DateCreated, await NewFile.GetModifiedTimeAsync().ConfigureAwait(false));
+                                        }
+                                    case CreateOption.OpenIfExist:
+                                        {
+                                            StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
+                                            return new FileSystemStorageItemBase(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(false), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(false), NewFile.DateCreated, await NewFile.GetModifiedTimeAsync().ConfigureAwait(false));
+                                        }
+                                    case CreateOption.ReplaceExisting:
+                                        {
+                                            StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
+                                            return new FileSystemStorageItemBase(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(false), await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(false), NewFile.DateCreated, await NewFile.GetModifiedTimeAsync().ConfigureAwait(false));
+                                        }
+                                    default:
+                                        {
+                                            return null;
+                                        }
+                                }
+                            }
+                            catch
+                            {
+                                LogTracer.Log($"UWP storage API could not create file: \"{Path}\"");
+                                return null;
+                            }
+                        }
+                    }
+
+                case StorageItemTypes.Folder:
+                    {
+                        if (WIN_Native_API.CreateDirectoryFromPath(Path, Option, out string NewPath))
+                        {
+                            return await OpenAsync(NewPath, ItemFilters.Folder);
+                        }
+                        else
+                        {
+                            LogTracer.Log($"Native API could not create file: \"{Path}\", fall back to UWP storage API");
+
+                            try
+                            {
+                                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(System.IO.Path.GetDirectoryName(Path));
+
+                                switch (Option)
+                                {
+                                    case CreateOption.GenerateUniqueName:
+                                        {
+                                            StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
+                                            return new FileSystemStorageItemBase(NewFolder, NewFolder.DateCreated, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(false));
+                                        }
+                                    case CreateOption.OpenIfExist:
+                                        {
+                                            StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
+                                            return new FileSystemStorageItemBase(NewFolder, NewFolder.DateCreated, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(false));
+                                        }
+                                    case CreateOption.ReplaceExisting:
+                                        {
+                                            StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
+                                            return new FileSystemStorageItemBase(NewFolder, NewFolder.DateCreated, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(false));
+                                        }
+                                    default:
+                                        {
+                                            return null;
+                                        }
+                                }
+                            }
+                            catch
+                            {
+                                LogTracer.Log($"UWP storage API could not create folder: \"{Path}\"");
+                                return null;
+                            }
+                        }
+                    }
+
+                default:
+                    return null;
             }
         }
 
@@ -489,7 +593,7 @@ namespace RX_Explorer.Class
 
             string EncryptedFilePath = System.IO.Path.Combine(ExportFolderPath, $"{System.IO.Path.GetFileNameWithoutExtension(Name)}.sle");
 
-            if (Create(EncryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase EncryptedFile)
+            if (await CreateAsync(EncryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageItemBase EncryptedFile)
             {
                 using (FileStream EncryptFileStream = EncryptedFile.GetFileStreamFromFile(AccessMode.Write))
                 using (SecureString Secure = SecureAccessProvider.GetFileEncryptionAesIV(Package.Current))
@@ -546,7 +650,7 @@ namespace RX_Explorer.Class
                     }
                 }
 
-                switch (Open(EncryptedFile.Path, ItemFilters.File))
+                switch (await OpenAsync(EncryptedFile.Path, ItemFilters.File).ConfigureAwait(false))
                 {
                     case SecureAreaStorageItem SItem:
                         {
