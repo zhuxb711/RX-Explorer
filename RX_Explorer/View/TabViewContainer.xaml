@@ -19,6 +19,7 @@
                       AllowDropTabs="True"
                       AllowDrop="True"
                       CanDragTabs="True"
+                      PointerWheelChanged="TabViewControl_PointerWheelChanged"
                       TabStripDragOver="TabViewControl_TabStripDragOver"
                       TabStripDrop="TabViewControl_TabStripDrop"
                       TabDragCompleted="TabViewControl_TabDragCompleted"

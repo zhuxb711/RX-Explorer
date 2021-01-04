@@ -1376,7 +1376,7 @@ namespace RX_Explorer.Class
                         {
                             if (MessageTask.Result.Message.TryGetValue("OperationRecord", out object value))
                             {
-                                OperationRecorder.Current.Value.Push(JsonSerializer.Deserialize<List<string>>(Convert.ToString(value)));
+                                OperationRecorder.Current.Push(JsonSerializer.Deserialize<List<string>>(Convert.ToString(value)));
                             }
                         }
                         else if (MessageTask.Result.Message.TryGetValue("Error_NotFound", out object ErrorMessage1))
@@ -1528,7 +1528,7 @@ namespace RX_Explorer.Class
                         {
                             if (MessageTask.Result.Message.TryGetValue("OperationRecord", out object value))
                             {
-                                OperationRecorder.Current.Value.Push(JsonSerializer.Deserialize<List<string>>(Convert.ToString(value)));
+                                OperationRecorder.Current.Push(JsonSerializer.Deserialize<List<string>>(Convert.ToString(value)));
                             }
                         }
                         else if (MessageTask.Result.Message.TryGetValue("Error_NotFound", out object ErrorMessage1))
@@ -1692,7 +1692,7 @@ namespace RX_Explorer.Class
                         {
                             if (MessageTask.Result.Message.TryGetValue("OperationRecord", out object value))
                             {
-                                OperationRecorder.Current.Value.Push(JsonSerializer.Deserialize<List<string>>(Convert.ToString(value)));
+                                OperationRecorder.Current.Push(JsonSerializer.Deserialize<List<string>>(Convert.ToString(value)));
                             }
                         }
                         else if (MessageTask.Result.Message.TryGetValue("Error_NotFound", out object ErrorMessage1))

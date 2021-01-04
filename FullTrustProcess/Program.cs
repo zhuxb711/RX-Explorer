@@ -19,7 +19,6 @@ using Vanara.Windows.Shell;
 using Windows.ApplicationModel.AppService;
 using Windows.Foundation.Collections;
 using Windows.Storage;
-using FileAttributes = System.IO.FileAttributes;
 
 namespace FullTrustProcess
 {

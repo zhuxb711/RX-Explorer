@@ -509,7 +509,7 @@ namespace RX_Explorer
                                 {
                                     QueueContentDialog Dialog = new QueueContentDialog
                                     {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
                                         Content = Globalization.GetString("QueueDialog_SetWallpaperSuccess_Content"),
                                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                     };

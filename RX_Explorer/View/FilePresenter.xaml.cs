@@ -282,7 +282,7 @@ namespace RX_Explorer
                             CreateFolder_Click(null, null);
                             break;
                         }
-                    case VirtualKey.Z when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && OperationRecorder.Current.Value.Count > 0:
+                    case VirtualKey.Z when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && OperationRecorder.Current.Count > 0:
                         {
                             await Ctrl_Z_Click().ConfigureAwait(false);
                             break;
@@ -452,13 +452,13 @@ namespace RX_Explorer
 
         private async Task Ctrl_Z_Click()
         {
-            if (OperationRecorder.Current.Value.Count > 0)
+            if (OperationRecorder.Current.Count > 0)
             {
                 await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Undoing")).ConfigureAwait(true);
 
                 try
                 {
-                    foreach (string Action in OperationRecorder.Current.Value.Pop())
+                    foreach (string Action in OperationRecorder.Current.Pop())
                     {
                         string[] SplitGroup = Action.Split("||", StringSplitOptions.RemoveEmptyEntries);
 
@@ -2866,7 +2866,7 @@ namespace RX_Explorer
                 Paste.IsEnabled = false;
             }
 
-            if (OperationRecorder.Current.Value.Count > 0)
+            if (OperationRecorder.Current.Count > 0)
             {
                 Undo.IsEnabled = true;
             }
@@ -6304,7 +6304,7 @@ namespace RX_Explorer
                         IsEnablePaste = false;
                     }
 
-                    if (OperationRecorder.Current.Value.Count > 0)
+                    if (OperationRecorder.Current.Count > 0)
                     {
                         IsEnableUndo = true;
                     }

@@ -75,6 +75,13 @@ namespace RX_Explorer
                 {
                     switch (args.VirtualKey)
                     {
+                        case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                CreateNewTabAndOpenTargetFolder(string.Empty);
+                                args.Handled = true;
+
+                                break;
+                            }
                         case VirtualKey.Space when SettingControl.IsQuicklookAvailable && SettingControl.IsQuicklookEnable:
                             {
                                 if (PC.DeviceGrid.SelectedItem is HardDeviceInfo Device)
@@ -85,6 +92,9 @@ namespace RX_Explorer
                                 {
                                     await FullTrustProcessController.Current.ViewWithQuicklookAsync(Library.Folder.Path).ConfigureAwait(false);
                                 }
+
+                                args.Handled = true;
+
                                 break;
                             }
                         case VirtualKey.Enter:
@@ -1039,6 +1049,28 @@ namespace RX_Explorer
             {
                 await ApplicationView.GetForCurrentView().TryConsolidateAsync();
             }
+        }
+
+        private void TabViewControl_PointerWheelChanged(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            int Delta = e.GetCurrentPoint(Frame).Properties.MouseWheelDelta;
+
+            if (Delta > 0)
+            {
+                if (TabViewControl.SelectedIndex > 0)
+                {
+                    TabViewControl.SelectedIndex -= 1;
+                }
+            }
+            else
+            {
+                if (TabViewControl.SelectedIndex < TabViewControl.TabItems.Count - 1)
+                {
+                    TabViewControl.SelectedIndex += 1;
+                }
+            }
+
+            e.Handled = true;
         }
     }
 }
