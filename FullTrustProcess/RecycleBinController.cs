@@ -1,8 +1,8 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices.ComTypes;
+using System.Text.Json;
 using Vanara.Extensions;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
@@ -63,7 +63,7 @@ namespace FullTrustProcess
                     }
                 }
 
-                return JsonConvert.SerializeObject(RecycleItemList);
+                return JsonSerializer.Serialize(RecycleItemList);
             }
             catch
             {

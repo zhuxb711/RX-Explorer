@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using Windows.Storage;
 
 namespace RX_Explorer.Class
@@ -18,7 +18,7 @@ namespace RX_Explorer.Class
 
                 if (!string.IsNullOrEmpty(SavedInfo))
                 {
-                    return JsonConvert.DeserializeObject<List<string>>(SavedInfo).LastOrDefault();
+                    return JsonSerializer.Deserialize<List<string>>(SavedInfo).LastOrDefault();
                 }
                 else
                 {
@@ -40,7 +40,7 @@ namespace RX_Explorer.Class
 
             if (!string.IsNullOrEmpty(SavedInfo))
             {
-                List<string> Collection = JsonConvert.DeserializeObject<List<string>>(SavedInfo);
+                List<string> Collection = JsonSerializer.Deserialize<List<string>>(SavedInfo);
 
                 if (Collection.Contains(CurrentId))
                 {
@@ -49,11 +49,11 @@ namespace RX_Explorer.Class
 
                 Collection.Add(CurrentId);
 
-                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonConvert.SerializeObject(Collection);
+                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonSerializer.Serialize(Collection);
             }
             else
             {
-                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonConvert.SerializeObject(new List<string>() { CurrentId });
+                ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonSerializer.Serialize(new List<string>() { CurrentId });
             }
         }
 
@@ -63,12 +63,12 @@ namespace RX_Explorer.Class
 
             if (!string.IsNullOrEmpty(SavedInfo))
             {
-                List<string> Collection = JsonConvert.DeserializeObject<List<string>>(SavedInfo);
+                List<string> Collection = JsonSerializer.Deserialize<List<string>>(SavedInfo);
 
                 if (Collection.Contains(Id))
                 {
                     Collection.Remove(Id);
-                    ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonConvert.SerializeObject(Collection);
+                    ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonSerializer.Serialize(Collection);
                 }
             }
         }
@@ -79,12 +79,12 @@ namespace RX_Explorer.Class
 
             if (!string.IsNullOrEmpty(SavedInfo))
             {
-                List<string> Collection = JsonConvert.DeserializeObject<List<string>>(SavedInfo);
+                List<string> Collection = JsonSerializer.Deserialize<List<string>>(SavedInfo);
 
                 if (Collection.Contains(CurrentId))
                 {
                     Collection.Remove(CurrentId);
-                    ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonConvert.SerializeObject(Collection);
+                    ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonSerializer.Serialize(Collection);
                 }
             }
         }

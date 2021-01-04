@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json;
-using ShareClassLibrary;
+﻿using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.AppService;
@@ -332,7 +332,7 @@ namespace RX_Explorer.Class
                     {
                         if (Response.Message.TryGetValue("Success", out object Result))
                         {
-                            string[] SearchResult = JsonConvert.DeserializeObject<string[]>(Convert.ToString(Result));
+                            string[] SearchResult = JsonSerializer.Deserialize<string[]>(Convert.ToString(Result));
 
                             if (SearchResult.Length == 0)
                             {
@@ -398,7 +398,7 @@ namespace RX_Explorer.Class
                         {
                             if (Response.Message.TryGetValue("Success", out object Result))
                             {
-                                return JsonConvert.DeserializeObject<HiddenItemPackage>(Convert.ToString(Result));
+                                return JsonSerializer.Deserialize<HiddenItemPackage>(Convert.ToString(Result));
                             }
                             else
                             {
@@ -461,7 +461,7 @@ namespace RX_Explorer.Class
                         {
                             if (Response.Message.TryGetValue("Success", out object Result))
                             {
-                                return JsonConvert.DeserializeObject<List<ContextMenuPackage>>(Convert.ToString(Result)).Select((Item) => new ContextMenuItem(Item, Path)).ToList();
+                                return JsonSerializer.Deserialize<List<ContextMenuPackage>>(Convert.ToString(Result)).Select((Item) => new ContextMenuItem(Item, Path)).ToList();
                             }
                             else
                             {
@@ -607,7 +607,7 @@ namespace RX_Explorer.Class
                     ValueSet Value = new ValueSet
                     {
                         {"ExecuteType", ExecuteType_CreateLink},
-                        {"DataPackage", JsonConvert.SerializeObject(new HyperlinkPackage(LinkPath, LinkTarget, LinkArgument, LinkDesc, false)) }
+                        {"DataPackage", JsonSerializer.Serialize(new HyperlinkPackage(LinkPath, LinkTarget, LinkArgument, LinkDesc, false)) }
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -782,7 +782,7 @@ namespace RX_Explorer.Class
                     {
                         if (Response.Message.TryGetValue("Success", out object Result))
                         {
-                            return JsonConvert.DeserializeObject<HyperlinkPackage>(Convert.ToString(Result));
+                            return JsonSerializer.Deserialize<HyperlinkPackage>(Convert.ToString(Result));
                         }
                         else
                         {
@@ -1121,7 +1121,7 @@ namespace RX_Explorer.Class
                     {
                         if (Response.Message.TryGetValue("Associate_Result", out object Result))
                         {
-                            return JsonConvert.DeserializeObject<List<AssociationPackage>>(Convert.ToString(Result));
+                            return JsonSerializer.Deserialize<List<AssociationPackage>>(Convert.ToString(Result));
                         }
                         else
                         {
@@ -1229,7 +1229,7 @@ namespace RX_Explorer.Class
                     {
                         if (Response.Message.TryGetValue("RecycleBinItems_Json_Result", out object Result))
                         {
-                            List<Dictionary<string, string>> JsonList = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(Convert.ToString(Result));
+                            List<Dictionary<string, string>> JsonList = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(Convert.ToString(Result));
                             List<RecycleStorageItem> RecycleItems = new List<RecycleStorageItem>(JsonList.Count);
 
                             foreach (Dictionary<string, string> PropertyDic in JsonList)
@@ -1360,7 +1360,7 @@ namespace RX_Explorer.Class
                     ValueSet Value = new ValueSet
                     {
                         {"ExecuteType", ExecuteType_Delete},
-                        {"ExecutePath", JsonConvert.SerializeObject(Source)},
+                        {"ExecutePath", JsonSerializer.Serialize(Source)},
                         {"PermanentDelete", PermanentDelete},
                         {"Guid", PipeLineController.Current.GUID.ToString() },
                         {"Undo", IsUndoOperation }
@@ -1376,7 +1376,7 @@ namespace RX_Explorer.Class
                         {
                             if (MessageTask.Result.Message.TryGetValue("OperationRecord", out object value))
                             {
-                                OperationRecorder.Current.Value.Push(JsonConvert.DeserializeObject<List<string>>(Convert.ToString(value)));
+                                OperationRecorder.Current.Value.Push(JsonSerializer.Deserialize<List<string>>(Convert.ToString(value)));
                             }
                         }
                         else if (MessageTask.Result.Message.TryGetValue("Error_NotFound", out object ErrorMessage1))
@@ -1512,7 +1512,7 @@ namespace RX_Explorer.Class
                     ValueSet Value = new ValueSet
                     {
                         {"ExecuteType", ExecuteType_Move},
-                        {"SourcePath", JsonConvert.SerializeObject(MessageList)},
+                        {"SourcePath", JsonSerializer.Serialize(MessageList)},
                         {"DestinationPath", DestinationPath},
                         {"Guid", PipeLineController.Current.GUID.ToString() },
                         {"Undo", IsUndoOperation }
@@ -1528,7 +1528,7 @@ namespace RX_Explorer.Class
                         {
                             if (MessageTask.Result.Message.TryGetValue("OperationRecord", out object value))
                             {
-                                OperationRecorder.Current.Value.Push(JsonConvert.DeserializeObject<List<string>>(Convert.ToString(value)));
+                                OperationRecorder.Current.Value.Push(JsonSerializer.Deserialize<List<string>>(Convert.ToString(value)));
                             }
                         }
                         else if (MessageTask.Result.Message.TryGetValue("Error_NotFound", out object ErrorMessage1))
@@ -1676,7 +1676,7 @@ namespace RX_Explorer.Class
                     ValueSet Value = new ValueSet
                     {
                         {"ExecuteType", ExecuteType_Copy},
-                        {"SourcePath", JsonConvert.SerializeObject(MessageList)},
+                        {"SourcePath", JsonSerializer.Serialize(MessageList)},
                         {"DestinationPath", DestinationPath},
                         {"Guid", PipeLineController.Current.GUID.ToString() },
                         {"Undo", IsUndoOperation }
@@ -1692,7 +1692,7 @@ namespace RX_Explorer.Class
                         {
                             if (MessageTask.Result.Message.TryGetValue("OperationRecord", out object value))
                             {
-                                OperationRecorder.Current.Value.Push(JsonConvert.DeserializeObject<List<string>>(Convert.ToString(value)));
+                                OperationRecorder.Current.Value.Push(JsonSerializer.Deserialize<List<string>>(Convert.ToString(value)));
                             }
                         }
                         else if (MessageTask.Result.Message.TryGetValue("Error_NotFound", out object ErrorMessage1))

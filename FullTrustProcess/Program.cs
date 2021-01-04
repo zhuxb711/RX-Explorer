@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using ShareClassLibrary;
+﻿using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,6 +10,7 @@ using System.Linq;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -136,7 +136,7 @@ namespace FullTrustProcess
 
                                 ValueSet Value = new ValueSet
                                 {
-                                    {"Success", JsonConvert.SerializeObject(new HiddenItemPackage(Item.FileInfo.TypeName, Stream.ToArray()))}
+                                    {"Success", JsonSerializer.Serialize(new HiddenItemPackage(Item.FileInfo.TypeName, Stream.ToArray()))}
                                 };
 
                                 await args.Request.SendResponseAsync(Value);
@@ -169,7 +169,7 @@ namespace FullTrustProcess
 
                                 if (SearchResult.Any())
                                 {
-                                    Value.Add("Success", JsonConvert.SerializeObject(SearchResult));
+                                    Value.Add("Success", JsonSerializer.Serialize(SearchResult));
                                 }
                                 else
                                 {
@@ -177,7 +177,7 @@ namespace FullTrustProcess
 
                                     if (Code == EverythingConnector.StateCode.OK)
                                     {
-                                        Value.Add("Success", JsonConvert.SerializeObject(SearchResult));
+                                        Value.Add("Success", JsonSerializer.Serialize(SearchResult));
                                     }
                                     else
                                     {
@@ -203,7 +203,7 @@ namespace FullTrustProcess
 
                             ValueSet Value = new ValueSet
                             {
-                                {"Success", JsonConvert.SerializeObject(ContextMenuItems) }
+                                {"Success", JsonSerializer.Serialize(ContextMenuItems) }
                             };
 
                             await args.Request.SendResponseAsync(Value);
@@ -256,7 +256,7 @@ namespace FullTrustProcess
                         }
                     case "Execute_CreateLink":
                         {
-                            HyperlinkPackage Package = JsonConvert.DeserializeObject<HyperlinkPackage>(Convert.ToString(args.Request.Message["DataPackage"]));
+                            HyperlinkPackage Package = JsonSerializer.Deserialize<HyperlinkPackage>(Convert.ToString(args.Request.Message["DataPackage"]));
 
                             string Argument = string.Join(" ", Package.Argument.Select((Para) => (Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"")) ? $"\"{Para}\"" : Para).ToArray());
 
@@ -358,7 +358,7 @@ namespace FullTrustProcess
                                             Arguments.Add(Mat.Value);
                                         }
 
-                                        Value.Add("Success", JsonConvert.SerializeObject(new HyperlinkPackage(ExecutePath, Link.TargetPath, Arguments.ToArray(), Link.Description, Link.RunAsAdministrator)));
+                                        Value.Add("Success", JsonSerializer.Serialize(new HyperlinkPackage(ExecutePath, Link.TargetPath, Arguments.ToArray(), Link.Description, Link.RunAsAdministrator)));
                                     }
                                 }
                             }
@@ -505,7 +505,7 @@ namespace FullTrustProcess
 
                             ValueSet Result = new ValueSet
                             {
-                                {"Associate_Result", JsonConvert.SerializeObject(ExtensionAssociate.GetAllAssociation(Path)) }
+                                {"Associate_Result", JsonSerializer.Serialize(ExtensionAssociate.GetAllAssociation(Path)) }
                             };
 
                             await args.Request.SendResponseAsync(Result);
@@ -626,7 +626,7 @@ namespace FullTrustProcess
                             string Guid = Convert.ToString(args.Request.Message["Guid"]);
                             bool IsUndo = Convert.ToBoolean(args.Request.Message["Undo"]);
 
-                            List<KeyValuePair<string, string>> SourcePathList = JsonConvert.DeserializeObject<List<KeyValuePair<string, string>>>(SourcePathJson);
+                            List<KeyValuePair<string, string>> SourcePathList = JsonSerializer.Deserialize<List<KeyValuePair<string, string>>>(SourcePathJson);
                             List<string> OperationRecordList = new List<string>();
 
                             int Progress = 0;
@@ -676,7 +676,7 @@ namespace FullTrustProcess
 
                                         if (OperationRecordList.Count > 0)
                                         {
-                                            Value.Add("OperationRecord", JsonConvert.SerializeObject(OperationRecordList));
+                                            Value.Add("OperationRecord", JsonSerializer.Serialize(OperationRecordList));
                                         }
                                     }
                                     else
@@ -725,7 +725,7 @@ namespace FullTrustProcess
                             string Guid = Convert.ToString(args.Request.Message["Guid"]);
                             bool IsUndo = Convert.ToBoolean(args.Request.Message["Undo"]);
 
-                            List<KeyValuePair<string, string>> SourcePathList = JsonConvert.DeserializeObject<List<KeyValuePair<string, string>>>(SourcePathJson);
+                            List<KeyValuePair<string, string>> SourcePathList = JsonSerializer.Deserialize<List<KeyValuePair<string, string>>>(SourcePathJson);
                             List<string> OperationRecordList = new List<string>();
 
                             int Progress = 0;
@@ -780,7 +780,7 @@ namespace FullTrustProcess
                                             Value.Add("Success", string.Empty);
                                             if (OperationRecordList.Count > 0)
                                             {
-                                                Value.Add("OperationRecord", JsonConvert.SerializeObject(OperationRecordList));
+                                                Value.Add("OperationRecord", JsonSerializer.Serialize(OperationRecordList));
                                             }
                                         }
                                         else
@@ -829,7 +829,7 @@ namespace FullTrustProcess
                             bool PermanentDelete = Convert.ToBoolean(args.Request.Message["PermanentDelete"]);
                             bool IsUndo = Convert.ToBoolean(args.Request.Message["Undo"]);
 
-                            List<string> ExecutePathList = JsonConvert.DeserializeObject<List<string>>(ExecutePathJson);
+                            List<string> ExecutePathList = JsonSerializer.Deserialize<List<string>>(ExecutePathJson);
                             List<string> OperationRecordList = new List<string>();
 
                             int Progress = 0;
@@ -880,7 +880,7 @@ namespace FullTrustProcess
 
                                                 if (OperationRecordList.Count > 0)
                                                 {
-                                                    Value.Add("OperationRecord", JsonConvert.SerializeObject(OperationRecordList));
+                                                    Value.Add("OperationRecord", JsonSerializer.Serialize(OperationRecordList));
                                                 }
                                             }
                                             else
