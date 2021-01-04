@@ -866,7 +866,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Acrylic transmittance</value>
   </data>
   <data name="SettingPageLuminosityTipText1.Text" xml:space="preserve">
-    <value>Acrylic transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.This feature is not available in versions below Win10-1903.</value>
+    <value>Acrylic transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.</value>
   </data>
   <data name="SettingPageLuminosityTipText2.Text" xml:space="preserve">
     <value>Adjusting this value may result in unclear or unrecognized content</value>

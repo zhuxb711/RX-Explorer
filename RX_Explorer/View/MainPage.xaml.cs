@@ -95,7 +95,7 @@ namespace RX_Explorer
                         }
                 }
 
-                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903) && !AnimationController.Current.IsDisableStartupAnimation && !IsPathActivate)
+                if (!AnimationController.Current.IsDisableStartupAnimation && !IsPathActivate)
                 {
                     EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, RSParamter.Item1);
                     EntranceEffectProvider.PrepareEntranceEffect();
@@ -103,7 +103,7 @@ namespace RX_Explorer
             }
             else if (Parameter is Rect RectParameter)
             {
-                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903) && !AnimationController.Current.IsDisableStartupAnimation && !IsPathActivate)
+                if (!AnimationController.Current.IsDisableStartupAnimation && !IsPathActivate)
                 {
                     EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, RectParameter);
                     EntranceEffectProvider.PrepareEntranceEffect();
@@ -299,7 +299,7 @@ namespace RX_Explorer
 
                 Nav.Navigate(typeof(TabViewContainer), null, new SuppressNavigationTransitionInfo());
 
-                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_1903) && !AnimationController.Current.IsDisableStartupAnimation && !IsPathActivate)
+                if (!AnimationController.Current.IsDisableStartupAnimation && !IsPathActivate)
                 {
                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                     {

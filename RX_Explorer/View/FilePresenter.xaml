@@ -3,11 +3,9 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       xmlns:Cls="using:RX_Explorer.Class"
       xmlns:System="using:System"
-      xmlns:Windows10version1903="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract, 8)"
       mc:Ignorable="d"
       NavigationCacheMode="Required"
       Background="Transparent">
@@ -855,7 +853,7 @@
                                     <Button.Flyout>
                                         <Flyout Placement="BottomEdgeAlignedLeft"
                                                 x:Name="NameFilterFlyout"
-                                                Windows10version1903:ShouldConstrainToRootBounds="False"
+                                                ShouldConstrainToRootBounds="False"
                                                 Closing="FilterFlyout_Closing">
                                             <Flyout.FlyoutPresenterStyle>
                                                 <Style TargetType="FlyoutPresenter">
@@ -978,7 +976,7 @@
                                     <Button.Flyout>
                                         <Flyout Placement="BottomEdgeAlignedLeft"
                                                 x:Name="ModTimeFilterFlyout"
-                                                Windows10version1903:ShouldConstrainToRootBounds="False"
+                                                ShouldConstrainToRootBounds="False"
                                                 Closing="FilterFlyout_Closing">
                                             <Flyout.FlyoutPresenterStyle>
                                                 <Style TargetType="FlyoutPresenter">
@@ -1106,7 +1104,7 @@
                                     <Button.Flyout>
                                         <Flyout Placement="BottomEdgeAlignedLeft"
                                                 x:Name="TypeFilterFlyout"
-                                                Windows10version1903:ShouldConstrainToRootBounds="False"
+                                                ShouldConstrainToRootBounds="False"
                                                 Closing="FilterFlyout_Closing">
                                             <Flyout.FlyoutPresenterStyle>
                                                 <Style TargetType="FlyoutPresenter">
@@ -1175,7 +1173,7 @@
                                     <Button.Flyout>
                                         <Flyout Placement="BottomEdgeAlignedLeft"
                                                 x:Name="SizeFilterFlyout"
-                                                Windows10version1903:ShouldConstrainToRootBounds="False"
+                                                ShouldConstrainToRootBounds="False"
                                                 Closing="FilterFlyout_Closing">
                                             <Flyout.FlyoutPresenterStyle>
                                                 <Style TargetType="FlyoutPresenter">

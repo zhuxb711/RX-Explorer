@@ -997,8 +997,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Acrylic透明度</target>
         </trans-unit>
         <trans-unit id="SettingPageLuminosityTipText1.Text" translate="yes" xml:space="preserve">
-          <source>Acrylic transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.This feature is not available in versions below Win10-1903.</source>
-          <target state="translated">Acrylic透明度決定了背景透光度。 數值越小，透明主題比例越高，背景透光度的比例越高。此功能在Win10-1903以下的版本中不可用。</target>
+          <source>Acrylic transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.</source>
+          <target state="translated">Acrylic透明度決定了背景透光度。 數值越小，透明主題比例越高，背景透光度的比例越高。</target>
         </trans-unit>
         <trans-unit id="SettingPageLuminosityTipText2.Text" translate="yes" xml:space="preserve">
           <source>Adjusting this value may result in unclear or unrecognized content</source>

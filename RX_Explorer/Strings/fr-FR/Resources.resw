@@ -746,7 +746,7 @@
     <value>Transmission acrylique</value>
   </data>
   <data name="SettingPageLuminosityTipText1.Text" xml:space="preserve">
-    <value>La transmission de l'acrylique détermine la quantité de lumière de l'arrière-plan autorisée à traverser le matériau acrylique de l'application. Plus la valeur est petite, plus le rapport de couleurs du thème Acrylique est élevé et plus le pourcentage de lumière provenant de l'arrière-plan est élevé. Cette fonctionnalité n'est pas disponible dans les versions inférieures à Win10-1903.</value>
+    <value>La transmission de l'acrylique détermine la quantité de lumière de l'arrière-plan autorisée à traverser le matériau acrylique de l'application. Plus la valeur est petite, plus le rapport de couleurs du thème Acrylique est élevé et plus le pourcentage de lumière provenant de l'arrière-plan est élevé. </value>
   </data>
   <data name="SettingPageLuminosityTipText2.Text" xml:space="preserve">
     <value>L'ajustement de cette valeur peut entraîner un contenu peu clair ou non reconnu</value>

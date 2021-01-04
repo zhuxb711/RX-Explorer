@@ -985,8 +985,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Transmission acrylique</target>
         </trans-unit>
         <trans-unit id="SettingPageLuminosityTipText1.Text" translate="yes" xml:space="preserve">
-          <source>Acrylic transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.This feature is not available in versions below Win10-1903.</source>
-          <target state="translated">La transmission de l'acrylique détermine la quantité de lumière de l'arrière-plan autorisée à traverser le matériau acrylique de l'application. Plus la valeur est petite, plus le rapport de couleurs du thème Acrylique est élevé et plus le pourcentage de lumière provenant de l'arrière-plan est élevé. Cette fonctionnalité n'est pas disponible dans les versions inférieures à Win10-1903.</target>
+          <source>Acrylic transmittance determines how much light from the background is allowed to pass through the App's acrylic material. The smaller the value, the higher the Acrylic theme color ratio, and the higher the percentage of light from the background.</source>
+          <target state="translated">La transmission de l'acrylique détermine la quantité de lumière de l'arrière-plan autorisée à traverser le matériau acrylique de l'application. Plus la valeur est petite, plus le rapport de couleurs du thème Acrylique est élevé et plus le pourcentage de lumière provenant de l'arrière-plan est élevé. </target>
         </trans-unit>
         <trans-unit id="SettingPageLuminosityTipText2.Text" translate="yes" xml:space="preserve">
           <source>Adjusting this value may result in unclear or unrecognized content</source>

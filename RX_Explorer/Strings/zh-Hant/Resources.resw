@@ -755,7 +755,7 @@
     <value>Acrylic透明度</value>
   </data>
   <data name="SettingPageLuminosityTipText1.Text" xml:space="preserve">
-    <value>Acrylic透明度決定了背景透光度。 數值越小，透明主題比例越高，背景透光度的比例越高。此功能在Win10-1903以下的版本中不可用。</value>
+    <value>Acrylic透明度決定了背景透光度。 數值越小，透明主題比例越高，背景透光度的比例越高。</value>
   </data>
   <data name="SettingPageLuminosityTipText2.Text" xml:space="preserve">
     <value>調整此數值可能會導致內容不清楚或無法清晰識別</value>

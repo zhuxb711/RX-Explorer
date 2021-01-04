@@ -746,7 +746,7 @@
     <value>Acrylic透光度</value>
   </data>
   <data name="SettingPageLuminosityTipText1.Text" xml:space="preserve">
-    <value>Acrylic透光度决定了允许多少来自背景的光通过App的亚克力材质，此值越小表示Acrylic主题色占比越高，越大表示来自背景的光线占比越高。此功能在Win10-1903以下版本中不可用。</value>
+    <value>Acrylic透光度决定了允许多少来自背景的光通过App的亚克力材质，此值越小表示Acrylic主题色占比越高，越大表示来自背景的光线占比越高。</value>
   </data>
   <data name="SettingPageLuminosityTipText2.Text" xml:space="preserve">
     <value>调整此值可能导致内容不清晰或无法识别</value>
