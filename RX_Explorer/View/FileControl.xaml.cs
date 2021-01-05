@@ -801,31 +801,24 @@ namespace RX_Explorer
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is TreeViewNode Node)
                 {
-                    if (WIN_Native_API.CheckIfHidden((Node.Content as TreeViewNodeContent).Path))
+                    if (FolderTree.RootNodes.Contains(Node))
                     {
-                        FolderTree.ContextFlyout = null;
+                        FolderCopy.IsEnabled = false;
+                        FolderCut.IsEnabled = false;
+                        FolderDelete.IsEnabled = false;
+                        FolderRename.IsEnabled = false;
                     }
                     else
                     {
-                        if (FolderTree.RootNodes.Contains(Node))
-                        {
-                            FolderCopy.IsEnabled = false;
-                            FolderCut.IsEnabled = false;
-                            FolderDelete.IsEnabled = false;
-                            FolderRename.IsEnabled = false;
-                        }
-                        else
-                        {
-                            FolderCopy.IsEnabled = true;
-                            FolderCut.IsEnabled = true;
-                            FolderDelete.IsEnabled = true;
-                            FolderRename.IsEnabled = true;
-                        }
-
-                        FolderTree.ContextFlyout = RightTabFlyout;
-
-                        await DisplayItemsInFolder(Node).ConfigureAwait(false);
+                        FolderCopy.IsEnabled = true;
+                        FolderCut.IsEnabled = true;
+                        FolderDelete.IsEnabled = true;
+                        FolderRename.IsEnabled = true;
                     }
+
+                    FolderTree.ContextFlyout = RightTabFlyout;
+
+                    await DisplayItemsInFolder(Node).ConfigureAwait(false);
                 }
                 else
                 {
@@ -879,7 +872,10 @@ namespace RX_Explorer
 
                     await FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
 
-                    UpdateAddressButton(CurrentFolder.Path);
+                    if (await FileSystemStorageItemBase.OpenAsync(Path.Combine(Path.GetDirectoryName(CurrentFolder.Path), dialog.DesireName)).ConfigureAwait(true) is FileSystemStorageItemBase NewFolder)
+                    {
+                        CurrentFolder = NewFolder;
+                    }
                 }
                 catch (FileLoadException)
                 {
@@ -2303,27 +2299,20 @@ namespace RX_Explorer
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is TreeViewNode Node)
                 {
-                    if (WIN_Native_API.CheckIfHidden((Node.Content as TreeViewNodeContent).Path))
+                    if (FolderTree.RootNodes.Contains(Node))
                     {
-                        FolderTree.ContextFlyout = null;
+                        FolderDelete.IsEnabled = false;
+                        FolderRename.IsEnabled = false;
                     }
                     else
                     {
-                        if (FolderTree.RootNodes.Contains(Node))
-                        {
-                            FolderDelete.IsEnabled = false;
-                            FolderRename.IsEnabled = false;
-                        }
-                        else
-                        {
-                            FolderDelete.IsEnabled = true;
-                            FolderRename.IsEnabled = true;
-                        }
-
-                        FolderTree.ContextFlyout = RightTabFlyout;
-
-                        await DisplayItemsInFolder(Node).ConfigureAwait(false);
+                        FolderDelete.IsEnabled = true;
+                        FolderRename.IsEnabled = true;
                     }
+
+                    FolderTree.ContextFlyout = RightTabFlyout;
+
+                    await DisplayItemsInFolder(Node).ConfigureAwait(false);
                 }
                 else
                 {
@@ -2389,71 +2378,85 @@ namespace RX_Explorer
 
         private async void FolderCut_Click(object sender, RoutedEventArgs e)
         {
-            try
+            if (CurrentFolder != null)
             {
-                RightTabFlyout.Hide();
-
-                if (CurrentFolder != null)
+                try
                 {
-                    if (await CurrentFolder.GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
+                    RightTabFlyout.Hide();
+
+                    Clipboard.Clear();
+
+                    DataPackage Package = new DataPackage
                     {
-                        Clipboard.Clear();
+                        RequestedOperation = DataPackageOperation.Move
+                    };
 
-                        DataPackage Package = new DataPackage
-                        {
-                            RequestedOperation = DataPackageOperation.Move
-                        };
-
-                        Package.SetStorageItems(new IStorageItem[] { Item }, false);
-
-                        Clipboard.SetContent(Package);
+                    if (CurrentFolder is HyperlinkStorageItem or HiddenStorageItem)
+                    {
+                        Package.SetHtmlFormat(HtmlFormatHelper.CreateHtmlFormat($"<head>RX-Explorer-TransferNotStorageItem</head><p>{CurrentFolder.Path}</p>"));
                     }
+                    else
+                    {
+                        if (await CurrentFolder.GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
+                        {
+                            Package.SetStorageItems(new IStorageItem[] { Item }, false);
+                        }
+                    }
+
+                    Clipboard.SetContent(Package);
                 }
-            }
-            catch
-            {
-                QueueContentDialog Dialog = new QueueContentDialog
+                catch
                 {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-                _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                }
             }
         }
 
         private async void FolderCopy_Click(object sender, RoutedEventArgs e)
         {
-            try
+            if (CurrentFolder != null)
             {
-                RightTabFlyout.Hide();
-
-                if (CurrentFolder != null)
+                try
                 {
-                    if (await CurrentFolder.GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
+                    RightTabFlyout.Hide();
+
+                    Clipboard.Clear();
+
+                    DataPackage Package = new DataPackage
                     {
-                        Clipboard.Clear();
+                        RequestedOperation = DataPackageOperation.Copy
+                    };
 
-                        DataPackage Package = new DataPackage
-                        {
-                            RequestedOperation = DataPackageOperation.Copy
-                        };
-
-                        Package.SetStorageItems(new IStorageItem[] { Item }, false);
-
-                        Clipboard.SetContent(Package);
+                    if (CurrentFolder is HyperlinkStorageItem or HiddenStorageItem)
+                    {
+                        Package.SetHtmlFormat(HtmlFormatHelper.CreateHtmlFormat($"<head>RX-Explorer-TransferNotStorageItem</head><p>{CurrentFolder.Path}</p>"));
                     }
+                    else
+                    {
+                        if (await CurrentFolder.GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
+                        {
+                            Package.SetStorageItems(new IStorageItem[] { Item }, false);
+                        }
+                    }
+
+                    Clipboard.SetContent(Package);
                 }
-            }
-            catch
-            {
-                QueueContentDialog Dialog = new QueueContentDialog
+                catch
                 {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-                _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                }
             }
         }
 

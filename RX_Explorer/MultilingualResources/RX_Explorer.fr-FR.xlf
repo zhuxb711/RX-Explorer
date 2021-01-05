@@ -3429,6 +3429,18 @@ Les noms non valides incluent
           <source>Encoding:</source>
           <target state="translated">Codage:</target>
         </trans-unit>
+        <trans-unit id="SettingConfiguration.Content" translate="yes" xml:space="preserve">
+          <source>Import or export configuration</source>
+          <target state="translated">Importer ou exporter la configuration</target>
+        </trans-unit>
+        <trans-unit id="SettingConfiguration_Export.Content" translate="yes" xml:space="preserve">
+          <source>Export</source>
+          <target state="translated">Exporter</target>
+        </trans-unit>
+        <trans-unit id="SettingConfiguration_Import.Content" translate="yes" xml:space="preserve">
+          <source>Import</source>
+          <target state="translated">Importer</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -681,7 +681,6 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
                     return false;
                 }
             }

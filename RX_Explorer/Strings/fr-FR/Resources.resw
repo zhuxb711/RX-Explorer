@@ -2586,4 +2586,13 @@ Les noms non valides incluent
   <data name="TextViewer_EncodingProfileText.Text" xml:space="preserve">
     <value>Codage:</value>
   </data>
+  <data name="SettingConfiguration.Content" xml:space="preserve">
+    <value>Importer ou exporter la configuration</value>
+  </data>
+  <data name="SettingConfiguration_Export.Content" xml:space="preserve">
+    <value>Exporter</value>
+  </data>
+  <data name="SettingConfiguration_Import.Content" xml:space="preserve">
+    <value>Importer</value>
+  </data>
 </root>

@@ -130,9 +130,9 @@ namespace RX_Explorer
         private WiFiShareProvider WiFiProvider;
         private ListViewBaseSelectionExtention SelectionExtention;
         private FileSystemStorageItemBase TabTarget;
-        private DateTimeOffset LastClickTime;
         private DateTimeOffset LastPressTime;
         private string LastPressString;
+        private CancellationTokenSource DelayRenameCancel;
 
         public FileSystemStorageItemBase SelectedItem
         {
@@ -1627,6 +1627,8 @@ namespace RX_Explorer
 
         private void ViewControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            DelayRenameCancel?.Cancel();
+
             foreach (SelectorItem RemovedItem in e.RemovedItems.Select((Item) => ItemPresenter.ContainerFromItem(Item)).OfType<SelectorItem>())
             {
                 RemovedItem.CanDrag = false;
@@ -2449,6 +2451,8 @@ namespace RX_Explorer
         private async void ViewControl_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
             e.Handled = true;
+
+            DelayRenameCancel?.Cancel();
 
             if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase ReFile)
             {
@@ -4655,6 +4659,8 @@ namespace RX_Explorer
 
             try
             {
+                DelayRenameCancel?.Cancel();
+
                 List<FileSystemStorageItemBase> DragList = SelectedItems;
 
                 foreach (FileSystemStorageItemBase Item in DragList)
@@ -5630,25 +5636,27 @@ namespace RX_Explorer
                 {
                     if (SelectedItem == Item)
                     {
-                        TimeSpan ClickSpan = DateTimeOffset.Now - LastClickTime;
+                        DelayRenameCancel?.Dispose();
+                        DelayRenameCancel = new CancellationTokenSource();
 
-                        if (ClickSpan.TotalMilliseconds > 1500 && ClickSpan.TotalMilliseconds < 3000)
+                        Task.Delay(1000).ContinueWith((task) =>
                         {
-                            NameLabel.Visibility = Visibility.Collapsed;
-
-                            if ((NameLabel.Parent as FrameworkElement).FindName("NameEditBox") is TextBox EditBox)
+                            if (DelayRenameCancel != null && !DelayRenameCancel.IsCancellationRequested)
                             {
-                                EditBox.Tag = Item;
-                                EditBox.Text = NameLabel.Text;
-                                EditBox.Visibility = Visibility.Visible;
-                                EditBox.Focus(FocusState.Programmatic);
+                                NameLabel.Visibility = Visibility.Collapsed;
+
+                                if ((NameLabel.Parent as FrameworkElement).FindName("NameEditBox") is TextBox EditBox)
+                                {
+                                    EditBox.Tag = SelectedItem;
+                                    EditBox.Text = NameLabel.Text;
+                                    EditBox.Visibility = Visibility.Visible;
+                                    EditBox.Focus(FocusState.Programmatic);
+                                }
+
+                                MainPage.ThisPage.IsAnyTaskRunning = true;
                             }
-
-                            MainPage.ThisPage.IsAnyTaskRunning = true;
-                        }
+                        }, TaskScheduler.FromCurrentSynchronizationContext());
                     }
-
-                    LastClickTime = DateTimeOffset.Now;
                 }
             }
         }
@@ -5755,8 +5763,6 @@ namespace RX_Explorer
                     NameEditBox.Visibility = Visibility.Collapsed;
 
                     NameLabel.Visibility = Visibility.Visible;
-
-                    LastClickTime = DateTimeOffset.MaxValue;
 
                     MainPage.ThisPage.IsAnyTaskRunning = false;
                 }

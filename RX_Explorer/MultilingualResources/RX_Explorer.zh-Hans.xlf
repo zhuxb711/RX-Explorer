@@ -3429,6 +3429,18 @@ Invalid names include
           <source>Encoding:</source>
           <target state="translated">编码格式:</target>
         </trans-unit>
+        <trans-unit id="SettingConfiguration.Content" translate="yes" xml:space="preserve">
+          <source>Import or export configuration</source>
+          <target state="translated">导入或导出配置文件</target>
+        </trans-unit>
+        <trans-unit id="SettingConfiguration_Export.Content" translate="yes" xml:space="preserve">
+          <source>Export</source>
+          <target state="translated">导出</target>
+        </trans-unit>
+        <trans-unit id="SettingConfiguration_Import.Content" translate="yes" xml:space="preserve">
+          <source>Import</source>
+          <target state="translated">导入</target>
+        </trans-unit>
       </group>
     </body>
   </file>

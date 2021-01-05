@@ -2586,4 +2586,13 @@
   <data name="TextViewer_EncodingProfileText.Text" xml:space="preserve">
     <value>編碼方式:</value>
   </data>
+  <data name="SettingConfiguration.Content" xml:space="preserve">
+    <value>導入或導出配置</value>
+  </data>
+  <data name="SettingConfiguration_Export.Content" xml:space="preserve">
+    <value>導出</value>
+  </data>
+  <data name="SettingConfiguration_Import.Content" xml:space="preserve">
+    <value>導入</value>
+  </data>
 </root>

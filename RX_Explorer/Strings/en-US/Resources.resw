@@ -2691,4 +2691,13 @@ Invalid names include
   <data name="TextViewer_EncodingProfileText.Text" xml:space="preserve">
     <value>Encoding:</value>
   </data>
+  <data name="SettingConfiguration.Content" xml:space="preserve">
+    <value>Import or export configuration</value>
+  </data>
+  <data name="SettingConfiguration_Export.Content" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="SettingConfiguration_Import.Content" xml:space="preserve">
+    <value>Import</value>
+  </data>
 </root>

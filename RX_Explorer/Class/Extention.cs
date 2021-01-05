@@ -543,11 +543,6 @@ namespace RX_Explorer.Class
             View.SelectedNode = Node;
 
             View.UpdateLayout();
-
-            if (View.ContainerFromNode(Node) is TreeViewItem Item)
-            {
-                Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
-            }
         }
 
         /// <summary>

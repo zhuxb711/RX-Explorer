@@ -326,11 +326,11 @@
                                   OnContent="启用"
                                   x:Uid="SettingPageAnimationSwitch"
                                   Name="AnimationSwitch"
-                                  Toggled="AnimationSwitch_Toggled"
                                   IsOn="{x:Bind local:AnimationController.Current.IsEnableAnimation,Mode=TwoWay}" />
 
                     <StackPanel Orientation="Horizontal"
-                                Name="ExceptAnimationArea">
+                                Name="ExceptAnimationArea"
+                                Visibility="{x:Bind AnimationSwitch.IsOn, Mode=OneWay}">
                         <Line X1="15"
                               X2="15"
                               Y1="3"
@@ -590,6 +590,36 @@
                             Style="{ThemeResource ButtonRevealStyle}"
                             Name="ClearUp"
                             Click="ClearUp_Click" />
+                    <Button Margin="0,20,0,0"
+                            Style="{ThemeResource ButtonRevealStyle}"
+                            Content="导入导出配置文件"
+                            x:Uid="SettingConfiguration">
+                        <Button.Flyout>
+                            <Flyout>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Button Content="导出"
+                                            x:Uid="SettingConfiguration_Export"
+                                            Name="ExportConfiguration"
+                                            HorizontalAlignment="Stretch"
+                                            Margin="0,0,5,0"
+                                            MinWidth="80"
+                                            Click="ExportConfiguration_Click"/>
+                                    <Button Content="导入"
+                                            Name="ImportConfiguration"
+                                            HorizontalAlignment="Stretch"
+                                            Margin="5,0,0,0"
+                                            x:Uid="SettingConfiguration_Import"
+                                            MinWidth="80"
+                                            Grid.Column="1"
+                                            Click="ImportConfiguration_Click"/>
+                                </Grid>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
                     <TextBlock Text="版本"
                                x:Uid="SettingVersion"
                                FontSize="22"

@@ -9,6 +9,8 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Security.Cryptography;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -345,7 +347,10 @@ namespace RX_Explorer
                         }
                     });
 
-                    await Task.Delay(1500).ConfigureAwait(false);
+                    if (AnimationController.Current.IsEnableAnimation)
+                    {
+                        await Task.Delay(1500).ConfigureAwait(false);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -384,7 +389,10 @@ namespace RX_Explorer
                         }
                     });
 
-                    await Task.Delay(1500).ConfigureAwait(false);
+                    if (AnimationController.Current.IsEnableAnimation)
+                    {
+                        await Task.Delay(1500).ConfigureAwait(false);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -705,7 +713,7 @@ namespace RX_Explorer
                     MainPage.ThisPage.IsAnyTaskRunning = true;
 
                     FileSystemStorageItemBase SecureFolder = await FileSystemStorageItemBase.CreateAsync(Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder"), StorageItemTypes.Folder, CreateOption.OpenIfExist).ConfigureAwait(true);
-                    
+
                     string FileEncryptionAesKey = KeyGenerator.GetMD5WithLength(CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword"), 16);
 
                     try
@@ -2073,11 +2081,6 @@ namespace RX_Explorer
             ApplicationData.Current.SignalDataChanged();
         }
 
-        private void AnimationSwitch_Toggled(object sender, RoutedEventArgs e)
-        {
-            ExceptAnimationArea.Visibility = AnimationSwitch.IsOn ? Visibility.Visible : Visibility.Collapsed;
-        }
-
         private async void ExportLog_Click(object sender, RoutedEventArgs e)
         {
             if (await LogTracer.CheckHasAnyLogAvailableAsync().ConfigureAwait(true))
@@ -2152,6 +2155,109 @@ namespace RX_Explorer
         private void PreventFallBackQuestion_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             PreventFallbackTip.IsOpen = true;
+        }
+
+        private async void ImportConfiguration_Click(object sender, RoutedEventArgs e)
+        {
+            FileOpenPicker Picker = new FileOpenPicker
+            {
+                ViewMode = PickerViewMode.List,
+                SuggestedStartLocation = PickerLocationId.Desktop
+            };
+
+            Picker.FileTypeFilter.Add(".json");
+
+            if (await Picker.PickSingleFileAsync() is StorageFile ImportFile)
+            {
+                string JsonContent = await FileIO.ReadTextAsync(ImportFile, UnicodeEncoding.Utf16LE);
+
+                if (JsonSerializer.Deserialize<Dictionary<string, string>>(JsonContent) is Dictionary<string, string> Dic)
+                {
+                    if (Dic.TryGetValue("Identitifier", out string Id) && Id == "RX_Explorer_Export_Configuration" && Dic.TryGetValue("Configuration", out string Config) && Dic.TryGetValue("Hash", out string Hash))
+                    {
+                        using (MD5 MD5Alg = MD5.Create())
+                        {
+                            if (MD5Alg.GetHash(Config) == Hash)
+                            {
+                                if (JsonSerializer.Deserialize<KeyValuePair<string, JsonElement>[]>(Config) is KeyValuePair<string, JsonElement>[] Configuration)
+                                {
+                                    ApplicationData.Current.LocalSettings.Values.Clear();
+
+                                    foreach (KeyValuePair<string, JsonElement> Pair in Configuration)
+                                    {
+                                        switch(Pair.Value.ValueKind)
+                                        {
+                                            case JsonValueKind.Number:
+                                                {
+                                                    if(Pair.Value.TryGetInt32(out int INT32))
+                                                    {
+                                                        ApplicationData.Current.LocalSettings.Values[Pair.Key] = INT32;
+                                                    }
+                                                    else if(Pair.Value.TryGetInt64(out long INT64))
+                                                    {
+                                                        ApplicationData.Current.LocalSettings.Values[Pair.Key] = INT64;
+                                                    }
+                                                    else if(Pair.Value.TryGetSingle(out float FL32))
+                                                    {
+                                                        ApplicationData.Current.LocalSettings.Values[Pair.Key] = FL32;
+                                                    }
+                                                    else if(Pair.Value.TryGetDouble(out double FL64))
+                                                    {
+                                                        ApplicationData.Current.LocalSettings.Values[Pair.Key] = FL64;
+                                                    }
+
+                                                    break;
+                                                }
+                                            case JsonValueKind.String:
+                                                {
+                                                    ApplicationData.Current.LocalSettings.Values[Pair.Key] = Pair.Value.GetString();
+                                                    break;
+                                                }
+                                            case JsonValueKind.True:
+                                            case JsonValueKind.False:
+                                                {
+                                                    ApplicationData.Current.LocalSettings.Values[Pair.Key] = Pair.Value.GetBoolean();
+                                                    break;
+                                                }
+                                        }
+                                    }
+
+                                    ApplicationData.Current.SignalDataChanged();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private async void ExportConfiguration_Click(object sender, RoutedEventArgs e)
+        {
+            FileSavePicker Picker = new FileSavePicker
+            {
+                SuggestedStartLocation = PickerLocationId.Desktop,
+                SuggestedFileName = "RX_Configuration.json"
+            };
+
+            Picker.FileTypeChoices.Add("JSON", new List<string> { ".json" });
+
+            if (await Picker.PickSaveFileAsync() is StorageFile SaveFile)
+            {
+                string Configuration = JsonSerializer.Serialize(ApplicationData.Current.LocalSettings.Values.ToArray());
+
+                using (MD5 MD5Alg = MD5.Create())
+                {
+                    Dictionary<string, string> Dic = new Dictionary<string, string>
+                    {
+                        { "Identitifier", "RX_Explorer_Export_Configuration" },
+                        { "Configuration", Configuration },
+                        { "Hash", MD5Alg.GetHash(Configuration) }
+                    };
+
+                    string JsonContent = JsonSerializer.Serialize(Dic);
+                    await FileIO.WriteTextAsync(SaveFile, JsonContent, UnicodeEncoding.Utf16LE);
+                }
+            }
         }
     }
 }
