@@ -2595,4 +2595,13 @@
   <data name="SettingConfiguration_Import.Content" xml:space="preserve">
     <value>导入</value>
   </data>
+  <data name="SettingPageContextMenuExt.Header" xml:space="preserve">
+    <value>扩展右键菜单</value>
+  </data>
+  <data name="SettingPageContextMenuExt.OffContent" xml:space="preserve">
+    <value>禁用</value>
+  </data>
+  <data name="SettingPageContextMenuExt.OnContent" xml:space="preserve">
+    <value>启用</value>
+  </data>
 </root>

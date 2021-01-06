@@ -3441,6 +3441,18 @@ Invalid names include
           <source>Import</source>
           <target state="translated">导入</target>
         </trans-unit>
+        <trans-unit id="SettingPageContextMenuExt.Header" translate="yes" xml:space="preserve">
+          <source>Extended context menu</source>
+          <target state="translated">扩展右键菜单</target>
+        </trans-unit>
+        <trans-unit id="SettingPageContextMenuExt.OffContent" translate="yes" xml:space="preserve">
+          <source>Disable</source>
+          <target state="translated">禁用</target>
+        </trans-unit>
+        <trans-unit id="SettingPageContextMenuExt.OnContent" translate="yes" xml:space="preserve">
+          <source>Enable</source>
+          <target state="translated">启用</target>
+        </trans-unit>
       </group>
     </body>
   </file>

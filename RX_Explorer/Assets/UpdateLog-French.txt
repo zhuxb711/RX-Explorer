@@ -1,4 +1,35 @@
 ﻿*****
+###Quoi de neuf dans la version 5.9.0.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Ajout de la possibilité d'importer ou d'exporter des fichiers de configuration
+
+>#####Nouvelle option de paramétrage "Menu contextuel étendu"
+
+>#####Suppression du support pour Win10-1809, la plate-forme minimale est ajustée à Win10-1903
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Vous pouvez maintenant faire défiler pour sélectionner les onglets
+
+>#####Amélioration de la logique du double-clic pour renommer rapidement
+
+>#####Amélioration du contraste de la page à onglet
+
+#####Correction d'un bug
+
+>#####Correction du problème d'échec de l'opération d'annulation
+
+>#####Correction du problème que la touche de raccourci Ctrl + T ne peut pas être utilisée dans l'interface principale
+
+>#####Correction du problème que le répertoire de fichiers de gauche ne peut pas fonctionner sur les dossiers cachés
+
+>#####Correction du problème qui pouvait déclencher le changement de nom lors du glisser-déposer des dossiers
+
+>#####Correction de certains problèmes d'interface utilisateur après avoir désactivé "Effets d'animation"
+
+*****
 ###Quoi de neuf dans la version 5.8.7.0
 
 #####Correction d'un bug

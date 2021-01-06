@@ -291,6 +291,14 @@
                                   Unchecked="AlwaysLaunchNew_Unchecked" />
                     </StackPanel>
 
+                    <ToggleSwitch Header="扩展右键菜单"
+                                  Margin="0,20,0,0"
+                                  x:Uid="SettingPageContextMenuExt"
+                                  Name="ContextMenuExtSwitch"
+                                  Toggled="ContextMenuExtSwitch_Toggled"
+                                  OnContent="启用"
+                                  OffContent="禁用"/>
+
                     <ComboBox Header="图标加载模式"
                               Margin="0,20,0,0"
                               MinWidth="150"
@@ -326,11 +334,11 @@
                                   OnContent="启用"
                                   x:Uid="SettingPageAnimationSwitch"
                                   Name="AnimationSwitch"
+                                  Toggled="AnimationSwitch_Toggled"
                                   IsOn="{x:Bind local:AnimationController.Current.IsEnableAnimation,Mode=TwoWay}" />
 
                     <StackPanel Orientation="Horizontal"
-                                Name="ExceptAnimationArea"
-                                Visibility="{x:Bind AnimationSwitch.IsOn, Mode=OneWay}">
+                                Name="ExceptAnimationArea">
                         <Line X1="15"
                               X2="15"
                               Y1="3"
@@ -592,7 +600,7 @@
                             Click="ClearUp_Click" />
                     <Button Margin="0,20,0,0"
                             Style="{ThemeResource ButtonRevealStyle}"
-                            Content="导入导出配置文件"
+                            Content="导入或导出配置文件"
                             x:Uid="SettingConfiguration">
                         <Button.Flyout>
                             <Flyout>

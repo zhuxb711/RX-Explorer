@@ -3441,6 +3441,18 @@ Les noms non valides incluent
           <source>Import</source>
           <target state="translated">Importer</target>
         </trans-unit>
+        <trans-unit id="SettingPageContextMenuExt.Header" translate="yes" xml:space="preserve">
+          <source>Extended context menu</source>
+          <target state="translated">Menu contextuel étendu</target>
+        </trans-unit>
+        <trans-unit id="SettingPageContextMenuExt.OffContent" translate="yes" xml:space="preserve">
+          <source>Disable</source>
+          <target state="translated">Désactiver</target>
+        </trans-unit>
+        <trans-unit id="SettingPageContextMenuExt.OnContent" translate="yes" xml:space="preserve">
+          <source>Enable</source>
+          <target state="translated">Activer</target>
+        </trans-unit>
       </group>
     </body>
   </file>

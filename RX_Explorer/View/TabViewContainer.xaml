@@ -2,7 +2,6 @@
     x:Class="RX_Explorer.TabViewContainer"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:RX_Explorer"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
@@ -33,9 +32,9 @@
                                  Color="Transparent" />
                 <AcrylicBrush x:Key="TabViewItemHeaderBackgroundSelected"
                               BackgroundSource="Backdrop"
-                              TintColor="{ThemeResource SystemAltLowColor}" 
-                              TintOpacity="0.6"
-                              FallbackColor="{StaticResource SystemAltLowColor}" />
+                              TintLuminosityOpacity="0.6"
+                              TintColor="{ThemeResource SystemAltMediumColor}"
+                              FallbackColor="{ThemeResource SystemAltMediumColor}" />
             </muxc:TabView.Resources>
         </muxc:TabView>
         <controls:InAppNotification StackMode="Replace"

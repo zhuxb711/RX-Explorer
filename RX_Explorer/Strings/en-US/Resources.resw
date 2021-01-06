@@ -2700,4 +2700,13 @@ Invalid names include
   <data name="SettingConfiguration_Import.Content" xml:space="preserve">
     <value>Import</value>
   </data>
+  <data name="SettingPageContextMenuExt.Header" xml:space="preserve">
+    <value>Extended context menu</value>
+  </data>
+  <data name="SettingPageContextMenuExt.OffContent" xml:space="preserve">
+    <value>Disable</value>
+  </data>
+  <data name="SettingPageContextMenuExt.OnContent" xml:space="preserve">
+    <value>Enable</value>
+  </data>
 </root>

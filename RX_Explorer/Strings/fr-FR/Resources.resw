@@ -2595,4 +2595,13 @@ Les noms non valides incluent
   <data name="SettingConfiguration_Import.Content" xml:space="preserve">
     <value>Importer</value>
   </data>
+  <data name="SettingPageContextMenuExt.Header" xml:space="preserve">
+    <value>Menu contextuel étendu</value>
+  </data>
+  <data name="SettingPageContextMenuExt.OffContent" xml:space="preserve">
+    <value>Désactiver</value>
+  </data>
+  <data name="SettingPageContextMenuExt.OnContent" xml:space="preserve">
+    <value>Activer</value>
+  </data>
 </root>

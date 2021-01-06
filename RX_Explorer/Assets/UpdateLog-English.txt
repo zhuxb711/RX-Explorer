@@ -1,4 +1,35 @@
 ﻿*****
+###What's new in Ver.5.9.0.0
+
+#####Feature update
+
+>#####Added the ability to import or export configuration files
+
+>#####New setting option "Extended context menu"
+
+>#####Removed the support for Win10-1809, the minimum platform is adjusted to Win10-1903
+
+#####UI update
+
+>#####You can now scroll to select tabs
+
+>#####Improved the logic of double-click to quickly rename
+
+>#####Improved the contrast of the tab page
+
+#####Bug fix
+
+>#####Fixed the problem that the undo operation may fail
+
+>#####Fixed the problem that the shortcut key Ctrl+T cannot be used in the main interface
+
+>#####Fixed the problem that the left file directory cannot operate on hidden folders
+
+>#####Fixed the problem that may trigger renaming when dragging and dropping folders
+
+>#####Fixed some UI problems after turning off "Animation Effects"
+
+*****
 ###What's new in Ver.5.8.7.0
 
 #####Bug fix

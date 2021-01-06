@@ -2624,56 +2624,59 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (QRTeachTip.IsOpen)
+            if (SelectedItem != null)
             {
-                QRTeachTip.IsOpen = false;
+                if (QRTeachTip.IsOpen)
+                {
+                    QRTeachTip.IsOpen = false;
+                }
+
+                await Task.Run(() =>
+                {
+                    SpinWait.SpinUntil(() => WiFiProvider == null);
+                }).ConfigureAwait(true);
+
+                WiFiProvider = new WiFiShareProvider();
+                WiFiProvider.ThreadExitedUnexpectly += WiFiProvider_ThreadExitedUnexpectly;
+
+                using (MD5 MD5Alg = MD5.Create())
+                {
+                    string Hash = MD5Alg.GetHash(SelectedItem.Path);
+                    QRText.Text = WiFiProvider.CurrentUri + Hash;
+                    WiFiProvider.FilePathMap = new KeyValuePair<string, string>(Hash, SelectedItem.Path);
+                }
+
+                QrCodeEncodingOptions options = new QrCodeEncodingOptions()
+                {
+                    DisableECI = true,
+                    CharacterSet = "UTF-8",
+                    Width = 250,
+                    Height = 250,
+                    ErrorCorrection = ErrorCorrectionLevel.Q
+                };
+
+                BarcodeWriter Writer = new BarcodeWriter
+                {
+                    Format = BarcodeFormat.QR_CODE,
+                    Options = options
+                };
+
+                WriteableBitmap Bitmap = Writer.Write(QRText.Text);
+                using (SoftwareBitmap PreTransImage = SoftwareBitmap.CreateCopyFromBuffer(Bitmap.PixelBuffer, BitmapPixelFormat.Bgra8, 250, 250))
+                using (SoftwareBitmap TransferImage = ComputerVisionProvider.ExtendImageBorder(PreTransImage, Colors.White, 0, 75, 75, 0))
+                {
+                    SoftwareBitmapSource Source = new SoftwareBitmapSource();
+                    QRImage.Source = Source;
+                    await Source.SetBitmapAsync(TransferImage);
+                }
+
+                await Task.Delay(500).ConfigureAwait(true);
+
+                QRTeachTip.Target = ItemPresenter.ContainerFromItem(SelectedItem) as FrameworkElement;
+                QRTeachTip.IsOpen = true;
+
+                await WiFiProvider.StartToListenRequest().ConfigureAwait(false);
             }
-
-            await Task.Run(() =>
-            {
-                SpinWait.SpinUntil(() => WiFiProvider == null);
-            }).ConfigureAwait(true);
-
-            WiFiProvider = new WiFiShareProvider();
-            WiFiProvider.ThreadExitedUnexpectly += WiFiProvider_ThreadExitedUnexpectly;
-
-            using (MD5 MD5Alg = MD5.Create())
-            {
-                string Hash = MD5Alg.GetHash(SelectedItem.Path);
-                QRText.Text = WiFiProvider.CurrentUri + Hash;
-                WiFiProvider.FilePathMap = new KeyValuePair<string, string>(Hash, SelectedItem.Path);
-            }
-
-            QrCodeEncodingOptions options = new QrCodeEncodingOptions()
-            {
-                DisableECI = true,
-                CharacterSet = "UTF-8",
-                Width = 250,
-                Height = 250,
-                ErrorCorrection = ErrorCorrectionLevel.Q
-            };
-
-            BarcodeWriter Writer = new BarcodeWriter
-            {
-                Format = BarcodeFormat.QR_CODE,
-                Options = options
-            };
-
-            WriteableBitmap Bitmap = Writer.Write(QRText.Text);
-            using (SoftwareBitmap PreTransImage = SoftwareBitmap.CreateCopyFromBuffer(Bitmap.PixelBuffer, BitmapPixelFormat.Bgra8, 250, 250))
-            using (SoftwareBitmap TransferImage = ComputerVisionProvider.ExtendImageBorder(PreTransImage, Colors.White, 0, 75, 75, 0))
-            {
-                SoftwareBitmapSource Source = new SoftwareBitmapSource();
-                QRImage.Source = Source;
-                await Source.SetBitmapAsync(TransferImage);
-            }
-
-            await Task.Delay(500).ConfigureAwait(true);
-
-            QRTeachTip.Target = ItemPresenter.ContainerFromItem(SelectedItem) as FrameworkElement;
-            QRTeachTip.IsOpen = true;
-
-            await WiFiProvider.StartToListenRequest().ConfigureAwait(false);
         }
 
         private async void WiFiProvider_ThreadExitedUnexpectly(object sender, Exception e)
@@ -2884,42 +2887,45 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (!WIN_Native_API.CheckExist(SelectedItem.Path))
+            if (SelectedItem != null)
             {
-                QueueContentDialog Dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-            }
-            else
-            {
-                if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile ShareItem)
-                {
-                    DataTransferManager.GetForCurrentView().DataRequested += (s, args) =>
-                    {
-                        DataPackage Package = new DataPackage();
-                        Package.Properties.Title = ShareItem.DisplayName;
-                        Package.Properties.Description = ShareItem.DisplayType;
-                        Package.SetStorageItems(new StorageFile[] { ShareItem });
-                        args.Request.Data = Package;
-                    };
-
-                    DataTransferManager.ShowShareUI();
-                }
-                else
+                if (!WIN_Native_API.CheckExist(SelectedItem.Path))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
+                        Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
                     _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                }
+                else
+                {
+                    if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile ShareItem)
+                    {
+                        DataTransferManager.GetForCurrentView().DataRequested += (s, args) =>
+                        {
+                            DataPackage Package = new DataPackage();
+                            Package.Properties.Title = ShareItem.DisplayName;
+                            Package.Properties.Description = ShareItem.DisplayType;
+                            Package.SetStorageItems(new StorageFile[] { ShareItem });
+                            args.Request.Data = Package;
+                        };
+
+                        DataTransferManager.ShowShareUI();
+                    }
+                    else
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    }
                 }
             }
         }

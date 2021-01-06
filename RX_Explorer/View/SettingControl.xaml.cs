@@ -563,6 +563,17 @@ namespace RX_Explorer
                     FileLoadMode.SelectedIndex = 1;
                 }
 
+                if(ApplicationData.Current.LocalSettings.Values["ContextMenuExtSwitch"] is bool IsExt)
+                {
+                    ContextMenuExtSwitch.IsOn = IsExt;
+                }
+                else
+                {
+                    ContextMenuExtSwitch.IsOn = true;
+                }
+
+                ExceptAnimationArea.Visibility = AnimationSwitch.IsOn ? Visibility.Visible : Visibility.Collapsed;
+
                 if (!IsRaiseFromDataChanged)
                 {
                     DisplayHiddenItem.Toggled += DisplayHiddenItem_Toggled;
@@ -2258,6 +2269,17 @@ namespace RX_Explorer
                     await FileIO.WriteTextAsync(SaveFile, JsonContent, UnicodeEncoding.Utf16LE);
                 }
             }
+        }
+
+        private void AnimationSwitch_Toggled(object sender, RoutedEventArgs e)
+        {
+            ExceptAnimationArea.Visibility = AnimationSwitch.IsOn ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void ContextMenuExtSwitch_Toggled(object sender, RoutedEventArgs e)
+        {
+            ApplicationData.Current.LocalSettings.Values["ContextMenuExtSwitch"] = ContextMenuExtSwitch.IsOn;
+            ApplicationData.Current.SignalDataChanged();
         }
     }
 }
