@@ -35,6 +35,8 @@ namespace RX_Explorer.Class
 
         private ScrollViewer InnerScrollView;
 
+        private ScrollBar InnerScrollBar;
+
         private bool IsDisposed;
 
         private readonly PointerEventHandler PointerPressedHandler;
@@ -62,11 +64,18 @@ namespace RX_Explorer.Class
             if (View.IsLoaded)
             {
                 InnerScrollView = View.FindChildOfType<ScrollViewer>();
+                InnerScrollBar = InnerScrollView.FindChildOfType<ScrollBar>();
+                InnerScrollBar.Scroll += InnerScrollBar_Scroll;
             }
             else
             {
                 this.View.Loaded += View_Loaded;
             }
+        }
+
+        private void InnerScrollBar_Scroll(object sender, ScrollEventArgs e)
+        {
+            Disable();
         }
 
         public void ResetPosition()
@@ -128,14 +137,7 @@ namespace RX_Explorer.Class
 
         private void View_RectangleDrawEnd(object sender, PointerRoutedEventArgs e)
         {
-            AllowProcess = false;
-
-            if ((View.PointerCaptures?.Any()).GetValueOrDefault())
-            {
-                View.ReleasePointerCaptures();
-            }
-
-            ResetPosition();
+            Disable();
         }
 
         private void View_RectangleDrawStart(object sender, PointerRoutedEventArgs e)
@@ -160,6 +162,8 @@ namespace RX_Explorer.Class
             View.Loaded -= View_Loaded;
 
             InnerScrollView = View.FindChildOfType<ScrollViewer>();
+            InnerScrollBar = InnerScrollView.FindChildOfType<ScrollBar>();
+            InnerScrollBar.Scroll += InnerScrollBar_Scroll;
         }
 
         private void SrcollIfNeed(Point RelativeEndPoint)
@@ -212,38 +216,41 @@ namespace RX_Explorer.Class
 
         private void DrawRectangleInCanvas(Point StartPoint, Point EndPoint)
         {
-            if (StartPoint.X <= EndPoint.X)
+            if (AllowProcess)
             {
-                if (StartPoint.Y >= EndPoint.Y)
+                if (StartPoint.X <= EndPoint.X)
                 {
-                    RectangleInCanvas.SetValue(Canvas.LeftProperty, Math.Max(0, StartPoint.X));
-                    RectangleInCanvas.SetValue(Canvas.TopProperty, Math.Max(0, EndPoint.Y));
-                    RectangleInCanvas.Width = Math.Max(0, EndPoint.X) - Math.Max(0, StartPoint.X);
-                    RectangleInCanvas.Height = Math.Max(0, StartPoint.Y) - Math.Max(0, EndPoint.Y);
+                    if (StartPoint.Y >= EndPoint.Y)
+                    {
+                        RectangleInCanvas.SetValue(Canvas.LeftProperty, Math.Max(0, StartPoint.X));
+                        RectangleInCanvas.SetValue(Canvas.TopProperty, Math.Max(0, EndPoint.Y));
+                        RectangleInCanvas.Width = Math.Max(0, EndPoint.X) - Math.Max(0, StartPoint.X);
+                        RectangleInCanvas.Height = Math.Max(0, StartPoint.Y) - Math.Max(0, EndPoint.Y);
+                    }
+                    else
+                    {
+                        RectangleInCanvas.SetValue(Canvas.LeftProperty, Math.Max(0, StartPoint.X));
+                        RectangleInCanvas.SetValue(Canvas.TopProperty, Math.Max(0, StartPoint.Y));
+                        RectangleInCanvas.Width = Math.Max(0, EndPoint.X) - Math.Max(0, StartPoint.X);
+                        RectangleInCanvas.Height = Math.Max(0, EndPoint.Y) - Math.Max(0, StartPoint.Y);
+                    }
                 }
                 else
                 {
-                    RectangleInCanvas.SetValue(Canvas.LeftProperty, Math.Max(0, StartPoint.X));
-                    RectangleInCanvas.SetValue(Canvas.TopProperty, Math.Max(0, StartPoint.Y));
-                    RectangleInCanvas.Width = Math.Max(0, EndPoint.X) - Math.Max(0, StartPoint.X);
-                    RectangleInCanvas.Height = Math.Max(0, EndPoint.Y) - Math.Max(0, StartPoint.Y);
-                }
-            }
-            else
-            {
-                if (StartPoint.Y >= EndPoint.Y)
-                {
-                    RectangleInCanvas.SetValue(Canvas.LeftProperty, Math.Max(0, EndPoint.X));
-                    RectangleInCanvas.SetValue(Canvas.TopProperty, Math.Max(0, EndPoint.Y));
-                    RectangleInCanvas.Width = Math.Max(0, StartPoint.X) - Math.Max(0, EndPoint.X);
-                    RectangleInCanvas.Height = Math.Max(0, StartPoint.Y) - Math.Max(0, EndPoint.Y);
-                }
-                else
-                {
-                    RectangleInCanvas.SetValue(Canvas.LeftProperty, Math.Max(0, EndPoint.X));
-                    RectangleInCanvas.SetValue(Canvas.TopProperty, Math.Max(0, StartPoint.Y));
-                    RectangleInCanvas.Width = Math.Max(0, StartPoint.X) - Math.Max(0, EndPoint.X);
-                    RectangleInCanvas.Height = Math.Max(0, EndPoint.Y) - Math.Max(0, StartPoint.Y);
+                    if (StartPoint.Y >= EndPoint.Y)
+                    {
+                        RectangleInCanvas.SetValue(Canvas.LeftProperty, Math.Max(0, EndPoint.X));
+                        RectangleInCanvas.SetValue(Canvas.TopProperty, Math.Max(0, EndPoint.Y));
+                        RectangleInCanvas.Width = Math.Max(0, StartPoint.X) - Math.Max(0, EndPoint.X);
+                        RectangleInCanvas.Height = Math.Max(0, StartPoint.Y) - Math.Max(0, EndPoint.Y);
+                    }
+                    else
+                    {
+                        RectangleInCanvas.SetValue(Canvas.LeftProperty, Math.Max(0, EndPoint.X));
+                        RectangleInCanvas.SetValue(Canvas.TopProperty, Math.Max(0, StartPoint.Y));
+                        RectangleInCanvas.Width = Math.Max(0, StartPoint.X) - Math.Max(0, EndPoint.X);
+                        RectangleInCanvas.Height = Math.Max(0, EndPoint.Y) - Math.Max(0, StartPoint.Y);
+                    }
                 }
             }
         }
@@ -260,11 +267,14 @@ namespace RX_Explorer.Class
                 View.RemoveHandler(UIElement.PointerCanceledEvent, PointerCanceledHandler);
                 View.RemoveHandler(UIElement.PointerMovedEvent, PointerMovedHandler);
 
+                InnerScrollBar.Scroll -= InnerScrollBar_Scroll;
+
                 ResetPosition();
 
                 View = null;
                 RectangleInCanvas = null;
                 InnerScrollView = null;
+                InnerScrollBar = null;
 
                 GC.SuppressFinalize(this);
             }
