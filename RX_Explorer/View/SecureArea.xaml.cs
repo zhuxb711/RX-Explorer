@@ -71,6 +71,7 @@ namespace RX_Explorer
             CoreWindow.GetForCurrentThread().KeyDown -= SecureArea_KeyDown;
             SelectionExtention?.Dispose();
             EmptyTips.Visibility = Visibility.Collapsed;
+            WholeArea.Visibility = Visibility.Collapsed;
             SecureCollection.Clear();
         }
 
@@ -125,6 +126,7 @@ namespace RX_Explorer
                                             GoBack();
                                             return;
                                         }
+
                                         break;
                                     }
                                 case AuthenticatorState.UserNotRegistered:
@@ -144,6 +146,7 @@ namespace RX_Explorer
                                         {
                                             return;
                                         }
+
                                         break;
                                     }
                                 case AuthenticatorState.WindowsHelloUnsupport:
@@ -170,6 +173,7 @@ namespace RX_Explorer
                                             GoBack();
                                             return;
                                         }
+
                                         break;
                                     }
                             }
@@ -258,9 +262,16 @@ namespace RX_Explorer
                     }
                 }
 
-                SelectionExtention = new ListViewBaseSelectionExtention(SecureGridView, DrawRectangle);
-
                 CoreWindow.GetForCurrentThread().KeyDown += SecureArea_KeyDown;
+
+                if (WholeArea == null)
+                {
+                    FindName(nameof(WholeArea));
+                }
+
+                WholeArea.Visibility = Visibility.Visible;
+
+                SelectionExtention = new ListViewBaseSelectionExtention(SecureGridView, DrawRectangle);
 
                 await LoadSecureFile().ConfigureAwait(true);
             }
@@ -513,7 +524,7 @@ namespace RX_Explorer
                 SecureGridView.SelectedItem = null;
             }
 
-            SelectionExtention.Enable();
+            SelectionExtention?.Enable();
         }
 
         private async void DeleteFile_Click(object sender, RoutedEventArgs e)

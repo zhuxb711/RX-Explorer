@@ -3418,7 +3418,14 @@ namespace RX_Explorer
                                     {
                                         if (TabTarget is HyperlinkStorageItem Item)
                                         {
-                                            await FullTrustProcessController.Current.RunAsync(Item.LinkTargetPath, Item.NeedRunAsAdmin, false, false, Item.Arguments).ConfigureAwait(true);
+                                            if (WIN_Native_API.CheckType(Item.LinkTargetPath) == StorageItemTypes.File)
+                                            {
+                                                await FullTrustProcessController.Current.RunAsync(Item.LinkTargetPath, Item.NeedRunAsAdmin, false, false, Item.Arguments).ConfigureAwait(true);
+                                            }
+                                            else
+                                            {
+                                                await Container.DisplayItemsInFolder(Item.LinkTargetPath).ConfigureAwait(true);
+                                            }
                                         }
 
                                         break;
