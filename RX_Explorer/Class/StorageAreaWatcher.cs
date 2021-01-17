@@ -117,7 +117,7 @@ namespace RX_Explorer.Class
                             }
                         }
 
-                        if (!SettingControl.IsDetachTreeViewAndPresenter)
+                        if (!SettingControl.IsDetachTreeViewAndPresenter && TreeView != null)
                         {
                             await TreeView.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
                         }
@@ -149,7 +149,7 @@ namespace RX_Explorer.Class
                             CurrentCollection.Remove(Item);
                         }
 
-                        if (!SettingControl.IsDetachTreeViewAndPresenter)
+                        if (!SettingControl.IsDetachTreeViewAndPresenter && TreeView != null)
                         {
                             await TreeView.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
                         }
@@ -184,7 +184,7 @@ namespace RX_Explorer.Class
 
                             CurrentCollection.Insert(Index, NewItem);
 
-                            if (!SettingControl.IsDetachTreeViewAndPresenter)
+                            if (!SettingControl.IsDetachTreeViewAndPresenter && TreeView != null)
                             {
                                 await TreeView.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
                             }
@@ -218,9 +218,13 @@ namespace RX_Explorer.Class
             CurrentLocation = string.Empty;
         }
 
-        public StorageAreaWatcher(ObservableCollection<FileSystemStorageItemBase> InitList, TreeView TreeView)
+        public StorageAreaWatcher(ObservableCollection<FileSystemStorageItemBase> InitList)
         {
             CurrentCollection = InitList ?? throw new ArgumentNullException(nameof(InitList), "Parameter could not be null");
+        }
+
+        public void SetTreeView(TreeView TreeView)
+        {
             this.TreeView = TreeView ?? throw new ArgumentNullException(nameof(TreeView), "Parameter could not be null");
         }
 

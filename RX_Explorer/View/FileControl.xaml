@@ -36,20 +36,20 @@
                       ScrollViewer.VerticalScrollBarVisibility="Hidden"
                       ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ListView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="Cls:AddressBlock">
                         <StackPanel Orientation="Horizontal">
                             <Viewbox Width="18"
                                      Height="18"
                                      Margin="0,2,0,0">
                                 <FontIcon Glyph="&#xED41;" />
                             </Viewbox>
-                            <TextBlock Text="{Binding}"
+                            <TextBlock Text="{x:Bind DisplayName}"
                                        Margin="5,0,0,0"
                                        Width="175"
                                        FontSize="14"
                                        TextWrapping="NoWrap"
                                        TextTrimming="CharacterEllipsis"
-                                       ToolTipService.ToolTip="{Binding}" />
+                                       ToolTipService.ToolTip="{x:Bind DisplayName}" />
                         </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>
@@ -121,9 +121,9 @@
                           Target="{x:Bind EverythingQuestion}"
                           x:Name="EverythingTip"/>
     </Page.Resources>
-    <Grid>
+    <Grid Padding="0,2,0,0">
         <Grid.RowDefinitions>
-            <RowDefinition Height="35" />
+            <RowDefinition Height="32" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid>
@@ -135,6 +135,7 @@
                 <ColumnDefinition Width="80" />
                 <ColumnDefinition Width="150" />
                 <ColumnDefinition Width="220" />
+                <ColumnDefinition Width="40" />
             </Grid.ColumnDefinitions>
             <Button HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
@@ -190,7 +191,7 @@
                             Grid.Column="3"
                             Grid.ColumnSpan="2"
                             Margin="5,0,0,0"
-                            VerticalAlignment="Center"
+                            VerticalAlignment="Stretch"
                             Name="AddressBox"
                             UpdateTextOnSelect="False"
                             KeyDown="AddressBox_KeyDown"
@@ -223,9 +224,9 @@
                     </ItemsPanelTemplate>
                 </ListView.ItemsPanel>
                 <ListView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="Cls:AddressBlock">
                         <StackPanel Orientation="Horizontal">
-                            <Button Content="{Binding}"
+                            <Button Content="{x:Bind DisplayName}"
                                     VerticalAlignment="Center"
                                     Name="AddressButton"
                                     Padding="3,5,3,6"
@@ -261,12 +262,28 @@
                 </ListView.ItemContainerStyle>
             </ListView>
 
+            <Button Grid.Column="7"
+                    HorizontalAlignment="Stretch"
+                    Margin="0,0,5,0"
+                    CornerRadius="0"
+                    Padding="2"
+                    BorderBrush="{ThemeResource TextControlBorderBrush}"
+                    Style="{ThemeResource ButtonRevealStyle}"
+                    Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                    Click="Button_Click">
+                <Viewbox>
+                    <FontIcon FontFamily="Segoe MDL2 Assets"
+                              Glyph="&#xE140;" />
+                </Viewbox>
+            </Button>
+
             <ComboBox Grid.Column="5"
                       Margin="5,0,5,0"
-                      Width="140"
+                      HorizontalAlignment="Stretch"
                       CornerRadius="0"
+                      x:FieldModifier="public"
                       x:Name="ItemDisplayMode"
-                      VerticalAlignment="Center"
+                      VerticalAlignment="Stretch"
                       SelectionChanged="ItemDisplayMode_SelectionChanged" />
             <AutoSuggestBox QueryIcon="Find"
                             Style="{ThemeResource CustomAutoSuggestBoxStyle}"
@@ -274,7 +291,7 @@
                             Name="GlobeSearch"
                             x:FieldModifier="public"
                             Grid.Column="6"
-                            VerticalAlignment="Center"
+                            VerticalAlignment="Stretch"
                             GotFocus="GlobeSearch_GotFocus"
                             LostFocus="GlobeSearch_LostFocus"
                             QuerySubmitted="GlobeSearch_QuerySubmitted"
@@ -418,11 +435,13 @@
                 <ColumnDefinition Width="{x:Bind TreeViewGridCol.Width,Mode=OneWay,Converter={StaticResource Converter}}" />
                 <ColumnDefinition Width="6.5*" />
             </Grid.ColumnDefinitions>
-            <local:FilePresenter Margin="2,0,2,0"
-                                 Grid.Column="2"
-                                 x:Name="Presenter"
-                                 x:FieldModifier="public"
-                                 PointerWheelChanged="Presenter_PointerWheelChanged" />
+            <controls:BladeView Grid.Column="2"
+                                Margin="2,0,2,0"
+                                BladeMode="Fullscreen"
+                                x:Name="BladeViewer"
+                                Background="Transparent"
+                                SizeChanged="BladeViewer_SizeChanged"
+                                BladeClosed="BladeViewer_BladeClosed"/>
             <muxc:TreeView Name="FolderTree"
                            x:FieldModifier="public"
                            Expanding="FolderTree_Expanding"

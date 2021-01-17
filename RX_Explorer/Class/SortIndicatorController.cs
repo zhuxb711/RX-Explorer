@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 namespace RX_Explorer.Class
 {
-    public sealed class SortIndicatorController : INotifyPropertyChanged, IDisposable
+    public sealed class SortIndicatorController : INotifyPropertyChanged
     {
         public Visibility Indicator1Visibility { get; private set; }
 
@@ -30,61 +31,51 @@ namespace RX_Explorer.Class
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private static readonly List<SortIndicatorController> CurrentInstance = new List<SortIndicatorController>();
-
-        public static void SetIndicatorStatus(SortTarget Target, SortDirection Direction)
-        {
-            foreach (SortIndicatorController Instance in CurrentInstance)
-            {
-                SetIndicatorCore(Instance, Target, Direction);
-            }
-        }
-
-        private static void SetIndicatorCore(SortIndicatorController Instance, SortTarget Target, SortDirection Direction)
+        public void SetIndicatorStatus(SortTarget Target, SortDirection Direction)
         {
             switch (Target)
             {
                 case SortTarget.Name:
                     {
-                        Instance.Indicator1Icon = new FontIcon { Glyph = Direction == SortDirection.Ascending ? UpArrowIcon : DownArrowIcon };
+                        Indicator1Icon = new FontIcon { Glyph = Direction == SortDirection.Ascending ? UpArrowIcon : DownArrowIcon };
 
-                        Instance.Indicator1Visibility = Visibility.Visible;
-                        Instance.Indicator2Visibility = Visibility.Collapsed;
-                        Instance.Indicator3Visibility = Visibility.Collapsed;
-                        Instance.Indicator4Visibility = Visibility.Collapsed;
+                        Indicator1Visibility = Visibility.Visible;
+                        Indicator2Visibility = Visibility.Collapsed;
+                        Indicator3Visibility = Visibility.Collapsed;
+                        Indicator4Visibility = Visibility.Collapsed;
 
                         break;
                     }
                 case SortTarget.ModifiedTime:
                     {
-                        Instance.Indicator2Icon = new FontIcon { Glyph = Direction == SortDirection.Ascending ? UpArrowIcon : DownArrowIcon };
+                        Indicator2Icon = new FontIcon { Glyph = Direction == SortDirection.Ascending ? UpArrowIcon : DownArrowIcon };
 
-                        Instance.Indicator1Visibility = Visibility.Collapsed;
-                        Instance.Indicator2Visibility = Visibility.Visible;
-                        Instance.Indicator3Visibility = Visibility.Collapsed;
-                        Instance.Indicator4Visibility = Visibility.Collapsed;
+                        Indicator1Visibility = Visibility.Collapsed;
+                        Indicator2Visibility = Visibility.Visible;
+                        Indicator3Visibility = Visibility.Collapsed;
+                        Indicator4Visibility = Visibility.Collapsed;
 
                         break;
                     }
                 case SortTarget.Type:
                     {
-                        Instance.Indicator3Icon = new FontIcon { Glyph = Direction == SortDirection.Ascending ? UpArrowIcon : DownArrowIcon };
+                        Indicator3Icon = new FontIcon { Glyph = Direction == SortDirection.Ascending ? UpArrowIcon : DownArrowIcon };
 
-                        Instance.Indicator1Visibility = Visibility.Collapsed;
-                        Instance.Indicator2Visibility = Visibility.Collapsed;
-                        Instance.Indicator3Visibility = Visibility.Visible;
-                        Instance.Indicator4Visibility = Visibility.Collapsed;
+                        Indicator1Visibility = Visibility.Collapsed;
+                        Indicator2Visibility = Visibility.Collapsed;
+                        Indicator3Visibility = Visibility.Visible;
+                        Indicator4Visibility = Visibility.Collapsed;
 
                         break;
                     }
                 case SortTarget.Size:
                     {
-                        Instance.Indicator4Icon = new FontIcon { Glyph = Direction == SortDirection.Ascending ? UpArrowIcon : DownArrowIcon };
+                        Indicator4Icon = new FontIcon { Glyph = Direction == SortDirection.Ascending ? UpArrowIcon : DownArrowIcon };
 
-                        Instance.Indicator1Visibility = Visibility.Collapsed;
-                        Instance.Indicator2Visibility = Visibility.Collapsed;
-                        Instance.Indicator3Visibility = Visibility.Collapsed;
-                        Instance.Indicator4Visibility = Visibility.Visible;
+                        Indicator1Visibility = Visibility.Collapsed;
+                        Indicator2Visibility = Visibility.Collapsed;
+                        Indicator3Visibility = Visibility.Collapsed;
+                        Indicator4Visibility = Visibility.Visible;
 
                         break;
                     }
@@ -94,35 +85,19 @@ namespace RX_Explorer.Class
                     }
             }
 
-            Instance.PropertyChanged?.Invoke(Instance, new PropertyChangedEventArgs(nameof(Indicator1Icon)));
-            Instance.PropertyChanged?.Invoke(Instance, new PropertyChangedEventArgs(nameof(Indicator2Icon)));
-            Instance.PropertyChanged?.Invoke(Instance, new PropertyChangedEventArgs(nameof(Indicator3Icon)));
-            Instance.PropertyChanged?.Invoke(Instance, new PropertyChangedEventArgs(nameof(Indicator4Icon)));
-            Instance.PropertyChanged?.Invoke(Instance, new PropertyChangedEventArgs(nameof(Indicator1Visibility)));
-            Instance.PropertyChanged?.Invoke(Instance, new PropertyChangedEventArgs(nameof(Indicator2Visibility)));
-            Instance.PropertyChanged?.Invoke(Instance, new PropertyChangedEventArgs(nameof(Indicator3Visibility)));
-            Instance.PropertyChanged?.Invoke(Instance, new PropertyChangedEventArgs(nameof(Indicator4Visibility)));
-        }
-
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
-
-            if (CurrentInstance.Contains(this))
-            {
-                CurrentInstance.Remove(this);
-            }
-        }
-
-        ~SortIndicatorController()
-        {
-            Dispose();
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Indicator1Icon)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Indicator2Icon)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Indicator3Icon)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Indicator4Icon)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Indicator1Visibility)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Indicator2Visibility)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Indicator3Visibility)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Indicator4Visibility)));
         }
 
         public SortIndicatorController()
         {
-            SetIndicatorCore(this, SortCollectionGenerator.Current.SortTarget, SortCollectionGenerator.Current.SortDirection);
-            CurrentInstance.Add(this);
+            SetIndicatorStatus(SortTarget.Name, SortDirection.Ascending);
         }
     }
 }

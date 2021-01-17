@@ -1,6 +1,6 @@
 ﻿using HtmlAgilityPack;
 using Microsoft.Toolkit.Uwp.UI.Animations;
-using Microsoft.UI.Xaml.Controls;
+using Microsoft.Toolkit.Uwp.UI.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using System;
@@ -17,13 +17,15 @@ using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.System;
+using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
-using RefreshContainer = Microsoft.UI.Xaml.Controls.RefreshContainer;
+using TabViewItem = Microsoft.UI.Xaml.Controls.TabViewItem;
 using TreeView = Microsoft.UI.Xaml.Controls.TreeView;
 using TreeViewCollapsedEventArgs = Microsoft.UI.Xaml.Controls.TreeViewCollapsedEventArgs;
 using TreeViewExpandingEventArgs = Microsoft.UI.Xaml.Controls.TreeViewExpandingEventArgs;
@@ -44,27 +46,23 @@ namespace RX_Explorer
 
         private string AddressBoxTextBackup;
 
-        private volatile FileSystemStorageItemBase currentFolder;
-
         private SemaphoreSlim EnterLock;
 
-        private StorageAreaWatcher AreaWatcher;
+        private readonly PointerEventHandler BladePointerPressedEventHandler;
 
         public FileSystemStorageItemBase CurrentFolder
         {
-            get => currentFolder;
+            get => CurrentPresenter.CurrentFolder;
             set
             {
                 if (value != null)
                 {
-                    AreaWatcher.StartWatchDirectory(value.Path, SettingControl.IsDisplayHiddenItem);
-
                     UpdateAddressButton(value.Path);
 
                     GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {value.Name}";
                     GoParentFolder.IsEnabled = value.Path != Path.GetPathRoot(value.Path);
-                    GoBackRecord.IsEnabled = RecordIndex > 0;
-                    GoForwardRecord.IsEnabled = RecordIndex < GoAndBackRecord.Count - 1;
+                    GoBackRecord.IsEnabled = CurrentPresenter.RecordIndex > 0;
+                    GoForwardRecord.IsEnabled = CurrentPresenter.RecordIndex < CurrentPresenter.GoAndBackRecord.Count - 1;
 
                     if (TabItem != null)
                     {
@@ -74,20 +72,45 @@ namespace RX_Explorer
 
                 TaskBarController.SetText(value?.DisplayName);
 
-                currentFolder = value;
+                CurrentPresenter.CurrentFolder = value;
             }
         }
 
-        private int RecordIndex
+        private FilePresenter currentPresenter;
+        public FilePresenter CurrentPresenter
         {
-            get => recordIndex;
-            set => recordIndex = value;
+            get
+            {
+                return currentPresenter;
+            }
+            set
+            {
+                if (value != currentPresenter)
+                {
+                    if (value?.CurrentFolder is FileSystemStorageItemBase Folder)
+                    {
+                        UpdateAddressButton(Folder.Path);
+
+                        GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {Folder.Name}";
+                        GoParentFolder.IsEnabled = Folder.Path != Path.GetPathRoot(Folder.Path);
+                        GoBackRecord.IsEnabled = value.RecordIndex > 0;
+                        GoForwardRecord.IsEnabled = value.RecordIndex < value.GoAndBackRecord.Count - 1;
+
+                        if (TabItem != null)
+                        {
+                            TabItem.Header = string.IsNullOrEmpty(Folder.DisplayName) ? $"<{Globalization.GetString("UnknownText")}>" : Folder.DisplayName;
+                        }
+                    }
+
+                    TaskBarController.SetText(value?.CurrentFolder?.DisplayName);
+
+                    currentPresenter = value;
+                }
+            }
         }
 
-        private List<ValueTuple<string, string>> GoAndBackRecord = new List<ValueTuple<string, string>>();
-        private ObservableCollection<string> AddressButtonList = new ObservableCollection<string>();
-        private ObservableCollection<string> AddressExtentionList = new ObservableCollection<string>();
-        private volatile int recordIndex;
+        private ObservableCollection<AddressBlock> AddressButtonList = new ObservableCollection<AddressBlock>();
+        private ObservableCollection<AddressBlock> AddressExtentionList = new ObservableCollection<AddressBlock>();
         private bool IsBackOrForwardAction;
 
         private TabViewItem TabItem
@@ -111,8 +134,6 @@ namespace RX_Explorer
         {
             InitializeComponent();
 
-            Presenter.WeakToFileControl = new WeakReference<FileControl>(this);
-
             ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Tiles"));
             ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Details"));
             ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_List"));
@@ -121,6 +142,8 @@ namespace RX_Explorer
             ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Small_Icon"));
 
             EverythingTip.Subtitle = Globalization.GetString("EverythingQuestionSubtitle");
+
+            BladePointerPressedEventHandler = new PointerEventHandler(Blade_PointerPressed);
 
             Loaded += FileControl_Loaded;
         }
@@ -138,15 +161,6 @@ namespace RX_Explorer
             }
         }
 
-        private void Current_Resuming(object sender, object e)
-        {
-            AreaWatcher.StartWatchDirectory(AreaWatcher.CurrentLocation, SettingControl.IsDisplayHiddenItem);
-        }
-
-        private void Current_Suspending(object sender, SuspendingEventArgs e)
-        {
-            AreaWatcher.StopWatchDirectory();
-        }
 
         /// <summary>
         /// 激活或关闭正在加载提示
@@ -162,9 +176,9 @@ namespace RX_Explorer
 
             if (IsLoading)
             {
-                if (Presenter.HasFile.Visibility == Visibility.Visible)
+                if (CurrentPresenter.HasFile.Visibility == Visibility.Visible)
                 {
-                    Presenter.HasFile.Visibility = Visibility.Collapsed;
+                    CurrentPresenter.HasFile.Visibility = Visibility.Collapsed;
                 }
 
                 ProBar.IsIndeterminate = true;
@@ -199,29 +213,29 @@ namespace RX_Explorer
 
                     if (AddressButtonList.Count == 0)
                     {
-                        AddressButtonList.Add(DriveRootFolder.DisplayName);
+                        AddressButtonList.Add(new AddressBlock(DriveRootFolder.Path, DriveRootFolder.DisplayName));
 
                         PathAnalysis Analysis = new PathAnalysis(Path, RootPath);
 
                         while (Analysis.HasNextLevel)
                         {
-                            AddressButtonList.Add(Analysis.NextRelativePath());
+                            AddressButtonList.Add(new AddressBlock(Analysis.NextFullPath()));
                         }
                     }
                     else
                     {
-                        string OriginalString = string.Join("\\", AddressButtonList.Skip(1));
-                        string ActualString = System.IO.Path.Combine(System.IO.Path.GetPathRoot(CurrentFolder.Path), OriginalString);
+                        string PathString = AddressButtonList.Last().Path;
 
                         List<string> IntersectList = new List<string>();
-                        string[] FolderSplit = Path.Split('\\', StringSplitOptions.RemoveEmptyEntries);
-                        string[] ActualSplit = ActualString.Split('\\', StringSplitOptions.RemoveEmptyEntries);
 
-                        for (int i = 0; i < FolderSplit.Length && i < ActualSplit.Length; i++)
+                        string[] CurrentSplit = Path.Split('\\', StringSplitOptions.RemoveEmptyEntries);
+                        string[] OriginSplit = PathString.Split('\\', StringSplitOptions.RemoveEmptyEntries);
+
+                        for (int i = 0; i < CurrentSplit.Length && i < OriginSplit.Length; i++)
                         {
-                            if (FolderSplit[i] == ActualSplit[i])
+                            if (CurrentSplit[i] == OriginSplit[i])
                             {
-                                IntersectList.Add(FolderSplit[i]);
+                                IntersectList.Add(CurrentSplit[i]);
                             }
                             else
                             {
@@ -233,13 +247,13 @@ namespace RX_Explorer
                         {
                             AddressButtonList.Clear();
 
-                            AddressButtonList.Add(DriveRootFolder.DisplayName);
+                            AddressButtonList.Add(new AddressBlock(DriveRootFolder.Path, DriveRootFolder.DisplayName));
 
                             PathAnalysis Analysis = new PathAnalysis(Path, RootPath);
 
                             while (Analysis.HasNextLevel)
                             {
-                                AddressButtonList.Add(Analysis.NextRelativePath());
+                                AddressButtonList.Add(new AddressBlock(Analysis.NextFullPath()));
                             }
                         }
                         else
@@ -249,13 +263,15 @@ namespace RX_Explorer
                                 AddressButtonList.RemoveAt(i);
                             }
 
-                            List<string> ExceptList = Path.Split('\\', StringSplitOptions.RemoveEmptyEntries).ToList();
+                            List<string> ExceptList = CurrentSplit.ToList();
+
+                            string BaseString = string.Join('\\', ExceptList.Take(IntersectList.Count));
 
                             ExceptList.RemoveRange(0, IntersectList.Count);
 
                             foreach (string SubPath in ExceptList)
                             {
-                                AddressButtonList.Add(SubPath);
+                                AddressButtonList.Add(new AddressBlock(System.IO.Path.Combine(BaseString, SubPath)));
                             }
                         }
                     }
@@ -266,8 +282,6 @@ namespace RX_Explorer
                 }
                 finally
                 {
-                    AddressButtonContainer.UpdateLayout();
-
                     if (AddressButtonContainer.IsLoaded)
                     {
                         ScrollViewer Viewer = AddressButtonContainer.FindChildOfType<ScrollViewer>();
@@ -307,8 +321,6 @@ namespace RX_Explorer
                 {
                     if (e.NavigationMode == NavigationMode.New && e?.Parameter is Tuple<WeakReference<TabViewItem>, string> Parameters)
                     {
-                        Application.Current.Suspending += Current_Suspending;
-                        Application.Current.Resuming += Current_Resuming;
                         Frame.Navigated += Frame_Navigated;
 
                         if (Parameters.Item1 != null)
@@ -316,7 +328,6 @@ namespace RX_Explorer
                             WeakToTabItem = Parameters.Item1;
                         }
 
-                        AreaWatcher = new StorageAreaWatcher(Presenter.FileCollection, FolderTree);
                         EnterLock = new SemaphoreSlim(1, 1);
 
                         if (!CommonAccessCollection.FrameFileControlDic.ContainsKey(Frame))
@@ -400,8 +411,8 @@ namespace RX_Explorer
                 FolderTree.SelectNode(RootNode);
 
                 Task[] InitTasks = HasAnyFolder
-                    ? (new Task[] { FillTreeNode(RootNode), DisplayItemsInFolder(InitFolderPath) })
-                    : (new Task[] { DisplayItemsInFolder(InitFolderPath) });
+                    ? (new Task[] { FillTreeNode(RootNode), CreateNewBlade(InitFolderPath) })
+                    : (new Task[] { CreateNewBlade(InitFolderPath) });
 
                 await Task.WhenAll(InitTasks).ConfigureAwait(false);
             }
@@ -510,28 +521,28 @@ namespace RX_Explorer
                 }
                 else if (!ForceRefresh)
                 {
-                    if (RecordIndex != GoAndBackRecord.Count - 1 && GoAndBackRecord.Count != 0)
+                    if (CurrentPresenter.RecordIndex != CurrentPresenter.GoAndBackRecord.Count - 1 && CurrentPresenter.GoAndBackRecord.Count != 0)
                     {
-                        GoAndBackRecord.RemoveRange(RecordIndex + 1, GoAndBackRecord.Count - RecordIndex - 1);
+                        CurrentPresenter.GoAndBackRecord.RemoveRange(CurrentPresenter.RecordIndex + 1, CurrentPresenter.GoAndBackRecord.Count - CurrentPresenter.RecordIndex - 1);
                     }
 
-                    if (GoAndBackRecord.Count > 0)
+                    if (CurrentPresenter.GoAndBackRecord.Count > 0)
                     {
                         string ParentPath = Path.GetDirectoryName(FolderPath);
 
-                        if (ParentPath == GoAndBackRecord[GoAndBackRecord.Count - 1].Item1)
+                        if (ParentPath == CurrentPresenter.GoAndBackRecord[CurrentPresenter.GoAndBackRecord.Count - 1].Item1)
                         {
-                            GoAndBackRecord[GoAndBackRecord.Count - 1] = (ParentPath, FolderPath);
+                            CurrentPresenter.GoAndBackRecord[CurrentPresenter.GoAndBackRecord.Count - 1] = (ParentPath, FolderPath);
                         }
                         else
                         {
-                            GoAndBackRecord[GoAndBackRecord.Count - 1] = (GoAndBackRecord[GoAndBackRecord.Count - 1].Item1, Presenter.SelectedItems.Count > 1 ? string.Empty : (Presenter.SelectedItem?.Path ?? string.Empty));
+                            CurrentPresenter.GoAndBackRecord[CurrentPresenter.GoAndBackRecord.Count - 1] = (CurrentPresenter.GoAndBackRecord[CurrentPresenter.GoAndBackRecord.Count - 1].Item1, CurrentPresenter.SelectedItems.Count > 1 ? string.Empty : (CurrentPresenter.SelectedItem?.Path ?? string.Empty));
                         }
                     }
 
-                    GoAndBackRecord.Add((FolderPath, string.Empty));
+                    CurrentPresenter.GoAndBackRecord.Add((FolderPath, string.Empty));
 
-                    RecordIndex = GoAndBackRecord.Count - 1;
+                    CurrentPresenter.RecordIndex = CurrentPresenter.GoAndBackRecord.Count - 1;
                 }
 
                 if (await FileSystemStorageItemBase.OpenAsync(FolderPath, ItemFilters.Folder).ConfigureAwait(true) is FileSystemStorageItemBase Item)
@@ -543,8 +554,8 @@ namespace RX_Explorer
                     QueueContentDialog dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} \r\"{FolderPath}\"",
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                     };
 
                     _ = await dialog.ShowAsync().ConfigureAwait(true);
@@ -552,27 +563,37 @@ namespace RX_Explorer
                     return;
                 }
 
-                Presenter.FileCollection.Clear();
+                CurrentPresenter.FileCollection.Clear();
 
                 PathConfiguration Config = await SQLite.Current.GetPathConfiguration(FolderPath).ConfigureAwait(true);
 
-                await SortCollectionGenerator.Current.ModifySortWayAsync(FolderPath, Config.SortColumn, Config.SortDirection).ConfigureAwait(true);
+                if (ItemDisplayMode.SelectedIndex == Config.DisplayModeIndex.GetValueOrDefault())
+                {
+                    await CurrentPresenter.ChangeDisplayModeFromIndex(Config.DisplayModeIndex.GetValueOrDefault()).ConfigureAwait(true);
+                }
+                else
+                {
+                    ItemDisplayMode.SelectedIndex = Config.DisplayModeIndex.GetValueOrDefault();
+                }
 
-                ItemDisplayMode.SelectedIndex = Config.DisplayModeIndex.GetValueOrDefault();
+                if (CurrentPresenter.ItemPresenter.Header is ListViewHeaderController Controller)
+                {
+                    Controller.Indicator.SetIndicatorStatus(Config.SortColumn.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+                }
 
-                List<FileSystemStorageItemBase> ItemList = SortCollectionGenerator.Current.GetSortedCollection(CurrentFolder.GetChildrenItems(SettingControl.IsDisplayHiddenItem));
+                List<FileSystemStorageItemBase> ItemList = SortCollectionGenerator.Current.GetSortedCollection(CurrentFolder.GetChildrenItems(SettingControl.IsDisplayHiddenItem), Config.SortColumn, Config.SortDirection);
 
-                Presenter.HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-                Presenter.StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", ItemList.Count.ToString());
+                CurrentPresenter.HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+                CurrentPresenter.StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", ItemList.Count.ToString());
 
-                if (Presenter.ListViewControl?.Header is ListViewHeaderController Instance)
+                if (CurrentPresenter.ItemPresenter?.Header is ListViewHeaderController Instance)
                 {
                     Instance.Filter.SetDataSource(ItemList);
                 }
 
                 for (int i = 0; i < ItemList.Count; i++)
                 {
-                    Presenter.FileCollection.Add(ItemList[i]);
+                    CurrentPresenter.FileCollection.Add(ItemList[i]);
                 }
             }
             catch (Exception ex)
@@ -1227,7 +1248,7 @@ namespace RX_Explorer
             {
                 if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath1).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                 {
-                    await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
+                    await CurrentPresenter.EnterSelectedItem(Item).ConfigureAwait(true);
 
                     if (Item.StorageType == StorageItemTypes.Folder)
                     {
@@ -1241,7 +1262,7 @@ namespace RX_Explorer
             {
                 if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath2).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                 {
-                    await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
+                    await CurrentPresenter.EnterSelectedItem(Item).ConfigureAwait(true);
 
                     if (Item.StorageType == StorageItemTypes.Folder)
                     {
@@ -1255,7 +1276,7 @@ namespace RX_Explorer
             {
                 if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath3).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                 {
-                    await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
+                    await CurrentPresenter.EnterSelectedItem(Item).ConfigureAwait(true);
 
                     if (Item.StorageType == StorageItemTypes.Folder)
                     {
@@ -1324,7 +1345,7 @@ namespace RX_Explorer
                     {
                         if (Item.StorageType == StorageItemTypes.File)
                         {
-                            await Presenter.EnterSelectedItem(Item).ConfigureAwait(true);
+                            await CurrentPresenter.EnterSelectedItem(Item).ConfigureAwait(true);
                         }
                         else
                         {
@@ -1441,10 +1462,10 @@ namespace RX_Explorer
                         {
                             await DisplayItemsInFolder(Path.GetDirectoryName(CurrentFolder.Path)).ConfigureAwait(true);
 
-                            if (Presenter.FileCollection.Where((Item) => Item.StorageType == StorageItemTypes.Folder).FirstOrDefault((Item) => Item.Path.Equals(CurrentFolderPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Folder)
+                            if (CurrentPresenter.FileCollection.Where((Item) => Item.StorageType == StorageItemTypes.Folder).FirstOrDefault((Item) => Item.Path.Equals(CurrentFolderPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Folder)
                             {
-                                Presenter.SelectedItem = Folder;
-                                Presenter.ItemPresenter.ScrollIntoView(Folder, ScrollIntoViewAlignment.Leading);
+                                CurrentPresenter.SelectedItem = Folder;
+                                CurrentPresenter.ItemPresenter.ScrollIntoView(Folder, ScrollIntoViewAlignment.Leading);
                             }
                         }
                         else
@@ -1471,9 +1492,9 @@ namespace RX_Explorer
                 {
                     if (GoBackRecord.IsEnabled)
                     {
-                        GoAndBackRecord[RecordIndex] = (GoAndBackRecord[RecordIndex].Item1, Presenter.SelectedItems.Count > 1 ? string.Empty : (Presenter.SelectedItem?.Path ?? string.Empty));
+                        CurrentPresenter.GoAndBackRecord[CurrentPresenter.RecordIndex] = (CurrentPresenter.GoAndBackRecord[CurrentPresenter.RecordIndex].Item1, CurrentPresenter.SelectedItems.Count > 1 ? string.Empty : (CurrentPresenter.SelectedItem?.Path ?? string.Empty));
 
-                        (Path, SelectedPath) = GoAndBackRecord[--RecordIndex];
+                        (Path, SelectedPath) = CurrentPresenter.GoAndBackRecord[--CurrentPresenter.RecordIndex];
 
                         if (WIN_Native_API.CheckExist(Path))
                         {
@@ -1483,10 +1504,10 @@ namespace RX_Explorer
 
                             await SQLite.Current.SetPathHistoryAsync(Path).ConfigureAwait(true);
 
-                            if (!string.IsNullOrEmpty(SelectedPath) && Presenter.FileCollection.FirstOrDefault((Item) => Item.Path.Equals(SelectedPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
+                            if (!string.IsNullOrEmpty(SelectedPath) && CurrentPresenter.FileCollection.FirstOrDefault((Item) => Item.Path.Equals(SelectedPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
                             {
-                                Presenter.SelectedItem = Item;
-                                Presenter.ItemPresenter.ScrollIntoView(Item, ScrollIntoViewAlignment.Leading);
+                                CurrentPresenter.SelectedItem = Item;
+                                CurrentPresenter.ItemPresenter.ScrollIntoView(Item, ScrollIntoViewAlignment.Leading);
                             }
                         }
                         else
@@ -1500,7 +1521,7 @@ namespace RX_Explorer
 
                             _ = await dialog.ShowAsync().ConfigureAwait(true);
 
-                            RecordIndex++;
+                            CurrentPresenter.RecordIndex++;
                         }
                     }
                 }
@@ -1534,9 +1555,9 @@ namespace RX_Explorer
                 {
                     if (GoForwardRecord.IsEnabled)
                     {
-                        GoAndBackRecord[RecordIndex] = (GoAndBackRecord[RecordIndex].Item1, Presenter.SelectedItems.Count > 1 ? string.Empty : (Presenter.SelectedItem?.Path ?? string.Empty));
+                        CurrentPresenter.GoAndBackRecord[CurrentPresenter.RecordIndex] = (CurrentPresenter.GoAndBackRecord[CurrentPresenter.RecordIndex].Item1, CurrentPresenter.SelectedItems.Count > 1 ? string.Empty : (CurrentPresenter.SelectedItem?.Path ?? string.Empty));
 
-                        (Path, SelectedPath) = GoAndBackRecord[++RecordIndex];
+                        (Path, SelectedPath) = CurrentPresenter.GoAndBackRecord[++CurrentPresenter.RecordIndex];
 
                         if (WIN_Native_API.CheckExist(Path))
                         {
@@ -1546,10 +1567,10 @@ namespace RX_Explorer
 
                             await SQLite.Current.SetPathHistoryAsync(Path).ConfigureAwait(true);
 
-                            if (!string.IsNullOrEmpty(SelectedPath) && Presenter.FileCollection.FirstOrDefault((Item) => Item.Path.Equals(SelectedPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
+                            if (!string.IsNullOrEmpty(SelectedPath) && CurrentPresenter.FileCollection.FirstOrDefault((Item) => Item.Path.Equals(SelectedPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
                             {
-                                Presenter.SelectedItem = Item;
-                                Presenter.ItemPresenter.ScrollIntoView(Item, ScrollIntoViewAlignment.Leading);
+                                CurrentPresenter.SelectedItem = Item;
+                                CurrentPresenter.ItemPresenter.ScrollIntoView(Item, ScrollIntoViewAlignment.Leading);
                             }
                         }
                         else
@@ -1563,7 +1584,7 @@ namespace RX_Explorer
 
                             _ = await dialog.ShowAsync().ConfigureAwait(true);
 
-                            RecordIndex--;
+                            CurrentPresenter.RecordIndex--;
                         }
                     }
                 }
@@ -1577,7 +1598,7 @@ namespace RX_Explorer
                     };
                     _ = await dialog.ShowAsync().ConfigureAwait(true);
 
-                    RecordIndex--;
+                    CurrentPresenter.RecordIndex--;
                 }
                 finally
                 {
@@ -1604,144 +1625,10 @@ namespace RX_Explorer
 
         private async void ItemDisplayMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            switch (ItemDisplayMode.SelectedIndex)
-            {
-                case 0:
-                    {
-                        Presenter.ItemPresenter = (Presenter.FindName("GridViewRefreshContainer") as RefreshContainer)?.Content as ListViewBase;
-
-                        Presenter.GridViewControl.ItemTemplate = Presenter.GridViewTileDataTemplate;
-                        Presenter.GridViewControl.ItemsPanel = Presenter.HorizontalGridViewPanel;
-
-                        while (true)
-                        {
-                            if (Presenter.GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
-                            {
-                                Scroll.HorizontalScrollMode = ScrollMode.Disabled;
-                                Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
-                                Scroll.VerticalScrollMode = ScrollMode.Auto;
-                                Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-                                break;
-                            }
-                            else
-                            {
-                                await Task.Delay(300).ConfigureAwait(true);
-                            }
-                        }
-
-                        break;
-                    }
-                case 1:
-                    {
-                        Presenter.ItemPresenter = (Presenter.FindName("ListViewRefreshContainer") as RefreshContainer)?.Content as ListViewBase;
-                        break;
-                    }
-                case 2:
-                    {
-                        Presenter.ItemPresenter = (Presenter.FindName("GridViewRefreshContainer") as RefreshContainer)?.Content as ListViewBase;
-
-                        Presenter.GridViewControl.ItemTemplate = Presenter.GridViewListDataTemplate;
-                        Presenter.GridViewControl.ItemsPanel = Presenter.VerticalGridViewPanel;
-
-                        while (true)
-                        {
-                            if (Presenter.GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
-                            {
-                                Scroll.HorizontalScrollMode = ScrollMode.Auto;
-                                Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
-                                Scroll.VerticalScrollMode = ScrollMode.Disabled;
-                                Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
-                                break;
-                            }
-                            else
-                            {
-                                await Task.Delay(300).ConfigureAwait(true);
-                            }
-                        }
-
-                        break;
-                    }
-                case 3:
-                    {
-                        Presenter.ItemPresenter = (Presenter.FindName("GridViewRefreshContainer") as RefreshContainer)?.Content as ListViewBase;
-
-                        Presenter.GridViewControl.ItemTemplate = Presenter.GridViewLargeImageDataTemplate;
-                        Presenter.GridViewControl.ItemsPanel = Presenter.HorizontalGridViewPanel;
-
-                        while (true)
-                        {
-                            if (Presenter.GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
-                            {
-                                Scroll.HorizontalScrollMode = ScrollMode.Disabled;
-                                Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
-                                Scroll.VerticalScrollMode = ScrollMode.Auto;
-                                Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-                                break;
-                            }
-                            else
-                            {
-                                await Task.Delay(300).ConfigureAwait(true);
-                            }
-                        }
-
-                        break;
-                    }
-                case 4:
-                    {
-                        Presenter.ItemPresenter = (Presenter.FindName("GridViewRefreshContainer") as RefreshContainer)?.Content as ListViewBase;
-
-                        Presenter.GridViewControl.ItemTemplate = Presenter.GridViewMediumImageDataTemplate;
-                        Presenter.GridViewControl.ItemsPanel = Presenter.HorizontalGridViewPanel;
-
-                        while (true)
-                        {
-                            if (Presenter.GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
-                            {
-                                Scroll.HorizontalScrollMode = ScrollMode.Disabled;
-                                Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
-                                Scroll.VerticalScrollMode = ScrollMode.Auto;
-                                Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-                                break;
-                            }
-                            else
-                            {
-                                await Task.Delay(300).ConfigureAwait(true);
-                            }
-                        }
-
-                        break;
-                    }
-                case 5:
-                    {
-                        Presenter.ItemPresenter = (Presenter.FindName("GridViewRefreshContainer") as RefreshContainer)?.Content as ListViewBase;
-
-                        Presenter.GridViewControl.ItemTemplate = Presenter.GridViewSmallImageDataTemplate;
-                        Presenter.GridViewControl.ItemsPanel = Presenter.HorizontalGridViewPanel;
-
-                        while (true)
-                        {
-                            if (Presenter.GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
-                            {
-                                Scroll.HorizontalScrollMode = ScrollMode.Disabled;
-                                Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
-                                Scroll.VerticalScrollMode = ScrollMode.Auto;
-                                Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-                                break;
-                            }
-                            else
-                            {
-                                await Task.Delay(300).ConfigureAwait(true);
-                            }
-                        }
-
-                        break;
-                    }
-            }
-
-            await SQLite.Current.SetPathConfiguration(new PathConfiguration(CurrentFolder.Path, ItemDisplayMode.SelectedIndex)).ConfigureAwait(false);
+            await CurrentPresenter.ChangeDisplayModeFromIndex(ItemDisplayMode.SelectedIndex).ConfigureAwait(false);
         }
 
-        private void AddressBox_KeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        private void AddressBox_KeyDown(object sender, KeyRoutedEventArgs e)
         {
             if (e.Key == VirtualKey.Tab)
             {
@@ -1765,28 +1652,26 @@ namespace RX_Explorer
 
         private async void AddressButton_Click(object sender, RoutedEventArgs e)
         {
-            string OriginalString = string.Join("\\", AddressButtonList.Take(AddressButtonList.IndexOf(Convert.ToString(((Button)sender).Content)) + 1).Skip(1));
-            string ActualString = Path.Combine(Path.GetPathRoot(CurrentFolder.Path), OriginalString);
+            Button Btn = sender as Button;
 
-            if (ActualString == CurrentFolder.Path)
+            if (Btn.DataContext is AddressBlock Block && Block.Path != CurrentFolder.Path)
             {
-                return;
-            }
 
-            try
-            {
-                await DisplayItemsInFolder(ActualString).ConfigureAwait(true);
-                await SQLite.Current.SetPathHistoryAsync(ActualString).ConfigureAwait(true);
-            }
-            catch
-            {
-                QueueContentDialog dialog = new QueueContentDialog
+                try
                 {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} \r\"{ActualString}\"",
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                };
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    await DisplayItemsInFolder(Block.Path).ConfigureAwait(true);
+                    await SQLite.Current.SetPathHistoryAsync(Block.Path).ConfigureAwait(true);
+                }
+                catch
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} \r\"{Block.Path}\"",
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                    };
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                }
             }
         }
 
@@ -1797,23 +1682,23 @@ namespace RX_Explorer
 
             AddressExtentionList.Clear();
 
-            string OriginalString = string.Join("\\", AddressButtonList.Take(AddressButtonList.IndexOf(Convert.ToString(Btn.DataContext)) + 1).Skip(1));
-            string ActualString = Path.Combine(Path.GetPathRoot(CurrentFolder.Path), OriginalString);
-
-            List<string> ItemList = WIN_Native_API.GetStorageItemsAndReturnPath(ActualString, SettingControl.IsDisplayHiddenItem, ItemFilters.Folder);
-
-            foreach (string SubFolderName in ItemList.Select((Item) => Path.GetFileName(Item)))
+            if (Btn.DataContext is AddressBlock Block)
             {
-                AddressExtentionList.Add(SubFolderName);
-            }
+                List<string> ItemList = WIN_Native_API.GetStorageItemsAndReturnPath(Block.Path, SettingControl.IsDisplayHiddenItem, ItemFilters.Folder);
 
-            if (AddressExtentionList.Count != 0)
-            {
-                StateText.RenderTransformOrigin = new Point(0.55, 0.6);
-                await StateText.Rotate(90, duration: 150).StartAsync().ConfigureAwait(true);
+                foreach (string Path in ItemList)
+                {
+                    AddressExtentionList.Add(new AddressBlock(Path));
+                }
 
-                FlyoutBase.SetAttachedFlyout(Btn, AddressExtentionFlyout);
-                FlyoutBase.ShowAttachedFlyout(Btn);
+                if (AddressExtentionList.Count != 0)
+                {
+                    StateText.RenderTransformOrigin = new Point(0.55, 0.6);
+                    await StateText.Rotate(90, duration: 150).StartAsync().ConfigureAwait(true);
+
+                    FlyoutBase.SetAttachedFlyout(Btn, AddressExtentionFlyout);
+                    FlyoutBase.ShowAttachedFlyout(Btn);
+                }
             }
         }
 
@@ -1831,54 +1716,203 @@ namespace RX_Explorer
                 AddressExtentionFlyout.Hide();
             });
 
-            if (!string.IsNullOrEmpty(e.ClickedItem.ToString()))
+            if (e.ClickedItem is AddressBlock TargeBlock)
             {
-                string OriginalString = string.Join("\\", AddressButtonList.Take(AddressButtonList.IndexOf(Convert.ToString(AddressExtentionFlyout.Target.FindParentOfType<StackPanel>()?.FindChildOfName<Button>("AddressButton")?.Content)) + 1).Skip(1));
-                string ActualString = Path.Combine(Path.GetPathRoot(CurrentFolder.Path), OriginalString);
-
-                string TargetPath = Path.Combine(ActualString, e.ClickedItem.ToString());
-
-                try
-                {
-                    await DisplayItemsInFolder(TargetPath).ConfigureAwait(true);
-                }
-                catch
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} \r\"{TargetPath}\"",
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                    };
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
-                }
+                await DisplayItemsInFolder(TargeBlock.Path).ConfigureAwait(true);
             }
         }
 
         private async void AddressButton_Drop(object sender, DragEventArgs e)
         {
-            string OriginalString = string.Join("\\", AddressButtonList.Take(AddressButtonList.IndexOf(Convert.ToString(((Button)sender).Content)) + 1).Skip(1));
-            string ActualPath = Path.Combine(Path.GetPathRoot(CurrentFolder.Path), OriginalString);
+            Button Btn = sender as Button;
 
-            if (Interlocked.Exchange(ref DropLockResource, 1) == 0)
+            if (Btn.DataContext is AddressBlock Block)
             {
-                try
+                if (Interlocked.Exchange(ref DropLockResource, 1) == 0)
                 {
-                    if (e.DataView.Contains(StandardDataFormats.Html))
+                    try
                     {
-                        string Html = await e.DataView.GetHtmlFormatAsync();
-                        string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
-
-                        HtmlDocument Document = new HtmlDocument();
-                        Document.LoadHtml(Fragment);
-                        HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
-
-                        if (HeadNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
+                        if (e.DataView.Contains(StandardDataFormats.Html))
                         {
-                            HtmlNodeCollection BodyNode = Document.DocumentNode.SelectNodes("/p");
-                            List<string> LinkAndHiddenItemsPath = BodyNode.Select((Node) => Node.InnerText).ToList();
+                            string Html = await e.DataView.GetHtmlFormatAsync();
+                            string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
 
-                            StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(ActualPath);
+                            HtmlDocument Document = new HtmlDocument();
+                            Document.LoadHtml(Fragment);
+                            HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
+
+                            if (HeadNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
+                            {
+                                HtmlNodeCollection BodyNode = Document.DocumentNode.SelectNodes("/p");
+                                List<string> LinkAndHiddenItemsPath = BodyNode.Select((Node) => Node.InnerText).ToList();
+
+                                StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(Block.Path);
+
+                                switch (e.AcceptedOperation)
+                                {
+                                    case DataPackageOperation.Copy:
+                                        {
+                                            await LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
+
+                                        Retry:
+                                            try
+                                            {
+                                                await FullTrustProcessController.Current.CopyAsync(LinkAndHiddenItemsPath, TargetFolder.Path, (s, arg) =>
+                                                {
+                                                    if (ProBar.Value < arg.ProgressPercentage)
+                                                    {
+                                                        ProBar.IsIndeterminate = false;
+                                                        ProBar.Value = arg.ProgressPercentage;
+                                                    }
+                                                }).ConfigureAwait(true);
+                                            }
+                                            catch (FileNotFoundException)
+                                            {
+                                                QueueContentDialog Dialog = new QueueContentDialog
+                                                {
+                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                };
+
+                                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                                            }
+                                            catch (InvalidOperationException)
+                                            {
+                                                QueueContentDialog dialog = new QueueContentDialog
+                                                {
+                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
+                                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                                };
+
+                                                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                                {
+                                                    if (await FullTrustProcessController.Current.SwitchToAdminModeAsync().ConfigureAwait(true))
+                                                    {
+                                                        goto Retry;
+                                                    }
+                                                    else
+                                                    {
+                                                        QueueContentDialog ErrorDialog = new QueueContentDialog
+                                                        {
+                                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                            Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                        };
+
+                                                        _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                                                    }
+                                                }
+                                            }
+                                            catch (Exception)
+                                            {
+                                                QueueContentDialog dialog = new QueueContentDialog
+                                                {
+                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                };
+
+                                                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                                            }
+
+                                            break;
+                                        }
+                                    case DataPackageOperation.Move:
+                                        {
+                                            if (LinkAndHiddenItemsPath.All((Item) => Path.GetDirectoryName(Item) == Block.Path))
+                                            {
+                                                return;
+                                            }
+
+                                            await LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
+
+                                        Retry:
+                                            try
+                                            {
+                                                await FullTrustProcessController.Current.MoveAsync(LinkAndHiddenItemsPath, TargetFolder.Path, (s, arg) =>
+                                                {
+                                                    if (ProBar.Value < arg.ProgressPercentage)
+                                                    {
+                                                        ProBar.IsIndeterminate = false;
+                                                        ProBar.Value = arg.ProgressPercentage;
+                                                    }
+                                                }).ConfigureAwait(true);
+                                            }
+                                            catch (FileNotFoundException)
+                                            {
+                                                QueueContentDialog Dialog = new QueueContentDialog
+                                                {
+                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_MoveFailForNotExist_Content"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                };
+
+                                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                                            }
+                                            catch (FileCaputureException)
+                                            {
+                                                QueueContentDialog dialog = new QueueContentDialog
+                                                {
+                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                };
+
+                                                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                                            }
+                                            catch (InvalidOperationException)
+                                            {
+                                                QueueContentDialog dialog = new QueueContentDialog
+                                                {
+                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
+                                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                                };
+
+                                                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                                {
+                                                    if (await FullTrustProcessController.Current.SwitchToAdminModeAsync().ConfigureAwait(true))
+                                                    {
+                                                        goto Retry;
+                                                    }
+                                                    else
+                                                    {
+                                                        QueueContentDialog ErrorDialog = new QueueContentDialog
+                                                        {
+                                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                            Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                        };
+
+                                                        _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                                                    }
+                                                }
+                                            }
+                                            catch (Exception)
+                                            {
+                                                QueueContentDialog dialog = new QueueContentDialog
+                                                {
+                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_MoveFailUnexpectError_Content"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                };
+
+                                                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                                            }
+
+                                            break;
+                                        }
+                                }
+                            }
+                        }
+
+                        if (e.DataView.Contains(StandardDataFormats.StorageItems))
+                        {
+                            List<IStorageItem> DragItemList = (await e.DataView.GetStorageItemsAsync()).ToList();
 
                             switch (e.AcceptedOperation)
                             {
@@ -1889,14 +1923,19 @@ namespace RX_Explorer
                                     Retry:
                                         try
                                         {
-                                            await FullTrustProcessController.Current.CopyAsync(LinkAndHiddenItemsPath, TargetFolder.Path, (s, arg) =>
+                                            await FullTrustProcessController.Current.CopyAsync(DragItemList.Select((Item) => Item.Path), Block.Path, (s, arg) =>
+                                              {
+                                                  if (ProBar.Value < arg.ProgressPercentage)
+                                                  {
+                                                      ProBar.IsIndeterminate = false;
+                                                      ProBar.Value = arg.ProgressPercentage;
+                                                  }
+                                              }).ConfigureAwait(true);
+
+                                            if (!SettingControl.IsDetachTreeViewAndPresenter)
                                             {
-                                                if (ProBar.Value < arg.ProgressPercentage)
-                                                {
-                                                    ProBar.IsIndeterminate = false;
-                                                    ProBar.Value = arg.ProgressPercentage;
-                                                }
-                                            }).ConfigureAwait(true);
+                                                await FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                            }
                                         }
                                         catch (FileNotFoundException)
                                         {
@@ -1954,7 +1993,7 @@ namespace RX_Explorer
                                     }
                                 case DataPackageOperation.Move:
                                     {
-                                        if (LinkAndHiddenItemsPath.All((Item) => Path.GetDirectoryName(Item) == ActualPath))
+                                        if (DragItemList.Select((Item) => Item.Path).All((Item) => Path.GetDirectoryName(Item) == Block.Path))
                                         {
                                             return;
                                         }
@@ -1964,14 +2003,19 @@ namespace RX_Explorer
                                     Retry:
                                         try
                                         {
-                                            await FullTrustProcessController.Current.MoveAsync(LinkAndHiddenItemsPath, TargetFolder.Path, (s, arg) =>
+                                            await FullTrustProcessController.Current.MoveAsync(DragItemList.Select((Item) => Item.Path), Block.Path, (s, arg) =>
+                                              {
+                                                  if (ProBar.Value < arg.ProgressPercentage)
+                                                  {
+                                                      ProBar.IsIndeterminate = false;
+                                                      ProBar.Value = arg.ProgressPercentage;
+                                                  }
+                                              }).ConfigureAwait(true);
+
+                                            if (!SettingControl.IsDetachTreeViewAndPresenter)
                                             {
-                                                if (ProBar.Value < arg.ProgressPercentage)
-                                                {
-                                                    ProBar.IsIndeterminate = false;
-                                                    ProBar.Value = arg.ProgressPercentage;
-                                                }
-                                            }).ConfigureAwait(true);
+                                                await FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                            }
                                         }
                                         catch (FileNotFoundException)
                                         {
@@ -2041,187 +2085,12 @@ namespace RX_Explorer
                             }
                         }
                     }
-
-                    if (e.DataView.Contains(StandardDataFormats.StorageItems))
+                    finally
                     {
-                        List<IStorageItem> DragItemList = (await e.DataView.GetStorageItemsAsync()).ToList();
-
-                        switch (e.AcceptedOperation)
-                        {
-                            case DataPackageOperation.Copy:
-                                {
-                                    await LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
-
-                                Retry:
-                                    try
-                                    {
-                                        await FullTrustProcessController.Current.CopyAsync(DragItemList.Select((Item) => Item.Path), ActualPath, (s, arg) =>
-                                          {
-                                              if (ProBar.Value < arg.ProgressPercentage)
-                                              {
-                                                  ProBar.IsIndeterminate = false;
-                                                  ProBar.Value = arg.ProgressPercentage;
-                                              }
-                                          }).ConfigureAwait(true);
-
-                                        if (!SettingControl.IsDetachTreeViewAndPresenter)
-                                        {
-                                            await FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
-                                        }
-                                    }
-                                    catch (FileNotFoundException)
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                                    }
-                                    catch (InvalidOperationException)
-                                    {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                        };
-
-                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                        {
-                                            if (await FullTrustProcessController.Current.SwitchToAdminModeAsync().ConfigureAwait(true))
-                                            {
-                                                goto Retry;
-                                            }
-                                            else
-                                            {
-                                                QueueContentDialog ErrorDialog = new QueueContentDialog
-                                                {
-                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                    Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
-                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                };
-
-                                                _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                                            }
-                                        }
-                                    }
-                                    catch (Exception)
-                                    {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                                    }
-
-                                    break;
-                                }
-                            case DataPackageOperation.Move:
-                                {
-                                    if (DragItemList.Select((Item) => Item.Path).All((Item) => Path.GetDirectoryName(Item) == ActualPath))
-                                    {
-                                        return;
-                                    }
-
-                                    await LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
-
-                                Retry:
-                                    try
-                                    {
-                                        await FullTrustProcessController.Current.MoveAsync(DragItemList.Select((Item) => Item.Path), ActualPath, (s, arg) =>
-                                          {
-                                              if (ProBar.Value < arg.ProgressPercentage)
-                                              {
-                                                  ProBar.IsIndeterminate = false;
-                                                  ProBar.Value = arg.ProgressPercentage;
-                                              }
-                                          }).ConfigureAwait(true);
-
-                                        if (!SettingControl.IsDetachTreeViewAndPresenter)
-                                        {
-                                            await FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
-                                        }
-                                    }
-                                    catch (FileNotFoundException)
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_MoveFailForNotExist_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                                    }
-                                    catch (FileCaputureException)
-                                    {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                                    }
-                                    catch (InvalidOperationException)
-                                    {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                        };
-
-                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                        {
-                                            if (await FullTrustProcessController.Current.SwitchToAdminModeAsync().ConfigureAwait(true))
-                                            {
-                                                goto Retry;
-                                            }
-                                            else
-                                            {
-                                                QueueContentDialog ErrorDialog = new QueueContentDialog
-                                                {
-                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                    Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
-                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                };
-
-                                                _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                                            }
-                                        }
-                                    }
-                                    catch (Exception)
-                                    {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_MoveFailUnexpectError_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                                    }
-
-                                    break;
-                                }
-                        }
+                        await LoadingActivation(false).ConfigureAwait(true);
+                        e.Handled = true;
+                        _ = Interlocked.Exchange(ref DropLockResource, 0);
                     }
-                }
-                finally
-                {
-                    await LoadingActivation(false).ConfigureAwait(true);
-                    e.Handled = true;
-                    _ = Interlocked.Exchange(ref DropLockResource, 0);
                 }
             }
         }
@@ -2327,16 +2196,14 @@ namespace RX_Explorer
 
             FolderTree.RootNodes.Clear();
 
-            Presenter.FileCollection.Clear();
-            Presenter.HasFile.Visibility = Visibility.Collapsed;
+            foreach (FilePresenter Presenter in BladeViewer.Items.OfType<BladeItem>().Select((Blade) => Blade.Content as FilePresenter))
+            {
+                Presenter.Dispose();
+            }
 
-            Application.Current.Suspending -= Current_Suspending;
-            Application.Current.Resuming -= Current_Resuming;
+            BladeViewer.Items.Clear();
+
             Frame.Navigated -= Frame_Navigated;
-
-            RecordIndex = 0;
-
-            GoAndBackRecord.Clear();
 
             IsBackOrForwardAction = false;
             GoBackRecord.IsEnabled = false;
@@ -2346,34 +2213,6 @@ namespace RX_Explorer
             CurrentFolder = null;
 
             EnterLock.Dispose();
-            AreaWatcher.Dispose();
-        }
-
-        private void Presenter_PointerWheelChanged(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
-        {
-            Frame Frame = sender as Frame;
-
-            int Delta = e.GetCurrentPoint(Frame).Properties.MouseWheelDelta;
-
-            if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down))
-            {
-                if (Delta > 0)
-                {
-                    if (ItemDisplayMode.SelectedIndex > 0)
-                    {
-                        ItemDisplayMode.SelectedIndex -= 1;
-                    }
-                }
-                else
-                {
-                    if (ItemDisplayMode.SelectedIndex < ItemDisplayMode.Items.Count - 1)
-                    {
-                        ItemDisplayMode.SelectedIndex += 1;
-                    }
-                }
-
-                e.Handled = true;
-            }
         }
 
         private async void FolderCut_Click(object sender, RoutedEventArgs e)
@@ -2706,6 +2545,125 @@ namespace RX_Explorer
             else
             {
                 BuiltInSearchAllSubFolders.IsChecked = false;
+            }
+        }
+
+        private async void Button_Click(object sender, RoutedEventArgs e)
+        {
+            await CreateNewBlade(CurrentFolder.Path);
+        }
+
+        private async Task CreateNewBlade(string FolderPath)
+        {
+            FilePresenter Presenter = new FilePresenter
+            {
+                WeakToFileControl = new WeakReference<FileControl>(this)
+            };
+
+            BladeItem Blade = new BladeItem
+            {
+                Content = Presenter,
+                Background = new Windows.UI.Xaml.Media.SolidColorBrush(Colors.Transparent),
+                TitleBarBackground = new Windows.UI.Xaml.Media.SolidColorBrush(Colors.Transparent),
+                TitleBarVisibility = Visibility.Collapsed,
+                Height = BladeViewer.ActualHeight,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                VerticalAlignment = VerticalAlignment.Stretch,
+                VerticalContentAlignment = VerticalAlignment.Stretch
+            };
+
+            Blade.AddHandler(PointerPressedEvent, BladePointerPressedEventHandler, true);
+
+            BladeViewer.Items.Add(Blade);
+            BladeViewer.UpdateLayout();
+
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+            {
+                if (BladeViewer.Items.Count > 1)
+                {
+                    BladeViewer.BladeMode = BladeMode.Normal;
+
+                    foreach (BladeItem Item in BladeViewer.Items.OfType<BladeItem>())
+                    {
+                        Item.TitleBarVisibility = Visibility.Visible;
+                        Item.Height = BladeViewer.ActualHeight;
+
+                        if (Item.IsExpanded)
+                        {
+                            Item.Width = BladeViewer.ActualWidth / 2;
+                        }
+                    }
+                }
+                else
+                {
+                    BladeViewer.BladeMode = BladeMode.Fullscreen;
+                }
+            });
+
+            CurrentPresenter = Presenter;
+
+            await DisplayItemsInFolder(FolderPath).ConfigureAwait(true);
+        }
+
+        private async void Blade_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is BladeItem Blade && Blade.Content is FilePresenter Presenter)
+            {
+                CurrentPresenter = Presenter;
+
+                PathConfiguration Config = await SQLite.Current.GetPathConfiguration(CurrentFolder.Path).ConfigureAwait(true);
+
+                ItemDisplayMode.SelectedIndex = Config.DisplayModeIndex.GetValueOrDefault();
+
+                await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, Config.SortColumn, Config.SortDirection, true).ConfigureAwait(false);
+            }
+        }
+
+        private void BladeViewer_BladeClosed(object sender, BladeItem e)
+        {
+            if (e.Content is FilePresenter Presenter)
+            {
+                Presenter.Dispose();
+
+                e.RemoveHandler(PointerPressedEvent, BladePointerPressedEventHandler);
+                e.Content = null;
+            }
+
+            BladeViewer.Items.Remove(e);
+
+            if (BladeViewer.Items.Count == 1)
+            {
+                foreach (BladeItem Item in BladeViewer.Items.OfType<BladeItem>())
+                {
+                    Item.TitleBarVisibility = Visibility.Collapsed;
+                }
+
+                BladeViewer.BladeMode = BladeMode.Fullscreen;
+            }
+            else
+            {
+                foreach (BladeItem Item in BladeViewer.Items.OfType<BladeItem>().Where((Blade) => Blade.IsEnabled))
+                {
+                    Item.Width = BladeViewer.ActualWidth / 2;
+                }
+            }
+        }
+
+        private void BladeViewer_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            foreach (BladeItem Item in BladeViewer.Items.OfType<BladeItem>())
+            {
+                Item.Height = e.NewSize.Height;
+
+                if (BladeViewer.Items.Count > 1)
+                {
+                    Item.Width = e.NewSize.Width / 2;
+                }
+                else
+                {
+                    Item.Width = e.NewSize.Width;
+                }
             }
         }
     }

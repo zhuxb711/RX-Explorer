@@ -145,10 +145,10 @@ namespace RX_Explorer
 
                         await JumpListController.Current.AddItem(JumpListGroup.Recent, ParentFolderPath).ConfigureAwait(true);
 
-                        if (Control.Presenter.FileCollection.FirstOrDefault((SItem) => SItem == Item) is FileSystemStorageItemBase Target)
+                        if (Control.CurrentPresenter.FileCollection.FirstOrDefault((SItem) => SItem == Item) is FileSystemStorageItemBase Target)
                         {
-                            Control.Presenter.ItemPresenter.ScrollIntoView(Target);
-                            Control.Presenter.SelectedItem = Target;
+                            Control.CurrentPresenter.ItemPresenter.ScrollIntoView(Target);
+                            Control.CurrentPresenter.SelectedItem = Target;
                         }
                     }
                 }

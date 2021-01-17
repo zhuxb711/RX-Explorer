@@ -12,6 +12,8 @@ namespace RX_Explorer.Class
 
         private static SortCollectionGenerator Instance;
 
+        public event EventHandler<string> SortWayChanged;
+
         public static SortCollectionGenerator Current
         {
             get
@@ -27,26 +29,33 @@ namespace RX_Explorer.Class
 
         public SortDirection SortDirection { get; private set; }
 
-        public async Task ModifySortWayAsync(string Path, SortTarget? SortTarget = null, SortDirection? SortDirection = null)
+        public async Task ModifySortWayAsync(string Path, SortTarget? SortTarget = null, SortDirection? SortDirection = null, bool BypassSaveAndNotification = false)
         {
             if (SortTarget == Class.SortTarget.OriginPath || SortTarget == Class.SortTarget.Path)
             {
                 throw new NotSupportedException("SortTarget.Path and SortTarget.OriginPath is not allow in this method");
             }
 
-            if (SortTarget.HasValue)
+            bool IsModified = false;
+
+            if (SortTarget.HasValue && this.SortTarget != SortTarget)
             {
                 this.SortTarget = SortTarget.Value;
+                IsModified = true;
             }
 
-            if (SortDirection.HasValue)
+            if (SortDirection.HasValue && this.SortDirection != SortDirection)
             {
                 this.SortDirection = SortDirection.Value;
+                IsModified = true;
             }
 
-            await SQLite.Current.SetPathConfiguration(new PathConfiguration(Path, this.SortTarget, this.SortDirection)).ConfigureAwait(true);
+            if (IsModified && !BypassSaveAndNotification)
+            {
+                await SQLite.Current.SetPathConfiguration(new PathConfiguration(Path, this.SortTarget, this.SortDirection)).ConfigureAwait(true);
 
-            SortIndicatorController.SetIndicatorStatus(this.SortTarget, this.SortDirection);
+                SortWayChanged?.Invoke(this, Path);
+            }
         }
 
         public List<T> GetSortedCollection<T>(ICollection<T> InputCollection, SortTarget? Target, SortDirection? Direction) where T : FileSystemStorageItemBase

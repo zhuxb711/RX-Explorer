@@ -94,10 +94,12 @@ namespace RX_Explorer.Class
             if (PathQueue.Count != 0)
             {
                 string RelativePath = PathQueue.Dequeue();
+                
                 if (PathQueue.Count == 0)
                 {
                     HasNextLevel = false;
                 }
+
                 return RelativePath;
             }
             else

@@ -415,7 +415,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:丢失范围之前释放对象", Justification = "<挂起>")]
         private void BackgroundController_AcrylicPresenterWasSet(object sender, EventArgs e)
         {
             Visual ElementVisual = ElementCompositionPreview.GetElementVisual(CompositionAcrylicPresenter);

@@ -222,34 +222,46 @@ namespace RX_Explorer.Class
                 {
                     if (StartPoint.Y >= EndPoint.Y)
                     {
-                        RectangleInCanvas.SetValue(Canvas.LeftProperty, Math.Max(0, StartPoint.X));
-                        RectangleInCanvas.SetValue(Canvas.TopProperty, Math.Max(0, EndPoint.Y));
-                        RectangleInCanvas.Width = Math.Max(0, EndPoint.X) - Math.Max(0, StartPoint.X);
-                        RectangleInCanvas.Height = Math.Max(0, StartPoint.Y) - Math.Max(0, EndPoint.Y);
+                        double LeftPoint = Math.Max(0, StartPoint.X);
+                        double TopPoint = Math.Max(0, EndPoint.Y);
+
+                        RectangleInCanvas.SetValue(Canvas.LeftProperty, LeftPoint);
+                        RectangleInCanvas.SetValue(Canvas.TopProperty, TopPoint);
+                        RectangleInCanvas.Width = Math.Min(Math.Max(0, EndPoint.X) - LeftPoint, InnerScrollView.ExtentWidth - LeftPoint);
+                        RectangleInCanvas.Height = Math.Min(Math.Max(0, StartPoint.Y) - TopPoint, InnerScrollView.ExtentHeight - TopPoint);
                     }
                     else
                     {
-                        RectangleInCanvas.SetValue(Canvas.LeftProperty, Math.Max(0, StartPoint.X));
-                        RectangleInCanvas.SetValue(Canvas.TopProperty, Math.Max(0, StartPoint.Y));
-                        RectangleInCanvas.Width = Math.Max(0, EndPoint.X) - Math.Max(0, StartPoint.X);
-                        RectangleInCanvas.Height = Math.Max(0, EndPoint.Y) - Math.Max(0, StartPoint.Y);
+                        double LeftPoint = Math.Max(0, StartPoint.X);
+                        double TopPoint = Math.Max(0, StartPoint.Y);
+
+                        RectangleInCanvas.SetValue(Canvas.LeftProperty, LeftPoint);
+                        RectangleInCanvas.SetValue(Canvas.TopProperty, TopPoint);
+                        RectangleInCanvas.Width = Math.Min(Math.Max(0, EndPoint.X) - LeftPoint, InnerScrollView.ExtentWidth - LeftPoint);
+                        RectangleInCanvas.Height = Math.Min(Math.Max(0, EndPoint.Y) - TopPoint, InnerScrollView.ExtentHeight - TopPoint);
                     }
                 }
                 else
                 {
                     if (StartPoint.Y >= EndPoint.Y)
                     {
-                        RectangleInCanvas.SetValue(Canvas.LeftProperty, Math.Max(0, EndPoint.X));
-                        RectangleInCanvas.SetValue(Canvas.TopProperty, Math.Max(0, EndPoint.Y));
-                        RectangleInCanvas.Width = Math.Max(0, StartPoint.X) - Math.Max(0, EndPoint.X);
-                        RectangleInCanvas.Height = Math.Max(0, StartPoint.Y) - Math.Max(0, EndPoint.Y);
+                        double LeftPoint = Math.Max(0, EndPoint.X);
+                        double TopPoint = Math.Max(0, EndPoint.Y);
+
+                        RectangleInCanvas.SetValue(Canvas.LeftProperty, LeftPoint);
+                        RectangleInCanvas.SetValue(Canvas.TopProperty, TopPoint);
+                        RectangleInCanvas.Width = Math.Min(Math.Max(0, StartPoint.X) - LeftPoint, InnerScrollView.ExtentWidth - LeftPoint);
+                        RectangleInCanvas.Height = Math.Min(Math.Max(0, StartPoint.Y) - TopPoint, InnerScrollView.ExtentHeight - TopPoint);
                     }
                     else
                     {
-                        RectangleInCanvas.SetValue(Canvas.LeftProperty, Math.Max(0, EndPoint.X));
-                        RectangleInCanvas.SetValue(Canvas.TopProperty, Math.Max(0, StartPoint.Y));
-                        RectangleInCanvas.Width = Math.Max(0, StartPoint.X) - Math.Max(0, EndPoint.X);
-                        RectangleInCanvas.Height = Math.Max(0, EndPoint.Y) - Math.Max(0, StartPoint.Y);
+                        double LeftPoint = Math.Max(0, EndPoint.X);
+                        double TopPoint = Math.Max(0, StartPoint.Y);
+
+                        RectangleInCanvas.SetValue(Canvas.LeftProperty, LeftPoint);
+                        RectangleInCanvas.SetValue(Canvas.TopProperty, TopPoint);
+                        RectangleInCanvas.Width = Math.Min(Math.Max(0, StartPoint.X) - LeftPoint, InnerScrollView.ExtentWidth - LeftPoint);
+                        RectangleInCanvas.Height = Math.Min(Math.Max(0, EndPoint.Y) - TopPoint, InnerScrollView.ExtentHeight - TopPoint);
                     }
                 }
             }
@@ -260,6 +272,8 @@ namespace RX_Explorer.Class
             if (!IsDisposed)
             {
                 IsDisposed = true;
+
+                GC.SuppressFinalize(this);
 
                 View.RemoveHandler(UIElement.PointerPressedEvent, PointerPressedHandler);
                 View.RemoveHandler(UIElement.PointerReleasedEvent, PointerReleasedHandler);
@@ -275,8 +289,6 @@ namespace RX_Explorer.Class
                 RectangleInCanvas = null;
                 InnerScrollView = null;
                 InnerScrollBar = null;
-
-                GC.SuppressFinalize(this);
             }
         }
 
