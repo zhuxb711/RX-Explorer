@@ -173,8 +173,7 @@ namespace RX_Explorer
         private DateTimeOffset LastPressTime;
         private string LastPressString;
         private CancellationTokenSource DelayRenameCancel;
-        private static event EventHandler<(string,int)> DisplayModeUpdateRequest;
-        private int CurrentDisplayModeIndex = -1;
+        private int CurrentViewModeIndex = -1;
 
         public FileSystemStorageItemBase SelectedItem
         {
@@ -210,25 +209,16 @@ namespace RX_Explorer
             Application.Current.Suspending += Current_Suspending;
             Application.Current.Resuming += Current_Resuming;
             SortCollectionGenerator.Current.SortWayChanged += Current_SortWayChanged;
-            DisplayModeUpdateRequest += FilePresenter_DisplayModeUpdateRequest;
+            ViewModeController.ViewModeChanged += Current_ViewModeChanged;
 
             TryUnlock.IsEnabled = Package.Current.Id.Architecture == ProcessorArchitecture.X64 || Package.Current.Id.Architecture == ProcessorArchitecture.X86 || Package.Current.Id.Architecture == ProcessorArchitecture.X86OnArm64;
         }
 
-        private async void FilePresenter_DisplayModeUpdateRequest(object sender, (string, int) e)
+        private async void Current_ViewModeChanged(object sender, ViewModeController.ViewModeChangedEventArgs e)
         {
-            if (e.Item1 == CurrentFolder.Path)
+            if (e.Path == CurrentFolder.Path && CurrentViewModeIndex != e.Index)
             {
-                Container.ItemDisplayMode.SelectedIndex = e.Item2;
-                await ChangeDisplayModeFromIndex(e.Item2).ConfigureAwait(false);
-            }
-        }
-
-        public async Task ChangeDisplayModeFromIndex(int Index)
-        {
-            if (CurrentDisplayModeIndex != Index)
-            {
-                switch (Index)
+                switch (e.Index)
                 {
                     case 0:
                         {
@@ -362,11 +352,9 @@ namespace RX_Explorer
                         }
                 }
 
-                await SQLite.Current.SetPathConfiguration(new PathConfiguration(CurrentFolder.Path, Index)).ConfigureAwait(false);
+                await SQLite.Current.SetPathConfiguration(new PathConfiguration(CurrentFolder.Path, e.Index)).ConfigureAwait(false);
 
-                CurrentDisplayModeIndex = Index;
-
-                DisplayModeUpdateRequest?.Invoke(null, (CurrentFolder.Path, Index));
+                CurrentViewModeIndex = e.Index;
             }
         }
 
@@ -398,16 +386,16 @@ namespace RX_Explorer
             {
                 if (Delta > 0)
                 {
-                    if (Container.ItemDisplayMode.SelectedIndex > 0)
+                    if (Container.ViewModeControl.ViewModeIndex > 0)
                     {
-                        Container.ItemDisplayMode.SelectedIndex -= 1;
+                        Container.ViewModeControl.ViewModeIndex --;
                     }
                 }
                 else
                 {
-                    if (Container.ItemDisplayMode.SelectedIndex < Container.ItemDisplayMode.Items.Count - 1)
+                    if (Container.ViewModeControl.ViewModeIndex < ViewModeController.SelectionSource.Length - 1)
                     {
-                        Container.ItemDisplayMode.SelectedIndex += 1;
+                        Container.ViewModeControl.ViewModeIndex++;
                     }
                 }
 
@@ -6818,7 +6806,7 @@ namespace RX_Explorer
             Application.Current.Suspending -= Current_Suspending;
             Application.Current.Resuming -= Current_Resuming;
             SortCollectionGenerator.Current.SortWayChanged -= Current_SortWayChanged;
-            DisplayModeUpdateRequest -= FilePresenter_DisplayModeUpdateRequest;
+            ViewModeController.ViewModeChanged -= Current_ViewModeChanged;
         }
     }
 }

@@ -281,10 +281,10 @@
                       Margin="5,0,5,0"
                       HorizontalAlignment="Stretch"
                       CornerRadius="0"
-                      x:FieldModifier="public"
-                      x:Name="ItemDisplayMode"
-                      VerticalAlignment="Stretch"
-                      SelectionChanged="ItemDisplayMode_SelectionChanged" />
+                      ItemsSource="{x:Bind Cls:ViewModeController.SelectionSource}"
+                      SelectedIndex="{x:Bind ViewModeControl.ViewModeIndex, Mode=TwoWay}"
+                      VerticalAlignment="Stretch"/>
+            
             <AutoSuggestBox QueryIcon="Find"
                             Style="{ThemeResource CustomAutoSuggestBoxStyle}"
                             PlaceholderText="搜索..."
@@ -440,6 +440,7 @@
                                 BladeMode="Fullscreen"
                                 x:Name="BladeViewer"
                                 Background="Transparent"
+                                ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                                 SizeChanged="BladeViewer_SizeChanged"
                                 BladeClosed="BladeViewer_BladeClosed"/>
             <muxc:TreeView Name="FolderTree"

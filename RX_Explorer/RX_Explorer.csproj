@@ -186,6 +186,7 @@
     <Compile Include="Class\TerminalProfile.cs" />
     <Compile Include="Class\TreeViewNodeContent.cs" />
     <Compile Include="Class\ValueConverter.cs" />
+    <Compile Include="Class\ViewModeController.cs" />
     <Compile Include="Class\WIN_Native_API.cs" />
     <Compile Include="Class\CredentialProtector.cs" />
     <Compile Include="Dialog\BitlockerPasswordDialog.xaml.cs">

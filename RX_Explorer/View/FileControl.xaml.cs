@@ -50,6 +50,8 @@ namespace RX_Explorer
 
         private readonly PointerEventHandler BladePointerPressedEventHandler;
 
+        public ViewModeController ViewModeControl;
+
         public FileSystemStorageItemBase CurrentFolder
         {
             get => CurrentPresenter.CurrentFolder;
@@ -133,13 +135,6 @@ namespace RX_Explorer
         public FileControl()
         {
             InitializeComponent();
-
-            ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Tiles"));
-            ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Details"));
-            ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_List"));
-            ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Large_Icon"));
-            ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Medium_Icon"));
-            ItemDisplayMode.Items.Add(Globalization.GetString("FileControl_ItemDisplayMode_Small_Icon"));
 
             EverythingTip.Subtitle = Globalization.GetString("EverythingQuestionSubtitle");
 
@@ -329,6 +324,7 @@ namespace RX_Explorer
                         }
 
                         EnterLock = new SemaphoreSlim(1, 1);
+                        ViewModeControl = new ViewModeController();
 
                         if (!CommonAccessCollection.FrameFileControlDic.ContainsKey(Frame))
                         {
@@ -565,16 +561,9 @@ namespace RX_Explorer
 
                 CurrentPresenter.FileCollection.Clear();
 
-                PathConfiguration Config = await SQLite.Current.GetPathConfiguration(FolderPath).ConfigureAwait(true);
+                await ViewModeControl.SetCurrentPathAsync(FolderPath).ConfigureAwait(true);
 
-                if (ItemDisplayMode.SelectedIndex == Config.DisplayModeIndex.GetValueOrDefault())
-                {
-                    await CurrentPresenter.ChangeDisplayModeFromIndex(Config.DisplayModeIndex.GetValueOrDefault()).ConfigureAwait(true);
-                }
-                else
-                {
-                    ItemDisplayMode.SelectedIndex = Config.DisplayModeIndex.GetValueOrDefault();
-                }
+                PathConfiguration Config = await SQLite.Current.GetPathConfiguration(FolderPath).ConfigureAwait(true);
 
                 if (CurrentPresenter.ItemPresenter.Header is ListViewHeaderController Controller)
                 {
@@ -1623,11 +1612,6 @@ namespace RX_Explorer
             AddressBox.ItemsSource = await SQLite.Current.GetRelatedPathHistoryAsync().ConfigureAwait(true);
         }
 
-        private async void ItemDisplayMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            await CurrentPresenter.ChangeDisplayModeFromIndex(ItemDisplayMode.SelectedIndex).ConfigureAwait(false);
-        }
-
         private void AddressBox_KeyDown(object sender, KeyRoutedEventArgs e)
         {
             if (e.Key == VirtualKey.Tab)
@@ -2213,6 +2197,8 @@ namespace RX_Explorer
             CurrentFolder = null;
 
             EnterLock.Dispose();
+            ViewModeControl.Dispose();
+            ViewModeControl = null;
         }
 
         private async void FolderCut_Click(object sender, RoutedEventArgs e)
@@ -2614,7 +2600,7 @@ namespace RX_Explorer
 
                 PathConfiguration Config = await SQLite.Current.GetPathConfiguration(CurrentFolder.Path).ConfigureAwait(true);
 
-                ItemDisplayMode.SelectedIndex = Config.DisplayModeIndex.GetValueOrDefault();
+                await ViewModeControl.SetCurrentPathAsync(CurrentFolder.Path).ConfigureAwait(true);
 
                 await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, Config.SortColumn, Config.SortDirection, true).ConfigureAwait(false);
             }
@@ -2656,13 +2642,16 @@ namespace RX_Explorer
             {
                 Item.Height = e.NewSize.Height;
 
-                if (BladeViewer.Items.Count > 1)
+                if (Item.IsExpanded)
                 {
-                    Item.Width = e.NewSize.Width / 2;
-                }
-                else
-                {
-                    Item.Width = e.NewSize.Width;
+                    if (BladeViewer.Items.Count > 1)
+                    {
+                        Item.Width = e.NewSize.Width / 2;
+                    }
+                    else
+                    {
+                        Item.Width = e.NewSize.Width;
+                    }
                 }
             }
         }
