@@ -2604,4 +2604,10 @@
   <data name="SettingPageContextMenuExt.OnContent" xml:space="preserve">
     <value>启用</value>
   </data>
+  <data name="OpenFolderInVerticalSplitView.Label" xml:space="preserve">
+    <value>在垂直拆分视图中打开</value>
+  </data>
+  <data name="VerticalSplitViewButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>创建新的垂直拆分视图</value>
+  </data>
 </root>

@@ -2534,25 +2534,21 @@ namespace RX_Explorer
             }
         }
 
-        private async void Button_Click(object sender, RoutedEventArgs e)
+        public async Task CreateNewBlade(string FolderPath)
         {
-            await CreateNewBlade(CurrentFolder.Path);
-        }
-
-        private async Task CreateNewBlade(string FolderPath)
-        {
-            FilePresenter Presenter = new FilePresenter
+            CurrentPresenter = new FilePresenter
             {
                 WeakToFileControl = new WeakReference<FileControl>(this)
             };
 
             BladeItem Blade = new BladeItem
             {
-                Content = Presenter,
+                Content = CurrentPresenter,
                 Background = new Windows.UI.Xaml.Media.SolidColorBrush(Colors.Transparent),
                 TitleBarBackground = new Windows.UI.Xaml.Media.SolidColorBrush(Colors.Transparent),
                 TitleBarVisibility = Visibility.Collapsed,
                 Height = BladeViewer.ActualHeight,
+                Width = BladeViewer.ActualWidth / 2,
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 HorizontalContentAlignment = HorizontalAlignment.Stretch,
                 VerticalAlignment = VerticalAlignment.Stretch,
@@ -2562,10 +2558,11 @@ namespace RX_Explorer
             Blade.AddHandler(PointerPressedEvent, BladePointerPressedEventHandler, true);
 
             BladeViewer.Items.Add(Blade);
-            BladeViewer.UpdateLayout();
 
             await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
             {
+                BladeViewer.UpdateLayout();
+
                 if (BladeViewer.Items.Count > 1)
                 {
                     BladeViewer.BladeMode = BladeMode.Normal;
@@ -2586,8 +2583,6 @@ namespace RX_Explorer
                     BladeViewer.BladeMode = BladeMode.Fullscreen;
                 }
             });
-
-            CurrentPresenter = Presenter;
 
             await DisplayItemsInFolder(FolderPath).ConfigureAwait(true);
         }
@@ -2654,6 +2649,11 @@ namespace RX_Explorer
                     }
                 }
             }
+        }
+
+        private async void VerticalSplitViewButton_Click(object sender, RoutedEventArgs e)
+        {
+            await CreateNewBlade(CurrentFolder.Path).ConfigureAwait(false);
         }
     }
 }

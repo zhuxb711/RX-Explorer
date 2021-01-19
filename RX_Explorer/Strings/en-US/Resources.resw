@@ -2709,4 +2709,10 @@ Invalid names include
   <data name="SettingPageContextMenuExt.OnContent" xml:space="preserve">
     <value>Enable</value>
   </data>
+  <data name="OpenFolderInVerticalSplitView.Label" xml:space="preserve">
+    <value>Open in vertical split view</value>
+  </data>
+  <data name="VerticalSplitViewButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Create a new vertical split view</value>
+  </data>
 </root>

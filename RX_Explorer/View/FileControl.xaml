@@ -270,7 +270,10 @@
                     BorderBrush="{ThemeResource TextControlBorderBrush}"
                     Style="{ThemeResource ButtonRevealStyle}"
                     Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                    Click="Button_Click">
+                    Click="VerticalSplitViewButton_Click"
+                    x:Name="VerticalSplitViewButton"
+                    x:Uid="VerticalSplitViewButton"
+                    ToolTipService.ToolTip="创建新的垂直拆分视图">
                 <Viewbox>
                     <FontIcon FontFamily="Segoe MDL2 Assets"
                               Glyph="&#xE140;" />

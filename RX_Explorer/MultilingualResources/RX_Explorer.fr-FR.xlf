@@ -3453,6 +3453,14 @@ Les noms non valides incluent
           <source>Enable</source>
           <target state="translated">Activer</target>
         </trans-unit>
+        <trans-unit id="OpenFolderInVerticalSplitView.Label" translate="yes" xml:space="preserve">
+          <source>Open in vertical split view</source>
+          <target state="translated">Ouvrir en vue fractionnée verticale</target>
+        </trans-unit>
+        <trans-unit id="VerticalSplitViewButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Create a new vertical split view</source>
+          <target state="translated">Créer une nouvelle vue fractionnée verticale</target>
+        </trans-unit>
       </group>
     </body>
   </file>

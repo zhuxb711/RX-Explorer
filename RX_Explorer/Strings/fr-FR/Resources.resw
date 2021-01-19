@@ -2604,4 +2604,10 @@ Les noms non valides incluent
   <data name="SettingPageContextMenuExt.OnContent" xml:space="preserve">
     <value>Activer</value>
   </data>
+  <data name="OpenFolderInVerticalSplitView.Label" xml:space="preserve">
+    <value>Ouvrir en vue fractionnée verticale</value>
+  </data>
+  <data name="VerticalSplitViewButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Créer une nouvelle vue fractionnée verticale</value>
+  </data>
 </root>

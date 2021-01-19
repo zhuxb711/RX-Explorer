@@ -49,7 +49,6 @@ namespace RX_Explorer.Class
 
         private readonly PointerEventHandler PointerMovedHandler;
 
-
         public ListViewBaseSelectionExtention(ListViewBase View, Rectangle RectangleInCanvas)
         {
             this.View = View ?? throw new ArgumentNullException(nameof(View), "Argument could not be null");
@@ -148,7 +147,7 @@ namespace RX_Explorer.Class
             {
                 Point CurrentPoint = Pointer.Position;
 
-                AbsStartPoint = new Point(CurrentPoint.X + InnerScrollView.HorizontalOffset, CurrentPoint.Y + InnerScrollView.VerticalOffset);
+                AbsStartPoint = new Point(CurrentPoint.X + (InnerScrollView?.HorizontalOffset).GetValueOrDefault(), CurrentPoint.Y + (InnerScrollView?.VerticalOffset).GetValueOrDefault());
 
                 if (AllowProcess)
                 {

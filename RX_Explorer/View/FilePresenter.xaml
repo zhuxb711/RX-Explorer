@@ -307,6 +307,20 @@
                                              IsEnabled="False" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
+                <AppBarButton Label="在新标签页中打开"
+                              x:Name="OpenFolderInNewTab"
+                              x:Uid="OpenFolderInNewTab"
+                              Click="OpenFolderInNewTab_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                                  Glyph="&#xF7ED;" />
+                    </AppBarButton.Icon>
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control"
+                                             Key="T"
+                                             IsEnabled="False" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
                 <AppBarButton Label="在新窗口中打开"
                               x:Name="OpenFolderInNewWindow"
                               x:Uid="OpenFolderInNewWindow"
@@ -321,17 +335,17 @@
                                              IsEnabled="False" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
-                <AppBarButton Label="在新标签页中打开"
-                              x:Name="OpenFolderInNewTab"
-                              x:Uid="OpenFolderInNewTab"
-                              Click="OpenFolderInNewTab_Click">
+                <AppBarButton Label="在垂直拆分视图中打开"
+                              x:Name="OpenFolderInVerticalSplitView"
+                              x:Uid="OpenFolderInVerticalSplitView"
+                              Click="OpenFolderInVerticalSplitView_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets"
                                   Glyph="&#xF7ED;" />
                     </AppBarButton.Icon>
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Modifiers="Control"
-                                             Key="T"
+                                             Key="B"
                                              IsEnabled="False" />
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
