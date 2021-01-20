@@ -1,4 +1,29 @@
 ﻿*****
+###Quoi de neuf dans la version 5.9.5.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Ajout de la vue fractionnée verticale, vous pouvez maintenant afficher le contenu de plusieurs dossiers dans la même page à onglet en même temps
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Les répertoires sur la gauche peuvent maintenant afficher plusieurs lecteurs
+
+#####Correction d'un bug
+
+>#####Correction du problème suivant: lorsque plusieurs onglets affichent le même dossier en même temps, le mode de tri et le mode d'affichage ne sont pas synchronisés après le changement
+
+>#####Correction du problème selon lequel la barre d'adresse ne peut pas distinguer les dossiers avec le même nom dans certains cas, ce qui peut lui faire afficher le mauvais sous-dossier
+
+>#####Correction du problème d'activation incorrecte de la sélection de boîte lors du glissement de la barre de défilement
+
+>#####Correction du problème selon lequel la sélection de boîtes pouvait être hors limites
+
+>#####Correction du problème selon lequel l'interface pouvait être chargée à l'avance et provoquer un crash lors de l'utilisation de Windows Hello pour protéger la zone de sécurité
+
+>#####Correction du problème selon lequel RX ne pouvait pas être utilisé pour ouvrir le fichier .lnk pointant vers le dossier
+
+*****
 ###Quoi de neuf dans la version 5.9.0.0
 
 #####Mise à jour des fonctionnalités

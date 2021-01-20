@@ -119,7 +119,10 @@ namespace RX_Explorer.Class
 
                         if (!SettingControl.IsDetachTreeViewAndPresenter && TreeView != null)
                         {
-                            await TreeView.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
+                            foreach (TreeViewNode RootNode in TreeView.RootNodes)
+                            {
+                                await RootNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -151,7 +154,10 @@ namespace RX_Explorer.Class
 
                         if (!SettingControl.IsDetachTreeViewAndPresenter && TreeView != null)
                         {
-                            await TreeView.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
+                            foreach (TreeViewNode RootNode in TreeView.RootNodes)
+                            {
+                                await RootNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -186,7 +192,10 @@ namespace RX_Explorer.Class
 
                             if (!SettingControl.IsDetachTreeViewAndPresenter && TreeView != null)
                             {
-                                await TreeView.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                foreach (TreeViewNode RootNode in TreeView.RootNodes)
+                                {
+                                    await RootNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                }
                             }
                         }
                     }

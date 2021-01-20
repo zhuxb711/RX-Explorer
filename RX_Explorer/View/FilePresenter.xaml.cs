@@ -37,6 +37,7 @@ using Windows.UI.Xaml.Media.Imaging;
 using ZXing;
 using ZXing.QrCode;
 using ZXing.QrCode.Internal;
+using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace RX_Explorer
 {
@@ -914,7 +915,10 @@ namespace RX_Explorer
 
                                                         if (!SettingControl.IsDetachTreeViewAndPresenter)
                                                         {
-                                                            await Container.FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                                            foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes)
+                                                            {
+                                                                await RootNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                                            }
                                                         }
 
                                                         break;
@@ -1001,7 +1005,10 @@ namespace RX_Explorer
 
                                         if (!SettingControl.IsDetachTreeViewAndPresenter)
                                         {
-                                            await Container.FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                            foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes)
+                                            {
+                                                await RootNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                            }
                                         }
                                     }
                                     break;
@@ -4640,17 +4647,20 @@ namespace RX_Explorer
                                         try
                                         {
                                             await FullTrustProcessController.Current.CopyAsync(DragItemList.Select((Item) => Item.Path), TargetFolder.Path, (s, arg) =>
-                                              {
-                                                  if (Container.ProBar.Value < arg.ProgressPercentage)
-                                                  {
-                                                      Container.ProBar.IsIndeterminate = false;
-                                                      Container.ProBar.Value = arg.ProgressPercentage;
-                                                  }
-                                              }).ConfigureAwait(true);
+                                            {
+                                                if (Container.ProBar.Value < arg.ProgressPercentage)
+                                                {
+                                                    Container.ProBar.IsIndeterminate = false;
+                                                    Container.ProBar.Value = arg.ProgressPercentage;
+                                                }
+                                            }).ConfigureAwait(true);
 
                                             if (!SettingControl.IsDetachTreeViewAndPresenter)
                                             {
-                                                await Container.FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                                foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes)
+                                                {
+                                                    await RootNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                                }
                                             }
                                         }
                                         catch (FileNotFoundException)

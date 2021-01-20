@@ -562,7 +562,7 @@ namespace RX_Explorer.Class
         /// <param name="Node">要选中的Node</param>
         /// <param name="View">Node所属的TreeView控件</param>
         /// <returns></returns>
-        public static void SelectNode(this TreeView View, TreeViewNode Node)
+        public static void SelectNodeAndScrollToVertical(this TreeView View, TreeViewNode Node)
         {
             if (View == null)
             {
@@ -572,6 +572,11 @@ namespace RX_Explorer.Class
             View.SelectedNode = Node;
 
             View.UpdateLayout();
+
+            if (View.ContainerFromNode(Node) is TreeViewItem Item)
+            {
+                Item.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = true, VerticalAlignmentRatio = 0.5 });
+            }
         }
 
         /// <summary>

@@ -1,4 +1,29 @@
 ﻿*****
+###What's new in Ver.5.9.5.0
+
+#####Feature update
+
+>#####Added the vertical split view, now you can display the contents of multiple folders in the same tab page at the same time
+
+#####UI update
+
+>#####Directories on the left can display multiple drive now
+
+#####Bug fix
+
+>#####Fixed the problem that when multiple tabs display the same folder at the same time, the sorting way and display mode will not be synchronized after the change
+
+>#####Fixed the problem that the address bar cannot distinguish folders with the same name in some cases, which may cause it to display the wrong subfolder
+
+>#####Fixed the problem of incorrect activation of the box selection when dragging the scroll bar
+
+>#####Fixed the problem that the box selection may be out of bounds
+
+>#####Fixed the problem that the interface may be loaded in advance and cause a crash when using Windows Hello to protect the Security Area
+
+>#####Fixed the problem that RX could not be used to open the .lnk file pointing to the folder
+
+*****
 ###What's new in Ver.5.9.0.0
 
 #####Feature update

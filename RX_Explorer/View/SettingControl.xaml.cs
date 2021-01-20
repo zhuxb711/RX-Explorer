@@ -563,7 +563,7 @@ namespace RX_Explorer
                     FileLoadMode.SelectedIndex = 1;
                 }
 
-                if(ApplicationData.Current.LocalSettings.Values["ContextMenuExtSwitch"] is bool IsExt)
+                if (ApplicationData.Current.LocalSettings.Values["ContextMenuExtSwitch"] is bool IsExt)
                 {
                     ContextMenuExtSwitch.IsOn = IsExt;
                 }
@@ -1744,32 +1744,40 @@ namespace RX_Explorer
             {
                 ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] = IsDetachTreeViewAndPresenter = !TreeViewDetach.IsOn;
 
-                foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabViewControl.TabItems)
+                foreach (Frame Frame in TabViewContainer.ThisPage.TabViewControl.TabItems.OfType<TabViewItem>().Select((Tab) => Tab.Content))
                 {
-                    if ((Tab.Content as Frame)?.Content is FileControl Control && Control.CurrentFolder != null)
+                    if (CommonAccessCollection.FrameFileControlDic.TryGetValue(Frame, out FileControl Control) && Control.CurrentFolder != null)
                     {
                         Control.TreeViewGridCol.Width = TreeViewDetach.IsOn ? new GridLength(2, GridUnitType.Star) : new GridLength(0);
 
                         if (TreeViewDetach.IsOn)
                         {
-                            StorageFolder RootFolder = await StorageFolder.GetFolderFromPathAsync(Path.GetPathRoot(Control.CurrentFolder.Path));
-
                             Control.FolderTree.RootNodes.Clear();
 
-                            bool HasAnyFolder = WIN_Native_API.CheckContainsAnyItem(RootFolder.Path, ItemFilters.Folder);
-
-                            TreeViewNode RootNode = new TreeViewNode
+                            foreach (StorageFolder DriveFolder in CommonAccessCollection.HardDeviceList.Select((Drive) => Drive.Folder))
                             {
-                                Content = new TreeViewNodeContent(RootFolder),
-                                IsExpanded = HasAnyFolder,
-                                HasUnrealizedChildren = HasAnyFolder
-                            };
+                                bool HasAnyFolder = WIN_Native_API.CheckContainsAnyItem(DriveFolder.Path, ItemFilters.Folder);
 
-                            Control.FolderTree.RootNodes.Add(RootNode);
+                                TreeViewNode RootNode = new TreeViewNode
+                                {
+                                    Content = new TreeViewNodeContent(DriveFolder),
+                                    IsExpanded = false,
+                                    HasUnrealizedChildren = HasAnyFolder
+                                };
 
-                            if (HasAnyFolder)
-                            {
-                                await Control.FillTreeNode(RootNode).ConfigureAwait(true);
+                                Control.FolderTree.RootNodes.Add(RootNode);
+
+                                if (Path.GetPathRoot(Control.CurrentFolder.Path) == DriveFolder.Path)
+                                {
+                                    Control.FolderTree.SelectNodeAndScrollToVertical(RootNode);
+
+                                    if (HasAnyFolder)
+                                    {
+                                        RootNode.IsExpanded = true;
+
+                                        await Control.FillTreeNode(RootNode).ConfigureAwait(true);
+                                    }
+                                }
                             }
                         }
                     }
@@ -1899,15 +1907,18 @@ namespace RX_Explorer
                 IsDisplayHiddenItem = DisplayHiddenItem.IsOn;
                 ApplicationData.Current.LocalSettings.Values["DisplayHiddenItem"] = IsDisplayHiddenItem;
 
-                foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabViewControl.TabItems)
+                foreach (Frame Frame in TabViewContainer.ThisPage.TabViewControl.TabItems.OfType<TabViewItem>().Select((Tab) => Tab.Content))
                 {
-                    if ((Tab.Content as Frame)?.Content is FileControl Control && Control.CurrentFolder != null)
+                    if (CommonAccessCollection.FrameFileControlDic.TryGetValue(Frame, out FileControl Control) && Control.CurrentFolder != null)
                     {
                         await Control.DisplayItemsInFolder(Control.CurrentFolder, true).ConfigureAwait(true);
 
                         if (!IsDetachTreeViewAndPresenter)
                         {
-                            await Control.FolderTree.RootNodes[0].UpdateAllSubNodeAsync().ConfigureAwait(false);
+                            foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes)
+                            {
+                                await RootNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                            }
                         }
                     }
                 }
@@ -2196,23 +2207,23 @@ namespace RX_Explorer
 
                                     foreach (KeyValuePair<string, JsonElement> Pair in Configuration)
                                     {
-                                        switch(Pair.Value.ValueKind)
+                                        switch (Pair.Value.ValueKind)
                                         {
                                             case JsonValueKind.Number:
                                                 {
-                                                    if(Pair.Value.TryGetInt32(out int INT32))
+                                                    if (Pair.Value.TryGetInt32(out int INT32))
                                                     {
                                                         ApplicationData.Current.LocalSettings.Values[Pair.Key] = INT32;
                                                     }
-                                                    else if(Pair.Value.TryGetInt64(out long INT64))
+                                                    else if (Pair.Value.TryGetInt64(out long INT64))
                                                     {
                                                         ApplicationData.Current.LocalSettings.Values[Pair.Key] = INT64;
                                                     }
-                                                    else if(Pair.Value.TryGetSingle(out float FL32))
+                                                    else if (Pair.Value.TryGetSingle(out float FL32))
                                                     {
                                                         ApplicationData.Current.LocalSettings.Values[Pair.Key] = FL32;
                                                     }
-                                                    else if(Pair.Value.TryGetDouble(out double FL64))
+                                                    else if (Pair.Value.TryGetDouble(out double FL64))
                                                     {
                                                         ApplicationData.Current.LocalSettings.Values[Pair.Key] = FL64;
                                                     }
