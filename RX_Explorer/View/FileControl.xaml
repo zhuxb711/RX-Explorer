@@ -440,7 +440,7 @@
             </Grid.ColumnDefinitions>
             <controls:BladeView Grid.Column="2"
                                 Margin="2,0,2,0"
-                                BladeMode="Fullscreen"
+                                BladeMode="Normal"
                                 x:Name="BladeViewer"
                                 Background="Transparent"
                                 ScrollViewer.HorizontalScrollBarVisibility="Hidden"

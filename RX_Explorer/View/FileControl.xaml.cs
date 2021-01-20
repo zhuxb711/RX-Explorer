@@ -44,6 +44,8 @@ namespace RX_Explorer
 
         private int DropLockResource;
 
+        private int CreateBladeLockResource;
+
         private string AddressBoxTextBackup;
 
         private SemaphoreSlim EnterLock;
@@ -2536,55 +2538,63 @@ namespace RX_Explorer
 
         public async Task CreateNewBlade(string FolderPath)
         {
-            CurrentPresenter = new FilePresenter
+            if (Interlocked.Exchange(ref CreateBladeLockResource, 1) == 0)
             {
-                WeakToFileControl = new WeakReference<FileControl>(this)
-            };
-
-            BladeItem Blade = new BladeItem
-            {
-                Content = CurrentPresenter,
-                Background = new Windows.UI.Xaml.Media.SolidColorBrush(Colors.Transparent),
-                TitleBarBackground = new Windows.UI.Xaml.Media.SolidColorBrush(Colors.Transparent),
-                TitleBarVisibility = Visibility.Collapsed,
-                Height = BladeViewer.ActualHeight,
-                Width = BladeViewer.ActualWidth / 2,
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                VerticalAlignment = VerticalAlignment.Stretch,
-                VerticalContentAlignment = VerticalAlignment.Stretch
-            };
-
-            Blade.AddHandler(PointerPressedEvent, BladePointerPressedEventHandler, true);
-
-            BladeViewer.Items.Add(Blade);
-
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-            {
-                BladeViewer.UpdateLayout();
-
-                if (BladeViewer.Items.Count > 1)
+                try
                 {
-                    BladeViewer.BladeMode = BladeMode.Normal;
-
-                    foreach (BladeItem Item in BladeViewer.Items.OfType<BladeItem>())
+                    CurrentPresenter = new FilePresenter
                     {
-                        Item.TitleBarVisibility = Visibility.Visible;
-                        Item.Height = BladeViewer.ActualHeight;
+                        WeakToFileControl = new WeakReference<FileControl>(this)
+                    };
 
-                        if (Item.IsExpanded)
+                    BladeItem Blade = new BladeItem
+                    {
+                        Content = CurrentPresenter,
+                        Background = new Windows.UI.Xaml.Media.SolidColorBrush(Colors.Transparent),
+                        TitleBarBackground = new Windows.UI.Xaml.Media.SolidColorBrush(Colors.Transparent),
+                        TitleBarVisibility = Visibility.Visible,
+                        Height = BladeViewer.ActualHeight,
+                        Width = BladeViewer.ActualWidth / 2,
+                        HorizontalAlignment = HorizontalAlignment.Stretch,
+                        HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                        VerticalAlignment = VerticalAlignment.Stretch,
+                        VerticalContentAlignment = VerticalAlignment.Stretch
+                    };
+
+                    Blade.AddHandler(PointerPressedEvent, BladePointerPressedEventHandler, true);
+
+                    if (BladeViewer.Items.Count > 0)
+                    {
+                        foreach (BladeItem Item in BladeViewer.Items.OfType<BladeItem>())
                         {
-                            Item.Width = BladeViewer.ActualWidth / 2;
+                            Item.TitleBarVisibility = Visibility.Visible;
+
+                            if (Item.IsExpanded)
+                            {
+                                Item.Width = BladeViewer.ActualWidth / 2;
+                            }
                         }
                     }
-                }
-                else
-                {
-                    BladeViewer.BladeMode = BladeMode.Fullscreen;
-                }
-            });
+                    else
+                    {
+                        Blade.TitleBarVisibility = Visibility.Collapsed;
+                        Blade.Width = BladeViewer.ActualWidth;
+                    }
 
-            await DisplayItemsInFolder(FolderPath).ConfigureAwait(true);
+                    BladeViewer.UpdateLayout();
+                    BladeViewer.Items.Add(Blade);
+
+                    await DisplayItemsInFolder(FolderPath).ConfigureAwait(true);
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "An exception was threw when creating new blade");
+                }
+                finally
+                {
+                    _ = Interlocked.Exchange(ref CreateBladeLockResource, 0);
+                }
+            }
         }
 
         private async void Blade_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -2615,18 +2625,10 @@ namespace RX_Explorer
 
             if (BladeViewer.Items.Count == 1)
             {
-                foreach (BladeItem Item in BladeViewer.Items.OfType<BladeItem>())
+                if (BladeViewer.Items[0] is BladeItem Item)
                 {
                     Item.TitleBarVisibility = Visibility.Collapsed;
-                }
-
-                BladeViewer.BladeMode = BladeMode.Fullscreen;
-            }
-            else
-            {
-                foreach (BladeItem Item in BladeViewer.Items.OfType<BladeItem>().Where((Blade) => Blade.IsEnabled))
-                {
-                    Item.Width = BladeViewer.ActualWidth / 2;
+                    Item.Width = BladeViewer.ActualWidth;
                 }
             }
         }
