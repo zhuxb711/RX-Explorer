@@ -29,6 +29,7 @@ using Windows.UI.Xaml.Media.Imaging;
 using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
 using TreeView = Microsoft.UI.Xaml.Controls.TreeView;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
+using TreeViewItem = Microsoft.UI.Xaml.Controls.TreeViewItem;
 
 namespace RX_Explorer.Class
 {

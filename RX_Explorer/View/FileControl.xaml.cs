@@ -23,6 +23,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 using TabViewItem = Microsoft.UI.Xaml.Controls.TabViewItem;
@@ -54,6 +55,8 @@ namespace RX_Explorer
 
         public ViewModeController ViewModeControl;
 
+        private readonly Color AccentColor = (Color)Application.Current.Resources["SystemAccentColor"];
+
         public FileSystemStorageItemBase CurrentFolder
         {
             get => CurrentPresenter?.CurrentFolder;
@@ -80,7 +83,7 @@ namespace RX_Explorer
             }
         }
 
-        private FilePresenter currentPresenter;
+        private volatile FilePresenter currentPresenter;
         public FilePresenter CurrentPresenter
         {
             get
@@ -91,6 +94,26 @@ namespace RX_Explorer
             {
                 if (value != currentPresenter)
                 {
+                    if (BladeViewer.Items.Count > 1)
+                    {
+                        if (currentPresenter != null)
+                        {
+                            currentPresenter.FocusIndicator.Background = new SolidColorBrush(Colors.Transparent);
+                        }
+
+                        if (value != null)
+                        {
+                            value.FocusIndicator.Background = new SolidColorBrush(AccentColor);
+                        }
+                    }
+                    else
+                    {
+                        if (currentPresenter != null)
+                        {
+                            currentPresenter.FocusIndicator.Background = new SolidColorBrush(Colors.Transparent);
+                        }
+                    }
+
                     if (value?.CurrentFolder is FileSystemStorageItemBase Folder)
                     {
                         UpdateAddressButton(Folder.Path);
@@ -413,7 +436,7 @@ namespace RX_Explorer
                             RootNode.IsExpanded = true;
                         }
 
-                        await CreateNewBlade(InitFolderPath).ConfigureAwait(false);
+                        await CreateNewBlade(InitFolderPath).ConfigureAwait(true);
                     }
                 }
             }
@@ -2565,16 +2588,16 @@ namespace RX_Explorer
             {
                 try
                 {
-                    CurrentPresenter = new FilePresenter
+                    FilePresenter Presenter = new FilePresenter
                     {
                         WeakToFileControl = new WeakReference<FileControl>(this)
                     };
 
                     BladeItem Blade = new BladeItem
                     {
-                        Content = CurrentPresenter,
-                        Background = new Windows.UI.Xaml.Media.SolidColorBrush(Colors.Transparent),
-                        TitleBarBackground = new Windows.UI.Xaml.Media.SolidColorBrush(Colors.Transparent),
+                        Content = Presenter,
+                        Background = new SolidColorBrush(Colors.Transparent),
+                        TitleBarBackground = new SolidColorBrush(Colors.Transparent),
                         TitleBarVisibility = Visibility.Visible,
                         Height = BladeViewer.ActualHeight,
                         Width = BladeViewer.ActualWidth / 2,
@@ -2606,6 +2629,8 @@ namespace RX_Explorer
 
                     BladeViewer.UpdateLayout();
                     BladeViewer.Items.Add(Blade);
+
+                    CurrentPresenter = Presenter;
 
                     await DisplayItemsInFolder(FolderPath).ConfigureAwait(true);
                 }
@@ -2646,6 +2671,11 @@ namespace RX_Explorer
 
             BladeViewer.Items.Remove(e);
 
+            if (BladeViewer.Items.LastOrDefault() is BladeItem Blade && Blade.Content is FilePresenter LastPresenter)
+            {
+                CurrentPresenter = LastPresenter;
+            }
+                
             if (BladeViewer.Items.Count == 1)
             {
                 if (BladeViewer.Items[0] is BladeItem Item)
