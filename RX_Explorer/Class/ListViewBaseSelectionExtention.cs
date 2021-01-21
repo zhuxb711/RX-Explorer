@@ -63,8 +63,12 @@ namespace RX_Explorer.Class
             if (View.IsLoaded)
             {
                 InnerScrollView = View.FindChildOfType<ScrollViewer>();
-                InnerScrollBar = InnerScrollView.FindChildOfType<ScrollBar>();
-                InnerScrollBar.Scroll += InnerScrollBar_Scroll;
+                InnerScrollBar = View.FindChildOfType<ScrollBar>();
+
+                if (InnerScrollBar != null)
+                {
+                    InnerScrollBar.Scroll += InnerScrollBar_Scroll;
+                }
             }
             else
             {

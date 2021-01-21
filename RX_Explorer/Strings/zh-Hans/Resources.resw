@@ -2607,4 +2607,10 @@
   <data name="VerticalSplitViewButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>创建新的垂直拆分视图</value>
   </data>
+  <data name="CloseButThis.Label" xml:space="preserve">
+    <value>关闭除此之外的标签页</value>
+  </data>
+  <data name="CloseThisTab.Label" xml:space="preserve">
+    <value>关闭此标签页</value>
+  </data>
 </root>

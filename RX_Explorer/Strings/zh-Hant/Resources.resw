@@ -2607,4 +2607,10 @@
   <data name="VerticalSplitViewButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>創建新的垂直拆分視圖</value>
   </data>
+  <data name="CloseButThis.Label" xml:space="preserve">
+    <value>關閉除此以外所有選項卡</value>
+  </data>
+  <data name="CloseThisTab.Label" xml:space="preserve">
+    <value>關閉此選項卡</value>
+  </data>
 </root>

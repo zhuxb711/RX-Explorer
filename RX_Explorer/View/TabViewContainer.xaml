@@ -15,9 +15,11 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="ClosePane"
                               Label="关闭此标签页"
+                              x:Uid="CloseThisTab"
                               x:Name="CloseThisTab"
                               Click="CloseThisTab_Click"/>
                 <AppBarButton Icon="ClosePane"
+                              x:Uid="CloseButThis"
                               Label="关闭除此之外的标签页"
                               x:Name="CloseButThis"
                               Click="CloseButThis_Click"/>

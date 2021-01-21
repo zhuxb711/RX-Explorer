@@ -1,4 +1,21 @@
 ﻿*****
+###What's new in Ver.5.9.7.0
+
+#####Feature update
+
+>#####Add tab context menu
+
+>#####Drag and drop and stay on the folder for more than 1500ms to enter the folder automatically
+
+#####Bug fix
+
+>#####Fixed the problem that may cause a crash when entering a Secure Area under certain circumstances
+
+>#####Fixed the problem that all displayed folders will not be synchronized when dragging tabs across processes
+
+>#####Fixed some other problems
+
+*****
 ###What's new in Ver.5.9.5.0
 
 #####Feature update

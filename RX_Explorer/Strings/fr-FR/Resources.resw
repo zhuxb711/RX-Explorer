@@ -2607,4 +2607,10 @@ Les noms non valides incluent
   <data name="VerticalSplitViewButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Créer une nouvelle vue fractionnée verticale</value>
   </data>
+  <data name="CloseButThis.Label" xml:space="preserve">
+    <value>Fermez tout l'onglet mais ceci</value>
+  </data>
+  <data name="CloseThisTab.Label" xml:space="preserve">
+    <value>Fermer cet onglet</value>
+  </data>
 </root>

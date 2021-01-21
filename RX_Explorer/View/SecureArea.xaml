@@ -72,9 +72,7 @@
                           Subtitle="默认情况下AES-128-CBC模式已经提供足够的安全性，但是您也可以选择AES-256-CBC模式以获得更加好的安全保护。第二代酷睿处理器以上等级的处理器均支持两种模式的硬件加速，因此无需担心性能问题" />
     </Page.Resources>
 
-    <Grid Name="WholeArea"
-          Visibility="Collapsed"
-          x:Load="False">
+    <Grid Name="WholeArea">
         <Grid.RowDefinitions>
             <RowDefinition Height="40" />
             <RowDefinition Height="1*" />

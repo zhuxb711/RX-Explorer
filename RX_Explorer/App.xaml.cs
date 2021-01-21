@@ -136,11 +136,11 @@ namespace RX_Explorer
                 {
                     if (!string.IsNullOrWhiteSpace(e.Arguments) && WIN_Native_API.CheckExist(e.Arguments))
                     {
-                        TabContainer.CreateNewTabAndOpenTargetFolder(e.Arguments);
+                        TabContainer.CreateNewTabAndOpenTargetFolder(null, new string[] { e.Arguments });
                     }
                     else
                     {
-                        TabContainer.CreateNewTabAndOpenTargetFolder(string.Empty);
+                        TabContainer.CreateNewTabAndOpenTargetFolder(null, Array.Empty<string>());
                     }
                 }
             }
@@ -148,7 +148,7 @@ namespace RX_Explorer
             {
                 if (!string.IsNullOrWhiteSpace(e.Arguments) && WIN_Native_API.CheckExist(e.Arguments))
                 {
-                    ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen, $"PathActivate||{e.Arguments}");
+                    ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen, new string[] { e.Arguments });
                     Window.Current.Content = extendedSplash;
                 }
                 else
@@ -183,16 +183,16 @@ namespace RX_Explorer
 
                             if (string.IsNullOrWhiteSpace(Path) || Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase))
                             {
-                                TabContainer.CreateNewTabAndOpenTargetFolder(string.Empty);
+                                TabContainer.CreateNewTabAndOpenTargetFolder(null, Array.Empty<string>());
                             }
                             else
                             {
-                                TabContainer.CreateNewTabAndOpenTargetFolder(Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path);
+                                TabContainer.CreateNewTabAndOpenTargetFolder(null, Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path);
                             }
                         }
                         else
                         {
-                            TabContainer.CreateNewTabAndOpenTargetFolder(string.Empty);
+                            TabContainer.CreateNewTabAndOpenTargetFolder(null, Array.Empty<string>());
                         }
                     }
                 }
@@ -209,7 +209,7 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            ExtendedSplash extendedSplash = new ExtendedSplash(CmdArgs.SplashScreen, $"PathActivate||{(Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path)}");
+                            ExtendedSplash extendedSplash = new ExtendedSplash(CmdArgs.SplashScreen, new string[] { Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path });
                             Window.Current.Content = extendedSplash;
                         }
                     }
@@ -222,9 +222,9 @@ namespace RX_Explorer
             }
             else if (args is ProtocolActivatedEventArgs ProtocalArgs)
             {
-                if (!string.IsNullOrWhiteSpace(ProtocalArgs.Uri.LocalPath))
+                if (!string.IsNullOrWhiteSpace(ProtocalArgs.Uri.AbsolutePath))
                 {
-                    ExtendedSplash extendedSplash = new ExtendedSplash(ProtocalArgs.SplashScreen, $"PathActivate||{ProtocalArgs.Uri.LocalPath}");
+                    ExtendedSplash extendedSplash = new ExtendedSplash(ProtocalArgs.SplashScreen, Uri.UnescapeDataString(ProtocalArgs.Uri.AbsolutePath).Split("||", StringSplitOptions.RemoveEmptyEntries));
                     Window.Current.Content = extendedSplash;
                 }
                 else
@@ -256,12 +256,12 @@ namespace RX_Explorer
                 {
                     if (mainPageFrame.Content is MainPage mainPage && mainPage.Nav.Content is TabViewContainer tabViewContainer)
                     {
-                        tabViewContainer.CreateNewTabAndOpenTargetFolder(args.Files[0].Path);
+                        tabViewContainer.CreateNewTabAndOpenTargetFolder(null, args.Files.Select((File) => File.Path).ToArray());
                     }
                 }
                 else
                 {
-                    ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, $"PathActivate||{args.Files[0].Path}");
+                    ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, args.Files.Select((File) => File.Path).ToArray());
                     Window.Current.Content = extendedSplash;
                 }
 

@@ -71,7 +71,6 @@ namespace RX_Explorer
             CoreWindow.GetForCurrentThread().KeyDown -= SecureArea_KeyDown;
             SelectionExtention?.Dispose();
             EmptyTips.Visibility = Visibility.Collapsed;
-            WholeArea.Visibility = Visibility.Collapsed;
             SecureCollection.Clear();
         }
 
@@ -79,6 +78,8 @@ namespace RX_Explorer
         {
             try
             {
+                WholeArea.Visibility = Visibility.Collapsed;
+
                 ApplicationView.GetForCurrentView().IsScreenCaptureEnabled = false;
 
                 if (ApplicationData.Current.LocalSettings.Values.ContainsKey("IsFirstEnterSecureArea"))
@@ -263,11 +264,6 @@ namespace RX_Explorer
                 }
 
                 CoreWindow.GetForCurrentThread().KeyDown += SecureArea_KeyDown;
-
-                if (WholeArea == null)
-                {
-                    FindName(nameof(WholeArea));
-                }
 
                 WholeArea.Visibility = Visibility.Visible;
 

@@ -21,11 +21,12 @@ namespace RX_Explorer
     {
         private readonly SplashScreen Splash;
 
-        private string ActivateParameter;
+        private string[] Parameter;
 
-        public ExtendedSplash(SplashScreen Screen, string ActivateParameter = null)
+        public ExtendedSplash(SplashScreen Screen, string[] Parameter = null)
         {
             InitializeComponent();
+
             Window.Current.SetTitleBar(TitleBar);
 
             if (Package.Current.IsDevelopmentMode)
@@ -40,9 +41,9 @@ namespace RX_Explorer
             Loaded += ExtendedSplash_Loaded;
             Unloaded += ExtendedSplash_Unloaded;
 
-            if (!string.IsNullOrEmpty(ActivateParameter))
+            if (Parameter != null)
             {
-                this.ActivateParameter = ActivateParameter;
+                this.Parameter = Parameter;
             }
         }
 
@@ -92,14 +93,14 @@ namespace RX_Explorer
                     Frame RootFrame = new Frame();
                     Window.Current.Content = RootFrame;
 
-                    if (string.IsNullOrEmpty(ActivateParameter))
+                    if (Parameter == null)
                     {
-                        MainPage Main = new MainPage(Splash.ImageLocation);
+                        MainPage Main = new MainPage(new Tuple<Rect, string[]>(Splash.ImageLocation, Array.Empty<string>()));
                         RootFrame.Content = Main;
                     }
                     else
                     {
-                        MainPage Main = new MainPage(new Tuple<Rect, string>(Splash.ImageLocation, ActivateParameter));
+                        MainPage Main = new MainPage(new Tuple<Rect, string[]>(Splash.ImageLocation, Parameter));
                         RootFrame.Content = Main;
                     }
                 }

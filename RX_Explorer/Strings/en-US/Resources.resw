@@ -2712,4 +2712,10 @@ Invalid names include
   <data name="VerticalSplitViewButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Create a new vertical split view</value>
   </data>
+  <data name="CloseButThis.Label" xml:space="preserve">
+    <value>Close all tab but this</value>
+  </data>
+  <data name="CloseThisTab.Label" xml:space="preserve">
+    <value>Close this tab</value>
+  </data>
 </root>

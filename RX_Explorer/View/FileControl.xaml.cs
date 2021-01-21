@@ -312,7 +312,7 @@ namespace RX_Explorer
             {
                 try
                 {
-                    if (e.NavigationMode == NavigationMode.New && e?.Parameter is Tuple<WeakReference<TabViewItem>, string> Parameters)
+                    if (e.NavigationMode == NavigationMode.New && e?.Parameter is Tuple<WeakReference<TabViewItem>, string[]> Parameters)
                     {
                         Frame.Navigated += Frame_Navigated;
 
@@ -380,9 +380,9 @@ namespace RX_Explorer
         /// <summary>
         /// 执行文件目录的初始化
         /// </summary>
-        public async Task Initialize(string InitFolderPath)
+        public async Task Initialize(string[] InitFolderPathArray)
         {
-            if (!string.IsNullOrEmpty(InitFolderPath))
+            if (InitFolderPathArray.Length > 0)
             {
                 FolderTree.RootNodes.Clear();
 
@@ -397,19 +397,35 @@ namespace RX_Explorer
                         HasUnrealizedChildren = HasAnyFolder
                     };
 
-                    FolderTree.RootNodes.Add(RootNode);
-
-                    if (Path.GetPathRoot(InitFolderPath) == DriveFolder.Path)
+                    if (InitFolderPathArray.Any((Path) => System.IO.Path.GetPathRoot(Path) == DriveFolder.Path))
                     {
-                        FolderTree.SelectNodeAndScrollToVertical(RootNode);
-
                         if (HasAnyFolder)
                         {
                             RootNode.IsExpanded = true;
                         }
 
-                        await CreateNewBlade(InitFolderPath).ConfigureAwait(true);
+                        FolderTree.RootNodes.Add(RootNode);
+                        FolderTree.UpdateLayout();
+
+                        if (InitFolderPathArray.Length == 1)
+                        {
+                            FolderTree.SelectNodeAndScrollToVertical(RootNode);
+                        }
+
+                        if (RootNode.IsExpanded)
+                        {
+                            _ = FillTreeNode(RootNode);
+                        }
                     }
+                    else
+                    {
+                        FolderTree.RootNodes.Add(RootNode);
+                    }
+                }
+
+                foreach (string TargetPath in InitFolderPathArray)
+                {
+                    await CreateNewBlade(TargetPath).ConfigureAwait(true);
                 }
             }
         }
@@ -1360,7 +1376,7 @@ namespace RX_Explorer
 
                         if (WIN_Native_API.CheckExist(Path))
                         {
-                            await CurrentPresenter.DisplayItemsInFolder(Path, SkipNavigationRecord:true).ConfigureAwait(true);
+                            await CurrentPresenter.DisplayItemsInFolder(Path, SkipNavigationRecord: true).ConfigureAwait(true);
 
                             await SQLite.Current.SetPathHistoryAsync(Path).ConfigureAwait(true);
 
@@ -1421,7 +1437,7 @@ namespace RX_Explorer
 
                         if (WIN_Native_API.CheckExist(Path))
                         {
-                            await CurrentPresenter.DisplayItemsInFolder(Path, SkipNavigationRecord:true).ConfigureAwait(true);
+                            await CurrentPresenter.DisplayItemsInFolder(Path, SkipNavigationRecord: true).ConfigureAwait(true);
 
                             await SQLite.Current.SetPathHistoryAsync(Path).ConfigureAwait(true);
 
@@ -2071,7 +2087,7 @@ namespace RX_Explorer
             GoForwardRecord.IsEnabled = false;
             GoParentFolder.IsEnabled = false;
 
-            ViewModeControl.Dispose();
+            ViewModeControl?.Dispose();
             ViewModeControl = null;
         }
 
@@ -2171,7 +2187,7 @@ namespace RX_Explorer
         {
             if (CurrentPresenter.CurrentFolder != null)
             {
-                TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(CurrentPresenter.CurrentFolder.Path);
+                TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(null, CurrentPresenter.CurrentFolder.Path);
             }
         }
 
@@ -2456,9 +2472,9 @@ namespace RX_Explorer
                     BladeViewer.UpdateLayout();
                     BladeViewer.Items.Add(Blade);
 
-                    CurrentPresenter = Presenter;
+                    await Presenter.DisplayItemsInFolder(FolderPath).ConfigureAwait(true);
 
-                    await CurrentPresenter.DisplayItemsInFolder(FolderPath).ConfigureAwait(true);
+                    CurrentPresenter = Presenter;
                 }
                 catch (Exception ex)
                 {
@@ -2501,7 +2517,7 @@ namespace RX_Explorer
             {
                 CurrentPresenter = LastPresenter;
             }
-                
+
             if (BladeViewer.Items.Count == 1)
             {
                 if (BladeViewer.Items[0] is BladeItem Item)

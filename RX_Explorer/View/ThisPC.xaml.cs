@@ -154,11 +154,11 @@ namespace RX_Explorer
                 {
                     if (AnimationController.Current.IsEnableAnimation)
                     {
-                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(WeakToTabItem, Folder.Path), new DrillInNavigationTransitionInfo());
+                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string[]>(WeakToTabItem, new string[] { Folder.Path }), new DrillInNavigationTransitionInfo());
                     }
                     else
                     {
-                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(WeakToTabItem, Folder.Path), new SuppressNavigationTransitionInfo());
+                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string[]>(WeakToTabItem, new string[] { Folder.Path }), new SuppressNavigationTransitionInfo());
                     }
                 }
             }

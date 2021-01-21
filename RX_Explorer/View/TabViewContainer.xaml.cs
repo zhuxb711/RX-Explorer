@@ -78,7 +78,7 @@ namespace RX_Explorer
                     {
                         case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                             {
-                                CreateNewTabAndOpenTargetFolder(string.Empty);
+                                CreateNewTabAndOpenTargetFolder(null);
                                 args.Handled = true;
 
                                 break;
@@ -208,29 +208,17 @@ namespace RX_Explorer
             }
         }
 
-        public void CreateNewTabAndOpenTargetFolder(string Path, int? InsertIndex = null)
+        public void CreateNewTabAndOpenTargetFolder(int? InsertIndex, params string[] Path)
         {
             int Index = InsertIndex ?? (TabViewControl?.TabItems.Count ?? 0);
 
             try
             {
-                if (string.IsNullOrWhiteSpace(Path))
+                if (CreateNewTab(Path) is TabViewItem Item)
                 {
-                    if (CreateNewTab() is TabViewItem Item)
-                    {
-                        TabViewControl.TabItems.Insert(Index, Item);
-                        TabViewControl.UpdateLayout();
-                        TabViewControl.SelectedItem = Item;
-                    }
-                }
-                else
-                {
-                    if (CreateNewTab(Path) is TabViewItem Item)
-                    {
-                        TabViewControl.TabItems.Insert(Index, Item);
-                        TabViewControl.UpdateLayout();
-                        TabViewControl.SelectedItem = Item;
-                    }
+                    TabViewControl.TabItems.Insert(Index, Item);
+                    TabViewControl.UpdateLayout();
+                    TabViewControl.SelectedItem = Item;
                 }
             }
             catch (Exception ex)
@@ -397,6 +385,37 @@ namespace RX_Explorer
 
             try
             {
+                foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable)
+                                                                 .Where((NewItem) => CommonAccessCollection.HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
+                {
+                    try
+                    {
+                        StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(Drive.RootDirectory.FullName);
+
+                        BasicProperties Properties = await Device.GetBasicPropertiesAsync();
+                        IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
+
+                        CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Drive.DriveType));
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, $"Hide the device \"{Drive.RootDirectory.FullName}\" for error");
+                    }
+                }
+
+                switch (PortalDeviceWatcher.Status)
+                {
+                    case DeviceWatcherStatus.Created:
+                    case DeviceWatcherStatus.Aborted:
+                    case DeviceWatcherStatus.Stopped:
+                        {
+                            PortalDeviceWatcher?.Start();
+                            break;
+                        }
+                }
+
+                CreateNewTabAndOpenTargetFolder(null, MainPage.ThisPage.ActivatePathArray);
+
                 foreach (KeyValuePair<QuickStartType, QuickStartItem> Item in await SQLite.Current.GetQuickStartItemAsync().ConfigureAwait(true))
                 {
                     if (Item.Key == QuickStartType.Application)
@@ -617,46 +636,6 @@ namespace RX_Explorer
 
                 await JumpListController.Current.AddItem(JumpListGroup.Library, CommonAccessCollection.LibraryFolderList.Where((Library) => Library.Type == LibraryType.UserCustom).Select((Library) => Library.Folder.Path).ToArray()).ConfigureAwait(true);
 
-                foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable)
-                                                                 .Where((NewItem) => CommonAccessCollection.HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
-                {
-                    try
-                    {
-                        StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(Drive.RootDirectory.FullName);
-
-                        BasicProperties Properties = await Device.GetBasicPropertiesAsync();
-                        IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
-
-                        CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Drive.DriveType));
-                    }
-                    catch(Exception ex)
-                    {
-                        LogTracer.Log(ex, $"Hide the device \"{Drive.RootDirectory.FullName}\" for error");
-                    }
-                }
-
-                switch (PortalDeviceWatcher.Status)
-                {
-                    case DeviceWatcherStatus.Created:
-                    case DeviceWatcherStatus.Aborted:
-                    case DeviceWatcherStatus.Stopped:
-                        {
-                            PortalDeviceWatcher?.Start();
-                            break;
-                        }
-                }
-
-                if (MainPage.ThisPage.IsPathActivate)
-                {
-                    CreateNewTabAndOpenTargetFolder(MainPage.ThisPage.ActivatePath);
-
-                    MainPage.ThisPage.IsPathActivate = false;
-                }
-                else
-                {
-                    CreateNewTabAndOpenTargetFolder(string.Empty);
-                }
-
                 if (ErrorList.Count > 0)
                 {
                     StringBuilder Builder = new StringBuilder();
@@ -696,7 +675,7 @@ namespace RX_Explorer
             }
         }
 
-        private TabViewItem CreateNewTab(string PathForNewTab = null)
+        private TabViewItem CreateNewTab(params string[] PathForNewTab)
         {
             if (Interlocked.Exchange(ref LockResource, 1) == 0)
             {
@@ -714,22 +693,31 @@ namespace RX_Explorer
                     Item.PointerPressed += Item_PointerPressed;
                     Item.DoubleTapped += Item_DoubleTapped;
 
-                    if (!string.IsNullOrEmpty(PathForNewTab) && WIN_Native_API.CheckExist(PathForNewTab))
+                    IEnumerable<string> ValidPathArray = PathForNewTab.Where((Path) => !string.IsNullOrEmpty(Path) && WIN_Native_API.CheckExist(Path));
+
+                    if (ValidPathArray.Any())
                     {
                         frame.Navigate(typeof(ThisPC), new WeakReference<TabViewItem>(Item), new SuppressNavigationTransitionInfo());
 
                         if (AnimationController.Current.IsEnableAnimation)
                         {
-                            frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(new WeakReference<TabViewItem>(Item), PathForNewTab), new DrillInNavigationTransitionInfo());
+                            frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string[]>(new WeakReference<TabViewItem>(Item), ValidPathArray.ToArray()), new DrillInNavigationTransitionInfo());
                         }
                         else
                         {
-                            frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(new WeakReference<TabViewItem>(Item), PathForNewTab), new SuppressNavigationTransitionInfo());
+                            frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string[]>(new WeakReference<TabViewItem>(Item), ValidPathArray.ToArray()), new SuppressNavigationTransitionInfo());
                         }
                     }
                     else
                     {
-                        frame.Navigate(typeof(ThisPC), new WeakReference<TabViewItem>(Item), new SuppressNavigationTransitionInfo());
+                        if (AnimationController.Current.IsEnableAnimation)
+                        {
+                            frame.Navigate(typeof(ThisPC), new WeakReference<TabViewItem>(Item), new DrillInNavigationTransitionInfo());
+                        }
+                        else
+                        {
+                            frame.Navigate(typeof(ThisPC), new WeakReference<TabViewItem>(Item), new SuppressNavigationTransitionInfo());
+                        }
                     }
 
                     Item.Content = frame;
@@ -846,9 +834,11 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if (CommonAccessCollection.FrameFileControlDic.ContainsKey(frame))
+                    if (CommonAccessCollection.FrameFileControlDic.TryGetValue(frame, out FileControl Control))
                     {
-                        Builder.Append($"<p>FileControl||{CommonAccessCollection.FrameFileControlDic[frame].CurrentPresenter.CurrentFolder?.Path}</p>");
+                        string PathString = string.Join("||", Control.BladeViewer.Items.OfType<Microsoft.Toolkit.Uwp.UI.Controls.BladeItem>().Select((Item) => (Item.Content as FilePresenter)?.CurrentFolder?.Path));
+
+                        Builder.Append($"<p>FileControl||{PathString}</p>");
                     }
                     else
                     {
@@ -881,7 +871,9 @@ namespace RX_Explorer
                     }
                     else if (CommonAccessCollection.FrameFileControlDic.TryGetValue(frame, out FileControl Control))
                     {
-                        Uri NewWindowActivationUri = new Uri($"rx-explorer:{Uri.EscapeDataString(Control.CurrentPresenter.CurrentFolder?.Path)}");
+                        string PathString = string.Join("||", Control.BladeViewer.Items.OfType<Microsoft.Toolkit.Uwp.UI.Controls.BladeItem>().Select((Item) => (Item.Content as FilePresenter)?.CurrentFolder?.Path));
+
+                        Uri NewWindowActivationUri = new Uri($"rx-explorer:{Uri.EscapeDataString(PathString)}");
                         await CleanUpAndRemoveTabItem(args.Tab).ConfigureAwait(true);
                         await Launcher.LaunchUriAsync(NewWindowActivationUri);
                     }
@@ -968,12 +960,12 @@ namespace RX_Explorer
                         {
                             case "ThisPC":
                                 {
-                                    CreateNewTabAndOpenTargetFolder(string.Empty, InsertIndex);
+                                    CreateNewTabAndOpenTargetFolder(InsertIndex);
                                     break;
                                 }
                             case "FileControl":
                                 {
-                                    CreateNewTabAndOpenTargetFolder(Split[1], InsertIndex);
+                                    CreateNewTabAndOpenTargetFolder(InsertIndex, Split.Skip(1).ToArray());
                                     break;
                                 }
                         }
@@ -1083,7 +1075,7 @@ namespace RX_Explorer
                 List<TabViewItem> ToBeRemoveList = TabViewControl.TabItems.OfType<TabViewItem>().ToList();
 
                 ToBeRemoveList.Remove(Item);
-                
+
                 foreach (TabViewItem RemoveItem in ToBeRemoveList)
                 {
                     await CleanUpAndRemoveTabItem(RemoveItem).ConfigureAwait(true);

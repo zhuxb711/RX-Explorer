@@ -41,9 +41,7 @@ namespace RX_Explorer
 
         private Dictionary<Type, string> PageDictionary;
 
-        public bool IsPathActivate { get; set; }
-
-        public string ActivatePath { get; private set; }
+        public string[] ActivatePathArray { get; private set; }
 
         private EntranceAnimationEffect EntranceEffectProvider;
 
@@ -81,31 +79,13 @@ namespace RX_Explorer
                 });
             };
 
-            if (Parameter is Tuple<Rect, string> RSParamter)
+            if (Parameter is Tuple<Rect, string[]> Paras)
             {
-                string[] Paras = RSParamter.Item2.Split("||");
+                ActivatePathArray = Paras.Item2;
 
-                switch (Paras[0])
+                if (!AnimationController.Current.IsDisableStartupAnimation && ActivatePathArray.Length == 0)
                 {
-                    case "PathActivate":
-                        {
-                            IsPathActivate = true;
-                            ActivatePath = Paras[1];
-                            break;
-                        }
-                }
-
-                if (!AnimationController.Current.IsDisableStartupAnimation && !IsPathActivate)
-                {
-                    EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, RSParamter.Item1);
-                    EntranceEffectProvider.PrepareEntranceEffect();
-                }
-            }
-            else if (Parameter is Rect RectParameter)
-            {
-                if (!AnimationController.Current.IsDisableStartupAnimation && !IsPathActivate)
-                {
-                    EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, RectParameter);
+                    EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, Paras.Item1);
                     EntranceEffectProvider.PrepareEntranceEffect();
                 }
             }
@@ -299,7 +279,7 @@ namespace RX_Explorer
 
                 Nav.Navigate(typeof(TabViewContainer), null, new SuppressNavigationTransitionInfo());
 
-                if (!AnimationController.Current.IsDisableStartupAnimation && !IsPathActivate)
+                if (!AnimationController.Current.IsDisableStartupAnimation && ActivatePathArray.Length == 0)
                 {
                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                     {

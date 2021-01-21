@@ -563,6 +563,11 @@ namespace RX_Explorer
         {
             CoreWindow.GetForCurrentThread().KeyDown += Window_KeyDown;
             Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
+
+            if (this.FindParentOfType<BladeItem>() is BladeItem Parent)
+            {
+                Parent.Header = CurrentFolder?.DisplayName;
+            }
         }
 
         private void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
@@ -694,12 +699,12 @@ namespace RX_Explorer
                                 {
                                     if (Item.StorageType == StorageItemTypes.Folder)
                                     {
-                                        TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(Item.Path);
+                                        TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(null, Item.Path);
                                     }
                                 }
                                 else
                                 {
-                                    TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(string.Empty);
+                                    TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(null);
                                 }
 
                                 break;
@@ -2193,7 +2198,7 @@ namespace RX_Explorer
                 {
                     SelectionExtention.Disable();
                     SelectedItem = Item;
-                    TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(Item.Path);
+                    TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(null, Item.Path);
                 }
                 else if ((e.OriginalSource as FrameworkElement).FindParentOfType<SelectorItem>() != null)
                 {
@@ -6012,7 +6017,7 @@ namespace RX_Explorer
 
             if (SelectedItem is FileSystemStorageItemBase Item && Item.StorageType == StorageItemTypes.Folder)
             {
-                TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(Item.Path);
+                TabViewContainer.ThisPage.CreateNewTabAndOpenTargetFolder(null, Item.Path);
             }
         }
 

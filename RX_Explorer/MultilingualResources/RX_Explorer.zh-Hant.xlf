@@ -3457,6 +3457,14 @@ Invalid names include
           <source>Create a new vertical split view</source>
           <target state="translated">創建新的垂直拆分視圖</target>
         </trans-unit>
+        <trans-unit id="CloseButThis.Label" translate="yes" xml:space="preserve">
+          <source>Close all tab but this</source>
+          <target state="translated">關閉除此以外所有選項卡</target>
+        </trans-unit>
+        <trans-unit id="CloseThisTab.Label" translate="yes" xml:space="preserve">
+          <source>Close this tab</source>
+          <target state="translated">關閉此選項卡</target>
+        </trans-unit>
       </group>
     </body>
   </file>
