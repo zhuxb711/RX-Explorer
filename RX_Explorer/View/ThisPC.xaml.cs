@@ -542,7 +542,6 @@ namespace RX_Explorer
                 {
                     CommonAccessCollection.HardDeviceList.Clear();
 
-                    bool AccessError = false;
                     foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable)
                                                                      .Where((NewItem) => CommonAccessCollection.HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
                     {
@@ -554,9 +553,9 @@ namespace RX_Explorer
                             IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
                             CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Drive.DriveType));
                         }
-                        catch
+                        catch (Exception ex)
                         {
-                            AccessError = true;
+                            LogTracer.Log(ex, $"Hide the device \"{Drive.RootDirectory.FullName}\" for error");
                         }
                     }
 
@@ -600,25 +599,9 @@ namespace RX_Explorer
                                 }
                             }
                         }
-                        catch
+                        catch (Exception ex)
                         {
-                            AccessError = true;
-                        }
-                    }
-
-                    if (AccessError && !ApplicationData.Current.LocalSettings.Values.ContainsKey("DisableAccessErrorTip"))
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                            Content = Globalization.GetString("QueueDialog_DeviceHideForError_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_DoNotTip"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-
-                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                        {
-                            ApplicationData.Current.LocalSettings.Values["DisableAccessErrorTip"] = true;
+                            LogTracer.Log(ex, $"Hide the device \"{Device.Name}\" for error");
                         }
                     }
                 }
@@ -829,7 +812,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabViewControl.TabItems.OfType<TabViewItem>().Where((Tab) => Tab.Content is Frame frame && CommonAccessCollection.FrameFileControlDic.TryGetValue(frame, out FileControl Control) && Path.GetPathRoot(Control.CurrentFolder?.Path) == Item.Folder.Path).ToArray())
+                    foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabViewControl.TabItems.OfType<TabViewItem>().Where((Tab) => Tab.Content is Frame frame && CommonAccessCollection.FrameFileControlDic.TryGetValue(frame, out FileControl Control) && Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder?.Path) == Item.Folder.Path).ToArray())
                     {
                         await TabViewContainer.ThisPage.CleanUpAndRemoveTabItem(Tab).ConfigureAwait(true);
                     }

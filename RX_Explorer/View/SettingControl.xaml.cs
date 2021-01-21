@@ -597,9 +597,9 @@ namespace RX_Explorer
 
                 foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabViewControl.TabItems)
                 {
-                    if ((Tab.Content as Frame)?.Content is FileControl Control && Control.CurrentFolder != null)
+                    if ((Tab.Content as Frame)?.Content is FileControl Control && Control.CurrentPresenter.CurrentFolder != null)
                     {
-                        await Control.DisplayItemsInFolder(Control.CurrentFolder, true).ConfigureAwait(true);
+                        await Control.CurrentPresenter.DisplayItemsInFolder(Control.CurrentPresenter.CurrentFolder, true).ConfigureAwait(true);
                     }
                 }
             }
@@ -1746,7 +1746,7 @@ namespace RX_Explorer
 
                 foreach (Frame Frame in TabViewContainer.ThisPage.TabViewControl.TabItems.OfType<TabViewItem>().Select((Tab) => Tab.Content))
                 {
-                    if (CommonAccessCollection.FrameFileControlDic.TryGetValue(Frame, out FileControl Control) && Control.CurrentFolder != null)
+                    if (CommonAccessCollection.FrameFileControlDic.TryGetValue(Frame, out FileControl Control) && Control.CurrentPresenter.CurrentFolder != null)
                     {
                         Control.TreeViewGridCol.Width = TreeViewDetach.IsOn ? new GridLength(2, GridUnitType.Star) : new GridLength(0);
 
@@ -1767,7 +1767,7 @@ namespace RX_Explorer
 
                                 Control.FolderTree.RootNodes.Add(RootNode);
 
-                                if (Path.GetPathRoot(Control.CurrentFolder.Path) == DriveFolder.Path)
+                                if (Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder.Path) == DriveFolder.Path)
                                 {
                                     Control.FolderTree.SelectNodeAndScrollToVertical(RootNode);
 
@@ -1909,9 +1909,9 @@ namespace RX_Explorer
 
                 foreach (Frame Frame in TabViewContainer.ThisPage.TabViewControl.TabItems.OfType<TabViewItem>().Select((Tab) => Tab.Content))
                 {
-                    if (CommonAccessCollection.FrameFileControlDic.TryGetValue(Frame, out FileControl Control) && Control.CurrentFolder != null)
+                    if (CommonAccessCollection.FrameFileControlDic.TryGetValue(Frame, out FileControl Control) && Control.CurrentPresenter.CurrentFolder != null)
                     {
-                        await Control.DisplayItemsInFolder(Control.CurrentFolder, true).ConfigureAwait(true);
+                        await Control.CurrentPresenter.DisplayItemsInFolder(Control.CurrentPresenter.CurrentFolder, true).ConfigureAwait(true);
 
                         if (!IsDetachTreeViewAndPresenter)
                         {

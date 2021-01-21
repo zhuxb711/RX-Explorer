@@ -22,7 +22,7 @@ namespace FullTrustProcess
                 {
                     using (ShellItem Item = ShellItem.Open(Path))
                     {
-                        Shell32.IContextMenu Context = Item.GetHandler<Shell32.IContextMenu>();
+                        Shell32.IContextMenu Context = Item.Parent.GetChildrenUIObjects<Shell32.IContextMenu>(null, Item);
 
                         try
                         {
@@ -50,7 +50,7 @@ namespace FullTrustProcess
 
                                         if (User32.GetMenuItemInfo(NewMenu, i, true, ref Info))
                                         {
-                                            if (Info.fType.HasFlag(User32.MenuItemType.MFT_STRING) && Info.fState.HasFlag(User32.MenuItemState.MFS_ENABLED))
+                                            if (Info.fType == User32.MenuItemType.MFT_STRING)
                                             {
                                                 IntPtr VerbPtr = Marshal.AllocHGlobal(BufferSize);
 
@@ -88,31 +88,34 @@ namespace FullTrustProcess
 
                                                                     string HelpText = Marshal.PtrToStringUni(HelpTextPtr);
 
-                                                                    if (Info.hbmpItem != HBITMAP.NULL)
+                                                                    if(!string.IsNullOrEmpty(HelpText))
                                                                     {
-                                                                        using (Bitmap OriginBitmap = Info.hbmpItem.ToBitmap())
+                                                                        if (Info.hbmpItem != HBITMAP.NULL)
                                                                         {
-                                                                            BitmapData OriginData = OriginBitmap.LockBits(new Rectangle(0, 0, OriginBitmap.Width, OriginBitmap.Height), ImageLockMode.ReadOnly, OriginBitmap.PixelFormat);
-
-                                                                            try
+                                                                            using (Bitmap OriginBitmap = Info.hbmpItem.ToBitmap())
                                                                             {
-                                                                                using (Bitmap ArgbBitmap = new Bitmap(OriginBitmap.Width, OriginBitmap.Height, OriginData.Stride, PixelFormat.Format32bppArgb, OriginData.Scan0))
-                                                                                using (MemoryStream Stream = new MemoryStream())
-                                                                                {
-                                                                                    ArgbBitmap.Save(Stream, ImageFormat.Png);
+                                                                                BitmapData OriginData = OriginBitmap.LockBits(new Rectangle(0, 0, OriginBitmap.Width, OriginBitmap.Height), ImageLockMode.ReadOnly, OriginBitmap.PixelFormat);
 
-                                                                                    ContextMenuItemList.Add(new ContextMenuPackage(HelpText, Verb, Stream.ToArray()));
+                                                                                try
+                                                                                {
+                                                                                    using (Bitmap ArgbBitmap = new Bitmap(OriginBitmap.Width, OriginBitmap.Height, OriginData.Stride, PixelFormat.Format32bppArgb, OriginData.Scan0))
+                                                                                    using (MemoryStream Stream = new MemoryStream())
+                                                                                    {
+                                                                                        ArgbBitmap.Save(Stream, ImageFormat.Png);
+
+                                                                                        ContextMenuItemList.Add(new ContextMenuPackage(HelpText, Verb, Stream.ToArray()));
+                                                                                    }
+                                                                                }
+                                                                                finally
+                                                                                {
+                                                                                    OriginBitmap.UnlockBits(OriginData);
                                                                                 }
                                                                             }
-                                                                            finally
-                                                                            {
-                                                                                OriginBitmap.UnlockBits(OriginData);
-                                                                            }
                                                                         }
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        ContextMenuItemList.Add(new ContextMenuPackage(HelpText, Verb, Array.Empty<byte>()));
+                                                                        else
+                                                                        {
+                                                                            ContextMenuItemList.Add(new ContextMenuPackage(HelpText, Verb, Array.Empty<byte>()));
+                                                                        }
                                                                     }
                                                                 }
                                                                 finally

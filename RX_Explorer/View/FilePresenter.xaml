@@ -1387,7 +1387,7 @@
                        Margin="10,0,0,0"
                        TextTrimming="CharacterEllipsis"
                        VerticalAlignment="Center" />
-            <Border Height="2"
+            <Border Height="4"
                     HorizontalAlignment="Stretch"
                     x:FieldModifier="public"
                     x:Name="FocusIndicator"/>

@@ -1942,9 +1942,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_DeviceExist_Content" xml:space="preserve">
     <value>The selected drive already exists</value>
   </data>
-  <data name="QueueDialog_DeviceHideForError_Content" xml:space="preserve">
-    <value>Some drives fail to display due to lack of sufficient permissions</value>
-  </data>
   <data name="QueueDialog_DeviceSelectError_Content" xml:space="preserve">
     <value>The selected content is not a drive</value>
   </data>

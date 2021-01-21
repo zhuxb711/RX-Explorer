@@ -1797,9 +1797,6 @@
   <data name="QueueDialog_DeviceExist_Content" xml:space="preserve">
     <value>Les lecteurs sélectionnés existent déjà</value>
   </data>
-  <data name="QueueDialog_DeviceHideForError_Content" xml:space="preserve">
-    <value>Certains lecteurs ne peuvent être ouverts à cause d'un manque de permissiosn</value>
-  </data>
   <data name="QueueDialog_DeviceSelectError_Content" xml:space="preserve">
     <value>La sélection active n'est pas un lecteur</value>
   </data>

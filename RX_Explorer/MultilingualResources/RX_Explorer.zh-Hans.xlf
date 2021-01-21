@@ -2375,10 +2375,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>The selected drive already exists</source>
           <target state="translated">所选择的驱动器已经存在</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_DeviceHideForError_Content" translate="yes" xml:space="preserve">
-          <source>Some drives fail to display due to lack of sufficient permissions</source>
-          <target state="translated">由于缺乏足够的权限，部分驱动器未能显示</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_DeviceSelectError_Content" translate="yes" xml:space="preserve">
           <source>The selected content is not a drive</source>
           <target state="translated">所选择的内容并非是驱动器</target>

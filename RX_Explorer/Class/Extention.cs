@@ -93,9 +93,9 @@ namespace RX_Explorer.Class
                         }
                         else if (ListControl.FindParentOfType<FileControl>() is FileControl Control)
                         {
-                            if (!string.IsNullOrEmpty(Control.CurrentFolder?.Path))
+                            if (!string.IsNullOrEmpty(Control.CurrentPresenter.CurrentFolder?.Path))
                             {
-                                SelectedPath = Control.CurrentFolder.Path;
+                                SelectedPath = Control.CurrentPresenter.CurrentFolder.Path;
                             }
                             else
                             {

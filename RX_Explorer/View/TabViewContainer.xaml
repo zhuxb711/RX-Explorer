@@ -10,6 +10,21 @@
     Background="Transparent"
     NavigationCacheMode="Required">
 
+    <Page.Resources>
+        <muxc:CommandBarFlyout x:Name="TabCommandFlyout">
+            <muxc:CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="ClosePane"
+                              Label="关闭此标签页"
+                              x:Name="CloseThisTab"
+                              Click="CloseThisTab_Click"/>
+                <AppBarButton Icon="ClosePane"
+                              Label="关闭除此之外的标签页"
+                              x:Name="CloseButThis"
+                              Click="CloseButThis_Click"/>
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
+    </Page.Resources>
+
     <Grid>
         <muxc:TabView TabWidthMode="Equal"
                       Name="TabViewControl"
@@ -18,6 +33,7 @@
                       AllowDropTabs="True"
                       AllowDrop="True"
                       CanDragTabs="True"
+                      RightTapped="TabViewControl_RightTapped"
                       PointerWheelChanged="TabViewControl_PointerWheelChanged"
                       TabStripDragOver="TabViewControl_TabStripDragOver"
                       TabStripDrop="TabViewControl_TabStripDrop"

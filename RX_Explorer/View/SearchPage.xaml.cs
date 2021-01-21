@@ -59,7 +59,7 @@ namespace RX_Explorer
 
                 if (WeakToFileControl.TryGetTarget(out FileControl Control))
                 {
-                    string CurrentPath = Control.CurrentFolder.Path;
+                    string CurrentPath = Control.CurrentPresenter.CurrentFolder.Path;
                     string SearchTarget = Control.GlobeSearch.Text;
 
                     List<FileSystemStorageItemBase> SearchItems = null;
@@ -141,7 +141,7 @@ namespace RX_Explorer
                     {
                         Frame.GoBack();
 
-                        await Control.DisplayItemsInFolder(ParentFolderPath).ConfigureAwait(true);
+                        await Control.CurrentPresenter.DisplayItemsInFolder(ParentFolderPath).ConfigureAwait(true);
 
                         await JumpListController.Current.AddItem(JumpListGroup.Recent, ParentFolderPath).ConfigureAwait(true);
 

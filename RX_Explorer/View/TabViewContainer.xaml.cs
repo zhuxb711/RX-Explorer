@@ -19,6 +19,7 @@ using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
@@ -300,7 +301,7 @@ namespace RX_Explorer
                 {
                     foreach (HardDeviceInfo Device in TwoStepDeviceList)
                     {
-                        foreach (TabViewItem Tab in TabViewControl.TabItems.OfType<TabViewItem>().Where((Tab) => Tab.Content is Frame frame && CommonAccessCollection.FrameFileControlDic.TryGetValue(frame, out FileControl Value) && Path.GetPathRoot(Value.CurrentFolder?.Path) == Device.Folder?.Path).ToArray())
+                        foreach (TabViewItem Tab in TabViewControl.TabItems.OfType<TabViewItem>().Where((Tab) => Tab.Content is Frame frame && CommonAccessCollection.FrameFileControlDic.TryGetValue(frame, out FileControl Value) && Path.GetPathRoot(Value.CurrentPresenter.CurrentFolder?.Path) == Device.Folder?.Path).ToArray())
                         {
                             await CleanUpAndRemoveTabItem(Tab).ConfigureAwait(true);
                         }
@@ -393,17 +394,6 @@ namespace RX_Explorer
         private async void TabViewContainer_Loaded(object sender, RoutedEventArgs e)
         {
             Loaded -= TabViewContainer_Loaded;
-
-            if (MainPage.ThisPage.IsPathActivate)
-            {
-                CreateNewTabAndOpenTargetFolder(MainPage.ThisPage.ActivatePath);
-
-                MainPage.ThisPage.IsPathActivate = false;
-            }
-            else
-            {
-                CreateNewTabAndOpenTargetFolder(string.Empty);
-            }
 
             try
             {
@@ -609,6 +599,7 @@ namespace RX_Explorer
                 }
 
                 Queue<string> ErrorList = new Queue<string>();
+
                 foreach ((string, LibraryType) Library in await SQLite.Current.GetLibraryPathAsync().ConfigureAwait(true))
                 {
                     try
@@ -626,7 +617,6 @@ namespace RX_Explorer
 
                 await JumpListController.Current.AddItem(JumpListGroup.Library, CommonAccessCollection.LibraryFolderList.Where((Library) => Library.Type == LibraryType.UserCustom).Select((Library) => Library.Folder.Path).ToArray()).ConfigureAwait(true);
 
-                bool AccessError = false;
                 foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable)
                                                                  .Where((NewItem) => CommonAccessCollection.HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
                 {
@@ -639,25 +629,9 @@ namespace RX_Explorer
 
                         CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Drive.DriveType));
                     }
-                    catch
+                    catch(Exception ex)
                     {
-                        AccessError = true;
-                    }
-                }
-
-                if (AccessError && !ApplicationData.Current.LocalSettings.Values.ContainsKey("DisableAccessErrorTip"))
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                        Content = Globalization.GetString("QueueDialog_DeviceHideForError_Content"),
-                        PrimaryButtonText = Globalization.GetString("Common_Dialog_DoNotTip"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                    {
-                        ApplicationData.Current.LocalSettings.Values["DisableAccessErrorTip"] = true;
+                        LogTracer.Log(ex, $"Hide the device \"{Drive.RootDirectory.FullName}\" for error");
                     }
                 }
 
@@ -670,6 +644,17 @@ namespace RX_Explorer
                             PortalDeviceWatcher?.Start();
                             break;
                         }
+                }
+
+                if (MainPage.ThisPage.IsPathActivate)
+                {
+                    CreateNewTabAndOpenTargetFolder(MainPage.ThisPage.ActivatePath);
+
+                    MainPage.ThisPage.IsPathActivate = false;
+                }
+                else
+                {
+                    CreateNewTabAndOpenTargetFolder(string.Empty);
                 }
 
                 if (ErrorList.Count > 0)
@@ -863,7 +848,7 @@ namespace RX_Explorer
                 {
                     if (CommonAccessCollection.FrameFileControlDic.ContainsKey(frame))
                     {
-                        Builder.Append($"<p>FileControl||{CommonAccessCollection.FrameFileControlDic[frame].CurrentFolder.Path}</p>");
+                        Builder.Append($"<p>FileControl||{CommonAccessCollection.FrameFileControlDic[frame].CurrentPresenter.CurrentFolder?.Path}</p>");
                     }
                     else
                     {
@@ -896,7 +881,7 @@ namespace RX_Explorer
                     }
                     else if (CommonAccessCollection.FrameFileControlDic.TryGetValue(frame, out FileControl Control))
                     {
-                        Uri NewWindowActivationUri = new Uri($"rx-explorer:{Uri.EscapeDataString(Control.CurrentFolder.Path)}");
+                        Uri NewWindowActivationUri = new Uri($"rx-explorer:{Uri.EscapeDataString(Control.CurrentPresenter.CurrentFolder?.Path)}");
                         await CleanUpAndRemoveTabItem(args.Tab).ConfigureAwait(true);
                         await Launcher.LaunchUriAsync(NewWindowActivationUri);
                     }
@@ -1065,6 +1050,45 @@ namespace RX_Explorer
             }
 
             e.Handled = true;
+        }
+
+        private void TabViewControl_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        {
+            if ((e.OriginalSource as FrameworkElement).FindParentOfType<TabViewItem>() is TabViewItem Item)
+            {
+                TabViewControl.SelectedItem = Item;
+
+                FlyoutShowOptions Option = new FlyoutShowOptions
+                {
+                    Position = e.GetPosition(Item),
+                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                };
+
+                TabCommandFlyout?.ShowAt(Item, Option);
+            }
+        }
+
+        private async void CloseThisTab_Click(object sender, RoutedEventArgs e)
+        {
+            if (TabViewControl.SelectedItem is TabViewItem Item)
+            {
+                await CleanUpAndRemoveTabItem(Item).ConfigureAwait(true);
+            }
+        }
+
+        private async void CloseButThis_Click(object sender, RoutedEventArgs e)
+        {
+            if (TabViewControl.SelectedItem is TabViewItem Item)
+            {
+                List<TabViewItem> ToBeRemoveList = TabViewControl.TabItems.OfType<TabViewItem>().ToList();
+
+                ToBeRemoveList.Remove(Item);
+                
+                foreach (TabViewItem RemoveItem in ToBeRemoveList)
+                {
+                    await CleanUpAndRemoveTabItem(RemoveItem).ConfigureAwait(true);
+                }
+            }
         }
     }
 }

@@ -1797,9 +1797,6 @@
   <data name="QueueDialog_DeviceExist_Content" xml:space="preserve">
     <value>所选择的驱动器已经存在</value>
   </data>
-  <data name="QueueDialog_DeviceHideForError_Content" xml:space="preserve">
-    <value>由于缺乏足够的权限，部分驱动器未能显示</value>
-  </data>
   <data name="QueueDialog_DeviceSelectError_Content" xml:space="preserve">
     <value>所选择的内容并非是驱动器</value>
   </data>

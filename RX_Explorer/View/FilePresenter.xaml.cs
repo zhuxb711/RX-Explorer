@@ -88,10 +88,12 @@ namespace RX_Explorer
 
         private int ViewDropLock;
 
+        private SemaphoreSlim EnterLock;
+
         private PointerEventHandler PointerPressedEventHandler;
 
         private ListViewBase itemPresenter;
-        
+
         public ListViewBase ItemPresenter
         {
             get => itemPresenter;
@@ -156,13 +158,27 @@ namespace RX_Explorer
             {
                 if (value != null)
                 {
+                    Container.UpdateAddressButton(value.Path);
+
+                    Container.GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {value.Name}";
+                    Container.GoParentFolder.IsEnabled = value.Path != Path.GetPathRoot(value.Path);
+                    Container.GoBackRecord.IsEnabled = RecordIndex > 0;
+                    Container.GoForwardRecord.IsEnabled = RecordIndex < GoAndBackRecord.Count - 1;
+
+                    if (Container.TabItem != null)
+                    {
+                        Container.TabItem.Header = string.IsNullOrEmpty(value.DisplayName) ? $"<{Globalization.GetString("UnknownText")}>" : value.DisplayName;
+                    }
+
                     AreaWatcher?.StartWatchDirectory(value.Path, SettingControl.IsDisplayHiddenItem);
 
-                    if(this.FindParentOfType<BladeItem>() is BladeItem Parent)
+                    if (this.FindParentOfType<BladeItem>() is BladeItem Parent)
                     {
                         Parent.Header = value.DisplayName;
                     }
                 }
+
+                TaskBarController.SetText(value?.DisplayName);
 
                 currentFolder = value;
             }
@@ -174,6 +190,7 @@ namespace RX_Explorer
         private DateTimeOffset LastPressTime;
         private string LastPressString;
         private CancellationTokenSource DelayRenameCancel;
+        private CancellationTokenSource DelayEnterCancel;
         private int CurrentViewModeIndex = -1;
 
         public FileSystemStorageItemBase SelectedItem
@@ -200,6 +217,7 @@ namespace RX_Explorer
             FileCollection.CollectionChanged += FileCollection_CollectionChanged;
 
             AreaWatcher = new StorageAreaWatcher(FileCollection);
+            EnterLock = new SemaphoreSlim(1, 1);
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             ZipStrings.CodePage = 936;
@@ -379,6 +397,127 @@ namespace RX_Explorer
             }
         }
 
+        private async Task DisplayItemsInFolderCore(string FolderPath, bool ForceRefresh = false, bool SkipNavigationRecord = false)
+        {
+            await EnterLock.WaitAsync().ConfigureAwait(true);
+
+            if (string.IsNullOrWhiteSpace(FolderPath))
+            {
+                throw new ArgumentNullException(nameof(FolderPath), "Parameter could not be null or empty");
+            }
+
+            try
+            {
+                if (!ForceRefresh)
+                {
+                    if (FolderPath == CurrentFolder?.Path)
+                    {
+                        return;
+                    }
+                }
+
+                if (!SkipNavigationRecord && !ForceRefresh)
+                {
+                    if (RecordIndex != GoAndBackRecord.Count - 1 && GoAndBackRecord.Count != 0)
+                    {
+                        GoAndBackRecord.RemoveRange(RecordIndex + 1, GoAndBackRecord.Count - RecordIndex - 1);
+                    }
+
+                    if (GoAndBackRecord.Count > 0)
+                    {
+                        string ParentPath = Path.GetDirectoryName(FolderPath);
+
+                        if (ParentPath == GoAndBackRecord[GoAndBackRecord.Count - 1].Item1)
+                        {
+                            GoAndBackRecord[GoAndBackRecord.Count - 1] = (ParentPath, FolderPath);
+                        }
+                        else
+                        {
+                            GoAndBackRecord[GoAndBackRecord.Count - 1] = (GoAndBackRecord[GoAndBackRecord.Count - 1].Item1, SelectedItems.Count > 1 ? string.Empty : (SelectedItem?.Path ?? string.Empty));
+                        }
+                    }
+
+                    GoAndBackRecord.Add((FolderPath, string.Empty));
+
+                    RecordIndex = GoAndBackRecord.Count - 1;
+                }
+
+                if (await FileSystemStorageItemBase.OpenAsync(FolderPath, ItemFilters.Folder).ConfigureAwait(true) is FileSystemStorageItemBase Item)
+                {
+                    CurrentFolder = Item;
+                }
+                else
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} \r\"{FolderPath}\"",
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                    };
+
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+
+                    return;
+                }
+
+                FileCollection.Clear();
+
+                await Container.ViewModeControl.SetCurrentPathAsync(FolderPath).ConfigureAwait(true);
+
+                PathConfiguration Config = await SQLite.Current.GetPathConfiguration(FolderPath).ConfigureAwait(true);
+
+                if (ItemPresenter.Header is ListViewHeaderController Controller)
+                {
+                    Controller.Indicator.SetIndicatorStatus(Config.SortColumn.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+                }
+
+                List<FileSystemStorageItemBase> ItemList = SortCollectionGenerator.Current.GetSortedCollection(CurrentFolder.GetChildrenItems(SettingControl.IsDisplayHiddenItem), Config.SortColumn, Config.SortDirection);
+
+                HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+                StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", ItemList.Count.ToString());
+
+                if (ItemPresenter?.Header is ListViewHeaderController Instance)
+                {
+                    Instance.Filter.SetDataSource(ItemList);
+                }
+
+                for (int i = 0; i < ItemList.Count; i++)
+                {
+                    FileCollection.Add(ItemList[i]);
+                }
+            }
+            catch (Exception ex)
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = $"{Globalization.GetString("QueueDialog_AccessFolderFailure_Content")} {ex.Message}",
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+            }
+            finally
+            {
+                EnterLock.Release();
+            }
+        }
+
+        public Task DisplayItemsInFolder(FileSystemStorageItemBase Folder, bool ForceRefresh = false, bool SkipNavigationRecord = false)
+        {
+            if (Folder == null)
+            {
+                throw new ArgumentNullException(nameof(Folder), "Parameter could not be null or empty");
+            }
+
+            return DisplayItemsInFolderCore(Folder.Path, ForceRefresh, SkipNavigationRecord);
+        }
+
+        public Task DisplayItemsInFolder(string FolderPath, bool ForceRefresh = false, bool SkipNavigationRecord = false)
+        {
+            return DisplayItemsInFolderCore(FolderPath, ForceRefresh, SkipNavigationRecord);
+        }
+
         private void Presenter_PointerWheelChanged(object sender, PointerRoutedEventArgs e)
         {
             int Delta = e.GetCurrentPoint(null).Properties.MouseWheelDelta;
@@ -389,7 +528,7 @@ namespace RX_Explorer
                 {
                     if (Container.ViewModeControl.ViewModeIndex > 0)
                     {
-                        Container.ViewModeControl.ViewModeIndex --;
+                        Container.ViewModeControl.ViewModeIndex--;
                     }
                 }
                 else
@@ -3200,7 +3339,7 @@ namespace RX_Explorer
             {
                 if (WIN_Native_API.CheckExist(CurrentFolder.Path))
                 {
-                    await Container.DisplayItemsInFolder(CurrentFolder, true).ConfigureAwait(true);
+                    await DisplayItemsInFolder(CurrentFolder, true).ConfigureAwait(true);
                 }
                 else
                 {
@@ -3232,6 +3371,13 @@ namespace RX_Explorer
                     await EnterSelectedItem(ReFile).ConfigureAwait(false);
                 }
             }
+        }
+
+        public async Task EnterSelectedItem(string Path, bool RunAsAdministrator = false)
+        {
+            FileSystemStorageItemBase Item = await FileSystemStorageItemBase.OpenAsync(Path).ConfigureAwait(true);
+
+            await EnterSelectedItem(Item, RunAsAdministrator).ConfigureAwait(false);
         }
 
         public async Task EnterSelectedItem(FileSystemStorageItemBase ReFile, bool RunAsAdministrator = false)
@@ -3686,7 +3832,7 @@ namespace RX_Explorer
                                             }
                                             else
                                             {
-                                                await Container.DisplayItemsInFolder(Item.LinkTargetPath).ConfigureAwait(true);
+                                                await DisplayItemsInFolder(Item.LinkTargetPath).ConfigureAwait(true);
                                             }
                                         }
 
@@ -3934,7 +4080,7 @@ namespace RX_Explorer
                     {
                         if (WIN_Native_API.CheckExist(TabTarget.Path))
                         {
-                            await Container.DisplayItemsInFolder(TabTarget).ConfigureAwait(true);
+                            await DisplayItemsInFolder(TabTarget).ConfigureAwait(true);
                         }
                         else
                         {
@@ -4378,7 +4524,9 @@ namespace RX_Explorer
 
             try
             {
-                if (e.DataView.Contains(StandardDataFormats.StorageItems) || e.DataView.Contains(StandardDataFormats.Html))
+                Container.CurrentPresenter = this;
+
+                if (e.DataView.Contains(StandardDataFormats.StorageItems))
                 {
                     if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                     {
@@ -4436,7 +4584,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void Item_Drop(object sender, DragEventArgs e)
+        private async void ItemContainer_Drop(object sender, DragEventArgs e)
         {
             DragOperationDeferral Deferral = e.GetDeferral();
 
@@ -4829,9 +4977,10 @@ namespace RX_Explorer
             if (args.InRecycleQueue)
             {
                 args.ItemContainer.DragStarting -= ItemContainer_DragStarting;
-                args.ItemContainer.Drop -= Item_Drop;
+                args.ItemContainer.Drop -= ItemContainer_Drop;
                 args.ItemContainer.DragOver -= ItemContainer_DragOver;
                 args.ItemContainer.PointerEntered -= ItemContainer_PointerEntered;
+                args.ItemContainer.DragEnter -= ItemContainer_DragEnter;
             }
             else
             {
@@ -4842,8 +4991,10 @@ namespace RX_Explorer
                     if (Item.StorageType == StorageItemTypes.Folder)
                     {
                         args.ItemContainer.AllowDrop = true;
-                        args.ItemContainer.Drop += Item_Drop;
+                        args.ItemContainer.Drop += ItemContainer_Drop;
                         args.ItemContainer.DragOver += ItemContainer_DragOver;
+                        args.ItemContainer.DragEnter += ItemContainer_DragEnter;
+                        args.ItemContainer.DragLeave += ItemContainer_DragLeave;
                     }
 
                     args.ItemContainer.DragStarting += ItemContainer_DragStarting;
@@ -4857,6 +5008,38 @@ namespace RX_Explorer
                         }
                     });
                 }
+            }
+        }
+
+        private void ItemContainer_DragLeave(object sender, DragEventArgs e)
+        {
+            DelayEnterCancel?.Cancel();
+        }
+
+        private void ItemContainer_DragEnter(object sender, DragEventArgs e)
+        {
+            if (sender is SelectorItem Selector && Selector.Content is FileSystemStorageItemBase Item)
+            {
+                DelayEnterCancel?.Cancel();
+                DelayEnterCancel?.Dispose();
+                DelayEnterCancel = new CancellationTokenSource();
+
+                Task.Delay(1500).ContinueWith((task, obj) =>
+                {
+                    try
+                    {
+                        ValueTuple<CancellationTokenSource, FileSystemStorageItemBase> Tuple = (ValueTuple<CancellationTokenSource, FileSystemStorageItemBase>)obj;
+
+                        if (!Tuple.Item1.IsCancellationRequested)
+                        {
+                            _ = EnterSelectedItem(Tuple.Item2);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "An exception was thew in DelayEnterProcess");
+                    }
+                }, new ValueTuple<CancellationTokenSource, FileSystemStorageItemBase>(DelayEnterCancel, Item), TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 
@@ -6692,7 +6875,7 @@ namespace RX_Explorer
                 {
                     if (await FileSystemStorageItemBase.OpenAsync(Item.LinkTargetPath, ItemFilters.Folder).ConfigureAwait(true) is FileSystemStorageItemBase ParentFolder)
                     {
-                        await Container.DisplayItemsInFolder(ParentFolder).ConfigureAwait(true);
+                        await DisplayItemsInFolder(ParentFolder).ConfigureAwait(true);
 
                         if (FileCollection.FirstOrDefault((SItem) => SItem.Path.Equals(Item.LinkTargetPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Target)
                         {
@@ -6812,11 +6995,15 @@ namespace RX_Explorer
             WiFiProvider?.Dispose();
             SelectionExtention?.Dispose();
             DelayRenameCancel?.Dispose();
+            DelayEnterCancel?.Dispose();
+            EnterLock?.Dispose();
 
             AreaWatcher = null;
             WiFiProvider = null;
             SelectionExtention = null;
             DelayRenameCancel = null;
+            DelayEnterCancel = null;
+            EnterLock = null;
 
             RecordIndex = 0;
             GoAndBackRecord.Clear();

@@ -2404,10 +2404,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>The selected drive already exists</source>
           <target state="translated">所選設備已存在</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_DeviceHideForError_Content" translate="yes" xml:space="preserve">
-          <source>Some drives fail to display due to lack of sufficient permissions</source>
-          <target state="translated">由於缺少足夠的權限，某些裝置無法顯示</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_DeviceSelectError_Content" translate="yes" xml:space="preserve">
           <source>The selected content is not a drive</source>
           <target state="translated">所選內容不是磁碟</target>

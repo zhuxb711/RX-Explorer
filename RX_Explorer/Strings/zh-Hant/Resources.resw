@@ -1819,9 +1819,6 @@
   <data name="QueueDialog_DeviceExist_Content" xml:space="preserve">
     <value>所選設備已存在</value>
   </data>
-  <data name="QueueDialog_DeviceHideForError_Content" xml:space="preserve">
-    <value>由於缺少足夠的權限，某些裝置無法顯示</value>
-  </data>
   <data name="QueueDialog_DeviceSelectError_Content" xml:space="preserve">
     <value>所選內容不是磁碟</value>
   </data>

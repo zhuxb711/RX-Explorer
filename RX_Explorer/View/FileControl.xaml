@@ -233,6 +233,8 @@
                                     Click="AddressButton_Click"
                                     AllowDrop="True"
                                     Drop="AddressButton_Drop"
+                                    DragEnter="AddressButton_DragEnter"
+                                    DragLeave="AddressButton_DragLeave"
                                     DragOver="AddressButton_DragOver"
                                     Background="Transparent" />
                             <Button Background="Transparent"
