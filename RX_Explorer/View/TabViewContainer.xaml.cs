@@ -385,37 +385,6 @@ namespace RX_Explorer
 
             try
             {
-                foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable)
-                                                                 .Where((NewItem) => CommonAccessCollection.HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
-                {
-                    try
-                    {
-                        StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(Drive.RootDirectory.FullName);
-
-                        BasicProperties Properties = await Device.GetBasicPropertiesAsync();
-                        IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
-
-                        CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Drive.DriveType));
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, $"Hide the device \"{Drive.RootDirectory.FullName}\" for error");
-                    }
-                }
-
-                switch (PortalDeviceWatcher.Status)
-                {
-                    case DeviceWatcherStatus.Created:
-                    case DeviceWatcherStatus.Aborted:
-                    case DeviceWatcherStatus.Stopped:
-                        {
-                            PortalDeviceWatcher?.Start();
-                            break;
-                        }
-                }
-
-                CreateNewTabAndOpenTargetFolder(null, MainPage.ThisPage.ActivatePathArray);
-
                 foreach (KeyValuePair<QuickStartType, QuickStartItem> Item in await SQLite.Current.GetQuickStartItemAsync().ConfigureAwait(true))
                 {
                     if (Item.Key == QuickStartType.Application)
@@ -635,6 +604,40 @@ namespace RX_Explorer
                 }
 
                 await JumpListController.Current.AddItem(JumpListGroup.Library, CommonAccessCollection.LibraryFolderList.Where((Library) => Library.Type == LibraryType.UserCustom).Select((Library) => Library.Folder.Path).ToArray()).ConfigureAwait(true);
+
+                foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable)
+                                                 .Where((NewItem) => CommonAccessCollection.HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
+                {
+                    try
+                    {
+                        StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(Drive.RootDirectory.FullName);
+
+                        BasicProperties Properties = await Device.GetBasicPropertiesAsync();
+                        IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
+
+                        CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Drive.DriveType));
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, $"Hide the device \"{Drive.RootDirectory.FullName}\" for error");
+                    }
+                }
+
+                if (PortalDeviceWatcher != null)
+                {
+                    switch (PortalDeviceWatcher.Status)
+                    {
+                        case DeviceWatcherStatus.Created:
+                        case DeviceWatcherStatus.Aborted:
+                        case DeviceWatcherStatus.Stopped:
+                            {
+                                PortalDeviceWatcher.Start();
+                                break;
+                            }
+                    }
+                }
+
+                CreateNewTabAndOpenTargetFolder(null, MainPage.ThisPage.ActivatePathArray);
 
                 if (ErrorList.Count > 0)
                 {

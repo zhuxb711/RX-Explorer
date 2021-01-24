@@ -23,7 +23,7 @@ namespace FullTrustProcess
                     {
                         List<ContextMenuPackage> ContextMenuItemList = new List<ContextMenuPackage>();
 
-                        foreach (var MenuItem in ContextMenu.GetItems(FetchExtensionMenu ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL))
+                        foreach (var MenuItem in ContextMenu.GetItems(FetchExtensionMenu ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL | Shell32.CMF.CMF_SYNCCASCADEMENU))
                         {
                             if (string.IsNullOrEmpty(MenuItem.Verb))
                             {

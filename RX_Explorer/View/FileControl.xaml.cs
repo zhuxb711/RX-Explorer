@@ -60,10 +60,7 @@ namespace RX_Explorer
         private volatile FilePresenter currentPresenter;
         public FilePresenter CurrentPresenter
         {
-            get
-            {
-                return currentPresenter;
-            }
+            get => currentPresenter;
             set
             {
                 if (value != currentPresenter)
@@ -1972,7 +1969,7 @@ namespace RX_Explorer
 
         private async void AddressButton_DragOver(object sender, DragEventArgs e)
         {
-            var Deferral = e.GetDeferral();
+            DragOperationDeferral Deferral = e.GetDeferral();
 
             try
             {
@@ -2450,10 +2447,11 @@ namespace RX_Explorer
                     };
 
                     Blade.AddHandler(PointerPressedEvent, BladePointerPressedEventHandler, true);
+                    Blade.Expanded += Blade_Expanded;
 
                     if (BladeViewer.Items.Count > 0)
                     {
-                        foreach (BladeItem Item in BladeViewer.Items.OfType<BladeItem>())
+                        foreach (BladeItem Item in BladeViewer.Items)
                         {
                             Item.TitleBarVisibility = Visibility.Visible;
 
@@ -2469,8 +2467,10 @@ namespace RX_Explorer
                         Blade.Width = BladeViewer.ActualWidth;
                     }
 
-                    BladeViewer.UpdateLayout();
-                    BladeViewer.Items.Add(Blade);
+                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                    {
+                        BladeViewer.Items.Add(Blade);
+                    });
 
                     await Presenter.DisplayItemsInFolder(FolderPath).ConfigureAwait(true);
 
@@ -2484,6 +2484,18 @@ namespace RX_Explorer
                 {
                     _ = Interlocked.Exchange(ref CreateBladeLockResource, 0);
                 }
+            }
+        }
+
+        private async void Blade_Expanded(object sender, EventArgs e)
+        {
+            if (BladeViewer.Items.Count == 1 && BladeViewer.Items[0] is BladeItem Item)
+            {
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                {
+                    Item.TitleBarVisibility = Visibility.Collapsed;
+                    Item.Width = BladeViewer.ActualWidth;
+                });
             }
         }
 
@@ -2501,31 +2513,35 @@ namespace RX_Explorer
             }
         }
 
-        private void BladeViewer_BladeClosed(object sender, BladeItem e)
+        private async void BladeViewer_BladeClosed(object sender, BladeItem e)
         {
             if (e.Content is FilePresenter Presenter)
             {
                 Presenter.Dispose();
 
                 e.RemoveHandler(PointerPressedEvent, BladePointerPressedEventHandler);
+                e.Expanded -= Blade_Expanded;
                 e.Content = null;
             }
 
             BladeViewer.Items.Remove(e);
 
-            if (BladeViewer.Items.LastOrDefault() is BladeItem Blade && Blade.Content is FilePresenter LastPresenter)
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
             {
-                CurrentPresenter = LastPresenter;
-            }
-
-            if (BladeViewer.Items.Count == 1)
-            {
-                if (BladeViewer.Items[0] is BladeItem Item)
+                if (BladeViewer.Items.LastOrDefault() is BladeItem Blade && Blade.Content is FilePresenter LastPresenter)
                 {
-                    Item.TitleBarVisibility = Visibility.Collapsed;
-                    Item.Width = BladeViewer.ActualWidth;
+                    CurrentPresenter = LastPresenter;
                 }
-            }
+
+                if (BladeViewer.Items.Count == 1)
+                {
+                    if (BladeViewer.Items[0] is BladeItem Item && Item.IsExpanded)
+                    {
+                        Item.TitleBarVisibility = Visibility.Collapsed;
+                        Item.Width = BladeViewer.ActualWidth;
+                    }
+                }
+            });
         }
 
         private void BladeViewer_SizeChanged(object sender, SizeChangedEventArgs e)
