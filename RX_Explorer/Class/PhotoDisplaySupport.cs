@@ -1,7 +1,6 @@
 ﻿using ComputerVision;
 using System;
 using System.ComponentModel;
-using System.IO;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Storage;

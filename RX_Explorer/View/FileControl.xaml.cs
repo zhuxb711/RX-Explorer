@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.DataTransfer.DragDrop;
-using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.System;
@@ -1544,7 +1543,6 @@ namespace RX_Explorer
         private async void AddressExtention_Click(object sender, RoutedEventArgs e)
         {
             Button Btn = sender as Button;
-            TextBlock StateText = Btn.Content as TextBlock;
 
             AddressExtentionList.Clear();
 
@@ -1557,10 +1555,9 @@ namespace RX_Explorer
                     AddressExtentionList.Add(new AddressBlock(Path));
                 }
 
-                if (AddressExtentionList.Count != 0)
+                if (AddressExtentionList.Count > 0 && Btn.Content is FrameworkElement DropDownElement)
                 {
-                    StateText.RenderTransformOrigin = new Point(0.55, 0.6);
-                    await StateText.Rotate(90, duration: 150).StartAsync().ConfigureAwait(true);
+                    await DropDownElement.Rotate(90, duration: 150).StartAsync().ConfigureAwait(true);
 
                     FlyoutBase.SetAttachedFlyout(Btn, AddressExtentionFlyout);
                     FlyoutBase.ShowAttachedFlyout(Btn);
@@ -1572,7 +1569,10 @@ namespace RX_Explorer
         {
             AddressExtentionList.Clear();
 
-            await ((sender.Target as Button).Content as FrameworkElement).Rotate(0, duration: 150).StartAsync().ConfigureAwait(false);
+            if ((sender.Target as Button).Content is FrameworkElement DropDownElement)
+            {
+                await DropDownElement.Rotate(0, duration: 150).StartAsync().ConfigureAwait(false);
+            }
         }
 
         private async void AddressExtensionSubFolderList_ItemClick(object sender, ItemClickEventArgs e)
@@ -2427,6 +2427,11 @@ namespace RX_Explorer
             {
                 try
                 {
+                    while (!BladeViewer.IsLoaded)
+                    {
+                        await Task.Delay(200).ConfigureAwait(true);
+                    }
+
                     FilePresenter Presenter = new FilePresenter
                     {
                         WeakToFileControl = new WeakReference<FileControl>(this)
@@ -2435,6 +2440,7 @@ namespace RX_Explorer
                     BladeItem Blade = new BladeItem
                     {
                         Content = Presenter,
+                        IsExpanded = true,
                         Background = new SolidColorBrush(Colors.Transparent),
                         TitleBarBackground = new SolidColorBrush(Colors.Transparent),
                         TitleBarVisibility = Visibility.Visible,
@@ -2505,11 +2511,14 @@ namespace RX_Explorer
             {
                 CurrentPresenter = Presenter;
 
-                PathConfiguration Config = await SQLite.Current.GetPathConfiguration(CurrentPresenter.CurrentFolder.Path).ConfigureAwait(true);
+                if (!string.IsNullOrEmpty(CurrentPresenter.CurrentFolder?.Path))
+                {
+                    PathConfiguration Config = await SQLite.Current.GetPathConfiguration(CurrentPresenter.CurrentFolder.Path).ConfigureAwait(true);
 
-                await ViewModeControl.SetCurrentPathAsync(CurrentPresenter.CurrentFolder.Path).ConfigureAwait(true);
+                    await ViewModeControl.SetCurrentPathAsync(CurrentPresenter.CurrentFolder.Path).ConfigureAwait(true);
 
-                await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentPresenter.CurrentFolder.Path, Config.SortColumn, Config.SortDirection, true).ConfigureAwait(false);
+                    await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentPresenter.CurrentFolder.Path, Config.SortColumn, Config.SortDirection, true).ConfigureAwait(false);
+                }
             }
         }
 

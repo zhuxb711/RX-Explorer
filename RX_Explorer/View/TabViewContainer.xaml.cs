@@ -1027,24 +1027,27 @@ namespace RX_Explorer
 
         private void TabViewControl_PointerWheelChanged(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            int Delta = e.GetCurrentPoint(Frame).Properties.MouseWheelDelta;
-
-            if (Delta > 0)
+            if ((e.OriginalSource as FrameworkElement).FindParentOfType<TabViewItem>() is TabViewItem)
             {
-                if (TabViewControl.SelectedIndex > 0)
-                {
-                    TabViewControl.SelectedIndex -= 1;
-                }
-            }
-            else
-            {
-                if (TabViewControl.SelectedIndex < TabViewControl.TabItems.Count - 1)
-                {
-                    TabViewControl.SelectedIndex += 1;
-                }
-            }
+                int Delta = e.GetCurrentPoint(Frame).Properties.MouseWheelDelta;
 
-            e.Handled = true;
+                if (Delta > 0)
+                {
+                    if (TabViewControl.SelectedIndex > 0)
+                    {
+                        TabViewControl.SelectedIndex -= 1;
+                    }
+                }
+                else
+                {
+                    if (TabViewControl.SelectedIndex < TabViewControl.TabItems.Count - 1)
+                    {
+                        TabViewControl.SelectedIndex += 1;
+                    }
+                }
+
+                e.Handled = true;
+            }
         }
 
         private void TabViewControl_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)

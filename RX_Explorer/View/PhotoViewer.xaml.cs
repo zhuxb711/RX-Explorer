@@ -276,10 +276,57 @@ namespace RX_Explorer
         private async void ImageRotate_Click(object sender, RoutedEventArgs e)
         {
             PhotoDisplaySupport Item = PhotoCollection[Flip.SelectedIndex];
-            ScrollViewer Viewer = Flip.ContainerFromItem(Item).FindChildOfType<ScrollViewer>();
 
-            Viewer.RenderTransformOrigin = new Point(0.5, 0.5);
-            await Viewer.Rotate(Item.RotateAngle += 90).StartAsync().ConfigureAwait(false);
+            if (Flip.ContainerFromItem(Item) is DependencyObject Container && Container.FindChildOfType<ScrollViewer>() is ScrollViewer Viewer)
+            {
+                Storyboard Story = new Storyboard();
+
+                switch (Item.RotateAngle % 360)
+                {
+                    case 0:
+                    case 180:
+                        {
+                            DoubleAnimation WidthAnimation = new DoubleAnimation
+                            {
+                                From = Flip.ActualWidth,
+                                To = Flip.ActualHeight,
+                                Duration = TimeSpan.FromMilliseconds(500),
+                                EnableDependentAnimation = true,
+                                EasingFunction = new CircleEase { EasingMode = EasingMode.EaseOut }
+                            };
+
+                            Storyboard.SetTarget(WidthAnimation, Viewer);
+                            Storyboard.SetTargetProperty(WidthAnimation, "Width");
+
+                            Story.Children.Add(WidthAnimation);
+
+                            await Task.WhenAll(Story.BeginAsync(), Viewer.Rotate(Item.RotateAngle += 90).StartAsync()).ConfigureAwait(true);
+
+                            break;
+                        }
+                    case 90:
+                    case 270:
+                        {
+                            DoubleAnimation HeightAnimation = new DoubleAnimation
+                            {
+                                From = Flip.ActualHeight,
+                                To = Flip.ActualWidth,
+                                Duration = TimeSpan.FromMilliseconds(500),
+                                EnableDependentAnimation = true,
+                                EasingFunction = new CircleEase { EasingMode = EasingMode.EaseOut }
+                            };
+
+                            Storyboard.SetTarget(HeightAnimation, Viewer);
+                            Storyboard.SetTargetProperty(HeightAnimation, "Width");
+
+                            Story.Children.Add(HeightAnimation);
+
+                            await Task.WhenAll(Story.BeginAsync(), Viewer.Rotate(Item.RotateAngle += 90).StartAsync()).ConfigureAwait(true);
+
+                            break;
+                        }
+                }
+            }
         }
 
         private async void TranscodeImage_Click(object sender, RoutedEventArgs e)

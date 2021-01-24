@@ -74,10 +74,12 @@
                                   HorizontalScrollMode="Enabled"
                                   VerticalScrollMode="Enabled"
                                   HorizontalScrollBarVisibility="Hidden"
-                                  VerticalScrollBarVisibility="Hidden">
+                                  VerticalScrollBarVisibility="Hidden"
+                                  RenderTransformOrigin="0.5,0.5">
                         <Image MaxWidth="{Binding Path=ViewportWidth,ElementName=ScrollViewerMain}"
                                MaxHeight="{Binding Path=ViewportHeight,ElementName=ScrollViewerMain}"
-                               Source="{x:Bind BitmapSource,Mode=OneWay}">
+                               Source="{x:Bind BitmapSource,Mode=OneWay}"
+                               Stretch="Uniform">
                         </Image>
                     </ScrollViewer>
                 </DataTemplate>

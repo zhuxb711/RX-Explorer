@@ -1,6 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
@@ -204,16 +203,15 @@ namespace RX_Explorer.Class
 
             using (IRandomAccessStream OriginStream = await SourceFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read).ConfigureAwait(false))
             {
-                BitmapEncoder Encoder = null;
 
                 try
                 {
                     BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
 
-                    using (SoftwareBitmap TranscodeImage = Decoder.GetSoftwareBitmapAsync().AsTask().Result)
+                    using (SoftwareBitmap TranscodeImage = await Decoder.GetSoftwareBitmapAsync())
                     using (IRandomAccessStream TargetStream = await DestinationFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.ReadWrite).ConfigureAwait(false))
                     {
-                        Encoder = DestinationFile.Type.ToLower() switch
+                        BitmapEncoder Encoder = DestinationFile.Type.ToLower() switch
                         {
                             ".png" => await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, TargetStream),
                             ".jpg" => await BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, TargetStream),
@@ -231,33 +229,25 @@ namespace RX_Explorer.Class
                         }
 
                         Encoder.SetSoftwareBitmap(TranscodeImage);
-                        Encoder.IsThumbnailGenerated = true;
+
                         await Encoder.FlushAsync();
                     }
                 }
-                catch (Exception err)
+                catch (Exception)
                 {
-                    if (Encoder != null && err.HResult == unchecked((int)0x88982F81))
-                    {
-                        Encoder.IsThumbnailGenerated = false;
-                        await Encoder.FlushAsync();
-                    }
-                    else
-                    {
-                        DestinationFile.PermanentDelete();
+                    DestinationFile.PermanentDelete();
 
-                        await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("EnDecode_Dialog_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("EnDecode_Dialog_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
 
-                            _ = await dialog.ShowAsync().ConfigureAwait(true);
-                        });
-                    }
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    });
                 }
             }
 
