@@ -7,13 +7,25 @@
 
 >#####Drag and drop and stay on the folder for more than 1500ms to enter the folder automatically
 
+#####UI update
+
+>#####Address bar now uses new arrow icon
+
 #####Bug fix
 
 >#####Fixed the problem that may cause a crash when entering a Secure Area under certain circumstances
 
 >#####Fixed the problem that all displayed folders will not be synchronized when dragging tabs across processes
 
->#####Fixed some other problems
+>#####Fixed the problem of unexpected behavior after changing the current background image in some cases
+
+>#####Fixed the problem that the content may not be displayed correctly when folding or closing the vertical split view
+
+>#####Fixed the problem that may cause a crash when transcoding to BMP images
+
+>#####Fixed the problem that part of the content of the image may be blocked when the image is rotated in the image preview interface
+
+>#####Fixed the problem that switching tab with mouse wheel may be triggered in the non-tab page area
 
 *****
 ###What's new in Ver.5.9.5.0

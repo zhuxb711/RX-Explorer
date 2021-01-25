@@ -1,11 +1,15 @@
 ﻿*****
 ###Quoi de neuf dans la version 5.9.7.0
 
-#####Mise à jour des fonctionnalités
+##### Mise à jour des fonctionnalités
 
->#####Menu contextuel du nouvel onglet
+>#####Menu contextuel de l'onglet Ajouter
 
 >#####Glissez-déposez et restez sur le dossier pendant plus de 1500 ms pour entrer automatiquement dans le dossier
+
+#####Mise à jour de l'interface utilisateur
+
+>#####La barre d'adresse utilise désormais une nouvelle icône de flèche
 
 #####Correction d'un bug
 
@@ -13,7 +17,15 @@
 
 >#####Correction du problème selon lequel tous les dossiers affichés ne seront pas synchronisés lors du déplacement des onglets entre les processus
 
->#####Correction de quelques autres problèmes
+>#####Correction du problème de comportement inattendu après la modification de l'image d'arrière-plan actuelle dans certains cas
+
+>#####Correction du problème selon lequel le contenu pouvait ne pas s'afficher correctement lors du pliage ou de la fermeture de la vue fractionnée verticale
+
+>#####Correction du problème pouvant provoquer un crash lors du transcodage en images BMP
+
+>#####Correction du problème selon lequel une partie du contenu de l'image pouvait être bloquée lors de la rotation de l'image dans l'interface d'aperçu d'image
+
+>#####Correction du problème selon lequel le changement d'onglet avec la molette de la souris pouvait être déclenché dans la zone de page sans onglet
 
 *****
 ###Quoi de neuf dans la version 5.9.5.0

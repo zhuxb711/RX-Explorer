@@ -276,9 +276,35 @@ namespace RX_Explorer
                                                                 {
                                                                     PictureGirdView.SelectedItem = PictureItem;
                                                                 }
-                                                                else if (PictureList.Count > 0)
+                                                                else
                                                                 {
-                                                                    PictureGirdView.SelectedIndex = 0;
+                                                                    try
+                                                                    {
+                                                                        Uri NewUri = new Uri(Uri);
+
+                                                                        StorageFile NewImageFile = await StorageFile.GetFileFromApplicationUriAsync(NewUri);
+
+                                                                        BitmapImage Bitmap = new BitmapImage()
+                                                                        {
+                                                                            DecodePixelHeight = 90,
+                                                                            DecodePixelWidth = 160
+                                                                        };
+
+                                                                        using (IRandomAccessStream Stream = await NewImageFile.OpenAsync(FileAccessMode.Read))
+                                                                        {
+                                                                            await Bitmap.SetSourceAsync(Stream);
+                                                                        }
+
+                                                                        BackgroundPicture Picture = new BackgroundPicture(Bitmap, NewUri);
+
+                                                                        PictureList.Add(Picture);
+                                                                        PictureGirdView.UpdateLayout();
+                                                                        PictureGirdView.SelectedItem = Picture;
+                                                                    }
+                                                                    catch (Exception ex)
+                                                                    {
+                                                                        LogTracer.Log(ex, "Sync setting failure, background picture could not be found");
+                                                                    }
                                                                 }
                                                             }
                                                             else if (PictureList.Count > 0)
