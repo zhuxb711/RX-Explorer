@@ -187,8 +187,6 @@ namespace RX_Explorer
             if (File != null)
             {
                 LoadingControl.IsLoading = true;
-                MainPage.ThisPage.IsAnyTaskRunning = true;
-
 
                 using (IRandomAccessStream Stream = await File.OpenAsync(FileAccessMode.ReadWrite))
                 {
@@ -218,7 +216,6 @@ namespace RX_Explorer
 
                 await Task.Delay(1000).ConfigureAwait(true);
                 LoadingControl.IsLoading = false;
-                MainPage.ThisPage.IsAnyTaskRunning = false;
 
                 Frame.GoBack();
             }
@@ -308,7 +305,6 @@ namespace RX_Explorer
         private async void Save_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
             LoadingControl.IsLoading = true;
-            MainPage.ThisPage.IsAnyTaskRunning = true;
 
             using (IRandomAccessStream Stream = await OriginFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.ReadWrite).ConfigureAwait(true))
             {
@@ -339,7 +335,6 @@ namespace RX_Explorer
             await Task.Delay(1000).ConfigureAwait(true);
 
             LoadingControl.IsLoading = false;
-            MainPage.ThisPage.IsAnyTaskRunning = false;
 
             Frame.GoBack();
         }

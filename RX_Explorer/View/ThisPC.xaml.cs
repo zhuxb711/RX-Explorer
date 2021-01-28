@@ -181,34 +181,37 @@ namespace RX_Explorer
 
                     if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        await FullTrustProcessController.Current.RunAsync("powershell.exe", true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
-
-                        StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
-
-                        BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
-                        IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
-
-                        HardDeviceInfo NewDevice = new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Device.DriveType);
-
-                        if (!NewDevice.IsLockedByBitlocker)
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         {
-                            int Index = CommonAccessCollection.HardDeviceList.IndexOf(Device);
-                            CommonAccessCollection.HardDeviceList.Remove(Device);
-                            CommonAccessCollection.HardDeviceList.Insert(Index, NewDevice);
-                        }
-                        else
-                        {
-                            QueueContentDialog UnlockFailedDialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
-                                PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                            };
+                            await Exclusive.Controller.RunAsync("powershell.exe", true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
 
-                            if (await UnlockFailedDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                            StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
+
+                            BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
+                            IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
+
+                            HardDeviceInfo NewDevice = new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Device.DriveType);
+
+                            if (!NewDevice.IsLockedByBitlocker)
                             {
-                                goto Retry;
+                                int Index = CommonAccessCollection.HardDeviceList.IndexOf(Device);
+                                CommonAccessCollection.HardDeviceList.Remove(Device);
+                                CommonAccessCollection.HardDeviceList.Insert(Index, NewDevice);
+                            }
+                            else
+                            {
+                                QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
+
+                                if (await UnlockFailedDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                {
+                                    goto Retry;
+                                }
                             }
                         }
                     }
@@ -242,44 +245,47 @@ namespace RX_Explorer
                     {
                         if (WIN_Native_API.CheckExist(Item.Protocol))
                         {
-                        Retry:
-                            try
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
-                                if (Path.GetExtension(Item.Protocol).ToLower() == ".msc")
+                            Retry:
+                                try
                                 {
-                                    await FullTrustProcessController.Current.RunAsync("powershell.exe", false, true, false, "-Command", Item.Protocol).ConfigureAwait(true);
-                                }
-                                else
-                                {
-                                    await FullTrustProcessController.Current.RunAsync(Item.Protocol).ConfigureAwait(true);
-                                }
-                            }
-                            catch (InvalidOperationException)
-                            {
-                                QueueContentDialog UnauthorizeDialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
-                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                };
-
-                                if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                {
-                                    if (await FullTrustProcessController.Current.SwitchToAdminModeAsync().ConfigureAwait(true))
+                                    if (Path.GetExtension(Item.Protocol).ToLower() == ".msc")
                                     {
-                                        goto Retry;
+                                        await Exclusive.Controller.RunAsync("powershell.exe", false, true, false, "-Command", Item.Protocol).ConfigureAwait(true);
                                     }
                                     else
                                     {
-                                        QueueContentDialog ErrorDialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
+                                        await Exclusive.Controller.RunAsync(Item.Protocol).ConfigureAwait(true);
+                                    }
+                                }
+                                catch (InvalidOperationException)
+                                {
+                                    QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
+                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                    };
 
-                                        _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                                    if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                    {
+                                        if (await Exclusive.Controller.SwitchToAdminModeAsync().ConfigureAwait(true))
+                                        {
+                                            goto Retry;
+                                        }
+                                        else
+                                        {
+                                            QueueContentDialog ErrorDialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                            };
+
+                                            _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
+                                        }
                                     }
                                 }
                             }
@@ -420,7 +426,10 @@ namespace RX_Explorer
 
                     if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        await FullTrustProcessController.Current.RunAsync("powershell.exe", true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                        {
+                            await Exclusive.Controller.RunAsync("powershell.exe", true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
+                        }
 
                         StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
 
@@ -625,7 +634,10 @@ namespace RX_Explorer
 
                     if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        await FullTrustProcessController.Current.RunAsync("powershell.exe", true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                        {
+                            await Exclusive.Controller.RunAsync("powershell.exe", true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
+                        }
 
                         StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
 
@@ -817,19 +829,22 @@ namespace RX_Explorer
                         await TabViewContainer.ThisPage.CleanUpAndRemoveTabItem(Tab).ConfigureAwait(true);
                     }
 
-                    if (await FullTrustProcessController.Current.EjectPortableDevice(Item.Folder.Path).ConfigureAwait(true))
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                     {
-                        ShowEjectNotification();
-                    }
-                    else
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
+                        if (await Exclusive.Controller.EjectPortableDevice(Item.Folder.Path).ConfigureAwait(true))
                         {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueContentDialog_UnableToEject_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                            ShowEjectNotification();
+                        }
+                        else
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueContentDialog_UnableToEject_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+                            _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                        }
                     }
                 }
             }
@@ -930,7 +945,10 @@ namespace RX_Explorer
 
                 if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                 {
-                    await FullTrustProcessController.Current.RunAsync("powershell.exe", true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    {
+                        await Exclusive.Controller.RunAsync("powershell.exe", true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
+                    }
 
                     StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
 

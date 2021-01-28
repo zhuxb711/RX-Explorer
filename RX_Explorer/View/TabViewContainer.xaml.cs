@@ -32,7 +32,7 @@ namespace RX_Explorer
     {
         private int LockResource;
 
-        public static Frame CurrentTabNavigation { get; private set; }
+        public static Frame CurrentNavigationControl { get; private set; }
 
         private readonly DeviceWatcher PortalDeviceWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
 
@@ -72,13 +72,13 @@ namespace RX_Explorer
                         }
                 }
 
-                if (CurrentTabNavigation?.Content is ThisPC PC)
+                if (CurrentNavigationControl?.Content is ThisPC PC)
                 {
                     switch (args.VirtualKey)
                     {
                         case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                             {
-                                CreateNewTabAndOpenTargetFolder(null);
+                                CreateNewTab(null);
                                 args.Handled = true;
 
                                 break;
@@ -87,11 +87,17 @@ namespace RX_Explorer
                             {
                                 if (PC.DeviceGrid.SelectedItem is HardDeviceInfo Device)
                                 {
-                                    await FullTrustProcessController.Current.ViewWithQuicklookAsync(Device.Folder.Path).ConfigureAwait(false);
+                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                    {
+                                        await Exclusive.Controller.ViewWithQuicklookAsync(Device.Folder.Path).ConfigureAwait(true);
+                                    }
                                 }
                                 else if (PC.LibraryGrid.SelectedItem is LibraryFolder Library)
                                 {
-                                    await FullTrustProcessController.Current.ViewWithQuicklookAsync(Library.Folder.Path).ConfigureAwait(false);
+                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                    {
+                                        await Exclusive.Controller.ViewWithQuicklookAsync(Library.Folder.Path).ConfigureAwait(true);
+                                    }
                                 }
 
                                 args.Handled = true;
@@ -121,11 +127,11 @@ namespace RX_Explorer
                                     {
                                         if (AnimationController.Current.IsEnableAnimation)
                                         {
-                                            CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Device.Folder.Path), new DrillInNavigationTransitionInfo());
+                                            CurrentNavigationControl.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Device.Folder.Path), new DrillInNavigationTransitionInfo());
                                         }
                                         else
                                         {
-                                            CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Device.Folder.Path), new SuppressNavigationTransitionInfo());
+                                            CurrentNavigationControl.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Device.Folder.Path), new SuppressNavigationTransitionInfo());
                                         }
                                     }
 
@@ -135,11 +141,11 @@ namespace RX_Explorer
                                 {
                                     if (AnimationController.Current.IsEnableAnimation)
                                     {
-                                        CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Library.Folder.Path), new DrillInNavigationTransitionInfo());
+                                        CurrentNavigationControl.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Library.Folder.Path), new DrillInNavigationTransitionInfo());
                                     }
                                     else
                                     {
-                                        CurrentTabNavigation.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Library.Folder.Path), new SuppressNavigationTransitionInfo());
+                                        CurrentNavigationControl.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Library.Folder.Path), new SuppressNavigationTransitionInfo());
                                     }
 
                                     args.Handled = true;
@@ -165,7 +171,7 @@ namespace RX_Explorer
             bool BackButtonPressed = args.CurrentPoint.Properties.IsXButton1Pressed;
             bool ForwardButtonPressed = args.CurrentPoint.Properties.IsXButton2Pressed;
 
-            if (CurrentTabNavigation?.Content is FileControl Control)
+            if (CurrentNavigationControl?.Content is FileControl Control)
             {
                 if (BackButtonPressed)
                 {
@@ -208,13 +214,13 @@ namespace RX_Explorer
             }
         }
 
-        public void CreateNewTabAndOpenTargetFolder(int? InsertIndex, params string[] Path)
+        public void CreateNewTab(int? InsertIndex, params string[] Path)
         {
             int Index = InsertIndex ?? (TabViewControl?.TabItems.Count ?? 0);
 
             try
             {
-                if (CreateNewTab(Path) is TabViewItem Item)
+                if (CreateNewTabCore(Path) is TabViewItem Item)
                 {
                     TabViewControl.TabItems.Insert(Index, Item);
                     TabViewControl.UpdateLayout();
@@ -223,7 +229,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                if (CreateNewTab() is TabViewItem Item)
+                if (CreateNewTabCore() is TabViewItem Item)
                 {
                     TabViewControl.TabItems.Insert(Index, Item);
                     TabViewControl.UpdateLayout();
@@ -637,7 +643,7 @@ namespace RX_Explorer
                     }
                 }
 
-                CreateNewTabAndOpenTargetFolder(null, MainPage.ThisPage.ActivatePathArray);
+                CreateNewTab(null, MainPage.ThisPage.ActivatePathArray);
 
                 if (ErrorList.Count > 0)
                 {
@@ -670,20 +676,17 @@ namespace RX_Explorer
 
         private void TabViewControl_AddTabButtonClick(TabView sender, object args)
         {
-            if (CreateNewTab() is TabViewItem Item)
-            {
-                sender.TabItems.Add(Item);
-                sender.UpdateLayout();
-                sender.SelectedItem = Item;
-            }
+            CreateNewTab(null);
         }
 
-        private TabViewItem CreateNewTab(params string[] PathForNewTab)
+        private TabViewItem CreateNewTabCore(params string[] PathForNewTab)
         {
             if (Interlocked.Exchange(ref LockResource, 1) == 0)
             {
                 try
                 {
+                    FullTrustProcessController.CreateController();
+
                     Frame frame = new Frame();
 
                     TabViewItem Item = new TabViewItem
@@ -804,10 +807,10 @@ namespace RX_Explorer
 
             if (TabViewControl.SelectedItem is TabViewItem Item)
             {
-                CurrentTabNavigation = Item.Content as Frame;
-                CurrentTabNavigation.Navigated += Nav_Navigated;
+                CurrentNavigationControl = Item.Content as Frame;
+                CurrentNavigationControl.Navigated += Nav_Navigated;
 
-                if (CurrentTabNavigation.Content is ThisPC)
+                if (CurrentNavigationControl.Content is ThisPC)
                 {
                     TaskBarController.SetText(null);
                 }
@@ -816,13 +819,13 @@ namespace RX_Explorer
                     TaskBarController.SetText(Convert.ToString(Item.Header));
                 }
 
-                MainPage.ThisPage.NavView.IsBackEnabled = (MainPage.ThisPage.SettingControl?.IsOpened).GetValueOrDefault() || CurrentTabNavigation.CanGoBack;
+                MainPage.ThisPage.NavView.IsBackEnabled = (MainPage.ThisPage.SettingControl?.IsOpened).GetValueOrDefault() || CurrentNavigationControl.CanGoBack;
             }
         }
 
         private void Nav_Navigated(object sender, Windows.UI.Xaml.Navigation.NavigationEventArgs e)
         {
-            MainPage.ThisPage.NavView.IsBackEnabled = CurrentTabNavigation.CanGoBack;
+            MainPage.ThisPage.NavView.IsBackEnabled = CurrentNavigationControl.CanGoBack;
         }
 
         private void TabViewControl_TabDragStarting(TabView sender, TabViewTabDragStartingEventArgs args)
@@ -963,12 +966,12 @@ namespace RX_Explorer
                         {
                             case "ThisPC":
                                 {
-                                    CreateNewTabAndOpenTargetFolder(InsertIndex);
+                                    CreateNewTab(InsertIndex);
                                     break;
                                 }
                             case "FileControl":
                                 {
-                                    CreateNewTabAndOpenTargetFolder(InsertIndex, Split.Skip(1).ToArray());
+                                    CreateNewTab(InsertIndex, Split.Skip(1).ToArray());
                                     break;
                                 }
                         }
@@ -1018,6 +1021,8 @@ namespace RX_Explorer
             Tab.Content = null;
 
             TabViewControl.TabItems.Remove(Tab);
+
+            FullTrustProcessController.RemoveController();
 
             if (TabViewControl.TabItems.Count == 0)
             {

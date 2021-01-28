@@ -1,5 +1,6 @@
 ﻿using AnimationEffectProvider;
 using Microsoft.Toolkit.Uwp.Notifications;
+using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using RX_Explorer.View;
@@ -45,8 +46,6 @@ namespace RX_Explorer
 
         private EntranceAnimationEffect EntranceEffectProvider;
 
-        public bool IsAnyTaskRunning { get; set; }
-
         public MainPage(object Parameter)
         {
             InitializeComponent();
@@ -67,17 +66,6 @@ namespace RX_Explorer
             {
                 AppName.Text += " (Development Mode)";
             }
-
-            FullTrustProcessController.Current.AuthorityModeChanged += async (s, e) =>
-            {
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                {
-                    if (FullTrustProcessController.Current.RuningInAdministratorMode)
-                    {
-                        AppName.Text += $" ({Globalization.GetString("RunningInAdminModeTip")})";
-                    }
-                });
-            };
 
             if (Parameter is Tuple<Rect, string[]> Paras)
             {
@@ -208,7 +196,7 @@ namespace RX_Explorer
 
         private void Current_EnteredBackground(object sender, EnteredBackgroundEventArgs e)
         {
-            if (IsAnyTaskRunning || GeneralTransformer.IsAnyTransformTaskRunning)
+            if (FullTrustProcessController.IsAnyActionExcutingInAllController || GeneralTransformer.IsAnyTransformTaskRunning)
             {
                 ToastNotificationManager.History.Remove("EnterBackgroundTips");
 
@@ -233,7 +221,7 @@ namespace RX_Explorer
 
             try
             {
-                if (IsAnyTaskRunning || GeneralTransformer.IsAnyTransformTaskRunning || FullTrustProcessController.Current.IsNowHasAnyActionExcuting)
+                if (GeneralTransformer.IsAnyTransformTaskRunning || FullTrustProcessController.IsAnyActionExcutingInAllController)
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -245,8 +233,6 @@ namespace RX_Explorer
 
                     if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
-                        IsAnyTaskRunning = false;
-                        GeneralTransformer.IsAnyTransformTaskRunning = false;
                         ToastNotificationManager.History.Clear();
                     }
                     else
@@ -596,7 +582,7 @@ namespace RX_Explorer
                 {
                     if (args.InvokedItem.ToString() == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
                     {
-                        NavView.IsBackEnabled = (TabViewContainer.CurrentTabNavigation?.CanGoBack).GetValueOrDefault();
+                        NavView.IsBackEnabled = (TabViewContainer.CurrentNavigationControl?.CanGoBack).GetValueOrDefault();
 
                         if (SettingControl != null)
                         {
@@ -647,7 +633,7 @@ namespace RX_Explorer
                 {
                     if (Nav.CurrentSourcePageType == typeof(TabViewContainer))
                     {
-                        NavView.IsBackEnabled = (TabViewContainer.CurrentTabNavigation?.CanGoBack).GetValueOrDefault();
+                        NavView.IsBackEnabled = (TabViewContainer.CurrentNavigationControl?.CanGoBack).GetValueOrDefault();
                     }
                     else
                     {
@@ -663,9 +649,9 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if (TabViewContainer.CurrentTabNavigation.CanGoBack)
+                    if (TabViewContainer.CurrentNavigationControl.CanGoBack)
                     {
-                        TabViewContainer.CurrentTabNavigation.GoBack();
+                        TabViewContainer.CurrentNavigationControl.GoBack();
                     }
                 }
             }

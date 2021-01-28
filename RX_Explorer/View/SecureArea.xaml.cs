@@ -195,7 +195,6 @@ namespace RX_Explorer
                         LoadingText.Text = Globalization.GetString("Progress_Tip_CheckingLicense");
                         CancelButton.Visibility = Visibility.Collapsed;
                         LoadingControl.IsLoading = true;
-                        MainPage.ThisPage.IsAnyTaskRunning = true;
 
                         if (await MSStoreHelper.Current.CheckPurchaseStatusAsync().ConfigureAwait(true))
                         {
@@ -237,7 +236,6 @@ namespace RX_Explorer
                     {
                         await Task.Delay(500).ConfigureAwait(true);
                         LoadingControl.IsLoading = false;
-                        MainPage.ThisPage.IsAnyTaskRunning = false;
                     }
 
                     SecureAreaWelcomeDialog Dialog = new SecureAreaWelcomeDialog();
@@ -706,7 +704,6 @@ namespace RX_Explorer
             }
 
             LoadingControl.IsLoading = ActivateOrNot;
-            MainPage.ThisPage.IsAnyTaskRunning = ActivateOrNot;
         }
 
         private void WindowsHelloQuestion_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)

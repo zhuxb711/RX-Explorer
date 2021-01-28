@@ -23,7 +23,7 @@ namespace FullTrustProcess
                     {
                         List<ContextMenuPackage> ContextMenuItemList = new List<ContextMenuPackage>();
 
-                        foreach (var MenuItem in ContextMenu.GetItems(FetchExtensionMenu ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL | Shell32.CMF.CMF_SYNCCASCADEMENU))
+                        foreach (var MenuItem in ContextMenu.GetItems(FetchExtensionMenu ? Shell32.CMF.CMF_EXPLORE | Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_EXPLORE))
                         {
                             if (string.IsNullOrEmpty(MenuItem.Verb))
                             {
@@ -56,21 +56,13 @@ namespace FullTrustProcess
                                             {
                                                 using (Bitmap OriginBitmap = MenuItem.BitmapHandle.ToBitmap())
                                                 {
-                                                    BitmapData OriginData = OriginBitmap.LockBits(new Rectangle(0, 0, OriginBitmap.Width, OriginBitmap.Height), ImageLockMode.ReadOnly, OriginBitmap.PixelFormat);
+                                                    OriginBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
 
-                                                    try
+                                                    using (MemoryStream Stream = new MemoryStream())
                                                     {
-                                                        using (Bitmap ArgbBitmap = new Bitmap(OriginBitmap.Width, OriginBitmap.Height, OriginData.Stride, PixelFormat.Format32bppArgb, OriginData.Scan0))
-                                                        using (MemoryStream Stream = new MemoryStream())
-                                                        {
-                                                            ArgbBitmap.Save(Stream, ImageFormat.Png);
+                                                        OriginBitmap.Save(Stream, ImageFormat.Png);
 
-                                                            ContextMenuItemList.Add(new ContextMenuPackage(MenuItem.HelpText, MenuItem.Verb, Stream.ToArray()));
-                                                        }
-                                                    }
-                                                    finally
-                                                    {
-                                                        OriginBitmap.UnlockBits(OriginData);
+                                                        ContextMenuItemList.Add(new ContextMenuPackage(MenuItem.HelpText, MenuItem.Verb, Stream.ToArray()));
                                                     }
                                                 }
                                             }
@@ -117,7 +109,7 @@ namespace FullTrustProcess
 
                         using (User32.SafeHMENU NewMenu = User32.CreatePopupMenu())
                         {
-                            ContextMenu.ComInterface.QueryContextMenu(NewMenu, 0, 0, ushort.MaxValue, Shell32.CMF.CMF_EXTENDEDVERBS);
+                            ContextMenu.ComInterface.QueryContextMenu(NewMenu, 0, 0, ushort.MaxValue, Shell32.CMF.CMF_EXTENDEDVERBS | Shell32.CMF.CMF_EXPLORE | Shell32.CMF.CMF_OPTIMIZEFORINVOKE);
                             ContextMenu.ComInterface.InvokeCommand(InvokeCommand);
                         }
                     }

@@ -1,11 +1,13 @@
 ﻿using ShareClassLibrary;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.AppService;
@@ -80,52 +82,106 @@ namespace RX_Explorer.Class
 
         private const string ExecuteType_GetMIMEContentType = "Execute_GetMIMEContentType";
 
-        private static volatile FullTrustProcessController Instance;
-
-        private static readonly object locker = new object();
-
         private readonly int CurrentProcessId;
+
+        private string ConnectionId;
 
         private bool IsConnected;
 
-        public bool IsNowHasAnyActionExcuting { get; private set; }
-
         private AppServiceConnection Connection;
 
-        public static FullTrustProcessController Current
+        private bool IsDisposed;
+
+        public bool IsAnyActionExcutingInCurrentController { get; private set; }
+
+        public static bool IsAnyActionExcutingInAllController
         {
             get
             {
-                lock (locker)
-                {
-                    return Instance ??= new FullTrustProcessController();
-                }
+                return AvailableControllerQueue.Any((Controller) => Controller.Controller.IsAnyActionExcutingInCurrentController);
             }
+        }
+
+        public bool IsRuningInElevatedMode { get; private set; }
+
+        private PipeLineController PipeController;
+
+        private static readonly ConcurrentQueue<ExclusiveUsage> AvailableControllerQueue = new ConcurrentQueue<ExclusiveUsage>();
+
+        private static volatile int CurrentRunningControllerNum;
+
+        private static event EventHandler<FullTrustProcessController> ExclusiveDisposed;
+
+        static FullTrustProcessController()
+        {
+            ExclusiveDisposed += FullTrustProcessController_ExclusiveDisposed;
+        }
+
+        private static void FullTrustProcessController_ExclusiveDisposed(object sender, FullTrustProcessController e)
+        {
+            AvailableControllerQueue.Enqueue(new ExclusiveUsage(e));
+        }
+
+        public static void CreateController()
+        {
+            AvailableControllerQueue.Enqueue(new ExclusiveUsage(new FullTrustProcessController()));
+        }
+
+        public static void RemoveController()
+        {
+            _ = Task.Run(() =>
+            {
+                try
+                {
+                    while (true)
+                    {
+                        if (AvailableControllerQueue.TryDequeue(out ExclusiveUsage Usage))
+                        {
+                            Usage.Controller.Dispose();
+                            break;
+                        }
+                        else
+                        {
+                            SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "An exception was threw when maintance FullTrustProcessController");
+                }
+            });
+        }
+
+        public static Task<ExclusiveUsage> GetAvailableController()
+        {
+            return Task.Run(() =>
+            {
+                while (true)
+                {
+                    if (AvailableControllerQueue.TryDequeue(out ExclusiveUsage Result))
+                    {
+                        return Result;
+                    }
+                    else
+                    {
+                        SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty);
+                    }
+                }
+            });
         }
 
         private FullTrustProcessController()
         {
+            PipeController = new PipeLineController(this);
+
+            Interlocked.Increment(ref CurrentRunningControllerNum);
+
             using (Process CurrentProcess = Process.GetCurrentProcess())
             {
                 CurrentProcessId = CurrentProcess.Id;
             }
         }
-
-        private bool runningMode;
-        public bool RuningInAdministratorMode
-        {
-            get => runningMode;
-            private set
-            {
-                if (value != runningMode)
-                {
-                    runningMode = value;
-                    AuthorityModeChanged?.Invoke(this, null);
-                }
-            }
-        }
-
-        public event EventHandler AuthorityModeChanged;
 
         private async void Connection_RequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
         {
@@ -135,7 +191,7 @@ namespace RX_Explorer.Class
             {
                 case "Identity":
                     {
-                        await args.Request.SendResponseAsync(new ValueSet { { "Identity", "UWP" }, { "ProcessId", CurrentProcessId } });
+                        await args.Request.SendResponseAsync(new ValueSet { { "Identity", "UWP" }, { "ProcessId", CurrentProcessId }, { "ConnectionId", ConnectionId } });
                         break;
                     }
             }
@@ -143,7 +199,7 @@ namespace RX_Explorer.Class
             Deferral.Complete();
         }
 
-        public async Task<bool> ConnectToFullTrustProcessorAsync()
+        private async Task<bool> ConnectRemoteAsync()
         {
             try
             {
@@ -155,6 +211,9 @@ namespace RX_Explorer.Class
                         Connection.Dispose();
                         Connection = null;
                     }
+
+                    ConnectionId = Guid.NewGuid().ToString();
+                    IsRuningInElevatedMode = false;
 
                     Connection = new AppServiceConnection
                     {
@@ -172,29 +231,39 @@ namespace RX_Explorer.Class
                     await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
                 }
 
-            ReCheck:
-                AppServiceResponse Response = await Connection.SendMessageAsync(new ValueSet { { "ExecuteType", ExecuteType_Test_Connection }, { "ProcessId", CurrentProcessId } });
-
-                if (Response.Status == AppServiceResponseStatus.Success)
+                for (int Count = 0; Count < 3; Count++)
                 {
-                    if (Response.Message.ContainsKey(ExecuteType_Test_Connection))
+                    AppServiceResponse Response = await Connection.SendMessageAsync(new ValueSet { { "ExecuteType", ExecuteType_Test_Connection }, { "ProcessId", CurrentProcessId }, { "ConnectionId", ConnectionId } });
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        return IsConnected = true;
+                        if (Response.Message.ContainsKey(ExecuteType_Test_Connection))
+                        {
+                            return IsConnected = true;
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object Error))
+                            {
+                                LogTracer.Log($"Connect to FullTrustProcess failed, reason: \"{Error}\". Retrying...in {Count} times");
+                            }
+
+                            await Task.Delay(500).ConfigureAwait(false);
+                        }
                     }
                     else
                     {
-                        await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
-                        goto ReCheck;
+                        return IsConnected = false;
                     }
                 }
-                else
-                {
-                    return IsConnected = false;
-                }
+
+                LogTracer.Log("Connect to FullTrustProcess failed after retrying 3 times.");
+
+                return IsConnected = false;
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"An unexpected error was threw in {nameof(ConnectToFullTrustProcessorAsync)}");
+                LogTracer.Log(ex, $"An unexpected error was threw in {nameof(ConnectRemoteAsync)}");
                 return IsConnected = false;
             }
         }
@@ -203,9 +272,9 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(true))
+                if (await ConnectRemoteAsync().ConfigureAwait(true))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -250,7 +319,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -258,9 +327,9 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(true))
+                if (await ConnectRemoteAsync().ConfigureAwait(true))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -304,7 +373,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -312,9 +381,9 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(true))
+                if (await ConnectRemoteAsync().ConfigureAwait(true))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -372,7 +441,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -380,11 +449,11 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
                 if (Path.Any())
                 {
-                    if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(true))
+                    if (await ConnectRemoteAsync().ConfigureAwait(true))
                     {
                         ValueSet Value = new ValueSet
                         {
@@ -434,7 +503,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -442,11 +511,11 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
                 if (Path.Any())
                 {
-                    if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(true))
+                    if (await ConnectRemoteAsync().ConfigureAwait(true))
                     {
                         ValueSet Value = new ValueSet
                         {
@@ -497,7 +566,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -510,9 +579,9 @@ namespace RX_Explorer.Class
 
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(true))
+                if (await ConnectRemoteAsync().ConfigureAwait(true))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -546,7 +615,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -554,45 +623,60 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
+                if (IsRuningInElevatedMode)
                 {
-                    await Connection.SendMessageAsync(new ValueSet { { "ExecuteType", ExecuteTyep_ElevateAsAdmin } });
+                    return true;
+                }
 
-                    AppServiceResponse Response = await Connection.SendMessageAsync(new ValueSet { { "ExecuteType", ExecuteType_Test_Connection }, { "ProcessId", CurrentProcessId } });
+                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                {
+                    AppServiceResponse CommandResponse = await Connection.SendMessageAsync(new ValueSet { { "ExecuteType", ExecuteTyep_ElevateAsAdmin } });
 
-                    if (Response.Status == AppServiceResponseStatus.Success)
+                    if (CommandResponse.Message.TryGetValue("Error", out object ErrorObj))
                     {
-                        if (Response.Message.ContainsKey(ExecuteType_Test_Connection))
-                        {
-                            return RuningInAdministratorMode = true;
-                        }
-                        else
-                        {
-                            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
-                            return RuningInAdministratorMode = false;
-                        }
+                        LogTracer.Log($"ElevateAsAdmin failed, message: \"{ErrorObj}\"");
+                        return IsRuningInElevatedMode = false;
                     }
                     else
                     {
-                        return RuningInAdministratorMode = false;
+                        await Task.Delay(2000).ConfigureAwait(true);
+
+                        AppServiceResponse TestResponse = await Connection.SendMessageAsync(new ValueSet { { "ExecuteType", ExecuteType_Test_Connection }, { "ProcessId", CurrentProcessId }, { "ConnectionId", ConnectionId } });
+
+                        if (TestResponse.Status == AppServiceResponseStatus.Success)
+                        {
+                            if (TestResponse.Message.ContainsKey(ExecuteType_Test_Connection))
+                            {
+                                return IsRuningInElevatedMode = true;
+                            }
+                            else
+                            {
+                                await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+                                return IsRuningInElevatedMode = false;
+                            }
+                        }
+                        else
+                        {
+                            return IsRuningInElevatedMode = false;
+                        }
                     }
                 }
                 else
                 {
                     LogTracer.Log($"{nameof(SwitchToAdminModeAsync)}: Failed to connect AppService ");
-                    return RuningInAdministratorMode = false;
+                    return IsRuningInElevatedMode = false;
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"{ nameof(SwitchToAdminModeAsync)} throw an error");
-                return RuningInAdministratorMode = false;
+                return IsRuningInElevatedMode = false;
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -600,9 +684,9 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
+                if (await ConnectRemoteAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -647,7 +731,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -655,9 +739,9 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
+                if (await ConnectRemoteAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -702,7 +786,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -710,9 +794,9 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
+                if (await ConnectRemoteAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -758,7 +842,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -766,9 +850,9 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
+                if (await ConnectRemoteAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -809,7 +893,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -817,9 +901,9 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
+                if (await ConnectRemoteAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -863,7 +947,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -871,9 +955,9 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
+                if (await ConnectRemoteAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -918,7 +1002,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -926,9 +1010,9 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
+                if (await ConnectRemoteAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -949,7 +1033,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -963,9 +1047,9 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
+                if (await ConnectRemoteAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -1012,7 +1096,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -1020,9 +1104,9 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
+                if (await ConnectRemoteAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -1043,7 +1127,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -1051,9 +1135,9 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
+                if (await ConnectRemoteAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -1097,7 +1181,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -1105,9 +1189,9 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
+                if (await ConnectRemoteAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -1152,7 +1236,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -1160,9 +1244,9 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
+                if (await ConnectRemoteAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -1206,7 +1290,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -1214,9 +1298,9 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(true))
+                if (await ConnectRemoteAsync().ConfigureAwait(true))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -1268,7 +1352,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -1276,9 +1360,9 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
+                if (await ConnectRemoteAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -1334,7 +1418,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -1342,15 +1426,15 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
+                if (await ConnectRemoteAsync().ConfigureAwait(false))
                 {
                     Task ProgressTask;
 
-                    if (await PipeLineController.Current.CreateNewNamedPipeAsync().ConfigureAwait(true))
+                    if (await PipeController.CreateNewNamedPipeAsync().ConfigureAwait(true))
                     {
-                        ProgressTask = PipeLineController.Current.ListenPipeMessageAsync(ProgressHandler);
+                        ProgressTask = PipeController.ListenPipeMessageAsync(ProgressHandler);
                     }
                     else
                     {
@@ -1362,7 +1446,7 @@ namespace RX_Explorer.Class
                         {"ExecuteType", ExecuteType_Delete},
                         {"ExecutePath", JsonSerializer.Serialize(Source)},
                         {"PermanentDelete", PermanentDelete},
-                        {"Guid", PipeLineController.Current.GUID.ToString() },
+                        {"Guid", PipeController.GUID.ToString() },
                         {"Undo", IsUndoOperation }
                     };
 
@@ -1419,7 +1503,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -1442,9 +1526,9 @@ namespace RX_Explorer.Class
 
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(true))
+                if (await ConnectRemoteAsync().ConfigureAwait(true))
                 {
                     List<KeyValuePair<string, string>> MessageList = new List<KeyValuePair<string, string>>();
 
@@ -1500,9 +1584,9 @@ namespace RX_Explorer.Class
 
                     Task ProgressTask;
 
-                    if (await PipeLineController.Current.CreateNewNamedPipeAsync().ConfigureAwait(true))
+                    if (await PipeController.CreateNewNamedPipeAsync().ConfigureAwait(true))
                     {
-                        ProgressTask = PipeLineController.Current.ListenPipeMessageAsync(ProgressHandler);
+                        ProgressTask = PipeController.ListenPipeMessageAsync(ProgressHandler);
                     }
                     else
                     {
@@ -1514,7 +1598,7 @@ namespace RX_Explorer.Class
                         {"ExecuteType", ExecuteType_Move},
                         {"SourcePath", JsonSerializer.Serialize(MessageList)},
                         {"DestinationPath", DestinationPath},
-                        {"Guid", PipeLineController.Current.GUID.ToString() },
+                        {"Guid", PipeController.GUID.ToString() },
                         {"Undo", IsUndoOperation }
                     };
 
@@ -1571,7 +1655,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -1599,9 +1683,9 @@ namespace RX_Explorer.Class
 
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(true))
+                if (await ConnectRemoteAsync().ConfigureAwait(true))
                 {
                     List<KeyValuePair<string, string>> MessageList = new List<KeyValuePair<string, string>>();
 
@@ -1664,9 +1748,9 @@ namespace RX_Explorer.Class
 
                     Task ProgressTask;
 
-                    if (await PipeLineController.Current.CreateNewNamedPipeAsync().ConfigureAwait(true))
+                    if (await PipeController.CreateNewNamedPipeAsync().ConfigureAwait(true))
                     {
-                        ProgressTask = PipeLineController.Current.ListenPipeMessageAsync(ProgressHandler);
+                        ProgressTask = PipeController.ListenPipeMessageAsync(ProgressHandler);
                     }
                     else
                     {
@@ -1678,7 +1762,7 @@ namespace RX_Explorer.Class
                         {"ExecuteType", ExecuteType_Copy},
                         {"SourcePath", JsonSerializer.Serialize(MessageList)},
                         {"DestinationPath", DestinationPath},
-                        {"Guid", PipeLineController.Current.GUID.ToString() },
+                        {"Guid", PipeController.GUID.ToString() },
                         {"Undo", IsUndoOperation }
                     };
 
@@ -1730,7 +1814,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -1758,9 +1842,9 @@ namespace RX_Explorer.Class
 
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
+                if (await ConnectRemoteAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -1804,7 +1888,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -1817,9 +1901,9 @@ namespace RX_Explorer.Class
 
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
+                if (await ConnectRemoteAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -1864,7 +1948,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -1877,9 +1961,9 @@ namespace RX_Explorer.Class
 
             try
             {
-                IsNowHasAnyActionExcuting = true;
+                IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectToFullTrustProcessorAsync().ConfigureAwait(false))
+                if (await ConnectRemoteAsync().ConfigureAwait(false))
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -1924,7 +2008,7 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                IsNowHasAnyActionExcuting = false;
+                IsAnyActionExcutingInCurrentController = false;
             }
         }
 
@@ -1933,6 +2017,7 @@ namespace RX_Explorer.Class
             GC.SuppressFinalize(this);
 
             IsConnected = false;
+            IsDisposed = true;
 
             if (Connection != null)
             {
@@ -1941,12 +2026,38 @@ namespace RX_Explorer.Class
                 Connection = null;
             }
 
-            Instance = null;
+            if (PipeController != null)
+            {
+                PipeController.Dispose();
+                PipeController = null;
+            }
+
+            Interlocked.Decrement(ref CurrentRunningControllerNum);
         }
 
         ~FullTrustProcessController()
         {
             Dispose();
+        }
+
+        public sealed class ExclusiveUsage : IDisposable
+        {
+            public FullTrustProcessController Controller { get; private set; }
+
+            public ExclusiveUsage(FullTrustProcessController Controller)
+            {
+                this.Controller = Controller;
+            }
+
+            public void Dispose()
+            {
+                if (!Controller.IsDisposed)
+                {
+                    ExclusiveDisposed?.Invoke(this, Controller);
+                }
+
+                Controller = null;
+            }
         }
     }
 }

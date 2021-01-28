@@ -31,9 +31,8 @@ namespace RX_Explorer
             MemoryManager.AppMemoryUsageLimitChanging += MemoryManager_AppMemoryUsageLimitChanging;
         }
 
-        private async void App_Resuming(object sender, object e)
+        private void App_Resuming(object sender, object e)
         {
-            await FullTrustProcessController.Current.ConnectToFullTrustProcessorAsync().ConfigureAwait(true);
             AppInstanceIdContainer.RegisterCurrentId(AppInstanceIdContainer.CurrentId);
         }
 
@@ -41,20 +40,21 @@ namespace RX_Explorer
         {
             MSStoreHelper.Current.PreLoadAppLicense();
 
-            if (await FullTrustProcessController.Current.CheckIfQuicklookIsAvaliableAsync().ConfigureAwait(true))
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                SettingControl.IsQuicklookAvailable = true;
-            }
-            else
-            {
-                SettingControl.IsQuicklookAvailable = false;
+                if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync().ConfigureAwait(true))
+                {
+                    SettingControl.IsQuicklookAvailable = true;
+                }
+                else
+                {
+                    SettingControl.IsQuicklookAvailable = false;
+                }
             }
         }
 
         private void App_Suspending(object sender, SuspendingEventArgs e)
         {
-            PipeLineController.Current.Dispose();
-            FullTrustProcessController.Current.Dispose();
             AppInstanceIdContainer.UngisterCurrentId();
         }
 
@@ -95,12 +95,6 @@ namespace RX_Explorer
             SQLite.Current.Dispose();
             MySQL.Current.Dispose();
 
-            if (!FullTrustProcessController.Current.IsNowHasAnyActionExcuting)
-            {
-                PipeLineController.Current.Dispose();
-                FullTrustProcessController.Current.Dispose();
-            }
-
             GC.Collect();
         }
 
@@ -136,11 +130,11 @@ namespace RX_Explorer
                 {
                     if (!string.IsNullOrWhiteSpace(e.Arguments) && WIN_Native_API.CheckExist(e.Arguments))
                     {
-                        TabContainer.CreateNewTabAndOpenTargetFolder(null, new string[] { e.Arguments });
+                        TabContainer.CreateNewTab(null, new string[] { e.Arguments });
                     }
                     else
                     {
-                        TabContainer.CreateNewTabAndOpenTargetFolder(null, Array.Empty<string>());
+                        TabContainer.CreateNewTab(null, Array.Empty<string>());
                     }
                 }
             }
@@ -183,16 +177,16 @@ namespace RX_Explorer
 
                             if (string.IsNullOrWhiteSpace(Path) || Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase))
                             {
-                                TabContainer.CreateNewTabAndOpenTargetFolder(null, Array.Empty<string>());
+                                TabContainer.CreateNewTab(null, Array.Empty<string>());
                             }
                             else
                             {
-                                TabContainer.CreateNewTabAndOpenTargetFolder(null, Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path);
+                                TabContainer.CreateNewTab(null, Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path);
                             }
                         }
                         else
                         {
-                            TabContainer.CreateNewTabAndOpenTargetFolder(null, Array.Empty<string>());
+                            TabContainer.CreateNewTab(null, Array.Empty<string>());
                         }
                     }
                 }
@@ -256,7 +250,7 @@ namespace RX_Explorer
                 {
                     if (mainPageFrame.Content is MainPage mainPage && mainPage.Nav.Content is TabViewContainer tabViewContainer)
                     {
-                        tabViewContainer.CreateNewTabAndOpenTargetFolder(null, args.Files.Select((File) => File.Path).ToArray());
+                        tabViewContainer.CreateNewTab(null, args.Files.Select((File) => File.Path).ToArray());
                     }
                 }
                 else

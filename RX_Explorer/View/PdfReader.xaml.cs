@@ -48,7 +48,6 @@ namespace RX_Explorer
         private async Task Initialize(FileSystemStorageItemBase PdfFile)
         {
             LoadingControl.IsLoading = true;
-            MainPage.ThisPage.IsAnyTaskRunning = true;
 
             PdfCollection = new ObservableCollection<BitmapImage>();
             LoadQueue = new Queue<int>();
@@ -116,8 +115,8 @@ namespace RX_Explorer
                 }
 
                 await Task.Delay(1000).ConfigureAwait(true);
+
                 LoadingControl.IsLoading = false;
-                MainPage.ThisPage.IsAnyTaskRunning = false;
             }
         }
 

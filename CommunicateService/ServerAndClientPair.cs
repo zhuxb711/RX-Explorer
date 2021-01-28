@@ -8,13 +8,8 @@ namespace CommunicateService
 
         public AppServiceConnection Client { get; set; }
 
-        public string ClientProcessId { get; set; }
+        public string ClientConnectionId { get; set; }
 
-        public ServerAndClientPair(AppServiceConnection Server, AppServiceConnection Client, string ClientProcessId)
-        {
-            this.Server = Server;
-            this.Client = Client;
-            this.ClientProcessId = ClientProcessId;
-        }
+        public string ClientProcessId { get; set; }
     }
 }

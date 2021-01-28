@@ -405,7 +405,7 @@ namespace RX_Explorer
 
                     await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                     {
-                        (TabViewContainer.CurrentTabNavigation.Content as Page).Focus(FocusState.Programmatic);
+                        (TabViewContainer.CurrentNavigationControl.Content as Page).Focus(FocusState.Programmatic);
 
                         if (AnimationController.Current.IsEnableAnimation)
                         {
@@ -714,7 +714,6 @@ namespace RX_Explorer
                     {
                         SQLite.Current.Dispose();
                         MySQL.Current.Dispose();
-                        FullTrustProcessController.Current.Dispose();
 
                         await ApplicationData.Current.ClearAsync();
                     }
@@ -747,7 +746,6 @@ namespace RX_Explorer
                 {
                     LoadingText.Text = Globalization.GetString("Progress_Tip_Exporting");
                     LoadingControl.IsLoading = true;
-                    MainPage.ThisPage.IsAnyTaskRunning = true;
 
                     FileSystemStorageItemBase SecureFolder = await FileSystemStorageItemBase.CreateAsync(Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder"), StorageItemTypes.Folder, CreateOption.OpenIfExist).ConfigureAwait(true);
 
@@ -767,7 +765,11 @@ namespace RX_Explorer
                         {
                             SQLite.Current.Dispose();
                             MySQL.Current.Dispose();
-                            FullTrustProcessController.Current.Dispose();
+
+                            foreach (FullTrustProcessController Controller in TabViewContainer.ThisPage.TabViewControl.TabItems.OfType<TabViewItem>().Select((Tab) => Tab.Tag as FullTrustProcessController))
+                            {
+                                Controller.Dispose();
+                            }
 
                             await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Local);
                             await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Temporary);
@@ -782,7 +784,6 @@ namespace RX_Explorer
                         await Task.Delay(1000).ConfigureAwait(true);
 
                         LoadingControl.IsLoading = false;
-                        MainPage.ThisPage.IsAnyTaskRunning = false;
 
                         await Task.Delay(1000).ConfigureAwait(true);
 
@@ -2001,25 +2002,28 @@ namespace RX_Explorer
 
                     if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                     {
-                        if (await FullTrustProcessController.Current.InterceptWindowsPlusEAsync().ConfigureAwait(true))
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         {
-                            ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] = true;
-                        }
-                        else
-                        {
-                            QueueContentDialog dialog = new QueueContentDialog
+                            if (await Exclusive.Controller.InterceptWindowsPlusEAsync().ConfigureAwait(true))
                             {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_InterceptWindowsETipFailure_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
+                                ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] = true;
+                            }
+                            else
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_InterceptWindowsETipFailure_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
 
-                            _ = await dialog.ShowAsync().ConfigureAwait(true);
+                                _ = await dialog.ShowAsync().ConfigureAwait(true);
 
-                            UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
-                            UseWinAndEActivate.IsOn = false;
-                            AlwaysLaunchNewArea.Visibility = Visibility.Collapsed;
-                            UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
+                                UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
+                                UseWinAndEActivate.IsOn = false;
+                                AlwaysLaunchNewArea.Visibility = Visibility.Collapsed;
+                                UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
+                            }
                         }
                     }
                     else
@@ -2034,25 +2038,28 @@ namespace RX_Explorer
                 {
                     AlwaysLaunchNewArea.Visibility = Visibility.Collapsed;
 
-                    if (await FullTrustProcessController.Current.RestoreWindowsPlusEAsync().ConfigureAwait(true))
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                     {
-                        ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] = false;
-                    }
-                    else
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
+                        if (await Exclusive.Controller.RestoreWindowsPlusEAsync().ConfigureAwait(true))
                         {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_RestoreWindowsETipFailure_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
+                            ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] = false;
+                        }
+                        else
+                        {
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_RestoreWindowsETipFailure_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
 
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                            _ = await dialog.ShowAsync().ConfigureAwait(true);
 
-                        UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
-                        UseWinAndEActivate.IsOn = true;
-                        AlwaysLaunchNewArea.Visibility = Visibility.Visible;
-                        UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
+                            UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
+                            UseWinAndEActivate.IsOn = true;
+                            AlwaysLaunchNewArea.Visibility = Visibility.Visible;
+                            UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
+                        }
                     }
                 }
             }

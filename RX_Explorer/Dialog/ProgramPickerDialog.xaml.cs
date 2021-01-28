@@ -46,38 +46,41 @@ namespace RX_Explorer.Dialog
 
             try
             {
-                List<AssociationPackage> AssocList = await FullTrustProcessController.Current.GetAssociateFromPathAsync(OpenFile.Path).ConfigureAwait(true);
-                List<AppInfo> AppInfoList = (await Launcher.FindFileHandlersAsync(OpenFile.Type)).ToList();
-
-                await SQLite.Current.UpdateProgramPickerRecordAsync(OpenFile.Type, AssocList.Concat(AppInfoList.Select((Info) => new AssociationPackage(OpenFile.Type, Info.PackageFamilyName, true)))).ConfigureAwait(true);
-
-                foreach (AppInfo Info in AppInfoList)
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {
-                    try
+                    List<AssociationPackage> AssocList = await Exclusive.Controller.GetAssociateFromPathAsync(OpenFile.Path).ConfigureAwait(true);
+                    List<AppInfo> AppInfoList = (await Launcher.FindFileHandlersAsync(OpenFile.Type)).ToList();
+
+                    await SQLite.Current.UpdateProgramPickerRecordAsync(OpenFile.Type, AssocList.Concat(AppInfoList.Select((Info) => new AssociationPackage(OpenFile.Type, Info.PackageFamilyName, true)))).ConfigureAwait(true);
+
+                    foreach (AppInfo Info in AppInfoList)
                     {
-                        using (IRandomAccessStreamWithContentType LogoStream = await Info.DisplayInfo.GetLogo(new Windows.Foundation.Size(128, 128)).OpenReadAsync())
+                        try
                         {
-                            BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(LogoStream);
-
-                            using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
-                            using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
-                            using (InMemoryRandomAccessStream Stream = new InMemoryRandomAccessStream())
+                            using (IRandomAccessStreamWithContentType LogoStream = await Info.DisplayInfo.GetLogo(new Windows.Foundation.Size(128, 128)).OpenReadAsync())
                             {
-                                BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, Stream);
+                                BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(LogoStream);
 
-                                Encoder.SetSoftwareBitmap(ResizeBitmap);
-                                await Encoder.FlushAsync();
+                                using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                                using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
+                                using (InMemoryRandomAccessStream Stream = new InMemoryRandomAccessStream())
+                                {
+                                    BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, Stream);
 
-                                BitmapImage Image = new BitmapImage();
-                                await Image.SetSourceAsync(Stream);
+                                    Encoder.SetSoftwareBitmap(ResizeBitmap);
+                                    await Encoder.FlushAsync();
 
-                                RecommandList.Add(new ProgramPickerItem(Image, Info.DisplayInfo.DisplayName, Info.DisplayInfo.Description, Info.PackageFamilyName));
+                                    BitmapImage Image = new BitmapImage();
+                                    await Image.SetSourceAsync(Stream);
+
+                                    RecommandList.Add(new ProgramPickerItem(Image, Info.DisplayInfo.DisplayName, Info.DisplayInfo.Description, Info.PackageFamilyName));
+                                }
                             }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "An exception was threw when getting or processing App Logo");
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, "An exception was threw when getting or processing App Logo");
+                        }
                     }
                 }
             }

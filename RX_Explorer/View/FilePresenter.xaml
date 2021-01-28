@@ -620,6 +620,7 @@
                              FontSize="14"
                              IsSpellCheckEnabled="False"
                              Visibility="Collapsed"
+                             KeyDown="NameEditBox_KeyDown"
                              LostFocus="NameEditBox_LostFocus"
                              BeforeTextChanging="NameEditBox_BeforeTextChanging"
                              x:Load="False" />
@@ -747,6 +748,7 @@
                          Grid.Column="1"
                          IsSpellCheckEnabled="False"
                          Visibility="Collapsed"
+                         KeyDown="NameEditBox_KeyDown"
                          LostFocus="NameEditBox_LostFocus"
                          BeforeTextChanging="NameEditBox_BeforeTextChanging"
                          x:Load="False" />
@@ -1271,7 +1273,7 @@
                         </Grid.ColumnDefinitions>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="44" />
+                                <ColumnDefinition Width="45" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <Image VerticalAlignment="Center"
@@ -1299,6 +1301,7 @@
                                      Grid.Column="1"
                                      IsSpellCheckEnabled="False"
                                      Visibility="Collapsed"
+                                     KeyDown="NameEditBox_KeyDown"
                                      LostFocus="NameEditBox_LostFocus"
                                      BeforeTextChanging="NameEditBox_BeforeTextChanging"
                                      x:Load="False" />

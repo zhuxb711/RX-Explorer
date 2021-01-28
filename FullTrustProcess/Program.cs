@@ -32,7 +32,9 @@ namespace FullTrustProcess
 
         private static readonly object Locker = new object();
 
-        private static Process ExplorerProcess;
+        private static int ExplorerProcessId = int.MinValue;
+
+        private static string ExplorerConnectionId;
 
         private static Timer AliveCheckTimer;
 
@@ -41,9 +43,14 @@ namespace FullTrustProcess
         {
             try
             {
-                if (args.Contains("Elevation_Restart") && int.TryParse(args.LastOrDefault(), out int Id))
+                if (args.Contains("Elevation_Restart"))
                 {
-                    ExplorerProcess = Process.GetProcessById(Id);
+                    string[] InputArgs = args.TakeLast(2).ToArray();
+
+                    ExplorerProcessId = Convert.ToInt32(InputArgs[0]);
+                    ExplorerConnectionId = Convert.ToString(InputArgs[1]);
+
+                    await Task.Delay(1000).ConfigureAwait(true);
                 }
 
                 Connection = new AppServiceConnection
@@ -74,8 +81,6 @@ namespace FullTrustProcess
                 Connection?.Dispose();
                 ExitLocker?.Dispose();
                 AliveCheckTimer?.Dispose();
-
-                ExplorerProcess?.Dispose();
 
                 try
                 {
@@ -238,19 +243,17 @@ namespace FullTrustProcess
                         }
                     case "Execute_ElevateAsAdmin":
                         {
-                            Connection?.Dispose();
-                            Connection = null;
-
                             using (Process AdminProcess = new Process())
                             {
                                 AdminProcess.StartInfo.Verb = "runas";
                                 AdminProcess.StartInfo.UseShellExecute = true;
-                                AdminProcess.StartInfo.Arguments = $"Elevation_Restart {ExplorerProcess?.Id}";
+                                AdminProcess.StartInfo.Arguments = $"Elevation_Restart {ExplorerProcessId} {ExplorerConnectionId}";
                                 AdminProcess.StartInfo.FileName = Process.GetCurrentProcess().MainModule.FileName;
                                 AdminProcess.Start();
                             }
 
                             ExitLocker.Set();
+
                             break;
                         }
                     case "Execute_CreateLink":
@@ -465,9 +468,10 @@ namespace FullTrustProcess
                                 { "Identity", "FullTrustProcess" }
                             };
 
-                            if (ExplorerProcess != null)
+                            if (ExplorerProcessId != int.MinValue)
                             {
-                                Value.Add("PreviousExplorerId", ExplorerProcess.Id);
+                                Value.Add("PreviousExplorerId", ExplorerProcessId);
+                                Value.Add("PreviousConnectionId", ExplorerConnectionId);
                             }
 
                             await args.Request.SendResponseAsync(Value);
@@ -1020,10 +1024,10 @@ namespace FullTrustProcess
                         {
                             try
                             {
-                                if (args.Request.Message.TryGetValue("ProcessId", out object Obj) && Obj is int Id && ExplorerProcess?.Id != Id)
+                                if (args.Request.Message.TryGetValue("ProcessId", out object ProcessId) && args.Request.Message.TryGetValue("ConnectionId", out object ConnectionId))
                                 {
-                                    ExplorerProcess?.Dispose();
-                                    ExplorerProcess = Process.GetProcessById(Id);
+                                    ExplorerProcessId = Convert.ToInt32(ProcessId);
+                                    ExplorerConnectionId = Convert.ToString(ConnectionId);
                                 }
                             }
                             catch
@@ -1053,7 +1057,14 @@ namespace FullTrustProcess
             }
             finally
             {
-                Deferral.Complete();
+                try
+                {
+                    Deferral.Complete();
+                }
+                catch
+                {
+
+                }
             }
         }
 
@@ -1061,7 +1072,6 @@ namespace FullTrustProcess
         {
             try
             {
-                OtherProcess.Refresh();
                 User32.SetWindowPos(OtherProcess.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_SHOWWINDOW);
             }
             catch (Exception e)
@@ -1072,9 +1082,19 @@ namespace FullTrustProcess
 
         private static void AliveCheck(object state)
         {
-            if (ExplorerProcess == null || ExplorerProcess.HasExited)
+            try
             {
-                ExitLocker.Set();
+                using (Process ExplorerProcess = Process.GetProcessById(ExplorerProcessId))
+                {
+                    if (ExplorerProcess == null || ExplorerProcess.HasExited)
+                    {
+                        ExitLocker.Set();
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine($"AliveCheck failed: \"{ex.Message}\"");
             }
         }
     }

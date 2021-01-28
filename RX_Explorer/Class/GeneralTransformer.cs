@@ -24,7 +24,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 指示是否存在正在进行中的任务
         /// </summary>
-        public static bool IsAnyTransformTaskRunning { get; set; }
+        public static bool IsAnyTransformTaskRunning { get; private set; }
 
         /// <summary>
         /// 将指定的视频文件合并并产生新文件

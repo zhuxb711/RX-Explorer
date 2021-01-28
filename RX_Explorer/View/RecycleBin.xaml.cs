@@ -52,29 +52,35 @@ namespace RX_Explorer.View
 
         private void RecycleBin_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
-            CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
-
-            switch (args.VirtualKey)
+            if (!LoadingControl.IsLoading)
             {
-                case VirtualKey.A when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                    {
-                        ListViewControl.SelectAll();
-                        break;
-                    }
-                case VirtualKey.Delete:
-                case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                    {
-                        PermanentDelete_Click(null, null);
-                        break;
-                    }
+                CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
+
+                switch (args.VirtualKey)
+                {
+                    case VirtualKey.A when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        {
+                            ListViewControl.SelectAll();
+                            break;
+                        }
+                    case VirtualKey.Delete:
+                    case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        {
+                            PermanentDelete_Click(null, null);
+                            break;
+                        }
+                }
             }
         }
 
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
-            foreach (RecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(await FullTrustProcessController.Current.GetRecycleBinItemsAsync().ConfigureAwait(true), SortTarget.Name, SortDirection.Ascending))
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                FileCollection.Add(Item);
+                foreach (RecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(await Exclusive.Controller.GetRecycleBinItemsAsync().ConfigureAwait(true), SortTarget.Name, SortDirection.Ascending))
+                {
+                    FileCollection.Add(Item);
+                }
             }
 
             if (FileCollection.Count == 0)
@@ -426,15 +432,18 @@ namespace RX_Explorer.View
                 {
                     List<string> ErrorList = new List<string>();
 
-                    foreach (RecycleStorageItem Item in ListViewControl.SelectedItems.ToList())
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                     {
-                        if (await FullTrustProcessController.Current.DeleteItemInRecycleBinAsync(Item.Path).ConfigureAwait(true))
+                        foreach (RecycleStorageItem Item in ListViewControl.SelectedItems.ToList())
                         {
-                            FileCollection.Remove(Item);
-                        }
-                        else
-                        {
-                            ErrorList.Add(Item.Name);
+                            if (await Exclusive.Controller.DeleteItemInRecycleBinAsync(Item.Path).ConfigureAwait(true))
+                            {
+                                FileCollection.Remove(Item);
+                            }
+                            else
+                            {
+                                ErrorList.Add(Item.Name);
+                            }
                         }
                     }
 
@@ -474,27 +483,30 @@ namespace RX_Explorer.View
             {
                 await ActivateLoading(true, Globalization.GetString("RecycleBinEmptyingText")).ConfigureAwait(true);
 
-                if (await FullTrustProcessController.Current.EmptyRecycleBinAsync().ConfigureAwait(true))
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {
-                    await ActivateLoading(false).ConfigureAwait(true);
-
-                    FileCollection.Clear();
-
-                    HasFile.Visibility = Visibility.Visible;
-                    ClearRecycleBin.IsEnabled = false;
-                }
-                else
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
+                    if (await Exclusive.Controller.EmptyRecycleBinAsync().ConfigureAwait(true))
                     {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_RecycleBinEmptyError_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
+                        await ActivateLoading(false).ConfigureAwait(true);
 
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                        FileCollection.Clear();
 
-                    await ActivateLoading(false).ConfigureAwait(true);
+                        HasFile.Visibility = Visibility.Visible;
+                        ClearRecycleBin.IsEnabled = false;
+                    }
+                    else
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_RecycleBinEmptyError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+
+                        await ActivateLoading(false).ConfigureAwait(true);
+                    }
                 }
             }
         }
@@ -507,15 +519,18 @@ namespace RX_Explorer.View
 
                 List<string> ErrorList = new List<string>();
 
-                foreach (RecycleStorageItem Item in ListViewControl.SelectedItems.ToList())
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {
-                    if (await FullTrustProcessController.Current.RestoreItemInRecycleBinAsync(Item.Path).ConfigureAwait(true))
+                    foreach (RecycleStorageItem Item in ListViewControl.SelectedItems.ToList())
                     {
-                        FileCollection.Remove(Item);
-                    }
-                    else
-                    {
-                        ErrorList.Add(Item.Name);
+                        if (await Exclusive.Controller.RestoreItemInRecycleBinAsync(Item.Path).ConfigureAwait(true))
+                        {
+                            FileCollection.Remove(Item);
+                        }
+                        else
+                        {
+                            ErrorList.Add(Item.Name);
+                        }
                     }
                 }
 
@@ -546,13 +561,11 @@ namespace RX_Explorer.View
             {
                 ProgressInfo.Text = $"{Message}...";
                 LoadingControl.IsLoading = true;
-                MainPage.ThisPage.IsAnyTaskRunning = true;
             }
             else
             {
                 await Task.Delay(1000).ConfigureAwait(true);
                 LoadingControl.IsLoading = false;
-                MainPage.ThisPage.IsAnyTaskRunning = false;
             }
         }
 
@@ -560,9 +573,12 @@ namespace RX_Explorer.View
         {
             FileCollection.Clear();
 
-            foreach (RecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(await FullTrustProcessController.Current.GetRecycleBinItemsAsync().ConfigureAwait(true), SortTarget.Name, SortDirection.Ascending))
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                FileCollection.Add(Item);
+                foreach (RecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(await Exclusive.Controller.GetRecycleBinItemsAsync().ConfigureAwait(true), SortTarget.Name, SortDirection.Ascending))
+                {
+                    FileCollection.Add(Item);
+                }
             }
 
             if (FileCollection.Count == 0)

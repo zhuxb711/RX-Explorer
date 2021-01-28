@@ -14,7 +14,10 @@ namespace RX_Explorer.Class
             }
             else
             {
-                return await FullTrustProcessController.Current.GetVariablePathAsync(Variable.Trim('%')).ConfigureAwait(false);
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                {
+                    return await Exclusive.Controller.GetVariablePathAsync(Variable.Trim('%')).ConfigureAwait(false);
+                }
             }
         }
 
@@ -26,23 +29,26 @@ namespace RX_Explorer.Class
             }
             else
             {
-                string TempString = PathWithVariable;
-
-                foreach (string Var in Regex.Matches(PathWithVariable, @"(?<=(%))[\s\S]+(?=(%))").Select((Item) => Item.Value).Distinct())
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {
-                    string ActualPath = await FullTrustProcessController.Current.GetVariablePathAsync(Var).ConfigureAwait(false);
+                    string TempString = PathWithVariable;
 
-                    if (string.IsNullOrWhiteSpace(ActualPath))
+                    foreach (string Var in Regex.Matches(PathWithVariable, @"(?<=(%))[\s\S]+(?=(%))").Select((Item) => Item.Value).Distinct())
                     {
-                        throw new System.Exception("ActualPath which get from variable is empty");
+                        string ActualPath = await Exclusive.Controller.GetVariablePathAsync(Var).ConfigureAwait(false);
+
+                        if (string.IsNullOrWhiteSpace(ActualPath))
+                        {
+                            throw new System.Exception("ActualPath which get from variable is empty");
+                        }
+                        else
+                        {
+                            TempString = TempString.Replace($"%{Var}%", ActualPath);
+                        }
                     }
-                    else
-                    {
-                        TempString = TempString.Replace($"%{Var}%", ActualPath);
-                    }
+
+                    return TempString;
                 }
-
-                return TempString;
             }
         }
     }

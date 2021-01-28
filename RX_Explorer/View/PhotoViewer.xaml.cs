@@ -13,7 +13,6 @@ using Windows.Foundation;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Streams;
-using Windows.System;
 using Windows.System.UserProfile;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -59,8 +58,6 @@ namespace RX_Explorer
                 ExitLocker = new ManualResetEvent(false);
                 Cancellation = new CancellationTokenSource();
                 LoadQueue = new Queue<int>();
-
-                MainPage.ThisPage.IsAnyTaskRunning = true;
 
                 Behavior.Attach(Flip);
 
@@ -123,7 +120,6 @@ namespace RX_Explorer
             }
             finally
             {
-                MainPage.ThisPage.IsAnyTaskRunning = false;
                 ExitLocker.Set();
             }
         }
@@ -343,168 +339,33 @@ namespace RX_Explorer
             if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
             {
                 TranscodeLoadingControl.IsLoading = true;
-                MainPage.ThisPage.IsAnyTaskRunning = true;
 
                 await GeneralTransformer.TranscodeFromImageAsync(Item, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode).ConfigureAwait(true);
 
                 await Task.Delay(1000).ConfigureAwait(true);
 
                 TranscodeLoadingControl.IsLoading = false;
-                MainPage.ThisPage.IsAnyTaskRunning = false;
             }
         }
 
         private async void Delete_Click(object sender, RoutedEventArgs e)
         {
-            if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down))
+            try
             {
                 PhotoDisplaySupport Item = PhotoCollection[Flip.SelectedIndex];
-
-            Retry:
-                try
-                {
-                    await FullTrustProcessController.Current.DeleteAsync(Item.PhotoFile.Path, true).ConfigureAwait(true);
-                    PhotoCollection.Remove(Item);
-                    Behavior.InitAnimation(InitOption.Full);
-                }
-                catch (FileCaputureException)
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
-                }
-                catch (FileNotFoundException)
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
-                    };
-
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
-                }
-                catch (InvalidOperationException)
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_UnauthorizedDelete_Content"),
-                        PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                    };
-
-                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                    {
-                        if (await FullTrustProcessController.Current.SwitchToAdminModeAsync().ConfigureAwait(true))
-                        {
-                            goto Retry;
-                        }
-                        else
-                        {
-                            QueueContentDialog ErrorDialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
-                }
+                Item.PhotoFile.PermanentDelete();
+                PhotoCollection.Remove(Item);
+                Behavior.InitAnimation(InitOption.Full);
             }
-            else
+            catch (Exception)
             {
-                DeleteDialog Dialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFile_Content"));
-
-                if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                QueueContentDialog dialog = new QueueContentDialog
                 {
-                    PhotoDisplaySupport Item = PhotoCollection[Flip.SelectedIndex];
-
-                Retry:
-                    try
-                    {
-                        await FullTrustProcessController.Current.DeleteAsync(Item.PhotoFile.Path, Dialog.IsPermanentDelete).ConfigureAwait(true);
-                        PhotoCollection.Remove(Item);
-                        Behavior.InitAnimation(InitOption.Full);
-                    }
-                    catch (FileCaputureException)
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_UnauthorizedDelete_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                        };
-
-                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                        {
-                            if (await FullTrustProcessController.Current.SwitchToAdminModeAsync().ConfigureAwait(true))
-                            {
-                                goto Retry;
-                            }
-                            else
-                            {
-                                QueueContentDialog ErrorDialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                            }
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                }
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+                _ = await dialog.ShowAsync().ConfigureAwait(true);
             }
         }
 

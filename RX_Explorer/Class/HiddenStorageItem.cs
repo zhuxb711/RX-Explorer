@@ -2,9 +2,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.Core;
 using Windows.Storage;
-using Windows.UI.Core;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
@@ -33,18 +31,21 @@ namespace RX_Explorer.Class
 
         protected override async Task LoadMorePropertyCore()
         {
-            DataPackage = await FullTrustProcessController.Current.GetHiddenItemInfoAsync(Path).ConfigureAwait(true);
-
-            if ((DataPackage?.IconData.Length).GetValueOrDefault() > 0)
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                BitmapImage Icon = new BitmapImage();
+                DataPackage = await Exclusive.Controller.GetHiddenItemInfoAsync(Path).ConfigureAwait(true);
 
-                using (MemoryStream Stream = new MemoryStream(DataPackage.IconData))
+                if ((DataPackage?.IconData.Length).GetValueOrDefault() > 0)
                 {
-                    await Icon.SetSourceAsync(Stream.AsRandomAccessStream());
-                }
+                    BitmapImage Icon = new BitmapImage();
 
-                Thumbnail = Icon;
+                    using (MemoryStream Stream = new MemoryStream(DataPackage.IconData))
+                    {
+                        await Icon.SetSourceAsync(Stream.AsRandomAccessStream());
+                    }
+
+                    Thumbnail = Icon;
+                }
             }
         }
 

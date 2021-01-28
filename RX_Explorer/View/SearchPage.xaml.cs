@@ -51,7 +51,6 @@ namespace RX_Explorer
             HasItem.Visibility = Visibility.Collapsed;
 
             LoadingControl.IsLoading = true;
-            MainPage.ThisPage.IsAnyTaskRunning = true;
 
             try
             {
@@ -78,7 +77,10 @@ namespace RX_Explorer
                             }
                         case SearchCategory.EverythingEngine:
                             {
-                                SearchItems = await FullTrustProcessController.Current.SearchByEverythingAsync(GlobleSearch ? string.Empty : CurrentPath, SearchTarget, IncludeRegex, IngoreCase, MaxCount).ConfigureAwait(true);
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                {
+                                    SearchItems = await Exclusive.Controller.SearchByEverythingAsync(GlobleSearch ? string.Empty : CurrentPath, SearchTarget, IncludeRegex, IngoreCase, MaxCount).ConfigureAwait(true);
+                                }
                                 break;
                             }
                     }
@@ -116,8 +118,6 @@ namespace RX_Explorer
             }
             finally
             {
-                MainPage.ThisPage.IsAnyTaskRunning = false;
-
                 Cancellation.Dispose();
                 Cancellation = null;
             }

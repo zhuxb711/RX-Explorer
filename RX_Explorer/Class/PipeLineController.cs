@@ -12,26 +12,13 @@ namespace RX_Explorer.Class
 {
     public sealed class PipeLineController : IDisposable
     {
-        private static PipeLineController Instance;
-
-        private static readonly object Locker = new object();
-
-        public static PipeLineController Current
-        {
-            get
-            {
-                lock (Locker)
-                {
-                    return Instance ??= new PipeLineController();
-                }
-            }
-        }
-
         public Guid GUID { get; private set; }
 
         private NamedPipeClientStream ClientStream;
 
         private SafePipeHandle PipeHandle;
+
+        private FullTrustProcessController Controller;
 
         public async Task ListenPipeMessageAsync(ProgressChangedEventHandler Handler)
         {
@@ -101,7 +88,7 @@ namespace RX_Explorer.Class
 
                 if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_2004))
                 {
-                    await FullTrustProcessController.Current.RequestCreateNewPipeLineAsync(GUID).ConfigureAwait(true);
+                    await Controller.RequestCreateNewPipeLineAsync(GUID).ConfigureAwait(true);
 
                     PipeHandle = WIN_Native_API.GetHandleFromNamedPipe($"Explorer_And_FullTrustProcess_NamedPipe-{GUID}");
 
@@ -121,9 +108,10 @@ namespace RX_Explorer.Class
             }
         }
 
-        private PipeLineController()
+        public PipeLineController(FullTrustProcessController Controller)
         {
             GUID = Guid.NewGuid();
+            this.Controller = Controller;
         }
 
         public void Dispose()
@@ -135,8 +123,6 @@ namespace RX_Explorer.Class
 
             PipeHandle?.Dispose();
             PipeHandle = null;
-
-            Instance = null;
         }
 
         ~PipeLineController()

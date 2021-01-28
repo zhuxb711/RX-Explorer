@@ -73,22 +73,25 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    Package = await FullTrustProcessController.Current.GetHyperlinkRelatedInformationAsync(InternalPathString).ConfigureAwait(false);
-
-                    if (WIN_Native_API.CheckExist(LinkTargetPath))
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                     {
-                        if (WIN_Native_API.CheckType(LinkTargetPath) == StorageItemTypes.Folder)
+                        Package = await Exclusive.Controller.GetHyperlinkRelatedInformationAsync(InternalPathString).ConfigureAwait(false);
+
+                        if (WIN_Native_API.CheckExist(LinkTargetPath))
                         {
-                            return StorageItem = await StorageFolder.GetFolderFromPathAsync(LinkTargetPath);
+                            if (WIN_Native_API.CheckType(LinkTargetPath) == StorageItemTypes.Folder)
+                            {
+                                return StorageItem = await StorageFolder.GetFolderFromPathAsync(LinkTargetPath);
+                            }
+                            else
+                            {
+                                return StorageItem = await StorageFile.GetFileFromPathAsync(LinkTargetPath);
+                            }
                         }
                         else
                         {
-                            return StorageItem = await StorageFile.GetFileFromPathAsync(LinkTargetPath);
+                            return StorageItem = null;
                         }
-                    }
-                    else
-                    {
-                        return StorageItem = null;
                     }
                 }
                 catch (Exception ex)
