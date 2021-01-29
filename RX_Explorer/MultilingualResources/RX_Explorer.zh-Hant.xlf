@@ -2294,21 +2294,21 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">此資料夾已增加到主頁，不能再次增加</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedCreateFolder_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to create folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately ?</source>
-          <target state="translated">RX 檔案總管沒有新增資料夾的權限，可能是您沒有權限訪問此資料夾\r\r立即進入檔案總管？</target>
+          <source>RX does not have permission to create folder, it may be that you do not have access to this folder\r\rDo you want to launch Windows Explorer?</source>
+          <target state="translated">RX 檔案總管沒有新增資料夾的權限，可能是您沒有權限訪問此資料夾\r\r您要啟動Windows資源管理器嗎？</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedDelete_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to delete this item, administrator rights may be required. Do you want to grant administrator rights?</source>
-          <target state="translated">RX無權刪除此項目，可能需要管理員權限。 您是否要授予管理員權限？</target>
+          <source>RX does not have permission to delete this item. Do you want to launch Windows Explorer?</source>
+          <target state="translated">RX無權刪除此項目，您要啟動Windows資源管理器嗎？</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedPaste_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to paste, administrator rights may be required to access this folder. Do you want to grant administrator rights?</source>
-          <target state="translated">RX 檔案總管沒有權限貼上檔案，可能需要管理員權限才能訪問此文件夾。 您要授予管理員權限嗎？</target>
+          <source>RX does not have permission to paste. Do you want to launch Windows Explorer?</source>
+          <target state="translated">RX 檔案總管沒有權限貼上檔案，您要啟動Windows資源管理器嗎？</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedRenameFile_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to rename, administrator rights may be required. Do you want to grant administrator rights?</source>
-          <target state="translated">RX 檔案總管沒有權限重新命名，可能需要管理員權限，您是否要授予管理員權限？</target>
+          <source>RX does not have permission to rename. Do you want to launch Windows Explorer?</source>
+          <target state="translated">RX 檔案總管沒有權限重新命名，您要啟動Windows資源管理器嗎？</target>
         </trans-unit>
         <trans-unit id="Common_Dialog_GoBack" translate="yes" xml:space="preserve">
           <source>Go back</source>
@@ -2481,18 +2481,18 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">已經有一項正在進行的任務，請等待它完成</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedCompression_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to create the Zip file here, it may be that you do not have access to this file.\r\rEnter the system explorer immediately?</source>
-          <target state="translated">RX 檔案管理沒有權限在此處新增Zip文件，可能是您沒有權限訪問此檔案。\r\r立即進入檔案總管？</target>
+          <source>RX does not have permission to create the Zip file here, it may be that you do not have access to this file.\r\rDo you want to launch Windows Explorer?</source>
+          <target state="translated">RX 檔案管理沒有權限在此處新增Zip文件，可能是您沒有權限訪問此檔案。\r\r您要啟動Windows資源管理器嗎？</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedCreateNewFile_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have sufficient permissions to create new files in this folder\r\rEnter the system explorer immediately?</source>
-          <target state="translated">RX 檔案總管沒有權限在此資料夾中新增檔案\r\r立即進入檔案總管？</target>
+          <source>RX does not have sufficient permissions to create new files in this folder\r\rDo you want to launch Windows Explorer?</source>
+          <target state="translated">RX 檔案總管沒有權限在此資料夾中新增檔案\r\r您要啟動Windows資源管理器嗎？</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedDecompression_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to decompression the Zip file here, it may be that you do not have access to this file.\r\rEnter the system explorer immediately?</source>
-          <target state="translated">RX 檔案總管沒有在此處解壓Zip檔案的權限，可能是您沒有權限訪問此檔案\r\r立即進入檔案總管？</target>
+          <source>RX does not have permission to decompression the Zip file here, it may be that you do not have access to this file.\r\rDo you want to launch Windows Explorer?</source>
+          <target state="translated">RX 檔案總管沒有在此處解壓Zip檔案的權限，可能是您沒有權限訪問此檔案\r\r您要啟動Windows資源管理器嗎？</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_UndoFailure_Content" translate="yes" xml:space="preserve">
@@ -3133,17 +3133,9 @@ Invalid names include
           <source>Run terminal as administrator</source>
           <target state="translated">以管理員身份運行終端</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_DenyElevation_Content" translate="yes" xml:space="preserve">
-          <source>You refused to grant admin rights, so you cannot perform any operations</source>
-          <target state="translated">您拒絕授予管理員權限，因此無法執行任何操作</target>
-        </trans-unit>
-        <trans-unit id="Common_Dialog_GrantButton" translate="yes" xml:space="preserve">
-          <source>Grant</source>
-          <target state="translated">准予</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedRename_StartExplorer_Content" translate="yes" xml:space="preserve">
-          <source>RX has no right to rename this file. Do you want to start explorer to operate?</source>
-          <target state="translated">RX無權重命名該文件，您要啟動資源管理器進行操作嗎？</target>
+          <source>RX has no right to rename this file. Do you want to launch Windows Explorer?</source>
+          <target state="translated">RX無權重命名該文件，您要啟動Windows資源管理器嗎？</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnableAccessClipboard_Content" translate="yes" xml:space="preserve">
           <source>Cannot access clipboard, copy/cut operation failed</source>
@@ -3154,8 +3146,8 @@ Invalid names include
           <target state="translated">調整背景模糊效果</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedExecute_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to execute the file, administrator rights may be required. Do you want to grant administrator rights?</source>
-          <target state="translated">RX沒有執行文件的權限，可能需要管理員權限。您是否要授予管理員權限？</target>
+          <source>RX does not have permission to execute the file. Do you want to launch Windows Explorer?</source>
+          <target state="translated">RX沒有執行文件的權限，您要啟動Windows資源管理器嗎？</target>
         </trans-unit>
         <trans-unit id="SettingPageAlwaysLaunchNew.Content" translate="yes" xml:space="preserve">
           <source>Always start a new process when activated</source>
@@ -3464,6 +3456,22 @@ Invalid names include
         <trans-unit id="CloseThisTab.Label" translate="yes" xml:space="preserve">
           <source>Close this tab</source>
           <target state="translated">關閉此選項卡</target>
+        </trans-unit>
+        <trans-unit id="SearchEngineConfi_AlwaysPopup" translate="yes" xml:space="preserve">
+          <source>Ask every time</source>
+          <target state="translated">每次詢問</target>
+        </trans-unit>
+        <trans-unit id="SearchEngineConfi_UseBuildInAsDefault" translate="yes" xml:space="preserve">
+          <source>Always use the built-in search engine</source>
+          <target state="translated">一律使用內置搜索引擎</target>
+        </trans-unit>
+        <trans-unit id="SearchEngineConfi_UseEverythingAsDefault" translate="yes" xml:space="preserve">
+          <source>Always use the Everything search engine</source>
+          <target state="translated">一律使用Everything搜索引擎</target>
+        </trans-unit>
+        <trans-unit id="SettingPageSearchEngineConfig.Header" translate="yes" xml:space="preserve">
+          <source>Search engine configuration</source>
+          <target state="translated">搜索引擎配置</target>
         </trans-unit>
       </group>
     </body>

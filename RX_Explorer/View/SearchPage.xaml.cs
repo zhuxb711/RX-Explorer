@@ -143,7 +143,7 @@ namespace RX_Explorer
 
                         await Control.CurrentPresenter.DisplayItemsInFolder(ParentFolderPath).ConfigureAwait(true);
 
-                        await JumpListController.Current.AddItem(JumpListGroup.Recent, ParentFolderPath).ConfigureAwait(true);
+                        await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, ParentFolderPath).ConfigureAwait(true);
 
                         if (Control.CurrentPresenter.FileCollection.FirstOrDefault((SItem) => SItem == Item) is FileSystemStorageItemBase Target)
                         {

@@ -2269,17 +2269,17 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Ce dossier a été ajouté à l'écran d'accueil, il ne peut pas être ajouté de nouveau</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedCreateFolder_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to create folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately ?</source>
-          <target state="translated">RX n'a pas la permission pour créer un dossier, il se peut que vous n'ayez pas accès à ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</target>
+          <source>RX does not have permission to create folder, it may be that you do not have access to this folder\r\rDo you want to launch Windows Explorer?</source>
+          <target state="translated">RX n'a pas la permission pour créer un dossier, il se peut que vous n'ayez pas accès à ce dossier.\r\rVoulez-vous lancer l'Explorateur Windows?</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedPaste_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to paste, administrator rights may be required to access this folder. Do you want to grant administrator rights?</source>
-          <target state="translated">RX n'a pas la permission pour copier, des droits d'administrateur peuvent être nécessaires pour accéder à ce dossier. Voulez-vous accorder des droits d'administrateur?</target>
+          <source>RX does not have permission to paste. Do you want to launch Windows Explorer?</source>
+          <target state="translated">RX n'a pas la permission pour copier, voulez-vous lancer l'Explorateur Windows?</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedRenameFile_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to rename, administrator rights may be required. Do you want to grant administrator rights?</source>
-          <target state="translated">RX n'a pas la permission pour renommer ce dossier, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur?</target>
+          <source>RX does not have permission to rename. Do you want to launch Windows Explorer?</source>
+          <target state="translated">RX n'a pas la permission pour renommer ce dossier, voulez-vous lancer l'Explorateur Windows?</target>
         </trans-unit>
         <trans-unit id="Common_Dialog_GoBack" translate="yes" xml:space="preserve">
           <source>Go back</source>
@@ -2452,18 +2452,18 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Il a déjà une tâche en cours, veuillez attendre la fin de cette dernière</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedCompression_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to create the Zip file here, it may be that you do not have access to this file.\r\rEnter the system explorer immediately?</source>
-          <target state="translated">RX n'a pas la permission pour créer le fichier zip ici, il se peut que vous n'ayez pas accès à ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</target>
+          <source>RX does not have permission to create the Zip file here, it may be that you do not have access to this file.\r\rDo you want to launch Windows Explorer?</source>
+          <target state="translated">RX n'a pas la permission pour créer le fichier zip ici, il se peut que vous n'ayez pas accès à ce dossier.\r\rVoulez-vous lancer l'Explorateur Windows?</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedCreateNewFile_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have sufficient permissions to create new files in this folder\r\rEnter the system explorer immediately?</source>
-          <target state="translated">RX n'a pas les permissions suffisantes pour créer de nouveaux fichiers dans ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</target>
+          <source>RX does not have sufficient permissions to create new files in this folder\r\rDo you want to launch Windows Explorer?</source>
+          <target state="translated">RX n'a pas les permissions suffisantes pour créer de nouveaux fichiers dans ce dossier.\r\rVoulez-vous lancer l'Explorateur Windows?</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedDecompression_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to decompression the Zip file here, it may be that you do not have access to this file.\r\rEnter the system explorer immediately?</source>
-          <target state="translated">RX n'a pas la permission pour décompresser le fichier zip ici, il se peut que vous n'ayez pas accès à ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</target>
+          <source>RX does not have permission to decompression the Zip file here, it may be that you do not have access to this file.\r\rDo you want to launch Windows Explorer?</source>
+          <target state="translated">RX n'a pas la permission pour décompresser le fichier zip ici, il se peut que vous n'ayez pas accès à ce dossier.\r\rVoulez-vous lancer l'Explorateur Windows?</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_UndoFailure_Content" translate="yes" xml:space="preserve">
@@ -2606,8 +2606,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Date de recyclage</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedDelete_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to delete this item, administrator rights may be required. Do you want to grant administrator rights?</source>
-          <target state="translated">RX n'a pas l'autorisation de supprimer cet élément, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur? </target>
+          <source>RX does not have permission to delete this item. Do you want to launch Windows Explorer?</source>
+          <target state="translated">RX n'a pas l'autorisation de supprimer cet élément, des droits d'administrateur peuvent être requis. Voulez-vous lancer l'Explorateur Windows?</target>
         </trans-unit>
         <trans-unit id="QueueDialog_Item_Captured_Content" translate="yes" xml:space="preserve">
           <source>The item is already occupied by another application, this operation cannot be performed</source>
@@ -3133,17 +3133,9 @@ Les noms non valides incluent
           <source>Run terminal as administrator</source>
           <target state="translated">Exécutez le terminal en tant qu'administrateur</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_DenyElevation_Content" translate="yes" xml:space="preserve">
-          <source>You refused to grant admin rights, so you cannot perform any operations</source>
-          <target state="translated">Vous avez refusé d'accorder des droits d'administrateur, vous ne pouvez donc effectuer aucune opération</target>
-        </trans-unit>
-        <trans-unit id="Common_Dialog_GrantButton" translate="yes" xml:space="preserve">
-          <source>Grant</source>
-          <target state="translated">Subvention</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedRename_StartExplorer_Content" translate="yes" xml:space="preserve">
-          <source>RX has no right to rename this file. Do you want to start explorer to operate?</source>
-          <target state="translated">RX n'a pas le droit de renommer ce fichier. Voulez-vous démarrer l'explorateur pour qu'il fonctionne?</target>
+          <source>RX has no right to rename this file. Do you want to launch Windows Explorer?</source>
+          <target state="translated">RX n'a pas le droit de renommer ce fichier. Voulez-vous lancer l'Explorateur Windows?</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnableAccessClipboard_Content" translate="yes" xml:space="preserve">
           <source>Cannot access clipboard, copy/cut operation failed</source>
@@ -3154,8 +3146,8 @@ Les noms non valides incluent
           <target state="translated">Ajuster l'effet de flou d'arrière-plan</target>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedExecute_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to execute the file, administrator rights may be required. Do you want to grant administrator rights?</source>
-          <target state="translated">RX n'a pas l'autorisation d'exécuter le fichier, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur?</target>
+          <source>RX does not have permission to execute the file. Do you want to launch Windows Explorer?</source>
+          <target state="translated">RX n'a pas l'autorisation d'exécuter le fichier, voulez-vous lancer l'Explorateur Windows?</target>
         </trans-unit>
         <trans-unit id="SettingPageAlwaysLaunchNew.Content" translate="yes" xml:space="preserve">
           <source>Always start a new process when activated</source>
@@ -3464,6 +3456,22 @@ Les noms non valides incluent
         <trans-unit id="CloseThisTab.Label" translate="yes" xml:space="preserve">
           <source>Close this tab</source>
           <target state="translated">Fermer cet onglet</target>
+        </trans-unit>
+        <trans-unit id="SearchEngineConfi_AlwaysPopup" translate="yes" xml:space="preserve">
+          <source>Ask every time</source>
+          <target state="translated">Demandez à chaque fois</target>
+        </trans-unit>
+        <trans-unit id="SearchEngineConfi_UseBuildInAsDefault" translate="yes" xml:space="preserve">
+          <source>Always use the built-in search engine</source>
+          <target state="translated">Utilisez toujours le moteur de recherche intégré</target>
+        </trans-unit>
+        <trans-unit id="SearchEngineConfi_UseEverythingAsDefault" translate="yes" xml:space="preserve">
+          <source>Always use the Everything search engine</source>
+          <target state="translated">Utilisez toujours le moteur de recherche Everything</target>
+        </trans-unit>
+        <trans-unit id="SettingPageSearchEngineConfig.Header" translate="yes" xml:space="preserve">
+          <source>Search engine configuration</source>
+          <target state="translated">Configuration du moteur de recherche</target>
         </trans-unit>
       </group>
     </body>

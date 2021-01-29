@@ -511,7 +511,6 @@ namespace RX_Explorer
 
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {
-                Retry:
                     try
                     {
                         await Exclusive.Controller.DeleteAsync(CurrentPresenter.CurrentFolder.Path, true).ConfigureAwait(true);
@@ -553,27 +552,13 @@ namespace RX_Explorer
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_UnauthorizedDelete_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                         };
 
                         if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                         {
-                            if (await Exclusive.Controller.SwitchToAdminModeAsync().ConfigureAwait(true))
-                            {
-                                goto Retry;
-                            }
-                            else
-                            {
-                                QueueContentDialog ErrorDialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                            }
+                            await Launcher.LaunchFolderPathAsync(Path.GetDirectoryName(CurrentPresenter.CurrentFolder.Path));
                         }
                     }
                     catch (Exception)
@@ -600,7 +585,6 @@ namespace RX_Explorer
 
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                     {
-                    Retry:
                         try
                         {
                             await Exclusive.Controller.DeleteAsync(CurrentPresenter.CurrentFolder.Path, QueueContenDialog.IsPermanentDelete).ConfigureAwait(true);
@@ -642,27 +626,13 @@ namespace RX_Explorer
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                 Content = Globalization.GetString("QueueDialog_UnauthorizedDelete_Content"),
-                                PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                             };
 
                             if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                             {
-                                if (await Exclusive.Controller.SwitchToAdminModeAsync().ConfigureAwait(true))
-                                {
-                                    goto Retry;
-                                }
-                                else
-                                {
-                                    QueueContentDialog ErrorDialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-
-                                    _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                                }
+                                await Launcher.LaunchFolderPathAsync(Path.GetDirectoryName(CurrentPresenter.CurrentFolder.Path));
                             }
                         }
                         catch (Exception)
@@ -762,7 +732,6 @@ namespace RX_Explorer
 
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {
-                Retry:
                     try
                     {
                         await Exclusive.Controller.RenameAsync(CurrentPresenter.CurrentFolder.Path, dialog.DesireName).ConfigureAwait(true);
@@ -794,27 +763,13 @@ namespace RX_Explorer
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                             Content = Globalization.GetString("QueueDialog_UnauthorizedRenameFile_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                         };
 
                         if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                         {
-                            if (await Exclusive.Controller.SwitchToAdminModeAsync().ConfigureAwait(true))
-                            {
-                                goto Retry;
-                            }
-                            else
-                            {
-                                QueueContentDialog ErrorDialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                            }
+                            await Launcher.LaunchFolderPathAsync(CurrentPresenter.CurrentFolder.Path);
                         }
                     }
                     catch (Exception)
@@ -930,7 +885,38 @@ namespace RX_Explorer
                 SearchInEverythingEngine.IsEnabled = false;
             }
 
-            FlyoutBase.ShowAttachedFlyout(sender);
+            switch (SettingControl.SearchEngineMode)
+            {
+                case SearchEngineFlyoutMode.UseBuildInEngineAsDefault:
+                    {
+                        if (AnimationController.Current.IsEnableAnimation)
+                        {
+                            Frame.Navigate(typeof(SearchPage), new Tuple<WeakReference<FileControl>, SearchCategory, bool?, bool?, bool?, uint?>(new WeakReference<FileControl>(this), SearchCategory.BuiltInEngine_Shallow, true, false, null, null), new DrillInNavigationTransitionInfo());
+                        }
+                        else
+                        {
+                            Frame.Navigate(typeof(SearchPage), new Tuple<WeakReference<FileControl>, SearchCategory, bool?, bool?, bool?, uint?>(new WeakReference<FileControl>(this), SearchCategory.BuiltInEngine_Shallow, true, false, null, null), new SuppressNavigationTransitionInfo());
+                        }
+                        break;
+                    }
+                case SearchEngineFlyoutMode.UseEverythingEngineAsDefault when SearchInEverythingEngine.IsEnabled:
+                    {
+                        if (AnimationController.Current.IsEnableAnimation)
+                        {
+                            Frame.Navigate(typeof(SearchPage), new Tuple<WeakReference<FileControl>, SearchCategory, bool?, bool?, bool?, uint?>(new WeakReference<FileControl>(this), SearchCategory.EverythingEngine, true, false, false, 100), new DrillInNavigationTransitionInfo());
+                        }
+                        else
+                        {
+                            Frame.Navigate(typeof(SearchPage), new Tuple<WeakReference<FileControl>, SearchCategory, bool?, bool?, bool?, uint?>(new WeakReference<FileControl>(this), SearchCategory.EverythingEngine, true, false, false, 100), new SuppressNavigationTransitionInfo());
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        FlyoutBase.ShowAttachedFlyout(sender);
+                        break;
+                    }
+            }
 
             await SQLite.Current.SetSearchHistoryAsync(args.QueryText).ConfigureAwait(false);
         }
@@ -992,188 +978,89 @@ namespace RX_Explorer
 
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                if (string.Equals(QueryText, "Powershell", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Powershell.exe", StringComparison.OrdinalIgnoreCase))
-                {
-                    string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe");
-
-                Retry1:
-                    try
-                    {
-                        await Exclusive.Controller.RunAsync(ExcutePath, true, false, false, "-NoExit", "-Command", "Set-Location", CurrentPresenter.CurrentFolder.Path).ConfigureAwait(false);
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        QueueContentDialog UnauthorizeDialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                        };
-
-                        if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                        {
-                            if (await Exclusive.Controller.SwitchToAdminModeAsync().ConfigureAwait(true))
-                            {
-                                goto Retry1;
-                            }
-                            else
-                            {
-                                QueueContentDialog ErrorDialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                            }
-                        }
-                    }
-
-                    return;
-                }
-
-                if (string.Equals(QueryText, "Cmd", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Cmd.exe", StringComparison.OrdinalIgnoreCase))
-                {
-                    string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe");
-
-                Retry2:
-                    try
-                    {
-                        await Exclusive.Controller.RunAsync(ExcutePath, true, false, false, "/k", "cd", "/d", CurrentPresenter.CurrentFolder.Path).ConfigureAwait(false);
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        QueueContentDialog UnauthorizeDialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                        };
-
-                        if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                        {
-                            if (await Exclusive.Controller.SwitchToAdminModeAsync().ConfigureAwait(true))
-                            {
-                                goto Retry2;
-                            }
-                            else
-                            {
-                                QueueContentDialog ErrorDialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                            }
-                        }
-                    }
-
-                    return;
-                }
-
-                if (string.Equals(QueryText, "Wt", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Wt.exe", StringComparison.OrdinalIgnoreCase))
-                {
-                    switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
-                    {
-                        case LaunchQuerySupportStatus.Available:
-                        case LaunchQuerySupportStatus.NotSupported:
-                            {
-                            Retry:
-                                try
-                                {
-                                    await Exclusive.Controller.RunAsync("wt.exe", false, false, false, "/d", CurrentPresenter.CurrentFolder.Path).ConfigureAwait(false);
-                                }
-                                catch (InvalidOperationException)
-                                {
-                                    QueueContentDialog UnauthorizeDialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
-                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                    };
-
-                                    if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                    {
-                                        if (await Exclusive.Controller.SwitchToAdminModeAsync().ConfigureAwait(true))
-                                        {
-                                            goto Retry;
-                                        }
-                                        else
-                                        {
-                                            QueueContentDialog ErrorDialog = new QueueContentDialog
-                                            {
-                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
-                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                            };
-
-                                            _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                                        }
-                                    }
-                                }
-
-                                break;
-                            }
-                    }
-
-                    return;
-                }
-
-                string ProtentialPath1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), QueryText);
-                string ProtentialPath2 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), QueryText);
-                string ProtentialPath3 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), QueryText);
-
-                if (ProtentialPath1 != QueryText && WIN_Native_API.CheckExist(ProtentialPath1))
-                {
-                    if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath1).ConfigureAwait(true) is FileSystemStorageItemBase Item)
-                    {
-                        await CurrentPresenter.EnterSelectedItem(Item).ConfigureAwait(true);
-
-                        if (Item.StorageType == StorageItemTypes.Folder)
-                        {
-                            await SQLite.Current.SetPathHistoryAsync(Item.Path).ConfigureAwait(true);
-                        }
-                    }
-
-                    return;
-                }
-                else if (ProtentialPath2 != QueryText && WIN_Native_API.CheckExist(ProtentialPath2))
-                {
-                    if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath2).ConfigureAwait(true) is FileSystemStorageItemBase Item)
-                    {
-                        await CurrentPresenter.EnterSelectedItem(Item).ConfigureAwait(true);
-
-                        if (Item.StorageType == StorageItemTypes.Folder)
-                        {
-                            await SQLite.Current.SetPathHistoryAsync(Item.Path).ConfigureAwait(true);
-                        }
-                    }
-
-                    return;
-                }
-                else if (ProtentialPath3 != QueryText && WIN_Native_API.CheckExist(ProtentialPath3))
-                {
-                    if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath3).ConfigureAwait(true) is FileSystemStorageItemBase Item)
-                    {
-                        await CurrentPresenter.EnterSelectedItem(Item).ConfigureAwait(true);
-
-                        if (Item.StorageType == StorageItemTypes.Folder)
-                        {
-                            await SQLite.Current.SetPathHistoryAsync(Item.Path).ConfigureAwait(true);
-                        }
-                    }
-
-                    return;
-                }
-
                 try
                 {
+                    if (string.Equals(QueryText, "Powershell", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Powershell.exe", StringComparison.OrdinalIgnoreCase))
+                    {
+                        string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe");
+
+                        await Exclusive.Controller.RunAsync(ExcutePath, true, false, false, "-NoExit", "-Command", "Set-Location", CurrentPresenter.CurrentFolder.Path).ConfigureAwait(false);
+
+                        return;
+                    }
+
+                    if (string.Equals(QueryText, "Cmd", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Cmd.exe", StringComparison.OrdinalIgnoreCase))
+                    {
+                        string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe");
+
+                        await Exclusive.Controller.RunAsync(ExcutePath, true, false, false, "/k", "cd", "/d", CurrentPresenter.CurrentFolder.Path).ConfigureAwait(false);
+
+                        return;
+                    }
+
+                    if (string.Equals(QueryText, "Wt", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Wt.exe", StringComparison.OrdinalIgnoreCase))
+                    {
+                        switch (await Launcher.QueryUriSupportAsync(new Uri("ms-windows-store:"), LaunchQuerySupportType.Uri, "Microsoft.WindowsTerminal_8wekyb3d8bbwe"))
+                        {
+                            case LaunchQuerySupportStatus.Available:
+                            case LaunchQuerySupportStatus.NotSupported:
+                                {
+                                    await Exclusive.Controller.RunAsync("wt.exe", false, false, false, "/d", CurrentPresenter.CurrentFolder.Path).ConfigureAwait(false);
+
+                                    break;
+                                }
+                        }
+
+                        return;
+                    }
+
+                    string ProtentialPath1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), QueryText);
+                    string ProtentialPath2 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), QueryText);
+                    string ProtentialPath3 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), QueryText);
+
+                    if (ProtentialPath1 != QueryText && WIN_Native_API.CheckExist(ProtentialPath1))
+                    {
+                        if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath1).ConfigureAwait(true) is FileSystemStorageItemBase Item)
+                        {
+                            await CurrentPresenter.EnterSelectedItem(Item).ConfigureAwait(true);
+
+                            if (Item.StorageType == StorageItemTypes.Folder)
+                            {
+                                await SQLite.Current.SetPathHistoryAsync(Item.Path).ConfigureAwait(true);
+                            }
+                        }
+
+                        return;
+                    }
+                    else if (ProtentialPath2 != QueryText && WIN_Native_API.CheckExist(ProtentialPath2))
+                    {
+                        if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath2).ConfigureAwait(true) is FileSystemStorageItemBase Item)
+                        {
+                            await CurrentPresenter.EnterSelectedItem(Item).ConfigureAwait(true);
+
+                            if (Item.StorageType == StorageItemTypes.Folder)
+                            {
+                                await SQLite.Current.SetPathHistoryAsync(Item.Path).ConfigureAwait(true);
+                            }
+                        }
+
+                        return;
+                    }
+                    else if (ProtentialPath3 != QueryText && WIN_Native_API.CheckExist(ProtentialPath3))
+                    {
+                        if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath3).ConfigureAwait(true) is FileSystemStorageItemBase Item)
+                        {
+                            await CurrentPresenter.EnterSelectedItem(Item).ConfigureAwait(true);
+
+                            if (Item.StorageType == StorageItemTypes.Folder)
+                            {
+                                await SQLite.Current.SetPathHistoryAsync(Item.Path).ConfigureAwait(true);
+                            }
+                        }
+
+                        return;
+                    }
+
                     QueryText = await CommonEnvironmentVariables.ReplaceVariableAndGetActualPath(QueryText).ConfigureAwait(true);
 
                     if (Path.IsPathRooted(QueryText) && CommonAccessCollection.HardDeviceList.FirstOrDefault((Drive) => Drive.Folder.Path.Equals(Path.GetPathRoot(QueryText), StringComparison.OrdinalIgnoreCase)) is HardDeviceInfo Device)
@@ -1250,7 +1137,7 @@ namespace RX_Explorer
 
                                 await SQLite.Current.SetPathHistoryAsync(Item.Path).ConfigureAwait(true);
 
-                                await JumpListController.Current.AddItem(JumpListGroup.Recent, Item.Path).ConfigureAwait(true);
+                                await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, Item.Path).ConfigureAwait(true);
                             }
                         }
                         else
@@ -1639,7 +1526,6 @@ namespace RX_Explorer
                                             {
                                                 await LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
 
-                                            Retry:
                                                 try
                                                 {
                                                     await Exclusive.Controller.CopyAsync(LinkAndHiddenItemsPath, TargetFolder.Path, (s, arg) =>
@@ -1668,27 +1554,13 @@ namespace RX_Explorer
                                                     {
                                                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                                         Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
                                                         CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                                                     };
 
                                                     if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                                     {
-                                                        if (await Exclusive.Controller.SwitchToAdminModeAsync().ConfigureAwait(true))
-                                                        {
-                                                            goto Retry;
-                                                        }
-                                                        else
-                                                        {
-                                                            QueueContentDialog ErrorDialog = new QueueContentDialog
-                                                            {
-                                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                                Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
-                                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                            };
-
-                                                            _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                                                        }
+                                                        await Launcher.LaunchFolderPathAsync(TargetFolder.Path);
                                                     }
                                                 }
                                                 catch (Exception)
@@ -1714,7 +1586,6 @@ namespace RX_Explorer
 
                                                 await LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
 
-                                            Retry:
                                                 try
                                                 {
                                                     await Exclusive.Controller.MoveAsync(LinkAndHiddenItemsPath, TargetFolder.Path, (s, arg) =>
@@ -1754,27 +1625,13 @@ namespace RX_Explorer
                                                     {
                                                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                                         Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
                                                         CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                                                     };
 
                                                     if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                                     {
-                                                        if (await Exclusive.Controller.SwitchToAdminModeAsync().ConfigureAwait(true))
-                                                        {
-                                                            goto Retry;
-                                                        }
-                                                        else
-                                                        {
-                                                            QueueContentDialog ErrorDialog = new QueueContentDialog
-                                                            {
-                                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                                Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
-                                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                            };
-
-                                                            _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                                                        }
+                                                        await Launcher.LaunchFolderPathAsync(TargetFolder.Path);
                                                     }
                                                 }
                                                 catch (Exception)
@@ -1808,7 +1665,6 @@ namespace RX_Explorer
                                         {
                                             await LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
 
-                                        Retry:
                                             try
                                             {
                                                 await Exclusive.Controller.CopyAsync(DragItemList.Select((Item) => Item.Path), Block.Path, (s, arg) =>
@@ -1845,27 +1701,13 @@ namespace RX_Explorer
                                                 {
                                                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                                     Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
                                                     CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                                                 };
 
                                                 if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                                 {
-                                                    if (await Exclusive.Controller.SwitchToAdminModeAsync().ConfigureAwait(true))
-                                                    {
-                                                        goto Retry;
-                                                    }
-                                                    else
-                                                    {
-                                                        QueueContentDialog ErrorDialog = new QueueContentDialog
-                                                        {
-                                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                            Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
-                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                        };
-
-                                                        _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                                                    }
+                                                    await Launcher.LaunchFolderPathAsync(Block.Path);
                                                 }
                                             }
                                             catch (Exception)
@@ -1891,7 +1733,6 @@ namespace RX_Explorer
 
                                             await LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
 
-                                        Retry:
                                             try
                                             {
                                                 await Exclusive.Controller.MoveAsync(DragItemList.Select((Item) => Item.Path), Block.Path, (s, arg) =>
@@ -1939,27 +1780,13 @@ namespace RX_Explorer
                                                 {
                                                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                                                     Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
+                                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
                                                     CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                                                 };
 
                                                 if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                                 {
-                                                    if (await Exclusive.Controller.SwitchToAdminModeAsync().ConfigureAwait(true))
-                                                    {
-                                                        goto Retry;
-                                                    }
-                                                    else
-                                                    {
-                                                        QueueContentDialog ErrorDialog = new QueueContentDialog
-                                                        {
-                                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                            Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
-                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                        };
-
-                                                        _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                                                    }
+                                                    await Launcher.LaunchFolderPathAsync(Block.Path);
                                                 }
                                             }
                                             catch (Exception)

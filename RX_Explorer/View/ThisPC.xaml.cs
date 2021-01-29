@@ -247,7 +247,6 @@ namespace RX_Explorer
                         {
                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
-                            Retry:
                                 try
                                 {
                                     if (Path.GetExtension(Item.Protocol).ToLower() == ".msc")
@@ -259,34 +258,9 @@ namespace RX_Explorer
                                         await Exclusive.Controller.RunAsync(Item.Protocol).ConfigureAwait(true);
                                     }
                                 }
-                                catch (InvalidOperationException)
+                                catch (Exception ex)
                                 {
-                                    QueueContentDialog UnauthorizeDialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
-                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_GrantButton"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                    };
-
-                                    if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                    {
-                                        if (await Exclusive.Controller.SwitchToAdminModeAsync().ConfigureAwait(true))
-                                        {
-                                            goto Retry;
-                                        }
-                                        else
-                                        {
-                                            QueueContentDialog ErrorDialog = new QueueContentDialog
-                                            {
-                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                Content = Globalization.GetString("QueueDialog_DenyElevation_Content"),
-                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                            };
-
-                                            _ = await ErrorDialog.ShowAsync().ConfigureAwait(true);
-                                        }
-                                    }
+                                    LogTracer.Log(ex, "Could not execute program in quick start");
                                 }
                             }
                         }
@@ -931,7 +905,7 @@ namespace RX_Explorer
                 {
                     CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(Folder, await Folder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibraryType.UserCustom));
                     await SQLite.Current.SetLibraryPathAsync(Folder.Path, LibraryType.UserCustom).ConfigureAwait(false);
-                    await JumpListController.Current.AddItem(JumpListGroup.Library, Folder.Path).ConfigureAwait(false);
+                    await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path).ConfigureAwait(false);
                 }
             }
         }

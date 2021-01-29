@@ -88,6 +88,39 @@ namespace RX_Explorer
             }
         }
 
+        public static SearchEngineFlyoutMode SearchEngineMode
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["SearchEngineFlyoutMode"] is int SelectedIndex)
+                {
+                    switch (SelectedIndex)
+                    {
+                        case 0:
+                            {
+                                return SearchEngineFlyoutMode.AlwaysPopup;
+                            }
+                        case 1:
+                            {
+                                return SearchEngineFlyoutMode.UseBuildInEngineAsDefault;
+                            }
+                        case 2:
+                            {
+                                return SearchEngineFlyoutMode.UseEverythingEngineAsDefault;
+                            }
+                        default:
+                            {
+                                return SearchEngineFlyoutMode.AlwaysPopup;
+                            }
+                    }
+                }
+                else
+                {
+                    return SearchEngineFlyoutMode.AlwaysPopup;
+                }
+            }
+        }
+
         public static bool LibraryExpanderIsExpand
         {
             get
@@ -183,6 +216,10 @@ namespace RX_Explorer
                 FileLoadMode.Items.Add(Globalization.GetString("LoadMode_None_Text"));
                 FileLoadMode.Items.Add(Globalization.GetString("LoadMode_OnlyFile_Text"));
                 FileLoadMode.Items.Add(Globalization.GetString("LoadMode_FileAndFolder_Text"));
+
+                SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfi_AlwaysPopup"));
+                SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfi_UseBuildInAsDefault"));
+                SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfi_UseEverythingAsDefault"));
 
                 foreach (TerminalProfile Profile in await SQLite.Current.GetAllTerminalProfile().ConfigureAwait(true))
                 {
@@ -485,6 +522,7 @@ namespace RX_Explorer
                     DisplayHiddenItem.Toggled -= DisplayHiddenItem_Toggled;
                     TreeViewDetach.Toggled -= TreeViewDetach_Toggled;
                     FileLoadMode.SelectionChanged -= FileLoadMode_SelectionChanged;
+                    SearchEngineConfig.SelectionChanged -= SearchEngineConfig_SelectionChanged;
                 }
 
                 DefaultTerminal.SelectionChanged -= DefaultTerminal_SelectionChanged;
@@ -589,6 +627,15 @@ namespace RX_Explorer
                     FileLoadMode.SelectedIndex = 1;
                 }
 
+                if (ApplicationData.Current.LocalSettings.Values["SearchEngineFlyoutMode"] is int FlyoutModeIndex)
+                {
+                    SearchEngineConfig.SelectedIndex = FlyoutModeIndex;
+                }
+                else
+                {
+                    SearchEngineConfig.SelectedIndex = 0;
+                }
+
                 if (ApplicationData.Current.LocalSettings.Values["ContextMenuExtSwitch"] is bool IsExt)
                 {
                     ContextMenuExtSwitch.IsOn = IsExt;
@@ -605,6 +652,7 @@ namespace RX_Explorer
                     DisplayHiddenItem.Toggled += DisplayHiddenItem_Toggled;
                     TreeViewDetach.Toggled += TreeViewDetach_Toggled;
                     FileLoadMode.SelectionChanged += FileLoadMode_SelectionChanged;
+                    SearchEngineConfig.SelectionChanged += SearchEngineConfig_SelectionChanged;
                 }
 
                 UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
@@ -2324,6 +2372,22 @@ namespace RX_Explorer
         {
             ApplicationData.Current.LocalSettings.Values["ContextMenuExtSwitch"] = ContextMenuExtSwitch.IsOn;
             ApplicationData.Current.SignalDataChanged();
+        }
+
+        private void SearchEngineConfig_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                ApplicationData.Current.LocalSettings.Values["SearchEngineFlyoutMode"] = SearchEngineConfig.SelectedIndex;
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An error was threw in {nameof(SearchEngineConfig_SelectionChanged)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
         }
     }
 }

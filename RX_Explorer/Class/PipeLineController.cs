@@ -47,7 +47,7 @@ namespace RX_Explorer.Class
 
                             if (Percentage > 0)
                             {
-                                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                 {
                                     Handler?.Invoke(this, new ProgressChangedEventArgs(Percentage, null));
                                 });

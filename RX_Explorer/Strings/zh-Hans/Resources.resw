@@ -1716,14 +1716,14 @@
     <value>此文件夹已经添加到主界面了，不能重复添加哦</value>
   </data>
   <data name="QueueDialog_UnauthorizedCreateFolder_Content" xml:space="preserve">
-    <value>RX无权在此创建文件夹，可能是您无权访问此文件夹\r\r是否立即进入系统文件管理器进行相应操作？</value>
+    <value>RX无权在此创建文件夹，可能是您无权访问此文件夹\r\r您是否希望启动Windows Explorer?</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
-    <value>RX无权将文件粘贴至此处，访问该文件夹可能需要管理员权限，您是否希望授予管理员权限？</value>
+    <value>RX无权将文件粘贴至此处，您是否希望启动Windows Explorer?</value>
   </data>
   <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
-    <value>RX无权重命名此文件夹，可能需要管理员权限，您是否希望授予管理员权限？</value>
+    <value>RX无权重命名此文件夹，您是否希望启动Windows Explorer?</value>
   </data>
   <data name="Common_Dialog_GoBack" xml:space="preserve">
     <value>返回</value>
@@ -1856,15 +1856,15 @@
     <value>已存在正在进行中的任务，请等待其完成</value>
   </data>
   <data name="QueueDialog_UnauthorizedCompression_Content" xml:space="preserve">
-    <value>RX无权在此处创建Zip文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？</value>
+    <value>RX无权在此处创建Zip文件，可能是您无权访问此文件\r\r您是否希望启动Windows Explorer?</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedCreateNewFile_Content" xml:space="preserve">
-    <value>RX没有足够的权限在此文件夹新建文件\r\r是否立即进入系统文件管理器进行相应操作？</value>
+    <value>RX没有足够的权限在此文件夹新建文件\r\r您是否希望启动Windows Explorer?</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedDecompression_Content" xml:space="preserve">
-    <value>RX无权在此处解压Zip文件，可能是您无权访问此文件\r\r是否立即进入系统文件管理器进行相应操作？</value>
+    <value>RX无权在此处解压Zip文件，可能是您无权访问此文件\r\您是否希望启动Windows Explorer?</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">
@@ -1973,7 +1973,7 @@
     <value>删除日期</value>
   </data>
   <data name="QueueDialog_UnauthorizedDelete_Content" xml:space="preserve">
-    <value>RX无权限删除此对象，可能需要管理员权限，您是否希望授予管理员权限？</value>
+    <value>RX无权限删除此对象，您是否希望启动Windows Explorer?</value>
   </data>
   <data name="QueueDialog_Item_Captured_Content" xml:space="preserve">
     <value>该对象已被其他应用程序占用，无法进行此操作</value>
@@ -2364,14 +2364,8 @@
   <data name="ModifyDefaultTerminalDialog_RunAsAdmin.Content" xml:space="preserve">
     <value>以管理员身份运行终端</value>
   </data>
-  <data name="QueueDialog_DenyElevation_Content" xml:space="preserve">
-    <value>您拒绝授予管理员权限，因此无法执行任何操作</value>
-  </data>
-  <data name="Common_Dialog_GrantButton" xml:space="preserve">
-    <value>授予</value>
-  </data>
   <data name="QueueDialog_UnauthorizedRename_StartExplorer_Content" xml:space="preserve">
-    <value>RX无权重命名该文件，您要启动资源管理器进行操作吗？</value>
+    <value>RX无权重命名该文件，您是否希望启动Windows Explorer?</value>
   </data>
   <data name="QueueDialog_UnableAccessClipboard_Content" xml:space="preserve">
     <value>无法访问剪切板，复制/剪切操作失败</value>
@@ -2380,7 +2374,7 @@
     <value>调整背景模糊效果</value>
   </data>
   <data name="QueueDialog_UnauthorizedExecute_Content" xml:space="preserve">
-    <value>RX无权执行此文件，可能需要管理员权限，您是否希望授予管理员权限？</value>
+    <value>RX无权执行此文件，您是否希望启动Windows Explorer?</value>
   </data>
   <data name="SettingPageAlwaysLaunchNew.Content" xml:space="preserve">
     <value>激活时始终启动新的进程</value>
@@ -2612,5 +2606,17 @@
   </data>
   <data name="CloseThisTab.Label" xml:space="preserve">
     <value>关闭此标签页</value>
+  </data>
+  <data name="SearchEngineConfi_AlwaysPopup" xml:space="preserve">
+    <value>每次询问</value>
+  </data>
+  <data name="SearchEngineConfi_UseBuildInAsDefault" xml:space="preserve">
+    <value>始终使用内置搜索引擎</value>
+  </data>
+  <data name="SearchEngineConfi_UseEverythingAsDefault" xml:space="preserve">
+    <value>始终使用Everything搜索引擎</value>
+  </data>
+  <data name="SettingPageSearchEngineConfig.Header" xml:space="preserve">
+    <value>搜索引擎配置</value>
   </data>
 </root>

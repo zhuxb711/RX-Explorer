@@ -8,7 +8,7 @@
              xmlns:control="using:Microsoft.Toolkit.Uwp.UI.Controls"
              xmlns:sys="using:System"
              mc:Ignorable="d"
-             d:DesignHeight="2800"
+             d:DesignHeight="3000"
              d:DesignWidth="1280">
 
     <UserControl.Resources>
@@ -299,6 +299,13 @@
                                   OnContent="启用"
                                   OffContent="禁用"/>
 
+                    <ComboBox Header="搜索引擎配置"
+                              Margin="0,20,0,0"
+                              MinWidth="150"
+                              x:Uid="SettingPageSearchEngineConfig"
+                              Name="SearchEngineConfig"
+                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"/>
+
                     <ComboBox Header="图标加载模式"
                               Margin="0,20,0,0"
                               MinWidth="150"
@@ -311,7 +318,7 @@
                         <ComboBox Header="默认终端应用"
                                   Name="DefaultTerminal"
                                   x:Uid="DefaultTerminal"
-                                  MinWidth="140"
+                                  MinWidth="150"
                                   Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
                         <Viewbox VerticalAlignment="Bottom"
                                  Margin="10,0,0,8"

@@ -69,6 +69,13 @@ namespace RX_Explorer.Class
         Unknown = 4
     }
 
+    public enum SearchEngineFlyoutMode
+    {
+        AlwaysPopup,
+        UseEverythingEngineAsDefault,
+        UseBuildInEngineAsDefault
+    }
+
     public enum ThumbnailStatus
     {
         Normal = 0,

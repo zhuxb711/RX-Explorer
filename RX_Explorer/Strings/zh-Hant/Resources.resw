@@ -1735,17 +1735,17 @@
     <value>此資料夾已增加到主頁，不能再次增加</value>
   </data>
   <data name="QueueDialog_UnauthorizedCreateFolder_Content" xml:space="preserve">
-    <value>RX 檔案總管沒有新增資料夾的權限，可能是您沒有權限訪問此資料夾\r\r立即進入檔案總管？</value>
+    <value>RX 檔案總管沒有新增資料夾的權限，可能是您沒有權限訪問此資料夾\r\r您要啟動Windows資源管理器嗎？</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedDelete_Content" xml:space="preserve">
-    <value>RX無權刪除此項目，可能需要管理員權限。 您是否要授予管理員權限？</value>
+    <value>RX無權刪除此項目，您要啟動Windows資源管理器嗎？</value>
   </data>
   <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
-    <value>RX 檔案總管沒有權限貼上檔案，可能需要管理員權限才能訪問此文件夾。 您要授予管理員權限嗎？</value>
+    <value>RX 檔案總管沒有權限貼上檔案，您要啟動Windows資源管理器嗎？</value>
   </data>
   <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
-    <value>RX 檔案總管沒有權限重新命名，可能需要管理員權限，您是否要授予管理員權限？</value>
+    <value>RX 檔案總管沒有權限重新命名，您要啟動Windows資源管理器嗎？</value>
   </data>
   <data name="Common_Dialog_GoBack" xml:space="preserve">
     <value>返回</value>
@@ -1878,15 +1878,15 @@
     <value>已經有一項正在進行的任務，請等待它完成</value>
   </data>
   <data name="QueueDialog_UnauthorizedCompression_Content" xml:space="preserve">
-    <value>RX 檔案管理沒有權限在此處新增Zip文件，可能是您沒有權限訪問此檔案。\r\r立即進入檔案總管？</value>
+    <value>RX 檔案管理沒有權限在此處新增Zip文件，可能是您沒有權限訪問此檔案。\r\r您要啟動Windows資源管理器嗎？</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedCreateNewFile_Content" xml:space="preserve">
-    <value>RX 檔案總管沒有權限在此資料夾中新增檔案\r\r立即進入檔案總管？</value>
+    <value>RX 檔案總管沒有權限在此資料夾中新增檔案\r\r您要啟動Windows資源管理器嗎？</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedDecompression_Content" xml:space="preserve">
-    <value>RX 檔案總管沒有在此處解壓Zip檔案的權限，可能是您沒有權限訪問此檔案\r\r立即進入檔案總管？</value>
+    <value>RX 檔案總管沒有在此處解壓Zip檔案的權限，可能是您沒有權限訪問此檔案\r\r您要啟動Windows資源管理器嗎？</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">
@@ -2364,14 +2364,8 @@
   <data name="ModifyDefaultTerminalDialog_RunAsAdmin.Content" xml:space="preserve">
     <value>以管理員身份運行終端</value>
   </data>
-  <data name="QueueDialog_DenyElevation_Content" xml:space="preserve">
-    <value>您拒絕授予管理員權限，因此無法執行任何操作</value>
-  </data>
-  <data name="Common_Dialog_GrantButton" xml:space="preserve">
-    <value>准予</value>
-  </data>
   <data name="QueueDialog_UnauthorizedRename_StartExplorer_Content" xml:space="preserve">
-    <value>RX無權重命名該文件，您要啟動資源管理器進行操作嗎？</value>
+    <value>RX無權重命名該文件，您要啟動Windows資源管理器嗎？</value>
   </data>
   <data name="QueueDialog_UnableAccessClipboard_Content" xml:space="preserve">
     <value>無法訪問剪貼板，複製/剪切操作失敗</value>
@@ -2380,7 +2374,7 @@
     <value>調整背景模糊效果</value>
   </data>
   <data name="QueueDialog_UnauthorizedExecute_Content" xml:space="preserve">
-    <value>RX沒有執行文件的權限，可能需要管理員權限。您是否要授予管理員權限？</value>
+    <value>RX沒有執行文件的權限，您要啟動Windows資源管理器嗎？</value>
   </data>
   <data name="SettingPageAlwaysLaunchNew.Content" xml:space="preserve">
     <value>激活後始終啟動新流程</value>
@@ -2612,5 +2606,17 @@
   </data>
   <data name="CloseThisTab.Label" xml:space="preserve">
     <value>關閉此選項卡</value>
+  </data>
+  <data name="SearchEngineConfi_AlwaysPopup" xml:space="preserve">
+    <value>每次詢問</value>
+  </data>
+  <data name="SearchEngineConfi_UseBuildInAsDefault" xml:space="preserve">
+    <value>一律使用內置搜索引擎</value>
+  </data>
+  <data name="SearchEngineConfi_UseEverythingAsDefault" xml:space="preserve">
+    <value>一律使用Everything搜索引擎</value>
+  </data>
+  <data name="SettingPageSearchEngineConfig.Header" xml:space="preserve">
+    <value>搜索引擎配置</value>
   </data>
 </root>

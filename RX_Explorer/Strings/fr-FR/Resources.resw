@@ -1716,14 +1716,14 @@
     <value>Ce dossier a été ajouté à l'écran d'accueil, il ne peut pas être ajouté de nouveau</value>
   </data>
   <data name="QueueDialog_UnauthorizedCreateFolder_Content" xml:space="preserve">
-    <value>RX n'a pas la permission pour créer un dossier, il se peut que vous n'ayez pas accès à ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</value>
+    <value>RX n'a pas la permission pour créer un dossier, il se peut que vous n'ayez pas accès à ce dossier.\r\rVoulez-vous lancer l'Explorateur Windows?</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
-    <value>RX n'a pas la permission pour copier, des droits d'administrateur peuvent être nécessaires pour accéder à ce dossier. Voulez-vous accorder des droits d'administrateur?</value>
+    <value>RX n'a pas la permission pour copier, voulez-vous lancer l'Explorateur Windows?</value>
   </data>
   <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
-    <value>RX n'a pas la permission pour renommer ce dossier, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur?</value>
+    <value>RX n'a pas la permission pour renommer ce dossier, voulez-vous lancer l'Explorateur Windows?</value>
   </data>
   <data name="Common_Dialog_GoBack" xml:space="preserve">
     <value>Retour</value>
@@ -1856,15 +1856,15 @@
     <value>Il a déjà une tâche en cours, veuillez attendre la fin de cette dernière</value>
   </data>
   <data name="QueueDialog_UnauthorizedCompression_Content" xml:space="preserve">
-    <value>RX n'a pas la permission pour créer le fichier zip ici, il se peut que vous n'ayez pas accès à ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</value>
+    <value>RX n'a pas la permission pour créer le fichier zip ici, il se peut que vous n'ayez pas accès à ce dossier.\r\rVoulez-vous lancer l'Explorateur Windows?</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedCreateNewFile_Content" xml:space="preserve">
-    <value>RX n'a pas les permissions suffisantes pour créer de nouveaux fichiers dans ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</value>
+    <value>RX n'a pas les permissions suffisantes pour créer de nouveaux fichiers dans ce dossier.\r\rVoulez-vous lancer l'Explorateur Windows?</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedDecompression_Content" xml:space="preserve">
-    <value>RX n'a pas la permission pour décompresser le fichier zip ici, il se peut que vous n'ayez pas accès à ce dossier.\r\rEntrer dans l'explorateur système immédiatement ?</value>
+    <value>RX n'a pas la permission pour décompresser le fichier zip ici, il se peut que vous n'ayez pas accès à ce dossier.\r\rVoulez-vous lancer l'Explorateur Windows?</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">
@@ -1973,7 +1973,7 @@
     <value>Date de recyclage</value>
   </data>
   <data name="QueueDialog_UnauthorizedDelete_Content" xml:space="preserve">
-    <value>RX n'a pas l'autorisation de supprimer cet élément, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur? </value>
+    <value>RX n'a pas l'autorisation de supprimer cet élément, des droits d'administrateur peuvent être requis. Voulez-vous lancer l'Explorateur Windows?</value>
   </data>
   <data name="QueueDialog_Item_Captured_Content" xml:space="preserve">
     <value>L'élément est déjà occupé par une autre application, cette opération ne peut pas être effectuée</value>
@@ -2364,14 +2364,8 @@ Les noms non valides incluent
   <data name="ModifyDefaultTerminalDialog_RunAsAdmin.Content" xml:space="preserve">
     <value>Exécutez le terminal en tant qu'administrateur</value>
   </data>
-  <data name="QueueDialog_DenyElevation_Content" xml:space="preserve">
-    <value>Vous avez refusé d'accorder des droits d'administrateur, vous ne pouvez donc effectuer aucune opération</value>
-  </data>
-  <data name="Common_Dialog_GrantButton" xml:space="preserve">
-    <value>Subvention</value>
-  </data>
   <data name="QueueDialog_UnauthorizedRename_StartExplorer_Content" xml:space="preserve">
-    <value>RX n'a pas le droit de renommer ce fichier. Voulez-vous démarrer l'explorateur pour qu'il fonctionne?</value>
+    <value>RX n'a pas le droit de renommer ce fichier. Voulez-vous lancer l'Explorateur Windows?</value>
   </data>
   <data name="QueueDialog_UnableAccessClipboard_Content" xml:space="preserve">
     <value>Impossible d'accéder au presse-papiers, l'opération de copie/coupe a échoué</value>
@@ -2380,7 +2374,7 @@ Les noms non valides incluent
     <value>Ajuster l'effet de flou d'arrière-plan</value>
   </data>
   <data name="QueueDialog_UnauthorizedExecute_Content" xml:space="preserve">
-    <value>RX n'a pas l'autorisation d'exécuter le fichier, des droits d'administrateur peuvent être requis. Voulez-vous accorder des droits d'administrateur?</value>
+    <value>RX n'a pas l'autorisation d'exécuter le fichier, voulez-vous lancer l'Explorateur Windows?</value>
   </data>
   <data name="SettingPageAlwaysLaunchNew.Content" xml:space="preserve">
     <value>Toujours démarrer un nouveau processus lorsqu'il est activé</value>
@@ -2612,5 +2606,17 @@ Les noms non valides incluent
   </data>
   <data name="CloseThisTab.Label" xml:space="preserve">
     <value>Fermer cet onglet</value>
+  </data>
+  <data name="SearchEngineConfi_AlwaysPopup" xml:space="preserve">
+    <value>Demandez à chaque fois</value>
+  </data>
+  <data name="SearchEngineConfi_UseBuildInAsDefault" xml:space="preserve">
+    <value>Utilisez toujours le moteur de recherche intégré</value>
+  </data>
+  <data name="SearchEngineConfi_UseEverythingAsDefault" xml:space="preserve">
+    <value>Utilisez toujours le moteur de recherche Everything</value>
+  </data>
+  <data name="SettingPageSearchEngineConfig.Header" xml:space="preserve">
+    <value>Configuration du moteur de recherche</value>
   </data>
 </root>

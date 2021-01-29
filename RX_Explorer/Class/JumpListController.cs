@@ -56,7 +56,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task AddItem(JumpListGroup Group, params string[] FolderPathList)
+        public async Task AddItemAsync(JumpListGroup Group, params string[] FolderPathList)
         {
             try
             {
@@ -123,7 +123,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task RemoveItem(JumpListGroup Group, params string[] PathList)
+        public async Task RemoveItemAsync(JumpListGroup Group, params string[] PathList)
         {
             try
             {
@@ -157,7 +157,7 @@ namespace RX_Explorer.Class
 
         public Task RemoveItem(JumpListGroup Group, params StorageFolder[] FolderList)
         {
-            return RemoveItem(Group, FolderList.Select((Item) => Item.Path).ToArray());
+            return RemoveItemAsync(Group, FolderList.Select((Item) => Item.Path).ToArray());
         }
 
         public async Task<List<JumpListItem>> GetAllJumpListItems()

@@ -32,38 +32,25 @@ namespace FullTrustProcess
 
         private static readonly object Locker = new object();
 
-        private static int ExplorerProcessId = int.MinValue;
-
-        private static string ExplorerConnectionId;
-
         private static Timer AliveCheckTimer;
+
+        private static Process ExplorerProcess;
 
         [STAThread]
         static async Task Main(string[] args)
         {
             try
             {
-                if (args.Contains("Elevation_Restart"))
-                {
-                    string[] InputArgs = args.TakeLast(2).ToArray();
-
-                    ExplorerProcessId = Convert.ToInt32(InputArgs[0]);
-                    ExplorerConnectionId = Convert.ToString(InputArgs[1]);
-
-                    await Task.Delay(1000).ConfigureAwait(true);
-                }
-
                 Connection = new AppServiceConnection
                 {
                     AppServiceName = "CommunicateService",
                     PackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t"
                 };
                 Connection.RequestReceived += Connection_RequestReceived;
-                Connection.ServiceClosed += Connection_ServiceClosed;
 
                 if (await Connection.OpenAsync() == AppServiceConnectionStatus.Success)
                 {
-                    AliveCheckTimer = new Timer(AliveCheck, null, 10000, 5000);
+                    AliveCheckTimer = new Timer(AliveCheck, null, 10000, 10000);
                 }
                 else
                 {
@@ -98,11 +85,6 @@ namespace FullTrustProcess
 
                 Environment.Exit(0);
             }
-        }
-
-        private static void Connection_ServiceClosed(AppServiceConnection sender, AppServiceClosedEventArgs args)
-        {
-            ExitLocker.Set();
         }
 
         private async static void Connection_RequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
@@ -238,21 +220,6 @@ namespace FullTrustProcess
                             }
 
                             await args.Request.SendResponseAsync(Value);
-
-                            break;
-                        }
-                    case "Execute_ElevateAsAdmin":
-                        {
-                            using (Process AdminProcess = new Process())
-                            {
-                                AdminProcess.StartInfo.Verb = "runas";
-                                AdminProcess.StartInfo.UseShellExecute = true;
-                                AdminProcess.StartInfo.Arguments = $"Elevation_Restart {ExplorerProcessId} {ExplorerConnectionId}";
-                                AdminProcess.StartInfo.FileName = Process.GetCurrentProcess().MainModule.FileName;
-                                AdminProcess.Start();
-                            }
-
-                            ExitLocker.Set();
 
                             break;
                         }
@@ -467,12 +434,6 @@ namespace FullTrustProcess
                             {
                                 { "Identity", "FullTrustProcess" }
                             };
-
-                            if (ExplorerProcessId != int.MinValue)
-                            {
-                                Value.Add("PreviousExplorerId", ExplorerProcessId);
-                                Value.Add("PreviousConnectionId", ExplorerConnectionId);
-                            }
 
                             await args.Request.SendResponseAsync(Value);
 
@@ -1024,15 +985,14 @@ namespace FullTrustProcess
                         {
                             try
                             {
-                                if (args.Request.Message.TryGetValue("ProcessId", out object ProcessId) && args.Request.Message.TryGetValue("ConnectionId", out object ConnectionId))
+                                if (args.Request.Message.TryGetValue("ProcessId", out object ProcessId) && (ExplorerProcess?.Id).GetValueOrDefault() != Convert.ToInt32(ProcessId))
                                 {
-                                    ExplorerProcessId = Convert.ToInt32(ProcessId);
-                                    ExplorerConnectionId = Convert.ToString(ConnectionId);
+                                    ExplorerProcess = Process.GetProcessById(Convert.ToInt32(ProcessId));
                                 }
                             }
                             catch
                             {
-                                Debug.WriteLine("GetProcess from id and register Exit event failed");
+                                Debug.WriteLine("GetProcess from id failed");
                             }
 
                             await args.Request.SendResponseAsync(new ValueSet { { "Execute_Test_Connection", string.Empty } });
@@ -1063,7 +1023,7 @@ namespace FullTrustProcess
                 }
                 catch
                 {
-
+                    Debug.WriteLine($"Exception was threw when complete the deferral");
                 }
             }
         }
@@ -1082,19 +1042,9 @@ namespace FullTrustProcess
 
         private static void AliveCheck(object state)
         {
-            try
+            if ((ExplorerProcess?.HasExited).GetValueOrDefault())
             {
-                using (Process ExplorerProcess = Process.GetProcessById(ExplorerProcessId))
-                {
-                    if (ExplorerProcess == null || ExplorerProcess.HasExited)
-                    {
-                        ExitLocker.Set();
-                    }
-                }
-            }
-            catch(Exception ex)
-            {
-                Debug.WriteLine($"AliveCheck failed: \"{ex.Message}\"");
+                ExitLocker.Set();
             }
         }
     }

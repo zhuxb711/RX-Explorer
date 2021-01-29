@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.AppService;
 using Windows.ApplicationModel.Background;
 using Windows.Foundation.Collections;
@@ -13,8 +12,9 @@ namespace CommunicateService
     public sealed class Service : IBackgroundTask
     {
         private BackgroundTaskDeferral Deferral;
-        private static readonly List<ServerAndClientPair> ServiceAndClientConnections = new List<ServerAndClientPair>();
-        private static readonly object Locker = new object();
+        private static readonly ConcurrentDictionary<AppServiceConnection, AppServiceConnection> PairedConnections = new ConcurrentDictionary<AppServiceConnection, AppServiceConnection>();
+        private static readonly ConcurrentQueue<AppServiceConnection> ClientWaitingQueue = new ConcurrentQueue<AppServiceConnection>();
+        private static readonly ConcurrentQueue<AppServiceConnection> ServerWaitingrQueue = new ConcurrentQueue<AppServiceConnection>();
 
         public async void Run(IBackgroundTaskInstance taskInstance)
         {
@@ -32,73 +32,34 @@ namespace CommunicateService
             {
                 if (Response.Message.TryGetValue("Identity", out object Identity))
                 {
-                    lock (Locker)
+                    switch (Convert.ToString(Identity))
                     {
-                        switch (Convert.ToString(Identity))
-                        {
-                            case "FullTrustProcess":
+                        case "FullTrustProcess":
+                            {
+                                if (ClientWaitingQueue.TryDequeue(out AppServiceConnection ClientConnection))
                                 {
-                                    if (Response.Message.TryGetValue("PreviousExplorerId", out object PreviousExplorerId) && Response.Message.TryGetValue("PreviousConnectionId", out object PreviousConnectionId))
-                                    {
-                                        if (ServiceAndClientConnections.FirstOrDefault((Pair) => Pair.ClientProcessId == Convert.ToString(PreviousExplorerId) && Pair.ClientConnectionId == Convert.ToString(PreviousConnectionId)) is ServerAndClientPair ConnectionPair)
-                                        {
-                                            if (ConnectionPair.Server != null)
-                                            {
-                                                ConnectionPair.Server.Dispose();
-                                            }
-
-                                            ConnectionPair.Server = IncomeConnection;
-                                        }
-                                        else
-                                        {
-                                            throw new InvalidDataException("Could not find PreviousExplorerId in ServiceAndClientConnections");
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (ServiceAndClientConnections.FirstOrDefault((Pair) => Pair.Server == null) is ServerAndClientPair ConnectionPair)
-                                        {
-                                            ConnectionPair.Server = IncomeConnection;
-                                        }
-                                        else
-                                        {
-                                            ServiceAndClientConnections.Add(new ServerAndClientPair
-                                            {
-                                                Server = IncomeConnection
-                                            });
-                                        }
-                                    }
-
-                                    break;
+                                    PairedConnections.TryAdd(ClientConnection, IncomeConnection);
                                 }
-                            case "UWP":
+                                else
                                 {
-                                    if (Response.Message.TryGetValue("ProcessId", out object ProcessId) && Response.Message.TryGetValue("ConnectionId", out object ConnectionId))
-                                    {
-                                        if (ServiceAndClientConnections.FirstOrDefault((Pair) => Pair.Client == null) is ServerAndClientPair ConnectionPair)
-                                        {
-                                            ConnectionPair.Client = IncomeConnection;
-                                            ConnectionPair.ClientProcessId = Convert.ToString(ProcessId);
-                                            ConnectionPair.ClientConnectionId = Convert.ToString(ConnectionId);
-                                        }
-                                        else
-                                        {
-                                            ServiceAndClientConnections.Add(new ServerAndClientPair
-                                            {
-                                                Client = IncomeConnection,
-                                                ClientProcessId = Convert.ToString(ProcessId),
-                                                ClientConnectionId = Convert.ToString(ConnectionId)
-                                            });
-                                        }
-                                    }
-                                    else
-                                    {
-                                        throw new InvalidDataException("Must contains ProcessId in response");
-                                    }
-
-                                    break;
+                                    ServerWaitingrQueue.Enqueue(IncomeConnection);
                                 }
-                        }
+
+                                break;
+                            }
+                        case "UWP":
+                            {
+                                if (ServerWaitingrQueue.TryDequeue(out AppServiceConnection ServerConnection))
+                                {
+                                    PairedConnections.TryAdd(IncomeConnection, ServerConnection);
+                                }
+                                else
+                                {
+                                    ClientWaitingQueue.Enqueue(IncomeConnection);
+                                }
+
+                                break;
+                            }
                     }
                 }
             }
@@ -112,20 +73,9 @@ namespace CommunicateService
             {
                 AppServiceConnection ServerConnection = null;
 
-                using (CancellationTokenSource Cancel = new CancellationTokenSource(5000))
+                if (SpinWait.SpinUntil(() => PairedConnections.ContainsKey(sender), 5000))
                 {
-                    SpinWait Spin = new SpinWait();
-
-                    while (!Cancel.IsCancellationRequested)
-                    {
-                        if (ServiceAndClientConnections.FirstOrDefault((Pair) => Pair.Client == sender)?.Server is AppServiceConnection Server)
-                        {
-                            ServerConnection = Server;
-                            break;
-                        }
-
-                        Spin.SpinOnce();
-                    }
+                    ServerConnection = PairedConnections[sender];
                 }
 
                 if (ServerConnection != null)
@@ -172,32 +122,18 @@ namespace CommunicateService
             {
                 if ((sender.TriggerDetails as AppServiceTriggerDetails)?.AppServiceConnection is AppServiceConnection DisConnection)
                 {
-                    lock (Locker)
+                    try
                     {
-                        try
+                        DisConnection.RequestReceived -= Connection_RequestReceived;
+
+                        if (PairedConnections.TryRemove(DisConnection, out AppServiceConnection ServerConnection))
                         {
-                            DisConnection.RequestReceived -= Connection_RequestReceived;
-
-                            if (ServiceAndClientConnections.FirstOrDefault((Pair) => Pair.Server == DisConnection || Pair.Client == DisConnection) is ServerAndClientPair ConnectionPair)
-                            {
-                                if (ConnectionPair.Server == DisConnection)
-                                {
-                                    ConnectionPair.Server = null;
-                                }
-                                else
-                                {
-                                    ServiceAndClientConnections.Remove(ConnectionPair);
-
-                                    ConnectionPair.Client = null;
-
-                                    ConnectionPair.Server?.SendMessageAsync(new ValueSet { { "ExecuteType", "Execute_Exit" } }).AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
-                                }
-                            }
+                            Task.WaitAny(ServerConnection.SendMessageAsync(new ValueSet { { "ExecuteType", "Execute_Exit" } }).AsTask(), Task.Delay(2000));
                         }
-                        finally
-                        {
-                            DisConnection.Dispose();
-                        }
+                    }
+                    finally
+                    {
+                        DisConnection.Dispose();
                     }
                 }
             }

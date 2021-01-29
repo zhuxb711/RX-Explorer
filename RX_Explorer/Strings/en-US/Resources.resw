@@ -1861,14 +1861,14 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>This folder has been added to the home page, can not be added repeatedly</value>
   </data>
   <data name="QueueDialog_UnauthorizedCreateFolder_Content" xml:space="preserve">
-    <value>RX does not have permission to create folder, it may be that you do not have access to this folder\r\rEnter the system explorer immediately ?</value>
+    <value>RX does not have permission to create folder, it may be that you do not have access to this folder\r\rDo you want to launch Windows Explorer?</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedDelete_Content" xml:space="preserve">
-    <value>RX does not have permission to delete this item, administrator rights may be required. Do you want to grant administrator rights?</value>
+    <value>RX does not have permission to delete this item. Do you want to launch Windows Explorer?</value>
   </data>
   <data name="QueueDialog_UnauthorizedPaste_Content" xml:space="preserve">
-    <value>RX does not have permission to paste, administrator rights may be required to access this folder. Do you want to grant administrator rights?</value>
+    <value>RX does not have permission to paste. Do you want to launch Windows Explorer?</value>
   </data>
   <data name="Common_Dialog_GoBack" xml:space="preserve">
     <value>Go back</value>
@@ -2001,19 +2001,19 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>There is already an ongoing task, please wait for it to complete</value>
   </data>
   <data name="QueueDialog_UnauthorizedCompression_Content" xml:space="preserve">
-    <value>RX does not have permission to create the Zip file here, it may be that you do not have access to this file.\r\rEnter the system explorer immediately?</value>
+    <value>RX does not have permission to create the Zip file here, it may be that you do not have access to this file.\r\rDo you want to launch Windows Explorer?</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedCreateNewFile_Content" xml:space="preserve">
-    <value>RX does not have sufficient permissions to create new files in this folder\r\rEnter the system explorer immediately?</value>
+    <value>RX does not have sufficient permissions to create new files in this folder\r\rDo you want to launch Windows Explorer?</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedDecompression_Content" xml:space="preserve">
-    <value>RX does not have permission to decompression the Zip file here, it may be that you do not have access to this file.\r\rEnter the system explorer immediately?</value>
+    <value>RX does not have permission to decompression the Zip file here, it may be that you do not have access to this file.\r\rDo you want to launch Windows Explorer?</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedRenameFile_Content" xml:space="preserve">
-    <value>RX does not have permission to rename, administrator rights may be required. Do you want to grant administrator rights?</value>
+    <value>RX does not have permission to rename. Do you want to launch Windows Explorer?</value>
   </data>
   <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">
     <value>Since some files/folders no longer exist, the undo operation could not be completed completely</value>
@@ -2484,14 +2484,8 @@ Invalid names include
   <data name="ModifyDefaultTerminalDialog_RunAsAdmin.Content" xml:space="preserve">
     <value>Run terminal as administrator</value>
   </data>
-  <data name="QueueDialog_DenyElevation_Content" xml:space="preserve">
-    <value>You refused to grant admin rights, so you cannot perform any operations</value>
-  </data>
-  <data name="Common_Dialog_GrantButton" xml:space="preserve">
-    <value>Grant</value>
-  </data>
   <data name="QueueDialog_UnauthorizedRename_StartExplorer_Content" xml:space="preserve">
-    <value>RX has no right to rename this file. Do you want to start explorer to operate?</value>
+    <value>RX has no right to rename this file. Do you want to launch Windows Explorer?</value>
   </data>
   <data name="QueueDialog_UnableAccessClipboard_Content" xml:space="preserve">
     <value>Cannot access clipboard, copy/cut operation failed</value>
@@ -2500,7 +2494,7 @@ Invalid names include
     <value>Adjust background blur effect</value>
   </data>
   <data name="QueueDialog_UnauthorizedExecute_Content" xml:space="preserve">
-    <value>RX does not have permission to execute the file, administrator rights may be required. Do you want to grant administrator rights?</value>
+    <value>RX does not have permission to execute the file. Do you want to launch Windows Explorer?</value>
   </data>
   <data name="SettingPageAlwaysLaunchNew.Content" xml:space="preserve">
     <value>Always start a new process when activated</value>
@@ -2717,5 +2711,17 @@ Invalid names include
   </data>
   <data name="CloseThisTab.Label" xml:space="preserve">
     <value>Close this tab</value>
+  </data>
+  <data name="SearchEngineConfi_AlwaysPopup" xml:space="preserve">
+    <value>Ask every time</value>
+  </data>
+  <data name="SearchEngineConfi_UseBuildInAsDefault" xml:space="preserve">
+    <value>Always use the built-in search engine</value>
+  </data>
+  <data name="SearchEngineConfi_UseEverythingAsDefault" xml:space="preserve">
+    <value>Always use the Everything search engine</value>
+  </data>
+  <data name="SettingPageSearchEngineConfig.Header" xml:space="preserve">
+    <value>Search engine configuration</value>
   </data>
 </root>

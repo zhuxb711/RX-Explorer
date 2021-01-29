@@ -68,8 +68,6 @@ namespace RX_Explorer.Class
 
         private const string ExecuteType_Test_Connection = "Execute_Test_Connection";
 
-        private const string ExecuteTyep_ElevateAsAdmin = "Execute_ElevateAsAdmin";
-
         private const string ExecuteType_GetContextMenuItems = "Execute_GetContextMenuItems";
 
         private const string ExecuteType_InvokeContextMenuItem = "Execute_InvokeContextMenuItem";
@@ -83,8 +81,6 @@ namespace RX_Explorer.Class
         private const string ExecuteType_GetMIMEContentType = "Execute_GetMIMEContentType";
 
         private readonly int CurrentProcessId;
-
-        private string ConnectionId;
 
         private bool IsConnected;
 
@@ -101,8 +97,6 @@ namespace RX_Explorer.Class
                 return AvailableControllerQueue.Any((Controller) => Controller.Controller.IsAnyActionExcutingInCurrentController);
             }
         }
-
-        public bool IsRuningInElevatedMode { get; private set; }
 
         private PipeLineController PipeController;
 
@@ -124,7 +118,12 @@ namespace RX_Explorer.Class
 
         public static void CreateController()
         {
-            AvailableControllerQueue.Enqueue(new ExclusiveUsage(new FullTrustProcessController()));
+            _ = Task.Run(() =>
+            {
+                FullTrustProcessController Controller = new FullTrustProcessController();
+                Controller.ConnectRemoteAsync().GetAwaiter().GetResult();
+                AvailableControllerQueue.Enqueue(new ExclusiveUsage(Controller));
+            });
         }
 
         public static void RemoveController()
@@ -191,7 +190,7 @@ namespace RX_Explorer.Class
             {
                 case "Identity":
                     {
-                        await args.Request.SendResponseAsync(new ValueSet { { "Identity", "UWP" }, { "ProcessId", CurrentProcessId }, { "ConnectionId", ConnectionId } });
+                        await args.Request.SendResponseAsync(new ValueSet { { "Identity", "UWP" } });
                         break;
                     }
             }
@@ -212,9 +211,6 @@ namespace RX_Explorer.Class
                         Connection = null;
                     }
 
-                    ConnectionId = Guid.NewGuid().ToString();
-                    IsRuningInElevatedMode = false;
-
                     Connection = new AppServiceConnection
                     {
                         AppServiceName = "CommunicateService",
@@ -233,7 +229,7 @@ namespace RX_Explorer.Class
 
                 for (int Count = 0; Count < 3; Count++)
                 {
-                    AppServiceResponse Response = await Connection.SendMessageAsync(new ValueSet { { "ExecuteType", ExecuteType_Test_Connection }, { "ProcessId", CurrentProcessId }, { "ConnectionId", ConnectionId } });
+                    AppServiceResponse Response = await Connection.SendMessageAsync(new ValueSet { { "ExecuteType", ExecuteType_Test_Connection }, { "ProcessId", CurrentProcessId } });
 
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {
@@ -612,67 +608,6 @@ namespace RX_Explorer.Class
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"{ nameof(GetContextMenuItemsAsync)} throw an error");
-            }
-            finally
-            {
-                IsAnyActionExcutingInCurrentController = false;
-            }
-        }
-
-        public async Task<bool> SwitchToAdminModeAsync()
-        {
-            try
-            {
-                IsAnyActionExcutingInCurrentController = true;
-
-                if (IsRuningInElevatedMode)
-                {
-                    return true;
-                }
-
-                if (await ConnectRemoteAsync().ConfigureAwait(false))
-                {
-                    AppServiceResponse CommandResponse = await Connection.SendMessageAsync(new ValueSet { { "ExecuteType", ExecuteTyep_ElevateAsAdmin } });
-
-                    if (CommandResponse.Message.TryGetValue("Error", out object ErrorObj))
-                    {
-                        LogTracer.Log($"ElevateAsAdmin failed, message: \"{ErrorObj}\"");
-                        return IsRuningInElevatedMode = false;
-                    }
-                    else
-                    {
-                        await Task.Delay(2000).ConfigureAwait(true);
-
-                        AppServiceResponse TestResponse = await Connection.SendMessageAsync(new ValueSet { { "ExecuteType", ExecuteType_Test_Connection }, { "ProcessId", CurrentProcessId }, { "ConnectionId", ConnectionId } });
-
-                        if (TestResponse.Status == AppServiceResponseStatus.Success)
-                        {
-                            if (TestResponse.Message.ContainsKey(ExecuteType_Test_Connection))
-                            {
-                                return IsRuningInElevatedMode = true;
-                            }
-                            else
-                            {
-                                await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
-                                return IsRuningInElevatedMode = false;
-                            }
-                        }
-                        else
-                        {
-                            return IsRuningInElevatedMode = false;
-                        }
-                    }
-                }
-                else
-                {
-                    LogTracer.Log($"{nameof(SwitchToAdminModeAsync)}: Failed to connect AppService ");
-                    return IsRuningInElevatedMode = false;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"{ nameof(SwitchToAdminModeAsync)} throw an error");
-                return IsRuningInElevatedMode = false;
             }
             finally
             {
