@@ -3893,7 +3893,7 @@ namespace RX_Explorer
                     {
                         if (await CurrentFolder.GetStorageItem().ConfigureAwait(true) is StorageFolder Folder)
                         {
-                            StorageFile ExportFile = await Folder.CreateFileAsync($"{TabTarget.DisplayName} - {Globalization.GetString("Crop_Image_Name_Tail")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
+                            StorageFile ExportFile = await Folder.CreateFileAsync($"{File.DisplayName} - {Globalization.GetString("Crop_Image_Name_Tail")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
                             await GeneralTransformer.GenerateCroppedVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding, Dialog.TrimmingPreference).ConfigureAwait(true);
                         }
                     }

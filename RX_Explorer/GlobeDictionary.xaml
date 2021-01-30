@@ -1,20 +1,21 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     x:Class="RX_Explorer.GlobeResource"
+                    xmlns:local="using:RX_Explorer.Class"
                     xmlns:contract6Present="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract,6)"
                     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls">
 
     <AcrylicBrush x:Key="DialogAcrylicBrush"
                   BackgroundSource="Backdrop"
-                  TintOpacity="0"
-                  TintColor="LightGray"
-                  FallbackColor="DimGray" />
+                  TintOpacity="0.1"
+                  TintColor="Gray"
+                  FallbackColor="{ThemeResource SystemAltMediumColor}" />
 
     <AcrylicBrush x:Key="ElementAcrylicBrush"
                   BackgroundSource="Backdrop"
-                  TintColor="LightGray"
-                  TintOpacity="0.15"
-                  FallbackColor="DimGray" />
+                  TintColor="Gray"
+                  TintOpacity="0.1"
+                  FallbackColor="{ThemeResource SystemAccentColor}" />
 
     <SolidColorBrush x:Key="NavigationViewTopPaneBackground"
                      Color="Transparent" />

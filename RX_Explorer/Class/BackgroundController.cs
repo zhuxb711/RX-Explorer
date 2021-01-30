@@ -637,15 +637,12 @@ namespace RX_Explorer.Class
                 case BackgroundBrushType.Picture:
                     {
                         PictureBackgroundBrush.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), "if parameter: 'Type' is BackgroundBrushType.Picture, parameter: 'Background' could not be null");
-
                         ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = ImageUri?.ToString();
-
                         break;
                     }
                 case BackgroundBrushType.BingPicture:
                     {
                         BingPictureBursh.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), "if parameter: 'Type' is BackgroundBrushType.BingPicture, parameter: 'Background' could not be null");
-
                         break;
                     }
                 case BackgroundBrushType.SolidColor:

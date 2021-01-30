@@ -473,6 +473,11 @@
                            AllowFocusOnInteraction="False"
                            Padding="0,0,5,0"
                            RightTapped="FolderTree_RightTapped">
+                <muxc:TreeView.Resources>
+                    <RevealBackgroundBrush  x:Key="TreeViewItemBackgroundSelected"
+                                            Color="{ThemeResource SystemAccentColor}"
+                                            FallbackColor="{ThemeResource SystemAccentColor}" />
+                </muxc:TreeView.Resources>
                 <muxc:TreeView.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal"

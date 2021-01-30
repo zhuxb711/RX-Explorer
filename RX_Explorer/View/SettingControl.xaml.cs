@@ -37,9 +37,9 @@ namespace RX_Explorer
 {
     public sealed partial class SettingControl : UserControl
     {
-        private readonly ObservableCollection<FeedBackItem> FeedBackCollection;
+        private readonly ObservableCollection<FeedBackItem> FeedBackCollection = new ObservableCollection<FeedBackItem>();
 
-        private readonly ObservableCollection<BackgroundPicture> PictureList;
+        private readonly ObservableCollection<BackgroundPicture> PictureList = new ObservableCollection<BackgroundPicture>();
 
         private readonly string UserName = ApplicationData.Current.LocalSettings.Values["SystemUserName"].ToString();
 
@@ -176,12 +176,6 @@ namespace RX_Explorer
             EmptyFeedBack.Text = Globalization.GetString("Progress_Tip_Loading");
 
             EnableQuicklook.IsEnabled = IsQuicklookAvailable;
-
-            PictureList = new ObservableCollection<BackgroundPicture>();
-            PictureGirdView.ItemsSource = PictureList;
-
-            FeedBackCollection = new ObservableCollection<FeedBackItem>();
-            FeedBackList.ItemsSource = FeedBackCollection;
 
             Loaded += SettingPage_Loaded;
             Loading += SettingControl_Loading;
@@ -695,27 +689,21 @@ namespace RX_Explorer
 
         private async void SettingPage_Loaded(object sender, RoutedEventArgs e)
         {
-            FeedBackCollection.CollectionChanged += (s, t) =>
-            {
-                if (FeedBackCollection.Count == 0)
-                {
-                    EmptyFeedBack.Text = Globalization.GetString("Progress_Tip_NoFeedback");
-                    SubmitIssueOnGithub.Visibility = Visibility.Visible;
-                    EmptyFeedBackArea.Visibility = Visibility.Visible;
-                    FeedBackList.Visibility = Visibility.Collapsed;
-                }
-                else
-                {
-                    EmptyFeedBackArea.Visibility = Visibility.Collapsed;
-                    SubmitIssueOnGithub.Visibility = Visibility.Collapsed;
-                    FeedBackList.Visibility = Visibility.Visible;
-                }
-            };
+            FindName(nameof(SubmitIssueOnGithub));
+            FindName(nameof(FeedBackList));
 
             try
             {
                 await foreach (FeedBackItem FeedBackItem in MySQL.Current.GetAllFeedBackAsync())
                 {
+                    if (FeedBackCollection.Count == 0)
+                    {
+
+                        EmptyFeedBackArea.Visibility = Visibility.Collapsed;
+                        SubmitIssueOnGithub.Visibility = Visibility.Collapsed;
+                        FeedBackList.Visibility = Visibility.Visible;
+                    }
+
                     FeedBackCollection.Add(FeedBackItem);
                 }
             }
@@ -729,6 +717,8 @@ namespace RX_Explorer
                 {
                     EmptyFeedBack.Text = Globalization.GetString("Progress_Tip_NoFeedback");
                     SubmitIssueOnGithub.Visibility = Visibility.Visible;
+                    EmptyFeedBackArea.Visibility = Visibility.Visible;
+                    FeedBackList.Visibility = Visibility.Collapsed;
                 }
             }
         }
@@ -1893,6 +1883,8 @@ namespace RX_Explorer
         {
             try
             {
+                FindName(nameof(LanguageRestartTip));
+
                 switch (LanguageComboBox.SelectedIndex)
                 {
                     case 0:

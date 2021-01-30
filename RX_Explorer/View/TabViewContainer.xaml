@@ -50,9 +50,9 @@
                                  Color="Transparent" />
                 <AcrylicBrush x:Key="TabViewItemHeaderBackgroundSelected"
                               BackgroundSource="Backdrop"
-                              TintLuminosityOpacity="0.6"
+                              TintLuminosityOpacity="0.5"
                               TintColor="{ThemeResource SystemAltMediumColor}"
-                              FallbackColor="{ThemeResource SystemAltMediumColor}" />
+                              FallbackColor="{ThemeResource SystemAccentColor}" />
             </muxc:TabView.Resources>
         </muxc:TabView>
         <controls:InAppNotification StackMode="Replace"

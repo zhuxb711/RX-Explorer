@@ -27,7 +27,7 @@
                               Click="AppDelete_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
-        
+
         <muxc:CommandBarFlyout x:Name="WebFlyout"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
@@ -43,7 +43,7 @@
                               Click="WebDelete_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
-        
+
         <muxc:CommandBarFlyout x:Name="AppEmptyFlyout"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
@@ -54,7 +54,7 @@
                               Click="AddQuickStartApp_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
-        
+
         <muxc:CommandBarFlyout x:Name="WebEmptyFlyout"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
@@ -180,7 +180,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition MaxWidth="300"
                               x:Name="LeftSideCol"
-                              x:FieldModifier="public"/>
+                              x:FieldModifier="public" />
             <ColumnDefinition Width="5*" />
         </Grid.ColumnDefinitions>
         <Grid Margin="10,4,10,10">
@@ -450,13 +450,13 @@
                                                    Text="{x:Bind Name}"
                                                    ToolTipService.ToolTip="{x:Bind Name}" />
                                         <muxc:ProgressBar x:Name="Pro"
-                                                     Width="200"
-                                                     Height="12"
-                                                     Foreground="{x:Bind ProgressBarForeground}"
-                                                     Maximum="1"
-                                                     Minimum="0"
-                                                     Value="{x:Bind Percent}"
-                                                     Margin="0,2,0,0" />
+                                                          Width="200"
+                                                          Height="12"
+                                                          Foreground="{x:Bind ProgressBarForeground}"
+                                                          Maximum="1"
+                                                          Minimum="0"
+                                                          Value="{x:Bind Percent}"
+                                                          Margin="0,2,0,0" />
                                         <TextBlock Width="200"
                                                    FontSize="13"
                                                    TextTrimming="CharacterEllipsis"
