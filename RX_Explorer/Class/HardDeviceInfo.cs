@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
+using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI;
+using Windows.UI.Core;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
@@ -12,7 +16,7 @@ namespace RX_Explorer.Class
     /// <summary>
     /// 提供驱动器的界面支持
     /// </summary>
-    public sealed class HardDeviceInfo
+    public sealed class HardDeviceInfo : INotifyPropertyChanged
     {
         /// <summary>
         /// 驱动器缩略图
@@ -65,20 +69,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 容量显示条对可用空间不足的情况转换颜色
         /// </summary>
-        public SolidColorBrush ProgressBarForeground
-        {
-            get
-            {
-                if (Percent >= 0.85)
-                {
-                    return new SolidColorBrush(Colors.Red);
-                }
-                else
-                {
-                    return new SolidColorBrush((Color)Application.Current.Resources["SystemAccentColor"]);
-                }
-            }
-        }
+        public SolidColorBrush ProgressBarForeground { get; private set; }
 
         /// <summary>
         /// 存储空间描述
@@ -95,6 +86,10 @@ namespace RX_Explorer.Class
 
         public string FileSystem { get; private set; }
 
+        private readonly UISettings UIS;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
         /// <summary>
         /// 初始化HardDeviceInfo对象
         /// </summary>
@@ -107,6 +102,18 @@ namespace RX_Explorer.Class
 
             this.Thumbnail = Thumbnail ?? new BitmapImage(new Uri("ms-appx:///Assets/DeviceIcon.png"));
             this.DriveType = DriveType;
+
+            if (Percent >= 0.9)
+            {
+                ProgressBarForeground = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                ProgressBarForeground = new SolidColorBrush((Color)Application.Current.Resources["SystemAccentColor"]);
+            }
+
+            UIS = new UISettings();
+            UIS.ColorValuesChanged += UIS_ColorValuesChanged;
 
             if (PropertiesRetrieve != null)
             {
@@ -192,6 +199,15 @@ namespace RX_Explorer.Class
                 FileSystem = Globalization.GetString("UnknownText");
                 Percent = 0;
             }
+        }
+
+        private async void UIS_ColorValuesChanged(UISettings sender, object args)
+        {
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+            {
+                ProgressBarForeground = new SolidColorBrush(sender.GetColorValue(UIColorType.Accent));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProgressBarForeground)));
+            });
         }
     }
 }

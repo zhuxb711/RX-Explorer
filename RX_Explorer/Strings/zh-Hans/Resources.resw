@@ -2431,7 +2431,7 @@
     <value>暂无任何日志文件可供导出哦</value>
   </data>
   <data name="PreventFallBack.Content" xml:space="preserve">
-    <value>防止Acrylic进入省电模式</value>
+    <value>始终应用Acrylic效果</value>
   </data>
   <data name="SettingPagePreventFallbackTip.Subtitle" xml:space="preserve">
     <value>选中该选项可以防止Windows系统在您不使用本应用时关闭Acrylic效果，此模式下仅允许调节Acrylic透光度，Acrylic颜色透明度不可用。注意: 开启此选项可能会导致电池续航缩短，并且持续的光线计算将增加CPU的负担</value>

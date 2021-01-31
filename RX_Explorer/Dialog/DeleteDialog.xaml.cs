@@ -10,9 +10,10 @@ namespace RX_Explorer.Dialog
     {
         public bool IsPermanentDelete { get; private set; }
 
-        public DeleteDialog(string Text)
+        public DeleteDialog(string Text, bool IsPermanentDelete = false)
         {
             InitializeComponent();
+            PermanentDelete.IsChecked = IsPermanentDelete;
             DisplayText.Text = Text;
         }
 

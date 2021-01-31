@@ -1657,13 +1657,15 @@ namespace RX_Explorer
 
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {
-                    if (Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down))
+                    DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFiles_Content"), Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
+
+                    if ((await QueueContenDialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
                         await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting")).ConfigureAwait(true);
 
                         try
                         {
-                            await Exclusive.Controller.DeleteAsync(PathList, true, (s, arg) =>
+                            await Exclusive.Controller.DeleteAsync(PathList, QueueContenDialog.IsPermanentDelete, (s, arg) =>
                             {
                                 if (Container.ProBar.Value < arg.ProgressPercentage)
                                 {
@@ -1722,77 +1724,6 @@ namespace RX_Explorer
                         }
 
                         await Container.LoadingActivation(false).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFiles_Content"));
-
-                        if ((await QueueContenDialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
-                        {
-                            await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting")).ConfigureAwait(true);
-
-                            try
-                            {
-                                await Exclusive.Controller.DeleteAsync(PathList, QueueContenDialog.IsPermanentDelete, (s, arg) =>
-                                {
-                                    if (Container.ProBar.Value < arg.ProgressPercentage)
-                                    {
-                                        Container.ProBar.IsIndeterminate = false;
-                                        Container.ProBar.Value = arg.ProgressPercentage;
-                                    }
-                                }).ConfigureAwait(true);
-                            }
-                            catch (FileNotFoundException)
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                            }
-                            catch (FileCaputureException)
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                _ = await dialog.ShowAsync().ConfigureAwait(true);
-                            }
-                            catch (InvalidOperationException)
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_UnauthorizedDelete_Content"),
-                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                };
-
-                                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                {
-                                    await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                                }
-                            }
-                            catch (Exception)
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_DeleteFailUnexpectError_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                _ = await dialog.ShowAsync().ConfigureAwait(true);
-                            }
-
-                            await Container.LoadingActivation(false).ConfigureAwait(false);
-                        }
                     }
                 }
             }

@@ -3222,8 +3222,8 @@ Les noms non valides incluent
           <target state="translated">Il n'y a pas de fichier journal à exporter</target>
         </trans-unit>
         <trans-unit id="PreventFallBack.Content" translate="yes" xml:space="preserve">
-          <source>Prevent acrylic from entering power saving mode</source>
-          <target state="translated">Empêche l'acrylique d'entrer en mode d'économie d'énergie</target>
+          <source>Always apply Acrylic effect</source>
+          <target state="translated">Appliquez toujours l'effet acrylique</target>
         </trans-unit>
         <trans-unit id="SettingPagePreventFallbackTip.Subtitle" translate="yes" xml:space="preserve">
           <source>Checking this option can prevent the Windows from turning off the Acrylic effect when you are not using this application. In this mode, only the Acrylic transmittance is allowed to be adjusted, and the Acrylic color transparency is not available. Note: Turning on this option may shorten battery life, and continuous light calculation will increase the burden on the CPU</source>

@@ -2431,7 +2431,7 @@ Les noms non valides incluent
     <value>Il n'y a pas de fichier journal à exporter</value>
   </data>
   <data name="PreventFallBack.Content" xml:space="preserve">
-    <value>Empêche l'acrylique d'entrer en mode d'économie d'énergie</value>
+    <value>Appliquez toujours l'effet acrylique</value>
   </data>
   <data name="SettingPagePreventFallbackTip.Subtitle" xml:space="preserve">
     <value>Le fait de cocher cette option peut empêcher Windows de désactiver l'effet acrylique lorsque vous n'utilisez pas cette application. Dans ce mode, seule la transmittance Acrylique peut être ajustée et la transparence de la couleur Acrylique n'est pas disponible. Remarque: l'activation de cette option peut réduire la durée de vie de la batterie et le calcul de la lumière continue augmentera la charge sur le processeur.</value>

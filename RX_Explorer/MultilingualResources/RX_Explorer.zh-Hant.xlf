@@ -3222,8 +3222,8 @@ Invalid names include
           <target state="translated">沒有要導出的日誌文件</target>
         </trans-unit>
         <trans-unit id="PreventFallBack.Content" translate="yes" xml:space="preserve">
-          <source>Prevent acrylic from entering power saving mode</source>
-          <target state="translated">防止Acrylic進入省電模式</target>
+          <source>Always apply Acrylic effect</source>
+          <target state="translated">始終施加Acrylic效果</target>
         </trans-unit>
         <trans-unit id="SettingPagePreventFallbackTip.Subtitle" translate="yes" xml:space="preserve">
           <source>Checking this option can prevent the Windows from turning off the Acrylic effect when you are not using this application. In this mode, only the Acrylic transmittance is allowed to be adjusted, and the Acrylic color transparency is not available. Note: Turning on this option may shorten battery life, and continuous light calculation will increase the burden on the CPU</source>

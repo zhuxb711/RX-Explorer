@@ -2551,7 +2551,7 @@ Invalid names include
     <value>There is no log file to export</value>
   </data>
   <data name="PreventFallBack.Content" xml:space="preserve">
-    <value>Prevent acrylic from entering power saving mode</value>
+    <value>Always apply Acrylic effect</value>
   </data>
   <data name="SettingPagePreventFallbackTip.Subtitle" xml:space="preserve">
     <value>Checking this option can prevent the Windows from turning off the Acrylic effect when you are not using this application. In this mode, only the Acrylic transmittance is allowed to be adjusted, and the Acrylic color transparency is not available. Note: Turning on this option may shorten battery life, and continuous light calculation will increase the burden on the CPU</value>
