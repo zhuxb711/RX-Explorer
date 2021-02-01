@@ -48,11 +48,12 @@ namespace RX_Explorer.Class
 
             Rect ElementBounds = Element.TransformToVisual(Container).TransformBounds(new Rect(0.0, 0.0, Element.ActualWidth, Element.ActualHeight));
             Rect ContainerBounds = new Rect(0.0, 0.0, Container.ActualWidth, Container.ActualHeight);
+            Rect IntersectBounds = RectHelper.Intersect(ContainerBounds, ElementBounds);
 
-            return !RectHelper.Intersect(ContainerBounds, ElementBounds).IsEmpty;
+            return !IntersectBounds.IsEmpty && IntersectBounds.Width > 0 && IntersectBounds.Height > 0;
         }
 
-        public static async Task SetCommandBarFlyoutWithExtraContextMenuItems(this ListViewBase ListControl, CommandBarFlyout Flyout, Windows.Foundation.Point? ShowAt = null)
+        public static async Task SetCommandBarFlyoutWithExtraContextMenuItems(this ListViewBase ListControl, CommandBarFlyout Flyout, Point? ShowAt = null)
         {
             if (Flyout == null)
             {

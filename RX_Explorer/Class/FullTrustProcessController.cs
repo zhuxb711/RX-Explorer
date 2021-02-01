@@ -126,22 +126,24 @@ namespace RX_Explorer.Class
             });
         }
 
-        public static void RemoveController()
+        public static void ResizeController(int ResizeTarget)
         {
             _ = Task.Run(() =>
             {
                 try
                 {
-                    while (true)
+                    while (CurrentRunningControllerNum > ResizeTarget)
                     {
                         if (AvailableControllerQueue.TryDequeue(out ExclusiveUsage Usage))
                         {
                             Usage.Controller.Dispose();
-                            break;
                         }
                         else
                         {
-                            SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty);
+                            if (!SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty, 5000))
+                            {
+                                break;
+                            }
                         }
                     }
                 }
@@ -164,7 +166,12 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty);
+                        if (!SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty, 5000))
+                        {
+                            FullTrustProcessController Controller = new FullTrustProcessController();
+                            Controller.ConnectRemoteAsync().GetAwaiter().GetResult();
+                            return new ExclusiveUsage(Controller);
+                        }
                     }
                 }
             });

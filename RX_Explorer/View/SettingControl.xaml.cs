@@ -1813,7 +1813,14 @@ namespace RX_Explorer
                 {
                     if (CommonAccessCollection.FrameFileControlDic.TryGetValue(Frame, out FileControl Control) && Control.CurrentPresenter.CurrentFolder != null)
                     {
-                        Control.TreeViewGridCol.Width = TreeViewDetach.IsOn ? new GridLength(2, GridUnitType.Star) : new GridLength(0);
+                        if (ApplicationData.Current.LocalSettings.Values["GridSplitScale"] is double Scale)
+                        {
+                            Control.TreeViewGridCol.Width = TreeViewDetach.IsOn ? new GridLength(Scale * Control.ActualWidth) : new GridLength(0);
+                        }
+                        else
+                        {
+                            Control.TreeViewGridCol.Width = TreeViewDetach.IsOn ? new GridLength(2, GridUnitType.Star) : new GridLength(0);
+                        }
 
                         if (TreeViewDetach.IsOn)
                         {

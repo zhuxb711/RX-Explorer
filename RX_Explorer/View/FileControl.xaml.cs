@@ -141,17 +141,15 @@ namespace RX_Explorer
 
         private void FileControl_Loaded(object sender, RoutedEventArgs e)
         {
-            if (ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] is bool Enable)
+            if (ApplicationData.Current.LocalSettings.Values["GridSplitScale"] is double Scale)
             {
-                TreeViewGridCol.Width = Enable ? new GridLength(0) : new GridLength(2, GridUnitType.Star);
+                TreeViewGridCol.Width = SettingControl.IsDetachTreeViewAndPresenter ? new GridLength(0) : new GridLength(Scale * ActualWidth);
             }
             else
             {
-                ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] = false;
-                TreeViewGridCol.Width = new GridLength(2, GridUnitType.Star);
+                TreeViewGridCol.Width = SettingControl.IsDetachTreeViewAndPresenter ? new GridLength(0) : new GridLength(2, GridUnitType.Star);
             }
         }
-
 
         /// <summary>
         /// 激活或关闭正在加载提示
@@ -2385,6 +2383,22 @@ namespace RX_Explorer
         private void AddressButton_DragLeave(object sender, DragEventArgs e)
         {
             DelayEnterCancel?.Cancel();
+        }
+
+        private void GridSplitter_PointerReleased(object sender, PointerRoutedEventArgs e)
+        {
+            ((GridSplitter)sender).ReleasePointerCaptures();
+            ApplicationData.Current.LocalSettings.Values["GridSplitScale"] = TreeViewGridCol.ActualWidth / ActualWidth;
+        }
+
+        private void GridSplitter_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            ((GridSplitter)sender).CapturePointer(e.Pointer);
+        }
+
+        private void GridSplitter_PointerCaptureLost(object sender, PointerRoutedEventArgs e)
+        {
+            ((GridSplitter)sender).ReleasePointerCaptures();
         }
     }
 }

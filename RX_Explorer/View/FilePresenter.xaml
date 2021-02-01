@@ -1310,7 +1310,7 @@
     <Grid PointerWheelChanged="Presenter_PointerWheelChanged">
         <Grid.RowDefinitions>
             <RowDefinition />
-            <RowDefinition Height="43" />
+            <RowDefinition Height="50" />
         </Grid.RowDefinitions>
         <ListView Background="Transparent"
                   x:Name="ListViewControl"

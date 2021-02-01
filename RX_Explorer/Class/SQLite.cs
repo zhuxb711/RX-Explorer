@@ -114,27 +114,27 @@ namespace RX_Explorer.Class
                 Builder.Append($"Insert Into PathConfiguration (Path) Values ('{Configuration.Path}');");
             }
 
-            using (SqliteCommand Command = new SqliteCommand())
+            if (Configuration.DisplayModeIndex.HasValue)
             {
-                if (Configuration.DisplayModeIndex.HasValue)
+                Builder.Append($"Update PathConfiguration Set DisplayMode = {Configuration.DisplayModeIndex.Value} Where Path = '{Configuration.Path}';");
+            }
+
+            if (Configuration.SortColumn.HasValue)
+            {
+                Builder.Append($"Update PathConfiguration Set SortColumn = '{Enum.GetName(typeof(SortTarget), Configuration.SortColumn)}' Where Path = '{Configuration.Path}';");
+            }
+
+            if (Configuration.SortDirection.HasValue)
+            {
+                Builder.Append($"Update PathConfiguration Set SortDirection = '{Enum.GetName(typeof(SortDirection), Configuration.SortDirection)}' Where Path = '{Configuration.Path}';");
+            }
+
+            if (!string.IsNullOrEmpty(Builder.ToString()))
+            {
+                using (SqliteCommand Command = new SqliteCommand(Builder.ToString(), Connection))
                 {
-                    Builder.Append($"Update PathConfiguration Set DisplayMode = {Configuration.DisplayModeIndex.Value} Where Path = '{Configuration.Path}';");
+                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
-
-                if (Configuration.SortColumn.HasValue)
-                {
-                    Builder.Append($"Update PathConfiguration Set SortColumn = '{Enum.GetName(typeof(SortTarget), Configuration.SortColumn)}' Where Path = '{Configuration.Path}';");
-                }
-
-                if (Configuration.SortDirection.HasValue)
-                {
-                    Builder.Append($"Update PathConfiguration Set SortDirection = '{Enum.GetName(typeof(SortDirection), Configuration.SortDirection)}' Where Path = '{Configuration.Path}';");
-                }
-
-                Command.CommandText = Builder.ToString();
-                Command.Connection = Connection;
-
-                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 

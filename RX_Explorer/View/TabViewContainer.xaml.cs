@@ -1030,7 +1030,7 @@ namespace RX_Explorer
 
             TabViewControl.TabItems.Remove(Tab);
 
-            FullTrustProcessController.RemoveController();
+            FullTrustProcessController.ResizeController(TabViewControl.TabItems.Count);
 
             if (TabViewControl.TabItems.Count == 0)
             {

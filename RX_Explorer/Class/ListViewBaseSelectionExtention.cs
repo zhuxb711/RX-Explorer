@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -24,7 +25,7 @@ namespace RX_Explorer.Class
 
         public double HorizontalLeftScrollThreshold => ThresholdBorderThickness;
 
-        public double ThresholdBorderThickness { get; set; } = 50;
+        public double ThresholdBorderThickness { get; } = 30;
 
         private volatile bool AllowProcess;
 
@@ -133,12 +134,12 @@ namespace RX_Explorer.Class
                         {
                             IEnumerable<FileSystemStorageItemBase> SelectedList = VisualTreeHelper.FindElementsInHostCoordinates(AbsToWindowTransform.TransformBounds(SelectedRect), View).OfType<SelectorItem>().Select((Item) => Item.Content as FileSystemStorageItemBase);
 
-                            foreach (FileSystemStorageItemBase Item in View.SelectedItems.OfType<FileSystemStorageItemBase>().Except(SelectedList).Where((Item) => (View.ContainerFromItem(Item) as SelectorItem).IsVisibleOnContainer(View)))
+                            foreach (FileSystemStorageItemBase Item in View.SelectedItems.OfType<FileSystemStorageItemBase>().Except(SelectedList).Where((Item) => (View.ContainerFromItem(Item) as SelectorItem).IsVisibleOnContainer(View)).ToArray())
                             {
                                 View.SelectedItems.Remove(Item);
                             }
 
-                            foreach (FileSystemStorageItemBase Item in SelectedList.Except(View.SelectedItems.OfType<FileSystemStorageItemBase>()))
+                            foreach (FileSystemStorageItemBase Item in SelectedList.Except(View.SelectedItems.OfType<FileSystemStorageItemBase>()).ToArray())
                             {
                                 View.SelectedItems.Add(Item);
                             }
@@ -249,8 +250,8 @@ namespace RX_Explorer.Class
 
                         RectangleInCanvas.SetValue(Canvas.LeftProperty, LeftPoint);
                         RectangleInCanvas.SetValue(Canvas.TopProperty, TopPoint);
-                        RectangleInCanvas.Width = Math.Min(Math.Max(0, EndPoint.X), InnerScrollView.ExtentWidth) - LeftPoint;
-                        RectangleInCanvas.Height = Math.Min(Math.Max(0, StartPoint.Y), InnerScrollView.ExtentHeight) - TopPoint;
+                        RectangleInCanvas.Width = Math.Min(Math.Max(0, EndPoint.X), InnerScrollView.ViewportWidth) - LeftPoint;
+                        RectangleInCanvas.Height = Math.Min(Math.Max(0, StartPoint.Y), InnerScrollView.ViewportHeight) - TopPoint;
                     }
                     else
                     {
@@ -259,8 +260,8 @@ namespace RX_Explorer.Class
 
                         RectangleInCanvas.SetValue(Canvas.LeftProperty, LeftPoint);
                         RectangleInCanvas.SetValue(Canvas.TopProperty, TopPoint);
-                        RectangleInCanvas.Width = Math.Min(Math.Max(0, EndPoint.X), InnerScrollView.ExtentWidth) - LeftPoint;
-                        RectangleInCanvas.Height = Math.Min(Math.Max(0, EndPoint.Y), InnerScrollView.ExtentHeight) - TopPoint;
+                        RectangleInCanvas.Width = Math.Min(Math.Max(0, EndPoint.X), InnerScrollView.ViewportWidth) - LeftPoint;
+                        RectangleInCanvas.Height = Math.Min(Math.Max(0, EndPoint.Y), InnerScrollView.ViewportHeight) - TopPoint;
                     }
                 }
                 else
@@ -272,8 +273,8 @@ namespace RX_Explorer.Class
 
                         RectangleInCanvas.SetValue(Canvas.LeftProperty, LeftPoint);
                         RectangleInCanvas.SetValue(Canvas.TopProperty, TopPoint);
-                        RectangleInCanvas.Width = Math.Min(Math.Max(0, StartPoint.X), InnerScrollView.ExtentWidth) - LeftPoint;
-                        RectangleInCanvas.Height = Math.Min(Math.Max(0, StartPoint.Y), InnerScrollView.ExtentHeight) - TopPoint;
+                        RectangleInCanvas.Width = Math.Min(Math.Max(0, StartPoint.X), InnerScrollView.ViewportWidth) - LeftPoint;
+                        RectangleInCanvas.Height = Math.Min(Math.Max(0, StartPoint.Y), InnerScrollView.ViewportHeight) - TopPoint;
                     }
                     else
                     {
@@ -282,8 +283,8 @@ namespace RX_Explorer.Class
 
                         RectangleInCanvas.SetValue(Canvas.LeftProperty, LeftPoint);
                         RectangleInCanvas.SetValue(Canvas.TopProperty, TopPoint);
-                        RectangleInCanvas.Width = Math.Min(Math.Max(0, StartPoint.X), InnerScrollView.ExtentWidth) - LeftPoint;
-                        RectangleInCanvas.Height = Math.Min(Math.Max(0, EndPoint.Y), InnerScrollView.ExtentHeight) - TopPoint;
+                        RectangleInCanvas.Width = Math.Min(Math.Max(0, StartPoint.X), InnerScrollView.ViewportWidth) - LeftPoint;
+                        RectangleInCanvas.Height = Math.Min(Math.Max(0, EndPoint.Y), InnerScrollView.ViewportHeight) - TopPoint;
                     }
                 }
             }

@@ -445,7 +445,8 @@
               Margin="0,5,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition x:Name="TreeViewGridCol"
-                                  x:FieldModifier="public"/>
+                                  x:FieldModifier="public"
+                                  Width="2*"/>
                 <ColumnDefinition Width="{x:Bind TreeViewGridCol.Width,Mode=OneWay,Converter={StaticResource Converter}}" />
                 <ColumnDefinition Width="6.5*" />
             </Grid.ColumnDefinitions>
@@ -505,7 +506,10 @@
                                    HorizontalAlignment="Center"
                                    ResizeBehavior="BasedOnAlignment"
                                    ResizeDirection="Auto"
-                                   Grid.Column="1"/>
+                                   Grid.Column="1"
+                                   PointerCaptureLost="GridSplitter_PointerCaptureLost"
+                                   PointerPressed="GridSplitter_PointerPressed"
+                                   PointerReleased="GridSplitter_PointerReleased"/>
         </Grid>
         <controls:Loading x:Name="LoadingControl"
                           IsLoading="False"
