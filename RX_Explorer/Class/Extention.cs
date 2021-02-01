@@ -15,6 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
+using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
@@ -38,6 +39,19 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extention
     {
+        public static bool IsVisibleOnContainer(this FrameworkElement Element, FrameworkElement Container)
+        {
+            if (Element == null || Container == null)
+            {
+                return false;
+            }
+
+            Rect ElementBounds = Element.TransformToVisual(Container).TransformBounds(new Rect(0.0, 0.0, Element.ActualWidth, Element.ActualHeight));
+            Rect ContainerBounds = new Rect(0.0, 0.0, Container.ActualWidth, Container.ActualHeight);
+
+            return !RectHelper.Intersect(ContainerBounds, ElementBounds).IsEmpty;
+        }
+
         public static async Task SetCommandBarFlyoutWithExtraContextMenuItems(this ListViewBase ListControl, CommandBarFlyout Flyout, Windows.Foundation.Point? ShowAt = null)
         {
             if (Flyout == null)

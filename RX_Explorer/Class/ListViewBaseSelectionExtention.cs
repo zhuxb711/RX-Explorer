@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Windows.Devices.Input;
 using Windows.Foundation;
 using Windows.UI.Input;
@@ -23,7 +24,7 @@ namespace RX_Explorer.Class
 
         public double HorizontalLeftScrollThreshold => ThresholdBorderThickness;
 
-        public double ThresholdBorderThickness { get; set; } = 35;
+        public double ThresholdBorderThickness { get; set; } = 50;
 
         private volatile bool AllowProcess;
 
@@ -38,6 +39,8 @@ namespace RX_Explorer.Class
         private ScrollBar InnerScrollBar;
 
         private bool IsDisposed;
+
+        private int Locker = 0;
 
         private readonly PointerEventHandler PointerPressedHandler;
 
@@ -110,33 +113,49 @@ namespace RX_Explorer.Class
         {
             if (AllowProcess && e.Pointer.PointerDeviceType == PointerDeviceType.Mouse && e.GetCurrentPoint(View).Properties.IsLeftButtonPressed)
             {
-                Point RelativeEndPoint = e.GetCurrentPoint(View).Position;
-                Point RelativeStartPoint = new Point(AbsStartPoint.X - InnerScrollView.HorizontalOffset, AbsStartPoint.Y - InnerScrollView.VerticalOffset);
-
-                DrawRectangleInCanvas(RelativeStartPoint, RelativeEndPoint);
-
-                GeneralTransform AbsToWindowTransform = View.TransformToVisual(Window.Current.Content);
-
-                Rect SelectedRect = new Rect(RelativeStartPoint, RelativeEndPoint);
-
-                if (SelectedRect.Width >= 20 && SelectedRect.Height >= 20)
+                if (Interlocked.Exchange(ref Locker, 1) == 0)
                 {
-                    IEnumerable<FileSystemStorageItemBase> SelectedArray = VisualTreeHelper.FindElementsInHostCoordinates(AbsToWindowTransform.TransformBounds(SelectedRect), View).OfType<SelectorItem>().Select((Item) => Item.Content as FileSystemStorageItemBase);
-
-                    foreach (FileSystemStorageItemBase Item in View.SelectedItems.Except(SelectedArray))
+                    try
                     {
-                        View.SelectedItems.Remove(Item);
-                    }
+                        Point RelativeEndPoint = e.GetCurrentPoint(View).Position;
 
-                    foreach (FileSystemStorageItemBase Item in SelectedArray.Except(View.SelectedItems))
+                        SrcollIfNeed(RelativeEndPoint);
+
+                        Point RelativeStartPoint = new Point(AbsStartPoint.X - InnerScrollView.HorizontalOffset, AbsStartPoint.Y - InnerScrollView.VerticalOffset);
+
+                        DrawRectangleInCanvas(RelativeStartPoint, RelativeEndPoint);
+
+                        GeneralTransform AbsToWindowTransform = View.TransformToVisual(Window.Current.Content);
+
+                        Rect SelectedRect = new Rect(RelativeStartPoint, RelativeEndPoint);
+
+                        if (SelectedRect.Width >= 20 && SelectedRect.Height >= 20)
+                        {
+                            IEnumerable<FileSystemStorageItemBase> SelectedList = VisualTreeHelper.FindElementsInHostCoordinates(AbsToWindowTransform.TransformBounds(SelectedRect), View).OfType<SelectorItem>().Select((Item) => Item.Content as FileSystemStorageItemBase);
+
+                            foreach (FileSystemStorageItemBase Item in View.SelectedItems.OfType<FileSystemStorageItemBase>().Except(SelectedList).Where((Item) => (View.ContainerFromItem(Item) as SelectorItem).IsVisibleOnContainer(View)))
+                            {
+                                View.SelectedItems.Remove(Item);
+                            }
+
+                            foreach (FileSystemStorageItemBase Item in SelectedList.Except(View.SelectedItems.OfType<FileSystemStorageItemBase>()))
+                            {
+                                View.SelectedItems.Add(Item);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
                     {
-                        View.SelectedItems.Add(Item);
+                        LogTracer.Log(ex);
                     }
-
-                    SrcollIfNeed(RelativeEndPoint);
+                    finally
+                    {
+                        _ = Interlocked.Exchange(ref Locker, 0);
+                    }
                 }
             }
         }
+
 
         private void View_RectangleDrawEnd(object sender, PointerRoutedEventArgs e)
         {
@@ -230,8 +249,8 @@ namespace RX_Explorer.Class
 
                         RectangleInCanvas.SetValue(Canvas.LeftProperty, LeftPoint);
                         RectangleInCanvas.SetValue(Canvas.TopProperty, TopPoint);
-                        RectangleInCanvas.Width = Math.Min(Math.Max(0, EndPoint.X) - LeftPoint, InnerScrollView.ExtentWidth - LeftPoint);
-                        RectangleInCanvas.Height = Math.Min(Math.Max(0, StartPoint.Y) - TopPoint, InnerScrollView.ExtentHeight - TopPoint);
+                        RectangleInCanvas.Width = Math.Min(Math.Max(0, EndPoint.X), InnerScrollView.ExtentWidth) - LeftPoint;
+                        RectangleInCanvas.Height = Math.Min(Math.Max(0, StartPoint.Y), InnerScrollView.ExtentHeight) - TopPoint;
                     }
                     else
                     {
@@ -240,8 +259,8 @@ namespace RX_Explorer.Class
 
                         RectangleInCanvas.SetValue(Canvas.LeftProperty, LeftPoint);
                         RectangleInCanvas.SetValue(Canvas.TopProperty, TopPoint);
-                        RectangleInCanvas.Width = Math.Min(Math.Max(0, EndPoint.X) - LeftPoint, InnerScrollView.ExtentWidth - LeftPoint);
-                        RectangleInCanvas.Height = Math.Min(Math.Max(0, EndPoint.Y) - TopPoint, InnerScrollView.ExtentHeight - TopPoint);
+                        RectangleInCanvas.Width = Math.Min(Math.Max(0, EndPoint.X), InnerScrollView.ExtentWidth) - LeftPoint;
+                        RectangleInCanvas.Height = Math.Min(Math.Max(0, EndPoint.Y), InnerScrollView.ExtentHeight) - TopPoint;
                     }
                 }
                 else
@@ -253,8 +272,8 @@ namespace RX_Explorer.Class
 
                         RectangleInCanvas.SetValue(Canvas.LeftProperty, LeftPoint);
                         RectangleInCanvas.SetValue(Canvas.TopProperty, TopPoint);
-                        RectangleInCanvas.Width = Math.Min(Math.Max(0, StartPoint.X) - LeftPoint, InnerScrollView.ExtentWidth - LeftPoint);
-                        RectangleInCanvas.Height = Math.Min(Math.Max(0, StartPoint.Y) - TopPoint, InnerScrollView.ExtentHeight - TopPoint);
+                        RectangleInCanvas.Width = Math.Min(Math.Max(0, StartPoint.X), InnerScrollView.ExtentWidth) - LeftPoint;
+                        RectangleInCanvas.Height = Math.Min(Math.Max(0, StartPoint.Y), InnerScrollView.ExtentHeight) - TopPoint;
                     }
                     else
                     {
@@ -263,8 +282,8 @@ namespace RX_Explorer.Class
 
                         RectangleInCanvas.SetValue(Canvas.LeftProperty, LeftPoint);
                         RectangleInCanvas.SetValue(Canvas.TopProperty, TopPoint);
-                        RectangleInCanvas.Width = Math.Min(Math.Max(0, StartPoint.X) - LeftPoint, InnerScrollView.ExtentWidth - LeftPoint);
-                        RectangleInCanvas.Height = Math.Min(Math.Max(0, EndPoint.Y) - TopPoint, InnerScrollView.ExtentHeight - TopPoint);
+                        RectangleInCanvas.Width = Math.Min(Math.Max(0, StartPoint.X), InnerScrollView.ExtentWidth) - LeftPoint;
+                        RectangleInCanvas.Height = Math.Min(Math.Max(0, EndPoint.Y), InnerScrollView.ExtentHeight) - TopPoint;
                     }
                 }
             }
