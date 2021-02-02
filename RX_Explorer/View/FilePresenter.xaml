@@ -1382,6 +1382,7 @@
             <Rectangle Fill="{ThemeResource SystemAccentColorDark2}"
                        Stroke="{ThemeResource SystemAccentColorLight2}"
                        x:Name="DrawRectangle"
+                       StrokeThickness="2"
                        Opacity="0.4"/>
         </Canvas>
         <StackPanel Grid.Row="1"
