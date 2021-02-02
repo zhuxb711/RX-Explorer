@@ -9,7 +9,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 
 namespace RX_Explorer.Class
@@ -42,7 +41,7 @@ namespace RX_Explorer.Class
 
         private int Locker = 0;
 
-        private List<KeyValuePair<SelectorItem, Rect>> AbsItemLocationRecord = new List<KeyValuePair<SelectorItem, Rect>>();
+        private List<KeyValuePair<FileSystemStorageItemBase, Rect>> AbsItemLocationRecord = new List<KeyValuePair<FileSystemStorageItemBase, Rect>>();
 
         private readonly PointerEventHandler PointerPressedHandler;
 
@@ -131,27 +130,48 @@ namespace RX_Explorer.Class
 
                         if (Math.Abs(RelativeStartPoint.X - RelativeEndPoint.X) >= 20 && Math.Abs(RelativeStartPoint.Y - RelativeEndPoint.Y) >= 20)
                         {
-                            foreach (SelectorItem Item in VisualTreeHelper.FindElementsInHostCoordinates(View.TransformToVisual(Window.Current.Content).TransformBounds(new Rect(0, 0, InnerScrollView.ViewportWidth, InnerScrollView.ViewportHeight)), View).OfType<SelectorItem>().Except(AbsItemLocationRecord.Select((Rec) => Rec.Key)))
+                            List<FileSystemStorageItemBase> VisibleList = new List<FileSystemStorageItemBase>();
+
+                            if (View is ListView)
                             {
-                                AbsItemLocationRecord.Add(new KeyValuePair<SelectorItem, Rect>(Item, Item.TransformToVisual(View).TransformBounds(new Rect(InnerScrollView.HorizontalOffset, InnerScrollView.VerticalOffset, Item.ActualWidth, Item.ActualHeight))));
+                                ItemsStackPanel VirtualPanel = View.ItemsPanelRoot as ItemsStackPanel;
+
+                                for (int i = VirtualPanel.FirstVisibleIndex; i <= VirtualPanel.LastVisibleIndex; i++)
+                                {
+                                    VisibleList.Add(View.Items[i] as FileSystemStorageItemBase);
+                                }
+                            }
+                            else
+                            {
+                                ItemsWrapGrid VirtualPanel = View.ItemsPanelRoot as ItemsWrapGrid;
+
+                                for (int i = VirtualPanel.FirstVisibleIndex; i <= VirtualPanel.LastVisibleIndex; i++)
+                                {
+                                    VisibleList.Add(View.Items[i] as FileSystemStorageItemBase);
+                                }
                             }
 
-                            Rect AbsBoxSelectionRect = new Rect(Math.Min(AbsStartPoint.X, Math.Max(AbsEndPoint.X, InnerScrollView.HorizontalOffset)), Math.Min(AbsStartPoint.Y, Math.Max(AbsEndPoint.Y, InnerScrollView.VerticalOffset)), Math.Min(Math.Abs(AbsStartPoint.X - AbsEndPoint.X), InnerScrollView.HorizontalOffset + InnerScrollView.ViewportWidth), Math.Min(Math.Abs(AbsStartPoint.Y - AbsEndPoint.Y), InnerScrollView.VerticalOffset + InnerScrollView.ViewportHeight));
+                            foreach (FileSystemStorageItemBase Item in VisibleList.Except(AbsItemLocationRecord.Select((Rec) => Rec.Key)))
+                            {
+                                if (View.ContainerFromItem(Item) is SelectorItem Selector)
+                                {
+                                    AbsItemLocationRecord.Add(new KeyValuePair<FileSystemStorageItemBase, Rect>(Item, Selector.TransformToVisual(View).TransformBounds(new Rect(InnerScrollView.HorizontalOffset, InnerScrollView.VerticalOffset, Selector.ActualWidth, Selector.ActualHeight))));
+                                }
+                            }
 
-                            foreach (KeyValuePair<SelectorItem, Rect> Pair in AbsItemLocationRecord)
+                            Rect AbsBoxSelectionRect = new Rect(Math.Min(AbsStartPoint.X, AbsEndPoint.X), Math.Min(AbsStartPoint.Y, AbsEndPoint.Y), Math.Abs(AbsStartPoint.X - AbsEndPoint.X), Math.Abs(AbsStartPoint.Y - AbsEndPoint.Y));
+
+                            foreach (KeyValuePair<FileSystemStorageItemBase, Rect> Pair in AbsItemLocationRecord)
                             {
                                 Rect Intersect = RectHelper.Intersect(AbsBoxSelectionRect, Pair.Value);
 
-                                if (Pair.Key.Content is FileSystemStorageItemBase Item)
+                                if (!Intersect.IsEmpty && Intersect.Width > 0 && Intersect.Height > 0)
                                 {
-                                    if (!Intersect.IsEmpty && Intersect.Width > 0 && Intersect.Height > 0)
-                                    {
-                                        View.SelectedItems.Add(Item);
-                                    }
-                                    else
-                                    {
-                                        View.SelectedItems.Remove(Item);
-                                    }
+                                    View.SelectedItems.Add(Pair.Key);
+                                }
+                                else
+                                {
+                                    View.SelectedItems.Remove(Pair.Key);
                                 }
                             }
                         }

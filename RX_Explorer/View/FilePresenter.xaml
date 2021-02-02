@@ -755,16 +755,14 @@
             </Grid>
         </DataTemplate>
 
-        <ItemsPanelTemplate x:Name="HorizontalGridViewPanel"
-                            x:FieldModifier="public">
+        <ItemsPanelTemplate x:Name="HorizontalGridViewPanel">
             <ItemsWrapGrid Orientation="Horizontal"
                            HorizontalAlignment="Stretch" />
         </ItemsPanelTemplate>
 
-        <ItemsPanelTemplate x:Name="VerticalGridViewPanel"
-                            x:FieldModifier="public">
+        <ItemsPanelTemplate x:Name="VerticalGridViewPanel">
             <ItemsWrapGrid Orientation="Vertical"
-                           HorizontalAlignment="Stretch" />
+                           HorizontalAlignment="Stretch"/>
         </ItemsPanelTemplate>
 
         <DataTemplate x:DataType="Cls:ListViewHeaderController"
@@ -1345,6 +1343,11 @@
                             Value="0" />
                 </Style>
             </ListView.ItemContainerStyle>
+            <ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <ItemsStackPanel />
+                </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
         </ListView>
         <GridView Name="GridViewControl"
                   Background="Transparent"
@@ -1369,6 +1372,11 @@
                   DoubleTapped="ViewControl_DoubleTapped"
                   ShowsScrollingPlaceholders="False"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
+            <GridView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <ItemsWrapGrid />
+                </ItemsPanelTemplate>
+            </GridView.ItemsPanel>
         </GridView>
         <TextBlock Name="HasFile"
                    x:FieldModifier="public"
