@@ -56,7 +56,7 @@ namespace RX_Explorer
 
         private CancellationTokenSource DelayEnterCancel;
 
-        public bool ShouldBlockKeyboardInput;
+        public bool BlockKeyboardShortCutInput;
 
         private volatile FilePresenter currentPresenter;
         public FilePresenter CurrentPresenter
@@ -174,12 +174,12 @@ namespace RX_Explorer
                 ProBar.Value = 0;
                 ProgressInfo.Text = Info + "...";
 
-                ShouldBlockKeyboardInput = true;
+                BlockKeyboardShortCutInput = true;
             }
             else
             {
                 await Task.Delay(500).ConfigureAwait(true);
-                ShouldBlockKeyboardInput = false;
+                BlockKeyboardShortCutInput = false;
             }
 
             LoadingControl.IsLoading = IsLoading;
@@ -859,7 +859,7 @@ namespace RX_Explorer
 
         private async void GlobeSearch_GotFocus(object sender, RoutedEventArgs e)
         {
-            ShouldBlockKeyboardInput = true;
+            BlockKeyboardShortCutInput = true;
 
             if (string.IsNullOrEmpty(GlobeSearch.Text))
             {
@@ -869,7 +869,7 @@ namespace RX_Explorer
 
         private void GlobeSearch_LostFocus(object sender, RoutedEventArgs e)
         {
-            ShouldBlockKeyboardInput = false;
+            BlockKeyboardShortCutInput = false;
         }
 
         private async void AddressBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
@@ -1308,7 +1308,7 @@ namespace RX_Explorer
 
         private async void AddressBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            ShouldBlockKeyboardInput = true;
+            BlockKeyboardShortCutInput = true;
 
             if (string.IsNullOrEmpty(AddressBox.Text))
             {
@@ -1341,7 +1341,7 @@ namespace RX_Explorer
         {
             AddressBox.Text = string.Empty;
             AddressButtonContainer.Visibility = Visibility.Visible;
-            ShouldBlockKeyboardInput = false;
+            BlockKeyboardShortCutInput = false;
         }
 
         private async void AddressButton_Click(object sender, RoutedEventArgs e)
@@ -1998,13 +1998,13 @@ namespace RX_Explorer
 
         private void SearchEngineFlyout_Opened(object sender, object e)
         {
-            ShouldBlockKeyboardInput = true;
+            BlockKeyboardShortCutInput = true;
             SearchEngineConfirm.Focus(FocusState.Programmatic);
         }
 
         private void SearchEngineFlyout_Closed(object sender, object e)
         {
-            ShouldBlockKeyboardInput = false;
+            BlockKeyboardShortCutInput = false;
         }
 
         private void EverythingQuestion_Tapped(object sender, TappedRoutedEventArgs e)

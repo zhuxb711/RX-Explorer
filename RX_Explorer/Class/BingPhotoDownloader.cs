@@ -9,7 +9,6 @@ using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.Storage;
-using Windows.Storage.Search;
 
 namespace RX_Explorer.Class
 {
@@ -51,7 +50,7 @@ namespace RX_Explorer.Class
                                 Task<string> CalTask1 = MD5Alg1.GetHashAsync(FileStream);
                                 Task<string> CalTask2 = MD5Alg2.GetHashAsync(TempFileStream);
 
-                                string [] ResultArray = await Task.WhenAll(CalTask1, CalTask2).ConfigureAwait(false);
+                                string[] ResultArray = await Task.WhenAll(CalTask1, CalTask2).ConfigureAwait(false);
 
                                 if (ResultArray[0] == ResultArray[1])
                                 {
@@ -162,21 +161,14 @@ namespace RX_Explorer.Class
         {
             try
             {
-                QueryOptions Options = new QueryOptions
-                {
-                    ApplicationSearchFilter = "System.FileName:BingDailyPicture_Cache*",
-                    FolderDepth = FolderDepth.Shallow,
-                    IndexerOption = IndexerOption.UseIndexerWhenAvailable
-                };
-                StorageFileQueryResult QueryResult = ApplicationData.Current.TemporaryFolder.CreateFileQueryWithOptions(Options);
-
-                IReadOnlyList<StorageFile> AllPreviousPictureList = await QueryResult.GetFilesAsync();
+                FileSystemStorageItemBase TempFolder = await FileSystemStorageItemBase.OpenAsync(ApplicationData.Current.TemporaryFolder.Path, ItemFilters.Folder);
+                List<FileSystemStorageItemBase> AllPreviousPictureList = TempFolder.GetChildrenItems(false, ItemFilters.File).Where((Item) => Item.Name.StartsWith("BingDailyPicture_Cache")).ToList();
 
                 if (AllPreviousPictureList.All((Item) => DateTime.TryParseExact(Regex.Match(Item.Name, @"(?<=\[)(.+)(?=\])").Value, "yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime LastUpdateDate) && LastUpdateDate < DateTime.Now.Date))
                 {
-                    foreach (StorageFile ToDelete in AllPreviousPictureList)
+                    foreach (FileSystemStorageItemBase ToDelete in AllPreviousPictureList)
                     {
-                        await ToDelete.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                        ToDelete.PermanentDelete();
                     }
 
                     return true;

@@ -1358,10 +1358,6 @@
     <value>油画</value>
     <comment>Image filter</comment>
   </data>
-  <data name="ExtendedSplash_Access_Tips" xml:space="preserve">
-    <value>请开启此应用的文件系统访问权限以正常工作\r然后重新启动该应用</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
   <data name="ExtendedSplash_QuickStartItem_Name_1" xml:space="preserve">
     <value>微软商店</value>
   </data>
@@ -1596,15 +1592,6 @@
   </data>
   <data name="Toast_BroadFileSystemAccess_ActionButton_2" xml:space="preserve">
     <value>稍后</value>
-  </data>
-  <data name="Toast_BroadFileSystemAccess_Text_1" xml:space="preserve">
-    <value>正在等待用户完成操作...</value>
-  </data>
-  <data name="Toast_BroadFileSystemAccess_Text_2" xml:space="preserve">
-    <value>请开启文件系统权限</value>
-  </data>
-  <data name="Toast_BroadFileSystemAccess_Text_3" xml:space="preserve">
-    <value>随后点击下方的启动</value>
   </data>
   <data name="Toast_EnterBackground_Text_1" xml:space="preserve">
     <value>请不要最小化RX文件管理器</value>

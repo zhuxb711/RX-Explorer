@@ -1370,10 +1370,6 @@
     <value>油畫</value>
     <comment>Image filter</comment>
   </data>
-  <data name="ExtendedSplash_Access_Tips" xml:space="preserve">
-    <value>請啟用此程式的系統檔案訪問權限，以使其正常運行\r然後重新啟動該程式</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
   <data name="ExtendedSplash_QuickStartItem_Name_1" xml:space="preserve">
     <value>Microsoft 商店</value>
   </data>
@@ -1615,15 +1611,6 @@
   </data>
   <data name="Toast_BroadFileSystemAccess_ActionButton_2" xml:space="preserve">
     <value>稍後</value>
-  </data>
-  <data name="Toast_BroadFileSystemAccess_Text_1" xml:space="preserve">
-    <value>等待使用者完成操作...</value>
-  </data>
-  <data name="Toast_BroadFileSystemAccess_Text_2" xml:space="preserve">
-    <value>請打開檔案系統權限</value>
-  </data>
-  <data name="Toast_BroadFileSystemAccess_Text_3" xml:space="preserve">
-    <value>然後點擊下面的啟動按鈕立即開始</value>
   </data>
   <data name="Toast_EnterBackground_Text_1" xml:space="preserve">
     <value>請不要最小化RX 檔案總管</value>

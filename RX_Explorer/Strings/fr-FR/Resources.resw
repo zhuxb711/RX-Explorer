@@ -1358,10 +1358,6 @@
     <value>Peinture à l'huile</value>
     <comment>Image filter</comment>
   </data>
-  <data name="ExtendedSplash_Access_Tips" xml:space="preserve">
-    <value>Veuillez activer l'accès au système de fichiers pour que cette application fonctionne correctement\rpuis redémarrer l'application</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
   <data name="ExtendedSplash_QuickStartItem_Name_1" xml:space="preserve">
     <value>Microsoft Store</value>
   </data>
@@ -1596,15 +1592,6 @@
   </data>
   <data name="Toast_BroadFileSystemAccess_ActionButton_2" xml:space="preserve">
     <value>Plus tard</value>
-  </data>
-  <data name="Toast_BroadFileSystemAccess_Text_1" xml:space="preserve">
-    <value>Attente que l'utilisateur termine l'opération...</value>
-  </data>
-  <data name="Toast_BroadFileSystemAccess_Text_2" xml:space="preserve">
-    <value>Veuillez activer les permissions du système</value>
-  </data>
-  <data name="Toast_BroadFileSystemAccess_Text_3" xml:space="preserve">
-    <value>Cliquez ensuite sur le lancement ci-dessous pour commencer immédiatement</value>
   </data>
   <data name="Toast_EnterBackground_Text_1" xml:space="preserve">
     <value>Veuillez ne pas minimiser la fenêtre de RX Explorateur</value>

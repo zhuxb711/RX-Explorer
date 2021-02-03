@@ -1,7 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using RX_Explorer.Class;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
@@ -63,9 +62,6 @@ namespace RX_Explorer
         {
             double HorizonLocation = Splash.ImageLocation.X + (Splash.ImageLocation.Width * 0.5);
             double VerticalLocation = Splash.ImageLocation.Y + (Splash.ImageLocation.Height * 0.7);
-
-            PermissionArea.SetValue(Canvas.LeftProperty, HorizonLocation - (PermissionArea.Width * 0.5));
-            PermissionArea.SetValue(Canvas.TopProperty, VerticalLocation + 15);
 
             LoadingBingArea.SetValue(Canvas.LeftProperty, HorizonLocation - (LoadingBingArea.Width * 0.5));
             LoadingBingArea.SetValue(Canvas.TopProperty, VerticalLocation + 15);
@@ -144,21 +140,7 @@ namespace RX_Explorer
                 await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///HotWebImage/Instagram.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_10"), QuickStartType.WebSite).ConfigureAwait(false);
                 await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///HotWebImage/Twitter.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_11"), QuickStartType.WebSite).ConfigureAwait(false);
 
-                bool IsFileAccessible = await CheckAccessAuthority().ConfigureAwait(false);
-
-                if (IsFileAccessible)
-                {
-                    await DismissExtendedSplashAsync().ConfigureAwait(false);
-                }
-                else
-                {
-                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                    {
-                        Display.Text = Globalization.GetString("ExtendedSplash_Access_Tips");
-                        PermissionArea.Visibility = Visibility.Visible;
-                        LoadingBingArea.Visibility = Visibility.Collapsed;
-                    });
-                }
+                await DismissExtendedSplashAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -172,41 +154,6 @@ namespace RX_Explorer
             {
                 SetControlPosition();
             }
-        }
-
-        private async Task<bool> CheckAccessAuthority()
-        {
-            try
-            {
-                await StorageFolder.GetFolderFromPathAsync(Environment.GetLogicalDrives().FirstOrDefault());
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private async void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            await ApplicationView.GetForCurrentView().TryConsolidateAsync();
-        }
-
-        private async void NavigationButton_Click(object sender, RoutedEventArgs e)
-        {
-            await Launcher.LaunchUriAsync(new Uri("ms-settings:privacy-broadfilesystemaccess"));
-
-            ToastContentBuilder Builder = new ToastContentBuilder()
-                                          .SetToastScenario(ToastScenario.Reminder)
-                                          .AddText(Globalization.GetString("Toast_BroadFileSystemAccess_Text_1"))
-                                          .AddText(Globalization.GetString("Toast_BroadFileSystemAccess_Text_2"))
-                                          .AddText(Globalization.GetString("Toast_BroadFileSystemAccess_Text_3"))
-                                          .AddButton(Globalization.GetString("Toast_BroadFileSystemAccess_ActionButton_1"), ToastActivationType.Foreground, "Restart")
-                                          .AddButton(new ToastButtonDismiss());
-
-            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Builder.GetToastContent().GetXml()));
-
-            await ApplicationView.GetForCurrentView().TryConsolidateAsync();
         }
     }
 }

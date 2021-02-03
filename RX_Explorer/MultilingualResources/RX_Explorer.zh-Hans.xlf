@@ -1795,11 +1795,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">油画</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Image filter</note>
         </trans-unit>
-        <trans-unit id="ExtendedSplash_Access_Tips" translate="yes" xml:space="preserve">
-          <source>Please enable file system access for this app to work properly\rThen restart the app</source>
-          <target state="translated">请开启此应用的文件系统访问权限以正常工作\r然后重新启动该应用</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
-        </trans-unit>
         <trans-unit id="ExtendedSplash_QuickStartItem_Name_1" translate="yes" xml:space="preserve">
           <source>Microsoft Store</source>
           <target state="translated">微软商店</target>
@@ -2110,18 +2105,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
         <trans-unit id="Toast_BroadFileSystemAccess_ActionButton_2" translate="yes" xml:space="preserve">
           <source>Later</source>
           <target state="translated">稍后</target>
-        </trans-unit>
-        <trans-unit id="Toast_BroadFileSystemAccess_Text_1" translate="yes" xml:space="preserve">
-          <source>Waiting for user to complete operation...</source>
-          <target state="translated">正在等待用户完成操作...</target>
-        </trans-unit>
-        <trans-unit id="Toast_BroadFileSystemAccess_Text_2" translate="yes" xml:space="preserve">
-          <source>Please turn on file system permissions</source>
-          <target state="translated">请开启文件系统权限</target>
-        </trans-unit>
-        <trans-unit id="Toast_BroadFileSystemAccess_Text_3" translate="yes" xml:space="preserve">
-          <source>Then click on the launch below to start immediately</source>
-          <target state="translated">随后点击下方的启动</target>
         </trans-unit>
         <trans-unit id="Toast_EnterBackground_Text_1" translate="yes" xml:space="preserve">
           <source>Please do not minimize RX-Explorer</source>

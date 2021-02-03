@@ -283,17 +283,17 @@ namespace RX_Explorer
 
                 switch (Microsoft.Toolkit.Uwp.Helpers.SystemInformation.LaunchCount)
                 {
-                    case 5:
+                    case 10:
                         {
                             await PinApplicationToTaskBarAsync().ConfigureAwait(true);
                             break;
                         }
-                    case 10:
+                    case 20:
                         {
                             RequestRateApplication();
                             break;
                         }
-                    case 15:
+                    case 30:
                         {
                             await PurchaseApplicationAsync().ConfigureAwait(true);
                             break;

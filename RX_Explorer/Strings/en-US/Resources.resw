@@ -1490,10 +1490,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>OilPainting</value>
     <comment>Image filter</comment>
   </data>
-  <data name="ExtendedSplash_Access_Tips" xml:space="preserve">
-    <value>Please enable file system access for this app to work properly\rThen restart the app</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
-  </data>
   <data name="ExtendedSplash_QuickStartItem_Name_1" xml:space="preserve">
     <value>Microsoft Store</value>
   </data>
@@ -1741,15 +1737,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="Toast_BroadFileSystemAccess_ActionButton_2" xml:space="preserve">
     <value>Later</value>
-  </data>
-  <data name="Toast_BroadFileSystemAccess_Text_1" xml:space="preserve">
-    <value>Waiting for user to complete operation...</value>
-  </data>
-  <data name="Toast_BroadFileSystemAccess_Text_2" xml:space="preserve">
-    <value>Please turn on file system permissions</value>
-  </data>
-  <data name="Toast_BroadFileSystemAccess_Text_3" xml:space="preserve">
-    <value>Then click on the launch below to start immediately</value>
   </data>
   <data name="Toast_EnterBackground_Text_1" xml:space="preserve">
     <value>Please do not minimize RX-Explorer</value>

@@ -1343,11 +1343,6 @@
                             Value="0" />
                 </Style>
             </ListView.ItemContainerStyle>
-            <ListView.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <ItemsStackPanel />
-                </ItemsPanelTemplate>
-            </ListView.ItemsPanel>
         </ListView>
         <GridView Name="GridViewControl"
                   Background="Transparent"
@@ -1372,11 +1367,6 @@
                   DoubleTapped="ViewControl_DoubleTapped"
                   ShowsScrollingPlaceholders="False"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
-            <GridView.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <ItemsWrapGrid />
-                </ItemsPanelTemplate>
-            </GridView.ItemsPanel>
         </GridView>
         <TextBlock Name="HasFile"
                    x:FieldModifier="public"
@@ -1390,7 +1380,6 @@
             <Rectangle Fill="{ThemeResource SystemAccentColorDark2}"
                        Stroke="{ThemeResource SystemAccentColorLight2}"
                        x:Name="DrawRectangle"
-                       StrokeThickness="2"
                        Opacity="0.4"/>
         </Canvas>
         <StackPanel Grid.Row="1"

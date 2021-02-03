@@ -597,7 +597,7 @@ namespace RX_Explorer
                 CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
                 CoreVirtualKeyStates ShiftState = sender.GetKeyState(VirtualKey.Shift);
 
-                if (!QueueContentDialog.IsRunningOrWaiting && !Container.ShouldBlockKeyboardInput)
+                if (!QueueContentDialog.IsRunningOrWaiting && !Container.BlockKeyboardShortCutInput)
                 {
                     args.Handled = true;
 
@@ -2099,6 +2099,7 @@ namespace RX_Explorer
             if (e.PointerDeviceType == PointerDeviceType.Mouse)
             {
                 e.Handled = true;
+                Container.BlockKeyboardShortCutInput = true;
 
                 if (ItemPresenter is GridView)
                 {
@@ -2189,6 +2190,8 @@ namespace RX_Explorer
                         }
                     }
                 }
+
+                Container.BlockKeyboardShortCutInput = false;
             }
         }
 
@@ -3048,9 +3051,10 @@ namespace RX_Explorer
                                     EditBox.Text = NewItem.Name;
                                     EditBox.Visibility = Visibility.Visible;
                                     EditBox.Focus(FocusState.Programmatic);
+                                    EditBox.SelectAll();
                                 }
 
-                                Container.ShouldBlockKeyboardInput = true;
+                                Container.BlockKeyboardShortCutInput = true;
                             }
 
                             break;
@@ -4809,7 +4813,12 @@ namespace RX_Explorer
 
         private void ItemContainer_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
-            if (!SettingControl.IsDoubleClickEnable && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple && e.KeyModifiers != VirtualKeyModifiers.Control && e.KeyModifiers != VirtualKeyModifiers.Shift)
+            if (!SettingControl.IsDoubleClickEnable
+                && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple
+                && SelectedItems.Count <= 1
+                && e.KeyModifiers != VirtualKeyModifiers.Control
+                && e.KeyModifiers != VirtualKeyModifiers.Shift
+                && !Container.BlockKeyboardShortCutInput)
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
                 {
@@ -5599,7 +5608,7 @@ namespace RX_Explorer
                                     EditBox.Focus(FocusState.Programmatic);
                                 }
 
-                                Container.ShouldBlockKeyboardInput = true;
+                                Container.BlockKeyboardShortCutInput = true;
                             }
                         }, TaskScheduler.FromCurrentSynchronizationContext());
                     }
@@ -5698,7 +5707,7 @@ namespace RX_Explorer
 
                     NameLabel.Visibility = Visibility.Visible;
 
-                    Container.ShouldBlockKeyboardInput = false;
+                    Container.BlockKeyboardShortCutInput = false;
                 }
             }
         }

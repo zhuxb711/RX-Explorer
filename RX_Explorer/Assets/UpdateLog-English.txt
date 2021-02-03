@@ -1,4 +1,41 @@
 ﻿*****
+###What's new in Ver.6.0.0.0
+
+#####Feature update
+
+>#####Each tab has an independent auxiliary process, which can perform file operations independently
+
+>#####Added settings, now you can select the default search engine configuration
+
+>#####Added support for .msi files
+
+#####UI update
+
+>#####The proportions corresponding to the left and right separated areas can now be saved
+
+>#####The rename box can now be confirmed with the Enter key
+
+>#####Press Shift and click the delete button, a confirmation prompt will pop up and "Permanently delete" is checked
+
+>#####Adjusted the width of each folder in the "Folders and Libraries" area
+
+>#####Adjusted and optimized the contrast of the UI in solid color mode, turning off the acrylic effect, etc.
+
+#####Bug fix
+
+>#####Fixed some interactive problems in single-click mode, including: rename, selected state, etc.
+
+>#####Fixed an issue where texts would not be selected when creating a new folder and activating the rename box
+
+>#####Fixed the problem that the color of the disk capacity bar will not change after changing the system accent color if RX is running
+
+>#####Fixed an issue that may cause a crash when editing video files
+
+>#####Fixed the issue that drag selection is limited to the visible range and cannot select invisible files
+
+>#####Fixed the problem of inverted right-click menu icons
+
+*****
 ###What's new in Ver.5.9.7.0
 
 #####Feature update

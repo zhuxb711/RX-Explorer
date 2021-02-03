@@ -1,4 +1,41 @@
 ﻿*****
+###Quoi de neuf dans la version 6.0.0.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Chaque onglet a un processus auxiliaire indépendant, qui peut effectuer des opérations sur les fichiers indépendamment
+
+>#####Paramètres ajoutés, vous pouvez maintenant sélectionner la configuration par défaut du moteur de recherche
+
+>#####Ajout de la prise en charge des fichiers .msi
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Les proportions correspondant aux zones séparées gauche et droite peuvent maintenant être enregistrées
+
+>#####La boîte de changement de nom peut maintenant être confirmée avec la touche Entrée
+
+>#####Appuyez sur Shift et cliquez sur le bouton Supprimer, une invite de confirmation apparaîtra et "Supprimer définitivement" est coché
+
+>#####Ajustement de la largeur de chaque dossier dans la zone "Dossiers et bibliothèques"
+
+>#####Ajustement et optimisation du contraste de l'interface utilisateur en mode couleur unie, désactivation de l'effet acrylique, etc.
+
+#####Correction d'un bug
+
+>#####Correction de certains problèmes interactifs en mode simple-clic, notamment: renommer, état sélectionné, etc.
+
+>#####Correction d'un problème où les textes n'étaient pas sélectionnés lors de la création d'un nouveau dossier et de l'activation de la boîte de changement de nom
+
+>#####Correction du problème selon lequel la couleur de la barre de capacité du disque ne changera pas après avoir changé la couleur d'accentuation du système si RX est en cours d'exécution
+
+>#####Correction d'un problème pouvant provoquer un plantage lors de l'édition de fichiers vidéo
+
+>#####Résolution du problème suivant: la sélection par glissement est limitée à la plage visible et ne peut pas sélectionner de fichiers invisibles
+
+>#####Correction du problème des icônes de menu inversées par clic droit
+
+*****
 ###Quoi de neuf dans la version 5.9.7.0
 
 ##### Mise à jour des fonctionnalités

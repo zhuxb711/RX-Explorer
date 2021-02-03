@@ -1795,11 +1795,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Peinture à l'huile</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Image filter</note>
         </trans-unit>
-        <trans-unit id="ExtendedSplash_Access_Tips" translate="yes" xml:space="preserve">
-          <source>Please enable file system access for this app to work properly\rThen restart the app</source>
-          <target state="translated">Veuillez activer l'accès au système de fichiers pour que cette application fonctionne correctement\rpuis redémarrer l'application</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
-        </trans-unit>
         <trans-unit id="ExtendedSplash_QuickStartItem_Name_1" translate="yes" xml:space="preserve">
           <source>Microsoft Store</source>
           <target state="translated">Microsoft Store</target>
@@ -2110,18 +2105,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="Toast_BroadFileSystemAccess_ActionButton_2" translate="yes" xml:space="preserve">
           <source>Later</source>
           <target state="translated">Plus tard</target>
-        </trans-unit>
-        <trans-unit id="Toast_BroadFileSystemAccess_Text_1" translate="yes" xml:space="preserve">
-          <source>Waiting for user to complete operation...</source>
-          <target state="translated">Attente que l'utilisateur termine l'opération...</target>
-        </trans-unit>
-        <trans-unit id="Toast_BroadFileSystemAccess_Text_2" translate="yes" xml:space="preserve">
-          <source>Please turn on file system permissions</source>
-          <target state="translated">Veuillez activer les permissions du système</target>
-        </trans-unit>
-        <trans-unit id="Toast_BroadFileSystemAccess_Text_3" translate="yes" xml:space="preserve">
-          <source>Then click on the launch below to start immediately</source>
-          <target state="translated">Cliquez ensuite sur le lancement ci-dessous pour commencer immédiatement</target>
         </trans-unit>
         <trans-unit id="Toast_EnterBackground_Text_1" translate="yes" xml:space="preserve">
           <source>Please do not minimize RX-Explorer</source>
