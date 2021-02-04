@@ -693,7 +693,7 @@ namespace RX_Explorer
             {
                 try
                 {
-                    FullTrustProcessController.CreateController();
+                    FullTrustProcessController.ResizeController(TabViewControl.TabItems.Count + 1);
 
                     Frame frame = new Frame();
 

@@ -111,19 +111,18 @@ namespace RX_Explorer.Class
             ExclusiveDisposed += FullTrustProcessController_ExclusiveDisposed;
         }
 
-        private static void FullTrustProcessController_ExclusiveDisposed(object sender, FullTrustProcessController e)
+        private async static void FullTrustProcessController_ExclusiveDisposed(object sender, FullTrustProcessController e)
         {
-            AvailableControllerQueue.Enqueue(new ExclusiveUsage(e));
-        }
-
-        public static void CreateController()
-        {
-            _ = Task.Run(() =>
+            if (!e.IsDisposed)
+            {
+                AvailableControllerQueue.Enqueue(new ExclusiveUsage(e));
+            }
+            else
             {
                 FullTrustProcessController Controller = new FullTrustProcessController();
-                Controller.ConnectRemoteAsync().GetAwaiter().GetResult();
+                await Controller.ConnectRemoteAsync().ConfigureAwait(true);
                 AvailableControllerQueue.Enqueue(new ExclusiveUsage(Controller));
-            });
+            }
         }
 
         public static void ResizeController(int ResizeTarget)
@@ -132,19 +131,33 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    while (CurrentRunningControllerNum > ResizeTarget)
+                    if (CurrentRunningControllerNum > ResizeTarget)
                     {
-                        if (AvailableControllerQueue.TryDequeue(out ExclusiveUsage Usage))
+                        do
                         {
-                            Usage.Controller.Dispose();
-                        }
-                        else
-                        {
-                            if (!SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty, 5000))
+                            if (AvailableControllerQueue.TryDequeue(out ExclusiveUsage Usage))
                             {
-                                break;
+                                Usage.Controller.Dispose();
+                            }
+                            else
+                            {
+                                if (!SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty, 5000))
+                                {
+                                    break;
+                                }
                             }
                         }
+                        while (CurrentRunningControllerNum > ResizeTarget);
+                    }
+                    else if (CurrentRunningControllerNum < ResizeTarget)
+                    {
+                        do
+                        {
+                            FullTrustProcessController Controller = new FullTrustProcessController();
+                            Controller.ConnectRemoteAsync().GetAwaiter().GetResult();
+                            AvailableControllerQueue.Enqueue(new ExclusiveUsage(Controller));
+                        }
+                        while (CurrentRunningControllerNum < ResizeTarget);
                     }
                 }
                 catch (Exception ex)
@@ -162,15 +175,28 @@ namespace RX_Explorer.Class
                 {
                     if (AvailableControllerQueue.TryDequeue(out ExclusiveUsage Result))
                     {
-                        return Result;
-                    }
-                    else
-                    {
-                        if (!SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty, 5000))
+                        if (Result.Controller.IsDisposed)
                         {
                             FullTrustProcessController Controller = new FullTrustProcessController();
                             Controller.ConnectRemoteAsync().GetAwaiter().GetResult();
-                            return new ExclusiveUsage(Controller);
+                            AvailableControllerQueue.Enqueue(new ExclusiveUsage(Controller));
+                        }
+                        else
+                        {
+                            return Result;
+                        }
+                    }
+                    else
+                    {
+                        if (CurrentRunningControllerNum > 0)
+                        {
+                            SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty);
+                        }
+                        else
+                        {
+                            FullTrustProcessController Controller = new FullTrustProcessController();
+                            Controller.ConnectRemoteAsync().GetAwaiter().GetResult();
+                            AvailableControllerQueue.Enqueue(new ExclusiveUsage(Controller));
                         }
                     }
                 }
@@ -198,6 +224,11 @@ namespace RX_Explorer.Class
                 case "Identity":
                     {
                         await args.Request.SendResponseAsync(new ValueSet { { "Identity", "UWP" } });
+                        break;
+                    }
+                case "FullTrustProcessExited":
+                    {
+                        Dispose();
                         break;
                     }
             }
@@ -1993,11 +2024,7 @@ namespace RX_Explorer.Class
 
             public void Dispose()
             {
-                if (!Controller.IsDisposed)
-                {
-                    ExclusiveDisposed?.Invoke(this, Controller);
-                }
-
+                ExclusiveDisposed?.Invoke(this, Controller);
                 Controller = null;
             }
         }

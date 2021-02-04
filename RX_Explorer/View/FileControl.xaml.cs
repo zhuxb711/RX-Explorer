@@ -479,7 +479,7 @@ namespace RX_Explorer
 
         private async void FolderTree_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
         {
-            if (args.InvokedItem is TreeViewNode Node && Node.Content is TreeViewNodeContent Content)
+            if (args.InvokedItem is TreeViewNode Node && Node.Content is TreeViewNodeContent Content && CurrentPresenter != null)
             {
                 await CurrentPresenter.DisplayItemsInFolder(Content.Path).ConfigureAwait(false);
             }

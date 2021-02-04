@@ -6426,7 +6426,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if (await FileSystemStorageItemBase.OpenAsync(Item.LinkTargetPath, ItemFilters.Folder).ConfigureAwait(true) is FileSystemStorageItemBase ParentFolder)
+                    if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(Item.LinkTargetPath), ItemFilters.Folder).ConfigureAwait(true) is FileSystemStorageItemBase ParentFolder)
                     {
                         await DisplayItemsInFolder(ParentFolder).ConfigureAwait(true);
 

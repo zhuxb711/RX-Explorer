@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.AppService;
@@ -73,7 +74,7 @@ namespace CommunicateService
             {
                 AppServiceConnection ServerConnection = null;
 
-                if (SpinWait.SpinUntil(() => PairedConnections.ContainsKey(sender), 5000))
+                if (SpinWait.SpinUntil(() => PairedConnections.ContainsKey(sender), 3000))
                 {
                     ServerConnection = PairedConnections[sender];
                 }
@@ -129,6 +130,14 @@ namespace CommunicateService
                         if (PairedConnections.TryRemove(DisConnection, out AppServiceConnection ServerConnection))
                         {
                             Task.WaitAny(ServerConnection.SendMessageAsync(new ValueSet { { "ExecuteType", "Execute_Exit" } }).AsTask(), Task.Delay(2000));
+                        }
+                        else if (PairedConnections.FirstOrDefault((Con) => Con.Value == DisConnection).Key is AppServiceConnection ClientConnection)
+                        {
+                            if (PairedConnections.TryRemove(ClientConnection, out _))
+                            {
+                                Task.WaitAny(ClientConnection.SendMessageAsync(new ValueSet { { "ExecuteType", "FullTrustProcessExited" } }).AsTask(), Task.Delay(2000));
+                                ClientConnection.Dispose();
+                            }
                         }
                     }
                     finally

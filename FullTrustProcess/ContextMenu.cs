@@ -56,13 +56,21 @@ namespace FullTrustProcess
                                             {
                                                 using (Bitmap OriginBitmap = MenuItem.BitmapHandle.ToBitmap())
                                                 {
-                                                    OriginBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
+                                                    BitmapData OriginData = OriginBitmap.LockBits(new Rectangle(0, 0, OriginBitmap.Width, OriginBitmap.Height), ImageLockMode.ReadOnly, OriginBitmap.PixelFormat);
 
-                                                    using (MemoryStream Stream = new MemoryStream())
+                                                    try
                                                     {
-                                                        OriginBitmap.Save(Stream, ImageFormat.Png);
+                                                        using (Bitmap ArgbBitmap = new Bitmap(OriginBitmap.Width, OriginBitmap.Height, OriginData.Stride, PixelFormat.Format32bppArgb, OriginData.Scan0))
+                                                        using (MemoryStream Stream = new MemoryStream())
+                                                        {
+                                                            ArgbBitmap.Save(Stream, ImageFormat.Png);
 
-                                                        ContextMenuItemList.Add(new ContextMenuPackage(MenuItem.HelpText, MenuItem.Verb, Stream.ToArray()));
+                                                            ContextMenuItemList.Add(new ContextMenuPackage(MenuItem.HelpText, MenuItem.Verb, Stream.ToArray()));
+                                                        }
+                                                    }
+                                                    finally
+                                                    {
+                                                        OriginBitmap.UnlockBits(OriginData);
                                                     }
                                                 }
                                             }

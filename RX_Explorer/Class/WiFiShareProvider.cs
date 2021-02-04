@@ -36,7 +36,7 @@ namespace RX_Explorer.Class
         public WiFiShareProvider()
         {
             ConnectionProfile CurrentProfile = NetworkInformation.GetInternetConnectionProfile();
-            HostName CurrentHostName = NetworkInformation.GetHostNames().FirstOrDefault(Host => Host.Type == HostNameType.Ipv4 && Host.IPInformation?.NetworkAdapter != null && Host.IPInformation.NetworkAdapter.NetworkAdapterId == CurrentProfile.NetworkAdapter.NetworkAdapterId);
+            HostName CurrentHostName = NetworkInformation.GetHostNames().FirstOrDefault(Host => Host.Type == HostNameType.Ipv4 && Host.IPInformation?.NetworkAdapter != null && Host.IPInformation?.NetworkAdapter.NetworkAdapterId == CurrentProfile.NetworkAdapter?.NetworkAdapterId);
 
             Listener = new HttpListener();
             Listener.Prefixes.Add($"http://+:8125/");
