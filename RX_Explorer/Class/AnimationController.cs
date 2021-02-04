@@ -72,6 +72,28 @@ namespace RX_Explorer.Class
             }
         }
 
+        public TransitionCollection BladeViewTransitions
+        {
+            get
+            {
+                if (IsEnableAnimation)
+                {
+                    return new TransitionCollection
+                    {
+                        new EntranceThemeTransition
+                        {
+                            IsStaggeringEnabled = true
+                        },
+                        new RepositionThemeTransition()
+                    };
+                }
+                else
+                {
+                    return new TransitionCollection();
+                }
+            }
+        }
+
         public TransitionCollection EntranceTransitions
         {
             get
@@ -170,6 +192,7 @@ namespace RX_Explorer.Class
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PaneLeftTransitions)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PaneTopTransitions)));
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RepositionTransitions)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BladeViewTransitions)));
 
                     ApplicationData.Current.LocalSettings.Values["EnableAnimation"] = value;
                     ApplicationData.Current.SignalDataChanged();

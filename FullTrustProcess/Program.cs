@@ -310,24 +310,61 @@ namespace FullTrustProcess
 
                             if (File.Exists(ExecutePath))
                             {
-                                using (ShellLink Link = new ShellLink(ExecutePath))
+                                StringBuilder ProductCode = new StringBuilder(39);
+                                StringBuilder ComponentCode = new StringBuilder(39);
+
+                                if (Msi.MsiGetShortcutTarget(ExecutePath, ProductCode, szComponentCode: ComponentCode).Succeeded)
                                 {
-                                    if (string.IsNullOrEmpty(Link.TargetPath))
+                                    uint Length = 0;
+
+                                    StringBuilder ActualPathBuilder = new StringBuilder();
+
+                                    Msi.INSTALLSTATE State = Msi.MsiGetComponentPath(ProductCode.ToString(), ComponentCode.ToString(), ActualPathBuilder, ref Length);
+
+                                    if (State == Msi.INSTALLSTATE.INSTALLSTATE_LOCAL || State == Msi.INSTALLSTATE.INSTALLSTATE_SOURCE)
                                     {
-                                        Value.Add("Error", "TargetPath is invalid");
+                                        string ActualPath = ActualPathBuilder.ToString();
+
+                                        foreach (Match Var in Regex.Matches(ActualPath, @"(?<=(%))[\s\S]+(?=(%))"))
+                                        {
+                                            ActualPath = ActualPath.Replace($"%{Var.Value}%", Environment.GetEnvironmentVariable(Var.Value));
+                                        }
+
+                                        Value.Add("Success", JsonSerializer.Serialize(new HyperlinkPackage(ExecutePath, ActualPath, Array.Empty<string>(), string.Empty, false)));
                                     }
                                     else
                                     {
-                                        MatchCollection Collection = Regex.Matches(Link.Arguments, "[^ \"]+|\"[^\"]*\"");
-
-                                        List<string> Arguments = new List<string>(Collection.Count);
-
-                                        foreach (Match Mat in Collection)
+                                        Value.Add("Error", "Lnk file could not be analysis by MsiGetShortcutTarget");
+                                    }
+                                }
+                                else
+                                {
+                                    using (ShellLink Link = new ShellLink(ExecutePath))
+                                    {
+                                        if (string.IsNullOrEmpty(Link.TargetPath))
                                         {
-                                            Arguments.Add(Mat.Value);
+                                            Value.Add("Error", "TargetPath is invalid");
                                         }
+                                        else
+                                        {
+                                            MatchCollection Collection = Regex.Matches(Link.Arguments, "[^ \"]+|\"[^\"]*\"");
 
-                                        Value.Add("Success", JsonSerializer.Serialize(new HyperlinkPackage(ExecutePath, Link.TargetPath, Arguments.ToArray(), Link.Description, Link.RunAsAdministrator)));
+                                            List<string> Arguments = new List<string>(Collection.Count);
+
+                                            foreach (Match Mat in Collection)
+                                            {
+                                                Arguments.Add(Mat.Value);
+                                            }
+
+                                            string ActualPath = Link.TargetPath;
+
+                                            foreach (Match Var in Regex.Matches(ActualPath, @"(?<=(%))[\s\S]+(?=(%))"))
+                                            {
+                                                ActualPath = ActualPath.Replace($"%{Var.Value}%", Environment.GetEnvironmentVariable(Var.Value));
+                                            }
+
+                                            Value.Add("Success", JsonSerializer.Serialize(new HyperlinkPackage(ExecutePath, ActualPath, Arguments.ToArray(), Link.Description, Link.RunAsAdministrator)));
+                                        }
                                     }
                                 }
                             }

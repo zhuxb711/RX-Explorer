@@ -458,7 +458,8 @@
                                 Background="Transparent"
                                 ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                                 SizeChanged="BladeViewer_SizeChanged"
-                                BladeClosed="BladeViewer_BladeClosed"/>
+                                BladeClosed="BladeViewer_BladeClosed"
+                                ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.BladeViewTransitions, Mode=OneWay}"/>
             <muxc:TreeView Name="FolderTree"
                            x:FieldModifier="public"
                            Expanding="FolderTree_Expanding"

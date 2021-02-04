@@ -80,6 +80,8 @@ namespace RX_Explorer.Class
 
         private const string ExecuteType_GetMIMEContentType = "Execute_GetMIMEContentType";
 
+        private const ushort DynamicBackupProcessNum = 1;
+
         private readonly int CurrentProcessId;
 
         private bool IsConnected;
@@ -131,6 +133,8 @@ namespace RX_Explorer.Class
             {
                 try
                 {
+                    ResizeTarget += DynamicBackupProcessNum;
+
                     if (CurrentRunningControllerNum > ResizeTarget)
                     {
                         do

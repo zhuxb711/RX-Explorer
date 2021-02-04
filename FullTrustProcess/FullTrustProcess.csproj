@@ -41,6 +41,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -50,6 +51,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -132,6 +134,9 @@
     </PackageReference>
     <PackageReference Include="System.Text.Json">
       <Version>5.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Vanara.PInvoke.Msi">
+      <Version>3.3.3</Version>
     </PackageReference>
     <PackageReference Include="Vanara.PInvoke.UrlMon">
       <Version>3.3.3</Version>
