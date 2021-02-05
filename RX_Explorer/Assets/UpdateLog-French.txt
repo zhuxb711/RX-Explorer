@@ -1,4 +1,21 @@
 ﻿*****
+###Quoi de neuf dans la version 6.0.1.0
+
+#####Correction d'un bug
+
+>#####Correction des problèmes liés au planificateur de processus auxiliaire
+
+>#####Correction du problème selon lequel la barre d'adresse ne peut pas être utilisée normalement lorsqu'il n'y a qu'un seul onglet
+
+>#####Correction du problème selon lequel le bouton "Ouvrir l'emplacement du fichier lnk" pouvait être invalide ou incorrect
+
+>#####Correction du problème que le fichier de raccourci sous la forme de Msi ne pouvait pas être analysé
+
+>#####Correction du problème selon lequel le commutateur d'effet d'animation n'est pas valide pour l'animation de la vue fractionnée verticale
+
+>#####Correction du problème selon lequel un clic sur le répertoire sur certains PC plus lents pouvait provoquer un crash
+
+*****
 ###Quoi de neuf dans la version 6.0.0.0
 
 #####Mise à jour des fonctionnalités

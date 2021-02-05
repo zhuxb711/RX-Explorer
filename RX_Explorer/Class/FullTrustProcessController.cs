@@ -90,6 +90,8 @@ namespace RX_Explorer.Class
 
         private bool IsDisposed;
 
+        private static readonly object Locker = new object();
+
         public bool IsAnyActionExcutingInCurrentController { get; private set; }
 
         public static bool IsAnyActionExcutingInAllController
@@ -115,15 +117,15 @@ namespace RX_Explorer.Class
 
         private async static void FullTrustProcessController_ExclusiveDisposed(object sender, FullTrustProcessController e)
         {
-            if (!e.IsDisposed)
-            {
-                AvailableControllerQueue.Enqueue(new ExclusiveUsage(e));
-            }
-            else
+            if (e.IsDisposed)
             {
                 FullTrustProcessController Controller = new FullTrustProcessController();
                 await Controller.ConnectRemoteAsync().ConfigureAwait(true);
                 AvailableControllerQueue.Enqueue(new ExclusiveUsage(Controller));
+            }
+            else
+            {
+                AvailableControllerQueue.Enqueue(new ExclusiveUsage(e));
             }
         }
 
@@ -133,6 +135,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
+
                     ResizeTarget += DynamicBackupProcessNum;
 
                     if (CurrentRunningControllerNum > ResizeTarget)
@@ -153,15 +156,21 @@ namespace RX_Explorer.Class
                         }
                         while (CurrentRunningControllerNum > ResizeTarget);
                     }
-                    else if (CurrentRunningControllerNum < ResizeTarget)
+                    else
                     {
-                        do
+                        lock (Locker)
                         {
-                            FullTrustProcessController Controller = new FullTrustProcessController();
-                            Controller.ConnectRemoteAsync().GetAwaiter().GetResult();
-                            AvailableControllerQueue.Enqueue(new ExclusiveUsage(Controller));
+                            if (CurrentRunningControllerNum < ResizeTarget)
+                            {
+                                do
+                                {
+                                    FullTrustProcessController Controller = new FullTrustProcessController();
+                                    Controller.ConnectRemoteAsync().GetAwaiter().GetResult();
+                                    AvailableControllerQueue.Enqueue(new ExclusiveUsage(Controller));
+                                }
+                                while (CurrentRunningControllerNum < ResizeTarget);
+                            }
                         }
-                        while (CurrentRunningControllerNum < ResizeTarget);
                     }
                 }
                 catch (Exception ex)
@@ -183,7 +192,7 @@ namespace RX_Explorer.Class
                         {
                             FullTrustProcessController Controller = new FullTrustProcessController();
                             Controller.ConnectRemoteAsync().GetAwaiter().GetResult();
-                            AvailableControllerQueue.Enqueue(new ExclusiveUsage(Controller));
+                            return new ExclusiveUsage(Controller);
                         }
                         else
                         {
@@ -198,9 +207,15 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            FullTrustProcessController Controller = new FullTrustProcessController();
-                            Controller.ConnectRemoteAsync().GetAwaiter().GetResult();
-                            AvailableControllerQueue.Enqueue(new ExclusiveUsage(Controller));
+                            lock (Locker)
+                            {
+                                if (CurrentRunningControllerNum == 0)
+                                {
+                                    FullTrustProcessController Controller = new FullTrustProcessController();
+                                    Controller.ConnectRemoteAsync().GetAwaiter().GetResult();
+                                    AvailableControllerQueue.Enqueue(new ExclusiveUsage(Controller));
+                                }
+                            }
                         }
                     }
                 }

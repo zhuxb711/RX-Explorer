@@ -1,4 +1,21 @@
 ﻿*****
+###What's new in Ver.6.0.1.0
+
+#####Bug fix
+
+>#####Fixed the problems that related to the auxiliary process scheduler
+
+>#####Fixed the problem that the address bar cannot be used normally when there is only one tab
+
+>#####Fixed the problem that the "Open lnk file location" button may be invalid or wrong
+
+>#####Fixed the problem that the shortcut file in the form of Msi could not be parsed
+
+>#####Fixed the problem that the animation effect switch is invalid for the animation of the vertical split view
+
+>#####Fixed the problem that clicking on the directory on some slower PCs may cause a crash
+
+*****
 ###What's new in Ver.6.0.0.0
 
 #####Feature update
