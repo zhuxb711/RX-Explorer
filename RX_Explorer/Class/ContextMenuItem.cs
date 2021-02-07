@@ -1,20 +1,31 @@
 ﻿using ShareClassLibrary;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Imaging;
+using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
 
 namespace RX_Explorer.Class
 {
     public sealed class ContextMenuItem : IEquatable<ContextMenuItem>
     {
-        public string Description
+        public string Name
         {
             get
             {
-                return DataPackage.Description;
+                return DataPackage.Name;
+            }
+        }
+
+        public int Id
+        {
+            get
+            {
+                return DataPackage.Id;
             }
         }
 
@@ -34,6 +45,8 @@ namespace RX_Explorer.Class
             }
         }
 
+        public ContextMenuItem[] SubMenus { get; }
+
         public string BelongTo { get; private set; }
 
         private readonly ContextMenuPackage DataPackage;
@@ -42,6 +55,8 @@ namespace RX_Explorer.Class
         {
             this.DataPackage = DataPackage;
             this.BelongTo = BelongTo;
+
+            SubMenus = DataPackage.SubMenus.Select((Menu) => new ContextMenuItem(Menu, BelongTo)).ToArray();
         }
 
         public void UpdateBelonging(string BelongTo)
@@ -49,7 +64,7 @@ namespace RX_Explorer.Class
             this.BelongTo = BelongTo;
         }
 
-        public async Task<Button> GenerateUIButton()
+        private static async Task<Button> GenerateUIButtonCoreAsync(CommandBarFlyout ParentFlyout, ContextMenuItem Item)
         {
             Grid Gr = new Grid
             {
@@ -58,55 +73,101 @@ namespace RX_Explorer.Class
             };
             Gr.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(25) });
             Gr.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(5) });
-            Gr.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            Gr.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            Gr.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0) });
+            Gr.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(5) });
 
             TextBlock Block = new TextBlock
             {
-                Text = Description
+                Text = Item.Name
             };
-            Block.SetValue(Grid.ColumnProperty, 2);
+            Grid.SetColumn(Block, 2);
             Gr.Children.Add(Block);
 
-            Image ImageControl = new Image
+            if (Item.IconData.Length != 0)
             {
-                Stretch = Windows.UI.Xaml.Media.Stretch.Uniform,
-                Height = 18,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            ImageControl.SetValue(Grid.ColumnProperty, 0);
-            Gr.Children.Add(ImageControl);
+                Image ImageControl = new Image
+                {
+                    Stretch = Windows.UI.Xaml.Media.Stretch.Uniform,
+                    Height = 18,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                Grid.SetColumn(ImageControl, 0);
+                Gr.Children.Add(ImageControl);
 
-            if (IconData.Length != 0)
-            {
-                using (MemoryStream Stream = new MemoryStream(IconData))
+                using (MemoryStream Stream = new MemoryStream(Item.IconData))
                 {
                     BitmapImage Icon = new BitmapImage();
                     ImageControl.Source = Icon;
                     await Icon.SetSourceAsync(Stream.AsRandomAccessStream());
                 }
             }
-            else
-            {
-                BitmapImage Icon = new BitmapImage();
-                ImageControl.Source = Icon;
-                Icon.UriSource = AppThemeController.Current.Theme == ElementTheme.Light ? new Uri("ms-appx:///Assets/DefaultAppIcon-Black.png") : new Uri("ms-appx:///Assets/DefaultAppIcon-White.png");
-            }
-
 
             Button Btn = new Button
             {
                 Content = Gr,
-                Tag = this,
+                Tag = Item,
                 Style = (Style)Application.Current.Resources["ButtonLikeCommandBarFlyout"],
                 HorizontalAlignment = HorizontalAlignment.Stretch,
-                HorizontalContentAlignment = HorizontalAlignment.Left
+                HorizontalContentAlignment = HorizontalAlignment.Stretch
             };
+            Btn.Click += async (s, e) =>
+            {
+                if (s is Button Btn)
+                {
+                    if (Btn.Flyout != null)
+                    {
+                        Btn.Flyout.ShowAt(Btn);
+                    }
+                    else if (Btn.Tag is ContextMenuItem MenuItem)
+                    {
+                        ParentFlyout.Hide();
+                        await MenuItem.InvokeAsync().ConfigureAwait(true);
+                    }
+                }
+            };
+
+            if (Item.SubMenus.Length > 0)
+            {
+                StackPanel Panel = new StackPanel();
+
+                foreach (ContextMenuItem SubItem in Item.SubMenus)
+                {
+                    Panel.Children.Add(await GenerateUIButtonCoreAsync(ParentFlyout, SubItem).ConfigureAwait(true));
+                }
+
+                Btn.Flyout = new Flyout
+                {
+                    Content = Panel,
+                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                };
+
+                Gr.ColumnDefinitions[3].Width = new GridLength(12);
+
+                Viewbox Box = new Viewbox
+                {
+                    VerticalAlignment = VerticalAlignment.Stretch,
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    Child = new FontIcon
+                    {
+                        Glyph = "\uE974"
+                    }
+                };
+
+                Grid.SetColumn(Box, 3);
+                Gr.Children.Add(Box);
+            }
 
             return Btn;
         }
 
-        public async Task Invoke()
+        public Task<Button> GenerateUIButtonAsync(CommandBarFlyout ParentFlyout)
+        {
+            return GenerateUIButtonCoreAsync(ParentFlyout, this);
+        }
+
+        public async Task InvokeAsync()
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
@@ -116,14 +177,14 @@ namespace RX_Explorer.Class
 
         public bool Equals(ContextMenuItem other)
         {
-            return Verb == other?.Verb;
+            return Id == other?.Id;
         }
 
         public override bool Equals(object obj)
         {
             if (obj is ContextMenuItem Item)
             {
-                return Verb == Item.Verb;
+                return Id == Item.Id;
             }
             else
             {
@@ -133,7 +194,7 @@ namespace RX_Explorer.Class
 
         public override int GetHashCode()
         {
-            return Verb.GetHashCode();
+            return Id.GetHashCode();
         }
     }
 }

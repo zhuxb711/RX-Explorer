@@ -352,8 +352,6 @@
     <Content Include="Assets\AddImage.png" />
     <Content Include="Assets\AlphaPNG.png" />
     <Content Include="Assets\ColorPickerHero.png" />
-    <Content Include="Assets\DefaultAppIcon-Black.png" />
-    <Content Include="Assets\DefaultAppIcon-White.png" />
     <Content Include="Assets\DeviceIcon.png" />
     <Content Include="Assets\FolderIcon.png" />
     <Content Include="Assets\Github-Intro1.png" />

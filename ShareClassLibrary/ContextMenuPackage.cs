@@ -2,17 +2,14 @@
 {
     public sealed class ContextMenuPackage
     {
-        public string Description { get; }
+        public string Name { get; set; }
 
-        public string Verb { get; }
+        public int Id { get; set; }
 
-        public byte[] IconData { get; }
+        public string Verb { get; set; }
 
-        public ContextMenuPackage(string Description, string Verb, byte[] IconData)
-        {
-            this.Description = Description;
-            this.Verb = Verb;
-            this.IconData = IconData;
-        }
+        public byte[] IconData { get; set; }
+
+        public ContextMenuPackage[] SubMenus { get; set; }
     }
 }

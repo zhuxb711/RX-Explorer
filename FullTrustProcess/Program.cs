@@ -36,7 +36,6 @@ namespace FullTrustProcess
 
         private static Process ExplorerProcess;
 
-        [STAThread]
         static async Task Main(string[] args)
         {
             try
@@ -185,7 +184,7 @@ namespace FullTrustProcess
                             string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);
                             bool IncludeExtensionItem = Convert.ToBoolean(args.Request.Message["IncludeExtensionItem"]);
 
-                            List<ContextMenuPackage> ContextMenuItems = ContextMenu.FetchContextMenuItems(ExecutePath, IncludeExtensionItem);
+                            ContextMenuPackage[] ContextMenuItems = await ContextMenu.FetchContextMenuItemsAsync(ExecutePath, IncludeExtensionItem);
 
                             ValueSet Value = new ValueSet
                             {
@@ -198,25 +197,26 @@ namespace FullTrustProcess
                         }
                     case "Execute_InvokeContextMenuItem":
                         {
-                            string Verb = Convert.ToString(args.Request.Message["InvokeVerb"]);
                             string Path = Convert.ToString(args.Request.Message["ExecutePath"]);
+                            string Verb = Convert.ToString(args.Request.Message["InvokeVerb"]);
+                            int Id = Convert.ToInt32(args.Request.Message["InvokeId"]);
 
                             ValueSet Value = new ValueSet();
 
-                            if (!string.IsNullOrWhiteSpace(Verb) && !string.IsNullOrWhiteSpace(Path))
+                            if (!string.IsNullOrWhiteSpace(Path))
                             {
-                                if (ContextMenu.InvokeVerb(Path, Verb))
+                                if (await ContextMenu.InvokeVerbAsync(Path, Verb, Id))
                                 {
                                     Value.Add("Success", string.Empty);
                                 }
                                 else
                                 {
-                                    Value.Add("Error", $"Execute Verb: {Verb} failed");
+                                    Value.Add("Error", $"Execute Id: \"{Id}\", Verb: \"{Verb}\" failed");
                                 }
                             }
                             else
                             {
-                                Value.Add("Error", "Verb is empty or Paths is empty");
+                                Value.Add("Error", "Path could not be empty");
                             }
 
                             await args.Request.SendResponseAsync(Value);

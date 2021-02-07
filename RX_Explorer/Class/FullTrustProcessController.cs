@@ -583,7 +583,7 @@ namespace RX_Explorer.Class
                         {
                             if (Response.Message.TryGetValue("Success", out object Result))
                             {
-                                return JsonSerializer.Deserialize<List<ContextMenuPackage>>(Convert.ToString(Result)).Select((Item) => new ContextMenuItem(Item, Path)).ToList();
+                                return JsonSerializer.Deserialize<ContextMenuPackage[]>(Convert.ToString(Result)).Select((Item) => new ContextMenuItem(Item, Path)).ToList();
                             }
                             else
                             {
@@ -640,7 +640,8 @@ namespace RX_Explorer.Class
                     {
                         {"ExecuteType", ExecuteType_InvokeContextMenuItem},
                         {"ExecutePath", Item.BelongTo },
-                        {"InvokeVerb", Item.Verb}
+                        {"InvokeId", Item.Id},
+                        {"InvokeVerb", Item.Verb }
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);

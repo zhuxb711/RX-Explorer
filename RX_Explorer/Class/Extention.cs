@@ -131,16 +131,7 @@ namespace RX_Explorer.Class
 
                                     foreach (ContextMenuItem AddItem in ExtraMenuItems.Except(MenuExistItems))
                                     {
-                                        Button Btn = await AddItem.GenerateUIButton().ConfigureAwait(true);
-                                        Btn.Click += async (s, e) =>
-                                        {
-                                            Flyout?.Hide();
-
-                                            if (((Button)s)?.Tag is ContextMenuItem MenuItem)
-                                            {
-                                                await MenuItem.Invoke().ConfigureAwait(true);
-                                            }
-                                        };
+                                        Button Btn = await AddItem.GenerateUIButtonAsync(Flyout).ConfigureAwait(true);
 
                                         InnerPanel.Children.Add(Btn);
                                     }
@@ -167,16 +158,7 @@ namespace RX_Explorer.Class
 
                                     foreach (ContextMenuItem Item in ExtraMenuItems)
                                     {
-                                        Button Btn = await Item.GenerateUIButton().ConfigureAwait(true);
-                                        Btn.Click += async (s, e) =>
-                                        {
-                                            Flyout?.Hide();
-
-                                            if (((Button)s)?.Tag is ContextMenuItem MenuItem)
-                                            {
-                                                await MenuItem.Invoke().ConfigureAwait(true);
-                                            }
-                                        };
+                                        Button Btn = await Item.GenerateUIButtonAsync(Flyout).ConfigureAwait(true);
 
                                         Panel.Children.Add(Btn);
                                     }

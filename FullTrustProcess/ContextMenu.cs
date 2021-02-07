@@ -5,6 +5,9 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Vanara.Extensions;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
 
@@ -12,127 +15,252 @@ namespace FullTrustProcess
 {
     public static class ContextMenu
     {
-        public static List<ContextMenuPackage> FetchContextMenuItems(string Path, bool FetchExtensionMenu = false)
+        private const int BufferSize = 512;
+
+        private static bool IsLastExtendedMenuRequested = false;
+
+        private static ContextMenuPackage[] FetchContextMenuCore(Shell32.IContextMenu Context, HMENU Menu)
         {
-            try
+            int MenuItemNum = User32.GetMenuItemCount(Menu);
+
+            List<ContextMenuPackage> MenuItems = new List<ContextMenuPackage>(MenuItemNum);
+
+            for (uint i = 0; i < MenuItemNum; i++)
             {
-                if (File.Exists(Path) || Directory.Exists(Path))
+                IntPtr DataHandle = Marshal.AllocHGlobal(BufferSize);
+
+                try
                 {
-                    using (ShellItem Item = ShellItem.Open(Path))
-                    using (ShellContextMenu ContextMenu = new ShellContextMenu(Item))
+                    User32.MENUITEMINFO Info = new User32.MENUITEMINFO
                     {
-                        List<ContextMenuPackage> ContextMenuItemList = new List<ContextMenuPackage>();
+                        cbSize = Convert.ToUInt32(Marshal.SizeOf(typeof(User32.MENUITEMINFO))),
+                        fMask = User32.MenuItemInfoMask.MIIM_ID | User32.MenuItemInfoMask.MIIM_SUBMENU | User32.MenuItemInfoMask.MIIM_FTYPE | User32.MenuItemInfoMask.MIIM_STRING | User32.MenuItemInfoMask.MIIM_STATE | User32.MenuItemInfoMask.MIIM_BITMAP,
+                        dwTypeData = DataHandle,
+                        cch = BufferSize
+                    };
 
-                        foreach (var MenuItem in ContextMenu.GetItems(FetchExtensionMenu ? Shell32.CMF.CMF_EXPLORE | Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_EXPLORE))
+                    if (User32.GetMenuItemInfo(Menu, i, true, ref Info))
+                    {
+                        if (Info.fType.IsFlagSet(User32.MenuItemType.MFT_STRING) && !Info.fState.IsFlagSet(User32.MenuItemState.MFS_DISABLED))
                         {
-                            if (string.IsNullOrEmpty(MenuItem.Verb))
-                            {
-                                continue;
-                            }
+                            IntPtr VerbHandle = Marshal.AllocHGlobal(BufferSize);
 
-                            switch (MenuItem.Verb.ToLower())
+                            try
                             {
-                                case "open":
-                                case "opennewprocess":
-                                case "pintohome":
-                                case "cut":
-                                case "copy":
-                                case "paste":
-                                case "delete":
-                                case "properties":
-                                case "openas":
-                                case "link":
-                                case "runas":
-                                case "rename":
-                                case "{e82bd2a8-8d63-42fd-b1ae-d364c201d8a7}":
-                                    {
-                                        break;
-                                    }
-                                default:
-                                    {
-                                        if (!string.IsNullOrEmpty(MenuItem.HelpText))
+                                string Verb = Context.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VERBW, IntPtr.Zero, VerbHandle, Convert.ToUInt32(BufferSize)).Succeeded ? Marshal.PtrToStringUni(VerbHandle) : string.Empty;
+
+                                switch (Verb.ToLower())
+                                {
+                                    case "open":
+                                    case "opennewprocess":
+                                    case "pintohome":
+                                    case "cut":
+                                    case "copy":
+                                    case "paste":
+                                    case "delete":
+                                    case "properties":
+                                    case "openas":
+                                    case "link":
+                                    case "runas":
+                                    case "rename":
+                                    case "pintostartscreen":
+                                    case "windows.share":
+                                    case "windows.modernshare":
+                                    case "{e82bd2a8-8d63-42fd-b1ae-d364c201d8a7}":
                                         {
-                                            if (MenuItem.BitmapHandle != HBITMAP.NULL)
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            try
                                             {
-                                                using (Bitmap OriginBitmap = MenuItem.BitmapHandle.ToBitmap())
+                                                string Name = Marshal.PtrToStringUni(DataHandle);
+
+                                                if (!string.IsNullOrEmpty(Name) && !Name.Contains("&N"))
                                                 {
-                                                    BitmapData OriginData = OriginBitmap.LockBits(new Rectangle(0, 0, OriginBitmap.Width, OriginBitmap.Height), ImageLockMode.ReadOnly, OriginBitmap.PixelFormat);
-
-                                                    try
+                                                    ContextMenuPackage Package = new ContextMenuPackage
                                                     {
-                                                        using (Bitmap ArgbBitmap = new Bitmap(OriginBitmap.Width, OriginBitmap.Height, OriginData.Stride, PixelFormat.Format32bppArgb, OriginData.Scan0))
-                                                        using (MemoryStream Stream = new MemoryStream())
-                                                        {
-                                                            ArgbBitmap.Save(Stream, ImageFormat.Png);
+                                                        Name = Regex.Replace(Name, @"\(&\S*\)|&", string.Empty),
+                                                        Id = Convert.ToInt32(Info.wID),
+                                                        Verb = Verb
+                                                    };
 
-                                                            ContextMenuItemList.Add(new ContextMenuPackage(MenuItem.HelpText, MenuItem.Verb, Stream.ToArray()));
+                                                    if (Info.hbmpItem != HBITMAP.NULL && ((IntPtr)Info.hbmpItem).ToInt64() != -1)
+                                                    {
+                                                        using (Bitmap OriginBitmap = Info.hbmpItem.ToBitmap())
+                                                        {
+                                                            BitmapData OriginData = OriginBitmap.LockBits(new Rectangle(0, 0, OriginBitmap.Width, OriginBitmap.Height), ImageLockMode.ReadOnly, OriginBitmap.PixelFormat);
+
+                                                            try
+                                                            {
+                                                                using (Bitmap ArgbBitmap = new Bitmap(OriginBitmap.Width, OriginBitmap.Height, OriginData.Stride, PixelFormat.Format32bppArgb, OriginData.Scan0))
+                                                                using (MemoryStream Stream = new MemoryStream())
+                                                                {
+                                                                    ArgbBitmap.Save(Stream, ImageFormat.Png);
+
+                                                                    Package.IconData = Stream.ToArray();
+                                                                }
+                                                            }
+                                                            finally
+                                                            {
+                                                                OriginBitmap.UnlockBits(OriginData);
+                                                            }
                                                         }
                                                     }
-                                                    finally
+                                                    else
                                                     {
-                                                        OriginBitmap.UnlockBits(OriginData);
+                                                        Package.IconData = Array.Empty<byte>();
                                                     }
+
+                                                    if (Info.hSubMenu != HMENU.NULL)
+                                                    {
+                                                        Package.SubMenus = FetchContextMenuCore(Context, Info.hSubMenu);
+                                                    }
+                                                    else
+                                                    {
+                                                        Package.SubMenus = Array.Empty<ContextMenuPackage>();
+                                                    }
+
+                                                    MenuItems.Add(Package);
                                                 }
+
+                                                break;
                                             }
-                                            else
+                                            catch
                                             {
-                                                ContextMenuItemList.Add(new ContextMenuPackage(MenuItem.HelpText, MenuItem.Verb, Array.Empty<byte>()));
+                                                continue;
                                             }
                                         }
-
-                                        break;
-                                    }
+                                }
+                            }
+                            finally
+                            {
+                                Marshal.FreeHGlobal(VerbHandle);
                             }
                         }
-
-                        return ContextMenuItemList;
                     }
                 }
-                else
+                finally
                 {
-                    return new List<ContextMenuPackage>(0);
+                    Marshal.FreeHGlobal(DataHandle);
                 }
             }
-            catch
-            {
-                return new List<ContextMenuPackage>(0);
-            }
+
+            return MenuItems.ToArray();
         }
 
-        public static bool InvokeVerb(string Path, string Verb)
+        public static Task<ContextMenuPackage[]> FetchContextMenuItemsAsync(string Path, bool FetchExtensionMenu = false)
         {
-            try
-            {
-                if (File.Exists(Path) || Directory.Exists(Path))
-                {
-                    using (ShellItem Item = ShellItem.Open(Path))
-                    using (ShellContextMenu ContextMenu = new ShellContextMenu(Item))
-                    {
-                        Shell32.CMINVOKECOMMANDINFOEX InvokeCommand = new Shell32.CMINVOKECOMMANDINFOEX
-                        {
-                            lpVerb = new SafeResourceId(Verb, CharSet.Ansi),
-                            nShow = ShowWindowCommand.SW_SHOWNORMAL,
-                            cbSize = Convert.ToUInt32(Marshal.SizeOf(typeof(Shell32.CMINVOKECOMMANDINFOEX)))
-                        };
+            IsLastExtendedMenuRequested = FetchExtensionMenu;
 
-                        using (User32.SafeHMENU NewMenu = User32.CreatePopupMenu())
+            return Helper.CreateSTATask(() =>
+            {
+                try
+                {
+                    if (File.Exists(Path) || Directory.Exists(Path))
+                    {
+                        using (ShellItem Item = ShellItem.Open(Path))
                         {
-                            ContextMenu.ComInterface.QueryContextMenu(NewMenu, 0, 0, ushort.MaxValue, Shell32.CMF.CMF_EXTENDEDVERBS | Shell32.CMF.CMF_EXPLORE | Shell32.CMF.CMF_OPTIMIZEFORINVOKE);
-                            ContextMenu.ComInterface.InvokeCommand(InvokeCommand);
+                            Shell32.IContextMenu ContextObject = Item.GetHandler<Shell32.IContextMenu>(Shell32.BHID.BHID_SFUIObject);
+
+                            using (User32.SafeHMENU Menu = User32.CreatePopupMenu())
+                            {
+                                ContextObject.QueryContextMenu(Menu, 0, 0, int.MaxValue, (FetchExtensionMenu ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_SYNCCASCADEMENU).ThrowIfFailed();
+
+                                return FetchContextMenuCore(ContextObject, Menu);
+                            }
                         }
                     }
-
-                    return true;
+                    else
+                    {
+                        return Array.Empty<ContextMenuPackage>();
+                    }
                 }
-                else
+                catch
+                {
+                    return Array.Empty<ContextMenuPackage>();
+                }
+            });
+        }
+
+        public static Task<bool> InvokeVerbAsync(string Path, string Verb, int Id)
+        {
+            return Helper.CreateSTATask(() =>
+            {
+                try
+                {
+                    if (File.Exists(Path) || Directory.Exists(Path))
+                    {
+                        using (ShellItem Item = ShellItem.Open(Path))
+                        {
+                            Shell32.IContextMenu ContextObject = Item.GetHandler<Shell32.IContextMenu>(Shell32.BHID.BHID_SFUIObject);
+
+                            using (User32.SafeHMENU Menu = User32.CreatePopupMenu())
+                            {
+                                ContextObject.QueryContextMenu(Menu, 0, 0, int.MaxValue, (IsLastExtendedMenuRequested ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_SYNCCASCADEMENU).ThrowIfFailed();
+
+                                if (string.IsNullOrEmpty(Verb))
+                                {
+                                    using (SafeResourceId ResSID = new SafeResourceId(Id))
+                                    {
+                                        Shell32.CMINVOKECOMMANDINFOEX IdInvokeCommand = new Shell32.CMINVOKECOMMANDINFOEX
+                                        {
+                                            lpVerb = ResSID,
+                                            nShow = ShowWindowCommand.SW_SHOWNORMAL,
+                                            fMask = Shell32.CMIC.CMIC_MASK_FLAG_NO_UI,
+                                            cbSize = Convert.ToUInt32(Marshal.SizeOf(typeof(Shell32.CMINVOKECOMMANDINFOEX)))
+                                        };
+
+                                        return ContextObject.InvokeCommand(IdInvokeCommand).Succeeded;
+                                    }
+                                }
+                                else
+                                {
+                                    using (SafeResourceId VerbSID = new SafeResourceId(Verb, CharSet.Ansi))
+                                    {
+                                        Shell32.CMINVOKECOMMANDINFOEX VerbInvokeCommand = new Shell32.CMINVOKECOMMANDINFOEX
+                                        {
+                                            lpVerb = VerbSID,
+                                            lpVerbW = Verb,
+                                            nShow = ShowWindowCommand.SW_SHOWNORMAL,
+                                            fMask = Shell32.CMIC.CMIC_MASK_FLAG_NO_UI,
+                                            cbSize = Convert.ToUInt32(Marshal.SizeOf(typeof(Shell32.CMINVOKECOMMANDINFOEX)))
+                                        };
+
+                                        if (ContextObject.InvokeCommand(VerbInvokeCommand).Failed)
+                                        {
+                                            using (SafeResourceId ResSID = new SafeResourceId(Id))
+                                            {
+                                                Shell32.CMINVOKECOMMANDINFOEX IdInvokeCommand = new Shell32.CMINVOKECOMMANDINFOEX
+                                                {
+                                                    lpVerb = ResSID,
+                                                    nShow = ShowWindowCommand.SW_SHOWNORMAL,
+                                                    fMask = Shell32.CMIC.CMIC_MASK_FLAG_NO_UI,
+                                                    cbSize = Convert.ToUInt32(Marshal.SizeOf(typeof(Shell32.CMINVOKECOMMANDINFOEX)))
+                                                };
+
+                                                return ContextObject.InvokeCommand(IdInvokeCommand).Succeeded;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            return true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                catch
                 {
                     return false;
                 }
-            }
-            catch
-            {
-                return false;
-            }
+            });
         }
     }
 }

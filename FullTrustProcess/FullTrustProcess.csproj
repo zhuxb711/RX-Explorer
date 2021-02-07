@@ -9,7 +9,7 @@
     <RootNamespace>FullTrustProcess</RootNamespace>
     <AssemblyName>FullTrustProcess</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>9.0</LangVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
@@ -88,6 +88,7 @@
   <ItemGroup>
     <Compile Include="ContextMenu.cs" />
     <Compile Include="EverythingConnector.cs" />
+    <Compile Include="Helper.cs" />
     <Compile Include="ExtensionAssociate.cs" />
     <Compile Include="MIMEHelper.cs" />
     <Compile Include="StorageItemController.cs" />
