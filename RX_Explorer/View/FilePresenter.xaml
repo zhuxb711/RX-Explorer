@@ -828,6 +828,7 @@
                             <Flyout Placement="BottomEdgeAlignedLeft"
                                     x:Name="NameFilterFlyout"
                                     ShouldConstrainToRootBounds="False"
+                                    Opened="FilterFlyout_Opened"
                                     Closing="FilterFlyout_Closing">
                                 <Flyout.FlyoutPresenterStyle>
                                     <Style TargetType="FlyoutPresenter">
@@ -837,7 +838,7 @@
                                                 Value="{ThemeResource SystemControlChromeHighAcrylicElementMediumBrush}" />
                                     </Style>
                                 </Flyout.FlyoutPresenterStyle>
-                                <StackPanel MinWidth="180">
+                                <StackPanel MinWidth="230">
                                     <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox1,Mode=TwoWay}">
                                         <StackPanel Orientation="Horizontal">
                                             <Viewbox Height="16"
@@ -892,6 +893,23 @@
                                             <TextBlock Margin="10,0,0,0"
                                                        Text="其他"
                                                        x:Uid="NameFilterCheckBox5Text" />
+                                        </StackPanel>
+                                    </CheckBox>
+                                    <CheckBox IsChecked="{x:Bind Filter.NameFilterCheckBox6,Mode=TwoWay}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Viewbox Height="16"
+                                                     Margin="0,2,0,0"
+                                                     VerticalAlignment="Top">
+                                                <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                          Glyph="&#xE81E;" />
+                                            </Viewbox>
+                                            <TextBox Margin="10,0,0,0"
+                                                     Header="正则表达式"
+                                                     Width="150"
+                                                     IsSpellCheckEnabled="False"
+                                                     PlaceholderText="请输入正则表达式"
+                                                     x:Uid="NameFilterCheckBox6Text"
+                                                     Text="{x:Bind Filter.RegexExpression,Mode=TwoWay}" />
                                         </StackPanel>
                                     </CheckBox>
                                 </StackPanel>
@@ -951,6 +969,7 @@
                             <Flyout Placement="BottomEdgeAlignedLeft"
                                     x:Name="ModTimeFilterFlyout"
                                     ShouldConstrainToRootBounds="False"
+                                    Opened="FilterFlyout_Opened"
                                     Closing="FilterFlyout_Closing">
                                 <Flyout.FlyoutPresenterStyle>
                                     <Style TargetType="FlyoutPresenter">
@@ -1079,6 +1098,7 @@
                             <Flyout Placement="BottomEdgeAlignedLeft"
                                     x:Name="TypeFilterFlyout"
                                     ShouldConstrainToRootBounds="False"
+                                    Opened="FilterFlyout_Opened"
                                     Closing="FilterFlyout_Closing">
                                 <Flyout.FlyoutPresenterStyle>
                                     <Style TargetType="FlyoutPresenter">
@@ -1148,6 +1168,7 @@
                             <Flyout Placement="BottomEdgeAlignedLeft"
                                     x:Name="SizeFilterFlyout"
                                     ShouldConstrainToRootBounds="False"
+                                    Opened="FilterFlyout_Opened"
                                     Closing="FilterFlyout_Closing">
                                 <Flyout.FlyoutPresenterStyle>
                                     <Style TargetType="FlyoutPresenter">

@@ -127,26 +127,13 @@ namespace RX_Explorer.Class
                                 {
                                     StackPanel InnerPanel = ExistsContainer.Content as StackPanel;
 
-                                    List<ContextMenuItem> MenuExistItems = InnerPanel.Children.Select((Btn) => (Btn as Button).Tag as ContextMenuItem).ToList();
+                                    InnerPanel.Children.Clear();
 
-                                    foreach (ContextMenuItem AddItem in ExtraMenuItems.Except(MenuExistItems))
+                                    foreach (ContextMenuItem AddItem in ExtraMenuItems)
                                     {
                                         Button Btn = await AddItem.GenerateUIButtonAsync(Flyout).ConfigureAwait(true);
 
                                         InnerPanel.Children.Add(Btn);
-                                    }
-
-                                    foreach (ContextMenuItem RemoveItem in MenuExistItems.Except(ExtraMenuItems))
-                                    {
-                                        if (InnerPanel.Children.OfType<Button>().FirstOrDefault((Item) => (Item.Tag as ContextMenuItem) == RemoveItem) is Button Btn)
-                                        {
-                                            InnerPanel.Children.Remove(Btn);
-                                        }
-                                    }
-
-                                    foreach (ContextMenuItem UpdateItem in MenuExistItems.Where((Item) => ExtraMenuItems.Any((Extra) => Extra.Equals(Item))))
-                                    {
-                                        UpdateItem.UpdateBelonging(SelectedPath);
                                     }
                                 }
                                 else

@@ -10,7 +10,8 @@ namespace RX_Explorer.Class
         From_H_To_N = 2,
         From_O_To_T = 4,
         From_U_To_Z = 8,
-        Other = 16
+        Other = 16,
+        Regex = 32
     }
 
     [Flags]

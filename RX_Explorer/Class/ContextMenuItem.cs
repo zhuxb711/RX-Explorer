@@ -47,7 +47,7 @@ namespace RX_Explorer.Class
 
         public ContextMenuItem[] SubMenus { get; }
 
-        public string BelongTo { get; private set; }
+        public string BelongTo { get; }
 
         private readonly ContextMenuPackage DataPackage;
 
@@ -57,11 +57,6 @@ namespace RX_Explorer.Class
             this.BelongTo = BelongTo;
 
             SubMenus = DataPackage.SubMenus.Select((Menu) => new ContextMenuItem(Menu, BelongTo)).ToArray();
-        }
-
-        public void UpdateBelonging(string BelongTo)
-        {
-            this.BelongTo = BelongTo;
         }
 
         private static async Task<Button> GenerateUIButtonCoreAsync(CommandBarFlyout ParentFlyout, ContextMenuItem Item)

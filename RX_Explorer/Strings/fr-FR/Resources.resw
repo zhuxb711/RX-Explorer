@@ -2606,4 +2606,10 @@ Les noms non valides incluent
   <data name="SettingPageSearchEngineConfig.Header" xml:space="preserve">
     <value>Configuration du moteur de recherche</value>
   </data>
+  <data name="NameFilterCheckBox6Text.Header" xml:space="preserve">
+    <value>Expression régulière</value>
+  </data>
+  <data name="NameFilterCheckBox6Text.PlaceholderText" xml:space="preserve">
+    <value>Veuillez saisir une expression régulière</value>
+  </data>
 </root>

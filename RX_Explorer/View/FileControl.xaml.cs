@@ -1754,13 +1754,13 @@ namespace RX_Explorer
                     {
                         if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                         {
-                            e.AcceptedOperation = DataPackageOperation.Copy;
-                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {Btn.Content}";
+                            e.AcceptedOperation = DataPackageOperation.Move;
+                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {Btn.Content}";
                         }
                         else
                         {
-                            e.AcceptedOperation = DataPackageOperation.Move;
-                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {Btn.Content}";
+                            e.AcceptedOperation = DataPackageOperation.Copy;
+                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {Btn.Content}";
                         }
 
                         e.DragUIOverride.IsContentVisible = true;

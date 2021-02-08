@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Vanara.Extensions;
@@ -18,6 +19,28 @@ namespace FullTrustProcess
         private const int BufferSize = 512;
 
         private static bool IsLastExtendedMenuRequested = false;
+
+        private static readonly HashSet<string> VerbFilterHashSet = new HashSet<string>
+        {
+            "open","opennewprocess","pintohome","cut","copy","paste","delete","properties","openas",
+            "link","runas","rename","pintostartscreen","windows.share","windows.modernshare",
+            "{e82bd2a8-8d63-42fd-b1ae-d364c201d8a7}", "copyaspath"
+        };
+
+        private static readonly HashSet<string> NameFilterHashSet = new HashSet<string>();
+
+        static ContextMenu()
+        {
+            using (Kernel32.SafeHINSTANCE Shell32 = Kernel32.LoadLibrary("shell32.dll"))
+            {
+                StringBuilder Text = new StringBuilder(BufferSize);
+
+                if (User32.LoadString(Shell32, 30312, Text, BufferSize) > 0)
+                {
+                    NameFilterHashSet.Add(Text.ToString());
+                }
+            }
+        }
 
         private static ContextMenuPackage[] FetchContextMenuCore(Shell32.IContextMenu Context, HMENU Menu)
         {
@@ -49,88 +72,64 @@ namespace FullTrustProcess
                             {
                                 string Verb = Context.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VERBW, IntPtr.Zero, VerbHandle, Convert.ToUInt32(BufferSize)).Succeeded ? Marshal.PtrToStringUni(VerbHandle) : string.Empty;
 
-                                switch (Verb.ToLower())
+                                if (!VerbFilterHashSet.Contains(Verb.ToLower()))
                                 {
-                                    case "open":
-                                    case "opennewprocess":
-                                    case "pintohome":
-                                    case "cut":
-                                    case "copy":
-                                    case "paste":
-                                    case "delete":
-                                    case "properties":
-                                    case "openas":
-                                    case "link":
-                                    case "runas":
-                                    case "rename":
-                                    case "pintostartscreen":
-                                    case "windows.share":
-                                    case "windows.modernshare":
-                                    case "{e82bd2a8-8d63-42fd-b1ae-d364c201d8a7}":
+                                    try
+                                    {
+                                        string Name = Marshal.PtrToStringUni(DataHandle);
+
+                                        if (!string.IsNullOrEmpty(Name) && !NameFilterHashSet.Contains(Name))
                                         {
-                                            break;
-                                        }
-                                    default:
-                                        {
-                                            try
+                                            ContextMenuPackage Package = new ContextMenuPackage
                                             {
-                                                string Name = Marshal.PtrToStringUni(DataHandle);
+                                                Name = Regex.Replace(Name, @"\(&\S*\)|&", string.Empty),
+                                                Id = Convert.ToInt32(Info.wID),
+                                                Verb = Verb
+                                            };
 
-                                                if (!string.IsNullOrEmpty(Name) && !Name.Contains("&N"))
+                                            if (Info.hbmpItem != HBITMAP.NULL && ((IntPtr)Info.hbmpItem).ToInt64() != -1)
+                                            {
+                                                using (Bitmap OriginBitmap = Info.hbmpItem.ToBitmap())
                                                 {
-                                                    ContextMenuPackage Package = new ContextMenuPackage
-                                                    {
-                                                        Name = Regex.Replace(Name, @"\(&\S*\)|&", string.Empty),
-                                                        Id = Convert.ToInt32(Info.wID),
-                                                        Verb = Verb
-                                                    };
+                                                    BitmapData OriginData = OriginBitmap.LockBits(new Rectangle(0, 0, OriginBitmap.Width, OriginBitmap.Height), ImageLockMode.ReadOnly, OriginBitmap.PixelFormat);
 
-                                                    if (Info.hbmpItem != HBITMAP.NULL && ((IntPtr)Info.hbmpItem).ToInt64() != -1)
+                                                    try
                                                     {
-                                                        using (Bitmap OriginBitmap = Info.hbmpItem.ToBitmap())
+                                                        using (Bitmap ArgbBitmap = new Bitmap(OriginBitmap.Width, OriginBitmap.Height, OriginData.Stride, PixelFormat.Format32bppArgb, OriginData.Scan0))
+                                                        using (MemoryStream Stream = new MemoryStream())
                                                         {
-                                                            BitmapData OriginData = OriginBitmap.LockBits(new Rectangle(0, 0, OriginBitmap.Width, OriginBitmap.Height), ImageLockMode.ReadOnly, OriginBitmap.PixelFormat);
+                                                            ArgbBitmap.Save(Stream, ImageFormat.Png);
 
-                                                            try
-                                                            {
-                                                                using (Bitmap ArgbBitmap = new Bitmap(OriginBitmap.Width, OriginBitmap.Height, OriginData.Stride, PixelFormat.Format32bppArgb, OriginData.Scan0))
-                                                                using (MemoryStream Stream = new MemoryStream())
-                                                                {
-                                                                    ArgbBitmap.Save(Stream, ImageFormat.Png);
-
-                                                                    Package.IconData = Stream.ToArray();
-                                                                }
-                                                            }
-                                                            finally
-                                                            {
-                                                                OriginBitmap.UnlockBits(OriginData);
-                                                            }
+                                                            Package.IconData = Stream.ToArray();
                                                         }
                                                     }
-                                                    else
+                                                    finally
                                                     {
-                                                        Package.IconData = Array.Empty<byte>();
+                                                        OriginBitmap.UnlockBits(OriginData);
                                                     }
-
-                                                    if (Info.hSubMenu != HMENU.NULL)
-                                                    {
-                                                        Package.SubMenus = FetchContextMenuCore(Context, Info.hSubMenu);
-                                                    }
-                                                    else
-                                                    {
-                                                        Package.SubMenus = Array.Empty<ContextMenuPackage>();
-                                                    }
-
-                                                    MenuItems.Add(Package);
                                                 }
-
-                                                break;
                                             }
-                                            catch
+                                            else
                                             {
-                                                continue;
+                                                Package.IconData = Array.Empty<byte>();
                                             }
+
+                                            if (Info.hSubMenu != HMENU.NULL)
+                                            {
+                                                Package.SubMenus = FetchContextMenuCore(Context, Info.hSubMenu);
+                                            }
+                                            else
+                                            {
+                                                Package.SubMenus = Array.Empty<ContextMenuPackage>();
+                                            }
+
+                                            MenuItems.Add(Package);
                                         }
+                                    }
+                                    catch
+                                    {
+                                        continue;
+                                    }
                                 }
                             }
                             finally

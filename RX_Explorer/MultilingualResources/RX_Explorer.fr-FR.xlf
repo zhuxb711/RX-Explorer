@@ -3456,6 +3456,14 @@ Les noms non valides incluent
           <source>Search engine configuration</source>
           <target state="translated">Configuration du moteur de recherche</target>
         </trans-unit>
+        <trans-unit id="NameFilterCheckBox6Text.Header" translate="yes" xml:space="preserve">
+          <source>Regular expression</source>
+          <target state="translated">Expression régulière</target>
+        </trans-unit>
+        <trans-unit id="NameFilterCheckBox6Text.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Please enter a regular expression</source>
+          <target state="translated">Veuillez saisir une expression régulière</target>
+        </trans-unit>
       </group>
     </body>
   </file>

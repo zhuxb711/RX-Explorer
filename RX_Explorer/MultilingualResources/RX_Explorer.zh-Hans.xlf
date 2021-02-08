@@ -3456,6 +3456,14 @@ Invalid names include
           <source>Search engine configuration</source>
           <target state="translated">搜索引擎配置</target>
         </trans-unit>
+        <trans-unit id="NameFilterCheckBox6Text.Header" translate="yes" xml:space="preserve">
+          <source>Regular expression</source>
+          <target state="translated">正则表达式</target>
+        </trans-unit>
+        <trans-unit id="NameFilterCheckBox6Text.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Please enter a regular expression</source>
+          <target state="translated">请输入正则表达式</target>
+        </trans-unit>
       </group>
     </body>
   </file>

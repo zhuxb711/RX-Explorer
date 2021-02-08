@@ -651,6 +651,20 @@ namespace RX_Explorer
                                 ItemPresenter.SelectAll();
                                 break;
                             }
+                        case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && ShiftState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                Clipboard.Clear();
+
+                                DataPackage Package = new DataPackage
+                                {
+                                    RequestedOperation = DataPackageOperation.Copy
+                                };
+
+                                Package.SetText(SelectedItem?.Path ?? CurrentFolder?.Path ?? string.Empty);
+
+                                Clipboard.SetContent(Package);
+                                break;
+                            }
                         case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                             {
                                 Copy_Click(null, null);
@@ -1358,7 +1372,7 @@ namespace RX_Explorer
                             }
                         }
                     }
-                    else if (Package.RequestedOperation.HasFlag(DataPackageOperation.Copy))
+                    else
                     {
                         await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
 
@@ -1503,7 +1517,7 @@ namespace RX_Explorer
                                 }
                             }
                         }
-                        else if (Package.RequestedOperation.HasFlag(DataPackageOperation.Copy))
+                        else
                         {
                             await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
 
@@ -4218,13 +4232,13 @@ namespace RX_Explorer
                 {
                     if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                     {
-                        e.AcceptedOperation = DataPackageOperation.Copy;
-                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {CurrentFolder.Name}";
+                        e.AcceptedOperation = DataPackageOperation.Move;
+                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {CurrentFolder.Name}";
                     }
                     else
                     {
-                        e.AcceptedOperation = DataPackageOperation.Move;
-                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {CurrentFolder.Name}";
+                        e.AcceptedOperation = DataPackageOperation.Copy;
+                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {CurrentFolder.Name}";
                     }
 
                     e.DragUIOverride.IsContentVisible = true;
@@ -4751,13 +4765,13 @@ namespace RX_Explorer
                     {
                         if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                         {
-                            e.AcceptedOperation = DataPackageOperation.Copy;
-                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {Item.Name}";
+                            e.AcceptedOperation = DataPackageOperation.Move;
+                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {Item.Name}";
                         }
                         else
                         {
-                            e.AcceptedOperation = DataPackageOperation.Move;
-                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {Item.Name}";
+                            e.AcceptedOperation = DataPackageOperation.Copy;
+                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {Item.Name}";
                         }
 
                         e.DragUIOverride.IsContentVisible = true;
@@ -4776,13 +4790,13 @@ namespace RX_Explorer
                         {
                             if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                             {
-                                e.AcceptedOperation = DataPackageOperation.Copy;
-                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {Item.Name}";
+                                e.AcceptedOperation = DataPackageOperation.Move;
+                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {Item.Name}";
                             }
                             else
                             {
-                                e.AcceptedOperation = DataPackageOperation.Move;
-                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {Item.Name}";
+                                e.AcceptedOperation = DataPackageOperation.Copy;
+                                e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {Item.Name}";
                             }
                         }
                         else
@@ -6527,7 +6541,13 @@ namespace RX_Explorer
 
         private void FilterFlyout_Closing(FlyoutBase sender, FlyoutBaseClosingEventArgs args)
         {
+            Container.BlockKeyboardShortCutInput = false;
             sender.Target.Visibility = Visibility.Collapsed;
+        }
+
+        private void FilterFlyout_Opened(object sender, object e)
+        {
+            Container.BlockKeyboardShortCutInput = true;
         }
 
         private void Filter_RefreshListRequested(object sender, List<FileSystemStorageItemBase> e)

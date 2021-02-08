@@ -2711,4 +2711,10 @@ Invalid names include
   <data name="SettingPageSearchEngineConfig.Header" xml:space="preserve">
     <value>Search engine configuration</value>
   </data>
+  <data name="NameFilterCheckBox6Text.Header" xml:space="preserve">
+    <value>Regular expression</value>
+  </data>
+  <data name="NameFilterCheckBox6Text.PlaceholderText" xml:space="preserve">
+    <value>Please enter a regular expression</value>
+  </data>
 </root>

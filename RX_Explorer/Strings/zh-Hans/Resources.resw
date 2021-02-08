@@ -2606,4 +2606,10 @@
   <data name="SettingPageSearchEngineConfig.Header" xml:space="preserve">
     <value>搜索引擎配置</value>
   </data>
+  <data name="NameFilterCheckBox6Text.Header" xml:space="preserve">
+    <value>正则表达式</value>
+  </data>
+  <data name="NameFilterCheckBox6Text.PlaceholderText" xml:space="preserve">
+    <value>请输入正则表达式</value>
+  </data>
 </root>
