@@ -40,6 +40,8 @@ namespace FullTrustProcess
         {
             try
             {
+                await ContextMenu.FetchContextMenuItemsAsync(Environment.GetEnvironmentVariable("TMP"), true);
+                
                 Connection = new AppServiceConnection
                 {
                     AppServiceName = "CommunicateService",
