@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Vanara.PInvoke;
+using Vanara.Windows.Shell;
 
 namespace FullTrustProcess
 {
@@ -17,18 +17,30 @@ namespace FullTrustProcess
             {
                 try
                 {
-                    T Result = Executor();
-                    CompletionSource.SetResult(Result);
+                    Ole32.OleInitialize();
+                    CompletionSource.SetResult(Executor());
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     CompletionSource.SetException(ex);
+                }
+                finally
+                {
+                    Ole32.OleUninitialize();
                 }
             });
             STAThread.SetApartmentState(ApartmentState.STA);
             STAThread.Start();
 
             return CompletionSource.Task;
+        }
+
+        public static string GetPackageFamilyNameFromUWPShellLink(string LinkPath)
+        {
+            using (ShellItem LinkItem = new ShellItem(LinkPath))
+            {
+                return LinkItem.Properties.GetPropertyString(Ole32.PROPERTYKEY.System.Link.TargetParsingPath).Split('!').FirstOrDefault();
+            }
         }
     }
 }

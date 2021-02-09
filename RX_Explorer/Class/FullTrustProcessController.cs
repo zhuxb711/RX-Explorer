@@ -38,7 +38,7 @@ namespace RX_Explorer.Class
 
         private const string ExecuteType_RestoreWinE = "Execute_Restore_Win_E";
 
-        private const string ExecuteType_HyperlinkInfo = "Execute_GetHyperlinkInfo";
+        private const string ExecuteType_GetLnkData = "Execute_GetLnkData";
 
         private const string ExecuteType_Rename = "Execute_Rename";
 
@@ -839,7 +839,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<HyperlinkPackage> GetHyperlinkRelatedInformationAsync(string Path)
+        public async Task<HyperlinkPackage> GetLnkDataAsync(string Path)
         {
             try
             {
@@ -849,7 +849,7 @@ namespace RX_Explorer.Class
                 {
                     ValueSet Value = new ValueSet
                     {
-                        {"ExecuteType", ExecuteType_HyperlinkInfo},
+                        {"ExecuteType", ExecuteType_GetLnkData},
                         {"ExecutePath", Path}
                     };
 
@@ -865,7 +865,7 @@ namespace RX_Explorer.Class
                         {
                             if (Response.Message.TryGetValue("Error", out object ErrorMessage))
                             {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(GetHyperlinkRelatedInformationAsync)}, message: {ErrorMessage}");
+                                LogTracer.Log($"An unexpected error was threw in {nameof(GetLnkDataAsync)}, message: {ErrorMessage}");
                             }
 
                             throw new InvalidOperationException();
@@ -873,14 +873,14 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        LogTracer.Log($"AppServiceResponse in {nameof(GetHyperlinkRelatedInformationAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        LogTracer.Log($"AppServiceResponse in {nameof(GetLnkDataAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
 
                         throw new NoResponseException();
                     }
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(GetHyperlinkRelatedInformationAsync)}: Failed to connect AppService");
+                    LogTracer.Log($"{nameof(GetLnkDataAsync)}: Failed to connect AppService");
                     throw new NoResponseException();
                 }
             }

@@ -2,6 +2,12 @@
 
 namespace RX_Explorer.Class
 {
+    public enum ShellLinkType
+    {
+        Normal,
+        UWP
+    }
+
     [Flags]
     public enum NameFilterCondition
     {

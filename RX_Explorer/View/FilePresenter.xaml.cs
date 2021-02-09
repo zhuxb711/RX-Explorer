@@ -3619,13 +3619,20 @@ namespace RX_Explorer
                                         {
                                             if (TabTarget is HyperlinkStorageItem Item)
                                             {
-                                                if (WIN_Native_API.CheckType(Item.LinkTargetPath) == StorageItemTypes.File)
+                                                if (Item.LinkType == ShellLinkType.Normal)
                                                 {
-                                                    await Exclusive.Controller.RunAsync(Item.LinkTargetPath, Item.NeedRunAsAdmin, false, false, Item.Arguments).ConfigureAwait(true);
+                                                    if (WIN_Native_API.CheckType(Item.LinkTargetPath) == StorageItemTypes.File)
+                                                    {
+                                                        await Exclusive.Controller.RunAsync(Item.LinkTargetPath, Item.NeedRunAsAdmin, false, false, Item.Arguments).ConfigureAwait(true);
+                                                    }
+                                                    else
+                                                    {
+                                                        await DisplayItemsInFolder(Item.LinkTargetPath).ConfigureAwait(true);
+                                                    }
                                                 }
                                                 else
                                                 {
-                                                    await DisplayItemsInFolder(Item.LinkTargetPath).ConfigureAwait(true);
+                                                    await Exclusive.Controller.RunAsync("explorer.exe", false, false, false, $"shell:AppsFolder\\{Item.LinkTargetPath}!App").ConfigureAwait(true);
                                                 }
                                             }
 
@@ -6427,7 +6434,7 @@ namespace RX_Explorer
         {
             if (SelectedItem is HyperlinkStorageItem Item)
             {
-                if (string.IsNullOrEmpty(Item.LinkTargetPath))
+                if (Item.LinkTargetPath == Globalization.GetString("UnknownText") || Item.LinkType == ShellLinkType.UWP)
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {

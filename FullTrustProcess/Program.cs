@@ -305,7 +305,7 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case "Execute_GetHyperlinkInfo":
+                    case "Execute_GetLnkData":
                         {
                             string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);
 
@@ -346,7 +346,16 @@ namespace FullTrustProcess
                                     {
                                         if (string.IsNullOrEmpty(Link.TargetPath))
                                         {
-                                            Value.Add("Error", "TargetPath is invalid");
+                                            string PackageFamilyName = Helper.GetPackageFamilyNameFromUWPShellLink(ExecutePath);
+
+                                            if (string.IsNullOrEmpty(PackageFamilyName))
+                                            {
+                                                Value.Add("Error", "TargetPath is invalid");
+                                            }
+                                            else
+                                            {
+                                                Value.Add("Success", JsonSerializer.Serialize(new HyperlinkPackage(ExecutePath, PackageFamilyName, Array.Empty<string>(), Link.Description, false)));
+                                            }
                                         }
                                         else
                                         {
