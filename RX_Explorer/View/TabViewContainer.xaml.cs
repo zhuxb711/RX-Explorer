@@ -263,7 +263,7 @@ namespace RX_Explorer
         {
             try
             {
-                List<string> AllBaseDevice = DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed)
+                List<string> AllBaseDevice = DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Network)
                                                                   .Select((Info) => Info.RootDirectory.FullName).ToList();
 
                 List<StorageFolder> PortableDevice = new List<StorageFolder>();
@@ -644,8 +644,8 @@ namespace RX_Explorer
 
         private async Task LoadDeviceAsync()
         {
-            foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable)
-                                                                 .Where((NewItem) => CommonAccessCollection.HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
+            foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Network)
+                                                             .Where((NewItem) => CommonAccessCollection.HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
             {
                 try
                 {

@@ -43,9 +43,14 @@ namespace RX_Explorer.Dialog
                         DeviceType.Text = Globalization.GetString("Device_Type_4");
                         break;
                     }
-                default:
+                case DriveType.Network:
                     {
                         DeviceType.Text = Globalization.GetString("Device_Type_5");
+                        break;
+                    }
+                default:
+                    {
+                        DeviceType.Text = Globalization.GetString("UnknownText");
                         break;
                     }
             }

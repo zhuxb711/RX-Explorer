@@ -311,6 +311,7 @@ namespace RX_Explorer
                     if (e.NavigationMode == NavigationMode.New && e?.Parameter is Tuple<WeakReference<TabViewItem>, string[]> Parameters)
                     {
                         Frame.Navigated += Frame_Navigated;
+                        FullTrustProcessController.CurrentBusyStatus += FullTrustProcessController_CurrentBusyStatus;
 
                         if (Parameters.Item1 != null)
                         {
@@ -336,6 +337,14 @@ namespace RX_Explorer
                     _ = Interlocked.Exchange(ref NavigateLockResource, 0);
                 }
             }
+        }
+
+        private async void FullTrustProcessController_CurrentBusyStatus(object sender, bool e)
+        {
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            {
+                await LoadingActivation(e, Globalization.GetString("Progress_Tip_Busy")).ConfigureAwait(true);
+            });
         }
 
         private void Frame_Navigated(object sender, NavigationEventArgs e)
@@ -1854,6 +1863,7 @@ namespace RX_Explorer
             BladeViewer.Items.Clear();
 
             Frame.Navigated -= Frame_Navigated;
+            FullTrustProcessController.CurrentBusyStatus -= FullTrustProcessController_CurrentBusyStatus;
 
             GoBackRecord.IsEnabled = false;
             GoForwardRecord.IsEnabled = false;

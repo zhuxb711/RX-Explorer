@@ -1278,7 +1278,7 @@
     <value>記憶體硬碟</value>
   </data>
   <data name="Device_Type_5" xml:space="preserve">
-    <value>不明</value>
+    <value>網絡驅動器</value>
   </data>
   <data name="FileProperty_Bitrate" xml:space="preserve">
     <value>位元率</value>
@@ -2611,5 +2611,8 @@
   </data>
   <data name="NameFilterCheckBox6Text.PlaceholderText" xml:space="preserve">
     <value>請輸入正則表達式</value>
+  </data>
+  <data name="Progress_Tip_Busy" xml:space="preserve">
+    <value>正在等待回應</value>
   </data>
 </root>

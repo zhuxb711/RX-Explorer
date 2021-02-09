@@ -1676,8 +1676,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Lecteur RAM</target>
         </trans-unit>
         <trans-unit id="Device_Type_5" translate="yes" xml:space="preserve">
-          <source>Unknown</source>
-          <target state="translated">Inconnu</target>
+          <source>Network drive</source>
+          <target state="translated">Lecteur réseau</target>
         </trans-unit>
         <trans-unit id="FileProperty_Bitrate" translate="yes" xml:space="preserve">
           <source>Bitrate</source>
@@ -3463,6 +3463,10 @@ Les noms non valides incluent
         <trans-unit id="NameFilterCheckBox6Text.PlaceholderText" translate="yes" xml:space="preserve">
           <source>Please enter a regular expression</source>
           <target state="translated">Veuillez saisir une expression régulière</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Busy" translate="yes" xml:space="preserve">
+          <source>Waiting for response</source>
+          <target state="translated">En attente d'une réponse</target>
         </trans-unit>
       </group>
     </body>

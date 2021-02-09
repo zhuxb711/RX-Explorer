@@ -1692,8 +1692,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">記憶體硬碟</target>
         </trans-unit>
         <trans-unit id="Device_Type_5" translate="yes" xml:space="preserve">
-          <source>Unknown</source>
-          <target state="translated">不明</target>
+          <source>Network drive</source>
+          <target state="translated">網絡驅動器</target>
         </trans-unit>
         <trans-unit id="FileProperty_Bitrate" translate="yes" xml:space="preserve">
           <source>Bitrate</source>
@@ -3463,6 +3463,10 @@ Invalid names include
         <trans-unit id="NameFilterCheckBox6Text.PlaceholderText" translate="yes" xml:space="preserve">
           <source>Please enter a regular expression</source>
           <target state="translated">請輸入正則表達式</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Busy" translate="yes" xml:space="preserve">
+          <source>Waiting for response</source>
+          <target state="translated">正在等待回應</target>
         </trans-unit>
       </group>
     </body>

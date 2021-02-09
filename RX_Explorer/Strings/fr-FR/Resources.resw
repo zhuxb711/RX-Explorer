@@ -1266,7 +1266,7 @@
     <value>Lecteur RAM</value>
   </data>
   <data name="Device_Type_5" xml:space="preserve">
-    <value>Inconnu</value>
+    <value>Lecteur réseau</value>
   </data>
   <data name="FileProperty_Bitrate" xml:space="preserve">
     <value>Bitrate</value>
@@ -2611,5 +2611,8 @@ Les noms non valides incluent
   </data>
   <data name="NameFilterCheckBox6Text.PlaceholderText" xml:space="preserve">
     <value>Veuillez saisir une expression régulière</value>
+  </data>
+  <data name="Progress_Tip_Busy" xml:space="preserve">
+    <value>En attente d'une réponse</value>
   </data>
 </root>

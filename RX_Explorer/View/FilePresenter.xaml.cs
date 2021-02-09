@@ -3258,26 +3258,26 @@ namespace RX_Explorer
             {
                 try
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    if (TabTarget.StorageType == StorageItemTypes.File)
                     {
-                        if (TabTarget.StorageType == StorageItemTypes.File)
+                        if (!WIN_Native_API.CheckExist(TabTarget.Path))
                         {
-                            if (!WIN_Native_API.CheckExist(TabTarget.Path))
+                            QueueContentDialog Dialog = new QueueContentDialog
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
 
-                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                                return;
-                            }
+                            return;
+                        }
 
-                            string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(TabTarget.Type).ConfigureAwait(true);
+                        string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(TabTarget.Type).ConfigureAwait(true);
 
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                        {
                             if (!string.IsNullOrEmpty(AdminExecutablePath) && AdminExecutablePath != Package.Current.Id.FamilyName)
                             {
                                 if (Path.IsPathRooted(AdminExecutablePath))
@@ -3778,23 +3778,23 @@ namespace RX_Explorer
                                 }
                             }
                         }
+                    }
+                    else
+                    {
+                        if (WIN_Native_API.CheckExist(TabTarget.Path))
+                        {
+                            await DisplayItemsInFolder(TabTarget).ConfigureAwait(true);
+                        }
                         else
                         {
-                            if (WIN_Native_API.CheckExist(TabTarget.Path))
+                            QueueContentDialog Dialog = new QueueContentDialog
                             {
-                                await DisplayItemsInFolder(TabTarget).ConfigureAwait(true);
-                            }
-                            else
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
 
-                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                            }
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
                         }
                     }
                 }

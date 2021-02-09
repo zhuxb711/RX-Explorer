@@ -1398,7 +1398,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Ram drive</value>
   </data>
   <data name="Device_Type_5" xml:space="preserve">
-    <value>Unknown</value>
+    <value>Network drive</value>
   </data>
   <data name="FileProperty_Bitrate" xml:space="preserve">
     <value>Bitrate</value>
@@ -2716,5 +2716,8 @@ Invalid names include
   </data>
   <data name="NameFilterCheckBox6Text.PlaceholderText" xml:space="preserve">
     <value>Please enter a regular expression</value>
+  </data>
+  <data name="Progress_Tip_Busy" xml:space="preserve">
+    <value>Waiting for response</value>
   </data>
 </root>

@@ -110,6 +110,8 @@ namespace RX_Explorer.Class
 
         private static event EventHandler<FullTrustProcessController> ExclusiveDisposed;
 
+        public static event EventHandler<bool> CurrentBusyStatus;
+
         static FullTrustProcessController()
         {
             ExclusiveDisposed += FullTrustProcessController_ExclusiveDisposed;
@@ -203,7 +205,14 @@ namespace RX_Explorer.Class
                     {
                         if (CurrentRunningControllerNum > 0)
                         {
-                            SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty);
+                            if (!SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty, 4000))
+                            {
+                                CurrentBusyStatus?.Invoke(null, true);
+
+                                SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty);
+
+                                CurrentBusyStatus?.Invoke(null, false);
+                            }
                         }
                         else
                         {

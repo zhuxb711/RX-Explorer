@@ -1,12 +1,10 @@
 ﻿using RX_Explorer.Class;
 using System;
-using System.Linq;
-using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
-using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -24,6 +22,12 @@ namespace RX_Explorer
         {
             InitializeComponent();
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            Loaded += TextViewer_Loaded;
+        }
+
+        private void TextViewer_Loaded(object sender, RoutedEventArgs e)
+        {
+            Initialize();
         }
 
         private void Initialize()
@@ -33,9 +37,16 @@ namespace RX_Explorer
 
             Encoding DetectedEncoding = DetectEncodingFromFile();
 
-            if (EncodingCollection.FirstOrDefault((Enco) => Enco.CodePage == DetectedEncoding.CodePage) is EncodingInfo Info)
+            if (DetectedEncoding != null)
             {
-                EncodingProfile.SelectedItem = Info;
+                if (EncodingCollection.FirstOrDefault((Enco) => Enco.CodePage == DetectedEncoding.CodePage) is EncodingInfo Info)
+                {
+                    EncodingProfile.SelectedItem = Info;
+                }
+                else
+                {
+                    EncodingProfile.SelectedItem = EncodingCollection.FirstOrDefault((Enco) => Enco.CodePage == Encoding.UTF8.CodePage);
+                }
             }
             else
             {
@@ -45,12 +56,20 @@ namespace RX_Explorer
 
         private Encoding DetectEncodingFromFile()
         {
-            using (FileStream DetectStream = TextFile.GetFileStreamFromFile(AccessMode.Read))
-            using (StreamReader Reader = new StreamReader(DetectStream, Encoding.Default, true))
+            try
             {
-                Reader.Read();
+                using (FileStream DetectStream = TextFile.GetFileStreamFromFile(AccessMode.Read))
+                using (StreamReader Reader = new StreamReader(DetectStream, Encoding.Default, true))
+                {
+                    Reader.Read();
 
-                return Reader.CurrentEncoding;
+                    return Reader.CurrentEncoding;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not detect the encoding of file");
+                return null;
             }
         }
 
@@ -60,8 +79,6 @@ namespace RX_Explorer
             {
                 TextFile = Parameters;
                 Title.Text = TextFile.Name;
-
-                Initialize();
             }
         }
 
