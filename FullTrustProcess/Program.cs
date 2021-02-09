@@ -50,6 +50,9 @@ namespace FullTrustProcess
                 if (await Connection.OpenAsync() == AppServiceConnectionStatus.Success)
                 {
                     AliveCheckTimer = new Timer(AliveCheck, null, 10000, 10000);
+
+                    //Loading the menu in advance can speed up the re-generation speed and ensure the stability of the number of menu items
+                    await ContextMenu.FetchContextMenuItemsAsync(Environment.GetEnvironmentVariable("TMP"), true);
                 }
                 else
                 {
