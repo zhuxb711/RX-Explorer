@@ -388,9 +388,16 @@ namespace RX_Explorer
 
             try
             {
-                await Task.WhenAll(LoadQuickStartItemsAsync(), LoadDeviceAsync(), LoadLibraryAsync()).ConfigureAwait(true);
-
-                CreateNewTab(null, MainPage.ThisPage.ActivatePathArray);
+                if (MainPage.ThisPage.ActivatePathArray.Length == 0)
+                {
+                    CreateNewTab(null);
+                    await Task.WhenAll(LoadQuickStartItemsAsync(), LoadDeviceAsync(), LoadLibraryAsync()).ConfigureAwait(true);
+                }
+                else
+                {
+                    await Task.WhenAll(LoadQuickStartItemsAsync(), LoadDeviceAsync(), LoadLibraryAsync()).ConfigureAwait(true);
+                    CreateNewTab(null, MainPage.ThisPage.ActivatePathArray);
+                }
             }
             catch (Exception ex)
             {

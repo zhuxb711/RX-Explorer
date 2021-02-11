@@ -6,6 +6,7 @@
                           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                           mc:Ignorable="d"
                           xmlns:Cls="using:RX_Explorer.Class"
+                          xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
                           x:Uid="ProgramPickerDialog"
                           Title="选择打开方式"
                           PrimaryButtonText="确定"
@@ -79,22 +80,23 @@
                           SelectionChanged="OtherProgramList_SelectionChanged"
                           ScrollViewer.HorizontalScrollMode="Disabled"
                           ItemTemplate="{StaticResource CommonDataTemplate}"
-                          ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}"/>
-                <Button Style="{StaticResource OnlyClickableButtonStyle}" Background="Transparent"
+                          ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}" />
+                <Button Style="{StaticResource OnlyClickableButtonStyle}"
+                        Background="Transparent"
                         Padding="0,2,0,2"
                         Name="ShowMore"
                         Click="ShowMore_Click">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="更多应用"
                                    x:Uid="ProgramPickerDialog_MoreApp"
-                                   Foreground="{ThemeResource SystemAccentColor}"/>
+                                   Foreground="{ThemeResource SystemAccentColor}" />
                         <Viewbox Height="20"
                                  Margin="5,0,0,0">
                             <FontIcon FontFamily="Segoe UI"
                                       Glyph="&#x25BC;"
-                                      Foreground="{ThemeResource SystemAccentColor}"/>
+                                      Foreground="{ThemeResource SystemAccentColor}" />
                         </Viewbox>
-                    </StackPanel> 
+                    </StackPanel>
                 </Button>
                 <HyperlinkButton Content="选择此电脑上的其他应用"
                                  x:Uid="ProgramPickerDialogPickOther"
@@ -106,10 +108,21 @@
                           Margin="0,10,0,0"
                           Name="UseAsAdmin" />
             </StackPanel>
-            <TextBlock Name="LoadingText"
-                       VerticalAlignment="Center"
-                       HorizontalAlignment="Center"
-                       FontSize="16" />
+            <StackPanel VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Name="LoadingText">
+                <TextBlock Name="ProgressInfo"
+                           Text="{x:Bind local:Globalization.GetString('Progress_Tip_Loading')}"
+                           VerticalAlignment="Center"
+                           FontSize="14"
+                           TextAlignment="Center" />
+                <muxc:ProgressBar IsIndeterminate="True"
+                                  Width="150"
+                                  Name="ProBar"
+                                  Minimum="0"
+                                  Maximum="100"
+                                  Margin="0,10,0,0" />
+            </StackPanel>
         </Grid>
     </ScrollViewer>
 </local:QueueContentDialog>

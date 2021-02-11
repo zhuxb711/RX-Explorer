@@ -1,4 +1,45 @@
 ﻿*****
+###Quoi de neuf dans la version 6.0.5.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Ajout du filtrage des expressions régulières au filtrage des fichiers
+
+>#####Nouvelle touche de raccourci Ctrl + Maj + C pour copier rapidement le chemin d'un fichier ou d'un dossier
+
+>#####Amélioration de la facilité d'utilisation du Quick Start, maintenant il est plus facile d'ajouter des applications UWP
+
+>#####Support expérimental du lecteur réseau, ceux qui remplissent les conditions suivantes peuvent accéder:
+
+>>#####Doit être mappé en tant que lecteur réseau
+
+>>#####Les lecteurs réseau ne peuvent pas être mappés à partir des dossiers locaux
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Mise à jour de la logique du menu contextuel, maintenant tous les menus contextuels peuvent être affichés
+
+>#####Le mode "Copier" est utilisé par défaut lors du glissement de fichiers
+
+>#####Ajout d'un rappel que le processus auxiliaire est occupé
+
+>#####La visionneuse de texte utilise GBK comme l'un des formats d'encodage par défaut pour s'adapter aux différents besoins d'encodage de texte
+
+#####Correction d'un bug
+
+>#####Correction du problème qui pouvait empêcher l'accès au dossier lorsque le processus auxiliaire est occupé
+
+>#####Correction de quelques problèmes liés à OpenCV
+
+>#####Correction du problème de démarrage lent lors de l'exécution sur certains appareils
+
+>#####Correction du problème que le fichier lnk de l'application UWP ne pouvait pas être chargé correctement
+
+#####Autres mises à jour
+
+>#####Mise à jour du framework UWP
+
+*****
 ###Quoi de neuf dans la version 6.0.1.0
 
 #####Correction d'un bug

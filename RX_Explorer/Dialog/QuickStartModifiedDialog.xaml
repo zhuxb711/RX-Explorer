@@ -50,6 +50,74 @@
                               x:Uid="QuickStartFailureTips"
                               Subtitle="无法自动获取图标，请重试">
         </controls:TeachingTip>
+        <controls:TeachingTip x:Name="UWPPickerTip"
+                              IsLightDismissEnabled="True"
+                              PreferredPlacement="Left"
+                              Title="选取UWP应用"
+                              ActionButtonContent="确定"
+                              CloseButtonContent="取消"
+                              ActionButtonClick="UWPPickerTip_ActionButtonClick"
+                              x:Uid="QuickStartPickUWPTip"
+                              Closed="UWPPickerTip_Closed"
+                              Target="{x:Bind PickUWP}">
+            <Grid>
+                <ListView x:Name="PackageListView"
+                          Visibility="Collapsed"
+                          ItemsSource="{x:Bind PackageListViewSource}"
+                          MaxHeight="350">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment"
+                                    Value="Stretch" />
+                            <Setter Property="Padding"
+                                    Value="0" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="local:InstalledAppliation">
+                            <Grid Padding="0,5,0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="50" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Width="40"
+                                        Height="40"
+                                        Padding="5"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Background="{ThemeResource SystemBaseMediumLowColor}">
+                                    <Image Stretch="Uniform"
+                                           Width="30"
+                                           Height="30" 
+                                           Source="{x:Bind Logo}"/>
+                                </Border>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{x:Bind AppName}"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Text="{x:Bind AppDescription}"
+                                               TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+
+                <StackPanel VerticalAlignment="Center"
+                            HorizontalAlignment="Center"
+                            Name="UWPLoadingTip">
+                    <TextBlock Name="ProgressInfo"
+                               Text="{x:Bind local:Globalization.GetString('Progress_Tip_Loading')}"
+                               VerticalAlignment="Center"
+                               TextAlignment="Center" />
+                    <controls:ProgressBar IsIndeterminate="True"
+                                      Width="150"
+                                      Name="ProBar"
+                                      Minimum="0"
+                                      Maximum="100"
+                                      Margin="0,10,0,0" />
+                </StackPanel>
+            </Grid>
+        </controls:TeachingTip>
     </local:QueueContentDialog.Resources>
 
     <Grid>
@@ -79,11 +147,39 @@
                             MinWidth="100"
                             x:Uid="QuickStartGetWebImage"
                             Click="GetImageAutomatic_Click" />
-                    <Button Name="PickerFile"
-                            Content="选取文件"
+                    <Button Name="PickLogo"
+                            Content="自定义图标"
                             Margin="5,0,0,0"
                             MinWidth="100"
-                            Click="PickerFile_Click" />
+                            x:Uid="QuickStartPickLogo"
+                            Click="PickWebLogo"/>
+                    <Button Name="PickApp"
+                            Content="选择应用"
+                            Margin="5,0,0,0"
+                            x:Uid="QuickStartPickApp"
+                            MinWidth="100">
+                        <Button.Flyout>
+                            <Flyout Placement="Top"
+                                    x:Name="PickAppFlyout">
+                                <StackPanel>
+                                    <TextBlock Text="您要选择哪一种应用?"
+                                               x:Uid="QuickStartPickFileType"/>
+                                    <StackPanel Orientation="Horizontal"
+                                                Margin="0,10,0,0">
+                                        <Button Content="UWP"
+                                                Width="100"
+                                                Name="PickUWP"
+                                                Click="PickUWP_Click"/>
+                                        <Button Content="Win32"
+                                                Width="100"
+                                                Margin="10,0,0,0"
+                                                Name="PickWin32"
+                                                Click="PickWin32_Click"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
                 </StackPanel>
             </StackPanel>
         </StackPanel>

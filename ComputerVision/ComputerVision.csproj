@@ -141,13 +141,13 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.2.11</Version>
+      <Version>6.2.12</Version>
     </PackageReference>
     <PackageReference Include="OpenCvSharp4">
-      <Version>4.5.1.20210208</Version>
+      <Version>4.5.1.20210210</Version>
     </PackageReference>
     <PackageReference Include="OpenCvSharp4.runtime.uwp">
-      <Version>4.5.1.20210208</Version>
+      <Version>4.5.1.20210210</Version>
     </PackageReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

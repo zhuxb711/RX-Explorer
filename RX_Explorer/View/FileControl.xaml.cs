@@ -389,11 +389,19 @@ namespace RX_Explorer
         {
             if (InitFolderPathArray.Length > 0)
             {
+                foreach (string TargetPath in InitFolderPathArray)
+                {
+                    await CreateNewBlade(TargetPath).ConfigureAwait(true);
+                }
+
                 FolderTree.RootNodes.Clear();
 
-                foreach (StorageFolder DriveFolder in CommonAccessCollection.HardDeviceList.Select((Drive) => Drive.Folder))
+                foreach ((StorageFolder DriveFolder, DriveType Type) in CommonAccessCollection.HardDeviceList.Where((Drive)=>Drive.DriveType != DriveType.Network)
+                                                                                                             .Concat(CommonAccessCollection.HardDeviceList.Where((Drive) => Drive.DriveType == DriveType.Network))
+                                                                                                             .Select((Drive) => (Drive.Folder, Drive.DriveType)))
                 {
-                    bool HasAnyFolder = WIN_Native_API.CheckContainsAnyItem(DriveFolder.Path, ItemFilters.Folder);
+                    bool HasAnyFolder = Type == DriveType.Network ? await Task.Run(() => WIN_Native_API.CheckContainsAnyItem(DriveFolder.Path, ItemFilters.Folder))
+                                                                  : WIN_Native_API.CheckContainsAnyItem(DriveFolder.Path, ItemFilters.Folder);
 
                     TreeViewNode RootNode = new TreeViewNode
                     {
@@ -426,11 +434,6 @@ namespace RX_Explorer
                     {
                         FolderTree.RootNodes.Add(RootNode);
                     }
-                }
-
-                foreach (string TargetPath in InitFolderPathArray)
-                {
-                    await CreateNewBlade(TargetPath).ConfigureAwait(true);
                 }
             }
         }

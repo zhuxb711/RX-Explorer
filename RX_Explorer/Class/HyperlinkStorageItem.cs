@@ -3,9 +3,11 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.ApplicationModel.Core;
 using Windows.Management.Deployment;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using Windows.UI.Core;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
@@ -39,6 +41,7 @@ namespace RX_Explorer.Class
         }
 
         private HyperlinkPackage Data;
+        private Package UWPLinkPackage;
 
         public override string Path
         {
@@ -69,6 +72,45 @@ namespace RX_Explorer.Class
             get
             {
                 return System.IO.Path.GetExtension(InternalPathString);
+            }
+        }
+
+        public async Task LaunchAsync()
+        {
+            if (LinkType == ShellLinkType.Normal)
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                {
+                    await Exclusive.Controller.RunAsync(LinkTargetPath, NeedRunAsAdmin, false, false, Arguments).ConfigureAwait(true);
+                }
+            }
+            else if (UWPLinkPackage != null)
+            {
+                bool IsLaunch = false;
+
+                foreach (AppListEntry Entry in await UWPLinkPackage.GetAppListEntriesAsync())
+                {
+                    if (await Entry.LaunchAsync())
+                    {
+                        IsLaunch = true;
+                        break;
+                    }
+                }
+
+                if (!IsLaunch)
+                {
+                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await Dialog.ShowAsync().ConfigureAwait(true);
+                    });
+                }
             }
         }
 
@@ -106,21 +148,19 @@ namespace RX_Explorer.Class
 
                             if (Manager.FindPackagesForUserWithPackageTypes(string.Empty, Data.LinkTargetPath, PackageTypes.Main).FirstOrDefault() is Package Pack)
                             {
+                                UWPLinkPackage = Pack;
                                 LinkType = ShellLinkType.UWP;
 
                                 RandomAccessStreamReference ThumbnailStreamReference = Pack.GetLogoAsRandomAccessStreamReference(new Windows.Foundation.Size(150, 150));
 
-                                if (ThumbnailStreamReference != null)
+                                BitmapImage UWPThumbnail = new BitmapImage();
+
+                                using (IRandomAccessStreamWithContentType ThumbnailStream = await ThumbnailStreamReference.OpenReadAsync())
                                 {
-                                    BitmapImage UWPThumbnail = new BitmapImage();
-
-                                    using (IRandomAccessStreamWithContentType ThumbnailStream = await ThumbnailStreamReference.OpenReadAsync())
-                                    {
-                                        await UWPThumbnail.SetSourceAsync(ThumbnailStream);
-                                    }
-
-                                    Thumbnail = UWPThumbnail;
+                                    await UWPThumbnail.SetSourceAsync(ThumbnailStream);
                                 }
+
+                                Thumbnail = UWPThumbnail;
                             }
                         }
                     }

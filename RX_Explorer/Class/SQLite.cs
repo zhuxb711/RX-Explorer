@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using ComputerVision;
+using Microsoft.Data.Sqlite;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
@@ -679,45 +681,24 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        if (Convert.ToString(Reader[1]).StartsWith("ms-appx"))
+                        StorageFile ImageFile = Convert.ToString(Reader[1]).StartsWith("ms-appx")
+                                                ? await StorageFile.GetFileFromApplicationUriAsync(new Uri(Reader[1].ToString()))
+                                                : await StorageFile.GetFileFromPathAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, Convert.ToString(Reader[1])));
+
+                        BitmapImage Bitmap = new BitmapImage();
+
+                        using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
                         {
-                            StorageFile BitmapFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(Reader[1].ToString()));
+                            await Bitmap.SetSourceAsync(Stream);
+                        }
 
-                            BitmapImage Bitmap = new BitmapImage();
-
-                            using (IRandomAccessStream Stream = await BitmapFile.OpenAsync(FileAccessMode.Read))
-                            {
-                                await Bitmap.SetSourceAsync(Stream);
-                            }
-
-                            if (Enum.Parse<QuickStartType>(Reader[3].ToString()) == QuickStartType.Application)
-                            {
-                                Result.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.Application, new QuickStartItem(Bitmap, Convert.ToString(Reader[2]), QuickStartType.Application, Reader[1].ToString(), Reader[0].ToString())));
-                            }
-                            else
-                            {
-                                Result.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.WebSite, new QuickStartItem(Bitmap, Convert.ToString(Reader[2]), QuickStartType.WebSite, Reader[1].ToString(), Reader[0].ToString())));
-                            }
+                        if (Enum.Parse<QuickStartType>(Reader[3].ToString()) == QuickStartType.Application)
+                        {
+                            Result.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.Application, new QuickStartItem(Bitmap, Convert.ToString(Reader[2]), QuickStartType.Application, Reader[1].ToString(), Reader[0].ToString())));
                         }
                         else
                         {
-                            StorageFile ImageFile = await StorageFile.GetFileFromPathAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, Convert.ToString(Reader[1])));
-
-                            using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
-                            {
-                                BitmapImage Bitmap = new BitmapImage();
-
-                                await Bitmap.SetSourceAsync(Stream);
-
-                                if ((QuickStartType)Enum.Parse(typeof(QuickStartType), Reader[3].ToString()) == QuickStartType.Application)
-                                {
-                                    Result.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.Application, new QuickStartItem(Bitmap, Convert.ToString(Reader[2]), QuickStartType.Application, Reader[1].ToString(), Reader[0].ToString())));
-                                }
-                                else
-                                {
-                                    Result.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.WebSite, new QuickStartItem(Bitmap, Convert.ToString(Reader[2]), QuickStartType.WebSite, Reader[1].ToString(), Reader[0].ToString())));
-                                }
-                            }
+                            Result.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.WebSite, new QuickStartItem(Bitmap, Convert.ToString(Reader[2]), QuickStartType.WebSite, Reader[1].ToString(), Reader[0].ToString())));
                         }
                     }
                     catch (Exception)

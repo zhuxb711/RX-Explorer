@@ -3619,20 +3619,13 @@ namespace RX_Explorer
                                         {
                                             if (TabTarget is HyperlinkStorageItem Item)
                                             {
-                                                if (Item.LinkType == ShellLinkType.Normal)
+                                                if (WIN_Native_API.CheckType(Item.LinkTargetPath) == StorageItemTypes.Folder)
                                                 {
-                                                    if (WIN_Native_API.CheckType(Item.LinkTargetPath) == StorageItemTypes.File)
-                                                    {
-                                                        await Exclusive.Controller.RunAsync(Item.LinkTargetPath, Item.NeedRunAsAdmin, false, false, Item.Arguments).ConfigureAwait(true);
-                                                    }
-                                                    else
-                                                    {
-                                                        await DisplayItemsInFolder(Item.LinkTargetPath).ConfigureAwait(true);
-                                                    }
+                                                    await DisplayItemsInFolder(Item.LinkTargetPath).ConfigureAwait(true);
                                                 }
                                                 else
                                                 {
-                                                    await Exclusive.Controller.RunAsync("explorer.exe", false, false, false, $"shell:AppsFolder\\{Item.LinkTargetPath}!App").ConfigureAwait(true);
+                                                    await Item.LaunchAsync().ConfigureAwait(true);
                                                 }
                                             }
 

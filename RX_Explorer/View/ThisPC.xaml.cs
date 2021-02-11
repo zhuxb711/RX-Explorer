@@ -7,8 +7,11 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
+using Windows.ApplicationModel.Core;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Portable;
+using Windows.Management.Deployment;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
@@ -239,29 +242,74 @@ namespace RX_Explorer
             {
                 if ((sender as GridView).Name == nameof(QuickStartGridView))
                 {
-                    Uri Ur = new Uri(Item.Protocol);
-
-                    if (Ur.IsFile)
+                    if (Uri.TryCreate(Item.Protocol, UriKind.Absolute, out Uri Ur))
                     {
-                        if (WIN_Native_API.CheckExist(Item.Protocol))
+                        if (Ur.IsFile)
                         {
-                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                            if (WIN_Native_API.CheckExist(Item.Protocol))
                             {
-                                try
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                 {
-                                    if (Path.GetExtension(Item.Protocol).ToLower() == ".msc")
+                                    try
                                     {
-                                        await Exclusive.Controller.RunAsync("powershell.exe", false, true, false, "-Command", Item.Protocol).ConfigureAwait(true);
+                                        if (Path.GetExtension(Item.Protocol).ToLower() == ".msc")
+                                        {
+                                            await Exclusive.Controller.RunAsync("powershell.exe", false, true, false, "-Command", Item.Protocol).ConfigureAwait(true);
+                                        }
+                                        else
+                                        {
+                                            await Exclusive.Controller.RunAsync(Item.Protocol).ConfigureAwait(true);
+                                        }
                                     }
-                                    else
+                                    catch (Exception ex)
                                     {
-                                        await Exclusive.Controller.RunAsync(Item.Protocol).ConfigureAwait(true);
+                                        LogTracer.Log(ex, "Could not execute program in quick start");
                                     }
                                 }
-                                catch (Exception ex)
+                            }
+                            else
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
                                 {
-                                    LogTracer.Log(ex, "Could not execute program in quick start");
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_ApplicationNotFound_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                            }
+                        }
+                        else
+                        {
+                            await Launcher.LaunchUriAsync(Ur);
+                        }
+                    }
+                    else
+                    {
+                        PackageManager Manager = new PackageManager();
+
+                        if (Manager.FindPackagesForUserWithPackageTypes(string.Empty, Item.Protocol, PackageTypes.Main).FirstOrDefault() is Package Pack)
+                        {
+                            bool IsLaunch = false;
+
+                            foreach (AppListEntry Entry in await Pack.GetAppListEntriesAsync())
+                            {
+                                if (await Entry.LaunchAsync())
+                                {
+                                    IsLaunch = true;
+                                    break;
                                 }
+                            }
+
+                            if (!IsLaunch)
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+
+                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
                             }
                         }
                         else
@@ -269,15 +317,12 @@ namespace RX_Explorer
                             QueueContentDialog Dialog = new QueueContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_ApplicationNotFound_Content"),
+                                Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
+
                             _ = await Dialog.ShowAsync().ConfigureAwait(true);
                         }
-                    }
-                    else
-                    {
-                        await Launcher.LaunchUriAsync(Ur);
                     }
                 }
                 else

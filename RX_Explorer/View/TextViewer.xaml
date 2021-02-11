@@ -5,6 +5,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+      xmlns:Cls="using:RX_Explorer.Class"
       mc:Ignorable="d"
       NavigationCacheMode="Enabled"
       Background="Transparent">
@@ -40,10 +41,11 @@
                               Margin="5,0,0,0"
                               x:Name="EncodingProfile"
                               IsEditable="True"
+                              ItemsSource="{x:Bind AvailableEncoding}"
                               x:Uid="TextViewer_EncodingProfilePlaceholerText"
                               PlaceholderText="输入编码格式的名称或CodePage"
                               TextSubmitted="EncodingProfile_TextSubmitted"
-                              DisplayMemberPath="DisplayName"
+                              DisplayMemberPath="EncodingName"
                               SelectionChanged="EncodingProfile_SelectionChanged" />
                 </StackPanel>
             </AppBarElementContainer>
@@ -80,8 +82,8 @@
             <StackPanel>
                 <TextBlock Name="ProgressInfo"
                            FontSize="16"
+                           Text="{x:Bind Cls:Globalization.GetString('Progress_Tip_Loading')}"
                            x:Uid="TextViewerLoading"
-                           Text="正在加载..."
                            VerticalAlignment="Center"
                            TextAlignment="Center" />
                 <muxc:ProgressBar IsIndeterminate="True"

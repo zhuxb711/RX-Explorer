@@ -223,15 +223,16 @@
                       ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="Cls:QuickStartItem">
-                        <StackPanel Orientation="Vertical">
-                            <Image Margin="20,10,20,5"
-                                   HorizontalAlignment="Center"
+                        <StackPanel Orientation="Vertical"
+                                    Padding="5,10,5,5">
+                            <Image HorizontalAlignment="Center"
                                    Height="40"
                                    Width="40"
                                    Source="{x:Bind Image,Mode=OneWay}"
                                    Stretch="Uniform" />
                             <TextBlock Width="75"
                                        FontSize="12"
+                                       Margin="0,5,0,0"
                                        TextTrimming="CharacterEllipsis"
                                        HorizontalTextAlignment="Center"
                                        Text="{x:Bind DisplayName,Mode=OneWay}" />
@@ -279,15 +280,16 @@
                       ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="Cls:QuickStartItem">
-                        <StackPanel Orientation="Vertical">
-                            <Image Margin="20,10,20,5"
-                                   HorizontalAlignment="Center"
+                        <StackPanel Orientation="Vertical"
+                                    Padding="5,10,5,5">
+                            <Image HorizontalAlignment="Center"
                                    Height="40"
                                    Width="40"
                                    Source="{x:Bind Image,Mode=OneWay}"
                                    Stretch="Uniform" />
                             <TextBlock Width="75"
                                        FontSize="12"
+                                       Margin="0,5,0,0"
                                        TextTrimming="CharacterEllipsis"
                                        HorizontalTextAlignment="Center"
                                        Text="{x:Bind DisplayName,Mode=OneWay}" />

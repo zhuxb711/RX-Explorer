@@ -1164,10 +1164,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Cancel</source>
           <target state="translated" state-qualifier="tm-suggestion">取消</target>
         </trans-unit>
-        <trans-unit id="TextViewerLoading.Text" translate="yes" xml:space="preserve">
-          <source>Loading...</source>
-          <target state="translated">正在讀取...</target>
-        </trans-unit>
         <trans-unit id="TextViewerSave.Label" translate="yes" xml:space="preserve">
           <source>Save</source>
           <target state="translated" state-qualifier="tm-suggestion">儲存</target>
@@ -2994,14 +2990,6 @@ Invalid names include
           <source>The file to be compressed cannot contain lnk files</source>
           <target state="translated">要壓縮的文件不能包含lnk文件</target>
         </trans-unit>
-        <trans-unit id="QuickStart_Picker_Application" translate="yes" xml:space="preserve">
-          <source>Pick a file</source>
-          <target state="translated">選擇一個文件</target>
-        </trans-unit>
-        <trans-unit id="QuickStart_Picker_Web" translate="yes" xml:space="preserve">
-          <source>Custom icon</source>
-          <target state="translated">自定義圖標</target>
-        </trans-unit>
         <trans-unit id="QuickStartAddButton.Label" translate="yes" xml:space="preserve">
           <source>Add</source>
           <target state="translated">新增</target>
@@ -3467,6 +3455,30 @@ Invalid names include
         <trans-unit id="Progress_Tip_Busy" translate="yes" xml:space="preserve">
           <source>Waiting for response</source>
           <target state="translated">正在等待回應</target>
+        </trans-unit>
+        <trans-unit id="QuickStartPickLogo.Content" translate="yes" xml:space="preserve">
+          <source>Custom icon</source>
+          <target state="translated">自定義圖標</target>
+        </trans-unit>
+        <trans-unit id="QuickStartPickUWPTip.ActionButtonContent" translate="yes" xml:space="preserve">
+          <source>Confirm</source>
+          <target state="translated">確認</target>
+        </trans-unit>
+        <trans-unit id="QuickStartPickUWPTip.CloseButtonContent" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <target state="translated">取消</target>
+        </trans-unit>
+        <trans-unit id="QuickStartPickUWPTip.Title" translate="yes" xml:space="preserve">
+          <source>Select UWP app</source>
+          <target state="translated">選擇UWP應用</target>
+        </trans-unit>
+        <trans-unit id="QuickStartPickApp.Content" translate="yes" xml:space="preserve">
+          <source>Pick an app</source>
+          <target state="translated">選擇應用</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_LaunchFailed_Content" translate="yes" xml:space="preserve">
+          <source>Unable to start the application</source>
+          <target state="translated">無法啟動應用程序</target>
         </trans-unit>
       </group>
     </body>

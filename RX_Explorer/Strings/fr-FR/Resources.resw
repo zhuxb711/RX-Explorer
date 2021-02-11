@@ -868,9 +868,6 @@
   <data name="TextViewerCancel.Label" xml:space="preserve">
     <value>Annuler</value>
   </data>
-  <data name="TextViewerLoading.Text" xml:space="preserve">
-    <value>Chargement...</value>
-  </data>
   <data name="TextViewerSave.Label" xml:space="preserve">
     <value>Enregistrer</value>
   </data>
@@ -2261,12 +2258,6 @@ Les noms non valides incluent
   <data name="QueueDialog_LinkIsNotAllowInMixZip_Content" xml:space="preserve">
     <value>Le fichier à compresser ne peut pas contenir de fichiers lnk</value>
   </data>
-  <data name="QuickStart_Picker_Application" xml:space="preserve">
-    <value>Choisissez un fichier</value>
-  </data>
-  <data name="QuickStart_Picker_Web" xml:space="preserve">
-    <value>Icône personnalisée</value>
-  </data>
   <data name="QuickStartAddButton.Label" xml:space="preserve">
     <value>Ajouter</value>
   </data>
@@ -2614,5 +2605,23 @@ Les noms non valides incluent
   </data>
   <data name="Progress_Tip_Busy" xml:space="preserve">
     <value>En attente d'une réponse</value>
+  </data>
+  <data name="QuickStartPickLogo.Content" xml:space="preserve">
+    <value>Icône personnalisée</value>
+  </data>
+  <data name="QuickStartPickUWPTip.ActionButtonContent" xml:space="preserve">
+    <value>Confirmer</value>
+  </data>
+  <data name="QuickStartPickUWPTip.CloseButtonContent" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="QuickStartPickUWPTip.Title" xml:space="preserve">
+    <value>Sélectionnez l'application UWP</value>
+  </data>
+  <data name="QuickStartPickApp.Content" xml:space="preserve">
+    <value>Choisissez une application</value>
+  </data>
+  <data name="QueueDialog_LaunchFailed_Content" xml:space="preserve">
+    <value>Impossible de démarrer l'application</value>
   </data>
 </root>

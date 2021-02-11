@@ -38,7 +38,6 @@ namespace RX_Explorer.Dialog
 
         private async void ProgramPickerDialog_Loading(FrameworkElement sender, object args)
         {
-            LoadingText.Text = Globalization.GetString("Progress_Tip_Loading");
             LoadingText.Visibility = Visibility.Visible;
             WholeArea.Visibility = Visibility.Collapsed;
 
