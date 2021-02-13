@@ -14,11 +14,14 @@ namespace ShareClassLibrary
         
         public bool NeedRunAsAdmin { get; }
 
-        public HyperlinkPackage(string LinkPath, string LinkTargetPath, string[] Argument, string Description, bool NeedRunAsAdmin)
+        public byte[] IconData { get; } 
+
+        public HyperlinkPackage(string LinkPath, string LinkTargetPath, string Description, bool NeedRunAsAdmin, byte[]? IconData, params string[] Argument)
         {
             this.LinkPath = LinkPath;
             this.LinkTargetPath = LinkTargetPath;
             this.Argument = Argument ?? Array.Empty<string>();
+            this.IconData = IconData ?? Array.Empty<byte>();
             this.Description = Description;
             this.NeedRunAsAdmin = NeedRunAsAdmin;
         }

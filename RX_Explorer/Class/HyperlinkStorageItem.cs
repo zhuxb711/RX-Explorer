@@ -1,5 +1,6 @@
 ﻿using ShareClassLibrary;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -41,7 +42,6 @@ namespace RX_Explorer.Class
         }
 
         private HyperlinkPackage Data;
-        private Package UWPLinkPackage;
 
         public override string Path
         {
@@ -77,39 +77,28 @@ namespace RX_Explorer.Class
 
         public async Task LaunchAsync()
         {
-            if (LinkType == ShellLinkType.Normal)
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                if (LinkType == ShellLinkType.Normal)
                 {
                     await Exclusive.Controller.RunAsync(LinkTargetPath, NeedRunAsAdmin, false, false, Arguments).ConfigureAwait(true);
                 }
-            }
-            else if (UWPLinkPackage != null)
-            {
-                bool IsLaunch = false;
-
-                foreach (AppListEntry Entry in await UWPLinkPackage.GetAppListEntriesAsync())
+                else
                 {
-                    if (await Entry.LaunchAsync())
+                    if (!await Exclusive.Controller.LaunchUWPLnkAsync(LinkTargetPath).ConfigureAwait(true))
                     {
-                        IsLaunch = true;
-                        break;
-                    }
-                }
-
-                if (!IsLaunch)
-                {
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
+                        await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                         {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
 
-                        await Dialog.ShowAsync().ConfigureAwait(true);
-                    });
+                            await Dialog.ShowAsync().ConfigureAwait(true);
+                        });
+                    }
                 }
             }
         }
@@ -129,39 +118,22 @@ namespace RX_Explorer.Class
 
                     if (!string.IsNullOrEmpty(Data.LinkTargetPath))
                     {
+                        if (Data.IconData.Length != 0)
+                        {
+                            using (MemoryStream IconStream = new MemoryStream(Data.IconData))
+                            {
+                                Thumbnail = new BitmapImage();
+                                await Thumbnail.SetSourceAsync(IconStream.AsRandomAccessStream());
+                            }
+                        }
+
                         if (WIN_Native_API.CheckExist(Data.LinkTargetPath))
                         {
-                            if (WIN_Native_API.CheckType(Data.LinkTargetPath) == StorageItemTypes.Folder)
-                            {
-                                StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(Data.LinkTargetPath);
-                                Thumbnail = await TargetFolder.GetThumbnailBitmapAsync();
-                            }
-                            else
-                            {
-                                StorageFile TargetFile = await StorageFile.GetFileFromPathAsync(Data.LinkTargetPath);
-                                Thumbnail = await TargetFile.GetThumbnailBitmapAsync();
-                            }
+                            LinkType = ShellLinkType.Normal;
                         }
                         else
                         {
-                            PackageManager Manager = new PackageManager();
-
-                            if (Manager.FindPackagesForUserWithPackageTypes(string.Empty, Data.LinkTargetPath, PackageTypes.Main).FirstOrDefault() is Package Pack)
-                            {
-                                UWPLinkPackage = Pack;
-                                LinkType = ShellLinkType.UWP;
-
-                                RandomAccessStreamReference ThumbnailStreamReference = Pack.GetLogoAsRandomAccessStreamReference(new Windows.Foundation.Size(150, 150));
-
-                                BitmapImage UWPThumbnail = new BitmapImage();
-
-                                using (IRandomAccessStreamWithContentType ThumbnailStream = await ThumbnailStreamReference.OpenReadAsync())
-                                {
-                                    await UWPThumbnail.SetSourceAsync(ThumbnailStream);
-                                }
-
-                                Thumbnail = UWPThumbnail;
-                            }
+                            LinkType = ShellLinkType.UWP;
                         }
                     }
                 }

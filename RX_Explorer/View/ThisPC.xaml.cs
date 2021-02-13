@@ -285,22 +285,9 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        PackageManager Manager = new PackageManager();
-
-                        if (Manager.FindPackagesForUserWithPackageTypes(string.Empty, Item.Protocol, PackageTypes.Main).FirstOrDefault() is Package Pack)
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         {
-                            bool IsLaunch = false;
-
-                            foreach (AppListEntry Entry in await Pack.GetAppListEntriesAsync())
-                            {
-                                if (await Entry.LaunchAsync())
-                                {
-                                    IsLaunch = true;
-                                    break;
-                                }
-                            }
-
-                            if (!IsLaunch)
+                            if (!await Exclusive.Controller.LaunchUWPLnkAsync(Item.Protocol).ConfigureAwait(true))
                             {
                                 QueueContentDialog Dialog = new QueueContentDialog
                                 {
@@ -311,17 +298,6 @@ namespace RX_Explorer
 
                                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
                             }
-                        }
-                        else
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
                         }
                     }
                 }

@@ -74,7 +74,7 @@
                         </Style>
                     </ListView.ItemContainerStyle>
                     <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="local:InstalledAppliation">
+                        <DataTemplate x:DataType="local:InstalledApplication">
                             <Grid Padding="0,5,0,5">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="50" />
@@ -95,6 +95,7 @@
                                     <TextBlock Text="{x:Bind AppName}"
                                                TextTrimming="CharacterEllipsis"/>
                                     <TextBlock Text="{x:Bind AppDescription}"
+                                               FontSize="12"
                                                TextTrimming="CharacterEllipsis"/>
                                 </StackPanel>
                             </Grid>

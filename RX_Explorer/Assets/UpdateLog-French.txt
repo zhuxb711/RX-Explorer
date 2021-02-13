@@ -1,4 +1,13 @@
 ﻿*****
+###Quoi de neuf dans la version 6.0.6.0
+
+#####Correction d'un bug
+
+>#####Correction du problème qui pouvait empêcher tout de fonctionner normalement sur les systèmes X64
+
+>#####Correction de l'audit du Microsoft Store et d'autres problèmes mineurs
+
+*****
 ###Quoi de neuf dans la version 6.0.5.0
 
 #####Mise à jour des fonctionnalités

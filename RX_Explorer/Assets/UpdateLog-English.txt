@@ -1,4 +1,13 @@
 ﻿*****
+###What's new in Ver.6.0.6.0
+
+#####Bug fix
+
+>#####Fixed the problem that may cause Everything to not work normally on X64 systems
+
+>#####Fixed the Microsoft Store audit and other minor issues
+
+*****
 ###What's new in Ver.6.0.5.0
 
 #####Feature update

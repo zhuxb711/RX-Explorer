@@ -137,20 +137,25 @@
       <Version>5.0.1</Version>
     </PackageReference>
     <PackageReference Include="Vanara.PInvoke.Msi">
-      <Version>3.3.3</Version>
+      <Version>3.3.4</Version>
     </PackageReference>
     <PackageReference Include="Vanara.PInvoke.UrlMon">
-      <Version>3.3.3</Version>
+      <Version>3.3.4</Version>
     </PackageReference>
     <PackageReference Include="Vanara.Windows.Shell">
-      <Version>3.3.3</Version>
+      <Version>3.3.4</Version>
     </PackageReference>
     <PackageReference Include="Winista.MimeDetect">
       <Version>1.0.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Everything32.dll" />
+    <Content Include="Everything32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Everything64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="handle.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

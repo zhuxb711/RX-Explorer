@@ -26,7 +26,7 @@ namespace RX_Explorer.Dialog
         private readonly QuickStartItem QuickItem;
         private readonly QuickStartType Type;
         private StorageFile ImageFile;
-        private readonly ObservableCollection<InstalledAppliation> PackageListViewSource = new ObservableCollection<InstalledAppliation>();
+        private readonly ObservableCollection<InstalledApplication> PackageListViewSource = new ObservableCollection<InstalledApplication>();
 
         public QuickStartModifiedDialog(QuickStartType Type, QuickStartItem Item = null)
         {
@@ -143,22 +143,23 @@ namespace RX_Explorer.Dialog
                             }
                             else
                             {
-                                PackageManager Manager = new PackageManager();
-
-                                if (Manager.FindPackagesForUserWithPackageTypes(string.Empty, Protocol.Text, PackageTypes.Main).Any())
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                 {
-                                    string ImageName = DisplayName.Text + Path.GetExtension(ImageFile.Path);
+                                    if (await Exclusive.Controller.CheckIfPackageFamilyNameExist(Protocol.Text).ConfigureAwait(true))
+                                    {
+                                        string ImageName = DisplayName.Text + Path.GetExtension(ImageFile.Path);
 
-                                    StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
+                                        StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
 
-                                    CommonAccessCollection.QuickStartList.Add(new QuickStartItem(Icon.Source as BitmapImage, Protocol.Text, QuickStartType.Application, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text));
+                                        CommonAccessCollection.QuickStartList.Add(new QuickStartItem(Icon.Source as BitmapImage, Protocol.Text, QuickStartType.Application, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text));
 
-                                    await SQLite.Current.SetQuickStartItemAsync(DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application).ConfigureAwait(true);
-                                }
-                                else
-                                {
-                                    FormatErrorTip.IsOpen = true;
-                                    args.Cancel = true;
+                                        await SQLite.Current.SetQuickStartItemAsync(DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application).ConfigureAwait(true);
+                                    }
+                                    else
+                                    {
+                                        FormatErrorTip.IsOpen = true;
+                                        args.Cancel = true;
+                                    }
                                 }
                             }
 
@@ -223,31 +224,32 @@ namespace RX_Explorer.Dialog
                             }
                             else
                             {
-                                PackageManager Manager = new PackageManager();
-
-                                if (Manager.FindPackagesForUserWithPackageTypes(string.Empty, Protocol.Text, PackageTypes.Main).Any())
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                 {
-                                    if (ImageFile != null)
+                                    if (await Exclusive.Controller.CheckIfPackageFamilyNameExist(Protocol.Text).ConfigureAwait(true))
                                     {
-                                        string ImageName = DisplayName.Text + Path.GetExtension(ImageFile.Path);
+                                        if (ImageFile != null)
+                                        {
+                                            string ImageName = DisplayName.Text + Path.GetExtension(ImageFile.Path);
 
-                                        StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
+                                            StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
 
-                                        await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application).ConfigureAwait(true);
+                                            await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application).ConfigureAwait(true);
 
-                                        QuickItem.Update(Icon.Source as BitmapImage, Protocol.Text, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text);
+                                            QuickItem.Update(Icon.Source as BitmapImage, Protocol.Text, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text);
+                                        }
+                                        else
+                                        {
+                                            await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, null, Protocol.Text, QuickStartType.Application).ConfigureAwait(true);
+
+                                            QuickItem.Update(Icon.Source as BitmapImage, Protocol.Text, null, DisplayName.Text);
+                                        }
                                     }
                                     else
                                     {
-                                        await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, null, Protocol.Text, QuickStartType.Application).ConfigureAwait(true);
-
-                                        QuickItem.Update(Icon.Source as BitmapImage, Protocol.Text, null, DisplayName.Text);
+                                        FormatErrorTip.IsOpen = true;
+                                        args.Cancel = true;
                                     }
-                                }
-                                else
-                                {
-                                    FormatErrorTip.IsOpen = true;
-                                    args.Cancel = true;
                                 }
                             }
 
@@ -436,67 +438,70 @@ namespace RX_Explorer.Dialog
                         }
                         else
                         {
-                            PackageManager Manager = new PackageManager();
-
-                            if (Manager.FindPackagesForUserWithPackageTypes(string.Empty, Protocol.Text, PackageTypes.Main).FirstOrDefault() is Package Pack)
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
-                                StorageFile FileThumbnail = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("FileThumbnail.png", CreationCollisionOption.ReplaceExisting);
-
-                                try
+                                if (await Exclusive.Controller.GetInstalledApplicationAsync(Protocol.Text).ConfigureAwait(true) is InstalledApplication Pack)
                                 {
-                                    RandomAccessStreamReference Reference = Pack.GetLogoAsRandomAccessStreamReference(new Windows.Foundation.Size(128, 128));
+                                    StorageFile FileThumbnail = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("FileThumbnail.png", CreationCollisionOption.ReplaceExisting);
 
-                                    using (IRandomAccessStreamWithContentType LogoStream = await Reference.OpenReadAsync())
+                                    if (Pack.CreateStreamFromLogoData() is Stream LogoStream)
                                     {
-                                        BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(LogoStream);
-                                        using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
-                                        using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
-                                        using (InMemoryRandomAccessStream ResizeBitmapStream = new InMemoryRandomAccessStream())
+                                        try
                                         {
-                                            BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, ResizeBitmapStream);
-                                            Encoder.SetSoftwareBitmap(ResizeBitmap);
-                                            await Encoder.FlushAsync();
+                                            BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(LogoStream.AsRandomAccessStream());
+                                            using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                                            using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
+                                            using (InMemoryRandomAccessStream ResizeBitmapStream = new InMemoryRandomAccessStream())
+                                            {
+                                                BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, ResizeBitmapStream);
+                                                Encoder.SetSoftwareBitmap(ResizeBitmap);
+                                                await Encoder.FlushAsync();
 
+                                                BitmapImage Image = new BitmapImage();
+                                                Icon.Source = Image;
+                                                await Image.SetSourceAsync(ResizeBitmapStream);
+
+                                                ResizeBitmapStream.Seek(0);
+
+                                                using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
+                                                {
+                                                    await ResizeBitmapStream.AsStreamForRead().CopyToAsync(FileStream).ConfigureAwait(true);
+                                                }
+                                            }
+                                        }
+                                        finally
+                                        {
+                                            LogoStream.Dispose();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Uri PageUri = AppThemeController.Current.Theme == ElementTheme.Dark ? new Uri("ms-appx:///Assets/Page_Solid_White.png") : new Uri("ms-appx:///Assets/Page_Solid_Black.png");
+
+                                        StorageFile PageFile = await StorageFile.GetFileFromApplicationUriAsync(PageUri);
+
+                                        using (IRandomAccessStream PageStream = await PageFile.OpenAsync(FileAccessMode.Read))
+                                        {
                                             BitmapImage Image = new BitmapImage();
                                             Icon.Source = Image;
-                                            await Image.SetSourceAsync(ResizeBitmapStream);
+                                            await Image.SetSourceAsync(PageStream);
 
-                                            ResizeBitmapStream.Seek(0);
+                                            PageStream.Seek(0);
 
+                                            using (Stream TransformStream = PageStream.AsStreamForRead())
                                             using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
                                             {
-                                                await ResizeBitmapStream.AsStreamForRead().CopyToAsync(FileStream).ConfigureAwait(true);
+                                                await TransformStream.CopyToAsync(FileStream).ConfigureAwait(true);
                                             }
                                         }
                                     }
 
                                     ImageFile = FileThumbnail;
                                 }
-                                catch
+                                else
                                 {
-                                    Uri PageUri = AppThemeController.Current.Theme == ElementTheme.Dark ? new Uri("ms-appx:///Assets/Page_Solid_White.png") : new Uri("ms-appx:///Assets/Page_Solid_Black.png");
-
-                                    StorageFile PageFile = await StorageFile.GetFileFromApplicationUriAsync(PageUri);
-
-                                    using (IRandomAccessStream PageStream = await PageFile.OpenAsync(FileAccessMode.Read))
-                                    {
-                                        BitmapImage Image = new BitmapImage();
-                                        Icon.Source = Image;
-                                        await Image.SetSourceAsync(PageStream);
-
-                                        PageStream.Seek(0);
-
-                                        using (Stream TransformStream = PageStream.AsStreamForRead())
-                                        using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
-                                        {
-                                            await TransformStream.CopyToAsync(FileStream).ConfigureAwait(true);
-                                        }
-                                    }
+                                    FormatErrorTip.IsOpen = true;
                                 }
-                            }
-                            else
-                            {
-                                FormatErrorTip.IsOpen = true;
                             }
                         }
 
@@ -585,13 +590,20 @@ namespace RX_Explorer.Dialog
 
                     if (await ExecuteFile.OpenReadAsync() is IRandomAccessStream LogoStream)
                     {
-                        BitmapImage Image = new BitmapImage();
-                        Icon.Source = Image;
-                        await Image.SetSourceAsync(LogoStream);
-
-                        using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
+                        try
                         {
-                            await LogoStream.AsStreamForRead().CopyToAsync(FileStream).ConfigureAwait(true);
+                            BitmapImage Image = new BitmapImage();
+                            Icon.Source = Image;
+                            await Image.SetSourceAsync(LogoStream);
+
+                            using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
+                            {
+                                await LogoStream.AsStreamForRead().CopyToAsync(FileStream).ConfigureAwait(true);
+                            }
+                        }
+                        finally
+                        {
+                            LogoStream.Dispose();
                         }
                     }
                     else
@@ -619,8 +631,9 @@ namespace RX_Explorer.Dialog
                     ImageFile = FileThumbnail;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex);
                 FailureTips.IsOpen = true;
             }
         }
@@ -658,25 +671,32 @@ namespace RX_Explorer.Dialog
 
                     if (await ExecuteFile.GetThumbnailRawStreamAsync().ConfigureAwait(true) is IRandomAccessStream ThumbnailStream)
                     {
-                        BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(ThumbnailStream);
-                        using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
-                        using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
-                        using (InMemoryRandomAccessStream ResizeBitmapStream = new InMemoryRandomAccessStream())
+                        try
                         {
-                            BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, ResizeBitmapStream);
-                            Encoder.SetSoftwareBitmap(ResizeBitmap);
-                            await Encoder.FlushAsync();
-
-                            BitmapImage Image = new BitmapImage();
-                            Icon.Source = Image;
-                            await Image.SetSourceAsync(ResizeBitmapStream);
-
-                            ResizeBitmapStream.Seek(0);
-                            using (Stream TransformStream = ResizeBitmapStream.AsStreamForRead())
-                            using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
+                            BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(ThumbnailStream);
+                            using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                            using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
+                            using (InMemoryRandomAccessStream ResizeBitmapStream = new InMemoryRandomAccessStream())
                             {
-                                await TransformStream.CopyToAsync(FileStream).ConfigureAwait(true);
+                                BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, ResizeBitmapStream);
+                                Encoder.SetSoftwareBitmap(ResizeBitmap);
+                                await Encoder.FlushAsync();
+
+                                BitmapImage Image = new BitmapImage();
+                                Icon.Source = Image;
+                                await Image.SetSourceAsync(ResizeBitmapStream);
+
+                                ResizeBitmapStream.Seek(0);
+                                using (Stream TransformStream = ResizeBitmapStream.AsStreamForRead())
+                                using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
+                                {
+                                    await TransformStream.CopyToAsync(FileStream).ConfigureAwait(true);
+                                }
                             }
+                        }
+                        finally
+                        {
+                            ThumbnailStream.Dispose();
                         }
                     }
                     else
@@ -704,8 +724,9 @@ namespace RX_Explorer.Dialog
                     ImageFile = FileThumbnail;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex);
                 FailureTips.IsOpen = true;
             }
         }
@@ -716,16 +737,17 @@ namespace RX_Explorer.Dialog
             UWPLoadingTip.Visibility = Visibility.Visible;
             PackageListView.Visibility = Visibility.Collapsed;
 
-            PackageManager Manager = new PackageManager();
-
-            foreach (Package Pack in Manager.FindPackagesForUserWithPackageTypes(string.Empty, PackageTypes.Main).Where((Pack) => !Pack.DisplayName.Equals("XSurfUwp", StringComparison.OrdinalIgnoreCase) && !Pack.IsDevelopmentMode))
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                if (!UWPPickerTip.IsOpen)
+                foreach (InstalledApplication Pack in await Exclusive.Controller.GetAllInstalledApplicationAsync().ConfigureAwait(true))
                 {
-                    break;
-                }
+                    if (!UWPPickerTip.IsOpen)
+                    {
+                        break;
+                    }
 
-                PackageListViewSource.Add(await InstalledAppliation.CreateAsync(Pack).ConfigureAwait(true));
+                    PackageListViewSource.Add(Pack);
+                }
             }
 
             if (UWPPickerTip.IsOpen)
@@ -748,68 +770,78 @@ namespace RX_Explorer.Dialog
 
         private async void UWPPickerTip_ActionButtonClick(Microsoft.UI.Xaml.Controls.TeachingTip sender, object args)
         {
-            if (PackageListView.SelectedItem is InstalledAppliation Package)
+            try
             {
-                sender.IsOpen = false; 
-                PickAppFlyout.Hide();
-
-                DisplayName.Text = Package.AppName;
-                Protocol.Text = Package.AppFamilyName;
-                Icon.Source = Package.Logo;
-
-                StorageFile FileThumbnail = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("FileThumbnail.png", CreationCollisionOption.ReplaceExisting);
-
-                try
+                if (PackageListView.SelectedItem is InstalledApplication Package)
                 {
-                    RandomAccessStreamReference Reference = Package.PackageObject.GetLogoAsRandomAccessStreamReference(new Windows.Foundation.Size(128, 128));
+                    sender.IsOpen = false;
+                    PickAppFlyout.Hide();
 
-                    using (IRandomAccessStreamWithContentType LogoStream = await Reference.OpenReadAsync())
+                    DisplayName.Text = Package.AppName;
+                    Protocol.Text = Package.AppFamilyName;
+                    Icon.Source = Package.Logo;
+
+                    StorageFile FileThumbnail = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("FileThumbnail.png", CreationCollisionOption.ReplaceExisting);
+
+                    if (Package.CreateStreamFromLogoData() is Stream LogoStream)
                     {
-                        BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(LogoStream);
-                        using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
-                        using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
-                        using (InMemoryRandomAccessStream ResizeBitmapStream = new InMemoryRandomAccessStream())
+                        try
                         {
-                            BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, ResizeBitmapStream);
-                            Encoder.SetSoftwareBitmap(ResizeBitmap);
-                            await Encoder.FlushAsync();
+                            BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(LogoStream.AsRandomAccessStream());
+                            using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                            using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
+                            using (InMemoryRandomAccessStream ResizeBitmapStream = new InMemoryRandomAccessStream())
+                            {
+                                BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, ResizeBitmapStream);
+                                Encoder.SetSoftwareBitmap(ResizeBitmap);
+                                await Encoder.FlushAsync();
 
-                            BitmapImage Source = new BitmapImage();
-                            Icon.Source = Source;
-                            await Source.SetSourceAsync(ResizeBitmapStream);
+                                BitmapImage Source = new BitmapImage();
+                                Icon.Source = Source;
+                                await Source.SetSourceAsync(ResizeBitmapStream);
 
-                            ResizeBitmapStream.Seek(0);
+                                ResizeBitmapStream.Seek(0);
 
+                                using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
+                                {
+                                    await ResizeBitmapStream.AsStreamForRead().CopyToAsync(FileStream).ConfigureAwait(true);
+                                }
+                            }
+                        }
+                        finally
+                        {
+                            LogoStream.Dispose();
+                        }
+                    }
+                    else
+                    {
+                        Uri PageUri = AppThemeController.Current.Theme == ElementTheme.Dark ? new Uri("ms-appx:///Assets/Page_Solid_White.png") : new Uri("ms-appx:///Assets/Page_Solid_Black.png");
+
+                        StorageFile PageFile = await StorageFile.GetFileFromApplicationUriAsync(PageUri);
+
+                        using (IRandomAccessStream PageStream = await PageFile.OpenAsync(FileAccessMode.Read))
+                        {
+                            BitmapImage Image = new BitmapImage();
+                            Icon.Source = Image;
+                            await Image.SetSourceAsync(PageStream);
+
+                            PageStream.Seek(0);
+
+                            using (Stream TransformStream = PageStream.AsStreamForRead())
                             using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
                             {
-                                await ResizeBitmapStream.AsStreamForRead().CopyToAsync(FileStream).ConfigureAwait(true);
+                                await TransformStream.CopyToAsync(FileStream).ConfigureAwait(true);
                             }
                         }
                     }
 
                     ImageFile = FileThumbnail;
                 }
-                catch
-                {
-                    Uri PageUri = AppThemeController.Current.Theme == ElementTheme.Dark ? new Uri("ms-appx:///Assets/Page_Solid_White.png") : new Uri("ms-appx:///Assets/Page_Solid_Black.png");
-
-                    StorageFile PageFile = await StorageFile.GetFileFromApplicationUriAsync(PageUri);
-
-                    using (IRandomAccessStream PageStream = await PageFile.OpenAsync(FileAccessMode.Read))
-                    {
-                        BitmapImage Image = new BitmapImage();
-                        Icon.Source = Image;
-                        await Image.SetSourceAsync(PageStream);
-
-                        PageStream.Seek(0);
-
-                        using (Stream TransformStream = PageStream.AsStreamForRead())
-                        using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
-                        {
-                            await TransformStream.CopyToAsync(FileStream).ConfigureAwait(true);
-                        }
-                    }
-                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex);
+                FailureTips.IsOpen = true;
             }
         }
     }

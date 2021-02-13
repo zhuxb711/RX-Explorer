@@ -167,6 +167,7 @@
     <Compile Include="Class\FilterController.cs" />
     <Compile Include="Class\HiddenStorageItem.cs" />
     <Compile Include="Class\HyperlinkStorageItem.cs" />
+    <Compile Include="Class\InstalledApplication.cs" />
     <Compile Include="Class\IUknownInterface.cs" />
     <Compile Include="Class\JumpListController.cs" />
     <Compile Include="Class\ListViewBaseSelectionExtention.cs" />
@@ -185,7 +186,6 @@
     <Compile Include="Class\TaskBarController.cs" />
     <Compile Include="Class\TerminalProfile.cs" />
     <Compile Include="Class\TreeViewNodeContent.cs" />
-    <Compile Include="Class\InstalledAppliation.cs" />
     <Compile Include="Class\ValueConverter.cs" />
     <Compile Include="Class\ViewModeController.cs" />
     <Compile Include="Class\WIN_Native_API.cs" />

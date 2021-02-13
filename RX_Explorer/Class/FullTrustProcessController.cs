@@ -80,6 +80,14 @@ namespace RX_Explorer.Class
 
         private const string ExecuteType_GetMIMEContentType = "Execute_GetMIMEContentType";
 
+        private const string ExecuteType_GetAllInstalledApplication = "Execute_GetAllInstalledApplication";
+
+        private const string ExecuteType_CheckPackageFamilyNameExist = "Execute_CheckPackageFamilyNameExist";
+
+        private const string ExecuteType_GetInstalledApplication = "Execute_GetInstalledApplication";
+
+        private const string ExecuteType_LaunchUWPLnkFile = "Execute_LaunchUWPLnkFile";
+
         private const ushort DynamicBackupProcessNum = 1;
 
         private readonly int CurrentProcessId;
@@ -507,7 +515,237 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<HiddenItemPackage> GetHiddenItemInfoAsync(string Path)
+        public async Task<bool> LaunchUWPLnkAsync(string PackageFamilyName)
+        {
+            try
+            {
+                IsAnyActionExcutingInCurrentController = true;
+
+                if (await ConnectRemoteAsync().ConfigureAwait(true))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExecuteType", ExecuteType_LaunchUWPLnkFile},
+                        {"PackageFamilyName", PackageFamilyName }
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Success", out object Result))
+                        {
+                            return Convert.ToBoolean(Result);
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(LaunchUWPLnkAsync)}, message: {ErrorMessage}");
+                            }
+
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"AppServiceResponse in {nameof(LaunchUWPLnkAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        return false;
+                    }
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(LaunchUWPLnkAsync)}: Failed to connect AppService ");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{ nameof(LaunchUWPLnkAsync)} throw an error");
+                return false;
+            }
+            finally
+            {
+                IsAnyActionExcutingInCurrentController = false;
+            }
+        }
+
+        public async Task<bool> CheckIfPackageFamilyNameExist(string PackageFamilyName)
+        {
+            try
+            {
+                IsAnyActionExcutingInCurrentController = true;
+
+                if (await ConnectRemoteAsync().ConfigureAwait(true))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExecuteType", ExecuteType_CheckPackageFamilyNameExist},
+                        {"PackageFamilyName", PackageFamilyName }
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Success", out object Result))
+                        {
+                            return Convert.ToBoolean(Result);
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(CheckIfPackageFamilyNameExist)}, message: {ErrorMessage}");
+                            }
+
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"AppServiceResponse in {nameof(CheckIfPackageFamilyNameExist)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        return false;
+                    }
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(CheckIfPackageFamilyNameExist)}: Failed to connect AppService ");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{ nameof(CheckIfPackageFamilyNameExist)} throw an error");
+                return false;
+            }
+            finally
+            {
+                IsAnyActionExcutingInCurrentController = false;
+            }
+        }
+
+        public async Task<InstalledApplication> GetInstalledApplicationAsync(string PackageFamilyName)
+        {
+            try
+            {
+                IsAnyActionExcutingInCurrentController = true;
+
+                if (await ConnectRemoteAsync().ConfigureAwait(true))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExecuteType", ExecuteType_GetInstalledApplication},
+                        {"PackageFamilyName", PackageFamilyName }
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Success", out object Result))
+                        {
+                            InstalledApplicationPackage Pack = JsonSerializer.Deserialize<InstalledApplicationPackage>(Convert.ToString(Result));
+
+                            return await InstalledApplication.CreateAsync(Pack).ConfigureAwait(true);
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(GetInstalledApplicationAsync)}, message: {ErrorMessage}");
+                            }
+
+                            return null;
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"AppServiceResponse in {nameof(GetInstalledApplicationAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        return null;
+                    }
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(GetInstalledApplicationAsync)}: Failed to connect AppService ");
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{ nameof(GetInstalledApplicationAsync)} throw an error");
+                return null;
+            }
+            finally
+            {
+                IsAnyActionExcutingInCurrentController = false;
+            }
+        }
+
+
+        public async Task<InstalledApplication[]> GetAllInstalledApplicationAsync()
+        {
+            try
+            {
+                IsAnyActionExcutingInCurrentController = true;
+
+                if (await ConnectRemoteAsync().ConfigureAwait(true))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExecuteType", ExecuteType_GetAllInstalledApplication}
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Success", out object Result))
+                        {
+                            List<InstalledApplication> PackageList = new List<InstalledApplication>();
+
+                            foreach(InstalledApplicationPackage Pack in JsonSerializer.Deserialize<InstalledApplicationPackage[]>(Convert.ToString(Result)))
+                            {
+                                PackageList.Add(await InstalledApplication.CreateAsync(Pack).ConfigureAwait(true));
+                            }
+
+                            return PackageList.ToArray();
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(GetAllInstalledApplicationAsync)}, message: {ErrorMessage}");
+                            }
+
+                            return Array.Empty<InstalledApplication>();
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"AppServiceResponse in {nameof(GetAllInstalledApplicationAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        return Array.Empty<InstalledApplication>();
+                    }
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(GetAllInstalledApplicationAsync)}: Failed to connect AppService ");
+                    return Array.Empty<InstalledApplication>();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{ nameof(GetAllInstalledApplicationAsync)} throw an error");
+                return Array.Empty<InstalledApplication>();
+            }
+            finally
+            {
+                IsAnyActionExcutingInCurrentController = false;
+            }
+        }
+
+
+        public async Task<HiddenItemPackage> GetHiddenItemDataAsync(string Path)
         {
             try
             {
@@ -535,7 +773,7 @@ namespace RX_Explorer.Class
                             {
                                 if (Response.Message.TryGetValue("Error", out object ErrorMessage))
                                 {
-                                    LogTracer.Log($"An unexpected error was threw in {nameof(GetHiddenItemInfoAsync)}, message: {ErrorMessage}");
+                                    LogTracer.Log($"An unexpected error was threw in {nameof(GetHiddenItemDataAsync)}, message: {ErrorMessage}");
                                 }
 
                                 return null;
@@ -543,13 +781,13 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            LogTracer.Log($"AppServiceResponse in {nameof(GetHiddenItemInfoAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                            LogTracer.Log($"AppServiceResponse in {nameof(GetHiddenItemDataAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                             return null;
                         }
                     }
                     else
                     {
-                        LogTracer.Log($"{nameof(GetHiddenItemInfoAsync)}: Failed to connect AppService ");
+                        LogTracer.Log($"{nameof(GetHiddenItemDataAsync)}: Failed to connect AppService ");
                         return null;
                     }
                 }
@@ -560,7 +798,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{ nameof(GetHiddenItemInfoAsync)} throw an error");
+                LogTracer.Log(ex, $"{ nameof(GetHiddenItemDataAsync)} throw an error");
                 return null;
             }
             finally
@@ -693,7 +931,7 @@ namespace RX_Explorer.Class
                     ValueSet Value = new ValueSet
                     {
                         {"ExecuteType", ExecuteType_CreateLink},
-                        {"DataPackage", JsonSerializer.Serialize(new HyperlinkPackage(LinkPath, LinkTarget, LinkArgument, LinkDesc, false)) }
+                        {"DataPackage", JsonSerializer.Serialize(new HyperlinkPackage(LinkPath, LinkTarget, LinkDesc, false, null, LinkArgument)) }
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
