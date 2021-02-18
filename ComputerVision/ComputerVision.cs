@@ -567,7 +567,7 @@ namespace ComputerVision
                     {
                         Mat Contour = Channels.Last().FindNonZero();
                         Rect ActualArea = Cv2.BoundingRect(Contour);
-                        Rect ExtraArea = new Rect(Math.Max(ActualArea.X - 5, 0), Math.Max(ActualArea.Y - 5, 0), Math.Min(ActualArea.Width + 10, inputMat.Width), Math.Min(ActualArea.Height + 10, inputMat.Height));
+                        Rect ExtraArea = new Rect(Math.Max(ActualArea.X - 5, 0), Math.Max(ActualArea.Y - 5, 0), Math.Min(ActualArea.Width + 10, inputMat.Width - ActualArea.X), Math.Min(ActualArea.Height + 10, inputMat.Height - ActualArea.Y));
                         return inputMat[ExtraArea].Clone().MatToSoftwareBitmap();
                     }
                     else

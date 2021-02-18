@@ -1,5 +1,4 @@
-﻿using HtmlAgilityPack;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -8,6 +7,7 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Windows.Data.Xml.Dom;
 using Windows.Storage;
 
 namespace RX_Explorer.Class
@@ -135,12 +135,12 @@ namespace RX_Explorer.Class
                 using (Stream ResponseStream = Response.GetResponseStream())
                 using (StreamReader Reader = new StreamReader(ResponseStream))
                 {
-                    string HtmlString = await Reader.ReadToEndAsync().ConfigureAwait(false);
+                    string XmlString = await Reader.ReadToEndAsync().ConfigureAwait(false);
 
-                    HtmlDocument Document = new HtmlDocument();
-                    Document.LoadHtml(HtmlString);
+                    XmlDocument Document = new XmlDocument();
+                    Document.LoadXml(XmlString);
 
-                    if (Document.DocumentNode.SelectSingleNode("/images/image/url") is HtmlNode Node)
+                    if (Document.SelectSingleNode("/images/image/url") is IXmlNode Node)
                     {
                         return Node.InnerText;
                     }

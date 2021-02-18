@@ -1,5 +1,4 @@
 ﻿using ComputerVision;
-using HtmlAgilityPack;
 using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
@@ -19,6 +18,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.DataTransfer.DragDrop;
+using Windows.Data.Xml.Dom;
 using Windows.Devices.Input;
 using Windows.Devices.Radios;
 using Windows.Graphics.Imaging;
@@ -1430,19 +1430,18 @@ namespace RX_Explorer
                     }
                 }
 
-                if (Package.Contains(StandardDataFormats.Html))
+                if (Package.Contains(StandardDataFormats.Text))
                 {
-                    string Html = await Package.GetHtmlFormatAsync();
-                    string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
+                    string XmlText = await Package.GetTextAsync();
 
-                    HtmlDocument Document = new HtmlDocument();
-                    Document.LoadHtml(Fragment);
-                    HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
+                    XmlDocument Document = new XmlDocument();
+                    Document.LoadXml(XmlText);
+                    
+                    IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
 
-                    if (HeadNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
+                    if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
                     {
-                        HtmlNodeCollection BodyNode = Document.DocumentNode.SelectNodes("/p");
-                        List<string> LinkItemsPath = BodyNode.Select((Node) => Node.InnerText).ToList();
+                        List<string> LinkItemsPath = Document.SelectNodes("/RX-Explorer/Item").Select((Node) => Node.InnerText).ToList();
 
                         if (Package.RequestedOperation.HasFlag(DataPackageOperation.Move))
                         {
@@ -3118,23 +3117,23 @@ namespace RX_Explorer
                 {
                     Paste.IsEnabled = true;
                 }
-                else if (Package.Contains(StandardDataFormats.Html))
+                else if (Package.Contains(StandardDataFormats.Text))
                 {
                     string Html = await Package.GetHtmlFormatAsync();
                     string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
 
-                    HtmlDocument Document = new HtmlDocument();
-                    Document.LoadHtml(Fragment);
-                    HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
+                    //HtmlDocument Document = new HtmlDocument();
+                    //Document.LoadHtml(Fragment);
+                    //HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
 
-                    if (HeadNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
-                    {
-                        Paste.IsEnabled = true;
-                    }
-                    else
-                    {
-                        Paste.IsEnabled = false;
-                    }
+                    //if (HeadNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
+                    //{
+                    //    Paste.IsEnabled = true;
+                    //}
+                    //else
+                    //{
+                    //    Paste.IsEnabled = false;
+                    //}
                 }
                 else
                 {
@@ -4244,16 +4243,16 @@ namespace RX_Explorer
                     e.DragUIOverride.IsContentVisible = true;
                     e.DragUIOverride.IsCaptionVisible = true;
                 }
-                else if (e.DataView.Contains(StandardDataFormats.Html))
+                else if (e.DataView.Contains(StandardDataFormats.Text))
                 {
-                    string Html = await e.DataView.GetHtmlFormatAsync();
-                    string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
+                    string XmlText = await e.DataView.GetTextAsync();
 
-                    HtmlDocument Document = new HtmlDocument();
-                    Document.LoadHtml(Fragment);
-                    HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
+                    XmlDocument Document = new XmlDocument();
+                    Document.LoadXml(XmlText);
 
-                    if (HeadNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
+                    IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
+
+                    if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
                     {
                         if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                         {
@@ -4294,19 +4293,18 @@ namespace RX_Explorer
             {
                 try
                 {
-                    if (e.DataView.Contains(StandardDataFormats.Html))
+                    if (e.DataView.Contains(StandardDataFormats.Text))
                     {
-                        string Html = await e.DataView.GetHtmlFormatAsync();
-                        string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
+                        string XmlText = await e.DataView.GetTextAsync();
 
-                        HtmlDocument Document = new HtmlDocument();
-                        Document.LoadHtml(Fragment);
-                        HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
+                        XmlDocument Document = new XmlDocument();
+                        Document.LoadXml(XmlText);
 
-                        if (HeadNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
+                        IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
+
+                        if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
                         {
-                            HtmlNodeCollection BodyNode = Document.DocumentNode.SelectNodes("/p");
-                            List<string> LinkItemsPath = BodyNode.Select((Node) => Node.InnerText).ToList();
+                            List<string> LinkItemsPath = Document.SelectNodes("/RX-Explorer/Item").Select((Node) => Node.InnerText).ToList();
 
                             if ((sender as SelectorItem).Content is FileSystemStorageItemBase Item)
                             {
@@ -4733,14 +4731,23 @@ namespace RX_Explorer
 
                 if (NotStorageItems.Any())
                 {
-                    StringBuilder Builder = new StringBuilder("<head>RX-Explorer-TransferNotStorageItem</head>");
+                    XmlDocument Document = new XmlDocument();
+
+                    XmlElement RootElemnt = Document.CreateElement("RX-Explorer");
+                    Document.AppendChild(RootElemnt);
+
+                    XmlElement KindElement = Document.CreateElement("Kind");
+                    KindElement.InnerText = "RX-Explorer-TransferNotStorageItem";
+                    RootElemnt.AppendChild(KindElement);
 
                     foreach (FileSystemStorageItemBase Item in NotStorageItems)
                     {
-                        Builder.Append($"<p>{Item.Path}</p>");
+                        XmlElement InnerElement = Document.CreateElement("Item");
+                        InnerElement.InnerText = Item.Path;
+                        RootElemnt.AppendChild(InnerElement);
                     }
 
-                    args.Data.SetHtmlFormat(HtmlFormatHelper.CreateHtmlFormat(Builder.ToString()));
+                    args.Data.SetText(Document.GetXml());
                 }
             }
             catch (Exception ex)
@@ -4777,16 +4784,16 @@ namespace RX_Explorer
                         e.DragUIOverride.IsContentVisible = true;
                         e.DragUIOverride.IsCaptionVisible = true;
                     }
-                    else if (e.DataView.Contains(StandardDataFormats.Html))
+                    else if (e.DataView.Contains(StandardDataFormats.Text))
                     {
-                        string Html = await e.DataView.GetHtmlFormatAsync();
-                        string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
+                        string XmlText = await e.DataView.GetTextAsync();
 
-                        HtmlDocument Document = new HtmlDocument();
-                        Document.LoadHtml(Fragment);
-                        HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
+                        XmlDocument Document = new XmlDocument();
+                        Document.LoadXml(XmlText);
 
-                        if (HeadNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
+                        IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
+
+                        if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
                         {
                             if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                             {
@@ -4849,19 +4856,18 @@ namespace RX_Explorer
             {
                 try
                 {
-                    if (e.DataView.Contains(StandardDataFormats.Html))
+                    if (e.DataView.Contains(StandardDataFormats.Text))
                     {
-                        string Html = await e.DataView.GetHtmlFormatAsync();
-                        string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
+                        string XmlText = await e.DataView.GetTextAsync();
 
-                        HtmlDocument Document = new HtmlDocument();
-                        Document.LoadHtml(Fragment);
-                        HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
+                        XmlDocument Document = new XmlDocument();
+                        Document.LoadXml(XmlText);
 
-                        if (HeadNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
+                        IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
+
+                        if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
                         {
-                            HtmlNodeCollection BodyNode = Document.DocumentNode.SelectNodes("/p");
-                            List<string> LinkAndHiddensItemsPath = BodyNode.Select((Node) => Node.InnerText).ToList();
+                            List<string> LinkAndHiddensItemsPath = Document.SelectNodes("/RX-Explorer/Item").Select((Node) => Node.InnerText).ToList();
 
                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
@@ -6175,7 +6181,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    bool IsEnablePaste, IsEnableUndo;
+                    bool IsEnablePaste = false;
 
                     try
                     {
@@ -6185,33 +6191,27 @@ namespace RX_Explorer
                         {
                             IsEnablePaste = true;
                         }
-                        else if (Package.Contains(StandardDataFormats.Html))
+                        else if (Package.Contains(StandardDataFormats.Text))
                         {
-                            string Html = await Package.GetHtmlFormatAsync();
-                            string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
+                            string XmlText = await Package.GetTextAsync();
 
-                            HtmlDocument Document = new HtmlDocument();
-                            Document.LoadHtml(Fragment);
-                            HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
+                            XmlDocument Document = new XmlDocument();
+                            Document.LoadXml(XmlText);
 
-                            if (HeadNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
+                            IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
+
+                            if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
                             {
                                 IsEnablePaste = true;
                             }
-                            else
-                            {
-                                IsEnablePaste = false;
-                            }
-                        }
-                        else
-                        {
-                            IsEnablePaste = false;
                         }
                     }
                     catch
                     {
                         IsEnablePaste = false;
                     }
+
+                    bool IsEnableUndo = false;
 
                     if (OperationRecorder.Current.Count > 0)
                     {

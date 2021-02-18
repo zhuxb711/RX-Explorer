@@ -1,5 +1,4 @@
-﻿using HtmlAgilityPack;
-using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using System;
 using System.Collections.Generic;
@@ -10,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Data.Xml.Dom;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Portable;
 using Windows.Storage;
@@ -788,16 +788,16 @@ namespace RX_Explorer
                         TabViewControl.SelectedItem = Item;
                     }
                 }
-                else if (e.DataView.Contains(StandardDataFormats.Html))
+                else if (e.DataView.Contains(StandardDataFormats.Text))
                 {
-                    string Html = await e.DataView.GetHtmlFormatAsync();
-                    string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
+                    string XmlText = await e.DataView.GetTextAsync();
 
-                    HtmlDocument Document = new HtmlDocument();
-                    Document.LoadHtml(Fragment);
-                    HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
+                    XmlDocument Document = new XmlDocument();
+                    Document.LoadXml(XmlText);
 
-                    if (HeadNode?.InnerText == "RX-Explorer-TabItem")
+                    IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
+
+                    if (KindNode?.InnerText == "RX-Explorer-TabItem")
                     {
                         e.AcceptedOperation = DataPackageOperation.Link;
                     }
@@ -845,13 +845,23 @@ namespace RX_Explorer
 
         private void TabViewControl_TabDragStarting(TabView sender, TabViewTabDragStartingEventArgs args)
         {
-            StringBuilder Builder = new StringBuilder("<head>RX-Explorer-TabItem</head>");
+            XmlDocument Document = new XmlDocument();
+
+            XmlElement RootElement = Document.CreateElement("RX-Explorer");
+            Document.AppendChild(RootElement);
+
+            XmlElement KindElement = Document.CreateElement("Kind");
+            KindElement.InnerText = "RX-Explorer-TabItem";
+            RootElement.AppendChild(KindElement);
+
+            XmlElement ItemElement = Document.CreateElement("Item");
+            RootElement.AppendChild(ItemElement);
 
             if (args.Tab.Content is Frame frame)
             {
                 if (frame.Content is ThisPC)
                 {
-                    Builder.Append("<p>ThisPC||</p>");
+                    ItemElement.InnerText = "ThisPC||";
                 }
                 else
                 {
@@ -859,7 +869,7 @@ namespace RX_Explorer
                     {
                         string PathString = string.Join("||", Control.BladeViewer.Items.OfType<Microsoft.Toolkit.Uwp.UI.Controls.BladeItem>().Select((Item) => (Item.Content as FilePresenter)?.CurrentFolder?.Path));
 
-                        Builder.Append($"<p>FileControl||{PathString}</p>");
+                        ItemElement.InnerText = $"FileControl||{PathString}";
                     }
                     else
                     {
@@ -868,7 +878,7 @@ namespace RX_Explorer
                 }
             }
 
-            args.Data.SetHtmlFormat(HtmlFormatHelper.CreateHtmlFormat(Builder.ToString()));
+            args.Data.SetText(Document.GetXml());
         }
 
         private async void TabViewControl_TabDragCompleted(TabView sender, TabViewTabDragCompletedEventArgs args)
@@ -908,16 +918,16 @@ namespace RX_Explorer
 
             try
             {
-                if (e.DataView.Contains(StandardDataFormats.Html))
+                if (e.DataView.Contains(StandardDataFormats.Text))
                 {
-                    string Html = await e.DataView.GetHtmlFormatAsync();
-                    string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
+                    string XmlText = await e.DataView.GetTextAsync();
 
-                    HtmlDocument Document = new HtmlDocument();
-                    Document.LoadHtml(Fragment);
-                    HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
+                    XmlDocument Document = new XmlDocument();
+                    Document.LoadXml(XmlText);
 
-                    if (HeadNode?.InnerText == "RX-Explorer-TabItem")
+                    IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
+
+                    if (KindNode?.InnerText == "RX-Explorer-TabItem")
                     {
                         e.AcceptedOperation = DataPackageOperation.Link;
                         e.Handled = true;
@@ -940,19 +950,18 @@ namespace RX_Explorer
 
             try
             {
-                if (e.DataView.Contains(StandardDataFormats.Html))
+                if (e.DataView.Contains(StandardDataFormats.Text))
                 {
-                    string Html = await e.DataView.GetHtmlFormatAsync();
-                    string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
+                    string XmlText = await e.DataView.GetTextAsync();
 
-                    HtmlDocument Document = new HtmlDocument();
-                    Document.LoadHtml(Fragment);
-                    HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
+                    XmlDocument Document = new XmlDocument();
+                    Document.LoadXml(XmlText);
 
-                    if (HeadNode?.InnerText == "RX-Explorer-TabItem")
+                    IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
+
+                    if (KindNode?.InnerText == "RX-Explorer-TabItem" && Document.SelectSingleNode("/RX-Explorer/Item") is IXmlNode ItemNode)
                     {
-                        HtmlNode BodyNode = Document.DocumentNode.SelectSingleNode("/p");
-                        string[] Split = BodyNode.InnerText.Split("||", StringSplitOptions.RemoveEmptyEntries);
+                        string[] Split = ItemNode.InnerText.Split("||", StringSplitOptions.RemoveEmptyEntries);
 
                         int InsertIndex = TabViewControl.TabItems.Count;
 

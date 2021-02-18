@@ -1,5 +1,4 @@
-﻿using HtmlAgilityPack;
-using Microsoft.Toolkit.Uwp.UI.Animations;
+﻿using Microsoft.Toolkit.Uwp.UI.Animations;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
@@ -13,6 +12,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.DataTransfer.DragDrop;
+using Windows.Data.Xml.Dom;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.System;
@@ -1439,19 +1439,20 @@ namespace RX_Explorer
                 {
                     try
                     {
-                        if (e.DataView.Contains(StandardDataFormats.Html))
+                        if (e.DataView.Contains(StandardDataFormats.Text))
                         {
-                            string Html = await e.DataView.GetHtmlFormatAsync();
-                            string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
+                            string XmlText = await e.DataView.GetTextAsync();
 
-                            HtmlDocument Document = new HtmlDocument();
-                            Document.LoadHtml(Fragment);
-                            HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
+                            XmlDocument Document = new XmlDocument();
+                            Document.LoadXml(XmlText);
+
+                            IXmlNode HeadNode = Document.SelectSingleNode("/RX-Explorer/Kind");
 
                             if (HeadNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
                             {
-                                HtmlNodeCollection BodyNode = Document.DocumentNode.SelectNodes("/p");
-                                List<string> LinkAndHiddenItemsPath = BodyNode.Select((Node) => Node.InnerText).ToList();
+                                XmlNodeList BodyNodeList = Document.SelectNodes("/RX-Explorer/Item");
+
+                                List<string> LinkAndHiddenItemsPath = BodyNodeList.Select((Node) => Node.InnerText).ToList();
 
                                 StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(Block.Path);
 
@@ -1778,16 +1779,16 @@ namespace RX_Explorer
                         e.DragUIOverride.IsContentVisible = true;
                         e.DragUIOverride.IsCaptionVisible = true;
                     }
-                    else if (e.DataView.Contains(StandardDataFormats.Html))
+                    else if (e.DataView.Contains(StandardDataFormats.Text))
                     {
-                        string Html = await e.DataView.GetHtmlFormatAsync();
-                        string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
+                        string XmlText = await e.DataView.GetTextAsync();
 
-                        HtmlDocument Document = new HtmlDocument();
-                        Document.LoadHtml(Fragment);
-                        HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
+                        XmlDocument Document = new XmlDocument();
+                        Document.LoadXml(XmlText);
 
-                        if (HeadNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
+                        IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
+
+                        if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
                         {
                             if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                             {
@@ -1814,6 +1815,8 @@ namespace RX_Explorer
             catch (Exception ex)
             {
                 LogTracer.Log(ex);
+
+                e.AcceptedOperation = DataPackageOperation.None;
             }
             finally
             {

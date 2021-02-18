@@ -33,12 +33,12 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Edit"
                               Label="编辑"
-                              x:Uid="WebEdit"
+                              x:Uid="AppEdit"
                               Name="WebEdit"
                               Click="WebEdit_Click" />
                 <AppBarButton Icon="Delete"
                               Name="WebDelete"
-                              x:Uid="WebDelete"
+                              x:Uid="AppDelete"
                               Label="删除"
                               Click="WebDelete_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
