@@ -162,7 +162,8 @@ namespace RX_Explorer.Class
             try
             {
                 FileSystemStorageItemBase TempFolder = await FileSystemStorageItemBase.OpenAsync(ApplicationData.Current.TemporaryFolder.Path, ItemFilters.Folder);
-                List<FileSystemStorageItemBase> AllPreviousPictureList = TempFolder.GetChildrenItems(false, ItemFilters.File).Where((Item) => Item.Name.StartsWith("BingDailyPicture_Cache")).ToList();
+
+                IEnumerable<FileSystemStorageItemBase> AllPreviousPictureList = (await TempFolder.GetChildrenItemsAsync(false, ItemFilters.File).ConfigureAwait(true)).Where((Item)=> Item.Name.StartsWith("BingDailyPicture_Cache"));
 
                 if (AllPreviousPictureList.All((Item) => DateTime.TryParseExact(Regex.Match(Item.Name, @"(?<=\[)(.+)(?=\])").Value, "yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime LastUpdateDate) && LastUpdateDate < DateTime.Now.Date))
                 {

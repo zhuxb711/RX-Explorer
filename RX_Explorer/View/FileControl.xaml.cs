@@ -501,7 +501,7 @@ namespace RX_Explorer
         {
             RightTabFlyout.Hide();
 
-            if (!WIN_Native_API.CheckExist(CurrentPresenter.CurrentFolder.Path))
+            if (!await FileSystemStorageItemBase.CheckExist(CurrentPresenter.CurrentFolder.Path).ConfigureAwait(true))
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -633,7 +633,7 @@ namespace RX_Explorer
         {
             RightTabFlyout.Hide();
 
-            if (!WIN_Native_API.CheckExist(CurrentPresenter.CurrentFolder.Path))
+            if (!await FileSystemStorageItemBase.CheckExist(CurrentPresenter.CurrentFolder.Path).ConfigureAwait(true))
             {
                 QueueContentDialog ErrorDialog = new QueueContentDialog
                 {
@@ -651,7 +651,7 @@ namespace RX_Explorer
 
             if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
             {
-                if (WIN_Native_API.CheckExist(Path.Combine(Path.GetDirectoryName(CurrentPresenter.CurrentFolder.Path), dialog.DesireName)))
+                if (await FileSystemStorageItemBase.CheckExist(Path.Combine(Path.GetDirectoryName(CurrentPresenter.CurrentFolder.Path), dialog.DesireName)).ConfigureAwait(true))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -730,7 +730,7 @@ namespace RX_Explorer
 
         private async void CreateFolder_Click(object sender, RoutedEventArgs e)
         {
-            if (WIN_Native_API.CheckExist(CurrentPresenter.CurrentFolder.Path))
+            if (await FileSystemStorageItemBase.CheckExist(CurrentPresenter.CurrentFolder.Path).ConfigureAwait(true))
             {
                 if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(CurrentPresenter.CurrentFolder.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) == null)
                 {
@@ -763,7 +763,7 @@ namespace RX_Explorer
 
         private async void FolderAttribute_Click(object sender, RoutedEventArgs e)
         {
-            if (!WIN_Native_API.CheckExist(CurrentPresenter.CurrentFolder.Path))
+            if (!await FileSystemStorageItemBase.CheckExist(CurrentPresenter.CurrentFolder.Path).ConfigureAwait(true))
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -955,7 +955,7 @@ namespace RX_Explorer
                     string ProtentialPath2 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), QueryText);
                     string ProtentialPath3 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), QueryText);
 
-                    if (ProtentialPath1 != QueryText && WIN_Native_API.CheckExist(ProtentialPath1))
+                    if (ProtentialPath1 != QueryText && await FileSystemStorageItemBase.CheckExist(ProtentialPath1).ConfigureAwait(true))
                     {
                         if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath1).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                         {
@@ -969,7 +969,7 @@ namespace RX_Explorer
 
                         return;
                     }
-                    else if (ProtentialPath2 != QueryText && WIN_Native_API.CheckExist(ProtentialPath2))
+                    else if (ProtentialPath2 != QueryText && await FileSystemStorageItemBase.CheckExist(ProtentialPath2).ConfigureAwait(true))
                     {
                         if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath2).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                         {
@@ -983,7 +983,7 @@ namespace RX_Explorer
 
                         return;
                     }
-                    else if (ProtentialPath3 != QueryText && WIN_Native_API.CheckExist(ProtentialPath3))
+                    else if (ProtentialPath3 != QueryText && await FileSystemStorageItemBase.CheckExist(ProtentialPath3).ConfigureAwait(true))
                     {
                         if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath3).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                         {
@@ -1136,11 +1136,11 @@ namespace RX_Explorer
                                 {
                                     if (string.IsNullOrEmpty(FileName))
                                     {
-                                        sender.ItemsSource = Item.GetChildrenItems(SettingControl.IsDisplayHiddenItem).Take(20).Select((It) => It.Path);
+                                        sender.ItemsSource = (await Item.GetChildrenItemsAsync(SettingControl.IsDisplayHiddenItem).ConfigureAwait(true)).Take(20).Select((It) => It.Path).ToArray();
                                     }
                                     else
                                     {
-                                        sender.ItemsSource = Item.GetChildrenItems(SettingControl.IsDisplayHiddenItem).Where((Item) => Item.Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase)).Take(20).Select((It) => It.Path);
+                                        sender.ItemsSource = (await Item.GetChildrenItemsAsync(SettingControl.IsDisplayHiddenItem)).Where((Item) => Item.Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase)).Take(20).Select((It) => It.Path).ToArray();
                                     }
                                 }
                                 else
@@ -1211,7 +1211,7 @@ namespace RX_Explorer
 
                         (Path, SelectedPath) = CurrentPresenter.GoAndBackRecord[--CurrentPresenter.RecordIndex];
 
-                        if (WIN_Native_API.CheckExist(Path))
+                        if (await FileSystemStorageItemBase.CheckExist(Path).ConfigureAwait(true))
                         {
                             await CurrentPresenter.DisplayItemsInFolder(Path, SkipNavigationRecord: true).ConfigureAwait(true);
 
@@ -1272,7 +1272,7 @@ namespace RX_Explorer
 
                         (Path, SelectedPath) = CurrentPresenter.GoAndBackRecord[++CurrentPresenter.RecordIndex];
 
-                        if (WIN_Native_API.CheckExist(Path))
+                        if (await FileSystemStorageItemBase.CheckExist(Path).ConfigureAwait(true))
                         {
                             await CurrentPresenter.DisplayItemsInFolder(Path, SkipNavigationRecord: true).ConfigureAwait(true);
 
@@ -1900,7 +1900,7 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        if (await CurrentPresenter.CurrentFolder.GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
+                        if (await CurrentPresenter.CurrentFolder.GetStorageItemAsync().ConfigureAwait(true) is IStorageItem Item)
                         {
                             Package.SetStorageItems(new IStorageItem[] { Item }, false);
                         }
@@ -1942,7 +1942,7 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        if (await CurrentPresenter.CurrentFolder.GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
+                        if (await CurrentPresenter.CurrentFolder.GetStorageItemAsync().ConfigureAwait(true) is IStorageItem Item)
                         {
                             Package.SetStorageItems(new IStorageItem[] { Item }, false);
                         }

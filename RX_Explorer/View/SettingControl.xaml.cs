@@ -791,7 +791,7 @@ namespace RX_Explorer
 
                     try
                     {
-                        foreach (SecureAreaStorageItem Item in SecureFolder.GetChildrenItems(false, ItemFilters.File))
+                        foreach (SecureAreaStorageItem Item in await SecureFolder.GetChildrenItemsAsync(false, ItemFilters.File).ConfigureAwait(true))
                         {
                             if (await Item.DecryptAsync(Dialog.ExportFolder.Path, FileEncryptionAesKey).ConfigureAwait(true) is FileSystemStorageItemBase)
                             {

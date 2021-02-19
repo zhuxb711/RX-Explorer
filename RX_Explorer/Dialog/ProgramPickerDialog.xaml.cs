@@ -92,7 +92,7 @@ namespace RX_Explorer.Dialog
             {
                 try
                 {
-                    if (WIN_Native_API.CheckExist(Package.ExecutablePath))
+                    if (await FileSystemStorageItemBase.CheckExist(Package.ExecutablePath).ConfigureAwait(true))
                     {
                         StorageFile ExecuteFile = await StorageFile.GetFileFromPathAsync(Package.ExecutablePath);
 

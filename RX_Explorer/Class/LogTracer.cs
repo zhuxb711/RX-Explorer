@@ -300,7 +300,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                LogQueue.Enqueue(Message);
+                LogQueue.Enqueue(Message + Environment.NewLine);
 
                 if (BackgroundProcessThread.ThreadState.HasFlag(System.Threading.ThreadState.WaitSleepJoin))
                 {

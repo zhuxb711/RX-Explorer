@@ -114,7 +114,7 @@ namespace RX_Explorer
             e.Handled = true;
         }
 
-        protected override void OnLaunched(LaunchActivatedEventArgs e)
+        protected override async void OnLaunched(LaunchActivatedEventArgs e)
         {
             Microsoft.Toolkit.Uwp.Helpers.SystemInformation.TrackAppUse(e);
 
@@ -128,7 +128,7 @@ namespace RX_Explorer
             {
                 if (frame.Content is MainPage Main && Main.Nav.Content is TabViewContainer TabContainer)
                 {
-                    if (!string.IsNullOrWhiteSpace(e.Arguments) && WIN_Native_API.CheckExist(e.Arguments))
+                    if (!string.IsNullOrWhiteSpace(e.Arguments) && await FileSystemStorageItemBase.CheckExist(e.Arguments).ConfigureAwait(true))
                     {
                         TabContainer.CreateNewTab(null, new string[] { e.Arguments });
                     }
@@ -140,7 +140,7 @@ namespace RX_Explorer
             }
             else
             {
-                if (!string.IsNullOrWhiteSpace(e.Arguments) && WIN_Native_API.CheckExist(e.Arguments))
+                if (!string.IsNullOrWhiteSpace(e.Arguments) && await FileSystemStorageItemBase.CheckExist(e.Arguments).ConfigureAwait(true))
                 {
                     ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen, new string[] { e.Arguments });
                     Window.Current.Content = extendedSplash;

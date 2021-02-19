@@ -263,26 +263,23 @@ namespace RX_Explorer.Class
             {
                 int MaxLength = Input.Select((Item) => (GetString(Item)?.Length) ?? 0).Max();
 
+                IEnumerable<(T OriginItem, string SortString)> Collection = Input.Select(Item => (
+                    OriginItem: Item,
+                    SortString: Regex.Replace(GetString(Item) ?? string.Empty, @"(\d+)|(\D+)", Eva => Eva.Value.PadLeft(MaxLength, char.IsDigit(Eva.Value[0]) ? ' ' : '\xffff'))
+                ));
+
                 if (Direction == SortDirection.Ascending)
                 {
-                    return Input.Select(Item => new
-                    {
-                        OriginItem = Item,
-                        SortString = Regex.Replace(GetString(Item) ?? string.Empty, @"(\d+)|(\D+)", Eva => Eva.Value.PadLeft(MaxLength, char.IsDigit(Eva.Value[0]) ? ' ' : '\xffff'))
-                    }).OrderBy(x => x.SortString).Select(x => x.OriginItem);
+                    return Collection.OrderBy(x => x.SortString).Select(x => x.OriginItem);
                 }
                 else
                 {
-                    return Input.Select(Item => new
-                    {
-                        OriginItem = Item,
-                        SortString = Regex.Replace(GetString(Item) ?? string.Empty, @"(\d+)|(\D+)", Eva => Eva.Value.PadLeft(MaxLength, char.IsDigit(Eva.Value[0]) ? ' ' : '\xffff'))
-                    }).OrderByDescending(x => x.SortString).Select(x => x.OriginItem);
+                    return Collection.OrderByDescending(x => x.SortString).Select(x => x.OriginItem);
                 }
             }
             else
             {
-                return new List<T>();
+                return Input;
             }
         }
 

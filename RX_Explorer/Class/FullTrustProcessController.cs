@@ -1784,7 +1784,7 @@ namespace RX_Explorer.Class
                             {
                                 string TargetPath = Path.Combine(DestinationPath, Path.GetFileName(SourcePath));
 
-                                if (WIN_Native_API.CheckExist(TargetPath))
+                                if (await FileSystemStorageItemBase.CheckExist(TargetPath).ConfigureAwait(true))
                                 {
                                     QueueContentDialog Dialog = new QueueContentDialog
                                     {
@@ -1943,7 +1943,7 @@ namespace RX_Explorer.Class
                                 {
                                     string TargetPath = Path.Combine(DestinationPath, Path.GetFileName(SourcePath));
 
-                                    if (WIN_Native_API.CheckExist(TargetPath))
+                                    if (await FileSystemStorageItemBase.CheckExist(TargetPath).ConfigureAwait(true))
                                     {
                                         QueueContentDialog Dialog = new QueueContentDialog
                                         {

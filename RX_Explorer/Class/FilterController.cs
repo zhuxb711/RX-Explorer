@@ -39,7 +39,7 @@ namespace RX_Explorer.Class
         private bool sizeFilterCheckBox3;
         private bool sizeFilterCheckBox4;
 
-        public event EventHandler<List<FileSystemStorageItemBase>> RefreshListRequested;
+        public event EventHandler<IEnumerable<FileSystemStorageItemBase>> RefreshListRequested;
 
         public bool? NameFilterCheckBox1
         {
@@ -738,7 +738,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public List<FileSystemStorageItemBase> GetFilterCollection()
+        public IEnumerable<FileSystemStorageItemBase> GetFilterCollection()
         {
             List<FileSystemStorageItemBase> NameFilterResult = null;
             List<FileSystemStorageItemBase> ModTimeFilterResult = null;
@@ -896,7 +896,7 @@ namespace RX_Explorer.Class
 
             if (FilterIntersct != null && FilterIntersct.Any())
             {
-                return SortCollectionGenerator.Current.GetSortedCollection(FilterIntersct.ToList());
+                return SortCollectionGenerator.Current.GetSortedCollection(FilterIntersct);
             }
             else
             {

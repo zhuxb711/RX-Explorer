@@ -103,7 +103,7 @@ namespace RX_Explorer.Class
 
             try
             {
-                if ((await PhotoFile.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
+                if ((await PhotoFile.GetStorageItemAsync().ConfigureAwait(true)) is StorageFile File)
                 {
                     BitmapSource = new BitmapImage();
 

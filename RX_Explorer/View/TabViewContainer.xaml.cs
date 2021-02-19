@@ -122,28 +122,14 @@ namespace RX_Explorer
                                     }
                                     else
                                     {
-                                        if (AnimationController.Current.IsEnableAnimation)
-                                        {
-                                            CurrentNavigationControl.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Device.Folder.Path), new DrillInNavigationTransitionInfo());
-                                        }
-                                        else
-                                        {
-                                            CurrentNavigationControl.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Device.Folder.Path), new SuppressNavigationTransitionInfo());
-                                        }
+                                        await PC.OpenTargetFolder(Device.Folder).ConfigureAwait(true);
                                     }
 
                                     args.Handled = true;
                                 }
                                 else if (PC.LibraryGrid.SelectedItem is LibraryFolder Library)
                                 {
-                                    if (AnimationController.Current.IsEnableAnimation)
-                                    {
-                                        CurrentNavigationControl.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Library.Folder.Path), new DrillInNavigationTransitionInfo());
-                                    }
-                                    else
-                                    {
-                                        CurrentNavigationControl.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string>(new WeakReference<TabViewItem>(TabViewControl.SelectedItem as TabViewItem), Library.Folder.Path), new SuppressNavigationTransitionInfo());
-                                    }
+                                    await PC.OpenTargetFolder(Library.Folder).ConfigureAwait(true);
 
                                     args.Handled = true;
                                 }
@@ -211,13 +197,13 @@ namespace RX_Explorer
             }
         }
 
-        public void CreateNewTab(int? InsertIndex, params string[] Path)
+        public async void CreateNewTab(int? InsertIndex, params string[] Path)
         {
             int Index = InsertIndex ?? (TabViewControl?.TabItems.Count ?? 0);
 
             try
             {
-                if (CreateNewTabCore(Path) is TabViewItem Item)
+                if (await CreateNewTabCore(Path).ConfigureAwait(true) is TabViewItem Item)
                 {
                     TabViewControl.TabItems.Insert(Index, Item);
                     TabViewControl.UpdateLayout();
@@ -226,7 +212,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                if (CreateNewTabCore() is TabViewItem Item)
+                if (await CreateNewTabCore().ConfigureAwait(true) is TabViewItem Item)
                 {
                     TabViewControl.TabItems.Insert(Index, Item);
                     TabViewControl.UpdateLayout();
@@ -694,7 +680,7 @@ namespace RX_Explorer
             CreateNewTab(null);
         }
 
-        private TabViewItem CreateNewTabCore(params string[] PathForNewTab)
+        private async Task<TabViewItem> CreateNewTabCore(params string[] PathForNewTab)
         {
             if (Interlocked.Exchange(ref LockResource, 1) == 0)
             {
@@ -714,9 +700,17 @@ namespace RX_Explorer
                     Item.PointerPressed += Item_PointerPressed;
                     Item.DoubleTapped += Item_DoubleTapped;
 
-                    IEnumerable<string> ValidPathArray = PathForNewTab.Where((Path) => !string.IsNullOrEmpty(Path) && WIN_Native_API.CheckExist(Path));
+                    List<string> ValidPathArray = new List<string>();
 
-                    if (ValidPathArray.Any())
+                    foreach(string Path in PathForNewTab)
+                    {
+                        if (!string.IsNullOrWhiteSpace(Path) && await FileSystemStorageItemBase.CheckExist(Path).ConfigureAwait(true))
+                        {
+                            ValidPathArray.Add(Path);
+                        }
+                    }
+
+                    if (ValidPathArray.Count > 0)
                     {
                         frame.Navigate(typeof(ThisPC), new WeakReference<TabViewItem>(Item), new SuppressNavigationTransitionInfo());
 

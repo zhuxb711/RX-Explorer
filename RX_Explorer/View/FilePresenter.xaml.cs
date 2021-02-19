@@ -386,13 +386,13 @@ namespace RX_Explorer
                     Controller.Indicator.SetIndicatorStatus(SortCollectionGenerator.Current.SortTarget, SortCollectionGenerator.Current.SortDirection);
                 }
 
-                List<FileSystemStorageItemBase> ItemList = SortCollectionGenerator.Current.GetSortedCollection(FileCollection);
+                FileSystemStorageItemBase[] ItemList = SortCollectionGenerator.Current.GetSortedCollection(FileCollection).ToArray();
 
                 FileCollection.Clear();
 
-                for (int i = 0; i < ItemList.Count; i++)
+                foreach (FileSystemStorageItemBase Item in ItemList)
                 {
-                    FileCollection.Add(ItemList[i]);
+                    FileCollection.Add(Item);
                 }
             }
         }
@@ -471,19 +471,27 @@ namespace RX_Explorer
                     Controller.Indicator.SetIndicatorStatus(Config.SortColumn.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
                 }
 
-                List<FileSystemStorageItemBase> ItemList = SortCollectionGenerator.Current.GetSortedCollection(CurrentFolder.GetChildrenItems(SettingControl.IsDisplayHiddenItem), Config.SortColumn, Config.SortDirection);
+                List<FileSystemStorageItemBase> ChildItems = await CurrentFolder.GetChildrenItemsAsync(SettingControl.IsDisplayHiddenItem).ConfigureAwait(true);
 
-                HasFile.Visibility = ItemList.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-                StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", ItemList.Count.ToString());
+                if (ChildItems.Count > 0)
+                {
+                    HasFile.Visibility = Visibility.Collapsed;
+
+                    foreach (FileSystemStorageItemBase SubItem in SortCollectionGenerator.Current.GetSortedCollection(ChildItems, Config.SortColumn, Config.SortDirection))
+                    {
+                        FileCollection.Add(SubItem);
+                    }
+                }
+                else
+                {
+                    HasFile.Visibility = Visibility.Visible;
+                }
+
+                StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCollection.Count.ToString());
 
                 if (ItemPresenter?.Header is ListViewHeaderController Instance)
                 {
-                    Instance.Filter.SetDataSource(ItemList);
-                }
-
-                for (int i = 0; i < ItemList.Count; i++)
-                {
-                    FileCollection.Add(ItemList[i]);
+                    Instance.Filter.SetDataSource(FileCollection);
                 }
             }
             catch (Exception ex)
@@ -968,7 +976,7 @@ namespace RX_Explorer
                                                         {
                                                             string TargetFolderPath = Path.GetDirectoryName(SplitGroup[3]);
 
-                                                            if (WIN_Native_API.CheckExist(TargetFolderPath))
+                                                            if (await FileSystemStorageItemBase.CheckExist(TargetFolderPath).ConfigureAwait(true))
                                                             {
                                                                 if (await FileSystemStorageItemBase.OpenAsync(Path.Combine(TargetFolderPath, Path.GetFileName(SplitGroup[3])), ItemFilters.File).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                                                                 {
@@ -1245,7 +1253,7 @@ namespace RX_Explorer
 
                         foreach (FileSystemStorageItemBase Item in StorageItems)
                         {
-                            if (await Item.GetStorageItem().ConfigureAwait(true) is IStorageItem It)
+                            if (await Item.GetStorageItemAsync().ConfigureAwait(true) is IStorageItem It)
                             {
                                 TempItemList.Add(It);
                             }
@@ -1616,7 +1624,7 @@ namespace RX_Explorer
 
                         foreach (FileSystemStorageItemBase Item in StorageItems)
                         {
-                            if (await Item.GetStorageItem().ConfigureAwait(true) is IStorageItem It)
+                            if (await Item.GetStorageItemAsync().ConfigureAwait(true) is IStorageItem It)
                             {
                                 TempItemList.Add(It);
                             }
@@ -1767,7 +1775,7 @@ namespace RX_Explorer
 
                     if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
-                        if (WIN_Native_API.CheckExist(Path.Combine(Path.GetDirectoryName(RenameItem.Path), dialog.DesireName)))
+                        if (await FileSystemStorageItemBase.CheckExist(Path.Combine(Path.GetDirectoryName(RenameItem.Path), dialog.DesireName)).ConfigureAwait(true))
                         {
                             QueueContentDialog Dialog = new QueueContentDialog
                             {
@@ -1840,9 +1848,9 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (await SelectedItem.GetStorageItem().ConfigureAwait(true) is StorageFile ShareFile)
+            if (await SelectedItem.GetStorageItemAsync().ConfigureAwait(true) is StorageFile ShareFile)
             {
-                if (!WIN_Native_API.CheckExist(ShareFile.Path))
+                if (!await FileSystemStorageItemBase.CheckExist(ShareFile.Path).ConfigureAwait(true))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -2222,7 +2230,7 @@ namespace RX_Explorer
 
             if (SelectedItem is FileSystemStorageItemBase Item)
             {
-                if (!WIN_Native_API.CheckExist(Item.Path))
+                if (!await FileSystemStorageItemBase.CheckExist(Item.Path).ConfigureAwait(true))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -2646,9 +2654,9 @@ namespace RX_Explorer
 
         private async Task ZipFolderCore(FileSystemStorageItemBase Folder, ZipOutputStream OutputStream, string BaseFolderName, ProgressChangedEventHandler ProgressHandler = null)
         {
-            List<FileSystemStorageItemBase> PathList = Folder.GetChildrenItems(true);
+            List<FileSystemStorageItemBase> ItemList = await Folder.GetChildrenItemsAsync(true).ConfigureAwait(false);
 
-            if (PathList.Count == 0)
+            if (ItemList.Count == 0)
             {
                 if (!string.IsNullOrEmpty(BaseFolderName))
                 {
@@ -2663,7 +2671,7 @@ namespace RX_Explorer
 
                 long CurrentPosition = 0;
 
-                foreach (FileSystemStorageItemBase Item in PathList)
+                foreach (FileSystemStorageItemBase Item in ItemList)
                 {
                     if (Item.StorageType == StorageItemTypes.Folder)
                     {
@@ -2746,7 +2754,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (!WIN_Native_API.CheckExist(SelectedItem.Path))
+            if (!await FileSystemStorageItemBase.CheckExist(SelectedItem.Path).ConfigureAwait(true))
             {
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
@@ -2785,7 +2793,7 @@ namespace RX_Explorer
                 case ".mov":
                 case ".alac":
                     {
-                        if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile Source)
+                        if ((await SelectedItem.GetStorageItemAsync().ConfigureAwait(true)) is StorageFile Source)
                         {
                             TranscodeDialog dialog = new TranscodeDialog(Source);
 
@@ -2797,7 +2805,7 @@ namespace RX_Explorer
 
                                     if (await FileSystemStorageItemBase.CreateAsync(DestFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                                     {
-                                        if (await Item.GetStorageItem().ConfigureAwait(true) is StorageFile DestinationFile)
+                                        if (await Item.GetStorageItemAsync().ConfigureAwait(true) is StorageFile DestinationFile)
                                         {
                                             await GeneralTransformer.TranscodeFromAudioOrVideoAsync(Source, DestinationFile, dialog.MediaTranscodeEncodingProfile, dialog.MediaTranscodeQuality, dialog.SpeedUp).ConfigureAwait(true);
                                         }
@@ -2872,7 +2880,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (!WIN_Native_API.CheckExist(SelectedItem.Path))
+            if (!await FileSystemStorageItemBase.CheckExist(SelectedItem.Path).ConfigureAwait(true))
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -2984,7 +2992,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (!WIN_Native_API.CheckExist(CurrentFolder.Path))
+            if (!await FileSystemStorageItemBase.CheckExist(CurrentFolder.Path).ConfigureAwait(true))
             {
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
@@ -3037,7 +3045,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (WIN_Native_API.CheckExist(CurrentFolder.Path))
+            if (await FileSystemStorageItemBase.CheckExist(CurrentFolder.Path).ConfigureAwait(true))
             {
                 if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(CurrentFolder.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase NewFolder)
                 {
@@ -3122,18 +3130,18 @@ namespace RX_Explorer
                     string Html = await Package.GetHtmlFormatAsync();
                     string Fragment = HtmlFormatHelper.GetStaticFragment(Html);
 
-                    //HtmlDocument Document = new HtmlDocument();
-                    //Document.LoadHtml(Fragment);
-                    //HtmlNode HeadNode = Document.DocumentNode.SelectSingleNode("/head");
+                    XmlDocument Document = new XmlDocument();
+                    Document.LoadXml(Fragment);
+                    IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
 
-                    //if (HeadNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
-                    //{
-                    //    Paste.IsEnabled = true;
-                    //}
-                    //else
-                    //{
-                    //    Paste.IsEnabled = false;
-                    //}
+                    if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
+                    {
+                        Paste.IsEnabled = true;
+                    }
+                    else
+                    {
+                        Paste.IsEnabled = false;
+                    }
                 }
                 else
                 {
@@ -3161,7 +3169,7 @@ namespace RX_Explorer
 
             if (SelectedItem != null)
             {
-                if (!WIN_Native_API.CheckExist(SelectedItem.Path))
+                if (!await FileSystemStorageItemBase.CheckExist(SelectedItem.Path).ConfigureAwait(true))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -3174,7 +3182,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile ShareItem)
+                    if ((await SelectedItem.GetStorageItemAsync().ConfigureAwait(true)) is StorageFile ShareItem)
                     {
                         DataTransferManager.GetForCurrentView().DataRequested += (s, args) =>
                         {
@@ -3208,7 +3216,7 @@ namespace RX_Explorer
 
             try
             {
-                if (WIN_Native_API.CheckExist(CurrentFolder.Path))
+                if (await FileSystemStorageItemBase.CheckExist(CurrentFolder.Path).ConfigureAwait(true))
                 {
                     await DisplayItemsInFolder(CurrentFolder, true).ConfigureAwait(true);
                 }
@@ -3259,7 +3267,7 @@ namespace RX_Explorer
                 {
                     if (TabTarget.StorageType == StorageItemTypes.File)
                     {
-                        if (!WIN_Native_API.CheckExist(TabTarget.Path))
+                        if (!await FileSystemStorageItemBase.CheckExist(TabTarget.Path).ConfigureAwait(true))
                         {
                             QueueContentDialog Dialog = new QueueContentDialog
                             {
@@ -3305,7 +3313,7 @@ namespace RX_Explorer
                                 {
                                     if ((await Launcher.FindFileHandlersAsync(TabTarget.Type)).FirstOrDefault((Item) => Item.PackageFamilyName == AdminExecutablePath) is AppInfo Info)
                                     {
-                                        if (await TabTarget.GetStorageItem().ConfigureAwait(true) is StorageFile File)
+                                        if (await TabTarget.GetStorageItemAsync().ConfigureAwait(true) is StorageFile File)
                                         {
                                             if (!await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Info.PackageFamilyName, DisplayApplicationPicker = false }))
                                             {
@@ -3506,7 +3514,7 @@ namespace RX_Explorer
                                                 }
                                                 else
                                                 {
-                                                    if (await TabTarget.GetStorageItem().ConfigureAwait(true) is StorageFile File)
+                                                    if (await TabTarget.GetStorageItemAsync().ConfigureAwait(true) is StorageFile File)
                                                     {
                                                         if (!await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.Path, DisplayApplicationPicker = false }))
                                                         {
@@ -3721,7 +3729,7 @@ namespace RX_Explorer
                                                     }
                                                     else
                                                     {
-                                                        if (await TabTarget.GetStorageItem().ConfigureAwait(true) is StorageFile File)
+                                                        if (await TabTarget.GetStorageItemAsync().ConfigureAwait(true) is StorageFile File)
                                                         {
                                                             if (!await Launcher.LaunchFileAsync(File, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.Path, DisplayApplicationPicker = false }))
                                                             {
@@ -3773,7 +3781,7 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        if (WIN_Native_API.CheckExist(TabTarget.Path))
+                        if (await FileSystemStorageItemBase.CheckExist(TabTarget.Path).ConfigureAwait(true))
                         {
                             await DisplayItemsInFolder(TabTarget).ConfigureAwait(true);
                         }
@@ -3833,13 +3841,13 @@ namespace RX_Explorer
             }
             else
             {
-                if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile File)
+                if ((await SelectedItem.GetStorageItemAsync().ConfigureAwait(true)) is StorageFile File)
                 {
                     VideoEditDialog Dialog = new VideoEditDialog(File);
 
                     if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
-                        if (await CurrentFolder.GetStorageItem().ConfigureAwait(true) is StorageFolder Folder)
+                        if (await CurrentFolder.GetStorageItemAsync().ConfigureAwait(true) is StorageFolder Folder)
                         {
                             StorageFile ExportFile = await Folder.CreateFileAsync($"{File.DisplayName} - {Globalization.GetString("Crop_Image_Name_Tail")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
                             await GeneralTransformer.GenerateCroppedVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding, Dialog.TrimmingPreference).ConfigureAwait(true);
@@ -3878,13 +3886,13 @@ namespace RX_Explorer
                 return;
             }
 
-            if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile Item)
+            if ((await SelectedItem.GetStorageItemAsync().ConfigureAwait(true)) is StorageFile Item)
             {
                 VideoMergeDialog Dialog = new VideoMergeDialog(Item);
 
                 if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    if (await CurrentFolder.GetStorageItem().ConfigureAwait(true) is StorageFolder Folder)
+                    if (await CurrentFolder.GetStorageItemAsync().ConfigureAwait(true) is StorageFolder Folder)
                     {
                         StorageFile ExportFile = await Folder.CreateFileAsync($"{Item.DisplayName} - {Globalization.GetString("Merge_Image_Name_Tail")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
 
@@ -3994,7 +4002,7 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        if ((await SelectedItem.GetStorageItem().ConfigureAwait(true)) is StorageFile Item)
+                        if ((await SelectedItem.GetStorageItemAsync().ConfigureAwait(true)) is StorageFile Item)
                         {
                             if (!await Launcher.LaunchFileAsync(Item, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.Path, DisplayApplicationPicker = false }))
                             {
@@ -4185,7 +4193,7 @@ namespace RX_Explorer
 
             if (SelectedItem is FileSystemStorageItemBase Item)
             {
-                if (!WIN_Native_API.CheckExist(Item.Path))
+                if (!await FileSystemStorageItemBase.CheckExist(Item.Path).ConfigureAwait(true))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -4715,7 +4723,7 @@ namespace RX_Explorer
 
                     foreach (FileSystemStorageItemBase StorageItem in StorageItems)
                     {
-                        if (await StorageItem.GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
+                        if (await StorageItem.GetStorageItemAsync().ConfigureAwait(true) is IStorageItem Item)
                         {
                             TempList.Add(Item);
                         }
@@ -5296,85 +5304,81 @@ namespace RX_Explorer
                 return;
             }
 
-            if (SelectedItems.Where((Item) => Item.StorageType == StorageItemTypes.Folder).Any((Item) => !WIN_Native_API.CheckExist(Item.Path)))
+            foreach (FileSystemStorageItemBase Item in SelectedItems.Where((Item) => Item.StorageType == StorageItemTypes.Folder))
             {
-                QueueContentDialog Dialog = new QueueContentDialog
+                if (!await FileSystemStorageItemBase.CheckExist(Item.Path).ConfigureAwait(true))
                 {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
 
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-            }
-            else if (SelectedItems.Where((Item) => Item.StorageType == StorageItemTypes.File).Any((Item) => !WIN_Native_API.CheckExist(Item.Path)))
-            {
-                QueueContentDialog Dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
 
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-            }
-            else
-            {
-                bool IsCompress = false;
-                if (SelectedItems.All((Item) => Item.StorageType == StorageItemTypes.File))
-                {
-                    if (SelectedItems.All((Item) => Item.Type == ".zip"))
-                    {
-                        IsCompress = false;
-                    }
-                    else if (SelectedItems.All((Item) => Item.Type != ".zip"))
-                    {
-                        IsCompress = true;
-                    }
-                    else
-                    {
-                        return;
-                    }
+                    return;
                 }
-                else if (SelectedItems.All((Item) => Item.StorageType == StorageItemTypes.Folder))
+            }
+
+            foreach (FileSystemStorageItemBase Item in SelectedItems.Where((Item) => Item.StorageType == StorageItemTypes.File))
+            {
+                if (!await FileSystemStorageItemBase.CheckExist(Item.Path).ConfigureAwait(true))
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+
+                    return;
+                }
+            }
+
+            bool IsCompress = false;
+            if (SelectedItems.All((Item) => Item.StorageType == StorageItemTypes.File))
+            {
+                if (SelectedItems.All((Item) => Item.Type == ".zip"))
+                {
+                    IsCompress = false;
+                }
+                else if (SelectedItems.All((Item) => Item.Type != ".zip"))
                 {
                     IsCompress = true;
                 }
                 else
                 {
-                    if (SelectedItems.Where((It) => It.StorageType == StorageItemTypes.File).All((Item) => Item.Type != ".zip"))
-                    {
-                        IsCompress = true;
-                    }
-                    else
-                    {
-                        return;
-                    }
+                    return;
                 }
-
-                if (IsCompress)
+            }
+            else if (SelectedItems.All((Item) => Item.StorageType == StorageItemTypes.Folder))
+            {
+                IsCompress = true;
+            }
+            else
+            {
+                if (SelectedItems.Where((It) => It.StorageType == StorageItemTypes.File).All((Item) => Item.Type != ".zip"))
                 {
-                    ZipDialog dialog = new ZipDialog();
-
-                    if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
-                    {
-                        await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
-
-                        await CreateZipAsync(SelectedItems, dialog.FileName, (int)dialog.Level, ProgressHandler: (s, e) =>
-                        {
-                            if (Container.ProBar.Value < e.ProgressPercentage)
-                            {
-                                Container.ProBar.IsIndeterminate = false;
-                                Container.ProBar.Value = e.ProgressPercentage;
-                            }
-                        }).ConfigureAwait(true);
-
-                        await Container.LoadingActivation(false).ConfigureAwait(true);
-                    }
+                    IsCompress = true;
                 }
                 else
                 {
-                    await UnZipAsync(SelectedItems, (s, e) =>
+                    return;
+                }
+            }
+
+            if (IsCompress)
+            {
+                ZipDialog dialog = new ZipDialog();
+
+                if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                {
+                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
+
+                    await CreateZipAsync(SelectedItems, dialog.FileName, (int)dialog.Level, ProgressHandler: (s, e) =>
                     {
                         if (Container.ProBar.Value < e.ProgressPercentage)
                         {
@@ -5382,7 +5386,20 @@ namespace RX_Explorer
                             Container.ProBar.Value = e.ProgressPercentage;
                         }
                     }).ConfigureAwait(true);
+
+                    await Container.LoadingActivation(false).ConfigureAwait(true);
                 }
+            }
+            else
+            {
+                await UnZipAsync(SelectedItems, (s, e) =>
+                {
+                    if (Container.ProBar.Value < e.ProgressPercentage)
+                    {
+                        Container.ProBar.IsIndeterminate = false;
+                        Container.ProBar.Value = e.ProgressPercentage;
+                    }
+                }).ConfigureAwait(true);
             }
         }
 
@@ -5462,7 +5479,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (WIN_Native_API.CheckExist(SelectedItem.Path))
+            if (await FileSystemStorageItemBase.CheckExist(SelectedItem.Path).ConfigureAwait(true))
             {
                 try
                 {
@@ -5656,7 +5673,7 @@ namespace RX_Explorer
                         return;
                     }
 
-                    if (WIN_Native_API.CheckExist(Path.Combine(Path.GetDirectoryName(CurrentEditItem.Path), NameEditBox.Text)))
+                    if (await FileSystemStorageItemBase.CheckExist(Path.Combine(Path.GetDirectoryName(CurrentEditItem.Path), NameEditBox.Text)).ConfigureAwait(true))
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
@@ -6550,7 +6567,7 @@ namespace RX_Explorer
             Container.BlockKeyboardShortCutInput = true;
         }
 
-        private void Filter_RefreshListRequested(object sender, List<FileSystemStorageItemBase> e)
+        private void Filter_RefreshListRequested(object sender, IEnumerable<FileSystemStorageItemBase> e)
         {
             FileCollection.Clear();
 

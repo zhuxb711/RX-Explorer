@@ -1065,6 +1065,31 @@ namespace RX_Explorer.Class
             }
         }
 
+        public static bool CheckLocationAvailability(string ItemPath)
+        {
+            if (string.IsNullOrWhiteSpace(ItemPath))
+            {
+                throw new ArgumentNullException(nameof(ItemPath), "Argument could not be null");
+            }
+
+            IntPtr Ptr = IntPtr.Zero;
+
+            try
+            {
+                Ptr = FindFirstFileExFromApp(Path.GetPathRoot(ItemPath) == ItemPath ? Path.Combine(ItemPath, "*") : ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+
+                return Ptr.ToInt64() != -1;
+            }
+            catch
+            {
+                return false;
+            }
+            finally
+            {
+                FindClose(Ptr);
+            }
+        }
+
         public static List<FileSystemStorageItemBase> GetStorageItems(string FolderPath, bool IncludeHiddenItem, ItemFilters Filter)
         {
             if (string.IsNullOrWhiteSpace(FolderPath))

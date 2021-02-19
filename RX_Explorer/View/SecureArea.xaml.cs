@@ -320,7 +320,7 @@ namespace RX_Explorer
 
             SecureFolder = await FileSystemStorageItemBase.CreateAsync(Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder"), StorageItemTypes.Folder, CreateOption.OpenIfExist).ConfigureAwait(true);
 
-            foreach (SecureAreaStorageItem Item in SecureFolder.GetChildrenItems(false, ItemFilters.File))
+            foreach (SecureAreaStorageItem Item in await SecureFolder.GetChildrenItemsAsync(false, ItemFilters.File).ConfigureAwait(true))
             {
                 SecureCollection.Add(Item);
             }
@@ -685,7 +685,7 @@ namespace RX_Explorer
 
                 if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    if (await RenameItem.GetStorageItem().ConfigureAwait(true) is IStorageItem Item)
+                    if (await RenameItem.GetStorageItemAsync().ConfigureAwait(true) is IStorageItem Item)
                     {
                         await Item.RenameAsync(dialog.DesireName);
                         await RenameItem.Update().ConfigureAwait(false);

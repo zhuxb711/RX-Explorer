@@ -11,7 +11,7 @@ namespace RX_Explorer.Class
     {
         private HiddenItemPackage DataPackage;
 
-        public override Task<IStorageItem> GetStorageItem()
+        public override Task<IStorageItem> GetStorageItemAsync()
         {
             return Task.FromResult<IStorageItem>(null);
         }

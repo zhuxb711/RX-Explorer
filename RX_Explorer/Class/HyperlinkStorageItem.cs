@@ -103,7 +103,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override Task<IStorageItem> GetStorageItem()
+        public override Task<IStorageItem> GetStorageItemAsync()
         {
             return Task.FromResult<IStorageItem>(null);
         }
@@ -127,7 +127,7 @@ namespace RX_Explorer.Class
                             }
                         }
 
-                        if (WIN_Native_API.CheckExist(Data.LinkTargetPath))
+                        if (await CheckExist(Data.LinkTargetPath).ConfigureAwait(true))
                         {
                             LinkType = ShellLinkType.Normal;
                         }

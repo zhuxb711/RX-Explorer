@@ -62,7 +62,7 @@ namespace RX_Explorer.Dialog
                 }
                 else
                 {
-                    if (await Item.GetStorageItem().ConfigureAwait(true) is StorageFile File)
+                    if (await Item.GetStorageItemAsync().ConfigureAwait(true) is StorageFile File)
                     {
                         if (File.ContentType.StartsWith("video", StringComparison.OrdinalIgnoreCase))
                         {

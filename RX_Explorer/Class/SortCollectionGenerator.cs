@@ -58,7 +58,12 @@ namespace RX_Explorer.Class
             }
         }
 
-        public List<T> GetSortedCollection<T>(ICollection<T> InputCollection, SortTarget? Target, SortDirection? Direction) where T : FileSystemStorageItemBase
+        public IEnumerable<T> GetSortedCollection<T>(IEnumerable<T> InputCollection) where T : FileSystemStorageItemBase
+        {
+            return GetSortedCollection(InputCollection, null, null);
+        }
+
+        public IEnumerable<T> GetSortedCollection<T>(IEnumerable<T> InputCollection, SortTarget? Target, SortDirection? Direction) where T : FileSystemStorageItemBase
         {
             SortTarget TempTarget = Target ?? SortTarget;
             SortDirection TempDirection = Direction ?? SortDirection;
@@ -71,40 +76,40 @@ namespace RX_Explorer.Class
                 case SortTarget.Name:
                     {
                         return TempDirection == SortDirection.Ascending
-                            ? new List<T>(FolderList.OrderByLikeFileSystem((Item) => Item.Name, TempDirection).Concat(FileList.OrderByLikeFileSystem((Item) => Item.Name, TempDirection)))
-                            : new List<T>(FileList.OrderByLikeFileSystem((Item) => Item.Name, TempDirection).Concat(FolderList.OrderByLikeFileSystem((Item) => Item.Name, TempDirection)));
+                            ? FolderList.OrderByLikeFileSystem((Item) => Item.Name, TempDirection).Concat(FileList.OrderByLikeFileSystem((Item) => Item.Name, TempDirection))
+                            : FileList.OrderByLikeFileSystem((Item) => Item.Name, TempDirection).Concat(FolderList.OrderByLikeFileSystem((Item) => Item.Name, TempDirection));
                     }
                 case SortTarget.Type:
                     {
                         return TempDirection == SortDirection.Ascending
-                            ? new List<T>(FolderList.OrderByLikeFileSystem((Item) => Item.Type, TempDirection).Concat(FileList.OrderByLikeFileSystem((Item) => Item.Type, TempDirection)))
-                            : new List<T>(FileList.OrderByLikeFileSystem((Item) => Item.Type, TempDirection).Concat(FolderList.OrderByLikeFileSystem((Item) => Item.Type, TempDirection)));
+                            ? FolderList.OrderByLikeFileSystem((Item) => Item.Type, TempDirection).Concat(FileList.OrderByLikeFileSystem((Item) => Item.Type, TempDirection))
+                            : FileList.OrderByLikeFileSystem((Item) => Item.Type, TempDirection).Concat(FolderList.OrderByLikeFileSystem((Item) => Item.Type, TempDirection));
                     }
                 case SortTarget.ModifiedTime:
                     {
                         return TempDirection == SortDirection.Ascending
-                            ? new List<T>(FolderList.OrderBy((Item) => Item.ModifiedTimeRaw).Concat(FileList.OrderBy((Item) => Item.ModifiedTimeRaw)))
-                            : new List<T>(FileList.OrderByDescending((Item) => Item.ModifiedTimeRaw).Concat(FolderList.OrderByDescending((Item) => Item.ModifiedTimeRaw)));
+                            ? FolderList.OrderBy((Item) => Item.ModifiedTimeRaw).Concat(FileList.OrderBy((Item) => Item.ModifiedTimeRaw))
+                            : FileList.OrderByDescending((Item) => Item.ModifiedTimeRaw).Concat(FolderList.OrderByDescending((Item) => Item.ModifiedTimeRaw));
                     }
                 case SortTarget.Size:
                     {
                         return TempDirection == SortDirection.Ascending
-                            ? new List<T>(FolderList.OrderBy((Item) => Item.SizeRaw).Concat(FileList.OrderBy((Item) => Item.SizeRaw)))
-                            : new List<T>(FileList.OrderByDescending((Item) => Item.SizeRaw).Concat(FolderList.OrderByDescending((Item) => Item.SizeRaw)));
+                            ? FolderList.OrderBy((Item) => Item.SizeRaw).Concat(FileList.OrderBy((Item) => Item.SizeRaw))
+                            : FileList.OrderByDescending((Item) => Item.SizeRaw).Concat(FolderList.OrderByDescending((Item) => Item.SizeRaw));
                     }
                 case SortTarget.Path:
                     {
                         return TempDirection == SortDirection.Ascending
-                            ? new List<T>(FolderList.OrderBy((Item) => Item.Path).Concat(FileList.OrderBy((Item) => Item.SizeRaw)))
-                            : new List<T>(FileList.OrderByDescending((Item) => Item.Path).Concat(FolderList.OrderByDescending((Item) => Item.SizeRaw)));
+                            ? FolderList.OrderBy((Item) => Item.Path).Concat(FileList.OrderBy((Item) => Item.SizeRaw))
+                            : FileList.OrderByDescending((Item) => Item.Path).Concat(FolderList.OrderByDescending((Item) => Item.SizeRaw));
                     }
                 default:
                     {
                         if (typeof(T) == typeof(RecycleStorageItem))
                         {
                             return TempDirection == SortDirection.Ascending
-                                ? new List<T>(FolderList.Select((Item) => Item as RecycleStorageItem).OrderBy((Item) => Item.OriginPath).Concat(FileList.Select((Item) => Item as RecycleStorageItem).OrderBy((Item) => Item.OriginPath)).Select((Item) => Item as T))
-                                : new List<T>(FolderList.Select((Item) => Item as RecycleStorageItem).OrderByDescending((Item) => Item.OriginPath).Concat(FileList.Select((Item) => Item as RecycleStorageItem).OrderByDescending((Item) => Item.OriginPath)).Select((Item) => Item as T));
+                                ? FolderList.Select((Item) => Item as RecycleStorageItem).OrderBy((Item) => Item.OriginPath).Concat(FileList.Select((Item) => Item as RecycleStorageItem).OrderBy((Item) => Item.OriginPath)).Select((Item) => Item as T)
+                                : FolderList.Select((Item) => Item as RecycleStorageItem).OrderByDescending((Item) => Item.OriginPath).Concat(FileList.Select((Item) => Item as RecycleStorageItem).OrderByDescending((Item) => Item.OriginPath)).Select((Item) => Item as T);
                         }
                         else
                         {
@@ -132,7 +137,7 @@ namespace RX_Explorer.Class
                     {
                         if (SortDirection == SortDirection.Ascending)
                         {
-                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Name, SearchTarget.Name, StringComparison.Ordinal) > 0);
+                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Name, SearchTarget.Name, StringComparison.OrdinalIgnoreCase) > 0);
 
                             if (SearchResult == default)
                             {
@@ -160,7 +165,7 @@ namespace RX_Explorer.Class
                         else
                         {
                             //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
-                            int Index = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Name, SearchTarget.Name, StringComparison.Ordinal) < 0).Index;
+                            int Index = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Name, SearchTarget.Name, StringComparison.OrdinalIgnoreCase) < 0).Index;
 
                             if (SearchTarget.StorageType == StorageItemTypes.Folder)
                             {
@@ -174,7 +179,7 @@ namespace RX_Explorer.Class
                     {
                         if (SortDirection == SortDirection.Ascending)
                         {
-                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Type, SearchTarget.Type, StringComparison.Ordinal) > 0);
+                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Type, SearchTarget.Type, StringComparison.OrdinalIgnoreCase) > 0);
 
                             if (SearchResult == default)
                             {
@@ -202,7 +207,7 @@ namespace RX_Explorer.Class
                         else
                         {
                             //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
-                            int Index = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Type, SearchTarget.Type, StringComparison.Ordinal) < 0).Index;
+                            int Index = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Type, SearchTarget.Type, StringComparison.OrdinalIgnoreCase) < 0).Index;
 
                             if (SearchTarget.StorageType == StorageItemTypes.Folder)
                             {
@@ -301,11 +306,6 @@ namespace RX_Explorer.Class
                         return -1;
                     }
             }
-        }
-
-        public List<T> GetSortedCollection<T>(ICollection<T> InputCollection) where T : FileSystemStorageItemBase
-        {
-            return GetSortedCollection(InputCollection, null, null);
         }
 
         private SortCollectionGenerator()

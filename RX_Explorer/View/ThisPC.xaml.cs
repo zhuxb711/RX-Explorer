@@ -7,11 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
-using Windows.ApplicationModel.Core;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Portable;
-using Windows.Management.Deployment;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
@@ -246,7 +243,7 @@ namespace RX_Explorer
                     {
                         if (Ur.IsFile)
                         {
-                            if (WIN_Native_API.CheckExist(Item.Protocol))
+                            if (await FileSystemStorageItemBase.CheckExist(Item.Protocol).ConfigureAwait(true))
                             {
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                 {

@@ -63,9 +63,9 @@ namespace RX_Explorer
 
                 if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(SelectedPhotoPath), ItemFilters.Folder).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                 {
-                    List<FileSystemStorageItemBase> FileList = Item.GetChildrenItems(SettingControl.IsDisplayHiddenItem, ItemFilters.File).Where((Item) => Item.Type.Equals(".png", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".bmp", StringComparison.OrdinalIgnoreCase)).ToList();
+                    FileSystemStorageItemBase[] PictureFileList = (await Item.GetChildrenItemsAsync(SettingControl.IsDisplayHiddenItem, ItemFilters.File)).Where((Item) => Item.Type.Equals(".png", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".bmp", StringComparison.OrdinalIgnoreCase)).ToArray();
 
-                    if (FileList.Count == 0)
+                    if (PictureFileList.Length == 0)
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
@@ -79,13 +79,14 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        int LastSelectIndex = FileList.FindIndex((Photo) => Photo.Path.Equals(SelectedPhotoPath, StringComparison.OrdinalIgnoreCase));
-                        if (LastSelectIndex < 0 || LastSelectIndex >= FileList.Count)
+                        int LastSelectIndex = Array.FindIndex(PictureFileList, (Photo) => Photo.Path.Equals(SelectedPhotoPath, StringComparison.OrdinalIgnoreCase));
+                        
+                        if (LastSelectIndex < 0 || LastSelectIndex >= PictureFileList.Length)
                         {
                             LastSelectIndex = 0;
                         }
 
-                        PhotoCollection = new ObservableCollection<PhotoDisplaySupport>(FileList.Select((Item) => new PhotoDisplaySupport(Item)));
+                        PhotoCollection = new ObservableCollection<PhotoDisplaySupport>(PictureFileList.Select((Item) => new PhotoDisplaySupport(Item)));
                         Flip.ItemsSource = PhotoCollection;
 
                         if (!await PhotoCollection[LastSelectIndex].ReplaceThumbnailBitmapAsync().ConfigureAwait(true))
@@ -407,7 +408,7 @@ namespace RX_Explorer
                 {
                     if (Flip.SelectedItem is PhotoDisplaySupport Photo)
                     {
-                        if (await Photo.PhotoFile.GetStorageItem().ConfigureAwait(true) is StorageFile File)
+                        if (await Photo.PhotoFile.GetStorageItemAsync().ConfigureAwait(true) is StorageFile File)
                         {
                             StorageFile TempFile = await File.CopyAsync(ApplicationData.Current.LocalFolder, Photo.PhotoFile.Name, NameCollisionOption.GenerateUniqueName);
 
