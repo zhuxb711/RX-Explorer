@@ -1971,11 +1971,11 @@ namespace RX_Explorer
             }
         }
 
-        private void OpenFolderInNewTab_Click(object sender, RoutedEventArgs e)
+        private async void OpenFolderInNewTab_Click(object sender, RoutedEventArgs e)
         {
             if (CurrentPresenter.CurrentFolder != null)
             {
-                TabViewContainer.ThisPage.CreateNewTab(null, CurrentPresenter.CurrentFolder.Path);
+                await TabViewContainer.ThisPage.CreateNewTabAsync(null, CurrentPresenter.CurrentFolder.Path).ConfigureAwait(true);
             }
         }
 

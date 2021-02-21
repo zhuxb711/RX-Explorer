@@ -379,6 +379,8 @@ namespace RX_Explorer.Class
                             FolderDepth = FolderDepth.Shallow,
                             IndexerOption = IndexerOption.UseIndexerWhenAvailable
                         };
+                        Options.SetThumbnailPrefetch(Windows.Storage.FileProperties.ThumbnailMode.ListView, 150, Windows.Storage.FileProperties.ThumbnailOptions.UseCurrentScale);
+                        Options.SetPropertyPrefetch(Windows.Storage.FileProperties.PropertyPrefetchOptions.None, new string[] { "System.Size", "System.DateCreated", "System.DateModified" });
 
                         StorageItemQueryResult Query = Folder.CreateItemQueryWithOptions(Options);
 

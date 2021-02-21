@@ -59,7 +59,7 @@ namespace RX_Explorer
                                 {
                                     string InstanceId = Guid.NewGuid().ToString();
                                     AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
-                                    AppInstanceIdContainer.RegisterCurrentId(InstanceId);
+                                    AppInstanceIdContainer.RegisterId(InstanceId);
 
                                     Application.Start((p) => new App());
                                     break;
@@ -100,7 +100,7 @@ namespace RX_Explorer
                             {
                                 string InstanceId = Guid.NewGuid().ToString();
                                 AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
-                                AppInstanceIdContainer.RegisterCurrentId(InstanceId);
+                                AppInstanceIdContainer.RegisterId(InstanceId);
 
                                 Application.Start((p) => new App());
                             }
@@ -118,7 +118,7 @@ namespace RX_Explorer
                             {
                                 string InstanceId = Guid.NewGuid().ToString();
                                 AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
-                                AppInstanceIdContainer.RegisterCurrentId(InstanceId);
+                                AppInstanceIdContainer.RegisterId(InstanceId);
 
                                 Application.Start((p) => new App());
                             }
@@ -148,7 +148,7 @@ namespace RX_Explorer
                                 {
                                     string InstanceId = Guid.NewGuid().ToString();
                                     AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
-                                    AppInstanceIdContainer.RegisterCurrentId(InstanceId);
+                                    AppInstanceIdContainer.RegisterId(InstanceId);
 
                                     Application.Start((p) => new App());
                                 }
@@ -171,7 +171,7 @@ namespace RX_Explorer
                         {
                             string InstanceId = Guid.NewGuid().ToString();
                             AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
-                            AppInstanceIdContainer.RegisterCurrentId(InstanceId);
+                            AppInstanceIdContainer.RegisterId(InstanceId);
 
                             Application.Start((p) => new App());
                         }
@@ -201,7 +201,7 @@ namespace RX_Explorer
                             {
                                 string InstanceId = Guid.NewGuid().ToString();
                                 AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
-                                AppInstanceIdContainer.RegisterCurrentId(InstanceId);
+                                AppInstanceIdContainer.RegisterId(InstanceId);
 
                                 Application.Start((p) => new App());
                             }
@@ -236,7 +236,7 @@ namespace RX_Explorer
                         {
                             string InstanceId = Guid.NewGuid().ToString();
                             AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
-                            AppInstanceIdContainer.RegisterCurrentId(InstanceId);
+                            AppInstanceIdContainer.RegisterId(InstanceId);
 
                             Application.Start((p) => new App());
                         }
@@ -247,7 +247,7 @@ namespace RX_Explorer
                     {
                         string InstanceId = Guid.NewGuid().ToString();
                         AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
-                        AppInstanceIdContainer.RegisterCurrentId(InstanceId);
+                        AppInstanceIdContainer.RegisterId(InstanceId);
 
                         Application.Start((p) => new App());
                         break;

@@ -1,5 +1,6 @@
 ﻿using RX_Explorer.Class;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Windows.ApplicationModel;
@@ -33,7 +34,7 @@ namespace RX_Explorer
 
         private void App_Resuming(object sender, object e)
         {
-            AppInstanceIdContainer.RegisterCurrentId(AppInstanceIdContainer.CurrentId);
+            AppInstanceIdContainer.RegisterId(AppInstanceIdContainer.CurrentId);
         }
 
         protected override async void OnWindowCreated(WindowCreatedEventArgs args)
@@ -55,7 +56,7 @@ namespace RX_Explorer
 
         private void App_Suspending(object sender, SuspendingEventArgs e)
         {
-            AppInstanceIdContainer.UngisterCurrentId();
+            AppInstanceIdContainer.UngisterId(AppInstanceIdContainer.CurrentId);
         }
 
         private void CurrentDomain_UnhandledException(object sender, System.UnhandledExceptionEventArgs e)
@@ -130,11 +131,11 @@ namespace RX_Explorer
                 {
                     if (!string.IsNullOrWhiteSpace(e.Arguments) && await FileSystemStorageItemBase.CheckExist(e.Arguments).ConfigureAwait(true))
                     {
-                        TabContainer.CreateNewTab(null, new string[] { e.Arguments });
+                        await TabContainer.CreateNewTabAsync(null, new string[] { e.Arguments }).ConfigureAwait(true);
                     }
                     else
                     {
-                        TabContainer.CreateNewTab(null, Array.Empty<string>());
+                        await TabContainer.CreateNewTabAsync(null, Array.Empty<string>()).ConfigureAwait(true);
                     }
                 }
             }
@@ -142,20 +143,65 @@ namespace RX_Explorer
             {
                 if (!string.IsNullOrWhiteSpace(e.Arguments) && await FileSystemStorageItemBase.CheckExist(e.Arguments).ConfigureAwait(true))
                 {
-                    ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen, new string[] { e.Arguments });
+                    ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen, new List<string[]> { new string[] { e.Arguments } });
                     Window.Current.Content = extendedSplash;
                 }
                 else
                 {
-                    ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen);
-                    Window.Current.Content = extendedSplash;
+                    LaunchWithTabMode Mode = LaunchModeController.GetLaunchMode();
+
+                    switch (Mode)
+                    {
+                        case LaunchWithTabMode.CreateNewTab:
+                            {
+                                ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen);
+                                Window.Current.Content = extendedSplash;
+                                break;
+                            }
+                        case LaunchWithTabMode.LastOpenedTab:
+                            {
+                                List<string[]> LastOpenedPathArray = await LaunchModeController.GetAllPathAsync(Mode).ToListAsync();
+
+                                LaunchModeController.Clear(LaunchWithTabMode.LastOpenedTab);
+
+                                if (LastOpenedPathArray.Count == 0)
+                                {
+                                    ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen);
+                                    Window.Current.Content = extendedSplash;
+                                }
+                                else
+                                {
+                                    ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen, LastOpenedPathArray);
+                                    Window.Current.Content = extendedSplash;
+                                }
+
+                                break;
+                            }
+                        case LaunchWithTabMode.SpecificTab:
+                            {
+                                string[] SpecificPathArray = await LaunchModeController.GetAllPathAsync(Mode).Select((Item) => Item.FirstOrDefault()).OfType<string>().ToArrayAsync();
+
+                                if (SpecificPathArray.Length == 0)
+                                {
+                                    ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen);
+                                    Window.Current.Content = extendedSplash;
+                                }
+                                else
+                                {
+                                    ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen, SpecificPathArray);
+                                    Window.Current.Content = extendedSplash;
+                                }
+
+                                break;
+                            }
+                    }
                 }
             }
 
             Window.Current.Activate();
         }
 
-        protected override void OnActivated(IActivatedEventArgs args)
+        protected override async void OnActivated(IActivatedEventArgs args)
         {
             ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
             TitleBar.ButtonBackgroundColor = Colors.Transparent;
@@ -177,16 +223,16 @@ namespace RX_Explorer
 
                             if (string.IsNullOrWhiteSpace(Path) || Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase))
                             {
-                                TabContainer.CreateNewTab(null, Array.Empty<string>());
+                                await TabContainer.CreateNewTabAsync(null, Array.Empty<string>()).ConfigureAwait(true);
                             }
                             else
                             {
-                                TabContainer.CreateNewTab(null, Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path);
+                                await TabContainer.CreateNewTabAsync(null, Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path).ConfigureAwait(true);
                             }
                         }
                         else
                         {
-                            TabContainer.CreateNewTab(null, Array.Empty<string>());
+                            await TabContainer.CreateNewTabAsync(null, Array.Empty<string>()).ConfigureAwait(true);
                         }
                     }
                 }
@@ -203,7 +249,7 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            ExtendedSplash extendedSplash = new ExtendedSplash(CmdArgs.SplashScreen, new string[] { Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path });
+                            ExtendedSplash extendedSplash = new ExtendedSplash(CmdArgs.SplashScreen, new List<string[]> { new string[] { Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path } });
                             Window.Current.Content = extendedSplash;
                         }
                     }
@@ -218,7 +264,7 @@ namespace RX_Explorer
             {
                 if (!string.IsNullOrWhiteSpace(ProtocalArgs.Uri.AbsolutePath))
                 {
-                    ExtendedSplash extendedSplash = new ExtendedSplash(ProtocalArgs.SplashScreen, Uri.UnescapeDataString(ProtocalArgs.Uri.AbsolutePath).Split("||", StringSplitOptions.RemoveEmptyEntries));
+                    ExtendedSplash extendedSplash = new ExtendedSplash(ProtocalArgs.SplashScreen, new List<string[]> { Uri.UnescapeDataString(ProtocalArgs.Uri.AbsolutePath).Split("||", StringSplitOptions.RemoveEmptyEntries) });
                     Window.Current.Content = extendedSplash;
                 }
                 else
@@ -227,7 +273,7 @@ namespace RX_Explorer
                     Window.Current.Content = extendedSplash;
                 }
             }
-            else if (args is not ToastNotificationActivatedEventArgs)
+            else
             {
                 ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
                 Window.Current.Content = extendedSplash;
@@ -236,7 +282,7 @@ namespace RX_Explorer
             Window.Current.Activate();
         }
 
-        protected override void OnFileActivated(FileActivatedEventArgs args)
+        protected override async void OnFileActivated(FileActivatedEventArgs args)
         {
             if (args.Verb == "USBArrival")
             {
@@ -248,14 +294,14 @@ namespace RX_Explorer
 
                 if (Window.Current.Content is Frame mainPageFrame)
                 {
-                    if (mainPageFrame.Content is MainPage mainPage && mainPage.Nav.Content is TabViewContainer tabViewContainer)
+                    if (mainPageFrame.Content is MainPage mainPage && mainPage.Nav.Content is TabViewContainer Container)
                     {
-                        tabViewContainer.CreateNewTab(null, args.Files.Select((File) => File.Path).ToArray());
+                        await Container.CreateNewTabAsync(null, args.Files.Select((File) => File.Path).ToArray()).ConfigureAwait(true);
                     }
                 }
                 else
                 {
-                    ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, args.Files.Select((File) => File.Path).ToArray());
+                    ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen, new List<string[]> { args.Files.Select((File) => File.Path).ToArray() });
                     Window.Current.Content = extendedSplash;
                 }
 

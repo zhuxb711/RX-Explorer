@@ -722,12 +722,12 @@ namespace RX_Explorer
                                 {
                                     if (Item.StorageType == StorageItemTypes.Folder)
                                     {
-                                        TabViewContainer.ThisPage.CreateNewTab(null, Item.Path);
+                                        await TabViewContainer.ThisPage.CreateNewTabAsync(null, Item.Path).ConfigureAwait(true);
                                     }
                                 }
                                 else
                                 {
-                                    TabViewContainer.ThisPage.CreateNewTab(null);
+                                    await TabViewContainer.ThisPage.CreateNewTabAsync(null).ConfigureAwait(true);
                                 }
 
                                 break;
@@ -2068,7 +2068,7 @@ namespace RX_Explorer
                 {
                     SelectionExtention.Disable();
                     SelectedItem = Item;
-                    TabViewContainer.ThisPage.CreateNewTab(null, Item.Path);
+                    _ = TabViewContainer.ThisPage.CreateNewTabAsync(null, Item.Path);
                 }
                 else if ((e.OriginalSource as FrameworkElement).FindParentOfType<SelectorItem>() != null)
                 {
@@ -5608,13 +5608,13 @@ namespace RX_Explorer
             }
         }
 
-        private void OpenFolderInNewTab_Click(object sender, RoutedEventArgs e)
+        private async void OpenFolderInNewTab_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
             if (SelectedItem is FileSystemStorageItemBase Item && Item.StorageType == StorageItemTypes.Folder)
             {
-                TabViewContainer.ThisPage.CreateNewTab(null, Item.Path);
+                await TabViewContainer.ThisPage.CreateNewTabAsync(null, Item.Path).ConfigureAwait(true);
             }
         }
 

@@ -27,7 +27,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static void RegisterCurrentId(string Id)
+        public static void RegisterId(string Id)
         {
             CurrentId = Id;
 
@@ -68,22 +68,6 @@ namespace RX_Explorer.Class
                 if (Collection.Contains(Id))
                 {
                     Collection.Remove(Id);
-                    ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonSerializer.Serialize(Collection);
-                }
-            }
-        }
-
-        public static void UngisterCurrentId()
-        {
-            string SavedInfo = Convert.ToString(ApplicationData.Current.LocalSettings.Values["LastActiveGuid"]);
-
-            if (!string.IsNullOrEmpty(SavedInfo))
-            {
-                List<string> Collection = JsonSerializer.Deserialize<List<string>>(SavedInfo);
-
-                if (Collection.Contains(CurrentId))
-                {
-                    Collection.Remove(CurrentId);
                     ApplicationData.Current.LocalSettings.Values["LastActiveGuid"] = JsonSerializer.Serialize(Collection);
                 }
             }

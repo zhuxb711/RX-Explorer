@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
@@ -30,8 +29,6 @@ namespace RX_Explorer
 {
     public sealed partial class TabViewContainer : Page
     {
-        private int LockResource;
-
         public static Frame CurrentNavigationControl { get; private set; }
 
         private readonly DeviceWatcher PortalDeviceWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
@@ -78,7 +75,7 @@ namespace RX_Explorer
                     {
                         case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                             {
-                                CreateNewTab(null);
+                                await CreateNewTabAsync(null).ConfigureAwait(true);
                                 args.Handled = true;
 
                                 break;
@@ -197,13 +194,13 @@ namespace RX_Explorer
             }
         }
 
-        public async void CreateNewTab(int? InsertIndex, params string[] Path)
+        public async Task CreateNewTabAsync(int? InsertIndex, params string[] Path)
         {
             int Index = InsertIndex ?? (TabViewControl?.TabItems.Count ?? 0);
 
             try
             {
-                if (await CreateNewTabCore(Path).ConfigureAwait(true) is TabViewItem Item)
+                if (await CreateNewTabCoreAsync(Path).ConfigureAwait(true) is TabViewItem Item)
                 {
                     TabViewControl.TabItems.Insert(Index, Item);
                     TabViewControl.UpdateLayout();
@@ -212,7 +209,7 @@ namespace RX_Explorer
             }
             catch (Exception ex)
             {
-                if (await CreateNewTabCore().ConfigureAwait(true) is TabViewItem Item)
+                if (await CreateNewTabCoreAsync().ConfigureAwait(true) is TabViewItem Item)
                 {
                     TabViewControl.TabItems.Insert(Index, Item);
                     TabViewControl.UpdateLayout();
@@ -225,6 +222,25 @@ namespace RX_Explorer
 
         private void Current_Suspending(object sender, SuspendingEventArgs e)
         {
+            if (LaunchModeController.GetLaunchMode() == LaunchWithTabMode.LastOpenedTab)
+            {
+                List<string[]> PathList = new List<string[]>();
+
+                foreach (Frame frame in TabViewControl.TabItems.OfType<TabViewItem>().Select((Tab) => Tab.Content as Frame))
+                {
+                    if (CommonAccessCollection.FrameFileControlDic.TryGetValue(frame, out FileControl Control))
+                    {
+                        PathList.Add(Control.BladeViewer.Items.OfType<Microsoft.Toolkit.Uwp.UI.Controls.BladeItem>().Select((Blade) => (Blade.Content as FilePresenter)?.CurrentFolder?.Path).ToArray());
+                    }
+                    else
+                    {
+                        PathList.Add(Array.Empty<string>());
+                    }
+                }
+
+                LaunchModeController.SetLastOpenedPath(PathList);
+            }
+
             if (PortalDeviceWatcher != null && (PortalDeviceWatcher.Status == DeviceWatcherStatus.Started || PortalDeviceWatcher.Status == DeviceWatcherStatus.EnumerationCompleted))
             {
                 PortalDeviceWatcher.Stop();
@@ -374,15 +390,19 @@ namespace RX_Explorer
 
             try
             {
-                if (MainPage.ThisPage.ActivatePathArray.Length == 0)
+                if ((MainPage.ThisPage.ActivatePathArray?.Count).GetValueOrDefault() == 0)
                 {
-                    CreateNewTab(null);
+                    await CreateNewTabAsync(null).ConfigureAwait(true);
                     await Task.WhenAll(LoadQuickStartItemsAsync(), LoadDeviceAsync(), LoadLibraryAsync()).ConfigureAwait(true);
                 }
                 else
                 {
                     await Task.WhenAll(LoadQuickStartItemsAsync(), LoadDeviceAsync(), LoadLibraryAsync()).ConfigureAwait(true);
-                    CreateNewTab(null, MainPage.ThisPage.ActivatePathArray);
+
+                    foreach (string[] PathArray in MainPage.ThisPage.ActivatePathArray)
+                    {
+                        await CreateNewTabAsync(null, PathArray).ConfigureAwait(true);
+                    }
                 }
             }
             catch (Exception ex)
@@ -675,79 +695,65 @@ namespace RX_Explorer
             await CleanUpAndRemoveTabItem(args.Tab).ConfigureAwait(true);
         }
 
-        private void TabViewControl_AddTabButtonClick(TabView sender, object args)
+        private async void TabViewControl_AddTabButtonClick(TabView sender, object args)
         {
-            CreateNewTab(null);
+            await CreateNewTabAsync(null).ConfigureAwait(true);
         }
 
-        private async Task<TabViewItem> CreateNewTabCore(params string[] PathForNewTab)
+        private async Task<TabViewItem> CreateNewTabCoreAsync(params string[] PathForNewTab)
         {
-            if (Interlocked.Exchange(ref LockResource, 1) == 0)
+            FullTrustProcessController.ResizeController(TabViewControl.TabItems.Count + 1);
+
+            Frame frame = new Frame();
+
+            TabViewItem Item = new TabViewItem
             {
-                try
+                IconSource = new SymbolIconSource { Symbol = Symbol.Document },
+                AllowDrop = true,
+                IsDoubleTapEnabled = true,
+                Content = frame
+            };
+            Item.DragEnter += Item_DragEnter;
+            Item.PointerPressed += Item_PointerPressed;
+            Item.DoubleTapped += Item_DoubleTapped;
+
+            List<string> ValidPathArray = new List<string>();
+
+            foreach (string Path in PathForNewTab)
+            {
+                if (!string.IsNullOrWhiteSpace(Path) && await FileSystemStorageItemBase.CheckExist(Path).ConfigureAwait(true))
                 {
-                    FullTrustProcessController.ResizeController(TabViewControl.TabItems.Count + 1);
+                    ValidPathArray.Add(Path);
+                }
+            }
 
-                    Frame frame = new Frame();
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                if (AnimationController.Current.IsEnableAnimation)
+                {
+                    frame.Navigate(typeof(ThisPC), new WeakReference<TabViewItem>(Item), new DrillInNavigationTransitionInfo());
+                }
+                else
+                {
+                    frame.Navigate(typeof(ThisPC), new WeakReference<TabViewItem>(Item), new SuppressNavigationTransitionInfo());
+                }
 
-                    TabViewItem Item = new TabViewItem
+                if (ValidPathArray.Count > 0)
+                {
+                    Item.Header = Path.GetFileName(ValidPathArray.Last());
+
+                    if (AnimationController.Current.IsEnableAnimation)
                     {
-                        IconSource = new SymbolIconSource { Symbol = Symbol.Document },
-                        AllowDrop = true,
-                        IsDoubleTapEnabled = true
-                    };
-                    Item.DragEnter += Item_DragEnter;
-                    Item.PointerPressed += Item_PointerPressed;
-                    Item.DoubleTapped += Item_DoubleTapped;
-
-                    List<string> ValidPathArray = new List<string>();
-
-                    foreach(string Path in PathForNewTab)
-                    {
-                        if (!string.IsNullOrWhiteSpace(Path) && await FileSystemStorageItemBase.CheckExist(Path).ConfigureAwait(true))
-                        {
-                            ValidPathArray.Add(Path);
-                        }
-                    }
-
-                    if (ValidPathArray.Count > 0)
-                    {
-                        frame.Navigate(typeof(ThisPC), new WeakReference<TabViewItem>(Item), new SuppressNavigationTransitionInfo());
-
-                        if (AnimationController.Current.IsEnableAnimation)
-                        {
-                            frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string[]>(new WeakReference<TabViewItem>(Item), ValidPathArray.ToArray()), new DrillInNavigationTransitionInfo());
-                        }
-                        else
-                        {
-                            frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string[]>(new WeakReference<TabViewItem>(Item), ValidPathArray.ToArray()), new SuppressNavigationTransitionInfo());
-                        }
+                        frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string[]>(new WeakReference<TabViewItem>(Item), ValidPathArray.ToArray()), new DrillInNavigationTransitionInfo());
                     }
                     else
                     {
-                        if (AnimationController.Current.IsEnableAnimation)
-                        {
-                            frame.Navigate(typeof(ThisPC), new WeakReference<TabViewItem>(Item), new DrillInNavigationTransitionInfo());
-                        }
-                        else
-                        {
-                            frame.Navigate(typeof(ThisPC), new WeakReference<TabViewItem>(Item), new SuppressNavigationTransitionInfo());
-                        }
+                        frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string[]>(new WeakReference<TabViewItem>(Item), ValidPathArray.ToArray()), new SuppressNavigationTransitionInfo());
                     }
-
-                    Item.Content = frame;
-
-                    return Item;
                 }
-                finally
-                {
-                    _ = Interlocked.Exchange(ref LockResource, 0);
-                }
-            }
-            else
-            {
-                return null;
-            }
+            });
+
+            return Item;
         }
 
         private async void Item_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
@@ -984,12 +990,12 @@ namespace RX_Explorer
                         {
                             case "ThisPC":
                                 {
-                                    CreateNewTab(InsertIndex);
+                                    await CreateNewTabAsync(InsertIndex).ConfigureAwait(true);
                                     break;
                                 }
                             case "FileControl":
                                 {
-                                    CreateNewTab(InsertIndex, Split.Skip(1).ToArray());
+                                    await CreateNewTabAsync(InsertIndex, Split.Skip(1).ToArray()).ConfigureAwait(true);
                                     break;
                                 }
                         }

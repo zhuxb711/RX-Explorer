@@ -2,6 +2,13 @@
 
 namespace RX_Explorer.Class
 {
+    public enum LaunchWithTabMode
+    {
+        CreateNewTab,
+        LastOpenedTab,
+        SpecificTab
+    }
+
     public enum ShellLinkType
     {
         Normal,

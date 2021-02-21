@@ -1,12 +1,12 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using RX_Explorer.Class;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
-using Windows.Foundation;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
@@ -19,11 +19,28 @@ namespace RX_Explorer
 {
     public sealed partial class ExtendedSplash : Page
     {
-        private readonly SplashScreen Splash;
+        private SplashScreen Splash;
 
-        private string[] Parameter;
+        private List<string[]> Parameter;
 
-        public ExtendedSplash(SplashScreen Screen, string[] Parameter = null)
+        public ExtendedSplash(SplashScreen Screen, List<string[]> Parameter)
+        {
+            this.Parameter = Parameter;
+            Initialize(Screen);
+        }
+
+        public ExtendedSplash(SplashScreen Screen, string[] Parameter)
+        {
+            this.Parameter = Parameter.Select((Item) => new string[] { Item }).ToList();
+            Initialize(Screen);
+        }
+
+        public ExtendedSplash(SplashScreen Screen)
+        {
+            Initialize(Screen);
+        }
+
+        private void Initialize(SplashScreen Screen)
         {
             InitializeComponent();
 
@@ -40,11 +57,6 @@ namespace RX_Explorer
 
             Loaded += ExtendedSplash_Loaded;
             Unloaded += ExtendedSplash_Unloaded;
-
-            if (Parameter != null)
-            {
-                this.Parameter = Parameter;
-            }
         }
 
         private void ExtendedSplash_Unloaded(object sender, RoutedEventArgs e)
@@ -93,14 +105,15 @@ namespace RX_Explorer
                     Frame RootFrame = new Frame();
                     Window.Current.Content = RootFrame;
 
-                    if (Parameter == null)
+                    if (Parameter == null || Parameter.Count == 0)
                     {
-                        MainPage Main = new MainPage(new Tuple<Rect, string[]>(Splash.ImageLocation, Array.Empty<string>()));
+                        MainPage Main = new MainPage(Splash.ImageLocation);
                         RootFrame.Content = Main;
                     }
                     else
                     {
-                        MainPage Main = new MainPage(new Tuple<Rect, string[]>(Splash.ImageLocation, Parameter));
+                        MainPage Main = new MainPage(Splash.ImageLocation, Parameter);
+
                         RootFrame.Content = Main;
                     }
                 }

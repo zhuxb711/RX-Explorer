@@ -337,41 +337,76 @@
 
                     <StackPanel Margin="0,15,0,0">
                         <RadioButton Content="打开新标签页"
-                                     IsChecked="True"
-                                     Margin="0,5,0,0" />
+                                     Margin="0,5,0,0"
+                                     Name="StartWithNewTab"
+                                     Checked="StartWithNewTab_Checked"/>
                         <RadioButton Content="恢复上次打开的标签页"
-                                     Margin="0,5,0,0" />
+                                     Margin="0,5,0,0"
+                                     Name="StartWithLastTab"
+                                     Checked="StartWithLastTab_Checked"/>
                         <RadioButton Content="打开一个或多个指定文件夹页面"
                                      Margin="0,5,0,0"
-                                     Name="StartSpecificTab" />
-                        <ListView MinWidth="300"
+                                     Name="StartSpecificTab"
+                                     Checked="StartSpecificTab_Checked"/>
+                        <ListView MinWidth="250"
                                   Margin="28,10,0,0"
-                                  Visibility="{x:Bind StartSpecificTab.IsChecked, Mode=OneWay}">
+                                  Visibility="{x:Bind StartSpecificTab.IsChecked, Mode=OneWay}"
+                                  x:Name="SpecificTabListView"
+                                  SelectionMode="None"
+                                  Loaded="SpecificTabListView_Loaded">
                             <ListView.Header>
-                                <StackPanel Orientation="Horizontal">
+                                <Grid Padding="0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="25"/>
+                                    </Grid.ColumnDefinitions>
                                     <TextBlock Text="指定文件夹"
                                                VerticalAlignment="Center" />
                                     <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
                                             Style="{ThemeResource ButtonRevealStyle}"
-                                            Width="25"
+                                            VerticalAlignment="Center"
                                             Padding="5"
                                             Height="25"
-                                            Margin="200,0,0,0"
-                                            HorizontalAlignment="Right">
+                                            Width="25"
+                                            Grid.Column="1"
+                                            Name="AddSpecificTab"
+                                            Click="AddSpecificTab_Click">
                                         <Viewbox>
                                             <SymbolIcon Symbol="Add" />
                                         </Viewbox>
                                     </Button>
-                                </StackPanel>
+                                </Grid>
                             </ListView.Header>
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem">
                                     <Setter Property="HorizontalContentAlignment"
                                             Value="Stretch" />
                                     <Setter Property="Padding"
-                                            Value="0" />
+                                            Value="10,0" />
                                 </Style>
                             </ListView.ItemContainerStyle>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="60"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding}"
+                                                   ToolTipService.ToolTip="{Binding}"
+                                                   IsTextSelectionEnabled="True"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center"/>
+                                        <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                                Style="{ThemeResource ButtonRevealStyle}"
+                                                Content="删除"
+                                                Grid.Column="1"
+                                                HorizontalAlignment="Stretch"
+                                                Name="DeleteSpecificTabButton"
+                                                Click="DeleteSpecificTabButton_Click"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
                         </ListView>
                     </StackPanel>
 

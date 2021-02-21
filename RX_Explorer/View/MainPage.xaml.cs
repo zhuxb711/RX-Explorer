@@ -1,12 +1,10 @@
 ﻿using AnimationEffectProvider;
 using Microsoft.Toolkit.Uwp.Notifications;
-using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using RX_Explorer.View;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -42,11 +40,11 @@ namespace RX_Explorer
 
         private Dictionary<Type, string> PageDictionary;
 
-        public string[] ActivatePathArray { get; private set; }
+        public List<string[]> ActivatePathArray { get; private set; }
 
         private EntranceAnimationEffect EntranceEffectProvider;
 
-        public MainPage(object Parameter)
+        public MainPage(Rect Parameter, List<string[]> ActivatePathArray = null)
         {
             InitializeComponent();
             ThisPage = this;
@@ -67,15 +65,12 @@ namespace RX_Explorer
                 AppName.Text += " (Development Mode)";
             }
 
-            if (Parameter is Tuple<Rect, string[]> Paras)
-            {
-                ActivatePathArray = Paras.Item2;
+            this.ActivatePathArray = ActivatePathArray;
 
-                if (!AnimationController.Current.IsDisableStartupAnimation && ActivatePathArray.Length == 0)
-                {
-                    EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, Paras.Item1);
-                    EntranceEffectProvider.PrepareEntranceEffect();
-                }
+            if (!AnimationController.Current.IsDisableStartupAnimation && (ActivatePathArray?.Count).GetValueOrDefault() == 0)
+            {
+                EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, Parameter);
+                EntranceEffectProvider.PrepareEntranceEffect();
             }
         }
 
@@ -265,7 +260,7 @@ namespace RX_Explorer
 
                 Nav.Navigate(typeof(TabViewContainer), null, new SuppressNavigationTransitionInfo());
 
-                if (!AnimationController.Current.IsDisableStartupAnimation && ActivatePathArray.Length == 0)
+                if (!AnimationController.Current.IsDisableStartupAnimation && (ActivatePathArray?.Count).GetValueOrDefault() == 0)
                 {
                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                     {

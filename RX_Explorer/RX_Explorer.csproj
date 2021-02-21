@@ -170,6 +170,7 @@
     <Compile Include="Class\InstalledApplication.cs" />
     <Compile Include="Class\IUknownInterface.cs" />
     <Compile Include="Class\JumpListController.cs" />
+    <Compile Include="Class\LaunchModeController.cs" />
     <Compile Include="Class\ListViewBaseSelectionExtention.cs" />
     <Compile Include="Class\ListViewHeaderController.cs" />
     <Compile Include="Class\MSStoreHelper.cs" />

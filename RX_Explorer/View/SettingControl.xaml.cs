@@ -639,6 +639,48 @@ namespace RX_Explorer
                     ContextMenuExtSwitch.IsOn = true;
                 }
 
+                switch(LaunchModeController.GetLaunchMode())
+                {
+                    case LaunchWithTabMode.CreateNewTab:
+                        {
+                            StartWithNewTab.IsChecked = true;
+                            break;
+                        }
+                    case LaunchWithTabMode.SpecificTab:
+                        {
+                            StartSpecificTab.IsChecked = true;
+
+                            string[] PathArray = await LaunchModeController.GetAllPathAsync(LaunchWithTabMode.SpecificTab).Select((Item) => Item.FirstOrDefault()).OfType<string>().ToArrayAsync();
+
+                            if (PathArray != null)
+                            {
+                                IEnumerable<string> AddList = PathArray.Except(SpecificTabListView.Items.OfType<string>());
+                                IEnumerable<string> RemoveList = SpecificTabListView.Items.OfType<string>().Except(PathArray);
+
+                                foreach (string AddItem in AddList)
+                                {
+                                    SpecificTabListView.Items.Add(AddItem);
+                                }
+
+                                foreach (string RemoveItem in RemoveList)
+                                {
+                                    SpecificTabListView.Items.Remove(RemoveItem);
+                                }
+                            }
+                            else
+                            {
+                                SpecificTabListView.Items.Clear();
+                            }
+
+                            break;
+                        }
+                    case LaunchWithTabMode.LastOpenedTab:
+                        {
+                            StartWithLastTab.IsChecked = true;
+                            break;
+                        }
+                }
+
                 ExceptAnimationArea.Visibility = AnimationSwitch.IsOn ? Visibility.Visible : Visibility.Collapsed;
 
                 if (!IsRaiseFromDataChanged)
@@ -803,11 +845,6 @@ namespace RX_Explorer
                         {
                             SQLite.Current.Dispose();
                             MySQL.Current.Dispose();
-
-                            foreach (FullTrustProcessController Controller in TabViewContainer.ThisPage.TabViewControl.TabItems.OfType<TabViewItem>().Select((Tab) => Tab.Tag as FullTrustProcessController))
-                            {
-                                Controller.Dispose();
-                            }
 
                             await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Local);
                             await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Temporary);
@@ -2387,6 +2424,60 @@ namespace RX_Explorer
             {
                 ApplicationData.Current.SignalDataChanged();
             }
+        }
+
+        private async void AddSpecificTab_Click(object sender, RoutedEventArgs e)
+        {
+            FolderPicker Picker = new FolderPicker
+            {
+                ViewMode = PickerViewMode.List,
+                SuggestedStartLocation = PickerLocationId.ComputerFolder
+            };
+
+            Picker.FileTypeFilter.Add("*");
+
+            if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
+            {
+                LaunchModeController.AddSpecificPath(Folder.Path);
+                SpecificTabListView.Items.Add(Folder.Path);
+            }
+        }
+
+        private void DeleteSpecificTabButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (((Button)sender).DataContext is string Path)
+            {
+                LaunchModeController.RemoveSpecificPath(Path);
+                SpecificTabListView.Items.Remove(Path);
+            }
+        }
+
+        private async void SpecificTabListView_Loaded(object sender, RoutedEventArgs e)
+        {
+            SpecificTabListView.Items.Clear();
+
+            await foreach (string[] Path in LaunchModeController.GetAllPathAsync(LaunchWithTabMode.SpecificTab))
+            {
+                if (Path.Length == 0)
+                {
+                    SpecificTabListView.Items.Add(Path[0]);
+                }
+            }
+        }
+
+        private void StartWithNewTab_Checked(object sender, RoutedEventArgs e)
+        {
+            LaunchModeController.SetLaunchMode(LaunchWithTabMode.CreateNewTab);
+        }
+
+        private void StartWithLastTab_Checked(object sender, RoutedEventArgs e)
+        {
+            LaunchModeController.SetLaunchMode(LaunchWithTabMode.LastOpenedTab);
+        }
+
+        private void StartSpecificTab_Checked(object sender, RoutedEventArgs e)
+        {
+            LaunchModeController.SetLaunchMode(LaunchWithTabMode.SpecificTab);
         }
     }
 }
