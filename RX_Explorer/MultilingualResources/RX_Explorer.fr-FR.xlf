@@ -3480,6 +3480,19 @@ Les noms non valides incluent
           <source>Unable to start the application</source>
           <target state="translated">Impossible de démarrer l'application</target>
         </trans-unit>
+        <trans-unit id="Toast_BroadFileSystemAccess_Text_1" translate="yes" xml:space="preserve">
+          <source>Waiting for user to complete operation...</source>
+          <target state="translated">En attente de la fin de l'opération par l'utilisateur ...</target>
+        </trans-unit>
+        <trans-unit id="Toast_BroadFileSystemAccess_Text_2" translate="yes" xml:space="preserve">
+          <source>Please turn on file system permissions. Then click on the launch below to start immediately</source>
+          <target state="translated">Veuillez activer les autorisations du système de fichiers. Cliquez ensuite sur le lancement ci-dessous pour commencer immédiatement</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_Access_Tips" translate="yes" xml:space="preserve">
+          <source>Please enable file system access for this app to work properly\rThen restart the app</source>
+          <target state="translated">Veuillez activer l'accès au système de fichiers pour que cette application fonctionne correctement \rEnsuite, redémarrez l'application</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
       </group>
     </body>
   </file>

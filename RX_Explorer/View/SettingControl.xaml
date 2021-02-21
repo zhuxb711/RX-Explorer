@@ -331,6 +331,50 @@
                         </Viewbox>
                     </StackPanel>
 
+                    <TextBlock Text="启动时"
+                               FontSize="22"
+                               Margin="0,30,0,0" />
+
+                    <StackPanel Margin="0,15,0,0">
+                        <RadioButton Content="打开新标签页"
+                                     IsChecked="True"
+                                     Margin="0,5,0,0" />
+                        <RadioButton Content="恢复上次打开的标签页"
+                                     Margin="0,5,0,0" />
+                        <RadioButton Content="打开一个或多个指定文件夹页面"
+                                     Margin="0,5,0,0"
+                                     Name="StartSpecificTab" />
+                        <ListView MinWidth="300"
+                                  Margin="28,10,0,0"
+                                  Visibility="{x:Bind StartSpecificTab.IsChecked, Mode=OneWay}">
+                            <ListView.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="指定文件夹"
+                                               VerticalAlignment="Center" />
+                                    <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                            Style="{ThemeResource ButtonRevealStyle}"
+                                            Width="25"
+                                            Padding="5"
+                                            Height="25"
+                                            Margin="200,0,0,0"
+                                            HorizontalAlignment="Right">
+                                        <Viewbox>
+                                            <SymbolIcon Symbol="Add" />
+                                        </Viewbox>
+                                    </Button>
+                                </StackPanel>
+                            </ListView.Header>
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment"
+                                            Value="Stretch" />
+                                    <Setter Property="Padding"
+                                            Value="0" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                        </ListView>
+                    </StackPanel>
+
                     <TextBlock Text="个性化"
                                x:Uid="SettingPersonalize"
                                FontSize="22"

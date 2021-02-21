@@ -1045,6 +1045,16 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="TranscodeImageDialogZoomMode.Header" xml:space="preserve">
     <value>Zoom Mode</value>
   </data>
+  <data name="Toast_BroadFileSystemAccess_Text_1" xml:space="preserve">
+    <value>Waiting for user to complete operation...</value>
+  </data>
+  <data name="Toast_BroadFileSystemAccess_Text_2" xml:space="preserve">
+    <value>Please turn on file system permissions. Then click on the launch below to start immediately</value>
+  </data>
+  <data name="ExtendedSplash_Access_Tips" xml:space="preserve">
+    <value>Please enable file system access for this app to work properly\rThen restart the app</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
   <data name="TranscodeQuality.Header" xml:space="preserve">
     <value>Quality</value>
   </data>

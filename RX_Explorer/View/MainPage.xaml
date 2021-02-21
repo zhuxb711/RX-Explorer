@@ -72,6 +72,7 @@
                        Margin="10,0,0,0"
                        VerticalAlignment="Center"
                        Text="RX文件管理器"
+                       FontSize="12"
                        Name="AppName" />
         </Border>
 

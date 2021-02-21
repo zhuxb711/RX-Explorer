@@ -3480,6 +3480,19 @@ Invalid names include
           <source>Unable to start the application</source>
           <target state="translated">无法启动该应用程序</target>
         </trans-unit>
+        <trans-unit id="Toast_BroadFileSystemAccess_Text_1" translate="yes" xml:space="preserve">
+          <source>Waiting for user to complete operation...</source>
+          <target state="translated">正在等待用户完成操作...</target>
+        </trans-unit>
+        <trans-unit id="Toast_BroadFileSystemAccess_Text_2" translate="yes" xml:space="preserve">
+          <source>Please turn on file system permissions. Then click on the launch below to start immediately</source>
+          <target state="translated">请开启文件系统权限，随后点击下方的启动</target>
+        </trans-unit>
+        <trans-unit id="ExtendedSplash_Access_Tips" translate="yes" xml:space="preserve">
+          <source>Please enable file system access for this app to work properly\rThen restart the app</source>
+          <target state="translated">请开启此应用的文件系统访问权限以正常工作\r然后重新启动该应用</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
       </group>
     </body>
   </file>

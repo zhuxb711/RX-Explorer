@@ -14,39 +14,6 @@ namespace RX_Explorer
         {
             IActivatedEventArgs activatedArgs = AppInstance.GetActivatedEventArgs();
 
-            if (activatedArgs is ToastNotificationActivatedEventArgs ToastActivate)
-            {
-                if (ToastActivate.Argument == "EnterBackgroundTips")
-                {
-                    if (AppInstance.RecommendedInstance != null)
-                    {
-                        AppInstance.RecommendedInstance.RedirectActivationTo();
-                    }
-                    else if (!string.IsNullOrWhiteSpace(AppInstanceIdContainer.LastActiveId))
-                    {
-                        do
-                        {
-                            if (AppInstance.GetInstances().Any((Ins) => Ins.Key == AppInstanceIdContainer.LastActiveId))
-                            {
-                                if (AppInstance.FindOrRegisterInstanceForKey(AppInstanceIdContainer.LastActiveId) is AppInstance TargetInstance)
-                                {
-                                    TargetInstance.RedirectActivationTo();
-                                }
-
-                                break;
-                            }
-                            else
-                            {
-                                AppInstanceIdContainer.UngisterId(AppInstanceIdContainer.LastActiveId);
-                            }
-                        }
-                        while (!string.IsNullOrEmpty(AppInstanceIdContainer.LastActiveId));
-                    }
-                }
-
-                return;
-            }
-
             if (AppInstance.GetInstances().Count == 0)
             {
                 AppInstanceIdContainer.ClearAll();
@@ -54,6 +21,53 @@ namespace RX_Explorer
 
             switch (activatedArgs)
             {
+                case ToastNotificationActivatedEventArgs ToastActivate:
+                    {
+                        switch (ToastActivate.Argument)
+                        {
+                            case "EnterBackgroundTips":
+                                {
+                                    if (AppInstance.RecommendedInstance != null)
+                                    {
+                                        AppInstance.RecommendedInstance.RedirectActivationTo();
+                                    }
+                                    else if (!string.IsNullOrWhiteSpace(AppInstanceIdContainer.LastActiveId))
+                                    {
+                                        do
+                                        {
+                                            if (AppInstance.GetInstances().Any((Ins) => Ins.Key == AppInstanceIdContainer.LastActiveId))
+                                            {
+                                                if (AppInstance.FindOrRegisterInstanceForKey(AppInstanceIdContainer.LastActiveId) is AppInstance TargetInstance)
+                                                {
+                                                    TargetInstance.RedirectActivationTo();
+                                                }
+
+                                                break;
+                                            }
+                                            else
+                                            {
+                                                AppInstanceIdContainer.UngisterId(AppInstanceIdContainer.LastActiveId);
+                                            }
+                                        }
+                                        while (!string.IsNullOrEmpty(AppInstanceIdContainer.LastActiveId));
+                                    }
+
+                                    break;
+                                }
+
+                            case "Restart":
+                                {
+                                    string InstanceId = Guid.NewGuid().ToString();
+                                    AppInstance Instance = AppInstance.FindOrRegisterInstanceForKey(InstanceId);
+                                    AppInstanceIdContainer.RegisterCurrentId(InstanceId);
+
+                                    Application.Start((p) => new App());
+                                    break;
+                                }
+                        }
+
+                        break;
+                    }
                 case CommandLineActivatedEventArgs CmdActivate:
                     {
                         if (CmdActivate.Operation.Arguments.StartsWith("RX-Explorer.exe", StringComparison.OrdinalIgnoreCase))
@@ -227,11 +241,6 @@ namespace RX_Explorer
                             Application.Start((p) => new App());
                         }
 
-                        break;
-                    }
-
-                case ToastNotificationActivatedEventArgs _:
-                    {
                         break;
                     }
                 default:

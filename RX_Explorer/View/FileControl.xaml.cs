@@ -1324,7 +1324,7 @@ namespace RX_Explorer
 
             if (string.IsNullOrEmpty(AddressBox.Text))
             {
-                AddressBox.Text = CurrentPresenter.CurrentFolder.Path;
+                AddressBox.Text = CurrentPresenter?.CurrentFolder?.Path;
             }
 
             AddressButtonContainer.Visibility = Visibility.Collapsed;

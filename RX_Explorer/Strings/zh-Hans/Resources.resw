@@ -2624,4 +2624,14 @@
   <data name="QueueDialog_LaunchFailed_Content" xml:space="preserve">
     <value>无法启动该应用程序</value>
   </data>
+  <data name="Toast_BroadFileSystemAccess_Text_1" xml:space="preserve">
+    <value>正在等待用户完成操作...</value>
+  </data>
+  <data name="Toast_BroadFileSystemAccess_Text_2" xml:space="preserve">
+    <value>请开启文件系统权限，随后点击下方的启动</value>
+  </data>
+  <data name="ExtendedSplash_Access_Tips" xml:space="preserve">
+    <value>请开启此应用的文件系统访问权限以正常工作\r然后重新启动该应用</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
 </root>

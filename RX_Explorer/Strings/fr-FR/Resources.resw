@@ -2624,4 +2624,14 @@ Les noms non valides incluent
   <data name="QueueDialog_LaunchFailed_Content" xml:space="preserve">
     <value>Impossible de démarrer l'application</value>
   </data>
+  <data name="Toast_BroadFileSystemAccess_Text_1" xml:space="preserve">
+    <value>En attente de la fin de l'opération par l'utilisateur ...</value>
+  </data>
+  <data name="Toast_BroadFileSystemAccess_Text_2" xml:space="preserve">
+    <value>Veuillez activer les autorisations du système de fichiers. Cliquez ensuite sur le lancement ci-dessous pour commencer immédiatement</value>
+  </data>
+  <data name="ExtendedSplash_Access_Tips" xml:space="preserve">
+    <value>Veuillez activer l'accès au système de fichiers pour que cette application fonctionne correctement \rEnsuite, redémarrez l'application</value>
+    <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
 </root>
