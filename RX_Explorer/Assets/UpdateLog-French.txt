@@ -1,4 +1,33 @@
 ﻿*****
+###Quoi de neuf dans la version 6.1.0.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Élargissement de la portée de la prise en charge des lecteurs réseau
+
+>#####Nouvel élément de réglage - "Au démarrage", peut désormais personnaliser le comportement de démarrage
+
+>#####Nouvel élément de réglage - "Affiche la confirmation de la suppression"
+
+>#####Ajout de la prise en charge de l'architecture ARM64
+
+#####Correction d'un bug
+
+>#####Correction d'un problème pouvant entraîner le blocage de la boîte de dialogue "Ouvrir avec"
+
+>#####Correction du problème qu'un grand nombre de fichiers en double peut être généré lors du collage après l'utilisation de la fonction de sélection de boîte pour sélectionner le fichier
+
+>#####Correction du problème de génération d'un grand nombre de processus auxiliaires et mise à jour de la logique du planificateur
+
+>#####Correction du problème d'ouverture d'une page vierge lorsque la touche "Entrée" était enfoncée sur l'interface principale
+
+>#####Correction du problème selon lequel le processus auxiliaire peut ne pas démarrer correctement après le blocage du processus
+
+>#####Correction du problème suivant: lorsque l'image Bing est utilisée en arrière-plan, il peut être demandé de changer la couleur de la police lors de la première entrée dans la page des paramètres après le démarrage
+
+>#####Correction de quelques problèmes de traduction
+
+*****
 ###Quoi de neuf dans la version 6.0.6.0
 
 #####Correction d'un bug

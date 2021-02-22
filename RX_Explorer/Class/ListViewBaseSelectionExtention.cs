@@ -167,7 +167,10 @@ namespace RX_Explorer.Class
 
                                 if (!Intersect.IsEmpty && Intersect.Width > 0 && Intersect.Height > 0)
                                 {
-                                    View.SelectedItems.Add(Pair.Key);
+                                    if (!View.SelectedItems.Contains(Pair.Key))
+                                    {
+                                        View.SelectedItems.Add(Pair.Key);
+                                    }
                                 }
                                 else
                                 {

@@ -792,14 +792,21 @@ namespace RX_Explorer
                 {
                     string XmlText = await e.DataView.GetTextAsync();
 
-                    XmlDocument Document = new XmlDocument();
-                    Document.LoadXml(XmlText);
-
-                    IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
-
-                    if (KindNode?.InnerText == "RX-Explorer-TabItem")
+                    if (XmlText.Contains("RX-Explorer"))
                     {
-                        e.AcceptedOperation = DataPackageOperation.Link;
+                        XmlDocument Document = new XmlDocument();
+                        Document.LoadXml(XmlText);
+
+                        IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
+
+                        if (KindNode?.InnerText == "RX-Explorer-TabItem")
+                        {
+                            e.AcceptedOperation = DataPackageOperation.Link;
+                        }
+                    }
+                    else
+                    {
+                        e.AcceptedOperation = DataPackageOperation.None;
                     }
                 }
             }
@@ -922,15 +929,22 @@ namespace RX_Explorer
                 {
                     string XmlText = await e.DataView.GetTextAsync();
 
-                    XmlDocument Document = new XmlDocument();
-                    Document.LoadXml(XmlText);
-
-                    IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
-
-                    if (KindNode?.InnerText == "RX-Explorer-TabItem")
+                    if (XmlText.Contains("RX-Explorer"))
                     {
-                        e.AcceptedOperation = DataPackageOperation.Link;
-                        e.Handled = true;
+                        XmlDocument Document = new XmlDocument();
+                        Document.LoadXml(XmlText);
+
+                        IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
+
+                        if (KindNode?.InnerText == "RX-Explorer-TabItem")
+                        {
+                            e.AcceptedOperation = DataPackageOperation.Link;
+                            e.Handled = true;
+                        }
+                    }
+                    else
+                    {
+                        e.AcceptedOperation = DataPackageOperation.None;
                     }
                 }
             }
@@ -954,53 +968,56 @@ namespace RX_Explorer
                 {
                     string XmlText = await e.DataView.GetTextAsync();
 
-                    XmlDocument Document = new XmlDocument();
-                    Document.LoadXml(XmlText);
-
-                    IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
-
-                    if (KindNode?.InnerText == "RX-Explorer-TabItem" && Document.SelectSingleNode("/RX-Explorer/Item") is IXmlNode ItemNode)
+                    if (XmlText.Contains("RX-Explorer"))
                     {
-                        string[] Split = ItemNode.InnerText.Split("||", StringSplitOptions.RemoveEmptyEntries);
+                        XmlDocument Document = new XmlDocument();
+                        Document.LoadXml(XmlText);
 
-                        int InsertIndex = TabViewControl.TabItems.Count;
+                        IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
 
-                        for (int i = 0; i < TabViewControl.TabItems.Count; i++)
+                        if (KindNode?.InnerText == "RX-Explorer-TabItem" && Document.SelectSingleNode("/RX-Explorer/Item") is IXmlNode ItemNode)
                         {
-                            TabViewItem Item = TabViewControl.ContainerFromIndex(i) as TabViewItem;
+                            string[] Split = ItemNode.InnerText.Split("||", StringSplitOptions.RemoveEmptyEntries);
 
-                            Windows.Foundation.Point Position = e.GetPosition(Item);
+                            int InsertIndex = TabViewControl.TabItems.Count;
 
-                            if (Position.X < Item.ActualWidth)
+                            for (int i = 0; i < TabViewControl.TabItems.Count; i++)
                             {
-                                if (Position.X < Item.ActualWidth / 2)
+                                TabViewItem Item = TabViewControl.ContainerFromIndex(i) as TabViewItem;
+
+                                Windows.Foundation.Point Position = e.GetPosition(Item);
+
+                                if (Position.X < Item.ActualWidth)
                                 {
-                                    InsertIndex = i;
-                                    break;
-                                }
-                                else
-                                {
-                                    InsertIndex = i + 1;
-                                    break;
+                                    if (Position.X < Item.ActualWidth / 2)
+                                    {
+                                        InsertIndex = i;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        InsertIndex = i + 1;
+                                        break;
+                                    }
                                 }
                             }
-                        }
 
-                        switch (Split[0])
-                        {
-                            case "ThisPC":
-                                {
-                                    await CreateNewTabAsync(InsertIndex).ConfigureAwait(true);
-                                    break;
-                                }
-                            case "FileControl":
-                                {
-                                    await CreateNewTabAsync(InsertIndex, Split.Skip(1).ToArray()).ConfigureAwait(true);
-                                    break;
-                                }
-                        }
+                            switch (Split[0])
+                            {
+                                case "ThisPC":
+                                    {
+                                        await CreateNewTabAsync(InsertIndex).ConfigureAwait(true);
+                                        break;
+                                    }
+                                case "FileControl":
+                                    {
+                                        await CreateNewTabAsync(InsertIndex, Split.Skip(1).ToArray()).ConfigureAwait(true);
+                                        break;
+                                    }
+                            }
 
-                        e.Handled = true;
+                            e.Handled = true;
+                        }
                     }
                 }
             }

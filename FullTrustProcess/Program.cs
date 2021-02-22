@@ -47,6 +47,7 @@ namespace FullTrustProcess
                     PackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t"
                 };
                 Connection.RequestReceived += Connection_RequestReceived;
+                Connection.ServiceClosed += Connection_ServiceClosed;
 
                 if (await Connection.OpenAsync() == AppServiceConnectionStatus.Success)
                 {
@@ -88,6 +89,11 @@ namespace FullTrustProcess
 
                 Environment.Exit(0);
             }
+        }
+
+        private static void Connection_ServiceClosed(AppServiceConnection sender, AppServiceClosedEventArgs args)
+        {
+            ExitLocker.Set();
         }
 
         private async static void Connection_RequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)

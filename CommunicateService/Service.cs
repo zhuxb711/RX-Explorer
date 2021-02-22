@@ -23,44 +23,47 @@ namespace CommunicateService
 
             taskInstance.Canceled += TaskInstance_Canceled;
 
-            AppServiceConnection IncomeConnection = (taskInstance.TriggerDetails as AppServiceTriggerDetails).AppServiceConnection;
-
-            IncomeConnection.RequestReceived += Connection_RequestReceived;
-
-            AppServiceResponse Response = await IncomeConnection.SendMessageAsync(new ValueSet { { "ExecuteType", "Identity" } });
-
-            if (Response.Status == AppServiceResponseStatus.Success)
+            if (taskInstance.TriggerDetails is AppServiceTriggerDetails Trigger)
             {
-                if (Response.Message.TryGetValue("Identity", out object Identity))
+                AppServiceConnection IncomeConnection = Trigger.AppServiceConnection;
+
+                IncomeConnection.RequestReceived += Connection_RequestReceived;
+
+                AppServiceResponse Response = await IncomeConnection.SendMessageAsync(new ValueSet { { "ExecuteType", "Identity" } });
+
+                if (Response.Status == AppServiceResponseStatus.Success)
                 {
-                    switch (Convert.ToString(Identity))
+                    if (Response.Message.TryGetValue("Identity", out object Identity))
                     {
-                        case "FullTrustProcess":
-                            {
-                                if (ClientWaitingQueue.TryDequeue(out AppServiceConnection ClientConnection))
+                        switch (Convert.ToString(Identity))
+                        {
+                            case "FullTrustProcess":
                                 {
-                                    PairedConnections.TryAdd(ClientConnection, IncomeConnection);
-                                }
-                                else
-                                {
-                                    ServerWaitingrQueue.Enqueue(IncomeConnection);
-                                }
+                                    if (ClientWaitingQueue.TryDequeue(out AppServiceConnection ClientConnection))
+                                    {
+                                        PairedConnections.TryAdd(ClientConnection, IncomeConnection);
+                                    }
+                                    else
+                                    {
+                                        ServerWaitingrQueue.Enqueue(IncomeConnection);
+                                    }
 
-                                break;
-                            }
-                        case "UWP":
-                            {
-                                if (ServerWaitingrQueue.TryDequeue(out AppServiceConnection ServerConnection))
-                                {
-                                    PairedConnections.TryAdd(IncomeConnection, ServerConnection);
+                                    break;
                                 }
-                                else
+                            case "UWP":
                                 {
-                                    ClientWaitingQueue.Enqueue(IncomeConnection);
-                                }
+                                    if (ServerWaitingrQueue.TryDequeue(out AppServiceConnection ServerConnection))
+                                    {
+                                        PairedConnections.TryAdd(IncomeConnection, ServerConnection);
+                                    }
+                                    else
+                                    {
+                                        ClientWaitingQueue.Enqueue(IncomeConnection);
+                                    }
 
-                                break;
-                            }
+                                    break;
+                                }
+                        }
                     }
                 }
             }

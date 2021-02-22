@@ -13,6 +13,7 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.AppService;
 using Windows.Foundation.Collections;
 using Windows.Storage;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 namespace RX_Explorer.Class
@@ -124,8 +125,6 @@ namespace RX_Explorer.Class
 
         private static volatile int CurrentRunningControllerNum;
 
-        private static volatile int RequestedRunningControllerNum = 1;
-
         private static event EventHandler<FullTrustProcessController> ExclusiveDisposed;
 
         public static event EventHandler<bool> CurrentBusyStatus;
@@ -136,11 +135,32 @@ namespace RX_Explorer.Class
             ExclusiveDisposed += FullTrustProcessController_ExclusiveDisposed;
         }
 
-        private static void FullTrustProcessController_ExclusiveDisposed(object sender, FullTrustProcessController e)
+        private FullTrustProcessController()
+        {
+            Interlocked.Increment(ref CurrentRunningControllerNum);
+
+            PipeController = new PipeLineController(this);
+
+            Application.Current.Suspending += Current_Suspending;
+
+            using (Process CurrentProcess = Process.GetCurrentProcess())
+            {
+                CurrentProcessId = CurrentProcess.Id;
+            }
+        }
+
+        private void Current_Suspending(object sender, SuspendingEventArgs e)
+        {
+            LogTracer.Log("RX-Explorer enter suspend state, dispose this instance");
+            Dispose();
+        }
+
+        private static async void FullTrustProcessController_ExclusiveDisposed(object sender, FullTrustProcessController e)
         {
             if (e.IsDisposed)
             {
-                AvailableControllerQueue.Enqueue(new FullTrustProcessController());
+                FullTrustProcessController Controller = await CreateAsync().ConfigureAwait(true);
+                AvailableControllerQueue.Enqueue(Controller);
             }
             else
             {
@@ -157,8 +177,6 @@ namespace RX_Explorer.Class
                     DispatcherSleepLocker.WaitOne();
                 }
 
-                ResizeController();
-
                 while (WaitingTaskQueue.TryDequeue(out TaskCompletionSource<ExclusiveUsage> CompletionSource))
                 {
                     while (true)
@@ -167,7 +185,7 @@ namespace RX_Explorer.Class
                         {
                             if (Controller.IsDisposed)
                             {
-                                CompletionSource.SetResult(new ExclusiveUsage(new FullTrustProcessController()));
+                                CompletionSource.SetResult(new ExclusiveUsage(CreateAsync().GetAwaiter().GetResult()));
                             }
                             else
                             {
@@ -178,13 +196,20 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            if (!SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty, 5000))
+                            if (CurrentRunningControllerNum > 0)
                             {
-                                CurrentBusyStatus?.Invoke(null, true);
+                                if (!SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty, 5000))
+                                {
+                                    CurrentBusyStatus?.Invoke(null, true);
 
-                                SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty);
+                                    SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty);
 
-                                CurrentBusyStatus?.Invoke(null, false);
+                                    CurrentBusyStatus?.Invoke(null, false);
+                                }
+                            }
+                            else
+                            {
+                                ResizeController(1);
                             }
                         }
                     }
@@ -194,16 +219,19 @@ namespace RX_Explorer.Class
 
         public static void RequestResizeController(int RequestedTarget)
         {
-            RequestedRunningControllerNum = RequestedTarget;
+            _ = Task.Run(() =>
+            {
+                ResizeController(RequestedTarget);
+            });
         }
 
-        private static void ResizeController()
+        private static void ResizeController(int RequestedTarget)
         {
             try
             {
-                int ActualControllerNumNeeded = RequestedRunningControllerNum + DynamicBackupProcessNum;
+                RequestedTarget += DynamicBackupProcessNum;
 
-                while (CurrentRunningControllerNum > ActualControllerNumNeeded)
+                while (CurrentRunningControllerNum > RequestedTarget)
                 {
                     if (AvailableControllerQueue.TryDequeue(out FullTrustProcessController Controller))
                     {
@@ -218,9 +246,9 @@ namespace RX_Explorer.Class
                     }
                 }
 
-                while (CurrentRunningControllerNum < ActualControllerNumNeeded)
+                while (CurrentRunningControllerNum < RequestedTarget)
                 {
-                    AvailableControllerQueue.Enqueue(new FullTrustProcessController());
+                    AvailableControllerQueue.Enqueue(CreateAsync().GetAwaiter().GetResult());
                 }
             }
             catch (Exception ex)
@@ -228,6 +256,7 @@ namespace RX_Explorer.Class
                 LogTracer.Log(ex, "An exception was threw when maintance FullTrustProcessController");
             }
         }
+
 
         public static Task<ExclusiveUsage> GetAvailableController()
         {
@@ -243,39 +272,43 @@ namespace RX_Explorer.Class
             return CompletionSource.Task;
         }
 
-        private FullTrustProcessController()
+        private static async Task<FullTrustProcessController> CreateAsync()
         {
-            PipeController = new PipeLineController(this);
-
-            Interlocked.Increment(ref CurrentRunningControllerNum);
-
-            using (Process CurrentProcess = Process.GetCurrentProcess())
-            {
-                CurrentProcessId = CurrentProcess.Id;
-            }
-
-            _ = FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+            FullTrustProcessController Controller = new FullTrustProcessController();
+            await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+            await Controller.ConnectRemoteAsync().ConfigureAwait(false);
+            return Controller;
         }
 
         private async void Connection_RequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
         {
             AppServiceDeferral Deferral = args.GetDeferral();
 
-            switch (args.Request.Message["ExecuteType"])
+            try
             {
-                case "Identity":
-                    {
-                        await args.Request.SendResponseAsync(new ValueSet { { "Identity", "UWP" } });
-                        break;
-                    }
-                case "FullTrustProcessExited":
-                    {
-                        Dispose();
-                        break;
-                    }
+                switch (args.Request.Message["ExecuteType"])
+                {
+                    case "Identity":
+                        {
+                            await args.Request.SendResponseAsync(new ValueSet { { "Identity", "UWP" } });
+                            break;
+                        }
+                    case "FullTrustProcessExited":
+                        {
+                            LogTracer.Log("FullTrustProcess exited unexpected, dispose this instance");
+                            Dispose();
+                            break;
+                        }
+                }
             }
-
-            Deferral.Complete();
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex);
+            }
+            finally
+            {
+                Deferral.Complete();
+            }
         }
 
         private async Task<bool> ConnectRemoteAsync()
@@ -298,8 +331,14 @@ namespace RX_Explorer.Class
                     };
 
                     Connection.RequestReceived += Connection_RequestReceived;
+                    Connection.ServiceClosed += Connection_ServiceClosed;
 
-                    if ((await Connection.OpenAsync()) != AppServiceConnectionStatus.Success)
+                    if ((await Connection.OpenAsync()) == AppServiceConnectionStatus.Success)
+                    {
+                        //Do not remove this delay, leave some time for "Identity" call from AppService
+                        await Task.Delay(500).ConfigureAwait(false);
+                    }
+                    else
                     {
                         return IsConnected = false;
                     }
@@ -331,8 +370,8 @@ namespace RX_Explorer.Class
                     }
                 }
 
-                LogTracer.Log("Connect to FullTrustProcess failed after retrying 3 times.");
-                
+                LogTracer.Log("Connect to FullTrustProcess failed after retrying 3 times. Dispose this instance");
+
                 Dispose();
 
                 return IsConnected = false;
@@ -342,6 +381,12 @@ namespace RX_Explorer.Class
                 LogTracer.Log(ex, $"An unexpected error was threw in {nameof(ConnectRemoteAsync)}");
                 return IsConnected = false;
             }
+        }
+
+        private void Connection_ServiceClosed(AppServiceConnection sender, AppServiceClosedEventArgs args)
+        {
+            LogTracer.Log("AppServiceConnection closed, dispose this instance");
+            Dispose();
         }
 
         public async Task<string> GetMIMEContentType(string Path)
@@ -2260,24 +2305,31 @@ namespace RX_Explorer.Class
 
         public void Dispose()
         {
-            GC.SuppressFinalize(this);
-
-            IsConnected = false;
-            IsDisposed = true;
-
-            Interlocked.Decrement(ref CurrentRunningControllerNum);
-
-            if (Connection != null)
+            if (!IsDisposed)
             {
-                Connection.RequestReceived -= Connection_RequestReceived;
-                Connection.Dispose();
-                Connection = null;
-            }
+                IsDisposed = true;
+                IsConnected = false;
 
-            if (PipeController != null)
-            {
-                PipeController.Dispose();
-                PipeController = null;
+                GC.SuppressFinalize(this);
+
+                Interlocked.Decrement(ref CurrentRunningControllerNum);
+
+                Application.Current.Suspending -= Current_Suspending;
+
+                if (Connection != null)
+                {
+                    Connection.RequestReceived -= Connection_RequestReceived;
+                    Connection.ServiceClosed -= Connection_ServiceClosed;
+
+                    Connection.Dispose();
+                    Connection = null;
+                }
+
+                if (PipeController != null)
+                {
+                    PipeController.Dispose();
+                    PipeController = null;
+                }
             }
         }
 
