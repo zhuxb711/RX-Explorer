@@ -371,7 +371,7 @@ namespace RX_Explorer.Class
                             {
                                 BitmapImage Bitmap = new BitmapImage();
 
-                                if (await BingPictureDownloader.UpdateBingPicture().ConfigureAwait(true) is StorageFile ImageFile)
+                                if (await BingPictureDownloader.GetBingPictureAsync().ConfigureAwait(true) is StorageFile ImageFile)
                                 {
                                     using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
                                     {

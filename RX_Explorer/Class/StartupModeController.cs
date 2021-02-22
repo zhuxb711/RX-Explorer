@@ -5,61 +5,61 @@ using Windows.Storage;
 
 namespace RX_Explorer.Class
 {
-    public static class LaunchModeController
+    public static class StartupModeController
     {
         private static readonly object Locker = new object();
 
-        public static LaunchWithTabMode GetLaunchMode()
+        public static StartupMode GetStartupMode()
         {
             lock (Locker)
             {
-                if (ApplicationData.Current.LocalSettings.Values["LaunchWithTabMode"] is string Mode)
+                if (ApplicationData.Current.LocalSettings.Values["StartupMode"] is string Mode)
                 {
-                    return Enum.Parse<LaunchWithTabMode>(Mode);
+                    return Enum.Parse<StartupMode>(Mode);
                 }
                 else
                 {
-                    return LaunchWithTabMode.CreateNewTab;
+                    return StartupMode.CreateNewTab;
                 }
             }
         }
 
-        public static void SetLaunchMode(LaunchWithTabMode Mode)
+        public static void SetLaunchMode(StartupMode Mode)
         {
             lock (Locker)
             {
-                if (ApplicationData.Current.LocalSettings.Values["LaunchWithTabMode"] is string ExistMode)
+                if (ApplicationData.Current.LocalSettings.Values["StartupMode"] is string ExistMode)
                 {
-                    if (Enum.Parse<LaunchWithTabMode>(ExistMode) != Mode)
+                    if (Enum.Parse<StartupMode>(ExistMode) != Mode)
                     {
-                        ApplicationData.Current.LocalSettings.Values["LaunchWithTabMode"] = Enum.GetName(typeof(LaunchWithTabMode), Mode);
+                        ApplicationData.Current.LocalSettings.Values["StartupMode"] = Enum.GetName(typeof(StartupMode), Mode);
                         ApplicationData.Current.SignalDataChanged();
                     }
                 }
                 else
                 {
-                    ApplicationData.Current.LocalSettings.Values["LaunchWithTabMode"] = Enum.GetName(typeof(LaunchWithTabMode), Mode);
+                    ApplicationData.Current.LocalSettings.Values["StartupMode"] = Enum.GetName(typeof(StartupMode), Mode);
                     ApplicationData.Current.SignalDataChanged();
                 }
             }
         }
 
-        public static async IAsyncEnumerable<string[]> GetAllPathAsync(LaunchWithTabMode Mode)
+        public static async IAsyncEnumerable<string[]> GetAllPathAsync(StartupMode Mode)
         {
-            if (Mode == LaunchWithTabMode.CreateNewTab)
+            if (Mode == StartupMode.CreateNewTab)
             {
                 yield break;
             }
 
             switch (Mode)
             {
-                case LaunchWithTabMode.CreateNewTab:
+                case StartupMode.CreateNewTab:
                     {
                         yield break;
                     }
-                case LaunchWithTabMode.SpecificTab:
+                case StartupMode.SpecificTab:
                     {
-                        if (ApplicationData.Current.LocalSettings.Values["LaunchWithSpecificPath"] is string RawData)
+                        if (ApplicationData.Current.LocalSettings.Values["StartupWithSpecificPath"] is string RawData)
                         {
                             if (string.IsNullOrWhiteSpace(RawData))
                             {
@@ -81,9 +81,9 @@ namespace RX_Explorer.Class
 
                         break;
                     }
-                case LaunchWithTabMode.LastOpenedTab:
+                case StartupMode.LastOpenedTab:
                     {
-                        if (ApplicationData.Current.LocalSettings.Values["LaunchWithLastOpenedPath"] is string RawData)
+                        if (ApplicationData.Current.LocalSettings.Values["StartupWithLastOpenedPath"] is string RawData)
                         {
                             if (string.IsNullOrWhiteSpace(RawData))
                             {
@@ -124,13 +124,13 @@ namespace RX_Explorer.Class
 
             lock (Locker)
             {
-                if (ApplicationData.Current.LocalSettings.Values["LaunchWithSpecificPath"] is string RawData && !string.IsNullOrWhiteSpace(RawData))
+                if (ApplicationData.Current.LocalSettings.Values["StartupWithSpecificPath"] is string RawData && !string.IsNullOrWhiteSpace(RawData))
                 {
                     List<string> PathList = JsonSerializer.Deserialize<List<string>>(RawData);
 
                     PathList.Add(InputPath);
 
-                    ApplicationData.Current.LocalSettings.Values["LaunchWithSpecificPath"] = JsonSerializer.Serialize(PathList);
+                    ApplicationData.Current.LocalSettings.Values["StartupWithSpecificPath"] = JsonSerializer.Serialize(PathList);
                 }
                 else
                 {
@@ -139,7 +139,7 @@ namespace RX_Explorer.Class
                         InputPath
                     };
 
-                    ApplicationData.Current.LocalSettings.Values["LaunchWithSpecificPath"] = JsonSerializer.Serialize(PathList);
+                    ApplicationData.Current.LocalSettings.Values["StartupWithSpecificPath"] = JsonSerializer.Serialize(PathList);
                 }
 
                 ApplicationData.Current.SignalDataChanged();
@@ -150,7 +150,7 @@ namespace RX_Explorer.Class
         {
             lock (Locker)
             {
-                if (ApplicationData.Current.LocalSettings.Values["LaunchWithSpecificPath"] is string RawData && !string.IsNullOrWhiteSpace(RawData))
+                if (ApplicationData.Current.LocalSettings.Values["StartupWithSpecificPath"] is string RawData && !string.IsNullOrWhiteSpace(RawData))
                 {
                     List<string> PathList = JsonSerializer.Deserialize<List<string>>(RawData);
 
@@ -158,11 +158,11 @@ namespace RX_Explorer.Class
                     {
                         if (PathList.Count > 0)
                         {
-                            ApplicationData.Current.LocalSettings.Values["LaunchWithSpecificPath"] = JsonSerializer.Serialize(PathList);
+                            ApplicationData.Current.LocalSettings.Values["StartupWithSpecificPath"] = JsonSerializer.Serialize(PathList);
                         }
                         else
                         {
-                            ApplicationData.Current.LocalSettings.Values.Remove("LaunchWithSpecificPath");
+                            ApplicationData.Current.LocalSettings.Values.Remove("StartupWithSpecificPath");
                         }
 
                         ApplicationData.Current.SignalDataChanged();
@@ -180,22 +180,22 @@ namespace RX_Explorer.Class
 
             lock (Locker)
             {
-                ApplicationData.Current.LocalSettings.Values["LaunchWithLastOpenedPath"] = JsonSerializer.Serialize(InputPath);
+                ApplicationData.Current.LocalSettings.Values["StartupWithLastOpenedPath"] = JsonSerializer.Serialize(InputPath);
 
                 ApplicationData.Current.SignalDataChanged();
             }
         }
 
-        public static void Clear(LaunchWithTabMode Mode)
+        public static void Clear(StartupMode Mode)
         {
-            if (Mode == LaunchWithTabMode.CreateNewTab)
+            if (Mode == StartupMode.CreateNewTab)
             {
-                throw new ArgumentException($"Mode could not be {nameof(LaunchWithTabMode.CreateNewTab)}", nameof(Mode));
+                throw new ArgumentException($"Mode could not be {nameof(StartupMode.CreateNewTab)}", nameof(Mode));
             }
 
             lock (Locker)
             {
-                ApplicationData.Current.LocalSettings.Values.Remove(Mode == LaunchWithTabMode.SpecificTab ? "LaunchWithSpecificPath" : "LaunchWithLastOpenedPath");
+                ApplicationData.Current.LocalSettings.Values.Remove(Mode == StartupMode.SpecificTab ? "StartupWithSpecificPath" : "StartupWithLastOpenedPath");
             }
         }
     }

@@ -740,27 +740,7 @@ namespace RX_Explorer
                         case VirtualKey.Up:
                         case VirtualKey.Down:
                             {
-                                if (SelectedItem is FileSystemStorageItemBase Context)
-                                {
-                                    if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
-                                    {
-                                        MixZip.IsEnabled = true;
-
-                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(MixedFlyout).ConfigureAwait(true);
-                                    }
-                                    else
-                                    {
-                                        if (Context is HyperlinkStorageItem)
-                                        {
-                                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout).ConfigureAwait(true);
-                                        }
-                                        else
-                                        {
-                                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(Context.StorageType == StorageItemTypes.Folder ? FolderFlyout : FileFlyout).ConfigureAwait(true);
-                                        }
-                                    }
-                                }
-                                else
+                                if (SelectedItem == null)
                                 {
                                     SelectedItem = FileCollection.FirstOrDefault();
                                 }
@@ -1444,7 +1424,7 @@ namespace RX_Explorer
 
                     XmlDocument Document = new XmlDocument();
                     Document.LoadXml(XmlText);
-                    
+
                     IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
 
                     if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
@@ -1674,19 +1654,52 @@ namespace RX_Explorer
 
             if (SelectedItems.Count > 0)
             {
-                List<string> PathList = SelectedItems.Select((Item) => Item.Path).ToList();
+                bool ExecuteDelete = false;
 
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                if (ApplicationData.Current.LocalSettings.Values["DeleteConfirmSwitch"] is bool DeleteConfirm)
                 {
-                    DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFiles_Content"), Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
-
-                    if ((await QueueContenDialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                    if (DeleteConfirm)
                     {
-                        await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting")).ConfigureAwait(true);
+                        DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFiles_Content"));
 
-                        try
+                        if (await QueueContenDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                         {
-                            await Exclusive.Controller.DeleteAsync(PathList, QueueContenDialog.IsPermanentDelete, (s, arg) =>
+                            ExecuteDelete = true;
+                        }
+                    }
+                    else
+                    {
+                        ExecuteDelete = true;
+                    }
+                }
+                else
+                {
+                    DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFiles_Content"));
+
+                    if (await QueueContenDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    {
+                        ExecuteDelete = true;
+                    }
+                }
+
+                bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
+
+                if (ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] is bool IsAvoidRecycleBin)
+                {
+                    PermanentDelete |= IsAvoidRecycleBin;
+                }
+
+                if (ExecuteDelete)
+                {
+                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting")).ConfigureAwait(true);
+
+                    try
+                    {
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                        {
+                            IEnumerable<string> PathList = SelectedItems.Select((Item) => Item.Path);
+
+                            await Exclusive.Controller.DeleteAsync(PathList, PermanentDelete, (s, arg) =>
                             {
                                 if (Container.ProBar.Value < arg.ProgressPercentage)
                                 {
@@ -1695,57 +1708,57 @@ namespace RX_Explorer
                                 }
                             }).ConfigureAwait(true);
                         }
-                        catch (FileNotFoundException)
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                        }
-                        catch (FileCaputureException)
-                        {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            _ = await dialog.ShowAsync().ConfigureAwait(true);
-                        }
-                        catch (InvalidOperationException)
-                        {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_UnauthorizedDelete_Content"),
-                                PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                            };
-
-                            if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                            {
-                                await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_DeleteFailUnexpectError_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            _ = await dialog.ShowAsync().ConfigureAwait(true);
-                        }
-
-                        await Container.LoadingActivation(false).ConfigureAwait(false);
                     }
+                    catch (FileNotFoundException)
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    }
+                    catch (FileCaputureException)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_UnauthorizedDelete_Content"),
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                        };
+
+                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                        {
+                            await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_DeleteFailUnexpectError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    }
+
+                    await Container.LoadingActivation(false).ConfigureAwait(false);
                 }
             }
         }

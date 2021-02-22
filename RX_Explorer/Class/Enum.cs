@@ -2,7 +2,7 @@
 
 namespace RX_Explorer.Class
 {
-    public enum LaunchWithTabMode
+    public enum StartupMode
     {
         CreateNewTab,
         LastOpenedTab,

@@ -1977,9 +1977,6 @@
   <data name="QueueDialog_RecycleBinEmptyError_Content" xml:space="preserve">
     <value>發生意外錯誤，無法清空資源回收筒</value>
   </data>
-  <data name="PermanentDelete.Content" xml:space="preserve">
-    <value>永久刪除這個檔案</value>
-  </data>
   <data name="ComputeHash.Text" xml:space="preserve">
     <value>計算哈希值</value>
   </data>
@@ -2633,5 +2630,35 @@
   <data name="ExtendedSplash_Access_Tips" xml:space="preserve">
     <value>請啟用此應用程序的文件系統訪問權限，以使其正常運行\r然後重新啟動該應用程序</value>
     <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="SettingStartup.Text" xml:space="preserve">
+    <value>啟動時</value>
+  </data>
+  <data name="SettingStartupWithLastTab.Content" xml:space="preserve">
+    <value>恢復上次打開的標籤頁</value>
+  </data>
+  <data name="SettingStartupWithNewTab.Content" xml:space="preserve">
+    <value>打開新標籤頁</value>
+  </data>
+  <data name="SettingStartupWithSpecificTab.Content" xml:space="preserve">
+    <value>打開一個或多個特定標籤頁</value>
+  </data>
+  <data name="SpecificTabListViewDelete.Content" xml:space="preserve">
+    <value>刪除</value>
+  </data>
+  <data name="SpecificTabListViewHeader.Text" xml:space="preserve">
+    <value>指定文件夾</value>
+  </data>
+  <data name="AvoidRecycleBin.Text" xml:space="preserve">
+    <value>跳過回收站並永久刪除</value>
+  </data>
+  <data name="DeleteConfirmSwitch.Header" xml:space="preserve">
+    <value>彈出刪除確認</value>
+  </data>
+  <data name="DeleteConfirmSwitch.OffContent" xml:space="preserve">
+    <value>禁用</value>
+  </data>
+  <data name="DeleteConfirmSwitch.OnContent" xml:space="preserve">
+    <value>啟用</value>
   </data>
 </root>

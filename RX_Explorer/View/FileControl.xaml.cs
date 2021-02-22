@@ -396,7 +396,7 @@ namespace RX_Explorer
 
                 FolderTree.RootNodes.Clear();
 
-                foreach ((StorageFolder DriveFolder, DriveType Type) in CommonAccessCollection.HardDeviceList.Where((Drive)=>Drive.DriveType != DriveType.Network)
+                foreach ((StorageFolder DriveFolder, DriveType Type) in CommonAccessCollection.HardDeviceList.Where((Drive) => Drive.DriveType != DriveType.Network)
                                                                                                              .Concat(CommonAccessCollection.HardDeviceList.Where((Drive) => Drive.DriveType == DriveType.Network))
                                                                                                              .Select((Drive) => (Drive.Folder, Drive.DriveType)))
                 {
@@ -515,9 +515,42 @@ namespace RX_Explorer
                 return;
             }
 
-            DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFolder_Content"), Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
+            bool ExecuteDelete = false;
 
-            if (await QueueContenDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+            if (ApplicationData.Current.LocalSettings.Values["DeleteConfirmSwitch"] is bool DeleteConfirm)
+            {
+                if (DeleteConfirm)
+                {
+                    DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFolder_Content"));
+
+                    if (await QueueContenDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    {
+                        ExecuteDelete = true;
+                    }
+                }
+                else
+                {
+                    ExecuteDelete = true;
+                }
+            }
+            else
+            {
+                DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFolder_Content"));
+
+                if (await QueueContenDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                {
+                    ExecuteDelete = true;
+                }
+            }
+
+            bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
+
+            if (ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] is bool IsAvoidRecycleBin)
+            {
+                PermanentDelete |= IsAvoidRecycleBin;
+            }
+
+            if (ExecuteDelete)
             {
                 await LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting")).ConfigureAwait(true);
 
@@ -525,7 +558,7 @@ namespace RX_Explorer
                 {
                     try
                     {
-                        await Exclusive.Controller.DeleteAsync(CurrentPresenter.CurrentFolder.Path, QueueContenDialog.IsPermanentDelete).ConfigureAwait(true);
+                        await Exclusive.Controller.DeleteAsync(CurrentPresenter.CurrentFolder.Path, PermanentDelete).ConfigureAwait(true);
 
                         await CurrentPresenter.DisplayItemsInFolder(Path.GetDirectoryName(CurrentPresenter.CurrentFolder.Path)).ConfigureAwait(true);
 

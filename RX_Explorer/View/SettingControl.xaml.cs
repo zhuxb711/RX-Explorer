@@ -639,18 +639,36 @@ namespace RX_Explorer
                     ContextMenuExtSwitch.IsOn = true;
                 }
 
-                switch(LaunchModeController.GetLaunchMode())
+                if (ApplicationData.Current.LocalSettings.Values["DeleteConfirmSwitch"] is bool IsDeleteConfirm)
                 {
-                    case LaunchWithTabMode.CreateNewTab:
+                    DeleteConfirmSwitch.IsOn = IsDeleteConfirm;
+                }
+                else
+                {
+                    DeleteConfirmSwitch.IsOn = true;
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] is bool IsAvoidRec)
+                {
+                    AvoidRecycleBin.IsChecked = IsAvoidRec;
+                }
+                else
+                {
+                    AvoidRecycleBin.IsChecked = false;
+                }
+
+                switch (StartupModeController.GetStartupMode())
+                {
+                    case StartupMode.CreateNewTab:
                         {
-                            StartWithNewTab.IsChecked = true;
+                            StartupWithNewTab.IsChecked = true;
                             break;
                         }
-                    case LaunchWithTabMode.SpecificTab:
+                    case StartupMode.SpecificTab:
                         {
-                            StartSpecificTab.IsChecked = true;
+                            StartupSpecificTab.IsChecked = true;
 
-                            string[] PathArray = await LaunchModeController.GetAllPathAsync(LaunchWithTabMode.SpecificTab).Select((Item) => Item.FirstOrDefault()).OfType<string>().ToArrayAsync();
+                            string[] PathArray = await StartupModeController.GetAllPathAsync(StartupMode.SpecificTab).Select((Item) => Item.FirstOrDefault()).OfType<string>().ToArrayAsync();
 
                             if (PathArray != null)
                             {
@@ -674,9 +692,9 @@ namespace RX_Explorer
 
                             break;
                         }
-                    case LaunchWithTabMode.LastOpenedTab:
+                    case StartupMode.LastOpenedTab:
                         {
-                            StartWithLastTab.IsChecked = true;
+                            StartupWithLastTab.IsChecked = true;
                             break;
                         }
                 }
@@ -1487,7 +1505,9 @@ namespace RX_Explorer
 
                 BackgroundController.Current.IsCompositionAcrylicEnabled = false;
 
-                if (await BingPictureDownloader.UpdateBingPicture().ConfigureAwait(true) is StorageFile File)
+                bool DetectBrightnessNeeded = await BingPictureDownloader.CheckIfNeedToUpdate().ConfigureAwait(true);
+
+                if (await BingPictureDownloader.GetBingPictureAsync().ConfigureAwait(true) is StorageFile File)
                 {
                     ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.BingPicture);
 
@@ -1499,41 +1519,43 @@ namespace RX_Explorer
 
                         BackgroundController.Current.SwitchTo(BackgroundBrushType.BingPicture, Bitmap);
 
-
-                        BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(FileStream);
-
-                        using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                        if (DetectBrightnessNeeded)
                         {
-                            float Brightness = ComputerVisionProvider.DetectAvgBrightness(SBitmap);
+                            BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(FileStream);
 
-                            if (Brightness <= 100 && CustomFontColor.SelectedIndex == 1)
+                            using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                    Content = Globalization.GetString("QueueDialog_AutoDetectBlackColor_Content"),
-                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_SwitchButton"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                };
+                                float Brightness = ComputerVisionProvider.DetectAvgBrightness(SBitmap);
 
-                                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                if (Brightness <= 100 && CustomFontColor.SelectedIndex == 1)
                                 {
-                                    CustomFontColor.SelectedIndex = 0;
+                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                        Content = Globalization.GetString("QueueDialog_AutoDetectBlackColor_Content"),
+                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_SwitchButton"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                    };
+
+                                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                    {
+                                        CustomFontColor.SelectedIndex = 0;
+                                    }
                                 }
-                            }
-                            else if (Brightness > 156 && CustomFontColor.SelectedIndex == 0)
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
+                                else if (Brightness > 156 && CustomFontColor.SelectedIndex == 0)
                                 {
-                                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                    Content = Globalization.GetString("QueueDialog_AutoDetectWhiteColor_Content"),
-                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_SwitchButton"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                };
+                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                        Content = Globalization.GetString("QueueDialog_AutoDetectWhiteColor_Content"),
+                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_SwitchButton"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                    };
 
-                                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                {
-                                    CustomFontColor.SelectedIndex = 1;
+                                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                    {
+                                        CustomFontColor.SelectedIndex = 1;
+                                    }
                                 }
                             }
                         }
@@ -2438,7 +2460,7 @@ namespace RX_Explorer
 
             if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
             {
-                LaunchModeController.AddSpecificPath(Folder.Path);
+                StartupModeController.AddSpecificPath(Folder.Path);
                 SpecificTabListView.Items.Add(Folder.Path);
             }
         }
@@ -2447,7 +2469,7 @@ namespace RX_Explorer
         {
             if (((Button)sender).DataContext is string Path)
             {
-                LaunchModeController.RemoveSpecificPath(Path);
+                StartupModeController.RemoveSpecificPath(Path);
                 SpecificTabListView.Items.Remove(Path);
             }
         }
@@ -2456,7 +2478,7 @@ namespace RX_Explorer
         {
             SpecificTabListView.Items.Clear();
 
-            await foreach (string[] Path in LaunchModeController.GetAllPathAsync(LaunchWithTabMode.SpecificTab))
+            await foreach (string[] Path in StartupModeController.GetAllPathAsync(StartupMode.SpecificTab))
             {
                 if (Path.Length == 0)
                 {
@@ -2465,19 +2487,37 @@ namespace RX_Explorer
             }
         }
 
-        private void StartWithNewTab_Checked(object sender, RoutedEventArgs e)
+        private void StartupWithNewTab_Checked(object sender, RoutedEventArgs e)
         {
-            LaunchModeController.SetLaunchMode(LaunchWithTabMode.CreateNewTab);
+            StartupModeController.SetLaunchMode(StartupMode.CreateNewTab);
         }
 
-        private void StartWithLastTab_Checked(object sender, RoutedEventArgs e)
+        private void StartupWithLastTab_Checked(object sender, RoutedEventArgs e)
         {
-            LaunchModeController.SetLaunchMode(LaunchWithTabMode.LastOpenedTab);
+            StartupModeController.SetLaunchMode(StartupMode.LastOpenedTab);
         }
 
-        private void StartSpecificTab_Checked(object sender, RoutedEventArgs e)
+        private void StartupSpecificTab_Checked(object sender, RoutedEventArgs e)
         {
-            LaunchModeController.SetLaunchMode(LaunchWithTabMode.SpecificTab);
+            StartupModeController.SetLaunchMode(StartupMode.SpecificTab);
+        }
+
+        private void DeleteConfirmSwitch_Toggled(object sender, RoutedEventArgs e)
+        {
+            ApplicationData.Current.LocalSettings.Values["DeleteConfirmSwitch"] = DeleteConfirmSwitch.IsOn;
+            ApplicationData.Current.SignalDataChanged();
+        }
+
+        private void AvoidRecycleBin_Checked(object sender, RoutedEventArgs e)
+        {
+            ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] = true;
+            ApplicationData.Current.SignalDataChanged();
+        }
+
+        private void AvoidRecycleBin_Unchecked(object sender, RoutedEventArgs e)
+        {
+            ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] = false;
+            ApplicationData.Current.SignalDataChanged();
         }
     }
 }

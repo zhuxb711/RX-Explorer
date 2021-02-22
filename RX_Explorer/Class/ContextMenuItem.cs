@@ -59,12 +59,13 @@ namespace RX_Explorer.Class
             SubMenus = DataPackage.SubMenus.Select((Menu) => new ContextMenuItem(Menu, BelongTo)).ToArray();
         }
 
-        private static async Task<Button> GenerateUIButtonCoreAsync(CommandBarFlyout ParentFlyout, ContextMenuItem Item)
+        private static async Task<Button> GenerateUIButtonCoreAsync(ContextMenuItem Item, RoutedEventHandler BtnClicked)
         {
             Grid Gr = new Grid
             {
                 HorizontalAlignment = HorizontalAlignment.Stretch,
-                VerticalAlignment = VerticalAlignment.Stretch
+                VerticalAlignment = VerticalAlignment.Stretch,
+                MaxWidth = 300
             };
             Gr.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(25) });
             Gr.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(5) });
@@ -74,7 +75,8 @@ namespace RX_Explorer.Class
 
             TextBlock Block = new TextBlock
             {
-                Text = Item.Name
+                Text = Item.Name,
+                TextTrimming = TextTrimming.CharacterEllipsis
             };
             Grid.SetColumn(Block, 2);
             Gr.Children.Add(Block);
@@ -98,6 +100,16 @@ namespace RX_Explorer.Class
                     await Icon.SetSourceAsync(Stream.AsRandomAccessStream());
                 }
             }
+            else
+            {
+                FontIcon DefaultIcon = new FontIcon 
+                { 
+                    FontFamily = new Windows.UI.Xaml.Media.FontFamily("Segoe MDL2 Assets"), Glyph = "\uE2AC" 
+                };
+
+                Grid.SetColumn(DefaultIcon, 0);
+                Gr.Children.Add(DefaultIcon);
+            }
 
             Button Btn = new Button
             {
@@ -107,21 +119,7 @@ namespace RX_Explorer.Class
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 HorizontalContentAlignment = HorizontalAlignment.Stretch
             };
-            Btn.Click += async (s, e) =>
-            {
-                if (s is Button Btn)
-                {
-                    if (Btn.Flyout != null)
-                    {
-                        Btn.Flyout.ShowAt(Btn);
-                    }
-                    else if (Btn.Tag is ContextMenuItem MenuItem)
-                    {
-                        ParentFlyout.Hide();
-                        await MenuItem.InvokeAsync().ConfigureAwait(true);
-                    }
-                }
-            };
+            Btn.Click += BtnClicked;
 
             if (Item.SubMenus.Length > 0)
             {
@@ -129,7 +127,7 @@ namespace RX_Explorer.Class
 
                 foreach (ContextMenuItem SubItem in Item.SubMenus)
                 {
-                    Panel.Children.Add(await GenerateUIButtonCoreAsync(ParentFlyout, SubItem).ConfigureAwait(true));
+                    Panel.Children.Add(await GenerateUIButtonCoreAsync(SubItem, BtnClicked).ConfigureAwait(true));
                 }
 
                 Btn.Flyout = new Flyout
@@ -159,7 +157,21 @@ namespace RX_Explorer.Class
 
         public Task<Button> GenerateUIButtonAsync(CommandBarFlyout ParentFlyout)
         {
-            return GenerateUIButtonCoreAsync(ParentFlyout, this);
+            return GenerateUIButtonCoreAsync(this, async (s, e) =>
+            {
+                if (s is Button Btn)
+                {
+                    if (Btn.Flyout != null)
+                    {
+                        Btn.Flyout.ShowAt(Btn);
+                    }
+                    else if (Btn.Tag is ContextMenuItem MenuItem)
+                    {
+                        ParentFlyout.Hide();
+                        await MenuItem.InvokeAsync().ConfigureAwait(true);
+                    }
+                }
+            });
         }
 
         public async Task InvokeAsync()

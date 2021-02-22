@@ -14,7 +14,7 @@ namespace RX_Explorer.Class
 {
     public sealed class BingPictureDownloader
     {
-        public static async Task<StorageFile> UpdateBingPicture()
+        public static async Task<StorageFile> GetBingPictureAsync()
         {
             string Path = await GetDailyPhotoPath().ConfigureAwait(false);
 
@@ -76,7 +76,7 @@ namespace RX_Explorer.Class
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, $"An error was threw in {nameof(UpdateBingPicture)}");
+                    LogTracer.Log(ex, $"An error was threw in {nameof(GetBingPictureAsync)}");
                     return ExistFile;
                 }
             }
@@ -117,7 +117,7 @@ namespace RX_Explorer.Class
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, $"An error was threw in {nameof(UpdateBingPicture)}");
+                    LogTracer.Log(ex, $"An error was threw in {nameof(GetBingPictureAsync)}");
                     return null;
                 }
             }

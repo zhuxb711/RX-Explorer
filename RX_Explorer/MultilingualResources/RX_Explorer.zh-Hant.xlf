@@ -2612,10 +2612,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>An unexpected error occurred and the recycle bin could not be emptied</source>
           <target state="translated">發生意外錯誤，無法清空資源回收筒</target>
         </trans-unit>
-        <trans-unit id="PermanentDelete.Content" translate="yes" xml:space="preserve">
-          <source>Skip the recycle bin and delete directly</source>
-          <target state="translated">永久刪除這個檔案</target>
-        </trans-unit>
         <trans-unit id="ComputeHash.Text" translate="yes" xml:space="preserve">
           <source>Compute hash</source>
           <target state="translated">計算哈希值</target>
@@ -3492,6 +3488,46 @@ Invalid names include
           <source>Please enable file system access for this app to work properly\rThen restart the app</source>
           <target state="translated">請啟用此應用程序的文件系統訪問權限，以使其正常運行\r然後重新啟動該應用程序</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+        </trans-unit>
+        <trans-unit id="SettingStartup.Text" translate="yes" xml:space="preserve">
+          <source>On startup</source>
+          <target state="translated">啟動時</target>
+        </trans-unit>
+        <trans-unit id="SettingStartupWithLastTab.Content" translate="yes" xml:space="preserve">
+          <source>Restore the last opened tab</source>
+          <target state="translated">恢復上次打開的標籤頁</target>
+        </trans-unit>
+        <trans-unit id="SettingStartupWithNewTab.Content" translate="yes" xml:space="preserve">
+          <source>Open new tab</source>
+          <target state="translated">打開新標籤頁</target>
+        </trans-unit>
+        <trans-unit id="SettingStartupWithSpecificTab.Content" translate="yes" xml:space="preserve">
+          <source>Open one or more specified tab</source>
+          <target state="translated">打開一個或多個特定標籤頁</target>
+        </trans-unit>
+        <trans-unit id="SpecificTabListViewDelete.Content" translate="yes" xml:space="preserve">
+          <source>Delete</source>
+          <target state="translated">刪除</target>
+        </trans-unit>
+        <trans-unit id="SpecificTabListViewHeader.Text" translate="yes" xml:space="preserve">
+          <source>Specify folder</source>
+          <target state="translated">指定文件夾</target>
+        </trans-unit>
+        <trans-unit id="AvoidRecycleBin.Text" translate="yes" xml:space="preserve">
+          <source>Skip the recycle bin and delete permanently</source>
+          <target state="translated">跳過回收站並永久刪除</target>
+        </trans-unit>
+        <trans-unit id="DeleteConfirmSwitch.Header" translate="yes" xml:space="preserve">
+          <source>Pop-up the confirmation for deletion</source>
+          <target state="translated">彈出刪除確認</target>
+        </trans-unit>
+        <trans-unit id="DeleteConfirmSwitch.OffContent" translate="yes" xml:space="preserve">
+          <source>Disable</source>
+          <target state="translated">禁用</target>
+        </trans-unit>
+        <trans-unit id="DeleteConfirmSwitch.OnContent" translate="yes" xml:space="preserve">
+          <source>Enable</source>
+          <target state="translated">啟用</target>
         </trans-unit>
       </group>
     </body>

@@ -2113,9 +2113,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_RecycleBinEmptyError_Content" xml:space="preserve">
     <value>An unexpected error occurred and the recycle bin could not be emptied</value>
   </data>
-  <data name="PermanentDelete.Content" xml:space="preserve">
-    <value>Skip the recycle bin and delete directly</value>
-  </data>
   <data name="ComputeHash.Text" xml:space="preserve">
     <value>Compute hash</value>
   </data>
@@ -2738,5 +2735,35 @@ Invalid names include
   </data>
   <data name="QueueDialog_LaunchFailed_Content" xml:space="preserve">
     <value>Unable to start the application</value>
+  </data>
+  <data name="SettingStartup.Text" xml:space="preserve">
+    <value>On startup</value>
+  </data>
+  <data name="SettingStartupWithLastTab.Content" xml:space="preserve">
+    <value>Restore the last opened tab</value>
+  </data>
+  <data name="SettingStartupWithNewTab.Content" xml:space="preserve">
+    <value>Open new tab</value>
+  </data>
+  <data name="SettingStartupWithSpecificTab.Content" xml:space="preserve">
+    <value>Open one or more specified tab</value>
+  </data>
+  <data name="SpecificTabListViewDelete.Content" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="SpecificTabListViewHeader.Text" xml:space="preserve">
+    <value>Specify folder</value>
+  </data>
+  <data name="AvoidRecycleBin.Text" xml:space="preserve">
+    <value>Skip the recycle bin and delete permanently</value>
+  </data>
+  <data name="DeleteConfirmSwitch.Header" xml:space="preserve">
+    <value>Pop-up the confirmation for deletion</value>
+  </data>
+  <data name="DeleteConfirmSwitch.OffContent" xml:space="preserve">
+    <value>Disable</value>
+  </data>
+  <data name="DeleteConfirmSwitch.OnContent" xml:space="preserve">
+    <value>Enable</value>
   </data>
 </root>

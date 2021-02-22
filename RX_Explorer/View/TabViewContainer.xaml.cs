@@ -222,7 +222,7 @@ namespace RX_Explorer
 
         private void Current_Suspending(object sender, SuspendingEventArgs e)
         {
-            if (LaunchModeController.GetLaunchMode() == LaunchWithTabMode.LastOpenedTab)
+            if (StartupModeController.GetStartupMode() == StartupMode.LastOpenedTab)
             {
                 List<string[]> PathList = new List<string[]>();
 
@@ -238,7 +238,7 @@ namespace RX_Explorer
                     }
                 }
 
-                LaunchModeController.SetLastOpenedPath(PathList);
+                StartupModeController.SetLastOpenedPath(PathList);
             }
 
             if (PortalDeviceWatcher != null && (PortalDeviceWatcher.Status == DeviceWatcherStatus.Started || PortalDeviceWatcher.Status == DeviceWatcherStatus.EnumerationCompleted))
@@ -702,7 +702,7 @@ namespace RX_Explorer
 
         private async Task<TabViewItem> CreateNewTabCoreAsync(params string[] PathForNewTab)
         {
-            FullTrustProcessController.ResizeController(TabViewControl.TabItems.Count + 1);
+            FullTrustProcessController.RequestResizeController(TabViewControl.TabItems.Count + 1);
 
             Frame frame = new Frame();
 
@@ -1046,7 +1046,7 @@ namespace RX_Explorer
 
             TabViewControl.TabItems.Remove(Tab);
 
-            FullTrustProcessController.ResizeController(TabViewControl.TabItems.Count);
+            FullTrustProcessController.RequestResizeController(TabViewControl.TabItems.Count);
 
             if (TabViewControl.TabItems.Count == 0)
             {

@@ -81,29 +81,36 @@ namespace RX_Explorer.Class
 
         public static async Task<bool> CheckExist(string Path)
         {
-            if (WIN_Native_API.CheckLocationAvailability(Path))
+            if (System.IO.Path.IsPathRooted(Path))
             {
-                return WIN_Native_API.CheckExist(Path);
-            }
-            else
-            {
-                try
+                if (WIN_Native_API.CheckLocationAvailability(Path))
                 {
-                    _ = await StorageFolder.GetFolderFromPathAsync(Path);
-                    return true;
+                    return WIN_Native_API.CheckExist(Path);
                 }
-                catch
+                else
                 {
                     try
                     {
-                        _ = await StorageFile.GetFileFromPathAsync(Path);
+                        _ = await StorageFolder.GetFolderFromPathAsync(Path);
                         return true;
                     }
                     catch
                     {
-                        return false;
+                        try
+                        {
+                            _ = await StorageFile.GetFileFromPathAsync(Path);
+                            return true;
+                        }
+                        catch
+                        {
+                            return false;
+                        }
                     }
                 }
+            }
+            else
+            {
+                return false;
             }
         }
 

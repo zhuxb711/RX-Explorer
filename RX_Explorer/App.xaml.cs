@@ -148,21 +148,21 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    LaunchWithTabMode Mode = LaunchModeController.GetLaunchMode();
+                    StartupMode Mode = StartupModeController.GetStartupMode();
 
                     switch (Mode)
                     {
-                        case LaunchWithTabMode.CreateNewTab:
+                        case StartupMode.CreateNewTab:
                             {
                                 ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen);
                                 Window.Current.Content = extendedSplash;
                                 break;
                             }
-                        case LaunchWithTabMode.LastOpenedTab:
+                        case StartupMode.LastOpenedTab:
                             {
-                                List<string[]> LastOpenedPathArray = await LaunchModeController.GetAllPathAsync(Mode).ToListAsync();
+                                List<string[]> LastOpenedPathArray = await StartupModeController.GetAllPathAsync(Mode).ToListAsync();
 
-                                LaunchModeController.Clear(LaunchWithTabMode.LastOpenedTab);
+                                StartupModeController.Clear(StartupMode.LastOpenedTab);
 
                                 if (LastOpenedPathArray.Count == 0)
                                 {
@@ -177,9 +177,9 @@ namespace RX_Explorer
 
                                 break;
                             }
-                        case LaunchWithTabMode.SpecificTab:
+                        case StartupMode.SpecificTab:
                             {
-                                string[] SpecificPathArray = await LaunchModeController.GetAllPathAsync(Mode).Select((Item) => Item.FirstOrDefault()).OfType<string>().ToArrayAsync();
+                                string[] SpecificPathArray = await StartupModeController.GetAllPathAsync(Mode).Select((Item) => Item.FirstOrDefault()).OfType<string>().ToArrayAsync();
 
                                 if (SpecificPathArray.Length == 0)
                                 {

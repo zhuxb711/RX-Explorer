@@ -8,16 +8,10 @@
     mc:Ignorable="d"
     Title="{x:Bind local:Globalization.GetString('Common_Dialog_WarningTitle')}"
     PrimaryButtonText="{x:Bind local:Globalization.GetString('Common_Dialog_ContinueButton')}"
-    SecondaryButtonText="{x:Bind local:Globalization.GetString('Common_Dialog_CancelButton')}"
-    PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
+    SecondaryButtonText="{x:Bind local:Globalization.GetString('Common_Dialog_CancelButton')}">
 
     <Grid>
-        <StackPanel VerticalAlignment="Center">
-            <TextBlock x:Name="DisplayText"/>
-            <CheckBox Content="绕过回收站，直接删除"
-                      Margin="0,15,0,0"
-                      x:Uid="PermanentDelete"
-                      Name="PermanentDelete"/>
-        </StackPanel>
+        <TextBlock x:Name="DisplayText"
+                   VerticalAlignment="Center" />
     </Grid>
 </local:QueueContentDialog>

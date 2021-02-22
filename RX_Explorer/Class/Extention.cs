@@ -53,7 +53,7 @@ namespace RX_Explorer.Class
             return !IntersectBounds.IsEmpty && IntersectBounds.Width > 0 && IntersectBounds.Height > 0;
         }
 
-        public static async Task SetCommandBarFlyoutWithExtraContextMenuItems(this ListViewBase ListControl, CommandBarFlyout Flyout, Point? ShowAt = null)
+        public static async Task SetCommandBarFlyoutWithExtraContextMenuItems(this ListViewBase ListControl, CommandBarFlyout Flyout, Point ShowAt)
         {
             if (Flyout == null)
             {
@@ -91,8 +91,6 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    ListControl.ContextFlyout = null;
-
                     string SelectedPath;
 
                     if (ListControl.SelectedItems.Count <= 1)
@@ -207,26 +205,19 @@ namespace RX_Explorer.Class
             }
             finally
             {
-                if (ShowAt != null)
+                try
                 {
-                    try
+                    FlyoutShowOptions Option = new FlyoutShowOptions
                     {
-                        FlyoutShowOptions Option = new FlyoutShowOptions
-                        {
-                            Position = ShowAt,
-                            Placement = FlyoutPlacementMode.RightEdgeAlignedTop
-                        };
+                        Position = ShowAt,
+                        Placement = FlyoutPlacementMode.RightEdgeAlignedTop
+                    };
 
-                        Flyout?.ShowAt(ListControl, Option);
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "An exception was threw when trying show flyout");
-                    }
+                    Flyout?.ShowAt(ListControl, Option);
                 }
-                else
+                catch (Exception ex)
                 {
-                    ListControl.ContextFlyout = Flyout;
+                    LogTracer.Log(ex, "An exception was threw when trying show flyout");
                 }
             }
         }

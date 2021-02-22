@@ -1974,9 +1974,6 @@
   <data name="QueueDialog_RecycleBinEmptyError_Content" xml:space="preserve">
     <value>Une erreur inattendue s'est produite et la corbeille n'a pas pu être vidée</value>
   </data>
-  <data name="PermanentDelete.Content" xml:space="preserve">
-    <value>Sautez la corbeille et supprimez directement</value>
-  </data>
   <data name="ComputeHash.Text" xml:space="preserve">
     <value>Calculer le hachage</value>
   </data>
@@ -2633,5 +2630,35 @@ Les noms non valides incluent
   <data name="ExtendedSplash_Access_Tips" xml:space="preserve">
     <value>Veuillez activer l'accès au système de fichiers pour que cette application fonctionne correctement \rEnsuite, redémarrez l'application</value>
     <comment>Please keep all \r in this sentence after translate</comment>
+  </data>
+  <data name="SettingStartup.Text" xml:space="preserve">
+    <value>Au démarrage</value>
+  </data>
+  <data name="SettingStartupWithLastTab.Content" xml:space="preserve">
+    <value>Restaurer le dernier onglet ouvert</value>
+  </data>
+  <data name="SettingStartupWithNewTab.Content" xml:space="preserve">
+    <value>Ouvrir un nouvel onglet</value>
+  </data>
+  <data name="SettingStartupWithSpecificTab.Content" xml:space="preserve">
+    <value>Ouvrez un ou plusieurs onglets spécifiques</value>
+  </data>
+  <data name="SpecificTabListViewDelete.Content" xml:space="preserve">
+    <value>Effacer</value>
+  </data>
+  <data name="SpecificTabListViewHeader.Text" xml:space="preserve">
+    <value>Spécifiez le dossier</value>
+  </data>
+  <data name="AvoidRecycleBin.Text" xml:space="preserve">
+    <value>Passer la corbeille et supprimer définitivement</value>
+  </data>
+  <data name="DeleteConfirmSwitch.Header" xml:space="preserve">
+    <value>Pop-up la confirmation de la suppression</value>
+  </data>
+  <data name="DeleteConfirmSwitch.OffContent" xml:space="preserve">
+    <value>Désactiver</value>
+  </data>
+  <data name="DeleteConfirmSwitch.OnContent" xml:space="preserve">
+    <value>Permettre</value>
   </data>
 </root>
