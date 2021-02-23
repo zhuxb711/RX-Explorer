@@ -2,16 +2,16 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:local="using:RX_Explorer"
-      xmlns:Cla="using:RX_Explorer.Class"
+      xmlns:Cls="using:RX_Explorer.Class"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       xmlns:media="using:Microsoft.Toolkit.Uwp.UI.Media"
       mc:Ignorable="d"
-      RequestedTheme="{x:Bind Cla:AppThemeController.Current.Theme,Mode=OneWay}">
+      RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}">
 
     <Page.Resources>
-        <Cla:InverseBooleanConverter x:Key="InverseConverter" />
+        <Cls:InverseBooleanConverter x:Key="InverseConverter" />
         <muxc:TeachingTip x:Name="PinTip"
                           x:Uid="PinTip"
                           Grid.Row="1"
@@ -19,8 +19,7 @@
                           PreferredPlacement="Bottom"
                           IsLightDismissEnabled="True"
                           ActionButtonContent="一键固定"
-                          CloseButtonContent="关闭提示">
-        </muxc:TeachingTip>
+                          CloseButtonContent="关闭提示" />
         <muxc:TeachingTip x:Name="RateTip"
                           x:Uid="RateTip"
                           Grid.Row="1"
@@ -29,8 +28,7 @@
                           IsLightDismissEnabled="True"
                           Subtitle="您的评分很重要，请花一两分钟评价一下App吧！"
                           ActionButtonContent="现在评价"
-                          CloseButtonContent="不再提醒">
-        </muxc:TeachingTip>
+                          CloseButtonContent="不再提醒" />
         <muxc:TeachingTip x:Name="PurchaseTip"
                           x:Uid="PurchaseTip"
                           Grid.Row="1"
@@ -38,7 +36,69 @@
                           PreferredPlacement="Bottom"
                           IsLightDismissEnabled="False"
                           ActionButtonContent="准奏"
-                          CloseButtonContent="跪安">
+                          CloseButtonContent="跪安" />
+        <muxc:TeachingTip x:Name="BluetoothAudioTip"
+                          Title="选择蓝牙音频源"
+                          PreferredPlacement="Bottom"
+                          Closed="BluetoothAudioTip_Closed"
+                          Target="{x:Bind BluetoothAudio}">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="正在搜索"
+                               FontSize="14"
+                               Name="StatusText" />
+                    <muxc:ProgressRing IsActive="True"
+                                       Margin="8,3,0,0"
+                                       Width="16"
+                                       Height="16"
+                                       Name="BluetoothSearchProgress" />
+                </StackPanel>
+                <ListView Margin="0,10,0,0"
+                          Name="BluetoothAudioDeivceList"
+                          MaxHeight="250"
+                          MinWidth="350"
+                          Loaded="BluetoothAudioDeivceList_Loaded">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment"
+                                    Value="Stretch" />
+                            <Setter Property="Padding"
+                                    Value="0" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="Cls:BluetoothDeivceData">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="80" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Stretch">
+                                    <Viewbox Width="30">
+                                        <Image Stretch="UniformToFill"
+                                               Source="{x:Bind Glyph}" />
+                                    </Viewbox>
+                                    <StackPanel Margin="5,0,0,0"
+                                                Orientation="Vertical">
+                                        <TextBlock Text="{x:Bind Name, Mode=OneWay}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   ToolTipService.ToolTip="{x:Bind Name, Mode=OneWay}" />
+                                        <TextBlock Text="{x:Bind IsPaired, Mode=OneWay}"
+                                                   FontSize="12" />
+                                    </StackPanel>
+                                </StackPanel>
+                                <Button Grid.Column="1"
+                                        Content="{x:Bind ActionButtonText, Mode=OneWay}"
+                                        FontSize="12"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackPanel>
         </muxc:TeachingTip>
     </Page.Resources>
 
@@ -50,12 +110,12 @@
 
         <Grid Grid.RowSpan="2"
               Name="CompositorAcrylicBackground"
-              Visibility="{x:Bind Cla:BackgroundController.Current.IsCompositionAcrylicEnabled, Mode=OneWay}"/>
+              Visibility="{x:Bind Cls:BackgroundController.Current.IsCompositionAcrylicEnabled, Mode=OneWay}"/>
 
         <Grid Grid.RowSpan="2"
               Name="NormalAcrylicBackground"
-              Visibility="{x:Bind Cla:BackgroundController.Current.IsCompositionAcrylicEnabled, Mode=OneWay, Converter={StaticResource InverseConverter}}"
-              Background="{x:Bind Cla:BackgroundController.Current.BackgroundBrush,Mode=OneWay}" />
+              Visibility="{x:Bind Cls:BackgroundController.Current.IsCompositionAcrylicEnabled, Mode=OneWay, Converter={StaticResource InverseConverter}}"
+              Background="{x:Bind Cls:BackgroundController.Current.BackgroundBrush, Mode=OneWay}" />
 
         <Grid Grid.RowSpan="2">
             <Grid.Background>
@@ -103,6 +163,14 @@
                                          x:Uid="SecureArea">
                     <muxc:NavigationViewItem.Icon>
                         <SymbolIcon Symbol="ProtectedDocument" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem Content="蓝牙音频"
+                                         x:Name="BluetoothAudio"
+                                         SelectsOnInvoked="False">
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                                  Glyph="&#xE702;" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
             </muxc:NavigationView.MenuItems>

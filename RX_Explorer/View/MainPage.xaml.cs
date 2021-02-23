@@ -10,7 +10,9 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Background;
 using Windows.ApplicationModel.Core;
+using Windows.Devices.Enumeration;
 using Windows.Foundation;
+using Windows.Media.Audio;
 using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
 using Windows.Services.Store;
@@ -26,6 +28,7 @@ using Windows.UI.StartScreen;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using NavigationView = Microsoft.UI.Xaml.Controls.NavigationView;
 using NavigationViewBackRequestedEventArgs = Microsoft.UI.Xaml.Controls.NavigationViewBackRequestedEventArgs;
@@ -43,6 +46,8 @@ namespace RX_Explorer
         public List<string[]> ActivatePathArray { get; private set; }
 
         private EntranceAnimationEffect EntranceEffectProvider;
+
+        private DeviceWatcher BluetoothAudioWatcher;
 
         public MainPage(Rect Parameter, List<string[]> ActivatePathArray = null)
         {
@@ -575,25 +580,24 @@ namespace RX_Explorer
                 }
                 else
                 {
+                    if (SettingControl != null)
+                    {
+                        await SettingControl.Hide().ConfigureAwait(true);
+                    }
+
                     if (args.InvokedItem.ToString() == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
                     {
                         NavView.IsBackEnabled = (TabViewContainer.CurrentNavigationControl?.CanGoBack).GetValueOrDefault();
 
-                        if (SettingControl != null)
-                        {
-                            await SettingControl.Hide().ConfigureAwait(true);
-                        }
-
                         Nav.Navigate(typeof(TabViewContainer), null, new DrillInNavigationTransitionInfo());
+                    }
+                    else if (args.InvokedItem.ToString() == "蓝牙音频")
+                    {
+                        BluetoothAudioTip.IsOpen = true;
                     }
                     else
                     {
                         NavView.IsBackEnabled = false;
-
-                        if (SettingControl != null)
-                        {
-                            await SettingControl.Hide().ConfigureAwait(true);
-                        }
 
                         if (args.InvokedItem.ToString() == Globalization.GetString("MainPage_PageDictionary_SecureArea_Label"))
                         {
@@ -653,6 +657,83 @@ namespace RX_Explorer
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "An error was threw when navigate back");
+            }
+        }
+
+        private void BluetoothAudioTip_Closed(Microsoft.UI.Xaml.Controls.TeachingTip sender, Microsoft.UI.Xaml.Controls.TeachingTipClosedEventArgs args)
+        {
+            if (BluetoothAudioWatcher != null)
+            {
+                BluetoothAudioWatcher.Added -= Watcher_Added;
+                BluetoothAudioWatcher.Removed -= Watcher_Removed;
+                BluetoothAudioWatcher.Updated -= Watcher_Updated;
+                BluetoothAudioWatcher.EnumerationCompleted -= Watcher_EnumerationCompleted;
+
+                if (BluetoothAudioWatcher.Status == DeviceWatcherStatus.Started || BluetoothAudioWatcher.Status == DeviceWatcherStatus.EnumerationCompleted)
+                {
+                    BluetoothAudioWatcher.Stop();
+                }
+            }
+
+            BluetoothAudioDeivceList.Items.Clear();
+        }
+
+        private void BluetoothAudioDeivceList_Loaded(object sender, RoutedEventArgs e)
+        {
+            StatusText.Text = Globalization.GetString("BluetoothUI_Status_Text_1");
+            BluetoothSearchProgress.IsActive = true;
+
+            BluetoothAudioWatcher = DeviceInformation.CreateWatcher(AudioPlaybackConnection.GetDeviceSelector());
+
+            BluetoothAudioWatcher.Added += Watcher_Added;
+            BluetoothAudioWatcher.Removed += Watcher_Removed;
+            BluetoothAudioWatcher.Updated += Watcher_Updated;
+            BluetoothAudioWatcher.EnumerationCompleted += Watcher_EnumerationCompleted;
+
+            BluetoothAudioWatcher.Start();
+        }
+
+        private async void Watcher_EnumerationCompleted(DeviceWatcher sender, object args)
+        {
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+            {
+                BluetoothSearchProgress.IsActive = false;
+                StatusText.Text = Globalization.GetString("BluetoothUI_Status_Text_2");
+            });
+        }
+
+        private async void Watcher_Updated(DeviceWatcher sender, DeviceInformationUpdate args)
+        {
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+            {
+                if (BluetoothAudioDeivceList.Items.OfType<BluetoothDeivceData>().FirstOrDefault((Device) => Device.Id == args.Id) is BluetoothDeivceData Device)
+                {
+                    Device.Update(args);
+                }
+            });
+        }
+
+        private async void Watcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
+        {
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                if (BluetoothAudioDeivceList.Items.OfType<BluetoothDeivceData>().FirstOrDefault((Device) => Device.Id == args.Id) is BluetoothDeivceData Device)
+                {
+                    BluetoothAudioDeivceList.Items.Remove(Device);
+                }
+            });
+        }
+
+        private async void Watcher_Added(DeviceWatcher sender, DeviceInformation args)
+        {
+            using (DeviceThumbnail ThumbnailStream = await args.GetGlyphThumbnailAsync())
+            {
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                {
+                    BitmapImage Thumbnail = new BitmapImage();
+                    BluetoothAudioDeivceList.Items.Add(new BluetoothDeivceData(args, Thumbnail));
+                    await Thumbnail.SetSourceAsync(ThumbnailStream);
+                });
             }
         }
     }

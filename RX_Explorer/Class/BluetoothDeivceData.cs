@@ -7,7 +7,7 @@ namespace RX_Explorer.Class
     /// <summary>
     /// 为蓝牙模块提供蓝牙设备信息保存功能
     /// </summary>
-    public sealed class BluetoothList : INotifyPropertyChanged
+    public sealed class BluetoothDeivceData : INotifyPropertyChanged
     {
         /// <summary>
         /// 表示蓝牙设备信息
@@ -25,7 +25,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public BitmapImage Glyph { get; private set; }
+        public BitmapImage Glyph { get;}
 
         /// <summary>
         /// 获取蓝牙标识字符串
@@ -59,7 +59,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// Button显示属性
         /// </summary>
-        public string CancelOrPairButton
+        public string ActionButtonText
         {
             get
             {
@@ -81,11 +81,18 @@ namespace RX_Explorer.Class
         public void Update(DeviceInformationUpdate DeviceInfoUpdate)
         {
             DeviceInfo.Update(DeviceInfoUpdate);
-            OnPropertyChanged("IsPaired");
-            OnPropertyChanged("Name");
+            OnPropertyChanged(nameof(IsPaired));
+            OnPropertyChanged(nameof(Name));
         }
 
-        public void OnPropertyChanged(string name)
+        public void Update()
+        {
+            OnPropertyChanged(nameof(IsPaired));
+            OnPropertyChanged(nameof(Name));
+            OnPropertyChanged(nameof(ActionButtonText));
+        }
+
+        private void OnPropertyChanged(string name)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
@@ -96,7 +103,7 @@ namespace RX_Explorer.Class
         /// 创建BluetoothList的实例
         /// </summary>
         /// <param name="DeviceInfo">蓝牙设备</param>
-        public BluetoothList(DeviceInformation DeviceInfo, BitmapImage Glyph)
+        public BluetoothDeivceData(DeviceInformation DeviceInfo, BitmapImage Glyph)
         {
             this.DeviceInfo = DeviceInfo;
             this.Glyph = Glyph;

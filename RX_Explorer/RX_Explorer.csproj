@@ -157,7 +157,7 @@
     <Compile Include="Class\BackgroundController.cs" />
     <Compile Include="Class\BackgroundPicture.cs" />
     <Compile Include="Class\BingPhotoDownloader.cs" />
-    <Compile Include="Class\BluetoothList.cs" />
+    <Compile Include="Class\BluetoothDeivceData.cs" />
     <Compile Include="Class\AppThemeController.cs" />
     <Compile Include="Class\CommonAccessCollection.cs" />
     <Compile Include="Class\CommonEnvironmentVariables.cs" />

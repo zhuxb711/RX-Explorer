@@ -18,7 +18,7 @@ namespace RX_Explorer.Dialog
 {
     public sealed partial class BluetoothUI : QueueContentDialog
     {
-        ObservableCollection<BluetoothList> BluetoothDeviceCollection;
+        ObservableCollection<BluetoothDeivceData> BluetoothDeviceCollection;
         List<BluetoothDevice> PairedBluetoothDeviceCollection;
         AutoResetEvent PinLock;
         DeviceWatcher BluetoothWatcher;
@@ -62,7 +62,7 @@ namespace RX_Explorer.Dialog
         {
             AddQueue = new Queue<DeviceInformation>();
             PairedBluetoothDeviceCollection = new List<BluetoothDevice>();
-            BluetoothDeviceCollection = new ObservableCollection<BluetoothList>();
+            BluetoothDeviceCollection = new ObservableCollection<BluetoothDeivceData>();
             BluetoothControl.ItemsSource = BluetoothDeviceCollection;
             PinLock = new AutoResetEvent(false);
             CreateBluetoothWatcher();
@@ -132,11 +132,15 @@ namespace RX_Explorer.Dialog
                 BluetoothWatcher.Updated -= BluetoothWatcher_Updated;
                 BluetoothWatcher.Removed -= BluetoothWatcher_Removed;
                 BluetoothWatcher.EnumerationCompleted -= BluetoothWatcher_EnumerationCompleted;
-                BluetoothWatcher.Stop();
-                BluetoothWatcher = null;
-                Progress.IsActive = true;
-                StatusText.Text = Globalization.GetString("BluetoothUI_Status_Text");
+
+                if (BluetoothWatcher.Status == DeviceWatcherStatus.Started || BluetoothWatcher.Status == DeviceWatcherStatus.EnumerationCompleted)
+                {
+                    BluetoothWatcher.Stop();
+                }
             }
+
+            Progress.IsActive = true;
+            StatusText.Text = Globalization.GetString("BluetoothUI_Status_Text_1");
 
             //根据指定的筛选条件创建检测器
             BluetoothWatcher = DeviceInformation.CreateWatcher("System.Devices.Aep.ProtocolId:=\"{e0cbf06c-cd8b-4647-bb8a-263b43f0f974}\"", new string[] { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected", "System.Devices.Aep.Bluetooth.Le.IsConnectable" }, DeviceInformationKind.AssociationEndpoint);
@@ -196,7 +200,7 @@ namespace RX_Explorer.Dialog
                     {
                         if (BluetoothDeviceCollection != null)
                         {
-                            foreach (var Bluetooth in from BluetoothList Bluetooth in BluetoothDeviceCollection
+                            foreach (var Bluetooth in from BluetoothDeivceData Bluetooth in BluetoothDeviceCollection
                                                       where Bluetooth.Id == args.Id
                                                       select Bluetooth)
                             {
@@ -242,7 +246,7 @@ namespace RX_Explorer.Dialog
                                     DecodePixelWidth = 30
                                 };
                                 await Image.SetSourceAsync(Thumbnail);
-                                BluetoothDeviceCollection.Add(new BluetoothList(Info, Image));
+                                BluetoothDeviceCollection.Add(new BluetoothDeivceData(Info, Image));
                             });
                         }
                     }
@@ -261,7 +265,7 @@ namespace RX_Explorer.Dialog
         /// </summary>
         /// <param name="BL">要连接到的设备</param>
         /// <returns>主机对象的规范名称</returns>
-        public async Task<string> ConnectToRfcommServiceAsync(BluetoothList BL)
+        public async Task<string> ConnectToRfcommServiceAsync(BluetoothDeivceData BL)
         {
             if (BL == null)
             {
@@ -299,13 +303,12 @@ namespace RX_Explorer.Dialog
             }
             else
             {
-                var list = BluetoothDeviceCollection[BluetoothControl.SelectedIndex];
-                var UnPairResult = await list.DeviceInfo.Pairing.UnpairAsync();
+                BluetoothDeivceData Deivce = BluetoothDeviceCollection[BluetoothControl.SelectedIndex];
+                DeviceUnpairingResult UnPairResult = await Deivce.DeviceInfo.Pairing.UnpairAsync();
+                
                 if (UnPairResult.Status == DeviceUnpairingResultStatus.Unpaired || UnPairResult.Status == DeviceUnpairingResultStatus.AlreadyUnpaired)
                 {
-                    list.OnPropertyChanged("CancelOrPairButton");
-                    list.OnPropertyChanged("Name");
-                    list.OnPropertyChanged("IsPaired");
+                    Deivce.Update();
                 }
             }
         }
@@ -330,12 +333,14 @@ namespace RX_Explorer.Dialog
             if (PairResult.Status == DevicePairingResultStatus.Paired)
             {
                 BluetoothWatcher.Stop();
-                BluetoothDeviceCollection.Clear();
-                BluetoothWatcher.Start();
             }
             else
             {
-                Tips.Text = Globalization.GetString("BluetoothUI_Tips_Text_4");
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    Tips.Text = Globalization.GetString("BluetoothUI_Tips_Text_4");
+                    Tips.Visibility = Visibility.Visible;
+                });
             }
         }
 
@@ -368,15 +373,16 @@ namespace RX_Explorer.Dialog
                         break;
                     }
             }
+            
             await Task.Run(() =>
             {
                 PinLock.WaitOne();
+            }).ConfigureAwait(true);
 
-                if (IsPinConfirm)
-                {
-                    args.Accept();
-                }
-            }).ConfigureAwait(false);
+            if (IsPinConfirm)
+            {
+                args.Accept();
+            }
 
             PairDeferral.Complete();
         }
