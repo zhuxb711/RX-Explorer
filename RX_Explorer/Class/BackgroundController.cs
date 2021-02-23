@@ -627,7 +627,7 @@ namespace RX_Explorer.Class
         /// 使用此方法以切换背景类型
         /// </summary>
         /// <param name="Type">背景类型</param>
-        /// <param name="uri">图片背景的Uri</param>
+        /// <param name="ImageUri">图片背景的Uri</param>
         public void SwitchTo(BackgroundBrushType Type, BitmapImage Background = null, Uri ImageUri = null, Color? Color = null)
         {
             CurrentType = Type;
@@ -636,8 +636,20 @@ namespace RX_Explorer.Class
             {
                 case BackgroundBrushType.Picture:
                     {
-                        PictureBackgroundBrush.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), "if parameter: 'Type' is BackgroundBrushType.Picture, parameter: 'Background' could not be null");
-                        ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = ImageUri?.ToString();
+                        if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string CurrentBackgroundUri)
+                        {
+                            if (CurrentBackgroundUri != ImageUri?.ToString())
+                            {
+                                PictureBackgroundBrush.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), $"if parameter: \"{nameof(Type)}\" is {nameof(BackgroundBrushType.Picture)}, parameter: \"{nameof(Background)}\" could not be null");
+                                ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = ImageUri?.ToString();
+                            }
+                        }
+                        else
+                        {
+                            PictureBackgroundBrush.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), $"if parameter: \"{nameof(Type)}\" is {nameof(BackgroundBrushType.Picture)}, parameter: \"{nameof(Background)}\" could not be null");
+                            ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = ImageUri?.ToString();
+                        }
+
                         break;
                     }
                 case BackgroundBrushType.BingPicture:

@@ -3529,6 +3529,10 @@ Invalid names include
           <source>Enable</source>
           <target state="translated">啟用</target>
         </trans-unit>
+        <trans-unit id="QuickStartPickFileType.Text" translate="yes" xml:space="preserve">
+          <source>Which type do you want to choose?</source>
+          <target state="translated">您要選擇哪種類型？</target>
+        </trans-unit>
       </group>
     </body>
   </file>

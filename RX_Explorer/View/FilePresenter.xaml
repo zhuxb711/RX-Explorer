@@ -905,7 +905,7 @@
                                             </Viewbox>
                                             <TextBox Margin="10,0,0,0"
                                                      Header="正则表达式"
-                                                     Width="150"
+                                                     MinWidth="180"
                                                      IsSpellCheckEnabled="False"
                                                      PlaceholderText="请输入正则表达式"
                                                      x:Uid="NameFilterCheckBox6Text"

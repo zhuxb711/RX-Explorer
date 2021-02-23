@@ -2661,4 +2661,7 @@
   <data name="DeleteConfirmSwitch.OnContent" xml:space="preserve">
     <value>启用</value>
   </data>
+  <data name="QuickStartPickFileType.Text" xml:space="preserve">
+    <value>您要选择哪一种类型？</value>
+  </data>
 </root>

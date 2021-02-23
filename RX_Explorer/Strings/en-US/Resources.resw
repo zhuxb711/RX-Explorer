@@ -2766,4 +2766,7 @@ Invalid names include
   <data name="DeleteConfirmSwitch.OnContent" xml:space="preserve">
     <value>Enable</value>
   </data>
+  <data name="QuickStartPickFileType.Text" xml:space="preserve">
+    <value>Which type do you want to choose?</value>
+  </data>
 </root>

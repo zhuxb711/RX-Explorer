@@ -3529,6 +3529,10 @@ Les noms non valides incluent
           <source>Enable</source>
           <target state="translated">Permettre</target>
         </trans-unit>
+        <trans-unit id="QuickStartPickFileType.Text" translate="yes" xml:space="preserve">
+          <source>Which type do you want to choose?</source>
+          <target state="translated">Quel type souhaitez-vous choisir?</target>
+        </trans-unit>
       </group>
     </body>
   </file>

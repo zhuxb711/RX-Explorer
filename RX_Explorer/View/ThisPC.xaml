@@ -85,11 +85,12 @@
                               x:Uid="LibraryOpenButton"
                               Click="OpenLibrary_Click"
                               x:Name="OpenLibrary" />
-                <AppBarButton Icon="Cancel"
-                              Name="RemovePin"
+                <AppBarButton Name="RemovePin"
                               x:Uid="LibraryCancelButton"
                               Label="取消固定"
-                              Click="RemovePin_Click" />
+                              Icon="UnPin"
+                              Click="RemovePin_Click">
+                </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Label="属性"

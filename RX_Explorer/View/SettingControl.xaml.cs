@@ -344,7 +344,7 @@ namespace RX_Explorer
                                                             }
                                                             else
                                                             {
-                                                                BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, new BitmapImage());
+                                                                PictureGirdView.SelectedIndex = -1;
                                                             }
                                                         }
                                                         else
@@ -1433,53 +1433,44 @@ namespace RX_Explorer
                 {
                     if (PictureList.FirstOrDefault((Picture) => Picture.PictureUri.ToString() == Uri) is BackgroundPicture PictureItem)
                     {
-                        PictureGirdView.SelectedItem = PictureItem;
-
-                        BitmapImage Bitmap = new BitmapImage();
-
-                        StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(PictureItem.PictureUri);
-
-                        using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                        if (await PictureItem.GetFullSizeBitmapImageAsync().ConfigureAwait(true) is BitmapImage Bitmap)
                         {
-                            await Bitmap.SetSourceAsync(Stream);
+                            BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureItem.PictureUri);
+                            PictureGirdView.SelectedItem = PictureItem;
                         }
-
-                        BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureItem.PictureUri);
+                        else
+                        {
+                            LogTracer.Log($"Could not switch to \"{PictureItem.PictureUri}\"");
+                        }
                     }
                     else if (PictureList.Count > 0)
                     {
-                        PictureGirdView.SelectedIndex = 0;
-
-                        BitmapImage Bitmap = new BitmapImage();
-
-                        StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(PictureList.FirstOrDefault().PictureUri);
-
-                        using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                        if (await PictureList[0].GetFullSizeBitmapImageAsync().ConfigureAwait(true) is BitmapImage Bitmap)
                         {
-                            await Bitmap.SetSourceAsync(Stream);
+                            BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureList[0].PictureUri);
+                            PictureGirdView.SelectedIndex = 0;
                         }
-
-                        BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureList.FirstOrDefault().PictureUri);
+                        else
+                        {
+                            LogTracer.Log($"Could not switch to \"{PictureList[0].PictureUri}\"");
+                        }
                     }
                 }
                 else if (PictureList.Count > 0)
                 {
-                    PictureGirdView.SelectedIndex = 0;
-
-                    BitmapImage Bitmap = new BitmapImage();
-
-                    StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(PictureList.FirstOrDefault().PictureUri);
-
-                    using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                    if (await PictureList[0].GetFullSizeBitmapImageAsync().ConfigureAwait(true) is BitmapImage Bitmap)
                     {
-                        await Bitmap.SetSourceAsync(Stream);
+                        BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureList[0].PictureUri);
+                        PictureGirdView.SelectedIndex = 0;
                     }
-
-                    BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureList.FirstOrDefault().PictureUri);
+                    else
+                    {
+                        LogTracer.Log($"Could not switch to \"{PictureList[0].PictureUri}\"");
+                    }
                 }
                 else
                 {
-                    BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, new BitmapImage());
+                    PictureGirdView.SelectedIndex = -1;
                 }
             }
             catch (Exception ex)
@@ -1596,68 +1587,83 @@ namespace RX_Explorer
 
         private async void PictureGirdView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (PictureGirdView.SelectedItem is BackgroundPicture Picture)
+            if (PictureGirdView.SelectedItem is BackgroundPicture PictureItem)
             {
                 try
                 {
-                    StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(Picture.PictureUri);
-
-                    using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                    if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string CurrentBackgroundUri)
                     {
-                        BitmapImage Bitmap = new BitmapImage();
-                        await Bitmap.SetSourceAsync(Stream);
-
-                        BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, Picture.PictureUri);
-
-                        PictureGirdView.ScrollIntoViewSmoothly(Picture, ScrollIntoViewAlignment.Leading);
-
-                        BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(Stream);
-
-                        using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                        if (CurrentBackgroundUri == PictureItem.PictureUri?.ToString())
                         {
-                            float Brightness = ComputerVisionProvider.DetectAvgBrightness(SBitmap);
+                            return;
+                        }
+                    }
 
-                            if (Brightness <= 100 && CustomFontColor.SelectedIndex == 1)
+                    if (await PictureItem.GetFullSizeBitmapImageAsync().ConfigureAwait(true) is BitmapImage Bitmap)
+                    {
+                        BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureItem.PictureUri);
+                        PictureGirdView.ScrollIntoViewSmoothly(PictureItem, ScrollIntoViewAlignment.Leading);
+
+                        StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(PictureItem.PictureUri);
+
+                        using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                        {
+                            BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(Stream);
+
+                            using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
                             {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                    Content = Globalization.GetString("QueueDialog_AutoDetectBlackColor_Content"),
-                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_SwitchButton"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                };
+                                float Brightness = ComputerVisionProvider.DetectAvgBrightness(SBitmap);
 
-                                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                if (Brightness <= 100 && CustomFontColor.SelectedIndex == 1)
                                 {
-                                    CustomFontColor.SelectedIndex = 0;
+                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                        Content = Globalization.GetString("QueueDialog_AutoDetectBlackColor_Content"),
+                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_SwitchButton"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                    };
+
+                                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                    {
+                                        CustomFontColor.SelectedIndex = 0;
+                                    }
                                 }
-                            }
-                            else if (Brightness > 156 && CustomFontColor.SelectedIndex == 0)
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
+                                else if (Brightness > 156 && CustomFontColor.SelectedIndex == 0)
                                 {
-                                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                    Content = Globalization.GetString("QueueDialog_AutoDetectWhiteColor_Content"),
-                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_SwitchButton"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                };
+                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                        Content = Globalization.GetString("QueueDialog_AutoDetectWhiteColor_Content"),
+                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_SwitchButton"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                    };
 
-                                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                {
-                                    CustomFontColor.SelectedIndex = 1;
+                                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                    {
+                                        CustomFontColor.SelectedIndex = 1;
+                                    }
                                 }
                             }
                         }
                     }
+                    else
+                    {
+                        LogTracer.Log($"Could not switch to \"{PictureItem.PictureUri}\"");
+                    }
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, $"Error in {nameof(PictureGirdView_SelectionChanged)}");
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(PictureGirdView_SelectionChanged)}");
                 }
                 finally
                 {
                     ApplicationData.Current.SignalDataChanged();
                 }
+            }
+            else
+            {
+                BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, new BitmapImage());
             }
         }
 
@@ -1704,21 +1710,23 @@ namespace RX_Explorer
         {
             if (PictureGirdView.SelectedItem is BackgroundPicture Picture)
             {
-                if (!Picture.PictureUri.ToString().StartsWith("ms-appx://"))
+                try
                 {
-                    StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(Picture.PictureUri);
-                    await ImageFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                    if (!Picture.PictureUri.ToString().StartsWith("ms-appx://"))
+                    {
+                        StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(Picture.PictureUri);
+                        await ImageFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                    }
+
+                    await SQLite.Current.DeleteBackgroundPictureAsync(Picture.PictureUri).ConfigureAwait(true);
+
+                    PictureList.Remove(Picture);
+                    PictureGirdView.UpdateLayout();
+                    PictureGirdView.SelectedIndex = PictureList.Count - 1;
                 }
-
-                await SQLite.Current.DeleteBackgroundPictureAsync(Picture.PictureUri).ConfigureAwait(true);
-
-                PictureList.Remove(Picture);
-                PictureGirdView.UpdateLayout();
-                PictureGirdView.SelectedIndex = PictureList.Count - 1;
-
-                if (PictureList.Count == 0)
+                catch (Exception ex)
                 {
-                    BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, new BitmapImage());
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(DeletePictureButton_Click)}");
                 }
             }
         }

@@ -677,7 +677,7 @@
                                                 <Image Width="70"
                                                        Height="70"
                                                        Stretch="UniformToFill"
-                                                       Source="{x:Bind Picture}" />
+                                                       Source="{x:Bind Thumbnail}" />
                                             </DataTemplate>
                                         </GridView.ItemTemplate>
                                         <GridView.ItemsPanel>
