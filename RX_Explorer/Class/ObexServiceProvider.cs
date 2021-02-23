@@ -18,9 +18,16 @@ namespace RX_Explorer.Class
         /// <summary>
         /// OBEX协议服务
         /// </summary>
-        public static ObexService GetObexNewInstance()
+        public static ObexService GetObexInstance()
         {
-            return BlueToothDevice != null ? ObexService.GetDefaultForBluetoothDevice(BlueToothDevice) : null;
+            if (BlueToothDevice != null)
+            {
+                return ObexService.GetDefaultForBluetoothDevice(BlueToothDevice);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         /// <summary>

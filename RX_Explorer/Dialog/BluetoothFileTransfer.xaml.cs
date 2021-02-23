@@ -22,7 +22,7 @@ namespace RX_Explorer.Dialog
             InitializeComponent();
             this.FileToSend = FileToSend ?? throw new ArgumentNullException(nameof(FileToSend), "Parameter could not be null");
 
-            ObexClient = ObexServiceProvider.GetObexNewInstance();
+            ObexClient = ObexServiceProvider.GetObexInstance();
 
             TransferName.Text = $"{Globalization.GetString("Bluetooth_Transfer_FileName")}: {FileToSend.Name}";
             TransferDeviceName.Text = $"{Globalization.GetString("Bluetooth_Transfer_DeviceName")}: {ObexServiceProvider.DeviceName}";
@@ -161,7 +161,7 @@ namespace RX_Explorer.Dialog
                     ObexClient.Disconnected -= ObexClient_Disconnected;
                     ObexClient.DeviceConnected -= ObexClient_DeviceConnected;
 
-                    ObexClient = ObexServiceProvider.GetObexNewInstance();
+                    ObexClient = ObexServiceProvider.GetObexInstance();
 
                     ObexClient.DataTransferFailed += ObexClient_DataTransferFailed;
                     ObexClient.DataTransferProgressed += ObexClient_DataTransferProgressed;

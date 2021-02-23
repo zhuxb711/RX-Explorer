@@ -40,6 +40,7 @@
         <muxc:TeachingTip x:Name="BluetoothAudioTip"
                           Title="选择蓝牙音频源"
                           PreferredPlacement="Bottom"
+                          IsLightDismissEnabled="True"
                           Closed="BluetoothAudioTip_Closed"
                           Target="{x:Bind BluetoothAudio}">
             <StackPanel>
@@ -55,43 +56,54 @@
                 </StackPanel>
                 <ListView Margin="0,10,0,0"
                           Name="BluetoothAudioDeivceList"
+                          SelectionMode="None"
                           MaxHeight="250"
-                          MinWidth="350"
+                          Width="280"
                           Loaded="BluetoothAudioDeivceList_Loaded">
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="HorizontalContentAlignment"
                                     Value="Stretch" />
                             <Setter Property="Padding"
-                                    Value="0" />
+                                    Value="5" />
                         </Style>
                     </ListView.ItemContainerStyle>
                     <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="Cls:BluetoothDeivceData">
+                        <DataTemplate x:DataType="Cls:BluetoothAudioDeviceData">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="70" />
                                 </Grid.ColumnDefinitions>
-                                <StackPanel Orientation="Horizontal"
-                                            HorizontalAlignment="Stretch"
-                                            VerticalAlignment="Stretch">
-                                    <Viewbox Width="30">
-                                        <Image Stretch="UniformToFill"
-                                               Source="{x:Bind Glyph}" />
-                                    </Viewbox>
+                                <RelativePanel HorizontalAlignment="Stretch"
+                                               VerticalAlignment="Stretch">
+                                    <Border Background="{ThemeResource SystemBaseMediumLowColor}"
+                                            Name="DeviceThumbnail"
+                                            RelativePanel.AlignLeftWithPanel="True"
+                                            Padding="5">
+                                        <Viewbox Width="30">
+                                            <Image Stretch="UniformToFill"
+                                                   Source="{x:Bind Glyph}" />
+                                        </Viewbox>
+                                    </Border>
                                     <StackPanel Margin="5,0,0,0"
+                                                RelativePanel.RightOf="DeviceThumbnail"
+                                                RelativePanel.AlignRightWithPanel="True"
                                                 Orientation="Vertical">
                                         <TextBlock Text="{x:Bind Name, Mode=OneWay}"
                                                    TextTrimming="CharacterEllipsis"
                                                    ToolTipService.ToolTip="{x:Bind Name, Mode=OneWay}" />
-                                        <TextBlock Text="{x:Bind IsPaired, Mode=OneWay}"
+                                        <TextBlock Text="{x:Bind Status, Mode=OneWay}"
                                                    FontSize="12" />
                                     </StackPanel>
-                                </StackPanel>
+                                </RelativePanel>
                                 <Button Grid.Column="1"
                                         Content="{x:Bind ActionButtonText, Mode=OneWay}"
+                                        IsEnabled="{x:Bind ActionButtonEnabled, Mode=OneWay}"
                                         FontSize="12"
+                                        Padding="5"
+                                        Name="BluetoothAudioConnectButton"
+                                        Click="BluetoothAudioConnectButton_Click"
                                         HorizontalAlignment="Stretch"
                                         VerticalAlignment="Stretch" />
                             </Grid>

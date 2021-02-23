@@ -100,7 +100,7 @@ namespace RX_Explorer.Class
         public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
-        /// 创建BluetoothList的实例
+        /// 创建BluetoothDeivceData的实例
         /// </summary>
         /// <param name="DeviceInfo">蓝牙设备</param>
         public BluetoothDeivceData(DeviceInformation DeviceInfo, BitmapImage Glyph)

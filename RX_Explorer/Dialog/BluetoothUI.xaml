@@ -28,17 +28,18 @@
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch"
                   Name="BluetoothControl"
+                  ItemsSource="{x:Bind BluetoothDeviceCollection}"
                   IsItemClickEnabled="False"
                   ScrollViewer.VerticalScrollMode="Auto"
                   ScrollViewer.VerticalScrollBarVisibility="Hidden"
                   MaxHeight="250"
-                  MinWidth="350">
+                  Width="400">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment"
                             Value="Stretch" />
                     <Setter Property="Padding"
-                            Value="0" />
+                            Value="5" />
                 </Style>
             </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
@@ -48,25 +49,32 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="80" />
                         </Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Stretch">
-                            <Viewbox Width="30">
-                                <Image Stretch="UniformToFill"
-                                       Source="{x:Bind Glyph}" />
-                            </Viewbox>
+                        <RelativePanel HorizontalAlignment="Stretch"
+                                       VerticalAlignment="Stretch">
+                            <Border Background="{ThemeResource SystemBaseMediumLowColor}"
+                                    Padding="5"
+                                    Name="DeviceThumbnail"
+                                    RelativePanel.AlignLeftWithPanel="True">
+                                <Viewbox Width="30">
+                                    <Image Stretch="UniformToFill"
+                                           Source="{x:Bind Glyph}" />
+                                </Viewbox>
+                            </Border>
                             <StackPanel Margin="5,0,0,0"
+                                        RelativePanel.RightOf="DeviceThumbnail"
+                                        RelativePanel.AlignRightWithPanel="True"
                                         Orientation="Vertical">
-                                <TextBlock Text="{x:Bind Name, Mode=OneWay}" 
+                                <TextBlock Text="{x:Bind Name, Mode=OneWay}"
                                            TextTrimming="CharacterEllipsis"
-                                           ToolTipService.ToolTip="{x:Bind Name, Mode=OneWay}"/>
-                                <TextBlock Text="{x:Bind IsPaired,Mode=OneWay}" 
-                                           FontSize="12"/>
+                                           ToolTipService.ToolTip="{x:Bind Name, Mode=OneWay}" />
+                                <TextBlock Text="{x:Bind IsPaired,Mode=OneWay}"
+                                           FontSize="12" />
                             </StackPanel>
-                        </StackPanel>
+                        </RelativePanel>
                         <Button Grid.Column="1"
                                 Content="{x:Bind ActionButtonText, Mode=OneWay}"
                                 FontSize="12"
+                                Padding="5"
                                 Name="PairOrCancelButton"
                                 Click="PairOrCancelButton_Click"
                                 HorizontalAlignment="Stretch"
@@ -76,11 +84,13 @@
             </ListView.ItemTemplate>
         </ListView>
         <Grid Margin="5,10,5,0"
+              Width="400"
+              HorizontalAlignment="Stretch"
               Visibility="{x:Bind Tips.Visibility, Mode=OneWay}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="70"/>
-                <ColumnDefinition Width="70" />
+                <ColumnDefinition Width="50"/>
+                <ColumnDefinition Width="50" />
             </Grid.ColumnDefinitions>
             <TextBlock Name="Tips"
                        Grid.Column="0"

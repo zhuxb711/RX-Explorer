@@ -675,7 +675,15 @@ namespace RX_Explorer
                 }
             }
 
-            BluetoothAudioDeivceList.Items.Clear();
+            if (BluetoothAudioDeivceList.Items.OfType<BluetoothAudioDeviceData>().All((Device) => !Device.IsConnected))
+            {
+                foreach (BluetoothAudioDeviceData Device in BluetoothAudioDeivceList.Items)
+                {
+                    Device.Dispose();
+                }
+
+                BluetoothAudioDeivceList.Items.Clear();
+            }
         }
 
         private void BluetoothAudioDeivceList_Loaded(object sender, RoutedEventArgs e)
@@ -695,6 +703,8 @@ namespace RX_Explorer
 
         private async void Watcher_EnumerationCompleted(DeviceWatcher sender, object args)
         {
+            await Task.Delay(1000).ConfigureAwait(true);
+
             await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
             {
                 BluetoothSearchProgress.IsActive = false;
@@ -706,7 +716,7 @@ namespace RX_Explorer
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
             {
-                if (BluetoothAudioDeivceList.Items.OfType<BluetoothDeivceData>().FirstOrDefault((Device) => Device.Id == args.Id) is BluetoothDeivceData Device)
+                if (BluetoothAudioDeivceList.Items.OfType<BluetoothAudioDeviceData>().FirstOrDefault((Device) => Device.Id == args.Id) is BluetoothAudioDeviceData Device)
                 {
                     Device.Update(args);
                 }
@@ -717,23 +727,43 @@ namespace RX_Explorer
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                if (BluetoothAudioDeivceList.Items.OfType<BluetoothDeivceData>().FirstOrDefault((Device) => Device.Id == args.Id) is BluetoothDeivceData Device)
+                if (BluetoothAudioDeivceList.Items.OfType<BluetoothAudioDeviceData>().FirstOrDefault((Device) => Device.Id == args.Id) is BluetoothAudioDeviceData Device)
                 {
                     BluetoothAudioDeivceList.Items.Remove(Device);
+                    Device.Dispose();
                 }
             });
         }
 
         private async void Watcher_Added(DeviceWatcher sender, DeviceInformation args)
         {
-            using (DeviceThumbnail ThumbnailStream = await args.GetGlyphThumbnailAsync())
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                if (BluetoothAudioDeivceList.Items.OfType<BluetoothAudioDeviceData>().All((Device) => Device.Id != args.Id))
                 {
-                    BitmapImage Thumbnail = new BitmapImage();
-                    BluetoothAudioDeivceList.Items.Add(new BluetoothDeivceData(args, Thumbnail));
-                    await Thumbnail.SetSourceAsync(ThumbnailStream);
-                });
+                    using (DeviceThumbnail ThumbnailStream = await args.GetGlyphThumbnailAsync())
+                    {
+
+                        BitmapImage Thumbnail = new BitmapImage();
+                        BluetoothAudioDeivceList.Items.Add(new BluetoothAudioDeviceData(args, Thumbnail));
+                        await Thumbnail.SetSourceAsync(ThumbnailStream);
+                    }
+                }
+            });
+        }
+
+        private async void BluetoothAudioConnectButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (((Button)sender).DataContext is BluetoothAudioDeviceData Device)
+            {
+                if (Device.IsConnected)
+                {
+                    Device.Disconnect();
+                }
+                else
+                {
+                    await Device.ConnectAsync().ConfigureAwait(false);
+                }
             }
         }
     }

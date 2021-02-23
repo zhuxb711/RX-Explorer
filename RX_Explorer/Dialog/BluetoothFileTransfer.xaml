@@ -11,7 +11,7 @@
                           SecondaryButtonText="中止"
                           SecondaryButtonClick="QueueContentDialog_SecondaryButtonClick">
     <local:QueueContentDialog.Resources>
-        <x:Double x:Key="ContentDialogMaxWidth">300</x:Double>
+        <x:Double x:Key="ContentDialogMaxWidth">350</x:Double>
     </local:QueueContentDialog.Resources>
 
     <StackPanel Orientation="Vertical"
