@@ -2664,4 +2664,46 @@ Les noms non valides incluent
   <data name="QuickStartPickFileType.Text" xml:space="preserve">
     <value>Quel type souhaitez-vous choisir?</value>
   </data>
+  <data name="BluetoothAudioQuestionTip.Subtitle" xml:space="preserve">
+    <value>Cette fonction peut vous aider à partager l'audio d'autres appareils via Bluetooth et à le lire sur cet appareil. Remarque: vous devez d'abord vous associer avec d'autres appareils Bluetooth avant d'utiliser cette fonction, sinon l'appareil Bluetooth ne sera pas détecté.</value>
+  </data>
+  <data name="BluetoothAudioQuestionTip.Title" xml:space="preserve">
+    <value>Lecture audio Bluetooth</value>
+  </data>
+  <data name="BluetoothAudioSelectionTip.Title" xml:space="preserve">
+    <value>Sélectionnez la source audio Bluetooth</value>
+  </data>
+  <data name="BluetoothVerisonIncorrectTip.Text" xml:space="preserve">
+    <value>Cette fonctionnalité nécessite Win10 2004 ou supérieur</value>
+  </data>
+  <data name="BluetoothAudio.Text" xml:space="preserve">
+    <value>Audio Bluetooth</value>
+  </data>
+  <data name="BluetoothAudio_Button_Text_1" xml:space="preserve">
+    <value>Relier</value>
+  </data>
+  <data name="BluetoothAudio_Button_Text_2" xml:space="preserve">
+    <value>Déconnecter</value>
+  </data>
+  <data name="BluetoothAudio_Status_1" xml:space="preserve">
+    <value>Prêt à se connecter</value>
+  </data>
+  <data name="BluetoothAudio_Status_2" xml:space="preserve">
+    <value>De liaison...</value>
+  </data>
+  <data name="BluetoothAudio_Status_3" xml:space="preserve">
+    <value>Lié</value>
+  </data>
+  <data name="BluetoothAudio_Status_4" xml:space="preserve">
+    <value>Délai de connexion, l'appareil ne répond pas</value>
+  </data>
+  <data name="BluetoothAudio_Status_5" xml:space="preserve">
+    <value>Windows a refusé d'établir une connexion</value>
+  </data>
+  <data name="BluetoothAudio_Status_6" xml:space="preserve">
+    <value>Erreur inconnue détectée</value>
+  </data>
+  <data name="BluetoothAudio_Status_7" xml:space="preserve">
+    <value>Impossible d'établir la connexion</value>
+  </data>
 </root>

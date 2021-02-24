@@ -591,9 +591,12 @@ namespace RX_Explorer
 
                         Nav.Navigate(typeof(TabViewContainer), null, new DrillInNavigationTransitionInfo());
                     }
-                    else if (args.InvokedItem.ToString() == "蓝牙音频")
+                    else if (args.InvokedItem is StackPanel)
                     {
-                        BluetoothAudioTip.IsOpen = true;
+                        if (!BluetoothAudioQuestionTip.IsOpen)
+                        {
+                            BluetoothAudioSelectionTip.IsOpen = true;
+                        }
                     }
                     else
                     {
@@ -660,7 +663,7 @@ namespace RX_Explorer
             }
         }
 
-        private void BluetoothAudioTip_Closed(Microsoft.UI.Xaml.Controls.TeachingTip sender, Microsoft.UI.Xaml.Controls.TeachingTipClosedEventArgs args)
+        private void BluetoothAudioSelectionTip_Closed(Microsoft.UI.Xaml.Controls.TeachingTip sender, Microsoft.UI.Xaml.Controls.TeachingTipClosedEventArgs args)
         {
             if (BluetoothAudioWatcher != null)
             {
@@ -686,19 +689,30 @@ namespace RX_Explorer
             }
         }
 
-        private void BluetoothAudioDeivceList_Loaded(object sender, RoutedEventArgs e)
+        private void BluetoothAudioArea_Loaded(object sender, RoutedEventArgs e)
         {
-            StatusText.Text = Globalization.GetString("BluetoothUI_Status_Text_1");
-            BluetoothSearchProgress.IsActive = true;
+            if (WindowsVersionChecker.IsNewerOrEqual(Class.Version.Windows10_2004))
+            {
+                BluetoothAudioArea.Visibility = Visibility.Visible;
+                VerisonIncorrectTip.Visibility = Visibility.Collapsed;
 
-            BluetoothAudioWatcher = DeviceInformation.CreateWatcher(AudioPlaybackConnection.GetDeviceSelector());
+                StatusText.Text = Globalization.GetString("BluetoothUI_Status_Text_1");
+                BluetoothSearchProgress.IsActive = true;
 
-            BluetoothAudioWatcher.Added += Watcher_Added;
-            BluetoothAudioWatcher.Removed += Watcher_Removed;
-            BluetoothAudioWatcher.Updated += Watcher_Updated;
-            BluetoothAudioWatcher.EnumerationCompleted += Watcher_EnumerationCompleted;
+                BluetoothAudioWatcher = DeviceInformation.CreateWatcher(AudioPlaybackConnection.GetDeviceSelector());
 
-            BluetoothAudioWatcher.Start();
+                BluetoothAudioWatcher.Added += Watcher_Added;
+                BluetoothAudioWatcher.Removed += Watcher_Removed;
+                BluetoothAudioWatcher.Updated += Watcher_Updated;
+                BluetoothAudioWatcher.EnumerationCompleted += Watcher_EnumerationCompleted;
+
+                BluetoothAudioWatcher.Start();
+            }
+            else
+            {
+                BluetoothAudioArea.Visibility = Visibility.Collapsed;
+                VerisonIncorrectTip.Visibility = Visibility.Visible;
+            }
         }
 
         private async void Watcher_EnumerationCompleted(DeviceWatcher sender, object args)
@@ -765,6 +779,11 @@ namespace RX_Explorer
                     await Device.ConnectAsync().ConfigureAwait(false);
                 }
             }
+        }
+
+        private void BluetoothAudioQuestion_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            BluetoothAudioQuestionTip.IsOpen = true;
         }
     }
 }

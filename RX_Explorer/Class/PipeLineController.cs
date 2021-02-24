@@ -86,7 +86,7 @@ namespace RX_Explorer.Class
                     }
                 }
 
-                if (WindowsVersionChecker.IsNewerOrEqual(WindowsVersionChecker.Version.Windows10_2004))
+                if (WindowsVersionChecker.IsNewerOrEqual(Version.Windows10_2004))
                 {
                     await Controller.RequestCreateNewPipeLineAsync(GUID).ConfigureAwait(true);
 

@@ -25,7 +25,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public string Status { get; private set; } = "准备就绪";
+        public string Status { get; private set; } = Globalization.GetString("BluetoothAudio_Status_1");
 
         public string Id
         {
@@ -35,7 +35,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public string ActionButtonText { get; private set; } = "连接";
+        public string ActionButtonText { get; private set; } = Globalization.GetString("BluetoothAudio_Button_Text_1");
 
         public bool ActionButtonEnabled { get; private set; } = true;
 
@@ -51,9 +51,9 @@ namespace RX_Explorer.Class
                     AudioConnection = null;
                 }
 
-                ActionButtonText = "连接";
+                ActionButtonText = Globalization.GetString("BluetoothAudio_Button_Text_1");
                 ActionButtonEnabled = false;
-                Status = "正在连接...";
+                Status = Globalization.GetString("BluetoothAudio_Status_2");
 
                 OnPropertyChanged(nameof(ActionButtonEnabled));
                 OnPropertyChanged(nameof(ActionButtonText));
@@ -75,8 +75,8 @@ namespace RX_Explorer.Class
                             {
                                 IsConnected = true;
 
-                                ActionButtonText = "断开连接";
-                                Status = "已连接";
+                                ActionButtonText = Globalization.GetString("BluetoothAudio_Button_Text_2");
+                                Status = Globalization.GetString("BluetoothAudio_Status_3");
                                 ActionButtonEnabled = true;
 
                                 OnPropertyChanged(nameof(ActionButtonEnabled));
@@ -89,8 +89,8 @@ namespace RX_Explorer.Class
                             {
                                 IsConnected = false;
 
-                                ActionButtonText = "连接";
-                                Status = "连接超时，设备无响应";
+                                ActionButtonText = Globalization.GetString("BluetoothAudio_Button_Text_1");
+                                Status = Globalization.GetString("BluetoothAudio_Status_4");
                                 ActionButtonEnabled = true;
 
                                 OnPropertyChanged(nameof(ActionButtonEnabled));
@@ -107,8 +107,8 @@ namespace RX_Explorer.Class
                             {
                                 IsConnected = false;
 
-                                ActionButtonText = "连接";
-                                Status = "系统拒绝创建连接";
+                                ActionButtonText = Globalization.GetString("BluetoothAudio_Button_Text_1");
+                                Status = Globalization.GetString("BluetoothAudio_Status_5");
                                 ActionButtonEnabled = true;
 
                                 OnPropertyChanged(nameof(ActionButtonEnabled));
@@ -125,8 +125,8 @@ namespace RX_Explorer.Class
                             {
                                 IsConnected = false;
 
-                                ActionButtonText = "连接";
-                                Status = "检测到未知错误";
+                                ActionButtonText = Globalization.GetString("BluetoothAudio_Button_Text_1");
+                                Status = Globalization.GetString("BluetoothAudio_Status_6");
                                 ActionButtonEnabled = true;
 
                                 OnPropertyChanged(nameof(ActionButtonEnabled));
@@ -152,8 +152,8 @@ namespace RX_Explorer.Class
                 {
                     IsConnected = false;
 
-                    ActionButtonText = "连接";
-                    Status = "无法创建连接";
+                    ActionButtonText = Globalization.GetString("BluetoothAudio_Button_Text_1");
+                    Status = Globalization.GetString("BluetoothAudio_Status_7");
                     ActionButtonEnabled = true;
 
                     OnPropertyChanged(nameof(ActionButtonEnabled));
@@ -169,8 +169,8 @@ namespace RX_Explorer.Class
 
                 IsConnected = false;
 
-                ActionButtonText = "连接";
-                Status = "无法创建连接";
+                ActionButtonText = Globalization.GetString("BluetoothAudio_Button_Text_1");
+                Status = Globalization.GetString("BluetoothAudio_Status_7");
                 ActionButtonEnabled = true;
 
                 OnPropertyChanged(nameof(ActionButtonEnabled));
@@ -191,9 +191,9 @@ namespace RX_Explorer.Class
 
             IsConnected = false;
 
-            ActionButtonText = "连接";
+            ActionButtonText = Globalization.GetString("BluetoothAudio_Button_Text_1");
             ActionButtonEnabled = true;
-            Status = "准备就绪";
+            Status = Globalization.GetString("BluetoothAudio_Status_1");
 
             OnPropertyChanged(nameof(ActionButtonEnabled));
             OnPropertyChanged(nameof(ActionButtonText));

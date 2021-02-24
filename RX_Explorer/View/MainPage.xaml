@@ -37,80 +37,95 @@
                           IsLightDismissEnabled="False"
                           ActionButtonContent="准奏"
                           CloseButtonContent="跪安" />
-        <muxc:TeachingTip x:Name="BluetoothAudioTip"
+        <muxc:TeachingTip x:Name="BluetoothAudioQuestionTip"
+                          IsLightDismissEnabled="True"
+                          Target="{x:Bind BluetoothAudioQuestion}"
+                          x:Uid="BluetoothAudioQuestionTip"
+                          Title="蓝牙音频播放"
+                          Subtitle="此功能可以帮助您通过蓝牙分享其他设备上的音频并在本设备上播放。注意：您在使用本功能之前必须首先与其他蓝牙设备配对，否则将无法检测到该蓝牙设备。"/>
+        <muxc:TeachingTip x:Name="BluetoothAudioSelectionTip"
                           Title="选择蓝牙音频源"
+                          x:Uid="BluetoothAudioSelectionTip"
                           PreferredPlacement="Bottom"
                           IsLightDismissEnabled="True"
-                          Closed="BluetoothAudioTip_Closed"
+                          Closed="BluetoothAudioSelectionTip_Closed"
                           Target="{x:Bind BluetoothAudio}">
-            <StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="正在搜索"
-                               FontSize="14"
-                               Name="StatusText" />
-                    <muxc:ProgressRing IsActive="True"
-                                       Margin="8,3,0,0"
-                                       Width="16"
-                                       Height="16"
-                                       Name="BluetoothSearchProgress" />
+            <Grid MinHeight="50">
+                <StackPanel x:Name="BluetoothAudioArea"
+                            Loaded="BluetoothAudioArea_Loaded">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="正在搜索"
+                                   FontSize="14"
+                                   Name="StatusText" />
+                        <muxc:ProgressRing IsActive="True"
+                                           Margin="8,3,0,0"
+                                           Width="16"
+                                           Height="16"
+                                           Name="BluetoothSearchProgress" />
+                    </StackPanel>
+                    <ListView Margin="0,10,0,0"
+                              Name="BluetoothAudioDeivceList"
+                              SelectionMode="None"
+                              MaxHeight="250"
+                              Width="280">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment"
+                                        Value="Stretch" />
+                                <Setter Property="Padding"
+                                        Value="5" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="Cls:BluetoothAudioDeviceData">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="70" />
+                                    </Grid.ColumnDefinitions>
+                                    <RelativePanel HorizontalAlignment="Stretch"
+                                                   VerticalAlignment="Stretch">
+                                        <Border Background="{ThemeResource SystemBaseMediumLowColor}"
+                                                Name="DeviceThumbnail"
+                                                RelativePanel.AlignLeftWithPanel="True"
+                                                Padding="5">
+                                            <Viewbox Width="30">
+                                                <Image Stretch="UniformToFill"
+                                                       Source="{x:Bind Glyph}" />
+                                            </Viewbox>
+                                        </Border>
+                                        <StackPanel Margin="5,0,0,0"
+                                                    RelativePanel.RightOf="DeviceThumbnail"
+                                                    RelativePanel.AlignRightWithPanel="True"
+                                                    Orientation="Vertical">
+                                            <TextBlock Text="{x:Bind Name, Mode=OneWay}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       ToolTipService.ToolTip="{x:Bind Name, Mode=OneWay}" />
+                                            <TextBlock Text="{x:Bind Status, Mode=OneWay}"
+                                                       FontSize="12" />
+                                        </StackPanel>
+                                    </RelativePanel>
+                                    <Button Grid.Column="1"
+                                            Content="{x:Bind ActionButtonText, Mode=OneWay}"
+                                            IsEnabled="{x:Bind ActionButtonEnabled, Mode=OneWay}"
+                                            FontSize="12"
+                                            Padding="5"
+                                            Name="BluetoothAudioConnectButton"
+                                            Click="BluetoothAudioConnectButton_Click"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Stretch" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
                 </StackPanel>
-                <ListView Margin="0,10,0,0"
-                          Name="BluetoothAudioDeivceList"
-                          SelectionMode="None"
-                          MaxHeight="250"
-                          Width="280"
-                          Loaded="BluetoothAudioDeivceList_Loaded">
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="HorizontalContentAlignment"
-                                    Value="Stretch" />
-                            <Setter Property="Padding"
-                                    Value="5" />
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                    <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="Cls:BluetoothAudioDeviceData">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="70" />
-                                </Grid.ColumnDefinitions>
-                                <RelativePanel HorizontalAlignment="Stretch"
-                                               VerticalAlignment="Stretch">
-                                    <Border Background="{ThemeResource SystemBaseMediumLowColor}"
-                                            Name="DeviceThumbnail"
-                                            RelativePanel.AlignLeftWithPanel="True"
-                                            Padding="5">
-                                        <Viewbox Width="30">
-                                            <Image Stretch="UniformToFill"
-                                                   Source="{x:Bind Glyph}" />
-                                        </Viewbox>
-                                    </Border>
-                                    <StackPanel Margin="5,0,0,0"
-                                                RelativePanel.RightOf="DeviceThumbnail"
-                                                RelativePanel.AlignRightWithPanel="True"
-                                                Orientation="Vertical">
-                                        <TextBlock Text="{x:Bind Name, Mode=OneWay}"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   ToolTipService.ToolTip="{x:Bind Name, Mode=OneWay}" />
-                                        <TextBlock Text="{x:Bind Status, Mode=OneWay}"
-                                                   FontSize="12" />
-                                    </StackPanel>
-                                </RelativePanel>
-                                <Button Grid.Column="1"
-                                        Content="{x:Bind ActionButtonText, Mode=OneWay}"
-                                        IsEnabled="{x:Bind ActionButtonEnabled, Mode=OneWay}"
-                                        FontSize="12"
-                                        Padding="5"
-                                        Name="BluetoothAudioConnectButton"
-                                        Click="BluetoothAudioConnectButton_Click"
-                                        HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Stretch" />
-                            </Grid>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-            </StackPanel>
+                <TextBlock HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Visibility="Collapsed"
+                           Name="VerisonIncorrectTip"
+                           x:Uid="BluetoothVerisonIncorrectTip"
+                           Text="此功能需要Win10 2004以上版本"/>
+            </Grid>
         </muxc:TeachingTip>
     </Page.Resources>
 
@@ -177,9 +192,19 @@
                         <SymbolIcon Symbol="ProtectedDocument" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem Content="蓝牙音频"
-                                         x:Name="BluetoothAudio"
+                <muxc:NavigationViewItem x:Name="BluetoothAudio"
                                          SelectsOnInvoked="False">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="蓝牙音频"
+                                   x:Uid="BluetoothAudio"/>
+                        <Viewbox Margin="10,4,0,0"
+                                 Height="15"
+                                 VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE9CE;"
+                                      Name="BluetoothAudioQuestion"
+                                      PointerPressed="BluetoothAudioQuestion_PointerPressed"/>
+                        </Viewbox>
+                    </StackPanel>
                     <muxc:NavigationViewItem.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets"
                                   Glyph="&#xE702;" />

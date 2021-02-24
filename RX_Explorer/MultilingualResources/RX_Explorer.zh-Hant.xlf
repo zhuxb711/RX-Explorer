@@ -3533,6 +3533,62 @@ Invalid names include
           <source>Which type do you want to choose?</source>
           <target state="translated">您要選擇哪種類型？</target>
         </trans-unit>
+        <trans-unit id="BluetoothAudioQuestionTip.Subtitle" translate="yes" xml:space="preserve">
+          <source>This feature can help you share audio from other devices via Bluetooth and play it on this device. Note: You must first pair with other Bluetooth devices before using this function, otherwise the Bluetooth device will not be detected.</source>
+          <target state="translated">此功能可以幫助您通過藍牙共享其他設備的音頻並在此設備上播放。 注意：使用此功能之前，必須先與其他藍牙設備配對，否則將無法檢測到藍牙設備。</target>
+        </trans-unit>
+        <trans-unit id="BluetoothAudioQuestionTip.Title" translate="yes" xml:space="preserve">
+          <source>Bluetooth audio playback</source>
+          <target state="translated">藍牙音頻播放</target>
+        </trans-unit>
+        <trans-unit id="BluetoothAudioSelectionTip.Title" translate="yes" xml:space="preserve">
+          <source>Select Bluetooth audio source</source>
+          <target state="translated">選擇藍牙音頻源</target>
+        </trans-unit>
+        <trans-unit id="BluetoothVerisonIncorrectTip.Text" translate="yes" xml:space="preserve">
+          <source>This feature requires Win10 2004 or above</source>
+          <target state="translated">此功能需要Win10 2004或更高版本</target>
+        </trans-unit>
+        <trans-unit id="BluetoothAudio.Text" translate="yes" xml:space="preserve">
+          <source>Bluetooth audio</source>
+          <target state="translated">藍牙音頻</target>
+        </trans-unit>
+        <trans-unit id="BluetoothAudio_Button_Text_1" translate="yes" xml:space="preserve">
+          <source>Connect</source>
+          <target state="translated">連接</target>
+        </trans-unit>
+        <trans-unit id="BluetoothAudio_Button_Text_2" translate="yes" xml:space="preserve">
+          <source>Disconnect</source>
+          <target state="translated">斷開</target>
+        </trans-unit>
+        <trans-unit id="BluetoothAudio_Status_1" translate="yes" xml:space="preserve">
+          <source>Ready to connect</source>
+          <target state="translated">準備連接</target>
+        </trans-unit>
+        <trans-unit id="BluetoothAudio_Status_2" translate="yes" xml:space="preserve">
+          <source>Connecting...</source>
+          <target state="translated">正在連線...</target>
+        </trans-unit>
+        <trans-unit id="BluetoothAudio_Status_3" translate="yes" xml:space="preserve">
+          <source>Connected</source>
+          <target state="translated">已連接</target>
+        </trans-unit>
+        <trans-unit id="BluetoothAudio_Status_4" translate="yes" xml:space="preserve">
+          <source>Connection timeout, the device does not respond</source>
+          <target state="translated">連接超時，設備無響應</target>
+        </trans-unit>
+        <trans-unit id="BluetoothAudio_Status_5" translate="yes" xml:space="preserve">
+          <source>Windows refused to establish a connection</source>
+          <target state="translated">Windows拒絕建立連接</target>
+        </trans-unit>
+        <trans-unit id="BluetoothAudio_Status_6" translate="yes" xml:space="preserve">
+          <source>Unknown error detected</source>
+          <target state="translated">檢測到未知錯誤</target>
+        </trans-unit>
+        <trans-unit id="BluetoothAudio_Status_7" translate="yes" xml:space="preserve">
+          <source>Could not establish connection</source>
+          <target state="translated">無法建立連接</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -2664,4 +2664,46 @@
   <data name="QuickStartPickFileType.Text" xml:space="preserve">
     <value>您要选择哪一种类型？</value>
   </data>
+  <data name="BluetoothAudioQuestionTip.Subtitle" xml:space="preserve">
+    <value>此功能可以帮助您通过蓝牙分享其他设备上的音频并在本设备上播放。注意：您在使用本功能之前必须首先与其他蓝牙设备配对，否则将无法检测到该蓝牙设备。</value>
+  </data>
+  <data name="BluetoothAudioQuestionTip.Title" xml:space="preserve">
+    <value>蓝牙音频播放</value>
+  </data>
+  <data name="BluetoothAudioSelectionTip.Title" xml:space="preserve">
+    <value>选择蓝牙音频源</value>
+  </data>
+  <data name="BluetoothVerisonIncorrectTip.Text" xml:space="preserve">
+    <value>此功能需要Win10 2004以上版本</value>
+  </data>
+  <data name="BluetoothAudio.Text" xml:space="preserve">
+    <value>蓝牙音频</value>
+  </data>
+  <data name="BluetoothAudio_Button_Text_1" xml:space="preserve">
+    <value>连接</value>
+  </data>
+  <data name="BluetoothAudio_Button_Text_2" xml:space="preserve">
+    <value>断开连接</value>
+  </data>
+  <data name="BluetoothAudio_Status_1" xml:space="preserve">
+    <value>准备连接</value>
+  </data>
+  <data name="BluetoothAudio_Status_2" xml:space="preserve">
+    <value>正在连接...</value>
+  </data>
+  <data name="BluetoothAudio_Status_3" xml:space="preserve">
+    <value>已连接</value>
+  </data>
+  <data name="BluetoothAudio_Status_4" xml:space="preserve">
+    <value>连接超时，设备无响应</value>
+  </data>
+  <data name="BluetoothAudio_Status_5" xml:space="preserve">
+    <value>Windows拒绝建立连接</value>
+  </data>
+  <data name="BluetoothAudio_Status_6" xml:space="preserve">
+    <value>检测到未知错误</value>
+  </data>
+  <data name="BluetoothAudio_Status_7" xml:space="preserve">
+    <value>无法建立连接</value>
+  </data>
 </root>
