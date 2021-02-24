@@ -131,11 +131,11 @@ namespace RX_Explorer
                 {
                     if (!string.IsNullOrWhiteSpace(e.Arguments) && await FileSystemStorageItemBase.CheckExist(e.Arguments).ConfigureAwait(true))
                     {
-                        await TabContainer.CreateNewTabAsync(null, new string[] { e.Arguments }).ConfigureAwait(true);
+                        await TabContainer.CreateNewTabAsync(e.Arguments).ConfigureAwait(true);
                     }
                     else
                     {
-                        await TabContainer.CreateNewTabAsync(null, Array.Empty<string>()).ConfigureAwait(true);
+                        await TabContainer.CreateNewTabAsync().ConfigureAwait(true);
                     }
                 }
             }
@@ -223,16 +223,16 @@ namespace RX_Explorer
 
                             if (string.IsNullOrWhiteSpace(Path) || Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase))
                             {
-                                await TabContainer.CreateNewTabAsync(null, Array.Empty<string>()).ConfigureAwait(true);
+                                await TabContainer.CreateNewTabAsync().ConfigureAwait(true);
                             }
                             else
                             {
-                                await TabContainer.CreateNewTabAsync(null, Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path).ConfigureAwait(true);
+                                await TabContainer.CreateNewTabAsync(Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path).ConfigureAwait(true);
                             }
                         }
                         else
                         {
-                            await TabContainer.CreateNewTabAsync(null, Array.Empty<string>()).ConfigureAwait(true);
+                            await TabContainer.CreateNewTabAsync().ConfigureAwait(true);
                         }
                     }
                 }
@@ -296,7 +296,7 @@ namespace RX_Explorer
                 {
                     if (mainPageFrame.Content is MainPage mainPage && mainPage.Nav.Content is TabViewContainer Container)
                     {
-                        await Container.CreateNewTabAsync(null, args.Files.Select((File) => File.Path).ToArray()).ConfigureAwait(true);
+                        await Container.CreateNewTabAsync(args.Files.Select((File) => File.Path).ToArray()).ConfigureAwait(true);
                     }
                 }
                 else

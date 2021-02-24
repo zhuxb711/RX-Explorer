@@ -1,6 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Windows.UI.Xaml.Controls;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
+using Windows.Devices.Enumeration;
+using Windows.Devices.Portable;
+using Windows.Storage;
+using Windows.Storage.FileProperties;
+using Windows.System;
+using Windows.UI.Core;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
@@ -10,6 +21,410 @@ namespace RX_Explorer.Class
         public static ObservableCollection<LibraryFolder> LibraryFolderList { get; } = new ObservableCollection<LibraryFolder>();
         public static ObservableCollection<QuickStartItem> QuickStartList { get; } = new ObservableCollection<QuickStartItem>();
         public static ObservableCollection<QuickStartItem> HotWebList { get; } = new ObservableCollection<QuickStartItem>();
-        public static Dictionary<Frame, FileControl> FrameFileControlDic { get; } = new Dictionary<Frame, FileControl>();
+
+        private static readonly DeviceWatcher PortalDeviceWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
+
+        public static event EventHandler<HardDeviceInfo> DeviceAdded;
+
+        public static event EventHandler<HardDeviceInfo> DeviceRemoved;
+
+        public static event EventHandler<Queue<string>> LibraryNotFound;
+
+        public static async Task LoadQuickStartItemsAsync()
+        {
+            foreach (KeyValuePair<QuickStartType, QuickStartItem> Item in await SQLite.Current.GetQuickStartItemAsync().ConfigureAwait(true))
+            {
+                if (Item.Key == QuickStartType.Application)
+                {
+                    QuickStartList.Add(Item.Value);
+                }
+                else
+                {
+                    HotWebList.Add(Item.Value);
+                }
+            }
+        }
+
+        public static async Task LoadLibraryFoldersAsync()
+        {
+            if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("IsLibraryInitialized"))
+            {
+                try
+                {
+                    IReadOnlyList<User> UserList = await User.FindAllAsync();
+
+                    UserDataPaths DataPath = UserList.FirstOrDefault((User) => User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && User.Type == UserType.LocalUser) is User CurrentUser
+                                             ? UserDataPaths.GetForUser(CurrentUser)
+                                             : UserDataPaths.GetDefault();
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(DataPath.Downloads))
+                        {
+                            await SQLite.Current.SetLibraryPathAsync(DataPath.Downloads, LibraryType.Downloads).ConfigureAwait(true);
+                        }
+
+                        if (!string.IsNullOrEmpty(DataPath.Desktop))
+                        {
+                            await SQLite.Current.SetLibraryPathAsync(DataPath.Desktop, LibraryType.Desktop).ConfigureAwait(true);
+                        }
+
+                        if (!string.IsNullOrEmpty(DataPath.Videos))
+                        {
+                            await SQLite.Current.SetLibraryPathAsync(DataPath.Videos, LibraryType.Videos).ConfigureAwait(true);
+                        }
+
+                        if (!string.IsNullOrEmpty(DataPath.Pictures))
+                        {
+                            await SQLite.Current.SetLibraryPathAsync(DataPath.Pictures, LibraryType.Pictures).ConfigureAwait(true);
+                        }
+
+                        if (!string.IsNullOrEmpty(DataPath.Documents))
+                        {
+                            await SQLite.Current.SetLibraryPathAsync(DataPath.Documents, LibraryType.Document).ConfigureAwait(true);
+                        }
+
+                        if (!string.IsNullOrEmpty(DataPath.Music))
+                        {
+                            await SQLite.Current.SetLibraryPathAsync(DataPath.Music, LibraryType.Music).ConfigureAwait(true);
+                        }
+
+                        if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("OneDrive")))
+                        {
+                            await SQLite.Current.SetLibraryPathAsync(Environment.GetEnvironmentVariable("OneDrive"), LibraryType.OneDrive).ConfigureAwait(true);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "An error was threw when getting library folder (In initialize)");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "An error was threw when try to get 'UserDataPath' (In initialize)");
+
+                    string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                    if (!string.IsNullOrEmpty(DesktopPath))
+                    {
+                        await SQLite.Current.SetLibraryPathAsync(DesktopPath, LibraryType.Desktop).ConfigureAwait(true);
+                    }
+
+                    string VideoPath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
+                    if (!string.IsNullOrEmpty(VideoPath))
+                    {
+                        await SQLite.Current.SetLibraryPathAsync(VideoPath, LibraryType.Videos).ConfigureAwait(true);
+                    }
+
+                    string PicturesPath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+                    if (!string.IsNullOrEmpty(PicturesPath))
+                    {
+                        await SQLite.Current.SetLibraryPathAsync(PicturesPath, LibraryType.Pictures).ConfigureAwait(true);
+                    }
+
+                    string DocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                    if (!string.IsNullOrEmpty(DocumentsPath))
+                    {
+                        await SQLite.Current.SetLibraryPathAsync(DocumentsPath, LibraryType.Document).ConfigureAwait(true);
+                    }
+
+                    string MusicPath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+                    if (!string.IsNullOrEmpty(MusicPath))
+                    {
+                        await SQLite.Current.SetLibraryPathAsync(MusicPath, LibraryType.Music).ConfigureAwait(true);
+                    }
+
+                    string OneDrivePath = Environment.GetEnvironmentVariable("OneDrive");
+                    if (!string.IsNullOrEmpty(OneDrivePath))
+                    {
+                        await SQLite.Current.SetLibraryPathAsync(OneDrivePath, LibraryType.OneDrive).ConfigureAwait(true);
+                    }
+                }
+                finally
+                {
+                    ApplicationData.Current.LocalSettings.Values["IsLibraryInitialized"] = true;
+                }
+            }
+            else
+            {
+                try
+                {
+                    IReadOnlyList<User> UserList = await User.FindAllAsync();
+
+                    UserDataPaths DataPath = UserList.FirstOrDefault((User) => User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && User.Type == UserType.LocalUser) is User CurrentUser
+                                             ? UserDataPaths.GetForUser(CurrentUser)
+                                             : UserDataPaths.GetDefault();
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(DataPath.Downloads))
+                        {
+                            await SQLite.Current.UpdateLibraryAsync(DataPath.Downloads, LibraryType.Downloads).ConfigureAwait(true);
+                        }
+
+                        if (!string.IsNullOrEmpty(DataPath.Desktop))
+                        {
+                            await SQLite.Current.UpdateLibraryAsync(DataPath.Desktop, LibraryType.Desktop).ConfigureAwait(true);
+                        }
+
+                        if (!string.IsNullOrEmpty(DataPath.Videos))
+                        {
+                            await SQLite.Current.UpdateLibraryAsync(DataPath.Videos, LibraryType.Videos).ConfigureAwait(true);
+                        }
+
+                        if (!string.IsNullOrEmpty(DataPath.Pictures))
+                        {
+                            await SQLite.Current.UpdateLibraryAsync(DataPath.Pictures, LibraryType.Pictures).ConfigureAwait(true);
+                        }
+
+                        if (!string.IsNullOrEmpty(DataPath.Documents))
+                        {
+                            await SQLite.Current.UpdateLibraryAsync(DataPath.Documents, LibraryType.Document).ConfigureAwait(true);
+                        }
+
+                        if (!string.IsNullOrEmpty(DataPath.Music))
+                        {
+                            await SQLite.Current.UpdateLibraryAsync(DataPath.Music, LibraryType.Music).ConfigureAwait(true);
+                        }
+
+                        if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("OneDrive")))
+                        {
+                            await SQLite.Current.UpdateLibraryAsync(Environment.GetEnvironmentVariable("OneDrive"), LibraryType.OneDrive).ConfigureAwait(true);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "An error was threw when getting library folder (Not in initialize)");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "An error was threw when try to get 'UserDataPath' (Not in initialize)");
+
+                    string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                    if (!string.IsNullOrEmpty(DesktopPath))
+                    {
+                        await SQLite.Current.UpdateLibraryAsync(DesktopPath, LibraryType.Desktop).ConfigureAwait(true);
+                    }
+
+                    string VideoPath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
+                    if (!string.IsNullOrEmpty(VideoPath))
+                    {
+                        await SQLite.Current.UpdateLibraryAsync(VideoPath, LibraryType.Videos).ConfigureAwait(true);
+                    }
+
+                    string PicturesPath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+                    if (!string.IsNullOrEmpty(PicturesPath))
+                    {
+                        await SQLite.Current.UpdateLibraryAsync(PicturesPath, LibraryType.Pictures).ConfigureAwait(true);
+                    }
+
+                    string DocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                    if (!string.IsNullOrEmpty(DocumentsPath))
+                    {
+                        await SQLite.Current.UpdateLibraryAsync(DocumentsPath, LibraryType.Document).ConfigureAwait(true);
+                    }
+
+                    string MusicPath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+                    if (!string.IsNullOrEmpty(MusicPath))
+                    {
+                        await SQLite.Current.UpdateLibraryAsync(MusicPath, LibraryType.Music).ConfigureAwait(true);
+                    }
+
+                    string OneDrivePath = Environment.GetEnvironmentVariable("OneDrive");
+                    if (!string.IsNullOrEmpty(OneDrivePath))
+                    {
+                        await SQLite.Current.UpdateLibraryAsync(OneDrivePath, LibraryType.OneDrive).ConfigureAwait(true);
+                    }
+                }
+            }
+
+            Queue<string> ErrorList = new Queue<string>();
+
+            foreach ((string, LibraryType) Library in await SQLite.Current.GetLibraryPathAsync().ConfigureAwait(true))
+            {
+                try
+                {
+                    StorageFolder PinFolder = await StorageFolder.GetFolderFromPathAsync(Library.Item1);
+                    BitmapImage Thumbnail = await PinFolder.GetThumbnailBitmapAsync().ConfigureAwait(true);
+                    LibraryFolderList.Add(new LibraryFolder(PinFolder, Thumbnail, Library.Item2));
+                }
+                catch (Exception)
+                {
+                    ErrorList.Enqueue(Library.Item1);
+                    await SQLite.Current.DeleteLibraryAsync(Library.Item1).ConfigureAwait(true);
+                }
+            }
+
+            await JumpListController.Current.AddItemAsync(JumpListGroup.Library, LibraryFolderList.Where((Library) => Library.Type == LibraryType.UserCustom).Select((Library) => Library.Folder.Path).ToArray()).ConfigureAwait(true);
+
+            if (ErrorList.Count > 0)
+            {
+                LibraryNotFound?.Invoke(null, ErrorList);
+            }
+        }
+
+        public static async Task LoadDeviceAsync()
+        {
+            foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Network)
+                                                             .Where((NewItem) => HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
+            {
+                try
+                {
+                    StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(Drive.RootDirectory.FullName);
+
+                    BasicProperties Properties = await Device.GetBasicPropertiesAsync();
+                    IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
+
+                    HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Drive.DriveType));
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"Hide the device \"{Drive.RootDirectory.FullName}\" for error");
+                }
+            }
+
+            switch (PortalDeviceWatcher.Status)
+            {
+                case DeviceWatcherStatus.Created:
+                case DeviceWatcherStatus.Aborted:
+                case DeviceWatcherStatus.Stopped:
+                    {
+                        PortalDeviceWatcher.Start();
+                        break;
+                    }
+            }
+        }
+
+        private static async void PortalDeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
+        {
+            try
+            {
+                List<string> AllBaseDevice = DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Network)
+                                                                  .Select((Info) => Info.RootDirectory.FullName).ToList();
+
+                List<StorageFolder> PortableDevice = new List<StorageFolder>();
+
+                foreach (DeviceInformation Device in await DeviceInformation.FindAllAsync(StorageDevice.GetDeviceSelector()))
+                {
+                    try
+                    {
+                        PortableDevice.Add(StorageDevice.FromId(Device.Id));
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, $"Error happened when get storagefolder from {Device.Name}");
+                    }
+                }
+
+                foreach (string PortDevice in AllBaseDevice.Where((Path) => PortableDevice.Any((Item) => Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))))
+                {
+                    AllBaseDevice.Remove(PortDevice);
+                }
+
+                List<HardDeviceInfo> OneStepDeviceList = HardDeviceList.Where((Item) => !AllBaseDevice.Contains(Item.Folder.Path)).ToList();
+                List<HardDeviceInfo> TwoStepDeviceList = OneStepDeviceList.Where((RemoveItem) => PortableDevice.All((Item) => Item.Name != RemoveItem.Folder.Name)).ToList();
+
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    foreach (HardDeviceInfo Device in TwoStepDeviceList)
+                    {
+                        HardDeviceList.Remove(Device);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"Error happened when remove device from HardDeviceList");
+            }
+        }
+
+        private static async void PortalDeviceWatcher_Added(DeviceWatcher sender, DeviceInformation args)
+        {
+            try
+            {
+                StorageFolder DeviceFolder = StorageDevice.FromId(args.Id);
+
+                if (HardDeviceList.All((Device) => (string.IsNullOrEmpty(Device.Folder.Path) || string.IsNullOrEmpty(DeviceFolder.Path)) ? Device.Folder.Name != DeviceFolder.Name : Device.Folder.Path != DeviceFolder.Path))
+                {
+                    BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
+                    IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
+
+                    if (PropertiesRetrieve["System.Capacity"] is ulong && PropertiesRetrieve["System.FreeSpace"] is ulong)
+                    {
+                        await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                        {
+                            HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
+                        });
+                    }
+                    else
+                    {
+                        IReadOnlyList<IStorageItem> InnerItemList = await DeviceFolder.GetItemsAsync(0, 2);
+
+                        if (InnerItemList.Count == 1 && InnerItemList[0] is StorageFolder InnerFolder)
+                        {
+                            BasicProperties InnerProperties = await InnerFolder.GetBasicPropertiesAsync();
+                            IDictionary<string, object> InnerPropertiesRetrieve = await InnerProperties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
+
+                            if (InnerPropertiesRetrieve["System.Capacity"] is ulong && InnerPropertiesRetrieve["System.FreeSpace"] is ulong)
+                            {
+                                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                                {
+                                    HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), InnerPropertiesRetrieve, DriveType.Removable));
+                                });
+                            }
+                            else
+                            {
+                                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                                {
+                                    HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
+                                });
+                            }
+                        }
+                        else
+                        {
+                            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                            {
+                                HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"Error happened when add device to HardDeviceList");
+            }
+        }
+
+        private static void HardDeviceList_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+                    {
+                        foreach (HardDeviceInfo Device in e.NewItems)
+                        {
+                            DeviceAdded?.Invoke(null, Device);
+                        }
+
+                        break;
+                    }
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
+                    {
+                        foreach (HardDeviceInfo Device in e.NewItems)
+                        {
+                            DeviceRemoved?.Invoke(null, Device);
+                        }
+
+                        break;
+                    }
+            }
+        }
+
+
+        static CommonAccessCollection()
+        {
+            PortalDeviceWatcher.Added += PortalDeviceWatcher_Added;
+            PortalDeviceWatcher.Removed += PortalDeviceWatcher_Removed;
+            HardDeviceList.CollectionChanged += HardDeviceList_CollectionChanged;
+        }
     }
 }

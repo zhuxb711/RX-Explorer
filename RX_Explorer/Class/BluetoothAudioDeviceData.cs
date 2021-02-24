@@ -13,7 +13,7 @@ namespace RX_Explorer.Class
 
         private AudioPlaybackConnection AudioConnection;
 
-        private static EventHandler<bool> ConnectionStatusChanged;
+        private static event EventHandler<bool> ConnectionStatusChanged;
 
         public BitmapImage Glyph { get; }
 

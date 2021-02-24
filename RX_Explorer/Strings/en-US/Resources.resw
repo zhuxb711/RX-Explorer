@@ -1902,9 +1902,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="Progress_Tip_NoFeedback" xml:space="preserve">
     <value>No feedback or suggestions</value>
   </data>
-  <data name="QueueDialog_AddDeviceFail_Content" xml:space="preserve">
-    <value>Cannot add removable device due to lack of sufficient permissions, Device name:</value>
-  </data>
   <data name="QueueDialog_BootAtStart_Content" xml:space="preserve">
     <value>RX cannot be turned on automatically because startup is disabled by the system\rYou can go to the [System Settings] page to manage</value>
     <comment>Please keep all \r in this sentence after translate</comment>
@@ -2184,9 +2181,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="FeedBackTranslateButton.Label" xml:space="preserve">
     <value>Translate</value>
-  </data>
-  <data name="Common_Dialog_DoNotTip" xml:space="preserve">
-    <value>No prompt</value>
   </data>
   <data name="QueueDialog_FolderRepeat_CloseButton" xml:space="preserve">
     <value>Save copy</value>

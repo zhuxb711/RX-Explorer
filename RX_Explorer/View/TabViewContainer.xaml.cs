@@ -31,7 +31,6 @@ namespace RX_Explorer
     {
         public static Frame CurrentNavigationControl { get; private set; }
 
-        private readonly DeviceWatcher PortalDeviceWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
 
         public static TabViewContainer ThisPage { get; private set; }
 
@@ -40,12 +39,29 @@ namespace RX_Explorer
             InitializeComponent();
             ThisPage = this;
             Loaded += TabViewContainer_Loaded;
-            PortalDeviceWatcher.Added += PortalDeviceWatcher_Added;
-            PortalDeviceWatcher.Removed += PortalDeviceWatcher_Removed;
-            Application.Current.Resuming += Current_Resuming;
             Application.Current.Suspending += Current_Suspending;
             CoreWindow.GetForCurrentThread().PointerPressed += TabViewContainer_PointerPressed;
             CoreWindow.GetForCurrentThread().KeyDown += TabViewContainer_KeyDown;
+            CommonAccessCollection.LibraryNotFound += CommonAccessCollection_LibraryNotFound;
+        }
+
+        private async void CommonAccessCollection_LibraryNotFound(object sender, Queue<string> ErrorList)
+        {
+            StringBuilder Builder = new StringBuilder();
+
+            while (ErrorList.TryDequeue(out string ErrorMessage))
+            {
+                Builder.AppendLine($"   {ErrorMessage}");
+            }
+
+            QueueContentDialog dialog = new QueueContentDialog
+            {
+                Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                Content = Globalization.GetString("QueueDialog_PinFolderNotFound_Content") + Builder.ToString(),
+                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+            };
+
+            await dialog.ShowAsync().ConfigureAwait(true);
         }
 
         private async void TabViewContainer_KeyDown(CoreWindow sender, KeyEventArgs args)
@@ -75,7 +91,7 @@ namespace RX_Explorer
                     {
                         case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                             {
-                                await CreateNewTabAsync(null).ConfigureAwait(true);
+                                await CreateNewTabAsync().ConfigureAwait(true);
                                 args.Handled = true;
 
                                 break;
@@ -194,27 +210,58 @@ namespace RX_Explorer
             }
         }
 
-        public async Task CreateNewTabAsync(int? InsertIndex, params string[] Path)
+        public async Task CreateNewTabAsync(List<string[]> BulkTabWithPath)
         {
-            int Index = InsertIndex ?? (TabViewControl?.TabItems.Count ?? 0);
-
             try
             {
-                if (await CreateNewTabCoreAsync(Path).ConfigureAwait(true) is TabViewItem Item)
+                foreach (string[] PathArray in BulkTabWithPath)
                 {
-                    TabViewControl.TabItems.Insert(Index, Item);
+                    TabViewControl.TabItems.Add(await CreateNewTabCoreAsync(PathArray).ConfigureAwait(true));
                     TabViewControl.UpdateLayout();
-                    TabViewControl.SelectedItem = Item;
                 }
             }
             catch (Exception ex)
             {
-                if (await CreateNewTabCoreAsync().ConfigureAwait(true) is TabViewItem Item)
-                {
-                    TabViewControl.TabItems.Insert(Index, Item);
-                    TabViewControl.UpdateLayout();
-                    TabViewControl.SelectedItem = Item;
-                }
+                TabViewControl.TabItems.Add(await CreateNewTabCoreAsync().ConfigureAwait(true));
+                TabViewControl.UpdateLayout();
+
+                LogTracer.Log(ex, "Error happened when try to create a new tab");
+            }
+        }
+
+        public async Task CreateNewTabAsync(params string[] PathArray)
+        {
+            try
+            {
+                TabViewItem Item = await CreateNewTabCoreAsync(PathArray).ConfigureAwait(true);
+                TabViewControl.TabItems.Add(Item);
+                TabViewControl.SelectedItem = Item;
+            }
+            catch (Exception ex)
+            {
+                TabViewItem Item = await CreateNewTabCoreAsync().ConfigureAwait(true);
+                TabViewControl.TabItems.Add(Item);
+                TabViewControl.SelectedItem = Item;
+
+                LogTracer.Log(ex, "Error happened when try to create a new tab");
+            }
+        }
+
+        public async Task CreateNewTabAsync(int InsertIndex, params string[] PathArray)
+        {
+            int Index = InsertIndex > 0 ? (InsertIndex <= TabViewControl.TabItems.Count ? InsertIndex : TabViewControl.TabItems.Count) : 0;
+
+            try
+            {
+                TabViewItem Item = await CreateNewTabCoreAsync(PathArray).ConfigureAwait(true);
+                TabViewControl.TabItems.Insert(Index, Item);
+                TabViewControl.SelectedItem = Item;
+            }
+            catch (Exception ex)
+            {
+                TabViewItem Item = await CreateNewTabCoreAsync().ConfigureAwait(true);
+                TabViewControl.TabItems.Insert(Index, Item);
+                TabViewControl.SelectedItem = Item;
 
                 LogTracer.Log(ex, "Error happened when try to create a new tab");
             }
@@ -226,9 +273,9 @@ namespace RX_Explorer
             {
                 List<string[]> PathList = new List<string[]>();
 
-                foreach (Frame frame in TabViewControl.TabItems.OfType<TabViewItem>().Select((Tab) => Tab.Content as Frame))
+                foreach (FileControl Control in TabViewControl.TabItems.OfType<TabViewItem>().Select((Tab) => Tab.Tag as FileControl))
                 {
-                    if (CommonAccessCollection.FrameFileControlDic.TryGetValue(frame, out FileControl Control))
+                    if (Control != null)
                     {
                         PathList.Add(Control.BladeViewer.Items.OfType<Microsoft.Toolkit.Uwp.UI.Controls.BladeItem>().Select((Blade) => (Blade.Content as FilePresenter)?.CurrentFolder?.Path).ToArray());
                     }
@@ -240,148 +287,6 @@ namespace RX_Explorer
 
                 StartupModeController.SetLastOpenedPath(PathList);
             }
-
-            if (PortalDeviceWatcher != null && (PortalDeviceWatcher.Status == DeviceWatcherStatus.Started || PortalDeviceWatcher.Status == DeviceWatcherStatus.EnumerationCompleted))
-            {
-                PortalDeviceWatcher.Stop();
-            }
-        }
-
-        private void Current_Resuming(object sender, object e)
-        {
-            switch (PortalDeviceWatcher.Status)
-            {
-                case DeviceWatcherStatus.Created:
-                case DeviceWatcherStatus.Aborted:
-                case DeviceWatcherStatus.Stopped:
-                    {
-                        PortalDeviceWatcher?.Start();
-                        break;
-                    }
-            }
-        }
-
-        private async void PortalDeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
-        {
-            try
-            {
-                List<string> AllBaseDevice = DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Network)
-                                                                  .Select((Info) => Info.RootDirectory.FullName).ToList();
-
-                List<StorageFolder> PortableDevice = new List<StorageFolder>();
-
-                foreach (DeviceInformation Device in await DeviceInformation.FindAllAsync(StorageDevice.GetDeviceSelector()))
-                {
-                    try
-                    {
-                        PortableDevice.Add(StorageDevice.FromId(Device.Id));
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, $"Error happened when get storagefolder from {Device.Name}");
-                    }
-                }
-
-                foreach (string PortDevice in AllBaseDevice.Where((Path) => PortableDevice.Any((Item) => Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase))))
-                {
-                    AllBaseDevice.Remove(PortDevice);
-                }
-
-                List<HardDeviceInfo> OneStepDeviceList = CommonAccessCollection.HardDeviceList.Where((Item) => !AllBaseDevice.Contains(Item.Folder.Path)).ToList();
-                List<HardDeviceInfo> TwoStepDeviceList = OneStepDeviceList.Where((RemoveItem) => PortableDevice.All((Item) => Item.Name != RemoveItem.Folder.Name)).ToList();
-
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                {
-                    foreach (HardDeviceInfo Device in TwoStepDeviceList)
-                    {
-                        foreach (TabViewItem Tab in TabViewControl.TabItems.OfType<TabViewItem>().Where((Tab) => Tab.Content is Frame frame && CommonAccessCollection.FrameFileControlDic.TryGetValue(frame, out FileControl Value) && Path.GetPathRoot(Value.CurrentPresenter.CurrentFolder?.Path) == Device.Folder?.Path).ToArray())
-                        {
-                            await CleanUpAndRemoveTabItem(Tab).ConfigureAwait(true);
-                        }
-
-                        CommonAccessCollection.HardDeviceList.Remove(Device);
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, $"Error happened when remove device from HardDeviceList");
-            }
-        }
-
-        private async void PortalDeviceWatcher_Added(DeviceWatcher sender, DeviceInformation args)
-        {
-            try
-            {
-                StorageFolder DeviceFolder = StorageDevice.FromId(args.Id);
-
-                if (CommonAccessCollection.HardDeviceList.All((Device) => (string.IsNullOrEmpty(Device.Folder.Path) || string.IsNullOrEmpty(DeviceFolder.Path)) ? Device.Folder.Name != DeviceFolder.Name : Device.Folder.Path != DeviceFolder.Path))
-                {
-                    BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
-                    IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
-
-                    if (PropertiesRetrieve["System.Capacity"] is ulong && PropertiesRetrieve["System.FreeSpace"] is ulong)
-                    {
-                        await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                        {
-                            CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
-                        });
-                    }
-                    else
-                    {
-                        IReadOnlyList<IStorageItem> InnerItemList = await DeviceFolder.GetItemsAsync(0, 2);
-
-                        if (InnerItemList.Count == 1 && InnerItemList[0] is StorageFolder InnerFolder)
-                        {
-                            BasicProperties InnerProperties = await InnerFolder.GetBasicPropertiesAsync();
-                            IDictionary<string, object> InnerPropertiesRetrieve = await InnerProperties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
-
-                            if (InnerPropertiesRetrieve["System.Capacity"] is ulong && InnerPropertiesRetrieve["System.FreeSpace"] is ulong)
-                            {
-                                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                                {
-                                    CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), InnerPropertiesRetrieve, DriveType.Removable));
-                                });
-                            }
-                            else
-                            {
-                                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                                {
-                                    CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
-                                });
-                            }
-                        }
-                        else
-                        {
-                            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                            {
-                                CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
-                            });
-                        }
-                    }
-                }
-            }
-            catch
-            {
-                if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("DisableDeviceFailTip"))
-                {
-                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                            Content = $"{Globalization.GetString("QueueDialog_AddDeviceFail_Content")} \"{args.Name}\"",
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_DoNotTip"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-
-                        if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                        {
-                            ApplicationData.Current.LocalSettings.Values["DisableDeviceFailTip"] = true;
-                        }
-                    });
-                }
-            }
         }
 
         private async void TabViewContainer_Loaded(object sender, RoutedEventArgs e)
@@ -392,301 +297,18 @@ namespace RX_Explorer
             {
                 if ((MainPage.ThisPage.ActivatePathArray?.Count).GetValueOrDefault() == 0)
                 {
-                    await CreateNewTabAsync(null).ConfigureAwait(true);
-                    await Task.WhenAll(LoadQuickStartItemsAsync(), LoadDeviceAsync(), LoadLibraryAsync()).ConfigureAwait(true);
+                    await CreateNewTabAsync().ConfigureAwait(true);
                 }
                 else
                 {
-                    await Task.WhenAll(LoadQuickStartItemsAsync(), LoadDeviceAsync(), LoadLibraryAsync()).ConfigureAwait(true);
-
-                    foreach (string[] PathArray in MainPage.ThisPage.ActivatePathArray)
-                    {
-                        await CreateNewTabAsync(null, PathArray).ConfigureAwait(true);
-                    }
+                    await CreateNewTabAsync(MainPage.ThisPage.ActivatePathArray).ConfigureAwait(true);
                 }
+
+                await Task.WhenAll(CommonAccessCollection.LoadQuickStartItemsAsync(), CommonAccessCollection.LoadDeviceAsync(), CommonAccessCollection.LoadLibraryFoldersAsync()).ConfigureAwait(true);
             }
             catch (Exception ex)
             {
                 LogTracer.LeadToBlueScreen(ex);
-            }
-        }
-
-        private async Task LoadQuickStartItemsAsync()
-        {
-            foreach (KeyValuePair<QuickStartType, QuickStartItem> Item in await SQLite.Current.GetQuickStartItemAsync().ConfigureAwait(true))
-            {
-                if (Item.Key == QuickStartType.Application)
-                {
-                    CommonAccessCollection.QuickStartList.Add(Item.Value);
-                }
-                else
-                {
-                    CommonAccessCollection.HotWebList.Add(Item.Value);
-                }
-            }
-        }
-
-        private async Task LoadLibraryAsync()
-        {
-            if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("IsLibraryInitialized"))
-            {
-                try
-                {
-                    IReadOnlyList<User> UserList = await User.FindAllAsync();
-
-                    UserDataPaths DataPath = UserList.FirstOrDefault((User) => User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && User.Type == UserType.LocalUser) is User CurrentUser
-                                             ? UserDataPaths.GetForUser(CurrentUser)
-                                             : UserDataPaths.GetDefault();
-                    try
-                    {
-                        if (!string.IsNullOrEmpty(DataPath.Downloads))
-                        {
-                            await SQLite.Current.SetLibraryPathAsync(DataPath.Downloads, LibraryType.Downloads).ConfigureAwait(true);
-                        }
-
-                        if (!string.IsNullOrEmpty(DataPath.Desktop))
-                        {
-                            await SQLite.Current.SetLibraryPathAsync(DataPath.Desktop, LibraryType.Desktop).ConfigureAwait(true);
-                        }
-
-                        if (!string.IsNullOrEmpty(DataPath.Videos))
-                        {
-                            await SQLite.Current.SetLibraryPathAsync(DataPath.Videos, LibraryType.Videos).ConfigureAwait(true);
-                        }
-
-                        if (!string.IsNullOrEmpty(DataPath.Pictures))
-                        {
-                            await SQLite.Current.SetLibraryPathAsync(DataPath.Pictures, LibraryType.Pictures).ConfigureAwait(true);
-                        }
-
-                        if (!string.IsNullOrEmpty(DataPath.Documents))
-                        {
-                            await SQLite.Current.SetLibraryPathAsync(DataPath.Documents, LibraryType.Document).ConfigureAwait(true);
-                        }
-
-                        if (!string.IsNullOrEmpty(DataPath.Music))
-                        {
-                            await SQLite.Current.SetLibraryPathAsync(DataPath.Music, LibraryType.Music).ConfigureAwait(true);
-                        }
-
-                        if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("OneDrive")))
-                        {
-                            await SQLite.Current.SetLibraryPathAsync(Environment.GetEnvironmentVariable("OneDrive"), LibraryType.OneDrive).ConfigureAwait(true);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "An error was threw when getting library folder (In initialize)");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "An error was threw when try to get 'UserDataPath' (In initialize)");
-
-                    string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-                    if (!string.IsNullOrEmpty(DesktopPath))
-                    {
-                        await SQLite.Current.SetLibraryPathAsync(DesktopPath, LibraryType.Desktop).ConfigureAwait(true);
-                    }
-
-                    string VideoPath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
-                    if (!string.IsNullOrEmpty(VideoPath))
-                    {
-                        await SQLite.Current.SetLibraryPathAsync(VideoPath, LibraryType.Videos).ConfigureAwait(true);
-                    }
-
-                    string PicturesPath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-                    if (!string.IsNullOrEmpty(PicturesPath))
-                    {
-                        await SQLite.Current.SetLibraryPathAsync(PicturesPath, LibraryType.Pictures).ConfigureAwait(true);
-                    }
-
-                    string DocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                    if (!string.IsNullOrEmpty(DocumentsPath))
-                    {
-                        await SQLite.Current.SetLibraryPathAsync(DocumentsPath, LibraryType.Document).ConfigureAwait(true);
-                    }
-
-                    string MusicPath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
-                    if (!string.IsNullOrEmpty(MusicPath))
-                    {
-                        await SQLite.Current.SetLibraryPathAsync(MusicPath, LibraryType.Music).ConfigureAwait(true);
-                    }
-
-                    string OneDrivePath = Environment.GetEnvironmentVariable("OneDrive");
-                    if (!string.IsNullOrEmpty(OneDrivePath))
-                    {
-                        await SQLite.Current.SetLibraryPathAsync(OneDrivePath, LibraryType.OneDrive).ConfigureAwait(true);
-                    }
-                }
-                finally
-                {
-                    ApplicationData.Current.LocalSettings.Values["IsLibraryInitialized"] = true;
-                }
-            }
-            else
-            {
-                try
-                {
-                    IReadOnlyList<User> UserList = await User.FindAllAsync();
-
-                    UserDataPaths DataPath = UserList.FirstOrDefault((User) => User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && User.Type == UserType.LocalUser) is User CurrentUser
-                                             ? UserDataPaths.GetForUser(CurrentUser)
-                                             : UserDataPaths.GetDefault();
-                    try
-                    {
-                        if (!string.IsNullOrEmpty(DataPath.Downloads))
-                        {
-                            await SQLite.Current.UpdateLibraryAsync(DataPath.Downloads, LibraryType.Downloads).ConfigureAwait(true);
-                        }
-
-                        if (!string.IsNullOrEmpty(DataPath.Desktop))
-                        {
-                            await SQLite.Current.UpdateLibraryAsync(DataPath.Desktop, LibraryType.Desktop).ConfigureAwait(true);
-                        }
-
-                        if (!string.IsNullOrEmpty(DataPath.Videos))
-                        {
-                            await SQLite.Current.UpdateLibraryAsync(DataPath.Videos, LibraryType.Videos).ConfigureAwait(true);
-                        }
-
-                        if (!string.IsNullOrEmpty(DataPath.Pictures))
-                        {
-                            await SQLite.Current.UpdateLibraryAsync(DataPath.Pictures, LibraryType.Pictures).ConfigureAwait(true);
-                        }
-
-                        if (!string.IsNullOrEmpty(DataPath.Documents))
-                        {
-                            await SQLite.Current.UpdateLibraryAsync(DataPath.Documents, LibraryType.Document).ConfigureAwait(true);
-                        }
-
-                        if (!string.IsNullOrEmpty(DataPath.Music))
-                        {
-                            await SQLite.Current.UpdateLibraryAsync(DataPath.Music, LibraryType.Music).ConfigureAwait(true);
-                        }
-
-                        if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("OneDrive")))
-                        {
-                            await SQLite.Current.UpdateLibraryAsync(Environment.GetEnvironmentVariable("OneDrive"), LibraryType.OneDrive).ConfigureAwait(true);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "An error was threw when getting library folder (Not in initialize)");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "An error was threw when try to get 'UserDataPath' (Not in initialize)");
-
-                    string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-                    if (!string.IsNullOrEmpty(DesktopPath))
-                    {
-                        await SQLite.Current.UpdateLibraryAsync(DesktopPath, LibraryType.Desktop).ConfigureAwait(true);
-                    }
-
-                    string VideoPath = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
-                    if (!string.IsNullOrEmpty(VideoPath))
-                    {
-                        await SQLite.Current.UpdateLibraryAsync(VideoPath, LibraryType.Videos).ConfigureAwait(true);
-                    }
-
-                    string PicturesPath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-                    if (!string.IsNullOrEmpty(PicturesPath))
-                    {
-                        await SQLite.Current.UpdateLibraryAsync(PicturesPath, LibraryType.Pictures).ConfigureAwait(true);
-                    }
-
-                    string DocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                    if (!string.IsNullOrEmpty(DocumentsPath))
-                    {
-                        await SQLite.Current.UpdateLibraryAsync(DocumentsPath, LibraryType.Document).ConfigureAwait(true);
-                    }
-
-                    string MusicPath = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
-                    if (!string.IsNullOrEmpty(MusicPath))
-                    {
-                        await SQLite.Current.UpdateLibraryAsync(MusicPath, LibraryType.Music).ConfigureAwait(true);
-                    }
-
-                    string OneDrivePath = Environment.GetEnvironmentVariable("OneDrive");
-                    if (!string.IsNullOrEmpty(OneDrivePath))
-                    {
-                        await SQLite.Current.UpdateLibraryAsync(OneDrivePath, LibraryType.OneDrive).ConfigureAwait(true);
-                    }
-                }
-            }
-
-            Queue<string> ErrorList = new Queue<string>();
-
-            foreach ((string, LibraryType) Library in await SQLite.Current.GetLibraryPathAsync().ConfigureAwait(true))
-            {
-                try
-                {
-                    StorageFolder PinFolder = await StorageFolder.GetFolderFromPathAsync(Library.Item1);
-                    BitmapImage Thumbnail = await PinFolder.GetThumbnailBitmapAsync().ConfigureAwait(true);
-                    CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(PinFolder, Thumbnail, Library.Item2));
-                }
-                catch (Exception)
-                {
-                    ErrorList.Enqueue(Library.Item1);
-                    await SQLite.Current.DeleteLibraryAsync(Library.Item1).ConfigureAwait(true);
-                }
-            }
-
-            await JumpListController.Current.AddItemAsync(JumpListGroup.Library, CommonAccessCollection.LibraryFolderList.Where((Library) => Library.Type == LibraryType.UserCustom).Select((Library) => Library.Folder.Path).ToArray()).ConfigureAwait(true);
-
-            if (ErrorList.Count > 0)
-            {
-                StringBuilder Builder = new StringBuilder();
-
-                while (ErrorList.TryDequeue(out string ErrorMessage))
-                {
-                    Builder.AppendLine($"   {ErrorMessage}");
-                }
-
-                QueueContentDialog dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                    Content = Globalization.GetString("QueueDialog_PinFolderNotFound_Content") + Builder.ToString(),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
-            }
-        }
-
-        private async Task LoadDeviceAsync()
-        {
-            foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Network)
-                                                             .Where((NewItem) => CommonAccessCollection.HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
-            {
-                try
-                {
-                    StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(Drive.RootDirectory.FullName);
-
-                    BasicProperties Properties = await Device.GetBasicPropertiesAsync();
-                    IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
-
-                    CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Drive.DriveType));
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"Hide the device \"{Drive.RootDirectory.FullName}\" for error");
-                }
-            }
-
-            if (PortalDeviceWatcher != null)
-            {
-                switch (PortalDeviceWatcher.Status)
-                {
-                    case DeviceWatcherStatus.Created:
-                    case DeviceWatcherStatus.Aborted:
-                    case DeviceWatcherStatus.Stopped:
-                        {
-                            PortalDeviceWatcher.Start();
-                            break;
-                        }
-                }
             }
         }
 
@@ -697,7 +319,7 @@ namespace RX_Explorer
 
         private async void TabViewControl_AddTabButtonClick(TabView sender, object args)
         {
-            await CreateNewTabAsync(null).ConfigureAwait(true);
+            await CreateNewTabAsync().ConfigureAwait(true);
         }
 
         private async Task<TabViewItem> CreateNewTabCoreAsync(params string[] PathForNewTab)
@@ -727,31 +349,28 @@ namespace RX_Explorer
                 }
             }
 
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            if (AnimationController.Current.IsEnableAnimation)
             {
+                frame.Navigate(typeof(ThisPC), new WeakReference<TabViewItem>(Item), new DrillInNavigationTransitionInfo());
+            }
+            else
+            {
+                frame.Navigate(typeof(ThisPC), new WeakReference<TabViewItem>(Item), new SuppressNavigationTransitionInfo());
+            }
+
+            if (ValidPathArray.Count > 0)
+            {
+                Item.Header = Path.GetFileName(ValidPathArray.Last());
+
                 if (AnimationController.Current.IsEnableAnimation)
                 {
-                    frame.Navigate(typeof(ThisPC), new WeakReference<TabViewItem>(Item), new DrillInNavigationTransitionInfo());
+                    frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string[]>(new WeakReference<TabViewItem>(Item), ValidPathArray.ToArray()), new DrillInNavigationTransitionInfo());
                 }
                 else
                 {
-                    frame.Navigate(typeof(ThisPC), new WeakReference<TabViewItem>(Item), new SuppressNavigationTransitionInfo());
+                    frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string[]>(new WeakReference<TabViewItem>(Item), ValidPathArray.ToArray()), new SuppressNavigationTransitionInfo());
                 }
-
-                if (ValidPathArray.Count > 0)
-                {
-                    Item.Header = Path.GetFileName(ValidPathArray.Last());
-
-                    if (AnimationController.Current.IsEnableAnimation)
-                    {
-                        frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string[]>(new WeakReference<TabViewItem>(Item), ValidPathArray.ToArray()), new DrillInNavigationTransitionInfo());
-                    }
-                    else
-                    {
-                        frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string[]>(new WeakReference<TabViewItem>(Item), ValidPathArray.ToArray()), new SuppressNavigationTransitionInfo());
-                    }
-                }
-            });
+            }
 
             return Item;
         }
@@ -872,11 +491,9 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if (CommonAccessCollection.FrameFileControlDic.TryGetValue(frame, out FileControl Control))
+                    if (args.Tab.Tag is FileControl Control)
                     {
-                        string PathString = string.Join("||", Control.BladeViewer.Items.OfType<Microsoft.Toolkit.Uwp.UI.Controls.BladeItem>().Select((Item) => (Item.Content as FilePresenter)?.CurrentFolder?.Path));
-
-                        ItemElement.InnerText = $"FileControl||{PathString}";
+                        ItemElement.InnerText = $"FileControl||{string.Join("||", Control.BladeViewer.Items.OfType<Microsoft.Toolkit.Uwp.UI.Controls.BladeItem>().Select((Item) => ((Item.Content as FilePresenter)?.CurrentFolder?.Path)))}";
                     }
                     else
                     {
@@ -907,11 +524,10 @@ namespace RX_Explorer
                         await CleanUpAndRemoveTabItem(args.Tab).ConfigureAwait(true);
                         await Launcher.LaunchUriAsync(new Uri($"rx-explorer:"));
                     }
-                    else if (CommonAccessCollection.FrameFileControlDic.TryGetValue(frame, out FileControl Control))
+                    else if (args.Tab.Tag is FileControl Control)
                     {
-                        string PathString = string.Join("||", Control.BladeViewer.Items.OfType<Microsoft.Toolkit.Uwp.UI.Controls.BladeItem>().Select((Item) => (Item.Content as FilePresenter)?.CurrentFolder?.Path));
+                        Uri NewWindowActivationUri = new Uri($"rx-explorer:{Uri.EscapeDataString(string.Join("||", Control.BladeViewer.Items.OfType<Microsoft.Toolkit.Uwp.UI.Controls.BladeItem>().Select((Item) => ((Item.Content as FilePresenter)?.CurrentFolder?.Path))))}");
 
-                        Uri NewWindowActivationUri = new Uri($"rx-explorer:{Uri.EscapeDataString(PathString)}");
                         await CleanUpAndRemoveTabItem(args.Tab).ConfigureAwait(true);
                         await Launcher.LaunchUriAsync(NewWindowActivationUri);
                     }
@@ -1038,22 +654,9 @@ namespace RX_Explorer
                 throw new ArgumentNullException(nameof(Tab), "Argument could not be null");
             }
 
-            if (Tab.Content is Frame frame)
+            if (Tab.Tag is FileControl Control)
             {
-                while (frame.CanGoBack)
-                {
-                    if (frame.Content is FileControl Control)
-                    {
-                        Control.Dispose();
-                        break;
-                    }
-                    else
-                    {
-                        frame.GoBack();
-                    }
-                }
-
-                CommonAccessCollection.FrameFileControlDic.Remove(frame);
+                Control.Dispose();
             }
 
             Tab.DragEnter -= Item_DragEnter;

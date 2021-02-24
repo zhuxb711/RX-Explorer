@@ -1769,9 +1769,6 @@
   <data name="Progress_Tip_NoFeedback" xml:space="preserve">
     <value>沒有回饋或建議</value>
   </data>
-  <data name="QueueDialog_AddDeviceFail_Content" xml:space="preserve">
-    <value>由於權限不足，無法增加可外接裝置，設備名稱：</value>
-  </data>
   <data name="QueueDialog_BootAtStart_Content" xml:space="preserve">
     <value>無法啟動RX 檔案總管，因為系統已禁用啟動\r您可以轉到[設定]進行管理</value>
     <comment>Please keep all \r in this sentence after translate</comment>
@@ -2048,9 +2045,6 @@
   </data>
   <data name="FeedBackTranslateButton.Label" xml:space="preserve">
     <value>翻譯</value>
-  </data>
-  <data name="Common_Dialog_DoNotTip" xml:space="preserve">
-    <value>沒有提示</value>
   </data>
   <data name="QueueDialog_FolderRepeat_CloseButton" xml:space="preserve">
     <value>儲存複本</value>

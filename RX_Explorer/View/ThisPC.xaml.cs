@@ -816,7 +816,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabViewControl.TabItems.OfType<TabViewItem>().Where((Tab) => Tab.Content is Frame frame && CommonAccessCollection.FrameFileControlDic.TryGetValue(frame, out FileControl Control) && Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder?.Path) == Item.Folder.Path).ToArray())
+                    foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabViewControl.TabItems.OfType<TabViewItem>().Where((Tab) => Tab.Tag is FileControl Control && Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder?.Path) == Item.Folder.Path).ToArray())
                     {
                         await TabViewContainer.ThisPage.CleanUpAndRemoveTabItem(Tab).ConfigureAwait(true);
                     }

@@ -1747,9 +1747,6 @@
   <data name="Progress_Tip_NoFeedback" xml:space="preserve">
     <value>Aucun commentaire ou suggestion</value>
   </data>
-  <data name="QueueDialog_AddDeviceFail_Content" xml:space="preserve">
-    <value>Impossible de retirer l'appareil à cause d'un manque de permissions. Nom de l'appareil:</value>
-  </data>
   <data name="QueueDialog_BootAtStart_Content" xml:space="preserve">
     <value>RX ne peut pas être démarré automatiquement car le démarrage est désactivé par le système\rVous pouvez aller à cette page [System Settings] pour modifier ceci</value>
     <comment>Please keep all \r in this sentence after translate</comment>
@@ -2045,9 +2042,6 @@
   </data>
   <data name="FeedBackTranslateButton.Label" xml:space="preserve">
     <value>Traduire</value>
-  </data>
-  <data name="Common_Dialog_DoNotTip" xml:space="preserve">
-    <value>Aucune invite</value>
   </data>
   <data name="QueueDialog_FolderRepeat_CloseButton" xml:space="preserve">
     <value>Enregistrer la copie</value>

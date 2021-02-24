@@ -234,7 +234,7 @@ namespace RX_Explorer
 
         private async void Current_ViewModeChanged(object sender, ViewModeController.ViewModeChangedEventArgs e)
         {
-            if (e.Path == CurrentFolder.Path && CurrentViewModeIndex != e.Index)
+            if (e.Path == CurrentFolder?.Path && CurrentViewModeIndex != e.Index)
             {
                 switch (e.Index)
                 {
@@ -457,6 +457,11 @@ namespace RX_Explorer
                     _ = await dialog.ShowAsync().ConfigureAwait(true);
 
                     return;
+                }
+
+                if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent)?.Path == Path.GetPathRoot(FolderPath)) is TreeViewNode RootNode)
+                {
+                    Container.FolderTree.SelectNodeAndScrollToVertical(RootNode);
                 }
 
                 FileCollection.Clear();
@@ -721,12 +726,12 @@ namespace RX_Explorer
                                 {
                                     if (Item.StorageType == StorageItemTypes.Folder)
                                     {
-                                        await TabViewContainer.ThisPage.CreateNewTabAsync(null, Item.Path).ConfigureAwait(true);
+                                        await TabViewContainer.ThisPage.CreateNewTabAsync(Item.Path).ConfigureAwait(true);
                                     }
                                 }
                                 else
                                 {
-                                    await TabViewContainer.ThisPage.CreateNewTabAsync(null).ConfigureAwait(true);
+                                    await TabViewContainer.ThisPage.CreateNewTabAsync().ConfigureAwait(true);
                                 }
 
                                 break;

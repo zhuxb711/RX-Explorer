@@ -139,6 +139,37 @@ namespace RX_Explorer
             Loaded += FileControl_Loaded;
         }
 
+        private void CommonAccessCollection_DeviceRemoved(object sender, HardDeviceInfo Device)
+        {
+            if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent)?.Path == Device.Folder?.Path) is TreeViewNode Node)
+            {
+                FolderTree.RootNodes.Remove(Node);
+            }
+        }
+
+        private async void CommonAccessCollection_DeviceAdded(object sender, HardDeviceInfo Device)
+        {
+            if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => Content.Path != Device.Folder?.Path))
+            {
+                bool HasAnyFolder = Device.DriveType == DriveType.Network ? await Task.Run(() => WIN_Native_API.CheckContainsAnyItem(Device.Folder.Path, ItemFilters.Folder))
+                                                                          : WIN_Native_API.CheckContainsAnyItem(Device.Folder.Path, ItemFilters.Folder);
+
+                TreeViewNode RootNode = new TreeViewNode
+                {
+                    Content = new TreeViewNodeContent(Device.Folder),
+                    IsExpanded = false,
+                    HasUnrealizedChildren = HasAnyFolder
+                };
+
+                FolderTree.RootNodes.Add(RootNode);
+            }
+
+            if (FolderTree.RootNodes.FirstOrDefault() is TreeViewNode Node)
+            {
+                FolderTree.SelectNodeAndScrollToVertical(Node);
+            }
+        }
+
         private void FileControl_Loaded(object sender, RoutedEventArgs e)
         {
             if (ApplicationData.Current.LocalSettings.Values["GridSplitScale"] is double Scale)
@@ -312,18 +343,13 @@ namespace RX_Explorer
                     {
                         Frame.Navigated += Frame_Navigated;
                         FullTrustProcessController.CurrentBusyStatus += FullTrustProcessController_CurrentBusyStatus;
+                        CommonAccessCollection.DeviceAdded += CommonAccessCollection_DeviceAdded;
+                        CommonAccessCollection.DeviceRemoved += CommonAccessCollection_DeviceRemoved;
 
-                        if (Parameters.Item1 != null)
-                        {
-                            WeakToTabItem = Parameters.Item1;
-                        }
+                        WeakToTabItem = Parameters.Item1;
+                        TabItem.Tag = this;
 
                         ViewModeControl = new ViewModeController();
-
-                        if (!CommonAccessCollection.FrameFileControlDic.ContainsKey(Frame))
-                        {
-                            CommonAccessCollection.FrameFileControlDic.Add(Frame, this);
-                        }
 
                         await Initialize(Parameters.Item2).ConfigureAwait(false);
                     }
@@ -389,52 +415,53 @@ namespace RX_Explorer
         {
             if (InitFolderPathArray.Length > 0)
             {
+                List<Task> NetworkLoadList = new List<Task>();
+
+                foreach ((StorageFolder DriveFolder, DriveType Type) in CommonAccessCollection.HardDeviceList.Where((Drive) => Drive.DriveType != DriveType.Network)
+                                                                                                             .Concat(CommonAccessCollection.HardDeviceList.Where((Drive) => Drive.DriveType == DriveType.Network))
+                                                                                                             .Select((Drive) => (Drive.Folder, Drive.DriveType))
+                                                                                                             .ToArray())
+                {
+                    if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => Path != DriveFolder?.Path))
+                    {
+                        if (Type == DriveType.Network)
+                        {
+                            NetworkLoadList.Add(Task.Run(() => WIN_Native_API.CheckContainsAnyItem(DriveFolder.Path, ItemFilters.Folder)).ContinueWith((task) =>
+                            {
+                                TreeViewNode RootNode = new TreeViewNode
+                                {
+                                    Content = new TreeViewNodeContent(DriveFolder),
+                                    IsExpanded = false,
+                                    HasUnrealizedChildren = task.Result
+                                };
+
+                                FolderTree.RootNodes.Add(RootNode);
+                                FolderTree.UpdateLayout();
+                            }, TaskScheduler.FromCurrentSynchronizationContext()));
+                        }
+                        else
+                        {
+                            bool HasAnyFolder = WIN_Native_API.CheckContainsAnyItem(DriveFolder.Path, ItemFilters.Folder);
+
+                            TreeViewNode RootNode = new TreeViewNode
+                            {
+                                Content = new TreeViewNodeContent(DriveFolder),
+                                IsExpanded = false,
+                                HasUnrealizedChildren = HasAnyFolder
+                            };
+
+                            FolderTree.RootNodes.Add(RootNode);
+                            FolderTree.UpdateLayout();
+                        }
+                    }
+                }
+
                 foreach (string TargetPath in InitFolderPathArray)
                 {
                     await CreateNewBlade(TargetPath).ConfigureAwait(true);
                 }
 
-                FolderTree.RootNodes.Clear();
-
-                foreach ((StorageFolder DriveFolder, DriveType Type) in CommonAccessCollection.HardDeviceList.Where((Drive) => Drive.DriveType != DriveType.Network)
-                                                                                                             .Concat(CommonAccessCollection.HardDeviceList.Where((Drive) => Drive.DriveType == DriveType.Network))
-                                                                                                             .Select((Drive) => (Drive.Folder, Drive.DriveType)))
-                {
-                    bool HasAnyFolder = Type == DriveType.Network ? await Task.Run(() => WIN_Native_API.CheckContainsAnyItem(DriveFolder.Path, ItemFilters.Folder))
-                                                                  : WIN_Native_API.CheckContainsAnyItem(DriveFolder.Path, ItemFilters.Folder);
-
-                    TreeViewNode RootNode = new TreeViewNode
-                    {
-                        Content = new TreeViewNodeContent(DriveFolder),
-                        IsExpanded = false,
-                        HasUnrealizedChildren = HasAnyFolder
-                    };
-
-                    if (InitFolderPathArray.Any((Path) => System.IO.Path.GetPathRoot(Path) == DriveFolder.Path))
-                    {
-                        if (HasAnyFolder)
-                        {
-                            RootNode.IsExpanded = true;
-                        }
-
-                        FolderTree.RootNodes.Add(RootNode);
-                        FolderTree.UpdateLayout();
-
-                        if (InitFolderPathArray.Length == 1)
-                        {
-                            FolderTree.SelectNodeAndScrollToVertical(RootNode);
-                        }
-
-                        if (RootNode.IsExpanded)
-                        {
-                            _ = FillTreeNode(RootNode);
-                        }
-                    }
-                    else
-                    {
-                        FolderTree.RootNodes.Add(RootNode);
-                    }
-                }
+                await Task.WhenAll(NetworkLoadList);
             }
         }
 
@@ -1914,6 +1941,8 @@ namespace RX_Explorer
 
             Frame.Navigated -= Frame_Navigated;
             FullTrustProcessController.CurrentBusyStatus -= FullTrustProcessController_CurrentBusyStatus;
+            CommonAccessCollection.DeviceAdded -= CommonAccessCollection_DeviceAdded;
+            CommonAccessCollection.DeviceRemoved -= CommonAccessCollection_DeviceRemoved;
 
             GoBackRecord.IsEnabled = false;
             GoForwardRecord.IsEnabled = false;
@@ -1921,6 +1950,8 @@ namespace RX_Explorer
 
             ViewModeControl?.Dispose();
             ViewModeControl = null;
+
+            TaskBarController.SetText(null);
         }
 
         private async void FolderCut_Click(object sender, RoutedEventArgs e)
