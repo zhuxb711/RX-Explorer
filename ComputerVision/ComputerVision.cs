@@ -64,7 +64,7 @@ namespace ComputerVision
                         }
                     case 180:
                         {
-                            Cv2.Flip(outputMat, outputMat, FlipMode.XY);
+                            Cv2.Flip(inputMat, outputMat, FlipMode.XY);
                             break;
                         }
                     case -90:

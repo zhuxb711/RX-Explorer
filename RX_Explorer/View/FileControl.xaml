@@ -251,8 +251,7 @@
                                     Name="AddressExtention"
                                     Click="AddressExtention_Click">
                                 <Button.Content>
-                                    <Viewbox Width="12"
-                                             RenderTransformOrigin="0.45,0.57">
+                                    <Viewbox Width="12">
                                         <FontIcon FontFamily="Segoe UI Emoji"
                                                   Glyph="&#x25B8;" />
                                     </Viewbox>

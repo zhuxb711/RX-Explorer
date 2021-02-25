@@ -1352,9 +1352,9 @@
                   DoubleTapped="ViewControl_DoubleTapped"
                   PreviewKeyDown="ViewControl_PreviewKeyDown"
                   ShowsScrollingPlaceholders="False"
+                  x:Load="False"
                   HeaderTemplate="{StaticResource ListViewDetailHeader}"
                   ItemTemplate="{StaticResource ListViewDetailContent}"
-                  x:Load="False"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">

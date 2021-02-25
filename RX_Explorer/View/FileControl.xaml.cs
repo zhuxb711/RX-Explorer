@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -1459,7 +1460,9 @@ namespace RX_Explorer
 
                 if (AddressExtentionList.Count > 0 && Btn.Content is FrameworkElement DropDownElement)
                 {
-                    await DropDownElement.Rotate(90, duration: 150).StartAsync().ConfigureAwait(true);
+                    Vector2 RotationCenter = new Vector2(Convert.ToSingle(DropDownElement.ActualWidth * 0.45), Convert.ToSingle(DropDownElement.ActualHeight * 0.57));
+                    
+                    await AnimationBuilder.Create().CenterPoint(RotationCenter, RotationCenter).RotationInDegrees(90, duration: TimeSpan.FromMilliseconds(150)).StartAsync(DropDownElement).ConfigureAwait(true);
 
                     FlyoutBase.SetAttachedFlyout(Btn, AddressExtentionFlyout);
                     FlyoutBase.ShowAttachedFlyout(Btn);
@@ -1473,7 +1476,9 @@ namespace RX_Explorer
 
             if ((sender.Target as Button).Content is FrameworkElement DropDownElement)
             {
-                await DropDownElement.Rotate(0, duration: 150).StartAsync().ConfigureAwait(false);
+                Vector2 RotationCenter = new Vector2(Convert.ToSingle(DropDownElement.ActualWidth * 0.45), Convert.ToSingle(DropDownElement.ActualHeight * 0.57));
+
+                await AnimationBuilder.Create().CenterPoint(RotationCenter, RotationCenter).RotationInDegrees(0, duration: TimeSpan.FromMilliseconds(150)).StartAsync(DropDownElement).ConfigureAwait(true);
             }
         }
 

@@ -243,7 +243,7 @@ namespace RX_Explorer
 
                 await RegisterBackgroundTaskAsync().ConfigureAwait(true);
 
-                switch (Microsoft.Toolkit.Uwp.Helpers.SystemInformation.LaunchCount)
+                switch (Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.LaunchCount)
                 {
                     case 10:
                         {
@@ -270,7 +270,7 @@ namespace RX_Explorer
 
         private async Task ShowReleaseLogDialogAsync()
         {
-            if (Microsoft.Toolkit.Uwp.Helpers.SystemInformation.IsAppUpdated || Microsoft.Toolkit.Uwp.Helpers.SystemInformation.IsFirstRun)
+            if (Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.IsAppUpdated || Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.IsFirstRun)
             {
                 WhatIsNew Dialog = new WhatIsNew();
                 await Dialog.ShowAsync().ConfigureAwait(true);

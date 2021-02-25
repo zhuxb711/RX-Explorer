@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
@@ -80,7 +81,7 @@ namespace RX_Explorer
                     else
                     {
                         int LastSelectIndex = Array.FindIndex(PictureFileList, (Photo) => Photo.Path.Equals(SelectedPhotoPath, StringComparison.OrdinalIgnoreCase));
-                        
+
                         if (LastSelectIndex < 0 || LastSelectIndex >= PictureFileList.Length)
                         {
                             LastSelectIndex = 0;
@@ -105,7 +106,7 @@ namespace RX_Explorer
                             Flip.SelectionChanged += Flip_SelectionChanged;
                             Flip.SelectionChanged += Flip_SelectionChanged1;
 
-                            await EnterAnimation.BeginAsync().ConfigureAwait(true);
+                            EnterAnimation.Begin();
                         }
                     }
                 }
@@ -276,8 +277,6 @@ namespace RX_Explorer
 
             if (Flip.ContainerFromItem(Item) is DependencyObject Container && Container.FindChildOfType<ScrollViewer>() is ScrollViewer Viewer)
             {
-                Storyboard Story = new Storyboard();
-
                 switch (Item.RotateAngle % 360)
                 {
                     case 0:
@@ -289,15 +288,20 @@ namespace RX_Explorer
                                 To = Flip.ActualHeight,
                                 Duration = TimeSpan.FromMilliseconds(500),
                                 EnableDependentAnimation = true,
-                                EasingFunction = new CircleEase { EasingMode = EasingMode.EaseOut }
+                                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
                             };
 
                             Storyboard.SetTarget(WidthAnimation, Viewer);
                             Storyboard.SetTargetProperty(WidthAnimation, "Width");
 
-                            Story.Children.Add(WidthAnimation);
+                            Vector2 StartRotationCenter = new Vector2(Convert.ToSingle(Flip.ActualWidth / 2), Convert.ToSingle(Flip.ActualHeight / 2));
+                            Vector2 EndRotationCenter = new Vector2(Convert.ToSingle(Flip.ActualHeight / 2), Convert.ToSingle(Flip.ActualHeight / 2));
 
-                            await Task.WhenAll(Story.BeginAsync(), Viewer.Rotate(Item.RotateAngle += 90).StartAsync()).ConfigureAwait(true);
+                            await AnimationBuilder.Create()
+                                                  .CenterPoint(EndRotationCenter, StartRotationCenter, duration: TimeSpan.FromMilliseconds(500), easingType: EasingType.Cubic, easingMode: EasingMode.EaseOut)
+                                                  .ExternalAnimation(WidthAnimation)
+                                                  .RotationInDegrees(Item.RotateAngle += 90, duration: TimeSpan.FromMilliseconds(500), easingType: EasingType.Cubic, easingMode: EasingMode.EaseOut)
+                                                  .StartAsync(Viewer).ConfigureAwait(true);
 
                             break;
                         }
@@ -310,15 +314,20 @@ namespace RX_Explorer
                                 To = Flip.ActualWidth,
                                 Duration = TimeSpan.FromMilliseconds(500),
                                 EnableDependentAnimation = true,
-                                EasingFunction = new CircleEase { EasingMode = EasingMode.EaseOut }
+                                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
                             };
 
                             Storyboard.SetTarget(HeightAnimation, Viewer);
                             Storyboard.SetTargetProperty(HeightAnimation, "Width");
 
-                            Story.Children.Add(HeightAnimation);
+                            Vector2 StartRotationCenter = new Vector2(Convert.ToSingle(Flip.ActualHeight / 2), Convert.ToSingle(Flip.ActualHeight / 2));
+                            Vector2 EndRotationCenter = new Vector2(Convert.ToSingle(Flip.ActualWidth / 2), Convert.ToSingle(Flip.ActualHeight / 2));
 
-                            await Task.WhenAll(Story.BeginAsync(), Viewer.Rotate(Item.RotateAngle += 90).StartAsync()).ConfigureAwait(true);
+                            await AnimationBuilder.Create()
+                                                  .CenterPoint(EndRotationCenter, StartRotationCenter, duration: TimeSpan.FromMilliseconds(500), easingType: EasingType.Cubic, easingMode: EasingMode.EaseOut)
+                                                  .ExternalAnimation(HeightAnimation)
+                                                  .RotationInDegrees(Item.RotateAngle += 90, duration: TimeSpan.FromMilliseconds(500), easingType: EasingType.Cubic, easingMode: EasingMode.EaseOut)
+                                                  .StartAsync(Viewer).ConfigureAwait(true);
 
                             break;
                         }
