@@ -45,15 +45,85 @@ namespace RX_Explorer
 
         private readonly string UserID = ApplicationData.Current.LocalSettings.Values["SystemUserID"].ToString();
 
-        public static bool IsDoubleClickEnable { get; set; } = true;
+        public static bool IsDoubleClickEnable
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] is bool IsDoubleClick)
+                {
+                    return IsDoubleClick;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] = true;
+                    return true;
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] = value;
+            }
+        }
 
-        public static bool IsDetachTreeViewAndPresenter { get; set; }
+        public static bool IsDetachTreeViewAndPresenter
+        {
+            get 
+            {
+                if (ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] is bool IsDetach)
+                {
+                    return IsDetach;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] = false;
+                    return false;
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] = value;
+            }
+        }
 
-        public static bool IsQuicklookAvailable { get; set; }
+        public static bool IsQuicklookEnable
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] is bool Enable)
+                {
+                    return Enable;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] = true;
+                    return true;
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] = value;
+            }
+        }
 
-        public static bool IsQuicklookEnable { get; set; }
-
-        public static bool IsDisplayHiddenItem { get; set; }
+        public static bool IsDisplayHiddenItem
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["DisplayHiddenItem"] is bool Display)
+                {
+                    return Display;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["DisplayHiddenItem"] = false;
+                    return false;
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["DisplayHiddenItem"] = value;
+            }
+        }
 
         public static LoadMode ContentLoadMode
         {
@@ -155,7 +225,6 @@ namespace RX_Explorer
             set => ApplicationData.Current.LocalSettings.Values["DeviceExpanderIsExpand"] = value;
         }
 
-
         public bool IsOpened { get; private set; }
         public bool IsAnimating { get; private set; }
 
@@ -174,8 +243,6 @@ namespace RX_Explorer
             Version.Text = string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
 
             EmptyFeedBack.Text = Globalization.GetString("Progress_Tip_Loading");
-
-            EnableQuicklook.IsEnabled = IsQuicklookAvailable;
 
             Loaded += SettingPage_Loaded;
             Loading += SettingControl_Loading;
@@ -404,6 +471,11 @@ namespace RX_Explorer
                         }
                     });
 
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    {
+                        EnableQuicklook.IsEnabled = await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync().ConfigureAwait(true);
+                    }
+
                     if (AnimationController.Current.IsEnableAnimation)
                     {
                         await Task.Delay(1500).ConfigureAwait(false);
@@ -584,17 +656,8 @@ namespace RX_Explorer
                     TreeViewDetach.IsOn = !IsDetach;
                 }
 
-                if (ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] is bool IsEnable)
-                {
-                    EnableQuicklook.IsOn = IsEnable;
-                    IsQuicklookEnable = IsEnable;
-                }
-
-                if (ApplicationData.Current.LocalSettings.Values["DisplayHiddenItem"] is bool IsHidden)
-                {
-                    DisplayHiddenItem.IsOn = IsHidden;
-                    IsDisplayHiddenItem = IsHidden;
-                }
+                EnableQuicklook.IsOn = IsQuicklookEnable;
+                DisplayHiddenItem.IsOn = IsDisplayHiddenItem;
 
                 if (ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] is bool AlwaysStartNew)
                 {
@@ -1874,7 +1937,7 @@ namespace RX_Explorer
         {
             try
             {
-                ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] = IsDetachTreeViewAndPresenter = !TreeViewDetach.IsOn;
+                IsDetachTreeViewAndPresenter = !TreeViewDetach.IsOn;
 
                 foreach (Frame Frame in TabViewContainer.ThisPage.TabViewControl.TabItems.OfType<TabViewItem>().Select((Tab) => Tab.Content))
                 {
@@ -1939,17 +2002,7 @@ namespace RX_Explorer
 
         private void EnableQuicklook_Toggled(object sender, RoutedEventArgs e)
         {
-            if (EnableQuicklook.IsOn)
-            {
-                IsQuicklookEnable = true;
-                ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] = true;
-            }
-            else
-            {
-                IsQuicklookEnable = false;
-                ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] = false;
-            }
-
+            IsQuicklookEnable = EnableQuicklook.IsOn;
             ApplicationData.Current.SignalDataChanged();
         }
 
@@ -2046,7 +2099,6 @@ namespace RX_Explorer
             try
             {
                 IsDisplayHiddenItem = DisplayHiddenItem.IsOn;
-                ApplicationData.Current.LocalSettings.Values["DisplayHiddenItem"] = IsDisplayHiddenItem;
 
                 foreach (Frame Frame in TabViewContainer.ThisPage.TabViewControl.TabItems.OfType<TabViewItem>().Select((Tab) => Tab.Content))
                 {
@@ -2080,13 +2132,11 @@ namespace RX_Explorer
             {
                 case 0:
                     {
-                        ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] = false;
                         IsDoubleClickEnable = false;
                         break;
                     }
                 case 1:
                     {
-                        ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] = true;
                         IsDoubleClickEnable = true;
                         break;
                     }

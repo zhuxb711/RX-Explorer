@@ -615,12 +615,34 @@ namespace RX_Explorer
 
                     switch (args.VirtualKey)
                     {
-                        case VirtualKey.Space when SelectedItem != null && SettingControl.IsQuicklookAvailable && SettingControl.IsQuicklookEnable:
+                        case VirtualKey.Space when SettingControl.IsQuicklookEnable:
                             {
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                 {
-                                    await Exclusive.Controller.ViewWithQuicklookAsync(SelectedItem.Path).ConfigureAwait(false);
+                                    if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync().ConfigureAwait(true))
+                                    {
+                                        string ViewPathWithQuicklook;
+
+                                        if (string.IsNullOrEmpty(SelectedItem?.Path))
+                                        {
+                                            if (!string.IsNullOrEmpty(CurrentFolder?.Path))
+                                            {
+                                                ViewPathWithQuicklook = CurrentFolder.Path;
+                                            }
+                                            else
+                                            {
+                                                break;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            ViewPathWithQuicklook = SelectedItem.Path;
+                                        }
+
+                                        await Exclusive.Controller.ViewWithQuicklookAsync(ViewPathWithQuicklook).ConfigureAwait(false);
+                                    }
                                 }
+
                                 break;
                             }
                         case VirtualKey.F2:

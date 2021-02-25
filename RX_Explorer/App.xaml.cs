@@ -37,21 +37,9 @@ namespace RX_Explorer
             AppInstanceIdContainer.RegisterId(AppInstanceIdContainer.CurrentId);
         }
 
-        protected override async void OnWindowCreated(WindowCreatedEventArgs args)
+        protected override void OnWindowCreated(WindowCreatedEventArgs args)
         {
             MSStoreHelper.Current.PreLoadAppLicense();
-
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-            {
-                if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync().ConfigureAwait(true))
-                {
-                    SettingControl.IsQuicklookAvailable = true;
-                }
-                else
-                {
-                    SettingControl.IsQuicklookAvailable = false;
-                }
-            }
         }
 
         private void App_Suspending(object sender, SuspendingEventArgs e)

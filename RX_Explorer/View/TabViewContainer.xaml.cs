@@ -80,17 +80,20 @@ namespace RX_Explorer
 
                                 break;
                             }
-                        case VirtualKey.Space when SettingControl.IsQuicklookAvailable && SettingControl.IsQuicklookEnable:
+                        case VirtualKey.Space when SettingControl.IsQuicklookEnable:
                             {
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                 {
-                                    if (PC.DeviceGrid.SelectedItem is HardDeviceInfo Device)
+                                    if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync().ConfigureAwait(true))
                                     {
-                                        await Exclusive.Controller.ViewWithQuicklookAsync(Device.Folder.Path).ConfigureAwait(true);
-                                    }
-                                    else if (PC.LibraryGrid.SelectedItem is LibraryFolder Library)
-                                    {
-                                        await Exclusive.Controller.ViewWithQuicklookAsync(Library.Folder.Path).ConfigureAwait(true);
+                                        if (PC.DeviceGrid.SelectedItem is HardDeviceInfo Device && !string.IsNullOrEmpty(Device.Folder.Path))
+                                        {
+                                            await Exclusive.Controller.ViewWithQuicklookAsync(Device.Folder.Path).ConfigureAwait(true);
+                                        }
+                                        else if (PC.LibraryGrid.SelectedItem is LibraryFolder Library && !string.IsNullOrEmpty(Library.Folder.Path))
+                                        {
+                                            await Exclusive.Controller.ViewWithQuicklookAsync(Library.Folder.Path).ConfigureAwait(true);
+                                        }
                                     }
                                 }
 

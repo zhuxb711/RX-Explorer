@@ -124,26 +124,6 @@ namespace RX_Explorer
                 ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"] = 0d;
             }
 
-            if (ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] is bool Enable)
-            {
-                SettingControl.IsQuicklookEnable = Enable;
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["EnableQuicklook"] = true;
-                SettingControl.IsQuicklookEnable = true;
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values["DisplayHiddenItem"] is bool Display)
-            {
-                SettingControl.IsDisplayHiddenItem = Display;
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["DisplayHiddenItem"] = false;
-                SettingControl.IsDisplayHiddenItem = false;
-            }
-
             if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("DefaultTerminal"))
             {
                 ApplicationData.Current.LocalSettings.Values["DefaultTerminal"] = "Powershell";
@@ -156,24 +136,6 @@ namespace RX_Explorer
                             break;
                         }
                 }
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] is bool IsDoubleClick)
-            {
-                SettingControl.IsDoubleClickEnable = IsDoubleClick;
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] = true;
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] is bool IsDetach)
-            {
-                SettingControl.IsDetachTreeViewAndPresenter = IsDetach;
-            }
-            else
-            {
-                ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] = false;
             }
 
             if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("AlwaysStartNew"))
