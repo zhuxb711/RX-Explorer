@@ -1939,9 +1939,9 @@ namespace RX_Explorer
             {
                 IsDetachTreeViewAndPresenter = !TreeViewDetach.IsOn;
 
-                foreach (Frame Frame in TabViewContainer.ThisPage.TabViewControl.TabItems.OfType<TabViewItem>().Select((Tab) => Tab.Content))
+                foreach (FileControl Control in TabViewContainer.ThisPage.TabViewControl.TabItems.OfType<TabViewItem>().Select((Tab) => Tab.Tag).OfType<FileControl>())
                 {
-                    if (CommonAccessCollection.FrameFileControlDic.TryGetValue(Frame, out FileControl Control) && Control.CurrentPresenter.CurrentFolder != null)
+                    if (Control.CurrentPresenter?.CurrentFolder != null)
                     {
                         if (ApplicationData.Current.LocalSettings.Values["GridSplitScale"] is double Scale)
                         {
@@ -2100,9 +2100,9 @@ namespace RX_Explorer
             {
                 IsDisplayHiddenItem = DisplayHiddenItem.IsOn;
 
-                foreach (Frame Frame in TabViewContainer.ThisPage.TabViewControl.TabItems.OfType<TabViewItem>().Select((Tab) => Tab.Content))
+                foreach (FileControl Control in TabViewContainer.ThisPage.TabViewControl.TabItems.OfType<TabViewItem>().Select((Tab) => Tab.Tag).OfType<FileControl>())
                 {
-                    if (CommonAccessCollection.FrameFileControlDic.TryGetValue(Frame, out FileControl Control) && Control.CurrentPresenter.CurrentFolder != null)
+                    if (Control.CurrentPresenter.CurrentFolder != null)
                     {
                         await Control.CurrentPresenter.DisplayItemsInFolder(Control.CurrentPresenter.CurrentFolder, true).ConfigureAwait(true);
 

@@ -2310,10 +2310,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>No feedback or suggestions</source>
           <target state="translated">无任何反馈或建议</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_AddDeviceFail_Content" translate="yes" xml:space="preserve">
-          <source>Cannot add removable device due to lack of sufficient permissions, Device name:</source>
-          <target state="translated">由于缺乏相应的权限，无法添加可移动设备，设备名称:</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_BootAtStart_Content" translate="yes" xml:space="preserve">
           <source>RX cannot be turned on automatically because startup is disabled by the system\rYou can go to the [System Settings] page to manage</source>
           <target state="translated">由于自动启动被系统禁用，RX无法自动开启此功能\r您可以前往[系统设置]页面管理</target>
@@ -2703,10 +2699,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
         <trans-unit id="FeedBackTranslateButton.Label" translate="yes" xml:space="preserve">
           <source>Translate</source>
           <target state="translated">翻译</target>
-        </trans-unit>
-        <trans-unit id="Common_Dialog_DoNotTip" translate="yes" xml:space="preserve">
-          <source>No prompt</source>
-          <target state="translated">不再提示</target>
         </trans-unit>
         <trans-unit id="QueueDialog_FolderRepeat_CloseButton" translate="yes" xml:space="preserve">
           <source>Save copy</source>

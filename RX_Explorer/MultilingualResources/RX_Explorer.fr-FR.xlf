@@ -2310,10 +2310,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>No feedback or suggestions</source>
           <target state="translated">Aucun commentaire ou suggestion</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_AddDeviceFail_Content" translate="yes" xml:space="preserve">
-          <source>Cannot add removable device due to lack of sufficient permissions, Device name:</source>
-          <target state="translated">Impossible de retirer l'appareil à cause d'un manque de permissions. Nom de l'appareil:</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_BootAtStart_Content" translate="yes" xml:space="preserve">
           <source>RX cannot be turned on automatically because startup is disabled by the system\rYou can go to the [System Settings] page to manage</source>
           <target state="translated">RX ne peut pas être démarré automatiquement car le démarrage est désactivé par le système\rVous pouvez aller à cette page [System Settings] pour modifier ceci</target>
@@ -2703,10 +2699,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="FeedBackTranslateButton.Label" translate="yes" xml:space="preserve">
           <source>Translate</source>
           <target state="translated">Traduire</target>
-        </trans-unit>
-        <trans-unit id="Common_Dialog_DoNotTip" translate="yes" xml:space="preserve">
-          <source>No prompt</source>
-          <target state="translated">Aucune invite</target>
         </trans-unit>
         <trans-unit id="QueueDialog_FolderRepeat_CloseButton" translate="yes" xml:space="preserve">
           <source>Save copy</source>

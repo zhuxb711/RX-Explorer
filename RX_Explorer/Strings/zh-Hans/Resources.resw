@@ -1747,9 +1747,6 @@
   <data name="Progress_Tip_NoFeedback" xml:space="preserve">
     <value>无任何反馈或建议</value>
   </data>
-  <data name="QueueDialog_AddDeviceFail_Content" xml:space="preserve">
-    <value>由于缺乏相应的权限，无法添加可移动设备，设备名称:</value>
-  </data>
   <data name="QueueDialog_BootAtStart_Content" xml:space="preserve">
     <value>由于自动启动被系统禁用，RX无法自动开启此功能\r您可以前往[系统设置]页面管理</value>
     <comment>Please keep all \r in this sentence after translate</comment>
@@ -2045,9 +2042,6 @@
   </data>
   <data name="FeedBackTranslateButton.Label" xml:space="preserve">
     <value>翻译</value>
-  </data>
-  <data name="Common_Dialog_DoNotTip" xml:space="preserve">
-    <value>不再提示</value>
   </data>
   <data name="QueueDialog_FolderRepeat_CloseButton" xml:space="preserve">
     <value>保存副本</value>
