@@ -91,20 +91,31 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        _ = await StorageFolder.GetFolderFromPathAsync(Path);
-                        return true;
-                    }
-                    catch
-                    {
-                        try
+                        string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
+
+                        if (string.IsNullOrEmpty(DirectoryPath))
                         {
-                            _ = await StorageFile.GetFileFromPathAsync(Path);
+                            await StorageFolder.GetFolderFromPathAsync(Path);
                             return true;
                         }
-                        catch
+                        else
                         {
-                            return false;
+                            StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(DirectoryPath);
+
+                            if (await Folder.TryGetItemAsync(System.IO.Path.GetFileName(Path)) != null)
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "CheckExist threw an exception");
+                        return false;
                     }
                 }
             }
@@ -124,33 +135,42 @@ namespace RX_Explorer.Class
             {
                 LogTracer.Log($"Native API could not found the path: \"{Path}\", fall back to UWP storage API");
 
-                if (Filters.HasFlag(ItemFilters.File))
+                try
                 {
-                    try
-                    {
-                        StorageFile File = await StorageFile.GetFileFromPathAsync(Path);
-                        return new FileSystemStorageItemBase(File, await File.GetSizeRawDataAsync().ConfigureAwait(false), await File.GetThumbnailBitmapAsync().ConfigureAwait(false), File.DateCreated, await File.GetModifiedTimeAsync().ConfigureAwait(false));
-                    }
-                    catch
-                    {
-                        LogTracer.Log($"UWP storage API could not found file: \"{Path}\"");
-                    }
-                }
+                    string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
 
-                if (Filters.HasFlag(ItemFilters.Folder))
-                {
-                    try
+                    if (string.IsNullOrEmpty(DirectoryPath))
                     {
                         StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
                         return new FileSystemStorageItemBase(Folder, Folder.DateCreated, await Folder.GetModifiedTimeAsync().ConfigureAwait(false));
                     }
-                    catch
+                    else
                     {
-                        LogTracer.Log($"UWP storage API could not found folder: \"{Path}\"");
+                        StorageFolder ParentFolder = await StorageFolder.GetFolderFromPathAsync(DirectoryPath);
+
+                        switch (await ParentFolder.TryGetItemAsync(System.IO.Path.GetFileName(Path)))
+                        {
+                            case StorageFolder Folder when Filters.HasFlag(ItemFilters.Folder):
+                                {
+                                    return new FileSystemStorageItemBase(Folder, Folder.DateCreated, await Folder.GetModifiedTimeAsync().ConfigureAwait(false));
+                                }
+                            case StorageFile File when Filters.HasFlag(ItemFilters.File):
+                                {
+                                    return new FileSystemStorageItemBase(File, await File.GetSizeRawDataAsync().ConfigureAwait(false), await File.GetThumbnailBitmapAsync().ConfigureAwait(false), File.DateCreated, await File.GetModifiedTimeAsync().ConfigureAwait(false));
+                                }
+                            default:
+                                {
+                                    LogTracer.Log($"UWP storage API could not found the path: \"{Path}\"");
+                                    return null;
+                                }
+                        }
                     }
                 }
-
-                return null;
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"UWP storage API could not found the path: \"{Path}\"");
+                    return null;
+                }
             }
         }
 
@@ -202,7 +222,6 @@ namespace RX_Explorer.Class
                             }
                         }
                     }
-
                 case StorageItemTypes.Folder:
                     {
                         if (WIN_Native_API.CreateDirectoryFromPath(Path, Option, out string NewPath))
@@ -247,9 +266,10 @@ namespace RX_Explorer.Class
                             }
                         }
                     }
-
                 default:
-                    return null;
+                    {
+                        return null;
+                    }
             }
         }
 

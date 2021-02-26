@@ -2954,10 +2954,6 @@ Les noms non valides incluent
           <source>Target</source>
           <target state="translated">Cible</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_DropFailure_Content" translate="yes" xml:space="preserve">
-          <source>Unable to recognize the dragged file, please try again</source>
-          <target state="translated">Impossible de reconnaître le fichier glissé, veuillez réessayer</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_SetWallpaperFailure_Content" translate="yes" xml:space="preserve">
           <source>Unable to set the picture as wallpaper due to an unknown error</source>
           <target state="translated">Impossible de définir l'image comme fond d'écran en raison d'une erreur inconnue</target>
@@ -3580,6 +3576,10 @@ Les noms non valides incluent
         <trans-unit id="BluetoothAudio_Status_7" translate="yes" xml:space="preserve">
           <source>Could not establish connection</source>
           <target state="translated">Impossible d'établir la connexion</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CopyFromUnsupportedArea_Content" translate="yes" xml:space="preserve">
+          <source>Unable to paste operation, unsupported file source</source>
+          <target state="translated">Impossible de coller l'opération, source de fichier non prise en charge</target>
         </trans-unit>
       </group>
     </body>

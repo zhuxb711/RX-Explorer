@@ -422,83 +422,108 @@ namespace RX_Explorer
 
         private async void Grid_Drop(object sender, DragEventArgs e)
         {
-            if (e.DataView.Contains(StandardDataFormats.StorageItems))
+            try
             {
-                IReadOnlyList<IStorageItem> Items = await e.DataView.GetStorageItemsAsync();
-
-                if (Items.Any((Item) => Item.IsOfType(StorageItemTypes.Folder)))
+                if (e.DataView.Contains(StandardDataFormats.StorageItems))
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
+                    IReadOnlyList<IStorageItem> Items = await e.DataView.GetStorageItemsAsync();
+
+                    if (Items.Any((Item) => Item.IsOfType(StorageItemTypes.Folder)))
                     {
-                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                        Content = Globalization.GetString("QueueDialog_SecureAreaImportFiliter_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
-
-                if (Items.Any((Item) => Item.IsOfType(StorageItemTypes.File)))
-                {
-                    ActivateLoading(true, true);
-
-                    Cancellation = new CancellationTokenSource();
-
-                    try
-                    {
-                        foreach (string OriginFilePath in Items.Select((Item) => Item.Path))
-                        {
-                            if (await FileSystemStorageItemBase.OpenAsync(OriginFilePath, ItemFilters.File).ConfigureAwait(true) is FileSystemStorageItemBase Item)
-                            {
-                                if (await Item.EncryptAsync(SecureFolder.Path, EncryptionAESKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is SecureAreaStorageItem EncryptedFile)
-                                {
-                                    SecureCollection.Add(EncryptedFile);
-
-                                    if (!Item.PermanentDelete())
-                                    {
-                                        LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Delete origin file failed after importing to SecureArea");
-                                    }
-                                }
-                                else
-                                {
-                                    QueueContentDialog Dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-
-                                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                                }
-                            }
-                        }
-                    }
-                    catch (TaskCanceledException cancelException)
-                    {
-                        LogTracer.Log(cancelException, "Import items to SecureArea have been cancelled");
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "An error was threw when importing file");
-
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
+                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                            Content = Globalization.GetString("QueueDialog_SecureAreaImportFiliter_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
                         _ = await Dialog.ShowAsync().ConfigureAwait(true);
                     }
-                    finally
-                    {
-                        Cancellation.Dispose();
-                        Cancellation = null;
 
-                        await Task.Delay(1000).ConfigureAwait(true);
-                        ActivateLoading(false);
+                    if (Items.Any((Item) => Item.IsOfType(StorageItemTypes.File)))
+                    {
+                        ActivateLoading(true, true);
+
+                        Cancellation = new CancellationTokenSource();
+
+                        try
+                        {
+                            foreach (string OriginFilePath in Items.Select((Item) => Item.Path))
+                            {
+                                if (await FileSystemStorageItemBase.OpenAsync(OriginFilePath, ItemFilters.File).ConfigureAwait(true) is FileSystemStorageItemBase Item)
+                                {
+                                    if (await Item.EncryptAsync(SecureFolder.Path, EncryptionAESKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is SecureAreaStorageItem EncryptedFile)
+                                    {
+                                        SecureCollection.Add(EncryptedFile);
+
+                                        if (!Item.PermanentDelete())
+                                        {
+                                            LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Delete origin file failed after importing to SecureArea");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                        };
+
+                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                                    }
+                                }
+                            }
+                        }
+                        catch (TaskCanceledException cancelException)
+                        {
+                            LogTracer.Log(cancelException, "Import items to SecureArea have been cancelled");
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, "An error was threw when importing file");
+
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                        }
+                        finally
+                        {
+                            Cancellation.Dispose();
+                            Cancellation = null;
+
+                            await Task.Delay(1000).ConfigureAwait(true);
+                            ActivateLoading(false);
+                        }
                     }
                 }
+            }
+            catch (Exception ex) when (ex.HResult == unchecked((int)0x80040064))
+            {
+                QueueContentDialog dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_CopyFromUnsupportedArea_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                _ = await dialog.ShowAsync().ConfigureAwait(true);
+            }
+            catch
+            {
+                QueueContentDialog dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_FailToGetClipboardError_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                _ = await dialog.ShowAsync().ConfigureAwait(true);
             }
         }
 

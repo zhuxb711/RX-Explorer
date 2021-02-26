@@ -19,7 +19,6 @@ using Vanara.Windows.Shell;
 using Windows.ApplicationModel.AppService;
 using Windows.Foundation.Collections;
 using Windows.Storage;
-using Windows.Storage.Streams;
 
 namespace FullTrustProcess
 {
@@ -456,11 +455,10 @@ namespace FullTrustProcess
                                                 ActualPath = ActualPath.Replace($"%{Var.Value}%", Environment.GetEnvironmentVariable(Var.Value));
                                             }
 
-                                            using (ShellItem Item = new ShellItem(ActualPath))
-                                            using (Image IconImage = Item.GetImage(new Size(150, 150), ShellItemGetImageOptions.BiggerSizeOk))
+                                            using (Image IconImage = Link.GetImage(new Size(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit | ShellItemGetImageOptions.ScaleUp))
                                             using (MemoryStream IconStream = new MemoryStream())
+                                            using (Bitmap TempBitmap = new Bitmap(IconImage))
                                             {
-                                                Bitmap TempBitmap = new Bitmap(IconImage);
                                                 TempBitmap.MakeTransparent();
                                                 TempBitmap.Save(IconStream, ImageFormat.Png);
 

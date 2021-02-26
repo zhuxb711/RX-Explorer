@@ -2231,9 +2231,6 @@ Les noms non valides incluent
   <data name="AttributeTargetPath.Text" xml:space="preserve">
     <value>Cible</value>
   </data>
-  <data name="QueueDialog_DropFailure_Content" xml:space="preserve">
-    <value>Impossible de reconnaître le fichier glissé, veuillez réessayer</value>
-  </data>
   <data name="QueueDialog_SetWallpaperFailure_Content" xml:space="preserve">
     <value>Impossible de définir l'image comme fond d'écran en raison d'une erreur inconnue</value>
   </data>
@@ -2699,5 +2696,8 @@ Les noms non valides incluent
   </data>
   <data name="BluetoothAudio_Status_7" xml:space="preserve">
     <value>Impossible d'établir la connexion</value>
+  </data>
+  <data name="QueueDialog_CopyFromUnsupportedArea_Content" xml:space="preserve">
+    <value>Impossible de coller l'opération, source de fichier non prise en charge</value>
   </data>
 </root>

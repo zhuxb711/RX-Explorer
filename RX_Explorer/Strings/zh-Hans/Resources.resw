@@ -2231,9 +2231,6 @@
   <data name="AttributeTargetPath.Text" xml:space="preserve">
     <value>目标</value>
   </data>
-  <data name="QueueDialog_DropFailure_Content" xml:space="preserve">
-    <value>无法识别拖动的文件，请重新尝试</value>
-  </data>
   <data name="QueueDialog_SetWallpaperFailure_Content" xml:space="preserve">
     <value>由于出现未知错误，无法将图片设置为壁纸</value>
   </data>
@@ -2699,5 +2696,8 @@
   </data>
   <data name="BluetoothAudio_Status_7" xml:space="preserve">
     <value>无法建立连接</value>
+  </data>
+  <data name="QueueDialog_CopyFromUnsupportedArea_Content" xml:space="preserve">
+    <value>无法进行粘贴操作，不支持的文件来源</value>
   </data>
 </root>

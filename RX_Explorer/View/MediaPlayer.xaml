@@ -19,6 +19,7 @@
                             AreTransportControlsEnabled="True"
                             x:FieldModifier="Public"
                             IsDoubleTapEnabled="True"
+                            PointerPressed="MVControl_PointerPressed"
                             DoubleTapped="MVControl_DoubleTapped"
                             VerticalAlignment="Stretch">
             <MediaPlayerElement.TransportControls>

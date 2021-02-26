@@ -2954,10 +2954,6 @@ Invalid names include
           <source>Target</source>
           <target state="translated">目标</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_DropFailure_Content" translate="yes" xml:space="preserve">
-          <source>Unable to recognize the dragged file, please try again</source>
-          <target state="translated">无法识别拖动的文件，请重新尝试</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_SetWallpaperFailure_Content" translate="yes" xml:space="preserve">
           <source>Unable to set the picture as wallpaper due to an unknown error</source>
           <target state="translated">由于出现未知错误，无法将图片设置为壁纸</target>
@@ -3580,6 +3576,10 @@ Invalid names include
         <trans-unit id="BluetoothAudio_Status_7" translate="yes" xml:space="preserve">
           <source>Could not establish connection</source>
           <target state="translated">无法建立连接</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CopyFromUnsupportedArea_Content" translate="yes" xml:space="preserve">
+          <source>Unable to paste operation, unsupported file source</source>
+          <target state="translated">无法进行粘贴操作，不支持的文件来源</target>
         </trans-unit>
       </group>
     </body>

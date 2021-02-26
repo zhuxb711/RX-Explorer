@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -14,8 +15,9 @@ namespace CommunicateService
     {
         private BackgroundTaskDeferral Deferral;
         private static readonly ConcurrentDictionary<AppServiceConnection, AppServiceConnection> PairedConnections = new ConcurrentDictionary<AppServiceConnection, AppServiceConnection>();
-        private static readonly ConcurrentQueue<AppServiceConnection> ClientWaitingQueue = new ConcurrentQueue<AppServiceConnection>();
-        private static readonly ConcurrentQueue<AppServiceConnection> ServerWaitingrQueue = new ConcurrentQueue<AppServiceConnection>();
+        private static readonly Queue<AppServiceConnection> ClientWaitingQueue = new Queue<AppServiceConnection>();
+        private static readonly Queue<AppServiceConnection> ServerWaitingrQueue = new Queue<AppServiceConnection>();
+        private static readonly object Locker = new object();
 
         public async void Run(IBackgroundTaskInstance taskInstance)
         {
@@ -35,34 +37,37 @@ namespace CommunicateService
                 {
                     if (Response.Message.TryGetValue("Identity", out object Identity))
                     {
-                        switch (Convert.ToString(Identity))
+                        lock (Locker)
                         {
-                            case "FullTrustProcess":
-                                {
-                                    if (ClientWaitingQueue.TryDequeue(out AppServiceConnection ClientConnection))
+                            switch (Convert.ToString(Identity))
+                            {
+                                case "FullTrustProcess":
                                     {
-                                        PairedConnections.TryAdd(ClientConnection, IncomeConnection);
-                                    }
-                                    else
-                                    {
-                                        ServerWaitingrQueue.Enqueue(IncomeConnection);
-                                    }
+                                        if (ClientWaitingQueue.TryDequeue(out AppServiceConnection ClientConnection))
+                                        {
+                                            PairedConnections.TryAdd(ClientConnection, IncomeConnection);
+                                        }
+                                        else
+                                        {
+                                            ServerWaitingrQueue.Enqueue(IncomeConnection);
+                                        }
 
-                                    break;
-                                }
-                            case "UWP":
-                                {
-                                    if (ServerWaitingrQueue.TryDequeue(out AppServiceConnection ServerConnection))
-                                    {
-                                        PairedConnections.TryAdd(IncomeConnection, ServerConnection);
+                                        break;
                                     }
-                                    else
+                                case "UWP":
                                     {
-                                        ClientWaitingQueue.Enqueue(IncomeConnection);
-                                    }
+                                        if (ServerWaitingrQueue.TryDequeue(out AppServiceConnection ServerConnection))
+                                        {
+                                            PairedConnections.TryAdd(IncomeConnection, ServerConnection);
+                                        }
+                                        else
+                                        {
+                                            ClientWaitingQueue.Enqueue(IncomeConnection);
+                                        }
 
-                                    break;
-                                }
+                                        break;
+                                    }
+                            }
                         }
                     }
                 }
@@ -75,12 +80,26 @@ namespace CommunicateService
 
             try
             {
-                AppServiceConnection ServerConnection = null;
+                AppServiceConnection ServerConnection;
 
-                if (SpinWait.SpinUntil(() => PairedConnections.ContainsKey(sender), 3000))
+                SpinWait Spin = new SpinWait();
+                Stopwatch Watch = new Stopwatch();
+
+                Watch.Start();
+
+                while (!PairedConnections.TryGetValue(sender, out ServerConnection) && Watch.ElapsedMilliseconds < 5000)
                 {
-                    ServerConnection = PairedConnections[sender];
+                    if (Spin.NextSpinWillYield)
+                    {
+                        await Task.Delay(500).ConfigureAwait(true);
+                    }
+                    else
+                    {
+                        Spin.SpinOnce();
+                    }
                 }
+
+                Watch.Stop();
 
                 if (ServerConnection != null)
                 {
@@ -130,16 +149,19 @@ namespace CommunicateService
                     {
                         DisConnection.RequestReceived -= Connection_RequestReceived;
 
-                        if (PairedConnections.TryRemove(DisConnection, out AppServiceConnection ServerConnection))
+                        lock (Locker)
                         {
-                            Task.WaitAny(ServerConnection.SendMessageAsync(new ValueSet { { "ExecuteType", "Execute_Exit" } }).AsTask(), Task.Delay(2000));
-                        }
-                        else if (PairedConnections.FirstOrDefault((Con) => Con.Value == DisConnection).Key is AppServiceConnection ClientConnection)
-                        {
-                            if (PairedConnections.TryRemove(ClientConnection, out _))
+                            if (PairedConnections.TryRemove(DisConnection, out AppServiceConnection ServerConnection))
                             {
-                                Task.WaitAny(ClientConnection.SendMessageAsync(new ValueSet { { "ExecuteType", "FullTrustProcessExited" } }).AsTask(), Task.Delay(2000));
-                                ClientConnection.Dispose();
+                                Task.WaitAny(ServerConnection.SendMessageAsync(new ValueSet { { "ExecuteType", "Execute_Exit" } }).AsTask(), Task.Delay(2000));
+                            }
+                            else if (PairedConnections.FirstOrDefault((Con) => Con.Value == DisConnection).Key is AppServiceConnection ClientConnection)
+                            {
+                                if (PairedConnections.TryRemove(ClientConnection, out _))
+                                {
+                                    Task.WaitAny(ClientConnection.SendMessageAsync(new ValueSet { { "ExecuteType", "FullTrustProcessExited" } }).AsTask(), Task.Delay(2000));
+                                    ClientConnection.Dispose();
+                                }
                             }
                         }
                     }

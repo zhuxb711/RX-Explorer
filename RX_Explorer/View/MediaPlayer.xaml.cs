@@ -2,13 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using TagLib;
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -179,6 +179,7 @@ namespace RX_Explorer
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
+            CoreWindow.GetForCurrentThread().KeyDown -= MediaPlayer_KeyDown; ;
             MVControl.MediaPlayer.Pause();
             MediaFile = null;
             MVControl.Source = null;
@@ -190,7 +191,16 @@ namespace RX_Explorer
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             MediaFile = e.Parameter as FileSystemStorageItemBase;
+            CoreWindow.GetForCurrentThread().KeyDown += MediaPlayer_KeyDown; ;
             await Initialize().ConfigureAwait(false);
+        }
+
+        private void MediaPlayer_KeyDown(CoreWindow sender, KeyEventArgs args)
+        {
+            if (args.VirtualKey == Windows.System.VirtualKey.Escape && MVControl.IsFullWindow)
+            {
+                MVControl.IsFullWindow = false;
+            }
         }
 
         private void MVControl_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
@@ -198,6 +208,18 @@ namespace RX_Explorer
             if (MusicCover.Visibility != Visibility.Visible)
             {
                 MVControl.IsFullWindow = !MVControl.IsFullWindow;
+            }
+        }
+
+        private void MVControl_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            if (MVControl.MediaPlayer.PlaybackSession.CanPause && (MVControl.MediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Playing || MVControl.MediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Buffering))
+            {
+                MVControl.MediaPlayer.Pause();
+            }
+            else if(MVControl.MediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Paused)
+            {
+                MVControl.MediaPlayer.Play();
             }
         }
     }

@@ -2361,9 +2361,6 @@ Invalid names include
   <data name="AttributeTargetPath.Text" xml:space="preserve">
     <value>Target</value>
   </data>
-  <data name="QueueDialog_DropFailure_Content" xml:space="preserve">
-    <value>Unable to recognize the dragged file, please try again</value>
-  </data>
   <data name="QueueDialog_SetWallpaperFailure_Content" xml:space="preserve">
     <value>Unable to set the picture as wallpaper due to an unknown error</value>
   </data>
@@ -2804,5 +2801,8 @@ Invalid names include
   </data>
   <data name="BluetoothAudio_Status_7" xml:space="preserve">
     <value>Could not establish connection</value>
+  </data>
+  <data name="QueueDialog_CopyFromUnsupportedArea_Content" xml:space="preserve">
+    <value>Unable to paste operation, unsupported file source</value>
   </data>
 </root>
