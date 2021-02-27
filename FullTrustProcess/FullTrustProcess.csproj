@@ -91,6 +91,7 @@
     <Compile Include="Helper.cs" />
     <Compile Include="ExtensionAssociate.cs" />
     <Compile Include="MIMEHelper.cs" />
+    <Compile Include="RemoteDataObject.cs" />
     <Compile Include="StorageItemController.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

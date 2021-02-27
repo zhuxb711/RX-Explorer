@@ -14,11 +14,15 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Forms;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
 using Windows.ApplicationModel.AppService;
 using Windows.Foundation.Collections;
 using Windows.Storage;
+using Size = System.Drawing.Size;
+using Timer = System.Threading.Timer;
 
 namespace FullTrustProcess
 {
@@ -1133,6 +1137,54 @@ namespace FullTrustProcess
                             }
 
                             await args.Request.SendResponseAsync(new ValueSet { { "Execute_Test_Connection", string.Empty } });
+
+                            break;
+                        }
+                    case "Paste_Remote_File":
+                        {
+                            ValueSet Value = new ValueSet();
+
+
+                            if (args.Request.Message.TryGetValue("Path", out object Path))
+                            {
+                                if (await Helper.CreateSTATask(() =>
+                                 {
+                                     try
+                                     {
+                                         RemoteDataObject rdo = new RemoteDataObject(Clipboard.GetDataObject());
+                                         MemoryStream[] fileContent = (MemoryStream[])rdo.GetData("FileContents", false);
+                                         string[] fileNames = (string[])rdo.GetData("FileGroupDescriptorW", false);
+                                         for (int i = 0; i < fileContent.Length; i++)
+                                         {
+                                             FileStream fs = new FileStream(Path.ToString() + "\\" + fileNames[i], FileMode.OpenOrCreate);
+                                             BinaryWriter w = new BinaryWriter(fs);
+                                             w.Write(fileContent[i].ToArray());
+                                             fs.Close();
+                                             fileContent[i].Close();
+                                         }
+                                         return true;
+                                     }
+                                     catch
+                                     {
+
+                                         return false;
+
+
+                                     }
+                                 }
+
+
+                                ))
+                                {
+                                    Value.Add("Success", string.Empty);
+                                }
+                                else
+                                {
+                                    Value.Add("Error_Failure", string.Empty);
+                                }
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
 
                             break;
                         }
