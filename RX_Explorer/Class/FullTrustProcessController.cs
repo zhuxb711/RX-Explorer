@@ -1967,30 +1967,48 @@ namespace RX_Explorer.Class
             return MoveAsync(new string[1] { SourcePath }, Destination, ProgressHandler, IsUndoOperation);
         }
 
-        public async Task PasteRemoteFile(string DestinationPath)
+        public async Task<bool> PasteRemoteFile(string DestinationPath)
         {
-            
-            try { 
+            try
+            {
                 IsAnyActionExcutingInCurrentController = true;
 
                 if (await ConnectRemoteAsync().ConfigureAwait(true))
                 {
                     ValueSet Value = new ValueSet
-                        {
-                        {"ExecuteType", ExecuteType_PasteRemoteFile},
-                            {"Path", DestinationPath} 
-                        };
-                    Task<AppServiceResponse> MessageTask = Connection.SendMessageAsync(Value).AsTask();
-
-                    await Task.WhenAll(MessageTask).ConfigureAwait(true);
-                    if (MessageTask.Result.Status == AppServiceResponseStatus.Success)
                     {
+                        {"ExecuteType", ExecuteType_PasteRemoteFile},
+                        {"Path", DestinationPath}
+                    };
 
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.ContainsKey("Success"))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(PasteRemoteFile)}, message: {ErrorMessage}");
+                            }
+
+                            return false;
+                        }
                     }
                     else
                     {
-
+                        LogTracer.Log($"AppServiceResponse in {nameof(PasteRemoteFile)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        return false;
                     }
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(PasteRemoteFile)}: Failed to connect AppService ");
+                    return false;
                 }
             }
             finally

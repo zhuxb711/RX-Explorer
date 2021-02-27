@@ -1142,46 +1142,52 @@ namespace FullTrustProcess
                         }
                     case "Paste_Remote_File":
                         {
+                            string Path = Convert.ToString(args.Request.Message["Path"]);
+
                             ValueSet Value = new ValueSet();
 
-
-                            if (args.Request.Message.TryGetValue("Path", out object Path))
+                            if (await Helper.CreateSTATask(() =>
                             {
-                                if (await Helper.CreateSTATask(() =>
-                                 {
-                                     try
-                                     {
-                                         RemoteDataObject rdo = new RemoteDataObject(Clipboard.GetDataObject());
-                                         MemoryStream[] fileContent = (MemoryStream[])rdo.GetData("FileContents", false);
-                                         string[] fileNames = (string[])rdo.GetData("FileGroupDescriptorW", false);
-                                         for (int i = 0; i < fileContent.Length; i++)
-                                         {
-                                             FileStream fs = new FileStream(Path.ToString() + "\\" + fileNames[i], FileMode.OpenOrCreate);
-                                             BinaryWriter w = new BinaryWriter(fs);
-                                             w.Write(fileContent[i].ToArray());
-                                             fs.Close();
-                                             fileContent[i].Close();
-                                         }
-                                         return true;
-                                     }
-                                     catch
-                                     {
+                                RemoteDataObject Rdo = new RemoteDataObject(Clipboard.GetDataObject());
 
-                                         return false;
-
-
-                                     }
-                                 }
-
-
-                                ))
+                                if (Rdo.GetData(Shell32.ShellClipboardFormat.CFSTR_FILECONTENTS, false) is MemoryStream[] FileContents)
                                 {
-                                    Value.Add("Success", string.Empty);
+                                    try
+                                    {
+                                        if (Rdo.GetData(Shell32.ShellClipboardFormat.CFSTR_FILEDESCRIPTORW, false) is string[] FileNames)
+                                        {
+                                            for (int i = 0; i < FileContents.Length; i++)
+                                            {
+                                                using (FileStream Stream = new FileStream(Path.ToString() + "\\" + FileNames[i], FileMode.OpenOrCreate))
+                                                using (BinaryWriter Writer = new BinaryWriter(Stream))
+                                                {
+                                                    Writer.Write(FileContents[i].ToArray());
+                                                }
+                                            }
+
+                                            return true;
+                                        }
+                                        else
+                                        {
+                                            return false;
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        Array.ForEach(FileContents, (ContentStream) => ContentStream.Dispose());
+                                    }
                                 }
                                 else
                                 {
-                                    Value.Add("Error_Failure", string.Empty);
+                                    return false;
                                 }
+                            }))
+                            {
+                                Value.Add("Success", string.Empty);
+                            }
+                            else
+                            {
+                                Value.Add("Error", "Clipboard is empty or could not get the content");
                             }
 
                             await args.Request.SendResponseAsync(Value);

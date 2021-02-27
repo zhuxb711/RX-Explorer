@@ -1466,41 +1466,18 @@ namespace RX_Explorer
             }
             catch (Exception ex) when (ex.HResult == unchecked((int)0x80040064))
             {
-
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {
-                    try
-                    {
-                        await Exclusive.Controller.PasteRemoteFile( CurrentFolder.Path ).ConfigureAwait(true);
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
+                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
 
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    catch (InvalidOperationException)
+                    if (await Exclusive.Controller.PasteRemoteFile(CurrentFolder.Path).ConfigureAwait(true))
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                        };
+                        await Container.LoadingActivation(false).ConfigureAwait(true);
+                    }
+                    else
+                    {
+                        await Container.LoadingActivation(false).ConfigureAwait(true);
 
-                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                        {
-                            await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                        }
-                    }
-                    catch
-                    {
                         QueueContentDialog dialog = new QueueContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
