@@ -103,7 +103,7 @@ namespace FullTrustProcess
 
                         byte[] FileGroupDescriptorBytes = null;
 
-                        using (MemoryStream FileGroupDescriptorStream = (MemoryStream)underlyingDataObject.GetData("FileGroupDescriptor", AutoConvert))
+                        using (MemoryStream FileGroupDescriptorStream = (MemoryStream)underlyingDataObject.GetData(Format, AutoConvert))
                         {
                             FileGroupDescriptorBytes = new byte[FileGroupDescriptorStream.Length];
                             FileGroupDescriptorStream.Read(FileGroupDescriptorBytes, 0, FileGroupDescriptorBytes.Length);
@@ -215,7 +215,8 @@ namespace FullTrustProcess
             //create a FORMATETC struct to request the data with
             FORMATETC Formatetc = new FORMATETC
             {
-                cfFormat = Convert.ToInt16(DataFormats.GetFormat(Format).Id),
+
+                cfFormat = (short)(DataFormats.GetFormat(Format).Id),
                 dwAspect = DVASPECT.DVASPECT_CONTENT,
                 lindex = Index,
                 ptd = new IntPtr(0),
