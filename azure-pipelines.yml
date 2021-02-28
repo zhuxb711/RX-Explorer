@@ -16,16 +16,16 @@ variables:
 - name: solution
   value: '**/*.sln'
 - name: buildPlatform
-  value: 'x86|x64|ARM|ARM64'
+  value: 'x86|x64|ARM'
 - name: buildConfiguration
   value: 'Release'
-- name: appxPackageDir
-  value: '$(build.artifactStagingDirectory)\AppxPackages\\'
-- name: publishZipPath
-  value: $(Build.ArtifactStagingDirectory)\Compiled_Package.zip
+- name: SideLoadPackageDir
+  value: '$(build.artifactStagingDirectory)\SideLoad\\'
+- name: CIPackageDir
+  value: '$(build.artifactStagingDirectory)\CI\\'
 
 jobs:
-- job: ReleaseBuild
+- job: CIBuild
   timeoutInMinutes: 0
   pool:
     vmImage: 'windows-latest'
@@ -62,21 +62,61 @@ jobs:
       displayName: 'Build RX-Explorer'
       inputs:
         solution: '$(solution)'
-        msbuildArgs: '/t:$(buildProject):Rebuild /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(appxPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
+        msbuildArgs: '/t:$(buildProject):Rebuild /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(CIPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=CI /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
         configuration: '$(buildConfiguration)'
         clean: true
         msbuildArchitecture: 'x64'
-
-    - task: ArchiveFiles@2
-      inputs:
-        rootFolderOrFile: '$(appxPackageDir)'
-        includeRootFolder: false
-        archiveType: 'zip'
-        archiveFile: '$(publishZipPath)'
-        replaceExistingArchive: true
     
     - task: PublishBuildArtifacts@1
-      displayName: 'Publish Artifact: Package'
+      displayName: 'Publish Artifact: CIBuild'
       inputs:
-        ArtifactName: 'Download_Publish'
-        PathtoPublish: '$(publishZipPath)'
+        ArtifactName: 'CIBuild_Publish'
+        PathtoPublish: '$(CIPackageDir)'
+
+- job: SideLoadBuild
+  timeoutInMinutes: 0
+  pool:
+    vmImage: 'windows-latest'
+  steps:
+    - task: NuGetToolInstaller@1
+    - task: NuGetCommand@2
+      inputs:
+        restoreSolution: '$(solution)'
+
+    - task: DownloadSecureFile@1
+      name: secureFile
+      displayName: 'Download CA Certificate'
+      inputs:
+        secureFile: '$(signingCert.secureFileName)'
+
+    - task: PowerShell@2
+      inputs:
+        targetType: 'inline'
+        script: |
+          Write-Host "Start adding the PFX file to the certificate store."
+
+          $pfxpath = '$(secureFile.secureFilePath)'
+          $password = '$(signingCert.password)'      
+      
+          Add-Type -AssemblyName System.Security
+          $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2
+          $cert.Import($pfxpath, $password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet)
+          $store = new-object system.security.cryptography.X509Certificates.X509Store -argumentlist "MY", CurrentUser
+          $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]"ReadWrite")
+          $store.Add($cert)
+          $store.Close()
+
+    - task: VSBuild@1
+      displayName: 'Build RX-Explorer'
+      inputs:
+        solution: '$(solution)'
+        msbuildArgs: '/t:$(buildProject):Rebuild /p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(SideLoadPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=SideloadOnly /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="$(signingCert.thumbprint)" /p:PackageCertificateKeyFile="$(secureFile.secureFilePath)" /p:PackageCertificatePassword="$(signingCert.password)"'
+        configuration: '$(buildConfiguration)'
+        clean: true
+        msbuildArchitecture: 'x64'
+    
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifact: SideLoadBuild'
+      inputs:
+        ArtifactName: 'SideLoadBuild_Publish'
+        PathtoPublish: '$(SideLoadPackageDir)'

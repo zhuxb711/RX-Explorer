@@ -1158,7 +1158,7 @@ namespace FullTrustProcess
                                         {
                                             for (int i = 0; i < FileContents.Length; i++)
                                             {
-                                                using (FileStream Stream = new FileStream(Path.ToString() + "\\" + FileNames[i], FileMode.OpenOrCreate))
+                                                using (FileStream Stream = new FileStream(System.IO.Path.Combine(Path.ToString(), FileNames[i]), FileMode.OpenOrCreate))
                                                 using (BinaryWriter Writer = new BinaryWriter(Stream))
                                                 {
                                                     Writer.Write(FileContents[i].ToArray());

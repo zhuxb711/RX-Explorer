@@ -215,8 +215,7 @@ namespace FullTrustProcess
             //create a FORMATETC struct to request the data with
             FORMATETC Formatetc = new FORMATETC
             {
-
-                cfFormat = (short)(DataFormats.GetFormat(Format).Id),
+                cfFormat = (short)DataFormats.GetFormat(Format).Id,
                 dwAspect = DVASPECT.DVASPECT_CONTENT,
                 lindex = Index,
                 ptd = new IntPtr(0),
