@@ -172,6 +172,49 @@ namespace FullTrustProcess
             }
         }
 
+        public static string GenerateUniquePath(string Path)
+        {
+            string UniquePath = Path;
+
+            if (File.Exists(Path))
+            {
+                string NameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(Path);
+                string Extension = System.IO.Path.GetExtension(Path);
+                string Directory = System.IO.Path.GetDirectoryName(Path);
+
+                for (ushort Count = 1; File.Exists(UniquePath); Count++)
+                {
+                    if (Regex.IsMatch(NameWithoutExt, @".*\(\d+\)"))
+                    {
+                        UniquePath = System.IO.Path.Combine(Directory, $"{NameWithoutExt.Substring(0, NameWithoutExt.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count}){Extension}");
+                    }
+                    else
+                    {
+                        UniquePath = System.IO.Path.Combine(Directory, $"{NameWithoutExt} ({Count}){Extension}");
+                    }
+                }
+            }
+            else if (Directory.Exists(Path))
+            {
+                string Directory = System.IO.Path.GetDirectoryName(Path);
+                string Name = System.IO.Path.GetFileName(Path);
+
+                for (ushort Count = 1; System.IO.Directory.Exists(UniquePath); Count++)
+                {
+                    if (Regex.IsMatch(Name, @".*\(\d+\)"))
+                    {
+                        UniquePath = System.IO.Path.Combine(Directory, $"{Name.Substring(0, Name.LastIndexOf("(", StringComparison.InvariantCultureIgnoreCase))}({Count})");
+                    }
+                    else
+                    {
+                        UniquePath = System.IO.Path.Combine(Directory, $"{Name} ({Count})");
+                    }
+                }
+            }
+
+            return UniquePath;
+        }
+
         public static bool Rename(string Source, string DesireName)
         {
             try

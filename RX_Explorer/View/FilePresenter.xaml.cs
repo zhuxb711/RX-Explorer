@@ -1466,14 +1466,28 @@ namespace RX_Explorer
             }
             catch (Exception ex) when (ex.HResult == unchecked((int)0x80040064))
             {
-                QueueContentDialog dialog = new QueueContentDialog
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_CopyFromUnsupportedArea_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
+                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
 
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    if (await Exclusive.Controller.PasteRemoteFile(CurrentFolder.Path).ConfigureAwait(true))
+                    {
+                        await Container.LoadingActivation(false).ConfigureAwait(true);
+                    }
+                    else
+                    {
+                        await Container.LoadingActivation(false).ConfigureAwait(true);
+
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    }
+                }
             }
             catch
             {

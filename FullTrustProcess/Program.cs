@@ -14,11 +14,14 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
 using Windows.ApplicationModel.AppService;
 using Windows.Foundation.Collections;
 using Windows.Storage;
+using Size = System.Drawing.Size;
+using Timer = System.Threading.Timer;
 
 namespace FullTrustProcess
 {
@@ -1133,6 +1136,62 @@ namespace FullTrustProcess
                             }
 
                             await args.Request.SendResponseAsync(new ValueSet { { "Execute_Test_Connection", string.Empty } });
+
+                            break;
+                        }
+                    case "Paste_Remote_File":
+                        {
+                            string Path = Convert.ToString(args.Request.Message["Path"]);
+
+                            ValueSet Value = new ValueSet();
+
+                            if (await Helper.CreateSTATask(() =>
+                            {
+                                RemoteDataObject Rdo = new RemoteDataObject(Clipboard.GetDataObject());
+
+                                if (Rdo.GetData(Shell32.ShellClipboardFormat.CFSTR_FILECONTENTS, false) is MemoryStream[] FileContents)
+                                {
+                                    try
+                                    {
+                                        if (Rdo.GetData(Shell32.ShellClipboardFormat.CFSTR_FILEDESCRIPTORW, false) is string[] FileNames)
+                                        {
+                                            for (int i = 0; i < FileContents.Length; i++)
+                                            {
+                                                string UniqueName = StorageItemController.GenerateUniquePath(System.IO.Path.Combine(Path.ToString(), FileNames[i]));
+
+                                                using (FileStream Stream = new FileStream(UniqueName, FileMode.CreateNew))
+                                                using (BinaryWriter Writer = new BinaryWriter(Stream))
+                                                {
+                                                    Writer.Write(FileContents[i].ToArray());
+                                                }
+                                            }
+
+                                            return true;
+                                        }
+                                        else
+                                        {
+                                            return false;
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        Array.ForEach(FileContents, (ContentStream) => ContentStream.Dispose());
+                                    }
+                                }
+                                else
+                                {
+                                    return false;
+                                }
+                            }))
+                            {
+                                Value.Add("Success", string.Empty);
+                            }
+                            else
+                            {
+                                Value.Add("Error", "Clipboard is empty or could not get the content");
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
 
                             break;
                         }
