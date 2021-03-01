@@ -1,6 +1,5 @@
 ﻿using RX_Explorer.Class;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -75,26 +74,28 @@ namespace RX_Explorer
             }
         }
 
-        private Task<Encoding> DetectEncodingFromFileAsync()
+        private async Task<Encoding> DetectEncodingFromFileAsync()
         {
-            return Task.Run(() =>
+            try
             {
-                try
+                using (FileStream DetectStream = await TextFile.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(true))
                 {
-                    using (FileStream DetectStream = TextFile.GetFileStreamFromFile(AccessMode.Read))
-                    using (StreamReader Reader = new StreamReader(DetectStream, Encoding.Default, true))
+                    return await Task.Run(() =>
                     {
-                        Reader.Read();
+                        using (StreamReader Reader = new StreamReader(DetectStream, Encoding.Default, true))
+                        {
+                            Reader.Read();
 
-                        return Reader.CurrentEncoding;
-                    }
+                            return Reader.CurrentEncoding;
+                        }
+                    });
                 }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "Could not detect the encoding of file");
-                    return null;
-                }
-            });
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not detect the encoding of file");
+                return null;
+            }
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -123,7 +124,7 @@ namespace RX_Explorer
                     {
                         if (await FileSystemStorageItemBase.CreateAsync(TextFile.Path, StorageItemTypes.File, CreateOption.ReplaceExisting).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                         {
-                            using (FileStream Stream = Item.GetFileStreamFromFile(AccessMode.Write))
+                            using (FileStream Stream = await Item.GetFileStreamFromFileAsync(AccessMode.Write).ConfigureAwait(true))
                             using (StreamWriter Writer = new StreamWriter(Stream, CurrentEncoding))
                             {
                                 await Writer.WriteAsync(Text.Text).ConfigureAwait(true);
@@ -214,7 +215,7 @@ namespace RX_Explorer
 
             try
             {
-                using (FileStream Stream = TextFile.GetFileStreamFromFile(AccessMode.Read))
+                using (FileStream Stream = await TextFile.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(true))
                 using (StreamReader Reader = new StreamReader(Stream, Enco, false))
                 {
                     Text.Text = await Reader.ReadToEndAsync().ConfigureAwait(true);

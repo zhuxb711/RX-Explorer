@@ -80,7 +80,7 @@ namespace RX_Explorer.Class
                                {
                                    if (await FileSystemStorageItemBase.OpenAsync(FilePathMap.Value, ItemFilters.File).ConfigureAwait(true) is FileSystemStorageItemBase ShareFile)
                                    {
-                                       using (FileStream Stream = ShareFile.GetFileStreamFromFile(AccessMode.Read))
+                                       using (FileStream Stream = await ShareFile.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(true))
                                        {
                                            try
                                            {

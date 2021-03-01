@@ -991,24 +991,6 @@
   <data name="WIFIShareTip.Title" xml:space="preserve">
     <value>WiFi共享</value>
   </data>
-  <data name="ZipDialog.PrimaryButtonText" xml:space="preserve">
-    <value>确定</value>
-  </data>
-  <data name="ZipDialog.Title" xml:space="preserve">
-    <value>Zip压缩选项</value>
-  </data>
-  <data name="ZipDialogLevel.Header" xml:space="preserve">
-    <value>压缩等级</value>
-  </data>
-  <data name="ZipDialogName.Header" xml:space="preserve">
-    <value>文件名</value>
-  </data>
-  <data name="Zip.Label" xml:space="preserve">
-    <value>压缩</value>
-  </data>
-  <data name="ZipDialog.CloseButtonText" xml:space="preserve">
-    <value>取消</value>
-  </data>
   <data name="SettingTreeViewDetach.Header" xml:space="preserve">
     <value>文件夹目录</value>
   </data>
@@ -1618,15 +1600,6 @@
   <data name="Video_Dialog_Encoding_Text" xml:space="preserve">
     <value>编码</value>
   </data>
-  <data name="Zip_Dialog_Level_1" xml:space="preserve">
-    <value>最大</value>
-  </data>
-  <data name="Zip_Dialog_Level_2" xml:space="preserve">
-    <value>标准</value>
-  </data>
-  <data name="Zip_Dialog_Level_3" xml:space="preserve">
-    <value>仅存储</value>
-  </data>
   <data name="Common_Dialog_CancelButton" xml:space="preserve">
     <value>取消</value>
   </data>
@@ -1894,9 +1867,6 @@
   </data>
   <data name="Application_Admin_Name" xml:space="preserve">
     <value>应用程序</value>
-  </data>
-  <data name="Zip_Admin_Name_Text" xml:space="preserve">
-    <value>新建Zip文件</value>
   </data>
   <data name="SettingPageAnimationSwitch.Header" xml:space="preserve">
     <value>动画效果</value>
@@ -2699,5 +2669,29 @@
   </data>
   <data name="QueueDialog_CopyFromUnsupportedArea_Content" xml:space="preserve">
     <value>无法进行粘贴操作，不支持的文件来源</value>
+  </data>
+  <data name="CompressDialog.Title" xml:space="preserve">
+    <value>压缩选项</value>
+  </data>
+  <data name="CompressDialogLevel.Header" xml:space="preserve">
+    <value>压缩等级</value>
+  </data>
+  <data name="CompressDialogName.Header" xml:space="preserve">
+    <value>文件名</value>
+  </data>
+  <data name="Compression_Dialog_Level_1" xml:space="preserve">
+    <value>最大</value>
+  </data>
+  <data name="Compression_Dialog_Level_2" xml:space="preserve">
+    <value>标准</value>
+  </data>
+  <data name="Compression_Dialog_Level_3" xml:space="preserve">
+    <value>仅存储</value>
+  </data>
+  <data name="Compression_Admin_Name_Text" xml:space="preserve">
+    <value>新建压缩文件</value>
+  </data>
+  <data name="Compression.Label" xml:space="preserve">
+    <value>压缩</value>
   </data>
 </root>

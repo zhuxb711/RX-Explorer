@@ -1,5 +1,4 @@
 ﻿using ComputerVision;
-using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
@@ -7,11 +6,9 @@ using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -210,9 +207,6 @@ namespace RX_Explorer
 
             AreaWatcher = new StorageAreaWatcher(FileCollection);
             EnterLock = new SemaphoreSlim(1, 1);
-
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            ZipStrings.CodePage = 936;
 
             Loaded += FilePresenter_Loaded;
             Unloaded += FilePresenter_Unloaded;
@@ -452,7 +446,7 @@ namespace RX_Explorer
                     return;
                 }
 
-                if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent)?.Path == Path.GetPathRoot(FolderPath)) is TreeViewNode RootNode)
+                if (Container.FolderTree.SelectedNode == null && Container.FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent)?.Path == Path.GetPathRoot(FolderPath)) is TreeViewNode RootNode)
                 {
                     Container.FolderTree.SelectNodeAndScrollToVertical(RootNode);
                 }
@@ -1866,40 +1860,27 @@ namespace RX_Explorer
 
             ItemPresenter.UpdateLayout();
 
-            MixZip.IsEnabled = true;
-
             if (SelectedItems.Any((Item) => Item.StorageType != StorageItemTypes.Folder))
             {
                 if (SelectedItems.All((Item) => Item.StorageType == StorageItemTypes.File))
                 {
-                    if (SelectedItems.All((Item) => Item.Type == ".zip"))
+                    if (SelectedItems.All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)) || SelectedItems.All((Item) => Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)) || SelectedItems.All((Item) => Item.Type.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)))
                     {
-                        MixZip.Label = Globalization.GetString("Operate_Text_Decompression");
-                    }
-                    else if (SelectedItems.All((Item) => Item.Type != ".zip"))
-                    {
-                        MixZip.Label = Globalization.GetString("Operate_Text_Compression");
+                        MixCompression.Label = Globalization.GetString("Operate_Text_Decompression");
                     }
                     else
                     {
-                        MixZip.IsEnabled = false;
+                        MixCompression.Label = Globalization.GetString("Operate_Text_Compression");
                     }
                 }
                 else
                 {
-                    if (SelectedItems.Where((It) => It.StorageType == StorageItemTypes.File).Any((Item) => Item.Type == ".zip"))
-                    {
-                        MixZip.IsEnabled = false;
-                    }
-                    else
-                    {
-                        MixZip.Label = Globalization.GetString("Operate_Text_Compression");
-                    }
+                    MixCompression.Label = Globalization.GetString("Operate_Text_Compression");
                 }
             }
             else
             {
-                MixZip.Label = Globalization.GetString("Operate_Text_Compression");
+                MixCompression.Label = Globalization.GetString("Operate_Text_Compression");
             }
 
             if (SelectedItem is FileSystemStorageItemBase Item)
@@ -1909,18 +1890,19 @@ namespace RX_Explorer
                     FileTool.IsEnabled = true;
                     FileEdit.IsEnabled = false;
                     FileShare.IsEnabled = true;
-                    Zip.IsEnabled = true;
 
                     ChooseOtherApp.IsEnabled = true;
                     RunWithSystemAuthority.IsEnabled = false;
 
-                    Zip.Label = Globalization.GetString("Operate_Text_Compression");
+                    Compression.Label = Globalization.GetString("Operate_Text_Compression");
 
                     switch (Item.Type.ToLower())
                     {
+                        case ".tar":
+                        case ".gz":
                         case ".zip":
                             {
-                                Zip.Label = Globalization.GetString("Operate_Text_Decompression");
+                                Compression.Label = Globalization.GetString("Operate_Text_Decompression");
                                 break;
                             }
                         case ".mp4":
@@ -2174,7 +2156,7 @@ namespace RX_Explorer
             _ = await Dialog.ShowAsync().ConfigureAwait(true);
         }
 
-        private async void Zip_Click(object sender, RoutedEventArgs e)
+        private async void Compression_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
@@ -2194,485 +2176,260 @@ namespace RX_Explorer
                     return;
                 }
 
-                if (Item.Type == ".zip")
+                switch (Item.Type.ToLower())
                 {
-                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
-
-                    await UnZipAsync(Item, (s, e) =>
-                    {
-                        if (Container.ProBar.Value < e.ProgressPercentage)
+                    case ".zip":
                         {
-                            Container.ProBar.IsIndeterminate = false;
-                            Container.ProBar.Value = e.ProgressPercentage;
-                        }
-                    }).ConfigureAwait(true);
+                            await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
 
-                    await Container.LoadingActivation(false).ConfigureAwait(true);
-                }
-                else
-                {
-                    ZipDialog dialog = new ZipDialog(Item);
-
-                    if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
-                    {
-                        await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
-
-                        await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level, (s, e) =>
-                        {
-                            if (Container.ProBar.Value < e.ProgressPercentage)
+                            try
                             {
-                                Container.ProBar.IsIndeterminate = false;
-                                Container.ProBar.Value = e.ProgressPercentage;
-                            }
-                        }).ConfigureAwait(true);
-
-                        await Container.LoadingActivation(false).ConfigureAwait(false);
-                    }
-                }
-            }
-        }
-
-        private async Task UnZipAsync(IEnumerable<FileSystemStorageItemBase> FileList, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            long TotalSize = 0;
-
-            foreach (FileSystemStorageItemBase Item in FileList)
-            {
-                TotalSize += Convert.ToInt64(Item.SizeRaw);
-            }
-
-            if (TotalSize == 0)
-            {
-                return;
-            }
-
-            await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
-
-            long Step = 0;
-
-            foreach (FileSystemStorageItemBase Item in FileList)
-            {
-                await UnZipAsync(Item, (s, e) =>
-                {
-                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((Convert.ToDouble(e.ProgressPercentage * Convert.ToInt64(Item.SizeRaw)) + Step * 100) / TotalSize)), null));
-                }).ConfigureAwait(true);
-
-                Step += Convert.ToInt64(Item.SizeRaw);
-            }
-
-            await Container.LoadingActivation(false).ConfigureAwait(true);
-        }
-
-        /// <summary>
-        /// 执行ZIP解压功能
-        /// </summary>
-        /// <param name="Item">ZIP文件</param>
-        /// <returns>无</returns>
-        private async Task UnZipAsync(FileSystemStorageItemBase Item, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            try
-            {
-                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(Path.GetDirectoryName(Item.Path), Path.GetFileNameWithoutExtension(Item.Name)), StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase NewFolder)
-                {
-                    using (FileStream FileStream = Item.GetFileStreamFromFile(AccessMode.Exclusive))
-                    using (ZipInputStream InputZipStream = new ZipInputStream(FileStream))
-                    {
-                        FileStream.Seek(0, SeekOrigin.Begin);
-
-                        InputZipStream.IsStreamOwner = false;
-
-                        while (InputZipStream.GetNextEntry() is ZipEntry Entry)
-                        {
-                            if (!InputZipStream.CanDecompressEntry)
-                            {
-                                throw new NotImplementedException();
-                            }
-
-                            if (Entry.Name.Contains("/"))
-                            {
-                                string[] SplitFolderPath = Entry.Name.Split('/', StringSplitOptions.RemoveEmptyEntries);
-
-                                string TempFolderPath = NewFolder.Path;
-
-                                for (int i = 0; i < SplitFolderPath.Length - 1; i++)
+                                await CompressionUtil.ExtractZipAsync(Item, async (s, e) =>
                                 {
-                                    if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TempFolderPath, SplitFolderPath[i]), StorageItemTypes.Folder, CreateOption.OpenIfExist).ConfigureAwait(true) is FileSystemStorageItemBase NextFolder)
+                                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                     {
-                                        TempFolderPath = NextFolder.Path;
-                                    }
-                                    else
-                                    {
-                                        throw new UnauthorizedAccessException("Could not create directory");
-                                    }
-                                }
-
-                                if (Entry.Name.Last() == '/')
-                                {
-                                    if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TempFolderPath, SplitFolderPath.Last()), StorageItemTypes.Folder, CreateOption.OpenIfExist).ConfigureAwait(true) == null)
-                                    {
-                                        throw new UnauthorizedAccessException("Could not create directory");
-                                    }
-                                }
-                                else
-                                {
-                                    if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TempFolderPath, SplitFolderPath.Last()), StorageItemTypes.File, CreateOption.ReplaceExisting).ConfigureAwait(true) is FileSystemStorageItemBase NewFile)
-                                    {
-                                        using (FileStream NewFileStream = NewFile.GetFileStreamFromFile(AccessMode.Write))
+                                        if (Container.ProBar.Value < e.ProgressPercentage)
                                         {
-                                            await InputZipStream.CopyToAsync(NewFileStream).ConfigureAwait(true);
+                                            Container.ProBar.IsIndeterminate = false;
+                                            Container.ProBar.Value = e.ProgressPercentage;
                                         }
-                                    }
-                                    else
-                                    {
-                                        throw new UnauthorizedAccessException();
-                                    }
-                                }
+                                    });
+                                }).ConfigureAwait(true);
                             }
-                            else
+                            catch (UnauthorizedAccessException)
                             {
-                                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(NewFolder.Path, Entry.Name), StorageItemTypes.File, CreateOption.ReplaceExisting).ConfigureAwait(true) is FileSystemStorageItemBase NewFile)
+                                QueueContentDialog dialog = new QueueContentDialog
                                 {
-                                    using (FileStream NewFileStream = NewFile.GetFileStreamFromFile(AccessMode.Write))
-                                    {
-                                        await InputZipStream.CopyToAsync(NewFileStream).ConfigureAwait(true);
-                                    }
-                                }
-                                else
-                                {
-                                    throw new UnauthorizedAccessException();
-                                }
-                            }
-
-                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(FileStream.Position * 100d / FileStream.Length)), null));
-                        }
-                    }
-                }
-                else
-                {
-                    throw new UnauthorizedAccessException();
-                }
-            }
-            catch (UnauthorizedAccessException)
-            {
-                QueueContentDialog dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"),
-                    PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                };
-
-                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                {
-                    _ = await Launcher.LaunchFolderPathAsync(Path.GetDirectoryName(Item.Path));
-                }
-            }
-            catch (NotImplementedException)
-            {
-                QueueContentDialog Dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_CanNotDecompressEncrypted_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-            }
-            catch (Exception e)
-            {
-                QueueContentDialog dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_DecompressionError_Content") + e.Message,
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
-            }
-        }
-
-        /// <summary>
-        /// 执行ZIP文件创建功能
-        /// </summary>
-        /// <param name="ZipTarget">待压缩文件</param>
-        /// <param name="NewZipName">生成的Zip文件名</param>
-        /// <param name="ZipLevel">压缩等级</param>
-        /// <param name="ProgressHandler">进度通知</param>
-        private async Task CreateZipAsync(FileSystemStorageItemBase ZipTarget, string NewZipName, int ZipLevel, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            try
-            {
-                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(CurrentFolder.Path, NewZipName), StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase NewFile)
-                {
-                    using (FileStream NewFileStream = NewFile.GetFileStreamFromFile(AccessMode.Exclusive))
-                    using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
-                    {
-                        OutputStream.SetLevel(ZipLevel);
-                        OutputStream.UseZip64 = UseZip64.Dynamic;
-                        OutputStream.IsStreamOwner = false;
-
-                        if (ZipTarget.StorageType == StorageItemTypes.File)
-                        {
-                            using (FileStream FileStream = ZipTarget.GetFileStreamFromFile(AccessMode.Read))
-                            {
-                                ZipEntry NewEntry = new ZipEntry(ZipTarget.Name)
-                                {
-                                    DateTime = DateTime.Now,
-                                    CompressionMethod = CompressionMethod.Deflated,
-                                    Size = FileStream.Length
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
                                 };
 
-                                OutputStream.PutNextEntry(NewEntry);
-
-                                await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
-                            }
-
-                            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                            {
-                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(100, null));
-                            });
-                        }
-                        else
-                        {
-                            await ZipFolderCore(ZipTarget, OutputStream, ZipTarget.Name, ProgressHandler).ConfigureAwait(false);
-                        }
-
-                        await OutputStream.FlushAsync().ConfigureAwait(true);
-                    }
-                }
-                else
-                {
-                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_UnauthorizedCompression_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                        };
-
-                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                        {
-                            _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                        }
-                    });
-                }
-            }
-            catch (Exception e)
-            {
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_CompressionError_Content") + e.Message,
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
-                });
-            }
-        }
-
-        /// <summary>
-        /// 执行ZIP文件创建功能
-        /// </summary>
-        /// <param name="ZipItemGroup">待压缩文件</param>
-        /// <param name="NewZipName">生成的Zip文件名</param>
-        /// <param name="ZipLevel">压缩等级</param>
-        /// <param name="ProgressHandler">进度通知</param>
-        /// <returns>无</returns>
-        private async Task CreateZipAsync(IEnumerable<FileSystemStorageItemBase> ZipItemGroup, string NewZipName, int ZipLevel, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            try
-            {
-                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(CurrentFolder.Path, NewZipName), StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase NewFile)
-                {
-                    using (FileStream NewFileStream = NewFile.GetFileStreamFromFile(AccessMode.Exclusive))
-                    using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
-                    {
-                        OutputStream.SetLevel(ZipLevel);
-                        OutputStream.UseZip64 = UseZip64.Dynamic;
-                        OutputStream.IsStreamOwner = false;
-
-                        long TotalSize = 0;
-
-                        foreach (FileSystemStorageItemBase StorageItem in ZipItemGroup)
-                        {
-                            if (StorageItem.StorageType == StorageItemTypes.File)
-                            {
-                                TotalSize += Convert.ToInt64(StorageItem.SizeRaw);
-                            }
-                            else
-                            {
-                                TotalSize += Convert.ToInt64(await Task.Run(() => WIN_Native_API.CalculateFolderSize(StorageItem.Path)).ConfigureAwait(false));
-                            }
-                        }
-
-                        long CurrentPosition = 0;
-
-                        foreach (FileSystemStorageItemBase StorageItem in ZipItemGroup)
-                        {
-                            if (StorageItem.StorageType == StorageItemTypes.File)
-                            {
-                                using (FileStream FileStream = StorageItem.GetFileStreamFromFile(AccessMode.Read))
+                                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                 {
-                                    ZipEntry NewEntry = new ZipEntry(StorageItem.Name)
+                                    _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
+                                }
+                            }
+                            catch (NotImplementedException)
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_CanNotDecompressEncrypted_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+
+                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                            }
+                            catch (Exception ex)
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_DecompressionError_Content") + ex.Message,
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+
+                                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                            }
+
+                            await Container.LoadingActivation(false).ConfigureAwait(true);
+
+                            break;
+                        }
+                    case ".tar":
+                        {
+                            await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
+
+                            try
+                            {
+                                await CompressionUtil.ExtractTarAsync(Item, async (s, e) =>
+                                {
+                                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                     {
-                                        DateTime = DateTime.Now,
-                                        CompressionMethod = CompressionMethod.Deflated,
-                                        Size = FileStream.Length
+                                        if (Container.ProBar.Value < e.ProgressPercentage)
+                                        {
+                                            Container.ProBar.IsIndeterminate = false;
+                                            Container.ProBar.Value = e.ProgressPercentage;
+                                        }
+                                    });
+                                }).ConfigureAwait(true);
+                            }
+                            catch (UnauthorizedAccessException)
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                                };
+
+                                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                {
+                                    _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_DecompressionError_Content") + ex.Message,
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+
+                                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                            }
+
+                            await Container.LoadingActivation(false).ConfigureAwait(true);
+
+                            break;
+                        }
+                    case ".gz":
+                        {
+                            await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
+
+                            try
+                            {
+                                await CompressionUtil.ExtractGZipAsync(Item, async (s, e) =>
+                                {
+                                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                    {
+                                        if (Container.ProBar.Value < e.ProgressPercentage)
+                                        {
+                                            Container.ProBar.IsIndeterminate = false;
+                                            Container.ProBar.Value = e.ProgressPercentage;
+                                        }
+                                    });
+                                }).ConfigureAwait(true);
+                            }
+                            catch (UnauthorizedAccessException)
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                                };
+
+                                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                {
+                                    _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                QueueContentDialog dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_DecompressionError_Content") + ex.Message,
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+
+                                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                            }
+
+                            await Container.LoadingActivation(false).ConfigureAwait(true);
+
+                            break;
+                        }
+                    default:
+                        {
+                            CompressDialog dialog = new CompressDialog(true, Path.GetFileNameWithoutExtension(Item.Name));
+
+                            if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                            {
+                                await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
+
+                                try
+                                {
+                                    switch (dialog.Type)
+                                    {
+                                        case CompressionType.Zip:
+                                            {
+                                                await CompressionUtil.CreateZipAsync(Item, Path.Combine(CurrentFolder.Path, dialog.FileName), (int)dialog.Level, async (s, e) =>
+                                                {
+                                                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                    {
+                                                        if (Container.ProBar.Value < e.ProgressPercentage)
+                                                        {
+                                                            Container.ProBar.IsIndeterminate = false;
+                                                            Container.ProBar.Value = e.ProgressPercentage;
+                                                        }
+                                                    });
+                                                }).ConfigureAwait(true);
+
+                                                break;
+                                            }
+                                        case CompressionType.Tar:
+                                            {
+                                                await CompressionUtil.CreateTarAsync(Item, Path.Combine(CurrentFolder.Path, dialog.FileName), async (s, e) =>
+                                                {
+                                                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                    {
+                                                        if (Container.ProBar.Value < e.ProgressPercentage)
+                                                        {
+                                                            Container.ProBar.IsIndeterminate = false;
+                                                            Container.ProBar.Value = e.ProgressPercentage;
+                                                        }
+                                                    });
+                                                }).ConfigureAwait(true);
+
+                                                break;
+                                            }
+                                        case CompressionType.Gzip:
+                                            {
+                                                await CompressionUtil.CreateGzipAsync(Item, Path.Combine(CurrentFolder.Path, dialog.FileName), (int)dialog.Level, async (s, e) =>
+                                                {
+                                                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                    {
+                                                        if (Container.ProBar.Value < e.ProgressPercentage)
+                                                        {
+                                                            Container.ProBar.IsIndeterminate = false;
+                                                            Container.ProBar.Value = e.ProgressPercentage;
+                                                        }
+                                                    });
+                                                }).ConfigureAwait(true);
+
+                                                break;
+                                            }
+                                    }
+                                }
+                                catch (UnauthorizedAccessException)
+                                {
+                                    QueueContentDialog dialog1 = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_UnauthorizedCompression_Content"),
+                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
                                     };
 
-                                    OutputStream.PutNextEntry(NewEntry);
-
-                                    await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
-                                }
-
-                                if (TotalSize > 0)
-                                {
-                                    CurrentPosition += Convert.ToInt64(StorageItem.SizeRaw);
-
-                                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                                    if (await dialog1.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                                     {
-                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
-                                    });
-                                }
-                            }
-                            else
-                            {
-                                long InnerFolderSize = Convert.ToInt64(await Task.Run(() => WIN_Native_API.CalculateFolderSize(StorageItem.Path)).ConfigureAwait(false));
-
-                                await ZipFolderCore(StorageItem, OutputStream, StorageItem.Name, (s, e) =>
-                                {
-                                    if (TotalSize > 0)
-                                    {
-                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * InnerFolderSize)) * 100d / TotalSize)), null));
+                                        _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
                                     }
-                                }).ConfigureAwait(false);
-
-                                if (TotalSize > 0)
-                                {
-                                    CurrentPosition += InnerFolderSize;
-
-                                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                                    {
-                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
-                                    });
                                 }
+                                catch (Exception ex)
+                                {
+                                    QueueContentDialog dialog2 = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_CompressionError_Content") + ex.Message,
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+
+                                    _ = await dialog2.ShowAsync().ConfigureAwait(true);
+                                }
+
+                                await Container.LoadingActivation(false).ConfigureAwait(false);
                             }
+
+                            break;
                         }
-
-                        await OutputStream.FlushAsync().ConfigureAwait(false);
-                    }
-                }
-                else
-                {
-                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_UnauthorizedCompression_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                        };
-
-                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                        {
-                            _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                        }
-                    });
-                }
-            }
-            catch (Exception e)
-            {
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_CompressionError_Content") + e.Message,
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
-                });
-            }
-        }
-
-        private async Task ZipFolderCore(FileSystemStorageItemBase Folder, ZipOutputStream OutputStream, string BaseFolderName, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            List<FileSystemStorageItemBase> ItemList = await Folder.GetChildrenItemsAsync(true).ConfigureAwait(false);
-
-            if (ItemList.Count == 0)
-            {
-                if (!string.IsNullOrEmpty(BaseFolderName))
-                {
-                    ZipEntry NewEntry = new ZipEntry(BaseFolderName);
-                    OutputStream.PutNextEntry(NewEntry);
-                    OutputStream.CloseEntry();
-                }
-            }
-            else
-            {
-                long TotalSize = Convert.ToInt64(await Task.Run(() => WIN_Native_API.CalculateFolderSize(Folder.Path)).ConfigureAwait(false));
-
-                long CurrentPosition = 0;
-
-                foreach (FileSystemStorageItemBase Item in ItemList)
-                {
-                    if (Item.StorageType == StorageItemTypes.Folder)
-                    {
-                        long InnerFolderSize = Convert.ToInt64(await Task.Run(() => WIN_Native_API.CalculateFolderSize(Item.Path)).ConfigureAwait(false));
-
-                        await ZipFolderCore(Item, OutputStream, $"{BaseFolderName}/{Item.Name}", ProgressHandler: (s, e) =>
-                        {
-                            if (TotalSize > 0)
-                            {
-                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * InnerFolderSize)) * 100d / TotalSize)), null));
-                            }
-                        }).ConfigureAwait(false);
-
-                        if (TotalSize > 0)
-                        {
-                            CurrentPosition += InnerFolderSize;
-
-                            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                            {
-                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
-                            });
-                        }
-                    }
-                    else if (Item.StorageType == StorageItemTypes.File)
-                    {
-                        using (FileStream FileStream = Item.GetFileStreamFromFile(AccessMode.Read))
-                        {
-                            ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/{Item.Name}")
-                            {
-                                DateTime = DateTime.Now,
-                                CompressionMethod = CompressionMethod.Deflated,
-                                Size = FileStream.Length
-                            };
-
-                            OutputStream.PutNextEntry(NewEntry);
-
-                            await FileStream.CopyToAsync(OutputStream).ConfigureAwait(false);
-
-                            OutputStream.CloseEntry();
-                        }
-
-                        if (TotalSize > 0)
-                        {
-                            CurrentPosition += Convert.ToInt64(Item.SizeRaw);
-
-                            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                            {
-                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(CurrentPosition * 100d / TotalSize)), null));
-                            });
-                        }
-                    }
                 }
             }
         }
@@ -4163,20 +3920,76 @@ namespace RX_Explorer
                     return;
                 }
 
-                ZipDialog dialog = new ZipDialog(Item);
+                CompressDialog dialog = new CompressDialog(false, Path.GetFileNameWithoutExtension(Item.Path));
 
                 if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
                     await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
 
-                    await CreateZipAsync(Item, dialog.FileName, (int)dialog.Level, ProgressHandler: (s, e) =>
+                    try
                     {
-                        if (Container.ProBar.Value < e.ProgressPercentage)
+                        switch (dialog.Type)
                         {
-                            Container.ProBar.IsIndeterminate = false;
-                            Container.ProBar.Value = e.ProgressPercentage;
+                            case CompressionType.Zip:
+                                {
+                                    await CompressionUtil.CreateZipAsync(Item, Path.Combine(CurrentFolder.Path, dialog.FileName), (int)dialog.Level, async (s, e) =>
+                                    {
+                                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            if (Container.ProBar.Value < e.ProgressPercentage)
+                                            {
+                                                Container.ProBar.IsIndeterminate = false;
+                                                Container.ProBar.Value = e.ProgressPercentage;
+                                            }
+                                        });
+                                    }).ConfigureAwait(true);
+
+                                    break;
+                                }
+                            case CompressionType.Tar:
+                                {
+                                    await CompressionUtil.CreateTarAsync(Item, Path.Combine(CurrentFolder.Path, dialog.FileName), async (s, e) =>
+                                    {
+                                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            if (Container.ProBar.Value < e.ProgressPercentage)
+                                            {
+                                                Container.ProBar.IsIndeterminate = false;
+                                                Container.ProBar.Value = e.ProgressPercentage;
+                                            }
+                                        });
+                                    }).ConfigureAwait(true);
+
+                                    break;
+                                }
                         }
-                    }).ConfigureAwait(true);
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        QueueContentDialog dialog1 = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_UnauthorizedCompression_Content"),
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                        };
+
+                        if (await dialog1.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        QueueContentDialog dialog2 = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_CompressionError_Content") + ex.Message,
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await dialog2.ShowAsync().ConfigureAwait(true);
+                    }
 
                     await Container.LoadingActivation(false).ConfigureAwait(true);
                 }
@@ -4897,8 +4710,6 @@ namespace RX_Explorer
                     {
                         if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
                         {
-                            MixZip.IsEnabled = true;
-
                             await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(MixedFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                         }
                         else
@@ -4937,8 +4748,6 @@ namespace RX_Explorer
                             {
                                 if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
                                 {
-                                    MixZip.IsEnabled = true;
-
                                     await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(MixedFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
                                 }
                                 else
@@ -4988,7 +4797,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void MixZip_Click(object sender, RoutedEventArgs e)
+        private async void MixCompression_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
@@ -5040,68 +4849,178 @@ namespace RX_Explorer
                 }
             }
 
-            bool IsCompress = false;
-            if (SelectedItems.All((Item) => Item.StorageType == StorageItemTypes.File))
+            bool IsCompress = true;
+
+            if (SelectedItems.All((Item) => Item.StorageType == StorageItemTypes.File)
+                && (SelectedItems.All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)) || SelectedItems.All((Item) => Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)) || SelectedItems.All((Item) => Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase))))
             {
-                if (SelectedItems.All((Item) => Item.Type == ".zip"))
-                {
-                    IsCompress = false;
-                }
-                else if (SelectedItems.All((Item) => Item.Type != ".zip"))
-                {
-                    IsCompress = true;
-                }
-                else
-                {
-                    return;
-                }
-            }
-            else if (SelectedItems.All((Item) => Item.StorageType == StorageItemTypes.Folder))
-            {
-                IsCompress = true;
-            }
-            else
-            {
-                if (SelectedItems.Where((It) => It.StorageType == StorageItemTypes.File).All((Item) => Item.Type != ".zip"))
-                {
-                    IsCompress = true;
-                }
-                else
-                {
-                    return;
-                }
+                IsCompress = false;
             }
 
             if (IsCompress)
             {
-                ZipDialog dialog = new ZipDialog();
+                CompressDialog dialog = new CompressDialog(false);
 
                 if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
                     await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
 
-                    await CreateZipAsync(SelectedItems, dialog.FileName, (int)dialog.Level, ProgressHandler: (s, e) =>
+                    try
                     {
-                        if (Container.ProBar.Value < e.ProgressPercentage)
+                        switch (dialog.Type)
                         {
-                            Container.ProBar.IsIndeterminate = false;
-                            Container.ProBar.Value = e.ProgressPercentage;
+                            case CompressionType.Zip:
+                                {
+                                    await CompressionUtil.CreateZipAsync(SelectedItems, Path.Combine(CurrentFolder.Path, dialog.FileName), (int)dialog.Level, async (s, e) =>
+                                    {
+                                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            if (Container.ProBar.Value < e.ProgressPercentage)
+                                            {
+                                                Container.ProBar.IsIndeterminate = false;
+                                                Container.ProBar.Value = e.ProgressPercentage;
+                                            }
+                                        });
+                                    }).ConfigureAwait(true);
+
+                                    break;
+                                }
+                            case CompressionType.Tar:
+                                {
+                                    await CompressionUtil.CreateTarAsync(SelectedItems, Path.Combine(CurrentFolder.Path, dialog.FileName), async (s, e) =>
+                                    {
+                                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            if (Container.ProBar.Value < e.ProgressPercentage)
+                                            {
+                                                Container.ProBar.IsIndeterminate = false;
+                                                Container.ProBar.Value = e.ProgressPercentage;
+                                            }
+                                        });
+                                    }).ConfigureAwait(true);
+
+                                    break;
+                                }
                         }
-                    }).ConfigureAwait(true);
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        QueueContentDialog dialog1 = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_UnauthorizedCompression_Content"),
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                        };
+
+                        if (await dialog1.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        QueueContentDialog dialog2 = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_CompressionError_Content") + ex.Message,
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await dialog2.ShowAsync().ConfigureAwait(true);
+                    }
 
                     await Container.LoadingActivation(false).ConfigureAwait(true);
                 }
             }
             else
             {
-                await UnZipAsync(SelectedItems, (s, e) =>
+                await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
+
+                try
                 {
-                    if (Container.ProBar.Value < e.ProgressPercentage)
+                    if (SelectedItems.All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase)))
                     {
-                        Container.ProBar.IsIndeterminate = false;
-                        Container.ProBar.Value = e.ProgressPercentage;
+                        await CompressionUtil.ExtractZipAsync(SelectedItems, async (s, e) =>
+                        {
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            {
+                                if (Container.ProBar.Value < e.ProgressPercentage)
+                                {
+                                    Container.ProBar.IsIndeterminate = false;
+                                    Container.ProBar.Value = e.ProgressPercentage;
+                                }
+                            });
+                        }).ConfigureAwait(true);
                     }
-                }).ConfigureAwait(true);
+                    else if (SelectedItems.All((Item) => Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        await CompressionUtil.ExtractTarAsync(SelectedItems, async (s, e) =>
+                        {
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            {
+                                if (Container.ProBar.Value < e.ProgressPercentage)
+                                {
+                                    Container.ProBar.IsIndeterminate = false;
+                                    Container.ProBar.Value = e.ProgressPercentage;
+                                }
+                            });
+                        }).ConfigureAwait(true);
+                    }
+                    else if (SelectedItems.All((Item) => Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        await CompressionUtil.ExtractGZipAsync(SelectedItems, async (s, e) =>
+                        {
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            {
+                                if (Container.ProBar.Value < e.ProgressPercentage)
+                                {
+                                    Container.ProBar.IsIndeterminate = false;
+                                    Container.ProBar.Value = e.ProgressPercentage;
+                                }
+                            });
+                        }).ConfigureAwait(true);
+                    }
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                    };
+
+                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    {
+                        _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
+                    }
+                }
+                catch (NotImplementedException)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_CanNotDecompressEncrypted_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                }
+                catch (Exception ex)
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_DecompressionError_Content") + ex.Message,
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                }
+
+                await Container.LoadingActivation(false).ConfigureAwait(true);
             }
         }
 
@@ -5209,9 +5128,9 @@ namespace RX_Explorer
                         {
                             HashTeachTip.Tag = HashCancellation;
 
-                            using (FileStream Stream1 = SelectedItem.GetFileStreamFromFile(AccessMode.Read))
-                            using (FileStream Stream2 = SelectedItem.GetFileStreamFromFile(AccessMode.Read))
-                            using (FileStream Stream3 = SelectedItem.GetFileStreamFromFile(AccessMode.Read))
+                            using (FileStream Stream1 = await SelectedItem.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(true))
+                            using (FileStream Stream2 = await SelectedItem.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(true))
+                            using (FileStream Stream3 = await SelectedItem.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(true))
                             using (SHA256 SHA256Alg = SHA256.Create())
                             using (MD5 MD5Alg = MD5.Create())
                             using (SHA1 SHA1Alg = SHA1.Create())
@@ -5661,7 +5580,7 @@ namespace RX_Explorer
                     Label = MixZipButtonText,
                     IsEnabled = EnableMixZipButton
                 };
-                CompressionButton.Click += MixZip_Click;
+                CompressionButton.Click += MixCompression_Click;
                 BottomCommandBar.SecondaryCommands.Add(CompressionButton);
             }
             else
@@ -5837,10 +5756,9 @@ namespace RX_Explorer
                         AppBarButton CompressionButton = new AppBarButton
                         {
                             Icon = new SymbolIcon(Symbol.Bookmarks),
-                            Label = Zip.Label,
-                            IsEnabled = Zip.IsEnabled
+                            Label = Compression.Label
                         };
-                        CompressionButton.Click += Zip_Click;
+                        CompressionButton.Click += Compression_Click;
                         BottomCommandBar.SecondaryCommands.Add(CompressionButton);
 
                         BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());

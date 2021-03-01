@@ -162,6 +162,7 @@
     <Compile Include="Class\AppThemeController.cs" />
     <Compile Include="Class\CommonAccessCollection.cs" />
     <Compile Include="Class\CommonEnvironmentVariables.cs" />
+    <Compile Include="Class\CompressionUtil.cs" />
     <Compile Include="Class\ContextMenuItem.cs" />
     <Compile Include="Class\Enum.cs" />
     <Compile Include="Class\Exception.cs" />
@@ -339,8 +340,8 @@
     <Compile Include="View\TextViewer.xaml.cs">
       <DependentUpon>TextViewer.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialog\ZipDialog.xaml.cs">
-      <DependentUpon>ZipDialog.xaml</DependentUpon>
+    <Compile Include="Dialog\CompressDialog.xaml.cs">
+      <DependentUpon>CompressDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Class\Win10VersionChecker.cs" />
     <Compile Include="Class\WiFiShareProvider.cs" />
@@ -639,7 +640,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Dialog\ZipDialog.xaml">
+    <Page Include="Dialog\CompressDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

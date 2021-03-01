@@ -120,6 +120,13 @@ namespace RX_Explorer.Class
         Path = 16
     }
 
+    public enum CompressionType
+    {
+        Zip = 0,
+        Tar = 1,
+        Gzip = 2
+    }
+
     /// <summary>
     /// 压缩等级枚举
     /// </summary>

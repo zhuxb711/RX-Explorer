@@ -31,12 +31,12 @@ namespace RX_Explorer.Dialog
             Loading += SecureFilePropertyDialog_Loading;
         }
 
-        private void SecureFilePropertyDialog_Loading(Windows.UI.Xaml.FrameworkElement sender, object args)
+        private async void SecureFilePropertyDialog_Loading(Windows.UI.Xaml.FrameworkElement sender, object args)
         {
             FileSize = StorageItem.Size;
             FileName = StorageItem.Name;
             FileType = StorageItem.DisplayType;
-            Level = StorageItem.EncryptionLevel;
+            Level = await StorageItem.GetEncryptionLevelAsync().ConfigureAwait(true);
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FileSize)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FileName)));

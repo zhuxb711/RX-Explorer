@@ -245,68 +245,60 @@ namespace RX_Explorer.Class
 
         public static FileStream CreateFileStreamFromExistingPath(string Path, AccessMode AccessMode)
         {
-            try
+            IntPtr Handle = IntPtr.Zero;
+
+            switch (AccessMode)
             {
-                IntPtr Handle = IntPtr.Zero;
+                case AccessMode.Read:
+                    {
+                        Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
 
-                switch (AccessMode)
-                {
-                    case AccessMode.Read:
-                        {
-                            Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                        break;
+                    }
+                case AccessMode.Write:
+                    {
+                        Handle = CreateFileFromApp(Path, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
 
-                            break;
-                        }
-                    case AccessMode.Write:
-                        {
-                            Handle = CreateFileFromApp(Path, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                        break;
+                    }
+                case AccessMode.ReadWrite:
+                    {
+                        Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
 
-                            break;
-                        }
-                    case AccessMode.ReadWrite:
-                        {
-                            Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                        break;
+                    }
+                case AccessMode.Exclusive:
+                    {
+                        Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_NO_SHARE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
 
-                            break;
-                        }
-                    case AccessMode.Exclusive:
-                        {
-                            Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_NO_SHARE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
-
-                            break;
-                        }
-                }
-
-                if (Handle == IntPtr.Zero || Handle.ToInt64() == -1)
-                {
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
-                }
-
-                switch (AccessMode)
-                {
-                    case AccessMode.Exclusive:
-                    case AccessMode.ReadWrite:
-                        {
-                            return new FileStream(new SafeFileHandle(Handle, true), FileAccess.ReadWrite);
-                        }
-                    case AccessMode.Write:
-                        {
-                            return new FileStream(new SafeFileHandle(Handle, true), FileAccess.Write);
-                        }
-                    case AccessMode.Read:
-                        {
-                            return new FileStream(new SafeFileHandle(Handle, true), FileAccess.Read);
-                        }
-                    default:
-                        {
-                            return null;
-                        }
-                }
+                        break;
+                    }
             }
-            catch (Exception ex)
+
+            if (Handle == IntPtr.Zero || Handle.ToInt64() == -1)
             {
-                LogTracer.Log(ex, "Could not create a new file stream");
-                throw;
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            }
+
+            switch (AccessMode)
+            {
+                case AccessMode.Exclusive:
+                case AccessMode.ReadWrite:
+                    {
+                        return new FileStream(new SafeFileHandle(Handle, true), FileAccess.ReadWrite);
+                    }
+                case AccessMode.Write:
+                    {
+                        return new FileStream(new SafeFileHandle(Handle, true), FileAccess.Write);
+                    }
+                case AccessMode.Read:
+                    {
+                        return new FileStream(new SafeFileHandle(Handle, true), FileAccess.Read);
+                    }
+                default:
+                    {
+                        return null;
+                    }
             }
         }
 

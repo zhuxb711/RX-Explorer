@@ -1,0 +1,31 @@
+﻿<local:QueueContentDialog x:Class="RX_Explorer.Dialog.CompressDialog"
+                          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                          xmlns:local="using:RX_Explorer.Class"
+                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                          mc:Ignorable="d"
+                          Title="压缩选项"
+                          PrimaryButtonText="{x:Bind local:Globalization.GetString('Common_Dialog_ConfirmButton')}"
+                          CloseButtonText="{x:Bind local:Globalization.GetString('Common_Dialog_CancelButton')}"
+                          x:Uid="CompressDialog"
+                          PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
+
+    <StackPanel>
+        <TextBox Header="文件名"
+                 x:Uid="CompressDialogName"
+                 Name="FName"
+                 MinWidth="250"
+                 HorizontalAlignment="Left"/>
+        <ComboBox Header="压缩类型"
+                  Margin="0,10,0,0"
+                  MinWidth="120"
+                  Name="CompressionType" 
+                  SelectionChanged="CompressionType_SelectionChanged"/>
+        <ComboBox x:Uid="CompressDialogLevel"
+                  Header="压缩等级"
+                  Margin="0,10,0,0"
+                  MinWidth="150"
+                  Name="CompressLevel" />
+    </StackPanel>
+</local:QueueContentDialog>

@@ -58,7 +58,7 @@ namespace RX_Explorer
                             MediaItemDisplayProperties Props = Item.GetDisplayProperties();
                             Props.Type = Windows.Media.MediaPlaybackType.Music;
                             Props.MusicProperties.Title = MediaFile.DisplayName;
-                            Props.MusicProperties.AlbumArtist = GetArtist();
+                            Props.MusicProperties.AlbumArtist = await GetArtistAsync().ConfigureAwait(true);
 
                             Item.ApplyDisplayProperties(Props);
 
@@ -100,7 +100,7 @@ namespace RX_Explorer
         {
             try
             {
-                using (FileStream FileStream = MediaFile.GetFileStreamFromFile(AccessMode.Read))
+                using (FileStream FileStream = await MediaFile.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
                 using (var TagFile = TagLib.File.Create(new StreamFileAbstraction(MediaFile.Name, FileStream, FileStream)))
                 {
                     if (TagFile.Tag.Pictures != null && TagFile.Tag.Pictures.Length != 0)
@@ -138,11 +138,11 @@ namespace RX_Explorer
             }
         }
 
-        private string GetArtist()
+        private async Task<string> GetArtistAsync()
         {
             try
             {
-                using (FileStream FileStream = MediaFile.GetFileStreamFromFile(AccessMode.Read))
+                using (FileStream FileStream = await MediaFile.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
                 using (var TagFile = TagLib.File.Create(new StreamFileAbstraction(MediaFile.Name, FileStream, FileStream)))
                 {
                     if (TagFile.Tag.AlbumArtists != null && TagFile.Tag.AlbumArtists.Length != 0)

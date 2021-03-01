@@ -991,24 +991,6 @@
   <data name="WIFIShareTip.Title" xml:space="preserve">
     <value>Partage par WiFi</value>
   </data>
-  <data name="ZipDialog.PrimaryButtonText" xml:space="preserve">
-    <value>Confirmer</value>
-  </data>
-  <data name="ZipDialog.Title" xml:space="preserve">
-    <value>Options de compression</value>
-  </data>
-  <data name="ZipDialogLevel.Header" xml:space="preserve">
-    <value>Niveau de compression</value>
-  </data>
-  <data name="ZipDialogName.Header" xml:space="preserve">
-    <value>Nom de fichier</value>
-  </data>
-  <data name="Zip.Label" xml:space="preserve">
-    <value>Compression</value>
-  </data>
-  <data name="ZipDialog.CloseButtonText" xml:space="preserve">
-    <value>Annuler</value>
-  </data>
   <data name="SettingTreeViewDetach.Header" xml:space="preserve">
     <value>Dossier de destination Arborescence</value>
   </data>
@@ -1618,15 +1600,6 @@
   <data name="Video_Dialog_Encoding_Text" xml:space="preserve">
     <value>Encodage</value>
   </data>
-  <data name="Zip_Dialog_Level_1" xml:space="preserve">
-    <value>Max</value>
-  </data>
-  <data name="Zip_Dialog_Level_2" xml:space="preserve">
-    <value>Standard</value>
-  </data>
-  <data name="Zip_Dialog_Level_3" xml:space="preserve">
-    <value>Archive seulement</value>
-  </data>
   <data name="Common_Dialog_CancelButton" xml:space="preserve">
     <value>Annuler</value>
   </data>
@@ -1894,9 +1867,6 @@
   </data>
   <data name="Application_Admin_Name" xml:space="preserve">
     <value>Application</value>
-  </data>
-  <data name="Zip_Admin_Name_Text" xml:space="preserve">
-    <value>Nouveau_Zip</value>
   </data>
   <data name="SettingPageAnimationSwitch.Header" xml:space="preserve">
     <value>Effet d'animation</value>
@@ -2699,5 +2669,20 @@ Les noms non valides incluent
   </data>
   <data name="QueueDialog_CopyFromUnsupportedArea_Content" xml:space="preserve">
     <value>Impossible de coller l'opération, source de fichier non prise en charge</value>
+  </data>
+  <data name="CompressDialog.Title" xml:space="preserve">
+    <value>Option de compression</value>
+  </data>
+  <data name="CompressDialogLevel.Header" xml:space="preserve">
+    <value>Niveau de compression</value>
+  </data>
+  <data name="CompressDialogName.Header" xml:space="preserve">
+    <value>Nom de fichier</value>
+  </data>
+  <data name="Compression_Dialog_Level_3" xml:space="preserve">
+    <value>Paquet seulement</value>
+  </data>
+  <data name="Compression_Admin_Name_Text" xml:space="preserve">
+    <value>Nouveau_Zip</value>
   </data>
 </root>

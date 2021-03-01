@@ -1312,30 +1312,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>WiFi Share</source>
           <target state="translated">Partage par WiFi</target>
         </trans-unit>
-        <trans-unit id="ZipDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
-          <source>Confirm</source>
-          <target state="translated">Confirmer</target>
-        </trans-unit>
-        <trans-unit id="ZipDialog.Title" translate="yes" xml:space="preserve">
-          <source>Zip Compression Option</source>
-          <target state="translated">Options de compression</target>
-        </trans-unit>
-        <trans-unit id="ZipDialogLevel.Header" translate="yes" xml:space="preserve">
-          <source>Compression Level</source>
-          <target state="translated">Niveau de compression</target>
-        </trans-unit>
-        <trans-unit id="ZipDialogName.Header" translate="yes" xml:space="preserve">
-          <source>FileName</source>
-          <target state="translated">Nom de fichier</target>
-        </trans-unit>
-        <trans-unit id="Zip.Label" translate="yes" xml:space="preserve">
-          <source>Compression</source>
-          <target state="translated">Compression</target>
-        </trans-unit>
-        <trans-unit id="ZipDialog.CloseButtonText" translate="yes" xml:space="preserve">
-          <source>Cancel</source>
-          <target state="translated">Annuler</target>
-        </trans-unit>
         <trans-unit id="SettingTreeViewDetach.Header" translate="yes" xml:space="preserve">
           <source>Folder directory</source>
           <target state="translated">Dossier de destination Arborescence</target>
@@ -2139,18 +2115,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Encoding</source>
           <target state="translated">Encodage</target>
         </trans-unit>
-        <trans-unit id="Zip_Dialog_Level_1" translate="yes" xml:space="preserve">
-          <source>Max</source>
-          <target state="translated">Max</target>
-        </trans-unit>
-        <trans-unit id="Zip_Dialog_Level_2" translate="yes" xml:space="preserve">
-          <source>Standard</source>
-          <target state="translated">Standard</target>
-        </trans-unit>
-        <trans-unit id="Zip_Dialog_Level_3" translate="yes" xml:space="preserve">
-          <source>Package only</source>
-          <target state="translated">Archive seulement</target>
-        </trans-unit>
         <trans-unit id="Common_Dialog_CancelButton" translate="yes" xml:space="preserve">
           <source>Cancel</source>
           <target state="translated">Annuler</target>
@@ -2502,10 +2466,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="Application_Admin_Name" translate="yes" xml:space="preserve">
           <source>Application</source>
           <target state="translated">Application</target>
-        </trans-unit>
-        <trans-unit id="Zip_Admin_Name_Text" translate="yes" xml:space="preserve">
-          <source>New_Zip</source>
-          <target state="translated">Nouveau_Zip</target>
         </trans-unit>
         <trans-unit id="SettingPageAnimationSwitch.Header" translate="yes" xml:space="preserve">
           <source>Animation effect</source>
@@ -3580,6 +3540,38 @@ Les noms non valides incluent
         <trans-unit id="QueueDialog_CopyFromUnsupportedArea_Content" translate="yes" xml:space="preserve">
           <source>Unable to paste operation, unsupported file source</source>
           <target state="translated">Impossible de coller l'opération, source de fichier non prise en charge</target>
+        </trans-unit>
+        <trans-unit id="CompressDialog.Title" translate="yes" xml:space="preserve">
+          <source>Compression Option</source>
+          <target state="translated">Option de compression</target>
+        </trans-unit>
+        <trans-unit id="CompressDialogLevel.Header" translate="yes" xml:space="preserve">
+          <source>Compression Level</source>
+          <target state="translated">Niveau de compression</target>
+        </trans-unit>
+        <trans-unit id="CompressDialogName.Header" translate="yes" xml:space="preserve">
+          <source>File name</source>
+          <target state="translated">Nom de fichier</target>
+        </trans-unit>
+        <trans-unit id="Compression_Dialog_Level_1" translate="yes" xml:space="preserve">
+          <source>Max</source>
+          <target state="new">Max</target>
+        </trans-unit>
+        <trans-unit id="Compression_Dialog_Level_2" translate="yes" xml:space="preserve">
+          <source>Standard</source>
+          <target state="new">Standard</target>
+        </trans-unit>
+        <trans-unit id="Compression_Dialog_Level_3" translate="yes" xml:space="preserve">
+          <source>Package only</source>
+          <target state="translated">Paquet seulement</target>
+        </trans-unit>
+        <trans-unit id="Compression_Admin_Name_Text" translate="yes" xml:space="preserve">
+          <source>New_Zip</source>
+          <target state="translated">Nouveau_Zip</target>
+        </trans-unit>
+        <trans-unit id="Compression.Label" translate="yes" xml:space="preserve">
+          <source>Compression</source>
+          <target state="new">Compression</target>
         </trans-unit>
       </group>
     </body>

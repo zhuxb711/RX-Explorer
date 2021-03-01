@@ -39,6 +39,20 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extention
     {
+        public static SafeFileHandle GetSafeFileHandle(this IStorageItem Item)
+        {
+            IntPtr ComInterface = Marshal.GetComInterfaceForObject(Item, typeof(IUknownInterface.IStorageItemHandleAccess));
+            IUknownInterface.IStorageItemHandleAccess StorageHandleAccess = (IUknownInterface.IStorageItemHandleAccess)Marshal.GetObjectForIUnknown(ComInterface);
+
+            const uint READ_FLAG = 0x120089;
+            const uint WRITE_FLAG = 0x120116;
+            const uint SHARE_READ_FLAG = 0x1;
+
+            StorageHandleAccess.Create(READ_FLAG | WRITE_FLAG, SHARE_READ_FLAG, 0, IntPtr.Zero, out IntPtr handle);
+
+            return new SafeFileHandle(handle, true);
+        }
+
         public static bool IsVisibleOnContainer(this FrameworkElement Element, FrameworkElement Container)
         {
             if (Element == null || Container == null)

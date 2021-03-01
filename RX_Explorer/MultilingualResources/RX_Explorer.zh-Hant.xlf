@@ -1328,30 +1328,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>WiFi Share</source>
           <target state="translated">Wi-Fi 分享</target>
         </trans-unit>
-        <trans-unit id="ZipDialog.PrimaryButtonText" translate="yes" xml:space="preserve">
-          <source>Confirm</source>
-          <target state="translated" state-qualifier="tm-suggestion">確認</target>
-        </trans-unit>
-        <trans-unit id="ZipDialog.Title" translate="yes" xml:space="preserve">
-          <source>Zip Compression Option</source>
-          <target state="translated">Zip 壓縮選項</target>
-        </trans-unit>
-        <trans-unit id="ZipDialogLevel.Header" translate="yes" xml:space="preserve">
-          <source>Compression Level</source>
-          <target state="translated">壓縮等級</target>
-        </trans-unit>
-        <trans-unit id="ZipDialogName.Header" translate="yes" xml:space="preserve">
-          <source>FileName</source>
-          <target state="translated" state-qualifier="tm-suggestion">檔案名稱</target>
-        </trans-unit>
-        <trans-unit id="Zip.Label" translate="yes" xml:space="preserve">
-          <source>Compression</source>
-          <target state="translated" state-qualifier="tm-suggestion">壓縮</target>
-        </trans-unit>
-        <trans-unit id="ZipDialog.CloseButtonText" translate="yes" xml:space="preserve">
-          <source>Cancel</source>
-          <target state="translated" state-qualifier="tm-suggestion">取消</target>
-        </trans-unit>
         <trans-unit id="SettingTreeViewDetach.Header" translate="yes" xml:space="preserve">
           <source>Folder directory</source>
           <target state="translated">資料夾目錄</target>
@@ -2164,18 +2140,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Encoding</source>
           <target state="translated">編碼方式</target>
         </trans-unit>
-        <trans-unit id="Zip_Dialog_Level_1" translate="yes" xml:space="preserve">
-          <source>Max</source>
-          <target state="translated" state-qualifier="tm-suggestion">最大值</target>
-        </trans-unit>
-        <trans-unit id="Zip_Dialog_Level_2" translate="yes" xml:space="preserve">
-          <source>Standard</source>
-          <target state="translated" state-qualifier="tm-suggestion">標準</target>
-        </trans-unit>
-        <trans-unit id="Zip_Dialog_Level_3" translate="yes" xml:space="preserve">
-          <source>Package only</source>
-          <target state="translated">僅封裝格式</target>
-        </trans-unit>
         <trans-unit id="Common_Dialog_CancelButton" translate="yes" xml:space="preserve">
           <source>Cancel</source>
           <target state="translated" state-qualifier="tm-suggestion">取消</target>
@@ -2535,10 +2499,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="Application_Admin_Name" translate="yes" xml:space="preserve">
           <source>Application</source>
           <target state="translated" state-qualifier="tm-suggestion">應用程式</target>
-        </trans-unit>
-        <trans-unit id="Zip_Admin_Name_Text" translate="yes" xml:space="preserve">
-          <source>New_Zip</source>
-          <target state="translated">新Zip</target>
         </trans-unit>
         <trans-unit id="SettingPageAnimationSwitch.Header" translate="yes" xml:space="preserve">
           <source>Animation effect</source>
@@ -3580,6 +3540,38 @@ Invalid names include
         <trans-unit id="QueueDialog_CopyFromUnsupportedArea_Content" translate="yes" xml:space="preserve">
           <source>Unable to paste operation, unsupported file source</source>
           <target state="translated">無法粘貼操作，不支持的文件源</target>
+        </trans-unit>
+        <trans-unit id="CompressDialog.Title" translate="yes" xml:space="preserve">
+          <source>Compression Option</source>
+          <target state="translated">壓縮選項</target>
+        </trans-unit>
+        <trans-unit id="CompressDialogLevel.Header" translate="yes" xml:space="preserve">
+          <source>Compression Level</source>
+          <target state="translated">壓縮等級</target>
+        </trans-unit>
+        <trans-unit id="CompressDialogName.Header" translate="yes" xml:space="preserve">
+          <source>File name</source>
+          <target state="translated">文檔名稱</target>
+        </trans-unit>
+        <trans-unit id="Compression_Dialog_Level_1" translate="yes" xml:space="preserve">
+          <source>Max</source>
+          <target state="translated">最大</target>
+        </trans-unit>
+        <trans-unit id="Compression_Dialog_Level_2" translate="yes" xml:space="preserve">
+          <source>Standard</source>
+          <target state="translated">標準</target>
+        </trans-unit>
+        <trans-unit id="Compression_Dialog_Level_3" translate="yes" xml:space="preserve">
+          <source>Package only</source>
+          <target state="translated">僅存儲</target>
+        </trans-unit>
+        <trans-unit id="Compression_Admin_Name_Text" translate="yes" xml:space="preserve">
+          <source>New_Zip</source>
+          <target state="translated">新建壓縮文件</target>
+        </trans-unit>
+        <trans-unit id="Compression.Label" translate="yes" xml:space="preserve">
+          <source>Compression</source>
+          <target state="translated">壓縮</target>
         </trans-unit>
       </group>
     </body>

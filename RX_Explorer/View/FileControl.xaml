@@ -106,6 +106,15 @@
                                   Glyph="&#xF7ED;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
+                <AppBarButton Label="在垂直拆分视图中打开"
+                              x:Name="OpenFolderInVerticalSplitView"
+                              x:Uid="OpenFolderInVerticalSplitView"
+                              Click="OpenFolderInVerticalSplitView_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                                  Glyph="&#xE140;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Label="属性"

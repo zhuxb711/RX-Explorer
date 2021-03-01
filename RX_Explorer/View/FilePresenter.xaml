@@ -240,11 +240,11 @@
                     </AppBarButton.Flyout>
                 </AppBarButton>
                 <AppBarButton Icon="Bookmarks"
-                              x:Name="Zip"
+                              x:Name="Compression"
                               x:FieldModifier="public"
-                              x:Uid="Zip"
+                              x:Uid="Compression"
                               Label="压缩"
-                              Click="Zip_Click" />
+                              Click="Compression_Click" />
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Name="Attribute"
@@ -271,8 +271,8 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Bookmarks"
                               Label="压缩"
-                              x:Name="MixZip"
-                              Click="MixZip_Click" />
+                              x:Name="MixCompression"
+                              Click="MixCompression_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
 
@@ -341,7 +341,7 @@
                               Click="OpenFolderInVerticalSplitView_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets"
-                                  Glyph="&#xF7ED;" />
+                                  Glyph="&#xE140;" />
                     </AppBarButton.Icon>
                     <AppBarButton.KeyboardAccelerators>
                         <KeyboardAccelerator Modifiers="Control"
@@ -352,7 +352,7 @@
                 <AppBarSeparator />
                 <AppBarButton Label="压缩"
                               Icon="Bookmarks"
-                              x:Uid="Zip"
+                              x:Uid="Compression"
                               Name="CompressFolder"
                               Click="CompressFolder_Click" />
                 <AppBarSeparator />

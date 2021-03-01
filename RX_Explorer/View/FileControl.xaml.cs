@@ -2365,5 +2365,13 @@ namespace RX_Explorer
         {
             ((GridSplitter)sender).ReleasePointerCaptures();
         }
+
+        private async void OpenFolderInVerticalSplitView_Click(object sender, RoutedEventArgs e)
+        {
+            if (FolderTree.SelectedNode?.Content is TreeViewNodeContent Content)
+            {
+                await CreateNewBlade(Content.Path).ConfigureAwait(false);
+            }
+        }
     }
 }

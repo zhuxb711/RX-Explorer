@@ -1133,23 +1133,17 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="WIFIShareTip.Title" xml:space="preserve">
     <value>WiFi Share</value>
   </data>
-  <data name="ZipDialog.PrimaryButtonText" xml:space="preserve">
-    <value>Confirm</value>
+  <data name="CompressDialog.Title" xml:space="preserve">
+    <value>Compression Option</value>
   </data>
-  <data name="ZipDialog.Title" xml:space="preserve">
-    <value>Zip Compression Option</value>
-  </data>
-  <data name="ZipDialogLevel.Header" xml:space="preserve">
+  <data name="CompressDialogLevel.Header" xml:space="preserve">
     <value>Compression Level</value>
   </data>
-  <data name="ZipDialogName.Header" xml:space="preserve">
-    <value>FileName</value>
+  <data name="CompressDialogName.Header" xml:space="preserve">
+    <value>File name</value>
   </data>
-  <data name="Zip.Label" xml:space="preserve">
+  <data name="Compression.Label" xml:space="preserve">
     <value>Compression</value>
-  </data>
-  <data name="ZipDialog.CloseButtonText" xml:space="preserve">
-    <value>Cancel</value>
   </data>
   <data name="SettingTreeViewDetach.Header" xml:space="preserve">
     <value>Folder directory</value>
@@ -1773,13 +1767,13 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="Video_Dialog_Encoding_Text" xml:space="preserve">
     <value>Encoding</value>
   </data>
-  <data name="Zip_Dialog_Level_1" xml:space="preserve">
+  <data name="Compression_Dialog_Level_1" xml:space="preserve">
     <value>Max</value>
   </data>
-  <data name="Zip_Dialog_Level_2" xml:space="preserve">
+  <data name="Compression_Dialog_Level_2" xml:space="preserve">
     <value>Standard</value>
   </data>
-  <data name="Zip_Dialog_Level_3" xml:space="preserve">
+  <data name="Compression_Dialog_Level_3" xml:space="preserve">
     <value>Package only</value>
   </data>
   <data name="Common_Dialog_CancelButton" xml:space="preserve">
@@ -2056,7 +2050,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="Application_Admin_Name" xml:space="preserve">
     <value>Application</value>
   </data>
-  <data name="Zip_Admin_Name_Text" xml:space="preserve">
+  <data name="Compression_Admin_Name_Text" xml:space="preserve">
     <value>New_Zip</value>
   </data>
   <data name="SettingPageAnimationSwitch.Header" xml:space="preserve">

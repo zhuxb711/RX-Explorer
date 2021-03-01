@@ -1,4 +1,5 @@
-﻿using NetworkAccess;
+﻿using Microsoft.Win32.SafeHandles;
+using NetworkAccess;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -370,11 +371,30 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual FileStream GetFileStreamFromFile(AccessMode Mode)
+        public async virtual Task<FileStream> GetFileStreamFromFileAsync(AccessMode Mode)
         {
             if (StorageType == StorageItemTypes.File)
             {
-                return WIN_Native_API.CreateFileStreamFromExistingPath(Path, Mode);
+                try
+                {
+                    if (WIN_Native_API.CreateFileStreamFromExistingPath(Path, Mode) is FileStream Stream)
+                    {
+                        return Stream;
+                    }
+                    else
+                    {
+                        StorageFile File = await StorageFile.GetFileFromPathAsync(Path);
+
+                        SafeFileHandle Handle = File.GetSafeFileHandle();
+
+                        return new FileStream(Handle, FileAccess.ReadWrite);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not create a new file stream");
+                    return null;
+                }
             }
             else
             {
@@ -692,7 +712,7 @@ namespace RX_Explorer.Class
 
             if (await CreateAsync(EncryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageItemBase EncryptedFile)
             {
-                using (FileStream EncryptFileStream = EncryptedFile.GetFileStreamFromFile(AccessMode.Write))
+                using (FileStream EncryptFileStream = await EncryptedFile.GetFileStreamFromFileAsync(AccessMode.Write).ConfigureAwait(false))
                 using (SecureString Secure = SecureAccessProvider.GetFileEncryptionAesIV(Package.Current))
                 {
                     IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
@@ -709,15 +729,15 @@ namespace RX_Explorer.Class
                             IV = Encoding.UTF8.GetBytes(IV)
                         })
                         {
-                            using (FileStream OriginFileStream = GetFileStreamFromFile(AccessMode.Read))
+                            using (FileStream OriginFileStream = await GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
                             using (ICryptoTransform Encryptor = AES.CreateEncryptor())
                             {
                                 byte[] ExtraInfoPart1 = Encoding.UTF8.GetBytes($"${KeySize}|{System.IO.Path.GetExtension(Path)}$");
-                                await EncryptFileStream.WriteAsync(ExtraInfoPart1, 0, ExtraInfoPart1.Length).ConfigureAwait(false);
+                                await EncryptFileStream.WriteAsync(ExtraInfoPart1, 0, ExtraInfoPart1.Length, CancelToken).ConfigureAwait(false);
 
                                 byte[] PasswordConfirm = Encoding.UTF8.GetBytes("PASSWORD_CORRECT");
                                 byte[] PasswordConfirmEncrypted = Encryptor.TransformFinalBlock(PasswordConfirm, 0, PasswordConfirm.Length);
-                                await EncryptFileStream.WriteAsync(PasswordConfirmEncrypted, 0, PasswordConfirmEncrypted.Length).ConfigureAwait(false);
+                                await EncryptFileStream.WriteAsync(PasswordConfirmEncrypted, 0, PasswordConfirmEncrypted.Length, CancelToken).ConfigureAwait(false);
 
                                 using (CryptoStream TransformStream = new CryptoStream(EncryptFileStream, Encryptor, CryptoStreamMode.Write))
                                 {

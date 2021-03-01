@@ -16,33 +16,30 @@ namespace RX_Explorer.Class
 {
     public sealed class SecureAreaStorageItem : FileSystemStorageItemBase
     {
-        public string EncryptionLevel
+        public async Task<string> GetEncryptionLevelAsync()
         {
-            get
+            using (FileStream EncryptFileStream = await GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
             {
-                using (FileStream EncryptFileStream = GetFileStreamFromFile(AccessMode.Read))
+                byte[] DecryptByteBuffer = new byte[20];
+
+                EncryptFileStream.Read(DecryptByteBuffer, 0, DecryptByteBuffer.Length);
+
+                if (Encoding.UTF8.GetString(DecryptByteBuffer).Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string Info)
                 {
-                    byte[] DecryptByteBuffer = new byte[20];
+                    string[] InfoGroup = Info.Split('|');
 
-                    EncryptFileStream.Read(DecryptByteBuffer, 0, DecryptByteBuffer.Length);
-
-                    if (Encoding.UTF8.GetString(DecryptByteBuffer).Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string Info)
+                    if (InfoGroup.Length == 2)
                     {
-                        string[] InfoGroup = Info.Split('|');
-
-                        if (InfoGroup.Length == 2)
-                        {
-                            return Convert.ToInt32(InfoGroup[0]) == 128 ? "AES-128bit" : "AES-256bit";
-                        }
-                        else
-                        {
-                            return Globalization.GetString("UnknownText");
-                        }
+                        return Convert.ToInt32(InfoGroup[0]) == 128 ? "AES-128bit" : "AES-256bit";
                     }
                     else
                     {
                         return Globalization.GetString("UnknownText");
                     }
+                }
+                else
+                {
+                    return Globalization.GetString("UnknownText");
                 }
             }
         }
@@ -74,7 +71,7 @@ namespace RX_Explorer.Class
                         IV = Encoding.UTF8.GetBytes(IV)
                     })
                     {
-                        using (FileStream EncryptFileStream = GetFileStreamFromFile(AccessMode.Read))
+                        using (FileStream EncryptFileStream = await GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
                         {
                             StringBuilder Builder = new StringBuilder();
 
@@ -127,7 +124,7 @@ namespace RX_Explorer.Class
 
                                         if (await CreateAsync(DecryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageItemBase Item)
                                         {
-                                            using (FileStream DecryptFileStream = Item.GetFileStreamFromFile(AccessMode.Exclusive))
+                                            using (FileStream DecryptFileStream = await Item.GetFileStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
                                             using (ICryptoTransform Decryptor = AES.CreateDecryptor(AES.Key, AES.IV))
                                             {
                                                 EncryptFileStream.Seek(RawInfoData.Length, SeekOrigin.Begin);
