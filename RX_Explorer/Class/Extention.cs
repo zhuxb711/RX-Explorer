@@ -2,6 +2,7 @@
 using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.Win32.SafeHandles;
 using NetworkAccess;
+using RX_Explorer.CustomControl;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -129,84 +130,51 @@ namespace RX_Explorer.Class
                             return;
                         }
 
+                        foreach (AppBarButtonWithImage ButtonWithImage in Flyout.SecondaryCommands.OfType<AppBarButtonWithImage>().ToArray())
+                        {
+                            Flyout.SecondaryCommands.Remove(ButtonWithImage);
+                        }
+
+                        if (Flyout.SecondaryCommands.FirstOrDefault() is AppBarSeparator Sep)
+                        {
+                            Flyout.SecondaryCommands.Remove(Sep);
+                        }
+
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         {
                             List<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(SelectedPath, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down)).ConfigureAwait(true);
 
                             if (ExtraMenuItems.Count > 0)
                             {
-                                if (Flyout.SecondaryCommands.OfType<AppBarElementContainer>().FirstOrDefault() is AppBarElementContainer ExistsContainer)
+                                foreach (ContextMenuItem AddItem in ExtraMenuItems)
                                 {
-                                    StackPanel InnerPanel = ExistsContainer.Content as StackPanel;
-
-                                    InnerPanel.Children.Clear();
-
-                                    foreach (ContextMenuItem AddItem in ExtraMenuItems)
+                                    AppBarButtonWithImage Btn = await AddItem.GenerateUIButtonAsync(async (s, e) =>
                                     {
-                                        Button Btn = await AddItem.GenerateUIButtonAsync(Flyout).ConfigureAwait(true);
+                                        if (s is FrameworkElement Btn)
+                                        {
+                                            if (Btn.Tag is ContextMenuItem MenuItem)
+                                            {
+                                                Flyout.Hide();
+                                                await MenuItem.InvokeAsync().ConfigureAwait(true);
+                                            }
+                                        }
+                                    }).ConfigureAwait(true);
 
-                                        InnerPanel.Children.Add(Btn);
-                                    }
+                                    Flyout.SecondaryCommands.Insert(0, Btn);
                                 }
-                                else
-                                {
-                                    StackPanel Panel = new StackPanel
-                                    {
-                                        HorizontalAlignment = HorizontalAlignment.Stretch
-                                    };
 
-                                    foreach (ContextMenuItem Item in ExtraMenuItems)
-                                    {
-                                        Button Btn = await Item.GenerateUIButtonAsync(Flyout).ConfigureAwait(true);
-
-                                        Panel.Children.Add(Btn);
-                                    }
-
-                                    AppBarElementContainer Container = new AppBarElementContainer
-                                    {
-                                        HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                                        Content = Panel
-                                    };
-
-                                    List<int> SeparatorGroup = Flyout.SecondaryCommands.Select((Item, Index) => (Index, Item)).Where((Group) => Group.Item is AppBarSeparator).Select((Group) => Group.Index).ToList();
-
-                                    if (SeparatorGroup.Count > 0)
-                                    {
-                                        Flyout.SecondaryCommands.Insert(SeparatorGroup[0] + 1, new AppBarSeparator());
-                                        Flyout.SecondaryCommands.Insert(SeparatorGroup[0] + 1, Container);
-                                    }
-                                    else
-                                    {
-                                        Flyout.SecondaryCommands.Insert(0, new AppBarSeparator());
-                                        Flyout.SecondaryCommands.Insert(0, Container);
-                                    }
-                                }
+                                Flyout.SecondaryCommands.Insert(ExtraMenuItems.Count, new AppBarSeparator());
                             }
                             else
                             {
-                                foreach (AppBarElementContainer ExistContainer in Flyout.SecondaryCommands.OfType<AppBarElementContainer>())
+                                foreach (AppBarButtonWithImage ButtonWithImage in Flyout.SecondaryCommands.OfType<AppBarButtonWithImage>().ToArray())
                                 {
-                                    Flyout.SecondaryCommands.Remove(ExistContainer);
+                                    Flyout.SecondaryCommands.Remove(ButtonWithImage);
                                 }
 
-                                List<int> SeparatorGroup = Flyout.SecondaryCommands.Select((Item, Index) => (Index, Item)).Where((Group) => Group.Item is AppBarSeparator).Select((Group) => Group.Index).ToList();
-
-                                if (SeparatorGroup.Count == 1)
+                                if (Flyout.SecondaryCommands.FirstOrDefault() is AppBarSeparator Separator)
                                 {
-                                    if (SeparatorGroup[0] == 0)
-                                    {
-                                        Flyout.SecondaryCommands.RemoveAt(0);
-                                    }
-                                }
-                                else
-                                {
-                                    for (int i = 0; i < SeparatorGroup.Count - 1; i++)
-                                    {
-                                        if (Math.Abs(SeparatorGroup[i] - SeparatorGroup[i + 1]) == 1)
-                                        {
-                                            Flyout.SecondaryCommands.RemoveAt(SeparatorGroup[i]);
-                                        }
-                                    }
+                                    Flyout.SecondaryCommands.Remove(Separator);
                                 }
                             }
                         }

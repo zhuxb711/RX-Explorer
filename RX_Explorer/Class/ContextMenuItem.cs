@@ -1,13 +1,13 @@
-﻿using ShareClassLibrary;
+﻿using RX_Explorer.CustomControl;
+using ShareClassLibrary;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Imaging;
-using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
 
 namespace RX_Explorer.Class
 {
@@ -59,119 +59,93 @@ namespace RX_Explorer.Class
             SubMenus = DataPackage.SubMenus.Select((Menu) => new ContextMenuItem(Menu, BelongTo)).ToArray();
         }
 
-        private static async Task<Button> GenerateUIButtonCoreAsync(ContextMenuItem Item, RoutedEventHandler BtnClicked)
+        private static async Task GenerateSubMenuItemsAsync(IList<MenuFlyoutItemBase> Items, ContextMenuItem[] SubMenus, RoutedEventHandler ClickHandler)
         {
-            Grid Gr = new Grid
+            foreach (ContextMenuItem SubItem in SubMenus)
             {
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                VerticalAlignment = VerticalAlignment.Stretch,
-                MaxWidth = 300
-            };
-            Gr.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(25) });
-            Gr.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(5) });
-            Gr.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            Gr.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0) });
-            Gr.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(5) });
-
-            TextBlock Block = new TextBlock
-            {
-                Text = Item.Name,
-                TextTrimming = TextTrimming.CharacterEllipsis
-            };
-            Grid.SetColumn(Block, 2);
-            Gr.Children.Add(Block);
-
-            if (Item.IconData.Length != 0)
-            {
-                Image ImageControl = new Image
+                if (SubItem.SubMenus.Length > 0)
                 {
-                    Stretch = Windows.UI.Xaml.Media.Stretch.Uniform,
-                    Height = 18,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center
-                };
-                Grid.SetColumn(ImageControl, 0);
-                Gr.Children.Add(ImageControl);
+                    MenuFlyoutSubItem Item = new MenuFlyoutSubItem
+                    {
+                        Text = SubItem.Name,
+                        Tag = SubItem
+                    };
 
-                using (MemoryStream Stream = new MemoryStream(Item.IconData))
+                    await GenerateSubMenuItemsAsync(Item.Items, SubItem.SubMenus, ClickHandler).ConfigureAwait(true);
+
+                    Items.Add(Item);
+                }
+                else
+                {
+                    MenuFlyoutItemWithImage FlyoutItem = new MenuFlyoutItemWithImage
+                    {
+                        Text = SubItem.Name,
+                        Tag = SubItem
+                    };
+
+                    if (SubItem.IconData.Length != 0)
+                    {
+                        using (MemoryStream Stream = new MemoryStream(SubItem.IconData))
+                        {
+                            BitmapImage Icon = new BitmapImage();
+                            FlyoutItem.ImageIcon = Icon;
+                            await Icon.SetSourceAsync(Stream.AsRandomAccessStream());
+                        }
+                    }
+                    else
+                    {
+                        FlyoutItem.Icon = new FontIcon
+                        {
+                            FontFamily = new Windows.UI.Xaml.Media.FontFamily("Segoe MDL2 Assets"),
+                            Glyph = "\uE2AC"
+                        };
+                    }
+
+                    FlyoutItem.Click += ClickHandler;
+
+                    Items.Add(FlyoutItem);
+                }
+            }
+        }
+
+        public async Task<AppBarButtonWithImage> GenerateUIButtonAsync(RoutedEventHandler ClickHandler)
+        {
+            AppBarButtonWithImage Button = new AppBarButtonWithImage
+            {
+                Label = Name,
+                MinWidth = 250,
+                Tag = this
+            };
+            Button.Click += ClickHandler;
+
+            if (IconData.Length != 0)
+            {
+                using (MemoryStream Stream = new MemoryStream(IconData))
                 {
                     BitmapImage Icon = new BitmapImage();
-                    ImageControl.Source = Icon;
+                    Button.ImageIcon = Icon;
                     await Icon.SetSourceAsync(Stream.AsRandomAccessStream());
                 }
             }
             else
             {
-                FontIcon DefaultIcon = new FontIcon 
-                { 
-                    FontFamily = new Windows.UI.Xaml.Media.FontFamily("Segoe MDL2 Assets"), Glyph = "\uE2AC" 
+                Button.Icon = new FontIcon
+                {
+                    FontFamily = new Windows.UI.Xaml.Media.FontFamily("Segoe MDL2 Assets"),
+                    Glyph = "\uE2AC"
                 };
-
-                Grid.SetColumn(DefaultIcon, 0);
-                Gr.Children.Add(DefaultIcon);
             }
 
-            Button Btn = new Button
+            if (SubMenus.Length > 0)
             {
-                Content = Gr,
-                Tag = Item,
-                Style = (Style)Application.Current.Resources["ButtonLikeCommandBarFlyout"],
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                HorizontalContentAlignment = HorizontalAlignment.Stretch
-            };
-            Btn.Click += BtnClicked;
+                MenuFlyout Flyout = new MenuFlyout();
 
-            if (Item.SubMenus.Length > 0)
-            {
-                StackPanel Panel = new StackPanel();
+                await GenerateSubMenuItemsAsync(Flyout.Items, SubMenus, ClickHandler).ConfigureAwait(true);
 
-                foreach (ContextMenuItem SubItem in Item.SubMenus)
-                {
-                    Panel.Children.Add(await GenerateUIButtonCoreAsync(SubItem, BtnClicked).ConfigureAwait(true));
-                }
-
-                Btn.Flyout = new Flyout
-                {
-                    Content = Panel,
-                    Placement = FlyoutPlacementMode.RightEdgeAlignedTop
-                };
-
-                Gr.ColumnDefinitions[3].Width = new GridLength(12);
-
-                Viewbox Box = new Viewbox
-                {
-                    VerticalAlignment = VerticalAlignment.Stretch,
-                    HorizontalAlignment = HorizontalAlignment.Stretch,
-                    Child = new FontIcon
-                    {
-                        Glyph = "\uE974"
-                    }
-                };
-
-                Grid.SetColumn(Box, 3);
-                Gr.Children.Add(Box);
+                Button.Flyout = Flyout;
             }
 
-            return Btn;
-        }
-
-        public Task<Button> GenerateUIButtonAsync(CommandBarFlyout ParentFlyout)
-        {
-            return GenerateUIButtonCoreAsync(this, async (s, e) =>
-            {
-                if (s is Button Btn)
-                {
-                    if (Btn.Flyout != null)
-                    {
-                        Btn.Flyout.ShowAt(Btn);
-                    }
-                    else if (Btn.Tag is ContextMenuItem MenuItem)
-                    {
-                        ParentFlyout.Hide();
-                        await MenuItem.InvokeAsync().ConfigureAwait(true);
-                    }
-                }
-            });
+            return Button;
         }
 
         public async Task InvokeAsync()
