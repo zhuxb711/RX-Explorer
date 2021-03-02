@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -9,10 +10,8 @@ using STATSTG = System.Runtime.InteropServices.ComTypes.STATSTG;
 
 namespace FullTrustProcess
 {
-    public class RemoteDataObject : System.Windows.Forms.IDataObject
+    public class RemoteDataObject
     {
-        #region Property(s)
-
         /// <summary>
         /// Holds the <see cref="System.Windows.IDataObject"/> that this class is wrapping
         /// </summary>
@@ -33,12 +32,8 @@ namespace FullTrustProcess
         /// </summary>
         private MethodInfo getDataFromHGLOBALMethod;
 
-        #endregion
-
-        #region Constructor(s)
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="OutlookDataObject"/> class.
+        /// Initializes a new instance of the class.
         /// </summary>
         /// <param name="underlyingDataObject">The underlying data object to wrap.</param>
         public RemoteDataObject(System.Windows.Forms.IDataObject underlyingDataObject)
@@ -53,152 +48,71 @@ namespace FullTrustProcess
             getDataFromHGLOBALMethod = oleUnderlyingDataObject.GetType().GetMethod("GetDataFromHGLOBAL", BindingFlags.NonPublic | BindingFlags.Instance);
         }
 
-        #endregion
-
-        #region IDataObject Members
-
-        /// <summary>
-        /// Retrieves the data associated with the specified class type format.
-        /// </summary>
-        /// <param name="format">A <see cref="T:System.Type"></see> representing the format of the data to retrieve. See <see cref="T:System.Windows.DataFormats"></see> for predefined formats.</param>
-        /// <returns>
-        /// The data associated with the specified format, or null.
-        /// </returns>
-        public object GetData(Type format)
+        public IEnumerable<DataPackage> GetRemoteData()
         {
-            return GetData(format.FullName);
-        }
+            string FormatName = string.Empty;
 
-        /// <summary>
-        /// Retrieves the data associated with the specified data format.
-        /// </summary>
-        /// <param name="format">The format of the data to retrieve. See <see cref="T:System.Windows.DataFormats"></see> for predefined formats.</param>
-        /// <returns>
-        /// The data associated with the specified format, or null.
-        /// </returns>
-        public object GetData(string format)
-        {
-            return GetData(format, true);
-        }
-
-        /// <summary>
-        /// Retrieves the data associated with the specified data format, using a Boolean to determine whether to convert the data to the format.
-        /// </summary>
-        /// <param name="Format">The format of the data to retrieve. See <see cref="T:System.Windows.DataFormats"></see> for predefined formats.</param>
-        /// <param name="AutoConvert">true to convert the data to the specified format; otherwise, false.</param>
-        /// <returns>
-        /// The data associated with the specified format, or null.
-        /// </returns>
-        public object GetData(string Format, bool AutoConvert)
-        {
-            //handle the "FileGroupDescriptor" and "FileContents" format request in this class otherwise pass through to underlying IDataObject 
-            switch (Format)
+            if (GetDataPresent(Shell32.ShellClipboardFormat.CFSTR_FILEDESCRIPTORW))
             {
-                case Shell32.ShellClipboardFormat.CFSTR_FILEDESCRIPTORA:
-                case Shell32.ShellClipboardFormat.CFSTR_FILEDESCRIPTORW:
+                FormatName = Shell32.ShellClipboardFormat.CFSTR_FILEDESCRIPTORW;
+            }
+            else if (GetDataPresent(Shell32.ShellClipboardFormat.CFSTR_FILEDESCRIPTORA))
+            {
+                FormatName = Shell32.ShellClipboardFormat.CFSTR_FILEDESCRIPTORA;
+            }
+
+            if (string.IsNullOrEmpty(FormatName))
+            {
+                yield break;
+            }
+            else
+            {
+                if (underlyingDataObject.GetData(FormatName, true) is MemoryStream FileGroupDescriptorStream)
+                {
+                    try
                     {
-                        //override the default handling of FileGroupDescriptor which returns a
-                        //MemoryStream and instead return a string array of file names
-                        //use the underlying IDataObject to get the FileGroupDescriptor as a MemoryStream
+                        byte[] FileGroupDescriptorBytes = FileGroupDescriptorStream.ToArray();
 
-                        byte[] FileGroupDescriptorBytes = null;
-
-                        using (MemoryStream FileGroupDescriptorStream = (MemoryStream)underlyingDataObject.GetData(Format, AutoConvert))
-                        {
-                            FileGroupDescriptorBytes = new byte[FileGroupDescriptorStream.Length];
-                            FileGroupDescriptorStream.Read(FileGroupDescriptorBytes, 0, FileGroupDescriptorBytes.Length);
-                        }
-
-                        //copy the file group descriptor into unmanaged memory 
                         IntPtr FileGroupDescriptorAPointer = Marshal.AllocHGlobal(FileGroupDescriptorBytes.Length);
 
                         try
                         {
                             Marshal.Copy(FileGroupDescriptorBytes, 0, FileGroupDescriptorAPointer, FileGroupDescriptorBytes.Length);
 
-                            ////marshal the unmanaged memory to to FILEGROUPDESCRIPTORA struct
-                            //FIX FROM - https://stackoverflow.com/questions/27173844/accessviolationexception-after-copying-a-file-from-inside-a-zip-archive-to-the-c
                             int ItemCount = Marshal.ReadInt32(FileGroupDescriptorAPointer);
 
-                            //create a new array to store file names in of the number of items in the file group descriptor
-                            string[] FileNames = new string[ItemCount];
-
-                            //get the pointer to the first file descriptor
                             IntPtr FileDescriptorPointer = (IntPtr)(FileGroupDescriptorAPointer.ToInt64() + Marshal.SizeOf(ItemCount));
 
-                            //loop for the number of files acording to the file group descriptor
                             for (int FileDescriptorIndex = 0; FileDescriptorIndex < ItemCount; FileDescriptorIndex++)
                             {
-                                //marshal the pointer top the file descriptor as a FILEDESCRIPTOR struct and get the file name
                                 Shell32.FILEDESCRIPTOR FileDescriptor = Marshal.PtrToStructure<Shell32.FILEDESCRIPTOR>(FileDescriptorPointer);
-                                
-                                FileNames[FileDescriptorIndex] = FileDescriptor.cFileName;
 
-                                //move the file descriptor pointer to the next file descriptor
+                                if (FileDescriptor.dwFileAttributes.HasFlag(FileFlagsAndAttributes.FILE_ATTRIBUTE_DIRECTORY))
+                                {
+                                    yield return new DataPackage(FileDescriptor.cFileName, StorageType.Directroy, null);
+                                }
+                                else
+                                {
+                                    yield return new DataPackage(FileDescriptor.cFileName, StorageType.File, GetContentData(Shell32.ShellClipboardFormat.CFSTR_FILECONTENTS, FileDescriptorIndex));
+                                }
+
                                 FileDescriptorPointer = (IntPtr)(FileDescriptorPointer.ToInt64() + Marshal.SizeOf(FileDescriptor));
                             }
-
-                            //return the array of filenames
-                            return FileNames;
                         }
                         finally
                         {
                             Marshal.FreeHGlobal(FileGroupDescriptorAPointer);
                         }
                     }
-                case Shell32.ShellClipboardFormat.CFSTR_FILECONTENTS:
+                    finally
                     {
-                        //override the default handling of FileContents which returns the
-                        //contents of the first file as a memory stream and instead return                    
-                        //a array of MemoryStreams containing the data to each file dropped                    
-                        //
-                        // FILECONTENTS requires a companion FILEGROUPDESCRIPTOR to be                     
-                        // available so we bail out if we don't find one in the data object.
-
-                        string FormatName = string.Empty;
-
-                        if (GetDataPresent(Shell32.ShellClipboardFormat.CFSTR_FILEDESCRIPTORW))
-                        {
-                            FormatName = Shell32.ShellClipboardFormat.CFSTR_FILEDESCRIPTORW;
-                        }
-                        else if (GetDataPresent(Shell32.ShellClipboardFormat.CFSTR_FILEDESCRIPTORA))
-                        {
-                            FormatName = Shell32.ShellClipboardFormat.CFSTR_FILEDESCRIPTORA;
-                        }
-
-                        if (!string.IsNullOrEmpty(FormatName))
-                        {
-                            //get the array of filenames which lets us know how many file contents exist                    
-                            if (GetData(FormatName) is string[] FileContentNames)
-                            {
-                                //create a MemoryStream array to store the file contents
-                                MemoryStream[] FileContents = new MemoryStream[FileContentNames.Length];
-
-                                //loop for the number of files acording to the file names
-                                for (int FileIndex = 0; FileIndex < FileContentNames.Length; FileIndex++)
-                                {
-                                    //get the data at the file index and store in array
-                                    FileContents[FileIndex] = GetData(Format, FileIndex);
-                                }
-
-                                //return array of MemoryStreams containing file contents
-                                return FileContents;
-                            }
-                            else
-                            {
-                                return null;
-                            }
-                        }
-                        else
-                        {
-                            return null;
-                        }
+                        FileGroupDescriptorStream.Dispose();
                     }
-                default:
-                    {
-                        //use underlying IDataObject to handle getting of data
-                        return underlyingDataObject.GetData(Format, AutoConvert);
-                    }
+                }
+                else
+                {
+                    yield break;
+                }
             }
         }
 
@@ -210,7 +124,7 @@ namespace FullTrustProcess
         /// <returns>
         /// A <see cref="MemoryStream"/> containing the raw data for the specified data format at the specified index.
         /// </returns>
-        public MemoryStream GetData(string Format, int Index)
+        private MemoryStream GetContentData(string Format, int Index)
         {
             //create a FORMATETC struct to request the data with
             FORMATETC Formatetc = new FORMATETC
@@ -338,18 +252,6 @@ namespace FullTrustProcess
         /// <summary>
         /// Determines whether data stored in this instance is associated with, or can be converted to, the specified format.
         /// </summary>
-        /// <param name="format">A <see cref="T:System.Type"></see> representing the format for which to check. See <see cref="T:System.Windows.DataFormats"></see> for predefined formats.</param>
-        /// <returns>
-        /// true if data stored in this instance is associated with, or can be converted to, the specified format; otherwise, false.
-        /// </returns>
-        public bool GetDataPresent(Type format)
-        {
-            return underlyingDataObject.GetDataPresent(format);
-        }
-
-        /// <summary>
-        /// Determines whether data stored in this instance is associated with, or can be converted to, the specified format.
-        /// </summary>
         /// <param name="format">The format for which to check. See <see cref="T:System.Windows.DataFormats"></see> for predefined formats.</param>
         /// <returns>
         /// true if data stored in this instance is associated with, or can be converted to, the specified format; otherwise false.
@@ -359,82 +261,37 @@ namespace FullTrustProcess
             return underlyingDataObject.GetDataPresent(format);
         }
 
-        /// <summary>
-        /// Determines whether data stored in this instance is associated with the specified format, using a Boolean value to determine whether to convert the data to the format.
-        /// </summary>
-        /// <param name="format">The format for which to check. See <see cref="T:System.Windows.DataFormats"></see> for predefined formats.</param>
-        /// <param name="autoConvert">true to determine whether data stored in this instance can be converted to the specified format; false to check whether the data is in the specified format.</param>
-        /// <returns>
-        /// true if the data is in, or can be converted to, the specified format; otherwise, false.
-        /// </returns>
-        public bool GetDataPresent(string format, bool autoConvert)
+        public sealed class DataPackage : IDisposable
         {
-            return underlyingDataObject.GetDataPresent(format, autoConvert);
+            public StorageType ItemType { get; }
+
+            public MemoryStream ContentStream { get; }
+
+            public string Name { get; }
+
+            public DataPackage(string Name, StorageType ItemType, MemoryStream ContentStream)
+            {
+                this.Name = Name;
+                this.ItemType = ItemType;
+                this.ContentStream = ContentStream;
+            }
+
+            public void Dispose()
+            {
+                GC.SuppressFinalize(this);
+                ContentStream?.Dispose();
+            }
+
+            ~DataPackage()
+            {
+                Dispose();
+            }
         }
 
-        /// <summary>
-        /// Returns a list of all formats that data stored in this instance is associated with or can be converted to.
-        /// </summary>
-        /// <returns>
-        /// An array of the names that represents a list of all formats that are supported by the data stored in this object.
-        /// </returns>
-        public string[] GetFormats()
+        public enum StorageType
         {
-            return underlyingDataObject.GetFormats();
+            File = 0,
+            Directroy = 1
         }
-
-        /// <summary>
-        /// Gets a list of all formats that data stored in this instance is associated with or can be converted to, using a Boolean value to determine whether to retrieve all formats that the data can be converted to or only native data formats.
-        /// </summary>
-        /// <param name="autoConvert">true to retrieve all formats that data stored in this instance is associated with or can be converted to; false to retrieve only native data formats.</param>
-        /// <returns>
-        /// An array of the names that represents a list of all formats that are supported by the data stored in this object.
-        /// </returns>
-        public string[] GetFormats(bool autoConvert)
-        {
-            return underlyingDataObject.GetFormats(autoConvert);
-        }
-
-        /// <summary>
-        /// Stores the specified data in this instance, using the class of the data for the format.
-        /// </summary>
-        /// <param name="data">The data to store.</param>
-        public void SetData(object data)
-        {
-            underlyingDataObject.SetData(data);
-        }
-
-        /// <summary>
-        /// Stores the specified data and its associated class type in this instance.
-        /// </summary>
-        /// <param name="format">A <see cref="T:System.Type"></see> representing the format associated with the data. See <see cref="T:System.Windows.DataFormats"></see> for predefined formats.</param>
-        /// <param name="data">The data to store.</param>
-        public void SetData(Type format, object data)
-        {
-            underlyingDataObject.SetData(format, data);
-        }
-
-        /// <summary>
-        /// Stores the specified data and its associated format in this instance.
-        /// </summary>
-        /// <param name="format">The format associated with the data. See <see cref="T:System.Windows.DataFormats"></see> for predefined formats.</param>
-        /// <param name="data">The data to store.</param>
-        public void SetData(string format, object data)
-        {
-            underlyingDataObject.SetData(format, data);
-        }
-
-        /// <summary>
-        /// Stores the specified data and its associated format in this instance, using a Boolean value to specify whether the data can be converted to another format.
-        /// </summary>
-        /// <param name="format">The format associated with the data. See <see cref="T:System.Windows.DataFormats"></see> for predefined formats.</param>
-        /// <param name="autoConvert">true to allow the data to be converted to another format; otherwise, false.</param>
-        /// <param name="data">The data to store.</param>
-        public void SetData(string format, bool autoConvert, object data)
-        {
-            underlyingDataObject.SetData(format, autoConvert, data);
-        }
-
-        #endregion
     }
 }

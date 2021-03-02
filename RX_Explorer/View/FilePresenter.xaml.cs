@@ -1458,7 +1458,7 @@ namespace RX_Explorer
                     }
                 }
             }
-            catch (Exception ex) when (ex.HResult == unchecked((int)0x80040064))
+            catch (Exception ex) when (ex.HResult is unchecked((int)0x80040064) or unchecked((int)0x8004006A))
             {
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {

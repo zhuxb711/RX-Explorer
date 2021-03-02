@@ -1147,38 +1147,37 @@ namespace FullTrustProcess
 
                             if (await Helper.CreateSTATask(() =>
                             {
-                                RemoteDataObject Rdo = new RemoteDataObject(Clipboard.GetDataObject());
-
-                                if (Rdo.GetData(Shell32.ShellClipboardFormat.CFSTR_FILECONTENTS, false) is MemoryStream[] FileContents)
+                                try
                                 {
-                                    try
+                                    RemoteDataObject Rdo = new RemoteDataObject(Clipboard.GetDataObject());
+
+                                    foreach (RemoteDataObject.DataPackage Package in Rdo.GetRemoteData())
                                     {
-                                        if (Rdo.GetData(Shell32.ShellClipboardFormat.CFSTR_FILEDESCRIPTORW, false) is string[] FileNames)
+                                        try
                                         {
-                                            for (int i = 0; i < FileContents.Length; i++)
+                                            if (Package.ItemType == RemoteDataObject.StorageType.File)
                                             {
-                                                string UniqueName = StorageItemController.GenerateUniquePath(System.IO.Path.Combine(Path.ToString(), FileNames[i]));
+                                                string UniqueName = StorageItemController.GenerateUniquePath(System.IO.Path.Combine(Path, Package.Name));
 
                                                 using (FileStream Stream = new FileStream(UniqueName, FileMode.CreateNew))
-                                                using (BinaryWriter Writer = new BinaryWriter(Stream))
                                                 {
-                                                    Writer.Write(FileContents[i].ToArray());
+                                                    Package.ContentStream.CopyTo(Stream);
                                                 }
                                             }
-
-                                            return true;
+                                            else
+                                            {
+                                                Directory.CreateDirectory(System.IO.Path.Combine(Path, Package.Name));
+                                            }
                                         }
-                                        else
+                                        finally
                                         {
-                                            return false;
+                                            Package.Dispose();
                                         }
                                     }
-                                    finally
-                                    {
-                                        Array.ForEach(FileContents, (ContentStream) => ContentStream.Dispose());
-                                    }
+
+                                    return true;
                                 }
-                                else
+                                catch
                                 {
                                     return false;
                                 }

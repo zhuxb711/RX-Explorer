@@ -413,7 +413,6 @@
     <Content Include="SecureAccess\NetworkAccess.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SecureAccess\NetworkAccess.pdb" />
     <None Include="Package.StoreAssociation.xml" />
     <Content Include="Assets\LargeTile.scale-100.png" />
     <Content Include="Assets\LargeTile.scale-125.png" />
