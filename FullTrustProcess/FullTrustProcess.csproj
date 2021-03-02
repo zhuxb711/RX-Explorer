@@ -138,13 +138,13 @@
       <Version>5.0.1</Version>
     </PackageReference>
     <PackageReference Include="Vanara.PInvoke.Msi">
-      <Version>3.3.4</Version>
+      <Version>3.3.5</Version>
     </PackageReference>
     <PackageReference Include="Vanara.PInvoke.UrlMon">
-      <Version>3.3.4</Version>
+      <Version>3.3.5</Version>
     </PackageReference>
     <PackageReference Include="Vanara.Windows.Shell">
-      <Version>3.3.4</Version>
+      <Version>3.3.5</Version>
     </PackageReference>
     <PackageReference Include="Winista.MimeDetect">
       <Version>1.0.1</Version>

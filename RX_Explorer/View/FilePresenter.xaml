@@ -6,6 +6,8 @@
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       xmlns:Cls="using:RX_Explorer.Class"
       xmlns:System="using:System"
+      xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+      xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
       mc:Ignorable="d"
       NavigationCacheMode="Required"
       Background="Transparent">
@@ -239,12 +241,23 @@
                         </MenuFlyout>
                     </AppBarButton.Flyout>
                 </AppBarButton>
-                <AppBarButton Icon="Bookmarks"
-                              x:Name="Compression"
-                              x:FieldModifier="public"
-                              x:Uid="Compression"
-                              Label="压缩"
-                              Click="Compression_Click" />
+                <AppBarSeparator />
+                <AppBarButton x:Name="Compression"
+                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Compression')}"
+                              Click="Compression_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xE7B8;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton x:Name="Decompression"
+                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Decompression')}"
+                              Click="Decompression_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xF133;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Name="Attribute"
@@ -269,10 +282,22 @@
                           x:Uid="FileDelete"
                           Click="Delete_Click" />
             <muxc:CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="Bookmarks"
-                              Label="压缩"
-                              x:Name="MixCompression"
-                              Click="MixCompression_Click" />
+                <AppBarButton x:Name="MixCompression"
+                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Compression')}"
+                              Click="MixCompression_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xE7B8;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton x:Name="MixDecompression"
+                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Decompression')}"
+                              Click="MixDecompression_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xF133;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
 
@@ -350,11 +375,14 @@
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarSeparator />
-                <AppBarButton Label="压缩"
-                              Icon="Bookmarks"
-                              x:Uid="Compression"
-                              Name="CompressFolder"
-                              Click="CompressFolder_Click" />
+                <AppBarButton x:Name="CompressFolder"
+                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Compression')}"
+                              Click="CompressFolder_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xE7B8;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Label="属性"
@@ -1356,6 +1384,9 @@
                   HeaderTemplate="{StaticResource ListViewDetailHeader}"
                   ItemTemplate="{StaticResource ListViewDetailContent}"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
+            <interactivity:Interaction.Behaviors>
+                <behaviors:StickyHeaderBehavior />
+            </interactivity:Interaction.Behaviors>
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment"

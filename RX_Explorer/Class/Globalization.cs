@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Resources;
 using Windows.Globalization;
@@ -83,16 +84,21 @@ namespace RX_Explorer.Class
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, "Could not find the key");
+                    LogTracer.Log(ex, "Could not find the key, return empty string instead");
 
                     if (Package.Current.IsDevelopmentMode)
                     {
-                        throw new Exception();
+                        if (Debugger.IsAttached)
+                        {
+                            Debugger.Break();
+                        }
+                        else
+                        {
+                            Debugger.Launch();
+                        }
                     }
-                    else
-                    {
-                        return string.Empty;
-                    }
+
+                    return string.Empty;
                 }
             }
         }

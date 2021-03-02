@@ -229,7 +229,8 @@
                 </ListView.ItemContainerTransitions>
                 <ListView.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <ItemsStackPanel Orientation="Horizontal" />
+                        <ItemsStackPanel Orientation="Horizontal"
+                                         ItemsUpdatingScrollMode="KeepLastItemInView" />
                     </ItemsPanelTemplate>
                 </ListView.ItemsPanel>
                 <ListView.ItemTemplate>
@@ -277,6 +278,8 @@
                                 Value="0" />
                         <Setter Property="MinHeight"
                                 Value="0" />
+                        <Setter Property="VerticalContentAlignment"
+                                Value="Stretch" />
                     </Style>
                 </ListView.ItemContainerStyle>
             </ListView>

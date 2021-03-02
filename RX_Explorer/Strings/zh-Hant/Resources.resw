@@ -2691,7 +2691,10 @@
   <data name="Compression_Admin_Name_Text" xml:space="preserve">
     <value>新建壓縮文件</value>
   </data>
-  <data name="Compression.Label" xml:space="preserve">
-    <value>壓縮</value>
+  <data name="CommandBarFlyout_More_Item" xml:space="preserve">
+    <value>更多</value>
+  </data>
+  <data name="QueueDialog_FileTypeIncorrect_Content" xml:space="preserve">
+    <value>文件類型不正確，無法執行操作</value>
   </data>
 </root>

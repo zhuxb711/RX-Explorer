@@ -476,7 +476,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static string GenerateUniquePath(string Path, StorageItemTypes ItemType)
+        private static string GenerateUniquePath(string Path, StorageItemTypes ItemType)
         {
             string UniquePath = Path;
 
@@ -630,7 +630,7 @@ namespace RX_Explorer.Class
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex);
+                LogTracer.Log(ex, "An exception was threw when creating directory watcher");
                 return IntPtr.Zero;
             }
         }

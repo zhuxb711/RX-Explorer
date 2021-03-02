@@ -11,6 +11,8 @@
 
     <MenuFlyoutItem.Style>
         <Style TargetType="local:MenuFlyoutItemWithImage">
+            <Setter Property="MinWidth"
+                    Value="150" />
             <Setter Property="Background"
                     Value="{ThemeResource MenuFlyoutItemRevealBackground}" />
             <Setter Property="BorderBrush"

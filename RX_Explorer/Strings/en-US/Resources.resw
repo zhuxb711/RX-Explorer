@@ -1142,9 +1142,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="CompressDialogName.Header" xml:space="preserve">
     <value>File name</value>
   </data>
-  <data name="Compression.Label" xml:space="preserve">
-    <value>Compression</value>
-  </data>
   <data name="SettingTreeViewDetach.Header" xml:space="preserve">
     <value>Folder directory</value>
   </data>
@@ -2798,5 +2795,11 @@ Invalid names include
   </data>
   <data name="QueueDialog_CopyFromUnsupportedArea_Content" xml:space="preserve">
     <value>Unable to paste operation, unsupported file source</value>
+  </data>
+  <data name="CommandBarFlyout_More_Item" xml:space="preserve">
+    <value>More</value>
+  </data>
+  <data name="QueueDialog_FileTypeIncorrect_Content" xml:space="preserve">
+    <value>File type is incorrect, operation cannot be performed</value>
   </data>
 </root>

@@ -3569,9 +3569,13 @@ Invalid names include
           <source>New_Zip</source>
           <target state="translated">新建壓縮文件</target>
         </trans-unit>
-        <trans-unit id="Compression.Label" translate="yes" xml:space="preserve">
-          <source>Compression</source>
-          <target state="translated">壓縮</target>
+        <trans-unit id="CommandBarFlyout_More_Item" translate="yes" xml:space="preserve">
+          <source>More</source>
+          <target state="translated">更多</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_FileTypeIncorrect_Content" translate="yes" xml:space="preserve">
+          <source>File type is incorrect, operation cannot be performed</source>
+          <target state="translated">文件類型不正確，無法執行操作</target>
         </trans-unit>
       </group>
     </body>

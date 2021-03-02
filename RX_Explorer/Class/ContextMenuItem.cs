@@ -59,7 +59,7 @@ namespace RX_Explorer.Class
             SubMenus = DataPackage.SubMenus.Select((Menu) => new ContextMenuItem(Menu, BelongTo)).ToArray();
         }
 
-        private static async Task GenerateSubMenuItemsAsync(IList<MenuFlyoutItemBase> Items, ContextMenuItem[] SubMenus, RoutedEventHandler ClickHandler)
+        public static async Task GenerateSubMenuItemsAsync(IList<MenuFlyoutItemBase> Items, ContextMenuItem[] SubMenus, RoutedEventHandler ClickHandler)
         {
             foreach (ContextMenuItem SubItem in SubMenus)
             {
@@ -68,7 +68,8 @@ namespace RX_Explorer.Class
                     MenuFlyoutSubItem Item = new MenuFlyoutSubItem
                     {
                         Text = SubItem.Name,
-                        Tag = SubItem
+                        Tag = SubItem,
+                        MinWidth = 150
                     };
 
                     await GenerateSubMenuItemsAsync(Item.Items, SubItem.SubMenus, ClickHandler).ConfigureAwait(true);
@@ -113,7 +114,6 @@ namespace RX_Explorer.Class
             AppBarButtonWithImage Button = new AppBarButtonWithImage
             {
                 Label = Name,
-                MinWidth = 250,
                 Tag = this
             };
             Button.Click += ClickHandler;

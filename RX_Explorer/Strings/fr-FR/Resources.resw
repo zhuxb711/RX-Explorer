@@ -2679,10 +2679,22 @@ Les noms non valides incluent
   <data name="CompressDialogName.Header" xml:space="preserve">
     <value>Nom de fichier</value>
   </data>
+  <data name="Compression_Dialog_Level_1" xml:space="preserve">
+    <value>Max</value>
+  </data>
+  <data name="Compression_Dialog_Level_2" xml:space="preserve">
+    <value>Standard</value>
+  </data>
   <data name="Compression_Dialog_Level_3" xml:space="preserve">
     <value>Paquet seulement</value>
   </data>
   <data name="Compression_Admin_Name_Text" xml:space="preserve">
     <value>Nouveau_Zip</value>
+  </data>
+  <data name="CommandBarFlyout_More_Item" xml:space="preserve">
+    <value>Plus</value>
+  </data>
+  <data name="QueueDialog_FileTypeIncorrect_Content" xml:space="preserve">
+    <value>Le type de fichier est incorrect, l'opération ne peut pas être effectuée</value>
   </data>
 </root>

@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -135,35 +134,69 @@ namespace RX_Explorer.Class
                             Flyout.SecondaryCommands.Remove(ButtonWithImage);
                         }
 
-                        if (Flyout.SecondaryCommands.FirstOrDefault() is AppBarSeparator Sep)
+                        foreach (AppBarSeparator Separator in Flyout.SecondaryCommands.OfType<AppBarSeparator>().Where((Sep) => Sep.Name == "CustomSep").ToArray())
                         {
-                            Flyout.SecondaryCommands.Remove(Sep);
+                            Flyout.SecondaryCommands.Remove(Separator);
                         }
 
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         {
                             List<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(SelectedPath, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down)).ConfigureAwait(true);
 
+                            ExtraMenuItems.Reverse();
+
                             if (ExtraMenuItems.Count > 0)
                             {
-                                foreach (ContextMenuItem AddItem in ExtraMenuItems)
+                                async void ClickHandler(object sender, RoutedEventArgs args)
                                 {
-                                    AppBarButtonWithImage Btn = await AddItem.GenerateUIButtonAsync(async (s, e) =>
+                                    if (sender is FrameworkElement Btn)
                                     {
-                                        if (s is FrameworkElement Btn)
+                                        if (Btn.Tag is ContextMenuItem MenuItem)
                                         {
-                                            if (Btn.Tag is ContextMenuItem MenuItem)
-                                            {
-                                                Flyout.Hide();
-                                                await MenuItem.InvokeAsync().ConfigureAwait(true);
-                                            }
+                                            Flyout.Hide();
+                                            await MenuItem.InvokeAsync().ConfigureAwait(true);
                                         }
-                                    }).ConfigureAwait(true);
-
-                                    Flyout.SecondaryCommands.Insert(0, Btn);
+                                    }
                                 }
 
-                                Flyout.SecondaryCommands.Insert(ExtraMenuItems.Count, new AppBarSeparator());
+                                int Index = Flyout.SecondaryCommands.IndexOf(Flyout.SecondaryCommands.OfType<AppBarSeparator>().FirstOrDefault()) + 1;
+
+                                if (ExtraMenuItems.Count > 4)
+                                {
+                                    Flyout.SecondaryCommands.Insert(Index, new AppBarSeparator { Name = "CustomSep" });
+
+                                    foreach (ContextMenuItem AddItem in ExtraMenuItems.Take(4))
+                                    {
+                                        AppBarButtonWithImage Btn = await AddItem.GenerateUIButtonAsync(ClickHandler).ConfigureAwait(true);
+
+                                        Flyout.SecondaryCommands.Insert(Index, Btn);
+                                    }
+
+                                    AppBarButtonWithImage MoreItem = new AppBarButtonWithImage
+                                    {
+                                        Label = Globalization.GetString("CommandBarFlyout_More_Item"),
+                                        Icon = new SymbolIcon(Symbol.More),
+                                    };
+
+                                    MenuFlyout MoreFlyout = new MenuFlyout();
+
+                                    await ContextMenuItem.GenerateSubMenuItemsAsync(MoreFlyout.Items, ExtraMenuItems.Skip(4).ToArray(), ClickHandler).ConfigureAwait(true);
+
+                                    MoreItem.Flyout = MoreFlyout;
+
+                                    Flyout.SecondaryCommands.Insert(Index + 4, MoreItem);
+                                }
+                                else
+                                {
+                                    foreach (ContextMenuItem AddItem in ExtraMenuItems)
+                                    {
+                                        AppBarButtonWithImage Btn = await AddItem.GenerateUIButtonAsync(ClickHandler).ConfigureAwait(true);
+
+                                        Flyout.SecondaryCommands.Insert(Index, Btn);
+                                    }
+
+                                    Flyout.SecondaryCommands.Insert(Index + ExtraMenuItems.Count, new AppBarSeparator { Name = "CustomSep" });
+                                }
                             }
                             else
                             {
@@ -172,7 +205,7 @@ namespace RX_Explorer.Class
                                     Flyout.SecondaryCommands.Remove(ButtonWithImage);
                                 }
 
-                                if (Flyout.SecondaryCommands.FirstOrDefault() is AppBarSeparator Separator)
+                                foreach (AppBarSeparator Separator in Flyout.SecondaryCommands.OfType<AppBarSeparator>().Where((Sep) => Sep.Name == "CustomSep").ToArray())
                                 {
                                     Flyout.SecondaryCommands.Remove(Separator);
                                 }
@@ -299,29 +332,26 @@ namespace RX_Explorer.Class
                 List<string> AddList = FolderList.Except(PathList).ToList();
                 List<string> RemoveList = PathList.Except(FolderList).ToList();
 
-                foreach (string AddPath in AddList)
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                 {
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                    foreach (string AddPath in AddList)
                     {
                         Node.Children.Add(new TreeViewNode
                         {
                             Content = new TreeViewNodeContent(AddPath),
-                            HasUnrealizedChildren = WIN_Native_API.CheckContainsAnyItem(AddPath, ItemFilters.Folder),
+                            HasUnrealizedChildren = await FileSystemStorageItemBase.CheckContainsAnyItem(AddPath, ItemFilters.Folder).ConfigureAwait(true),
                             IsExpanded = false
                         });
-                    });
-                }
+                    }
 
-                foreach (string RemovePath in RemoveList)
-                {
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                    foreach (string RemovePath in RemoveList)
                     {
                         if (Node.Children.Where((Item) => Item.Content is TreeViewNodeContent).FirstOrDefault((Item) => (Item.Content as TreeViewNodeContent).Path.Equals(RemovePath, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RemoveNode)
                         {
                             Node.Children.Remove(RemoveNode);
                         }
-                    });
-                }
+                    }
+                });
 
                 foreach (TreeViewNode SubNode in Node.Children)
                 {
@@ -330,7 +360,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                Node.HasUnrealizedChildren = WIN_Native_API.CheckContainsAnyItem((Node.Content as TreeViewNodeContent).Path, ItemFilters.Folder);
+                Node.HasUnrealizedChildren = await FileSystemStorageItemBase.CheckContainsAnyItem((Node.Content as TreeViewNodeContent).Path, ItemFilters.Folder).ConfigureAwait(true);
             }
         }
 
@@ -438,73 +468,55 @@ namespace RX_Explorer.Class
         {
             return Task.Run(() =>
             {
-                using (SecureString Secure = SecureAccessProvider.GetGoogleTranslateAccessKey(Package.Current))
+                try
                 {
-                    IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
-                    string APIKey = Marshal.PtrToStringBSTR(Bstr);
+                    string APIKey = SecureAccessProvider.GetGoogleTranslateAccessKey(Package.Current);
 
-                    try
+                    using (TranslationClient Client = TranslationClient.CreateFromApiKey(APIKey, TranslationModel.ServiceDefault))
                     {
-                        using (TranslationClient Client = TranslationClient.CreateFromApiKey(APIKey, TranslationModel.ServiceDefault))
+                        Detection DetectResult = Client.DetectLanguage(Text);
+
+                        string CurrentLanguage = string.Empty;
+
+                        switch (Globalization.CurrentLanguage)
                         {
-                            Detection DetectResult = Client.DetectLanguage(Text);
-
-                            string CurrentLanguage = string.Empty;
-
-                            switch (Globalization.CurrentLanguage)
-                            {
-                                case LanguageEnum.English:
-                                    {
-                                        CurrentLanguage = LanguageCodes.English;
-                                        break;
-                                    }
-
-                                case LanguageEnum.Chinese_Simplified:
-                                    {
-                                        CurrentLanguage = LanguageCodes.ChineseSimplified;
-                                        break;
-                                    }
-                                case LanguageEnum.Chinese_Traditional:
-                                    {
-                                        CurrentLanguage = LanguageCodes.ChineseTraditional;
-                                        break;
-                                    }
-                                case LanguageEnum.French:
-                                    {
-                                        CurrentLanguage = LanguageCodes.French;
-                                        break;
-                                    }
-                            }
-
-                            if (DetectResult.Language.StartsWith(CurrentLanguage))
-                            {
-                                return Text;
-                            }
-                            else
-                            {
-                                TranslationResult TranslateResult = Client.TranslateText(Text, CurrentLanguage, DetectResult.Language);
-                                return TranslateResult.TranslatedText;
-                            }
-                        }
-                    }
-                    catch
-                    {
-                        return Text;
-                    }
-                    finally
-                    {
-                        Marshal.ZeroFreeBSTR(Bstr);
-                        unsafe
-                        {
-                            fixed (char* ClearPtr = APIKey)
-                            {
-                                for (int i = 0; i < APIKey.Length; i++)
+                            case LanguageEnum.English:
                                 {
-                                    ClearPtr[i] = '\0';
+                                    CurrentLanguage = LanguageCodes.English;
+                                    break;
                                 }
-                            }
+
+                            case LanguageEnum.Chinese_Simplified:
+                                {
+                                    CurrentLanguage = LanguageCodes.ChineseSimplified;
+                                    break;
+                                }
+                            case LanguageEnum.Chinese_Traditional:
+                                {
+                                    CurrentLanguage = LanguageCodes.ChineseTraditional;
+                                    break;
+                                }
+                            case LanguageEnum.French:
+                                {
+                                    CurrentLanguage = LanguageCodes.French;
+                                    break;
+                                }
+                        }
+
+                        if (DetectResult.Language.StartsWith(CurrentLanguage))
+                        {
+                            return Text;
+                        }
+                        else
+                        {
+                            TranslationResult TranslateResult = Client.TranslateText(Text, CurrentLanguage, DetectResult.Language);
+                            return TranslateResult.TranslatedText;
                         }
                     }
+                }
+                catch
+                {
+                    return Text;
                 }
             });
         }
@@ -552,50 +564,29 @@ namespace RX_Explorer.Class
 
             try
             {
-                using (SecureString Secure = SecureAccessProvider.GetStringEncryptionAesIV(Package.Current))
+                string IV = SecureAccessProvider.GetStringEncryptionAesIV(Package.Current);
+
+                using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                 {
-                    IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
-                    string IV = Marshal.PtrToStringBSTR(Bstr);
-
-                    try
+                    KeySize = 128,
+                    Key = Key.Length > 16 ? Encoding.UTF8.GetBytes(Key.Substring(0, 16)) : Encoding.UTF8.GetBytes(Key.PadRight(16, '0')),
+                    Mode = CipherMode.CBC,
+                    Padding = PaddingMode.PKCS7,
+                    IV = Encoding.UTF8.GetBytes(IV)
+                })
+                {
+                    using (MemoryStream EncryptStream = new MemoryStream())
                     {
-                        using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
+                        using (ICryptoTransform Encryptor = AES.CreateEncryptor())
+                        using (CryptoStream TransformStream = new CryptoStream(EncryptStream, Encryptor, CryptoStreamMode.Write))
                         {
-                            KeySize = 128,
-                            Key = Key.Length > 16 ? Encoding.UTF8.GetBytes(Key.Substring(0, 16)) : Encoding.UTF8.GetBytes(Key.PadRight(16, '0')),
-                            Mode = CipherMode.CBC,
-                            Padding = PaddingMode.PKCS7,
-                            IV = Encoding.UTF8.GetBytes(IV)
-                        })
-                        {
-                            using (MemoryStream EncryptStream = new MemoryStream())
+                            using (StreamWriter Writer = new StreamWriter(TransformStream))
                             {
-                                using (ICryptoTransform Encryptor = AES.CreateEncryptor())
-                                using (CryptoStream TransformStream = new CryptoStream(EncryptStream, Encryptor, CryptoStreamMode.Write))
-                                {
-                                    using (StreamWriter Writer = new StreamWriter(TransformStream))
-                                    {
-                                        await Writer.WriteAsync(OriginText).ConfigureAwait(false);
-                                    }
-                                }
-
-                                return Convert.ToBase64String(EncryptStream.ToArray());
+                                await Writer.WriteAsync(OriginText).ConfigureAwait(false);
                             }
                         }
-                    }
-                    finally
-                    {
-                        Marshal.ZeroFreeBSTR(Bstr);
-                        unsafe
-                        {
-                            fixed (char* ClearPtr = IV)
-                            {
-                                for (int i = 0; i < IV.Length; i++)
-                                {
-                                    ClearPtr[i] = '\0';
-                                }
-                            }
-                        }
+
+                        return Convert.ToBase64String(EncryptStream.ToArray());
                     }
                 }
             }
@@ -625,45 +616,24 @@ namespace RX_Explorer.Class
 
             try
             {
-                using (SecureString Secure = SecureAccessProvider.GetStringEncryptionAesIV(Package.Current))
-                {
-                    IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
-                    string IV = Marshal.PtrToStringBSTR(Bstr);
+                string IV = SecureAccessProvider.GetStringEncryptionAesIV(Package.Current);
 
-                    try
+                using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
+                {
+                    KeySize = 128,
+                    Key = Key.Length > 16 ? Encoding.UTF8.GetBytes(Key.Substring(0, 16)) : Encoding.UTF8.GetBytes(Key.PadRight(16, '0')),
+                    Mode = CipherMode.CBC,
+                    Padding = PaddingMode.PKCS7,
+                    IV = Encoding.UTF8.GetBytes(IV)
+                })
+                {
+                    using (MemoryStream DecryptStream = new MemoryStream(Convert.FromBase64String(OriginText)))
                     {
-                        using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
+                        using (ICryptoTransform Decryptor = AES.CreateDecryptor())
+                        using (CryptoStream TransformStream = new CryptoStream(DecryptStream, Decryptor, CryptoStreamMode.Read))
+                        using (StreamReader Writer = new StreamReader(TransformStream, Encoding.UTF8))
                         {
-                            KeySize = 128,
-                            Key = Key.Length > 16 ? Encoding.UTF8.GetBytes(Key.Substring(0, 16)) : Encoding.UTF8.GetBytes(Key.PadRight(16, '0')),
-                            Mode = CipherMode.CBC,
-                            Padding = PaddingMode.PKCS7,
-                            IV = Encoding.UTF8.GetBytes(IV)
-                        })
-                        {
-                            using (MemoryStream DecryptStream = new MemoryStream(Convert.FromBase64String(OriginText)))
-                            {
-                                using (ICryptoTransform Decryptor = AES.CreateDecryptor())
-                                using (CryptoStream TransformStream = new CryptoStream(DecryptStream, Decryptor, CryptoStreamMode.Read))
-                                using (StreamReader Writer = new StreamReader(TransformStream, Encoding.UTF8))
-                                {
-                                    return await Writer.ReadToEndAsync().ConfigureAwait(false);
-                                }
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        Marshal.ZeroFreeBSTR(Bstr);
-                        unsafe
-                        {
-                            fixed (char* ClearPtr = IV)
-                            {
-                                for (int i = 0; i < IV.Length; i++)
-                                {
-                                    ClearPtr[i] = '\0';
-                                }
-                            }
+                            return await Writer.ReadToEndAsync().ConfigureAwait(false);
                         }
                     }
                 }

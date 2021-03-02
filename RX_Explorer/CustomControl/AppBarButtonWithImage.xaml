@@ -9,6 +9,10 @@
               d:DesignWidth="400">
     <AppBarButton.Style>
         <Style TargetType="local:AppBarButtonWithImage">
+            <Setter Property="Width" 
+                    Value="Auto"/>
+            <Setter Property="MinWidth"
+                    Value="280"/>
             <Setter Property="Background"
                     Value="{ThemeResource AppBarButtonBackground}" />
             <Setter Property="Foreground"
@@ -27,6 +31,10 @@
                     Value="{StaticResource UseSystemFocusVisuals}" />
             <Setter Property="AllowFocusOnInteraction"
                     Value="False" />
+            <Setter Property="HorizontalContentAlignment"
+                    Value="Stretch" />
+            <Setter Property="VerticalContentAlignment"
+                    Value="Center" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="local:AppBarButtonWithImage">

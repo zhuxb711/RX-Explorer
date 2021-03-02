@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -79,6 +77,43 @@ namespace RX_Explorer.Class
         protected static readonly BitmapImage Const_File_White_Image = new BitmapImage(new Uri("ms-appx:///Assets/Page_Solid_White.png"));
 
         protected static readonly BitmapImage Const_File_Black_Image = new BitmapImage(new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
+
+        public static async Task<bool> CheckContainsAnyItem(string FolderPath, ItemFilters Filter)
+        {
+            if (WIN_Native_API.CheckLocationAvailability(FolderPath))
+            {
+                return await Task.Run(() =>
+                {
+                    return WIN_Native_API.CheckContainsAnyItem(FolderPath, Filter);
+                });
+            }
+            else
+            {
+                LogTracer.Log($"Native API could not found the path: \"{FolderPath}\", fall back to UWP storage API");
+
+                try
+                {
+                    StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(FolderPath);
+
+                    if (Filter.HasFlag(ItemFilters.File))
+                    {
+                        return (await Folder.GetFilesAsync(CommonFileQuery.DefaultQuery, 0, 1)).Any();
+                    }
+
+                    if (Filter.HasFlag(ItemFilters.Folder))
+                    {
+                        return (await Folder.GetFoldersAsync(CommonFolderQuery.DefaultQuery, 0, 1)).Any();
+                    }
+
+                    return false;
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "CheckContainsAnyItem failed for uwp API");
+                    return false;
+                }
+            }
+        }
 
         public static async Task<bool> CheckExist(string Path)
         {
@@ -713,13 +748,11 @@ namespace RX_Explorer.Class
             if (await CreateAsync(EncryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageItemBase EncryptedFile)
             {
                 using (FileStream EncryptFileStream = await EncryptedFile.GetFileStreamFromFileAsync(AccessMode.Write).ConfigureAwait(false))
-                using (SecureString Secure = SecureAccessProvider.GetFileEncryptionAesIV(Package.Current))
                 {
-                    IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
-                    string IV = Marshal.PtrToStringBSTR(Bstr);
-
                     try
                     {
+                        string IV = SecureAccessProvider.GetFileEncryptionAesIV(Package.Current);
+
                         using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                         {
                             KeySize = KeySize,
@@ -750,20 +783,6 @@ namespace RX_Explorer.Class
                     {
                         WIN_Native_API.DeleteFromPath(EncryptedFilePath);
                         throw;
-                    }
-                    finally
-                    {
-                        Marshal.ZeroFreeBSTR(Bstr);
-                        unsafe
-                        {
-                            fixed (char* ClearPtr = IV)
-                            {
-                                for (int i = 0; i < IV.Length; i++)
-                                {
-                                    ClearPtr[i] = '\0';
-                                }
-                            }
-                        }
                     }
                 }
 

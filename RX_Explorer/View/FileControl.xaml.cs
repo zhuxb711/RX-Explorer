@@ -150,8 +150,7 @@ namespace RX_Explorer
         {
             if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => Content.Path != Device.Folder?.Path))
             {
-                bool HasAnyFolder = Device.DriveType == DriveType.Network ? await Task.Run(() => WIN_Native_API.CheckContainsAnyItem(Device.Folder.Path, ItemFilters.Folder))
-                                                                          : WIN_Native_API.CheckContainsAnyItem(Device.Folder.Path, ItemFilters.Folder);
+                bool HasAnyFolder = await FileSystemStorageItemBase.CheckContainsAnyItem(Device.Folder.Path, ItemFilters.Folder).ConfigureAwait(true);
 
                 TreeViewNode RootNode = new TreeViewNode
                 {
@@ -282,15 +281,13 @@ namespace RX_Explorer
                                 AddressButtonList.RemoveAt(i);
                             }
 
-                            List<string> ExceptList = CurrentSplit.ToList();
+                            string BaseString = IntersectList.Count > 1 ? string.Join('\\', CurrentSplit.Take(IntersectList.Count)) : $"{CurrentSplit.First()}\\";
 
-                            string BaseString = string.Join('\\', ExceptList.Take(IntersectList.Count));
+                            PathAnalysis Analysis = new PathAnalysis(Path, BaseString);
 
-                            ExceptList.RemoveRange(0, IntersectList.Count);
-
-                            foreach (string SubPath in ExceptList)
+                            while (Analysis.HasNextLevel)
                             {
-                                AddressButtonList.Add(new AddressBlock(System.IO.Path.Combine(BaseString, SubPath)));
+                                AddressButtonList.Add(new AddressBlock(Analysis.NextFullPath()));
                             }
                         }
                     }
@@ -301,34 +298,8 @@ namespace RX_Explorer
                 }
                 finally
                 {
-                    if (AddressButtonContainer.IsLoaded)
-                    {
-                        ScrollViewer Viewer = AddressButtonContainer.FindChildOfType<ScrollViewer>();
-
-                        if (Viewer.ActualWidth < Viewer.ExtentWidth)
-                        {
-                            Viewer.ChangeView(Viewer.ExtentWidth, null, null);
-                        }
-                    }
-                    else
-                    {
-                        AddressButtonContainer.Loaded += AddressButtonContainer_Loaded;
-                    }
-
                     _ = Interlocked.Exchange(ref AddressButtonLockResource, 0);
                 }
-            }
-        }
-
-        private void AddressButtonContainer_Loaded(object sender, RoutedEventArgs e)
-        {
-            AddressButtonContainer.Loaded -= AddressButtonContainer_Loaded;
-
-            ScrollViewer Viewer = AddressButtonContainer.FindChildOfType<ScrollViewer>();
-
-            if (Viewer.ActualWidth < Viewer.ExtentWidth)
-            {
-                Viewer.ChangeView(Viewer.ExtentWidth, null, null);
             }
         }
 
@@ -425,7 +396,7 @@ namespace RX_Explorer
                     {
                         if (Type == DriveType.Network)
                         {
-                            NetworkLoadList.Add(Task.Run(() => WIN_Native_API.CheckContainsAnyItem(DriveFolder.Path, ItemFilters.Folder)).ContinueWith((task) =>
+                            NetworkLoadList.Add(FileSystemStorageItemBase.CheckContainsAnyItem(DriveFolder.Path, ItemFilters.Folder).ContinueWith((task) =>
                             {
                                 TreeViewNode RootNode = new TreeViewNode
                                 {
@@ -440,7 +411,7 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            bool HasAnyFolder = WIN_Native_API.CheckContainsAnyItem(DriveFolder.Path, ItemFilters.Folder);
+                            bool HasAnyFolder = await FileSystemStorageItemBase.CheckContainsAnyItem(DriveFolder.Path, ItemFilters.Folder).ConfigureAwait(true);
 
                             TreeViewNode RootNode = new TreeViewNode
                             {
@@ -482,19 +453,19 @@ namespace RX_Explorer
                 {
                     List<string> StorageItemPath = WIN_Native_API.GetStorageItemsAndReturnPath(Content.Path, SettingControl.IsDisplayHiddenItem, ItemFilters.Folder);
 
-                    for (int i = 0; i < StorageItemPath.Count && Node.IsExpanded && Node.CanTraceToRootNode(FolderTree.RootNodes.FirstOrDefault((RootNode) => (RootNode.Content as TreeViewNodeContent).Path == Path.GetPathRoot(Content.Path))); i++)
+                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                     {
-                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                        for (int i = 0; i < StorageItemPath.Count && Node.IsExpanded && Node.CanTraceToRootNode(FolderTree.RootNodes.FirstOrDefault((RootNode) => (RootNode.Content as TreeViewNodeContent).Path == Path.GetPathRoot(Content.Path))); i++)
                         {
                             TreeViewNode NewNode = new TreeViewNode
                             {
                                 Content = new TreeViewNodeContent(StorageItemPath[i]),
-                                HasUnrealizedChildren = WIN_Native_API.CheckContainsAnyItem(StorageItemPath[i], ItemFilters.Folder)
+                                HasUnrealizedChildren = await FileSystemStorageItemBase.CheckContainsAnyItem(StorageItemPath[i], ItemFilters.Folder).ConfigureAwait(true)
                             };
 
                             Node.Children.Add(NewNode);
-                        });
-                    }
+                        }
+                    });
                 }
                 catch (Exception ex)
                 {

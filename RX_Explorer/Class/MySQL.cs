@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Runtime.InteropServices;
-using System.Security;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Storage;
@@ -15,7 +13,7 @@ namespace RX_Explorer.Class
     /// <summary>
     /// 提供对MySQL数据库的访问支持
     /// </summary>
-    public sealed class MySQL : IDisposable
+    public sealed class MySQL : IAsyncDisposable, IDisposable
     {
         private volatile static MySQL Instance;
 
@@ -44,30 +42,7 @@ namespace RX_Explorer.Class
         /// </summary>
         private MySQL()
         {
-            using (SecureString Secure = SecureAccessProvider.GetMySQLAccessCredential(Package.Current))
-            {
-                IntPtr Bstr = Marshal.SecureStringToBSTR(Secure);
-                string AccessCredential = Marshal.PtrToStringBSTR(Bstr);
-
-                try
-                {
-                    Connection = new MySqlConnection($"{AccessCredential}CharSet=utf8mb4;Database=FeedBackDataBase;");
-                }
-                finally
-                {
-                    Marshal.ZeroFreeBSTR(Bstr);
-                    unsafe
-                    {
-                        fixed (char* ClearPtr = AccessCredential)
-                        {
-                            for (int i = 0; i < AccessCredential.Length; i++)
-                            {
-                                ClearPtr[i] = '\0';
-                            }
-                        }
-                    }
-                }
-            }
+            Connection = new MySqlConnection(SecureAccessProvider.GetMySQLAccessCredential(Package.Current));
         }
 
         /// <summary>
@@ -76,74 +51,6 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public async Task<bool> MakeConnectionUseable()
         {
-            #region MySQL数据库存储过程和触发器初始化代码，仅首次运行时需要
-            //if (await Connection.PingAsync().ConfigureAwait(false))
-            //{
-            //    StringBuilder Builder = new StringBuilder();
-            //    Builder.AppendLine("Create Table If Not Exists FeedBackTable (UserName Text Not Null, Title Text Not Null, Suggestion Text Not Null, LikeNum Text Not Null, DislikeNum Text Not Null, UserID Text Not Null, GUID Text Not Null);")
-            //           .AppendLine("Create Table If Not Exists VoteRecordTable (UserID Text Not Null, GUID Text Not Null, Behavior Text Not Null);")
-
-            //           .AppendLine("Drop Trigger RemoveVoteRecordTrigger;")
-            //           .AppendLine("Create Trigger RemoveVoteRecordTrigger After Delete On FeedBackTable For Each Row Delete From VoteRecordTable Where GUID=old.GUID;")
-
-            //           .AppendLine("Drop Procedure If Exists GetFeedBackProcedure;")
-            //           .AppendLine("Create Procedure GetFeedBackProcedure(IN Para Text)")
-            //           .AppendLine("Begin")
-            //           .AppendLine("Declare EndSignal int Default 0;")
-            //           .AppendLine("Declare P1 Text;")
-            //           .AppendLine("Declare P2 Text;")
-            //           .AppendLine("Declare P3 Text;")
-            //           .AppendLine("Declare P4 Text;")
-            //           .AppendLine("Declare P5 Text;")
-            //           .AppendLine("Declare P6 Text;")
-            //           .AppendLine("Declare P7 Text;")
-            //           .AppendLine("Declare P8 Text;")
-            //           .AppendLine("Declare RowData Cursor For Select * From FeedBackTable;")
-            //           .AppendLine("Declare Continue Handler For Not Found Set EndSignal=1;")
-            //           .AppendLine("Drop Table If Exists DataTemporary;")
-            //           .AppendLine("Create Temporary Table DataTemporary (UserName Text, Title Text, Suggestion Text, LikeNum Text, DislikeNum Text, UserID Text, GUID Text, Behavior Text);")
-            //           .AppendLine("Open RowData;")
-            //           .AppendLine("Fetch RowData Into P1,P2,P3,P4,P5,P6,P7;")
-            //           .AppendLine("While EndSignal<>1 Do")
-            //           .AppendLine("If (Select Count(*) From VoteRecordTable Where UserID=Para And GUID=P7) <> 0")
-            //           .AppendLine("Then")
-            //           .AppendLine("Select Behavior Into P8 From VoteRecordTable Where UserID=Para And GUID=P7;")
-            //           .AppendLine("Else")
-            //           .AppendLine("Set P8 = 'NULL';")
-            //           .AppendLine("End If;")
-            //           .AppendLine("Insert Into DataTemporary Values (P1,P2,P3,P4,P5,P6,P7,P8);")
-            //           .AppendLine("Fetch RowData Into P1,P2,P3,P4,P5,P6,P7;")
-            //           .AppendLine("End While;")
-            //           .AppendLine("Close RowData;")
-            //           .AppendLine("Select * From DataTemporary;")
-            //           .AppendLine("End;")
-
-            //           .AppendLine("Drop Procedure If Exists UpdateFeedBackVoteProcedure;")
-            //           .AppendLine("Create Procedure UpdateFeedBackVoteProcedure(IN LNum Text,IN DNum Text,IN UID Text,IN GID Text,IN Beh Text)")
-            //           .AppendLine("Begin")
-            //           .AppendLine("Update FeedBackTable Set LikeNum=LNum, DislikeNum=DNum Where GUID=GID;")
-            //           .AppendLine("If (Select Count(*) From VoteRecordTable Where UserID=UID And GUID=GID) <> 0")
-            //           .AppendLine("Then")
-            //           .AppendLine("If Beh <> '='")
-            //           .AppendLine("Then")
-            //           .AppendLine("Update VoteRecordTable Set Behavior=Beh Where UserID=UID And GUID=GID;")
-            //           .AppendLine("Else")
-            //           .AppendLine("Delete From VoteRecordTable Where UserID=UID And GUID=GID;")
-            //           .AppendLine("End If;")
-            //           .AppendLine("Else")
-            //           .AppendLine("If Beh <> '='")
-            //           .AppendLine("Then")
-            //           .AppendLine("Insert Into VoteRecordTable Values (UID,GID,Beh);")
-            //           .AppendLine("End If;")
-            //           .AppendLine("End If;")
-            //           .AppendLine("End;");
-            //    using (MySqlCommand Command = new MySqlCommand(Builder.ToString(), Connection))
-            //    {
-            //        await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
-            //    }
-            //}
-            #endregion
-
             try
             {
                 if (!await Connection.PingAsync().ConfigureAwait(false))
@@ -152,10 +59,76 @@ namespace RX_Explorer.Class
                     await Connection.OpenAsync().ConfigureAwait(false);
                 }
 
+                #region MySQL数据库存储过程和触发器初始化代码，仅首次运行时需要
+                //StringBuilder Builder = new StringBuilder();
+                //Builder.AppendLine("Create Table If Not Exists FeedBackTable (UserName Text Not Null, Title Text Not Null, Suggestion Text Not Null, LikeNum Text Not Null, DislikeNum Text Not Null, UserID Text Not Null, GUID Text Not Null);")
+                //       .AppendLine("Create Table If Not Exists VoteRecordTable (UserID Text Not Null, GUID Text Not Null, Behavior Text Not Null);")
+
+                //       .AppendLine("Drop Trigger If Exists RemoveVoteRecordTrigger;")
+                //       .AppendLine("Create Trigger RemoveVoteRecordTrigger After Delete On FeedBackTable For Each Row Delete From VoteRecordTable Where GUID=old.GUID;")
+
+                //       .AppendLine("Drop Procedure If Exists GetFeedBackProcedure;")
+                //       .AppendLine("Create Procedure GetFeedBackProcedure(IN Para Text)")
+                //       .AppendLine("Begin")
+                //       .AppendLine("Declare EndSignal int Default 0;")
+                //       .AppendLine("Declare P1 Text;")
+                //       .AppendLine("Declare P2 Text;")
+                //       .AppendLine("Declare P3 Text;")
+                //       .AppendLine("Declare P4 Text;")
+                //       .AppendLine("Declare P5 Text;")
+                //       .AppendLine("Declare P6 Text;")
+                //       .AppendLine("Declare P7 Text;")
+                //       .AppendLine("Declare P8 Text;")
+                //       .AppendLine("Declare RowData Cursor For Select * From FeedBackTable;")
+                //       .AppendLine("Declare Continue Handler For Not Found Set EndSignal=1;")
+                //       .AppendLine("Drop Table If Exists DataTemporary;")
+                //       .AppendLine("Create Temporary Table DataTemporary (UserName Text, Title Text, Suggestion Text, LikeNum Text, DislikeNum Text, UserID Text, GUID Text, Behavior Text);")
+                //       .AppendLine("Open RowData;")
+                //       .AppendLine("Fetch RowData Into P1,P2,P3,P4,P5,P6,P7;")
+                //       .AppendLine("While EndSignal<>1 Do")
+                //       .AppendLine("If (Select Count(*) From VoteRecordTable Where UserID=Para And GUID=P7) <> 0")
+                //       .AppendLine("Then")
+                //       .AppendLine("Select Behavior Into P8 From VoteRecordTable Where UserID=Para And GUID=P7;")
+                //       .AppendLine("Else")
+                //       .AppendLine("Set P8 = 'NULL';")
+                //       .AppendLine("End If;")
+                //       .AppendLine("Insert Into DataTemporary Values (P1,P2,P3,P4,P5,P6,P7,P8);")
+                //       .AppendLine("Fetch RowData Into P1,P2,P3,P4,P5,P6,P7;")
+                //       .AppendLine("End While;")
+                //       .AppendLine("Close RowData;")
+                //       .AppendLine("Select * From DataTemporary;")
+                //       .AppendLine("End;")
+
+                //       .AppendLine("Drop Procedure If Exists UpdateFeedBackVoteProcedure;")
+                //       .AppendLine("Create Procedure UpdateFeedBackVoteProcedure(IN LNum Text,IN DNum Text,IN UID Text,IN GID Text,IN Beh Text)")
+                //       .AppendLine("Begin")
+                //       .AppendLine("Update FeedBackTable Set LikeNum=LNum, DislikeNum=DNum Where GUID=GID;")
+                //       .AppendLine("If (Select Count(*) From VoteRecordTable Where UserID=UID And GUID=GID) <> 0")
+                //       .AppendLine("Then")
+                //       .AppendLine("If Beh <> '='")
+                //       .AppendLine("Then")
+                //       .AppendLine("Update VoteRecordTable Set Behavior=Beh Where UserID=UID And GUID=GID;")
+                //       .AppendLine("Else")
+                //       .AppendLine("Delete From VoteRecordTable Where UserID=UID And GUID=GID;")
+                //       .AppendLine("End If;")
+                //       .AppendLine("Else")
+                //       .AppendLine("If Beh <> '='")
+                //       .AppendLine("Then")
+                //       .AppendLine("Insert Into VoteRecordTable Values (UID,GID,Beh);")
+                //       .AppendLine("End If;")
+                //       .AppendLine("End If;")
+                //       .AppendLine("End;");
+                //using (MySqlCommand Command = new MySqlCommand(Builder.ToString(), Connection))
+                //{
+                //    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                //}
+                #endregion
+
                 return Connection.State == ConnectionState.Open;
             }
-            catch
+            catch (Exception ex)
             {
+                LogTracer.Log(ex, "Could not make sure mysql connection available");
                 return false;
             }
         }
@@ -357,15 +330,32 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 调用此方法以完全释放MySQL的资源
         /// </summary>
+        public async ValueTask DisposeAsync()
+        {
+            if (!IsDisposed)
+            {
+                IsDisposed = true;
+                Instance = null;
+
+                await Connection.DisposeAsync();
+                Connection = null;
+
+                GC.SuppressFinalize(this);
+            }
+        }
+
+        /// <summary>
+        /// 调用此方法以完全释放MySQL的资源
+        /// </summary>
         public void Dispose()
         {
             if (!IsDisposed)
             {
                 IsDisposed = true;
+                Instance = null;
 
                 Connection.Dispose();
                 Connection = null;
-                Instance = null;
 
                 GC.SuppressFinalize(this);
             }

@@ -3555,11 +3555,11 @@ Les noms non valides incluent
         </trans-unit>
         <trans-unit id="Compression_Dialog_Level_1" translate="yes" xml:space="preserve">
           <source>Max</source>
-          <target state="new">Max</target>
+          <target state="translated">Max</target>
         </trans-unit>
         <trans-unit id="Compression_Dialog_Level_2" translate="yes" xml:space="preserve">
           <source>Standard</source>
-          <target state="new">Standard</target>
+          <target state="translated">Standard</target>
         </trans-unit>
         <trans-unit id="Compression_Dialog_Level_3" translate="yes" xml:space="preserve">
           <source>Package only</source>
@@ -3569,9 +3569,13 @@ Les noms non valides incluent
           <source>New_Zip</source>
           <target state="translated">Nouveau_Zip</target>
         </trans-unit>
-        <trans-unit id="Compression.Label" translate="yes" xml:space="preserve">
-          <source>Compression</source>
-          <target state="new">Compression</target>
+        <trans-unit id="CommandBarFlyout_More_Item" translate="yes" xml:space="preserve">
+          <source>More</source>
+          <target state="translated">Plus</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_FileTypeIncorrect_Content" translate="yes" xml:space="preserve">
+          <source>File type is incorrect, operation cannot be performed</source>
+          <target state="translated">Le type de fichier est incorrect, l'opération ne peut pas être effectuée</target>
         </trans-unit>
       </group>
     </body>
