@@ -1958,7 +1958,7 @@ namespace RX_Explorer
 
                             foreach (StorageFolder DriveFolder in CommonAccessCollection.HardDeviceList.Select((Drive) => Drive.Folder))
                             {
-                                bool HasAnyFolder = await FileSystemStorageItemBase.CheckContainsAnyItem(DriveFolder.Path, ItemFilters.Folder).ConfigureAwait(true);
+                                bool HasAnyFolder = await FileSystemStorageItemBase.CheckContainsAnyItemAsync(DriveFolder.Path, ItemFilters.Folder).ConfigureAwait(true);
 
                                 TreeViewNode RootNode = new TreeViewNode
                                 {

@@ -68,7 +68,7 @@ namespace RX_Explorer.Class
 
                             foreach (string Path in JsonSerializer.Deserialize<List<string>>(RawData))
                             {
-                                if (await FileSystemStorageItemBase.CheckExist(Path).ConfigureAwait(false))
+                                if (await FileSystemStorageItemBase.CheckExistAsync(Path).ConfigureAwait(false))
                                 {
                                     yield return new string[] { Path };
                                 }
@@ -96,7 +96,7 @@ namespace RX_Explorer.Class
 
                                 foreach (string ValidPath in PathList)
                                 {
-                                    if (await FileSystemStorageItemBase.CheckExist(ValidPath).ConfigureAwait(false))
+                                    if (await FileSystemStorageItemBase.CheckExistAsync(ValidPath).ConfigureAwait(false))
                                     {
                                         ValidPathList.Add(ValidPath);
                                     }

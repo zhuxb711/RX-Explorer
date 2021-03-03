@@ -339,7 +339,7 @@ namespace RX_Explorer.Class
                         Node.Children.Add(new TreeViewNode
                         {
                             Content = new TreeViewNodeContent(AddPath),
-                            HasUnrealizedChildren = await FileSystemStorageItemBase.CheckContainsAnyItem(AddPath, ItemFilters.Folder).ConfigureAwait(true),
+                            HasUnrealizedChildren = await FileSystemStorageItemBase.CheckContainsAnyItemAsync(AddPath, ItemFilters.Folder).ConfigureAwait(true),
                             IsExpanded = false
                         });
                     }
@@ -360,7 +360,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                Node.HasUnrealizedChildren = await FileSystemStorageItemBase.CheckContainsAnyItem((Node.Content as TreeViewNodeContent).Path, ItemFilters.Folder).ConfigureAwait(true);
+                Node.HasUnrealizedChildren = await FileSystemStorageItemBase.CheckContainsAnyItemAsync((Node.Content as TreeViewNodeContent).Path, ItemFilters.Folder).ConfigureAwait(true);
             }
         }
 

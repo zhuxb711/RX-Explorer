@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -78,7 +80,243 @@ namespace RX_Explorer.Class
 
         protected static readonly BitmapImage Const_File_Black_Image = new BitmapImage(new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
 
-        public static async Task<bool> CheckContainsAnyItem(string FolderPath, ItemFilters Filter)
+        public static async IAsyncEnumerable<FileSystemStorageItemBase> SearchAsync(string FolderPath, string SearchWord, bool SearchInSubFolders = false, bool IncludeHiddenItem = false, bool IsRegexExpresstion = false, bool IgnoreCase = true, [EnumeratorCancellation] CancellationToken CancelToken = default)
+        {
+            if (WIN_Native_API.CheckLocationAvailability(FolderPath))
+            {
+                List<FileSystemStorageItemBase> SearchResult = await Task.Run(() =>
+                {
+                    return WIN_Native_API.Search(FolderPath, SearchWord, SearchInSubFolders, IncludeHiddenItem, IsRegexExpresstion, IgnoreCase, CancelToken);
+                });
+
+                foreach (FileSystemStorageItemBase Item in SearchResult)
+                {
+                    yield return Item;
+
+                    if (CancelToken.IsCancellationRequested)
+                    {
+                        yield break;
+                    }
+                }
+            }
+            else
+            {
+                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(FolderPath);
+
+                QueryOptions Options = new QueryOptions
+                {
+                    FolderDepth = SearchInSubFolders ? FolderDepth.Deep : FolderDepth.Shallow,
+                    IndexerOption = IndexerOption.UseIndexerWhenAvailable
+                };
+                Options.SetThumbnailPrefetch(Windows.Storage.FileProperties.ThumbnailMode.ListView, 150, Windows.Storage.FileProperties.ThumbnailOptions.UseCurrentScale);
+                Options.SetPropertyPrefetch(Windows.Storage.FileProperties.PropertyPrefetchOptions.BasicProperties, new string[] { "System.Size", "System.DateModified" });
+
+                if (!IsRegexExpresstion)
+                {
+                    Options.ApplicationSearchFilter = $"System.FileName:*{SearchWord}*";
+                }
+
+                StorageItemQueryResult Query = Folder.CreateItemQueryWithOptions(Options);
+
+                uint FileCount = await Query.GetItemCountAsync();
+
+                for (uint Index = 0; Index < FileCount && !CancelToken.IsCancellationRequested; Index += 50)
+                {
+                    IEnumerable<IStorageItem> Result = IsRegexExpresstion
+                                                        ? (await Query.GetItemsAsync(Index, 50)).Where((Item) => Regex.IsMatch(Item.Name, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
+                                                        : (await Query.GetItemsAsync(Index, 50)).Where((Item) => Item.Name.Contains(SearchWord, IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal));
+
+                    foreach (IStorageItem Item in Result)
+                    {
+                        switch (Item)
+                        {
+                            case StorageFolder SubFolder:
+                                {
+                                    yield return new FileSystemStorageItemBase(SubFolder, SubFolder.DateCreated, await SubFolder.GetModifiedTimeAsync().ConfigureAwait(false));
+                                    break;
+                                }
+                            case StorageFile SubFile:
+                                {
+                                    yield return new FileSystemStorageItemBase(SubFile, await SubFile.GetSizeRawDataAsync().ConfigureAwait(false), await SubFile.GetThumbnailBitmapAsync().ConfigureAwait(false), SubFile.DateCreated, await SubFile.GetModifiedTimeAsync().ConfigureAwait(false));
+                                    break;
+                                }
+                        }
+
+                        if (CancelToken.IsCancellationRequested)
+                        {
+                            yield break;
+                        }
+                    }
+                }
+            }
+        }
+
+        public static async Task<(uint, uint)> GetFolderAndFileNumAsync(string FolderPath, CancellationToken CancelToken = default)
+        {
+            if (WIN_Native_API.CheckLocationAvailability(FolderPath))
+            {
+                return await Task.Run(() =>
+                {
+                    return WIN_Native_API.CalculateFolderAndFileCount(FolderPath, CancelToken);
+                });
+            }
+            else
+            {
+                try
+                {
+                    LogTracer.Log($"Native API could not found the path: \"{FolderPath}\", fall back to UWP storage API");
+
+                    StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(FolderPath);
+
+                    QueryOptions Options = new QueryOptions
+                    {
+                        FolderDepth = FolderDepth.Deep,
+                        IndexerOption = IndexerOption.UseIndexerWhenAvailable
+                    };
+                    Options.SetPropertyPrefetch(Windows.Storage.FileProperties.PropertyPrefetchOptions.BasicProperties, new string[] { "System.Size" });
+
+                    StorageItemQueryResult Query = Folder.CreateItemQueryWithOptions(Options);
+
+                    uint ItemCount = await Query.GetItemCountAsync();
+
+                    uint FolderCount = 0, FileCount = 0;
+
+                    for (uint Index = 0; Index < ItemCount && !CancelToken.IsCancellationRequested; Index += 50)
+                    {
+                        foreach (IStorageItem Item in await Query.GetItemsAsync(Index, 50))
+                        {
+                            if (Item.IsOfType(StorageItemTypes.Folder))
+                            {
+                                FolderCount++;
+                            }
+                            else
+                            {
+                                FileCount++;
+                            }
+
+                            if (CancelToken.IsCancellationRequested)
+                            {
+                                break;
+                            }
+                        }
+                    }
+
+                    return (FolderCount, FileCount);
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"{nameof(GetFolderAndFileNumAsync)} failed for uwp API");
+                    return (0, 0);
+                }
+            }
+        }
+
+        public static async Task<ulong> GetSizeAsync(string Path, CancellationToken CancelToken = default)
+        {
+            if (WIN_Native_API.CheckLocationAvailability(Path))
+            {
+                return await Task.Run(() =>
+                {
+                    return WIN_Native_API.CalulateSize(Path, CancelToken);
+                });
+            }
+            else
+            {
+                try
+                {
+                    LogTracer.Log($"Native API could not found the path: \"{Path}\", fall back to UWP storage API");
+
+                    string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
+
+                    if (string.IsNullOrEmpty(DirectoryPath))
+                    {
+                        StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
+
+                        QueryOptions Options = new QueryOptions
+                        {
+                            FolderDepth = FolderDepth.Deep,
+                            IndexerOption = IndexerOption.UseIndexerWhenAvailable
+                        };
+                        Options.SetPropertyPrefetch(Windows.Storage.FileProperties.PropertyPrefetchOptions.BasicProperties, new string[] { "System.Size" });
+
+                        StorageFileQueryResult Query = Folder.CreateFileQueryWithOptions(Options);
+
+                        uint FileCount = await Query.GetItemCountAsync();
+
+                        ulong TotalSize = 0;
+
+                        for (uint Index = 0; Index < FileCount && !CancelToken.IsCancellationRequested; Index += 50)
+                        {
+                            foreach (StorageFile File in await Query.GetFilesAsync(Index, 50))
+                            {
+                                TotalSize += await File.GetSizeRawDataAsync().ConfigureAwait(false);
+
+                                if (CancelToken.IsCancellationRequested)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+
+                        return TotalSize;
+                    }
+                    else
+                    {
+                        StorageFolder ParentFolder = await StorageFolder.GetFolderFromPathAsync(DirectoryPath);
+
+                        switch (await ParentFolder.TryGetItemAsync(System.IO.Path.GetFileName(Path)))
+                        {
+                            case StorageFolder Folder:
+                                {
+                                    QueryOptions Options = new QueryOptions
+                                    {
+                                        FolderDepth = FolderDepth.Deep,
+                                        IndexerOption = IndexerOption.UseIndexerWhenAvailable
+                                    };
+                                    Options.SetPropertyPrefetch(Windows.Storage.FileProperties.PropertyPrefetchOptions.BasicProperties, new string[] { "System.Size" });
+
+                                    StorageFileQueryResult Query = Folder.CreateFileQueryWithOptions(Options);
+
+                                    uint FileCount = await Query.GetItemCountAsync();
+
+                                    ulong TotalSize = 0;
+
+                                    for (uint Index = 0; Index < FileCount && !CancelToken.IsCancellationRequested; Index += 50)
+                                    {
+                                        foreach (StorageFile File in await Query.GetFilesAsync(Index, 50))
+                                        {
+                                            TotalSize += await File.GetSizeRawDataAsync().ConfigureAwait(false);
+
+                                            if (CancelToken.IsCancellationRequested)
+                                            {
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    return TotalSize;
+                                }
+                            case StorageFile File:
+                                {
+                                    return await File.GetSizeRawDataAsync().ConfigureAwait(false);
+                                }
+                            default:
+                                {
+                                    LogTracer.Log($"UWP storage API could not found the path: \"{Path}\"");
+                                    return 0;
+                                }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"{nameof(GetSizeAsync)} failed for uwp API");
+                    return 0;
+                }
+            }
+        }
+
+        public static async Task<bool> CheckContainsAnyItemAsync(string FolderPath, ItemFilters Filter)
         {
             if (WIN_Native_API.CheckLocationAvailability(FolderPath))
             {
@@ -109,13 +347,13 @@ namespace RX_Explorer.Class
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, "CheckContainsAnyItem failed for uwp API");
+                    LogTracer.Log(ex, $"{nameof(CheckContainsAnyItemAsync)} failed for uwp API");
                     return false;
                 }
             }
         }
 
-        public static async Task<bool> CheckExist(string Path)
+        public static async Task<bool> CheckExistAsync(string Path)
         {
             if (System.IO.Path.IsPathRooted(Path))
             {
@@ -218,7 +456,7 @@ namespace RX_Explorer.Class
                     {
                         if (WIN_Native_API.CreateFileFromPath(Path, Option, out string NewPath))
                         {
-                            return await OpenAsync(NewPath, ItemFilters.File);
+                            return await OpenAsync(NewPath, ItemFilters.File).ConfigureAwait(true);
                         }
                         else
                         {
@@ -262,7 +500,7 @@ namespace RX_Explorer.Class
                     {
                         if (WIN_Native_API.CreateDirectoryFromPath(Path, Option, out string NewPath))
                         {
-                            return await OpenAsync(NewPath, ItemFilters.Folder);
+                            return await OpenAsync(NewPath, ItemFilters.Folder).ConfigureAwait(true);
                         }
                         else
                         {
@@ -316,17 +554,9 @@ namespace RX_Explorer.Class
         /// <param name="Size">大小</param>
         /// <param name="Thumbnail">缩略图</param>
         /// <param name="ModifiedTime">修改时间</param>
-        public FileSystemStorageItemBase(StorageFile Item, ulong Size, BitmapImage Thumbnail, DateTimeOffset CreationTime, DateTimeOffset ModifiedTime)
+        public FileSystemStorageItemBase(StorageFile Item, ulong Size, BitmapImage Thumbnail, DateTimeOffset CreationTime, DateTimeOffset ModifiedTime) : this(StorageItemTypes.File, Thumbnail, Size, CreationTime, ModifiedTime)
         {
             StorageItem = Item;
-            StorageType = StorageItemTypes.File;
-
-            SizeRaw = Size;
-
-            CreationTimeRaw = CreationTime.ToLocalTime();
-            ModifiedTimeRaw = ModifiedTime.ToLocalTime();
-
-            this.Thumbnail = Thumbnail;
         }
 
         /// <summary>
@@ -334,13 +564,9 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="Item">文件夹</param>
         /// <param name="ModifiedTime">修改时间</param>
-        public FileSystemStorageItemBase(StorageFolder Item, DateTimeOffset CreationTime, DateTimeOffset ModifiedTime)
+        public FileSystemStorageItemBase(StorageFolder Item, DateTimeOffset CreationTime, DateTimeOffset ModifiedTime) : this(StorageItemTypes.Folder, null, 0, CreationTime, ModifiedTime)
         {
             StorageItem = Item;
-            StorageType = StorageItemTypes.Folder;
-
-            CreationTimeRaw = CreationTime.ToLocalTime();
-            ModifiedTimeRaw = ModifiedTime.ToLocalTime();
         }
 
         /// <summary>
@@ -350,20 +576,28 @@ namespace RX_Explorer.Class
         /// <param name="StorageType">指示存储类型</param>
         /// <param name="Path">路径</param>
         /// <param name="ModifiedTime">修改时间</param>
-        public FileSystemStorageItemBase(WIN_Native_API.WIN32_FIND_DATA Data, StorageItemTypes StorageType, string Path, DateTimeOffset CreationTime, DateTimeOffset ModifiedTime)
+        public FileSystemStorageItemBase(WIN_Native_API.WIN32_FIND_DATA Data, StorageItemTypes StorageType, string Path, DateTimeOffset CreationTime, DateTimeOffset ModifiedTime) : this(StorageType, null, ((ulong)Data.nFileSizeHigh << 32) + Data.nFileSizeLow, CreationTime, ModifiedTime)
         {
             InternalPathString = Path;
-
-            CreationTimeRaw = CreationTime.ToLocalTime();
-            ModifiedTimeRaw = ModifiedTime.ToLocalTime();
-
-            this.StorageType = StorageType;
             RawStorageItemData = Data;
+        }
+
+        protected FileSystemStorageItemBase(StorageItemTypes StorageType, BitmapImage Thumbnail, ulong SizeRaw, DateTimeOffset CreationTime, DateTimeOffset ModifiedTime)
+        {
+            this.StorageType = StorageType;
+
+            if (Thumbnail != null)
+            {
+                this.Thumbnail = Thumbnail;
+            }
 
             if (StorageType != StorageItemTypes.Folder)
             {
-                SizeRaw = ((ulong)Data.nFileSizeHigh << 32) + Data.nFileSizeLow;
+                this.SizeRaw = SizeRaw;
             }
+
+            CreationTimeRaw = CreationTime.ToLocalTime();
+            ModifiedTimeRaw = ModifiedTime.ToLocalTime();
         }
 
         protected FileSystemStorageItemBase()
@@ -418,11 +652,16 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        StorageFile File = await StorageFile.GetFileFromPathAsync(Path);
+                        if (await GetStorageItemAsync().ConfigureAwait(true) is StorageFile File)
+                        {
+                            SafeFileHandle Handle = File.GetSafeFileHandle();
 
-                        SafeFileHandle Handle = File.GetSafeFileHandle();
-
-                        return new FileStream(Handle, FileAccess.ReadWrite);
+                            return new FileStream(Handle, FileAccess.ReadWrite);
+                        }
+                        else
+                        {
+                            return null;
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -454,43 +693,51 @@ namespace RX_Explorer.Class
                 {
                     LogTracer.Log($"Native API could not enum subitems in path: \"{Path}\", fall back to UWP storage API");
 
-                    if (await GetStorageItemAsync().ConfigureAwait(false) is StorageFolder Folder)
+                    try
                     {
-                        QueryOptions Options = new QueryOptions
+                        if (await GetStorageItemAsync().ConfigureAwait(true) is StorageFolder Folder)
                         {
-                            FolderDepth = FolderDepth.Shallow,
-                            IndexerOption = IndexerOption.UseIndexerWhenAvailable
-                        };
-                        Options.SetThumbnailPrefetch(Windows.Storage.FileProperties.ThumbnailMode.ListView, 150, Windows.Storage.FileProperties.ThumbnailOptions.UseCurrentScale);
-                        Options.SetPropertyPrefetch(Windows.Storage.FileProperties.PropertyPrefetchOptions.None, new string[] { "System.Size", "System.DateCreated", "System.DateModified" });
-
-                        StorageItemQueryResult Query = Folder.CreateItemQueryWithOptions(Options);
-
-                        uint Count = await Query.GetItemCountAsync();
-
-                        List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>(Convert.ToInt32(Count));
-
-                        for (uint i = 0; i < Count; i += 30)
-                        {
-                            IReadOnlyList<IStorageItem> CurrentList = await Query.GetItemsAsync(i, 30);
-
-                            foreach (IStorageItem Item in CurrentList.Where((Item) => (Item.IsOfType(StorageItemTypes.Folder) && Filter.HasFlag(ItemFilters.Folder)) || (Item.IsOfType(StorageItemTypes.File) && Filter.HasFlag(ItemFilters.File))))
+                            QueryOptions Options = new QueryOptions
                             {
-                                if (Item is StorageFolder SubFolder)
+                                FolderDepth = FolderDepth.Shallow,
+                                IndexerOption = IndexerOption.UseIndexerWhenAvailable
+                            };
+                            Options.SetThumbnailPrefetch(Windows.Storage.FileProperties.ThumbnailMode.ListView, 150, Windows.Storage.FileProperties.ThumbnailOptions.UseCurrentScale);
+                            Options.SetPropertyPrefetch(Windows.Storage.FileProperties.PropertyPrefetchOptions.BasicProperties, new string[] { "System.Size", "System.DateModified" });
+
+                            StorageItemQueryResult Query = Folder.CreateItemQueryWithOptions(Options);
+
+                            uint Count = await Query.GetItemCountAsync();
+
+                            List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>(Convert.ToInt32(Count));
+
+                            for (uint i = 0; i < Count; i += 30)
+                            {
+                                IReadOnlyList<IStorageItem> CurrentList = await Query.GetItemsAsync(i, 30);
+
+                                foreach (IStorageItem Item in CurrentList.Where((Item) => (Item.IsOfType(StorageItemTypes.Folder) && Filter.HasFlag(ItemFilters.Folder)) || (Item.IsOfType(StorageItemTypes.File) && Filter.HasFlag(ItemFilters.File))))
                                 {
-                                    Result.Add(new FileSystemStorageItemBase(SubFolder, SubFolder.DateCreated, await SubFolder.GetModifiedTimeAsync().ConfigureAwait(false)));
-                                }
-                                else if (Item is StorageFile SubFile)
-                                {
-                                    Result.Add(new FileSystemStorageItemBase(SubFile, await SubFile.GetSizeRawDataAsync().ConfigureAwait(false), await SubFile.GetThumbnailBitmapAsync().ConfigureAwait(false), SubFile.DateCreated, await SubFile.GetModifiedTimeAsync().ConfigureAwait(false)));
+                                    if (Item is StorageFolder SubFolder)
+                                    {
+                                        Result.Add(new FileSystemStorageItemBase(SubFolder, SubFolder.DateCreated, await SubFolder.GetModifiedTimeAsync().ConfigureAwait(false)));
+                                    }
+                                    else if (Item is StorageFile SubFile)
+                                    {
+                                        Result.Add(new FileSystemStorageItemBase(SubFile, await SubFile.GetSizeRawDataAsync().ConfigureAwait(false), await SubFile.GetThumbnailBitmapAsync().ConfigureAwait(false), SubFile.DateCreated, await SubFile.GetModifiedTimeAsync().ConfigureAwait(false)));
+                                    }
                                 }
                             }
-                        }
 
-                        return Result;
+                            return Result;
+                        }
+                        else
+                        {
+                            return new List<FileSystemStorageItemBase>(0);
+                        }
                     }
-                    else
+                    catch
                     {
+                        LogTracer.Log($"UWP API could not enum subitems in path: \"{Path}\"");
                         return new List<FileSystemStorageItemBase>(0);
                     }
                 }
@@ -528,6 +775,7 @@ namespace RX_Explorer.Class
                                 {
                                     await LoadMorePropertyCore().ConfigureAwait(true);
                                     OnPropertyChanged(nameof(Thumbnail));
+                                    OnPropertyChanged(nameof(Size));
                                     OnPropertyChanged(nameof(DisplayType));
                                 });
                             }
@@ -539,6 +787,7 @@ namespace RX_Explorer.Class
                             {
                                 await LoadMorePropertyCore().ConfigureAwait(true);
                                 OnPropertyChanged(nameof(Thumbnail));
+                                OnPropertyChanged(nameof(Size));
                                 OnPropertyChanged(nameof(DisplayType));
                             });
                             break;
@@ -593,15 +842,15 @@ namespace RX_Explorer.Class
         {
             try
             {
-                if (WIN_Native_API.CheckType(NewPath) == StorageItemTypes.File)
+                if (await OpenAsync(NewPath).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                 {
-                    if (await OpenAsync(NewPath, ItemFilters.File).ConfigureAwait(true) is FileSystemStorageItemBase Item)
+                    if (StorageItem != null)
                     {
-                        if (StorageItem != null)
-                        {
-                            StorageItem = await Item.GetStorageItemAsync().ConfigureAwait(true);
-                        }
+                        StorageItem = await Item.GetStorageItemAsync().ConfigureAwait(true);
+                    }
 
+                    if (Item.StorageType == StorageItemTypes.File)
+                    {
                         StorageType = StorageItemTypes.File;
 
                         SizeRaw = Item.SizeRaw;
@@ -609,36 +858,22 @@ namespace RX_Explorer.Class
                         CreationTimeRaw = Item.CreationTimeRaw;
                         InternalPathString = NewPath;
                         Inner_Thumbnail = null;
-
-                        await LoadMorePropertyAsync().ConfigureAwait(true);
                     }
                     else
                     {
-                        LogTracer.Log($"File not found or access deny when executing FileSystemStorageItemBase.Update, path: {NewPath}");
-                    }
-                }
-                else
-                {
-                    if (await OpenAsync(NewPath, ItemFilters.Folder).ConfigureAwait(true) is FileSystemStorageItemBase Item)
-                    {
-                        if (StorageItem != null)
-                        {
-                            StorageItem = await Item.GetStorageItemAsync().ConfigureAwait(true);
-                        }
-
                         StorageType = StorageItemTypes.Folder;
 
                         ModifiedTimeRaw = Item.ModifiedTimeRaw;
                         CreationTimeRaw = Item.CreationTimeRaw;
                         InternalPathString = NewPath;
                         Inner_Thumbnail = null;
+                    }
 
-                        await LoadMorePropertyAsync().ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        LogTracer.Log($"Folder not found or access deny when executing FileSystemStorageItemBase.Update, path: {NewPath}");
-                    }
+                    await LoadMorePropertyAsync().ConfigureAwait(true);
+                }
+                else
+                {
+                    LogTracer.Log($"File/Folder not found or access deny when executing FileSystemStorageItemBase.Update, path: {NewPath}");
                 }
             }
             catch (Exception ex)
@@ -663,46 +898,32 @@ namespace RX_Explorer.Class
         {
             try
             {
-                if (WIN_Native_API.CheckType(Path) == StorageItemTypes.File)
+                if (await OpenAsync(Path).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                 {
-                    if (await OpenAsync(Path, ItemFilters.File).ConfigureAwait(true) is FileSystemStorageItemBase Item)
+                    if (StorageItem != null)
                     {
-                        if (StorageItem != null)
-                        {
-                            StorageItem = await Item.GetStorageItemAsync().ConfigureAwait(true);
-                        }
+                        StorageItem = await Item.GetStorageItemAsync().ConfigureAwait(true);
+                    }
 
+                    if (Item.StorageType == StorageItemTypes.File)
+                    {
                         SizeRaw = Item.SizeRaw;
                         ModifiedTimeRaw = Item.ModifiedTimeRaw;
                         CreationTimeRaw = Item.CreationTimeRaw;
                         Inner_Thumbnail = null;
-
-                        await LoadMorePropertyAsync().ConfigureAwait(true);
                     }
                     else
                     {
-                        LogTracer.Log($"File not found or access deny when executing FileSystemStorageItemBase.Update, path: {Path}");
-                    }
-                }
-                else
-                {
-                    if (await OpenAsync(Path, ItemFilters.Folder).ConfigureAwait(true) is FileSystemStorageItemBase Item)
-                    {
-                        if (StorageItem != null)
-                        {
-                            StorageItem = await Item.GetStorageItemAsync().ConfigureAwait(true);
-                        }
-
                         ModifiedTimeRaw = Item.ModifiedTimeRaw;
                         CreationTimeRaw = Item.CreationTimeRaw;
                         Inner_Thumbnail = null;
+                    }
 
-                        await LoadMorePropertyAsync().ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        LogTracer.Log($"Folder not found or access deny when executing FileSystemStorageItemBase.Update, path: {Path}");
-                    }
+                    await LoadMorePropertyAsync().ConfigureAwait(true);
+                }
+                else
+                {
+                    LogTracer.Log($"File/Folder not found or access deny when executing FileSystemStorageItemBase.Update, path: {Path}");
                 }
             }
             catch (Exception ex)

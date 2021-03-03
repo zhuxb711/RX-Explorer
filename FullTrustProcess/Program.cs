@@ -1157,6 +1157,13 @@ namespace FullTrustProcess
                                         {
                                             if (Package.ItemType == RemoteDataObject.StorageType.File)
                                             {
+                                                string DirectoryPath = System.IO.Path.GetDirectoryName(Path);
+
+                                                if (!Directory.Exists(DirectoryPath))
+                                                {
+                                                    Directory.CreateDirectory(DirectoryPath);
+                                                }
+
                                                 string UniqueName = StorageItemController.GenerateUniquePath(System.IO.Path.Combine(Path, Package.Name));
 
                                                 using (FileStream Stream = new FileStream(UniqueName, FileMode.CreateNew))
@@ -1166,7 +1173,12 @@ namespace FullTrustProcess
                                             }
                                             else
                                             {
-                                                Directory.CreateDirectory(System.IO.Path.Combine(Path, Package.Name));
+                                                string DirectoryPath = System.IO.Path.Combine(Path, Package.Name);
+
+                                                if (!Directory.Exists(DirectoryPath))
+                                                {
+                                                    Directory.CreateDirectory(DirectoryPath);
+                                                }
                                             }
                                         }
                                         finally

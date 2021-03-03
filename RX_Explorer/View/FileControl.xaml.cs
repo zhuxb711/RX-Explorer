@@ -150,7 +150,7 @@ namespace RX_Explorer
         {
             if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => Content.Path != Device.Folder?.Path))
             {
-                bool HasAnyFolder = await FileSystemStorageItemBase.CheckContainsAnyItem(Device.Folder.Path, ItemFilters.Folder).ConfigureAwait(true);
+                bool HasAnyFolder = await FileSystemStorageItemBase.CheckContainsAnyItemAsync(Device.Folder.Path, ItemFilters.Folder).ConfigureAwait(true);
 
                 TreeViewNode RootNode = new TreeViewNode
                 {
@@ -396,7 +396,7 @@ namespace RX_Explorer
                     {
                         if (Type == DriveType.Network)
                         {
-                            NetworkLoadList.Add(FileSystemStorageItemBase.CheckContainsAnyItem(DriveFolder.Path, ItemFilters.Folder).ContinueWith((task) =>
+                            NetworkLoadList.Add(FileSystemStorageItemBase.CheckContainsAnyItemAsync(DriveFolder.Path, ItemFilters.Folder).ContinueWith((task) =>
                             {
                                 TreeViewNode RootNode = new TreeViewNode
                                 {
@@ -411,7 +411,7 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            bool HasAnyFolder = await FileSystemStorageItemBase.CheckContainsAnyItem(DriveFolder.Path, ItemFilters.Folder).ConfigureAwait(true);
+                            bool HasAnyFolder = await FileSystemStorageItemBase.CheckContainsAnyItemAsync(DriveFolder.Path, ItemFilters.Folder).ConfigureAwait(true);
 
                             TreeViewNode RootNode = new TreeViewNode
                             {
@@ -460,7 +460,7 @@ namespace RX_Explorer
                             TreeViewNode NewNode = new TreeViewNode
                             {
                                 Content = new TreeViewNodeContent(StorageItemPath[i]),
-                                HasUnrealizedChildren = await FileSystemStorageItemBase.CheckContainsAnyItem(StorageItemPath[i], ItemFilters.Folder).ConfigureAwait(true)
+                                HasUnrealizedChildren = await FileSystemStorageItemBase.CheckContainsAnyItemAsync(StorageItemPath[i], ItemFilters.Folder).ConfigureAwait(true)
                             };
 
                             Node.Children.Add(NewNode);
@@ -498,7 +498,7 @@ namespace RX_Explorer
         {
             RightTabFlyout.Hide();
 
-            if (!await FileSystemStorageItemBase.CheckExist(CurrentPresenter.CurrentFolder.Path).ConfigureAwait(true))
+            if (!await FileSystemStorageItemBase.CheckExistAsync(CurrentPresenter.CurrentFolder.Path).ConfigureAwait(true))
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -664,7 +664,7 @@ namespace RX_Explorer
         {
             RightTabFlyout.Hide();
 
-            if (!await FileSystemStorageItemBase.CheckExist(CurrentPresenter.CurrentFolder.Path).ConfigureAwait(true))
+            if (!await FileSystemStorageItemBase.CheckExistAsync(CurrentPresenter.CurrentFolder.Path).ConfigureAwait(true))
             {
                 QueueContentDialog ErrorDialog = new QueueContentDialog
                 {
@@ -682,7 +682,7 @@ namespace RX_Explorer
 
             if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
             {
-                if (await FileSystemStorageItemBase.CheckExist(Path.Combine(Path.GetDirectoryName(CurrentPresenter.CurrentFolder.Path), dialog.DesireName)).ConfigureAwait(true))
+                if (await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(Path.GetDirectoryName(CurrentPresenter.CurrentFolder.Path), dialog.DesireName)).ConfigureAwait(true))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -761,7 +761,7 @@ namespace RX_Explorer
 
         private async void CreateFolder_Click(object sender, RoutedEventArgs e)
         {
-            if (await FileSystemStorageItemBase.CheckExist(CurrentPresenter.CurrentFolder.Path).ConfigureAwait(true))
+            if (await FileSystemStorageItemBase.CheckExistAsync(CurrentPresenter.CurrentFolder.Path).ConfigureAwait(true))
             {
                 if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(CurrentPresenter.CurrentFolder.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) == null)
                 {
@@ -794,7 +794,7 @@ namespace RX_Explorer
 
         private async void FolderAttribute_Click(object sender, RoutedEventArgs e)
         {
-            if (!await FileSystemStorageItemBase.CheckExist(CurrentPresenter.CurrentFolder.Path).ConfigureAwait(true))
+            if (!await FileSystemStorageItemBase.CheckExistAsync(CurrentPresenter.CurrentFolder.Path).ConfigureAwait(true))
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -986,7 +986,7 @@ namespace RX_Explorer
                     string ProtentialPath2 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), QueryText);
                     string ProtentialPath3 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), QueryText);
 
-                    if (ProtentialPath1 != QueryText && await FileSystemStorageItemBase.CheckExist(ProtentialPath1).ConfigureAwait(true))
+                    if (ProtentialPath1 != QueryText && await FileSystemStorageItemBase.CheckExistAsync(ProtentialPath1).ConfigureAwait(true))
                     {
                         if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath1).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                         {
@@ -1000,7 +1000,7 @@ namespace RX_Explorer
 
                         return;
                     }
-                    else if (ProtentialPath2 != QueryText && await FileSystemStorageItemBase.CheckExist(ProtentialPath2).ConfigureAwait(true))
+                    else if (ProtentialPath2 != QueryText && await FileSystemStorageItemBase.CheckExistAsync(ProtentialPath2).ConfigureAwait(true))
                     {
                         if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath2).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                         {
@@ -1014,7 +1014,7 @@ namespace RX_Explorer
 
                         return;
                     }
-                    else if (ProtentialPath3 != QueryText && await FileSystemStorageItemBase.CheckExist(ProtentialPath3).ConfigureAwait(true))
+                    else if (ProtentialPath3 != QueryText && await FileSystemStorageItemBase.CheckExistAsync(ProtentialPath3).ConfigureAwait(true))
                     {
                         if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath3).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                         {
@@ -1242,7 +1242,7 @@ namespace RX_Explorer
 
                         (Path, SelectedPath) = CurrentPresenter.GoAndBackRecord[--CurrentPresenter.RecordIndex];
 
-                        if (await FileSystemStorageItemBase.CheckExist(Path).ConfigureAwait(true))
+                        if (await FileSystemStorageItemBase.CheckExistAsync(Path).ConfigureAwait(true))
                         {
                             await CurrentPresenter.DisplayItemsInFolder(Path, SkipNavigationRecord: true).ConfigureAwait(true);
 
@@ -1303,7 +1303,7 @@ namespace RX_Explorer
 
                         (Path, SelectedPath) = CurrentPresenter.GoAndBackRecord[++CurrentPresenter.RecordIndex];
 
-                        if (await FileSystemStorageItemBase.CheckExist(Path).ConfigureAwait(true))
+                        if (await FileSystemStorageItemBase.CheckExistAsync(Path).ConfigureAwait(true))
                         {
                             await CurrentPresenter.DisplayItemsInFolder(Path, SkipNavigationRecord: true).ConfigureAwait(true);
 
@@ -1816,7 +1816,20 @@ namespace RX_Explorer
 
                     if (CurrentPresenter.CurrentFolder is HyperlinkStorageItem or HiddenStorageItem)
                     {
-                        Package.SetHtmlFormat(HtmlFormatHelper.CreateHtmlFormat($"<head>RX-Explorer-TransferNotStorageItem</head><p>{CurrentPresenter.CurrentFolder.Path}</p>"));
+                        XmlDocument Document = new XmlDocument();
+
+                        XmlElement RootElemnt = Document.CreateElement("RX-Explorer");
+                        Document.AppendChild(RootElemnt);
+
+                        XmlElement KindElement = Document.CreateElement("Kind");
+                        KindElement.InnerText = "RX-Explorer-TransferNotStorageItem";
+                        RootElemnt.AppendChild(KindElement);
+
+                        XmlElement InnerElement = Document.CreateElement("Item");
+                        InnerElement.InnerText = CurrentPresenter.CurrentFolder.Path;
+                        RootElemnt.AppendChild(InnerElement);
+
+                        Package.SetText(Document.GetXml());
                     }
                     else
                     {
@@ -1858,7 +1871,20 @@ namespace RX_Explorer
 
                     if (CurrentPresenter.CurrentFolder is HyperlinkStorageItem or HiddenStorageItem)
                     {
-                        Package.SetHtmlFormat(HtmlFormatHelper.CreateHtmlFormat($"<head>RX-Explorer-TransferNotStorageItem</head><p>{CurrentPresenter.CurrentFolder.Path}</p>"));
+                        XmlDocument Document = new XmlDocument();
+
+                        XmlElement RootElemnt = Document.CreateElement("RX-Explorer");
+                        Document.AppendChild(RootElemnt);
+
+                        XmlElement KindElement = Document.CreateElement("Kind");
+                        KindElement.InnerText = "RX-Explorer-TransferNotStorageItem";
+                        RootElemnt.AppendChild(KindElement);
+
+                        XmlElement InnerElement = Document.CreateElement("Item");
+                        InnerElement.InnerText = CurrentPresenter.CurrentFolder.Path;
+                        RootElemnt.AppendChild(InnerElement);
+
+                        Package.SetText(Document.GetXml());
                     }
                     else
                     {

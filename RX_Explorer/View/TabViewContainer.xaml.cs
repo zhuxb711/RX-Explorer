@@ -346,7 +346,7 @@ namespace RX_Explorer
 
             foreach (string Path in PathForNewTab)
             {
-                if (!string.IsNullOrWhiteSpace(Path) && await FileSystemStorageItemBase.CheckExist(Path).ConfigureAwait(true))
+                if (!string.IsNullOrWhiteSpace(Path) && await FileSystemStorageItemBase.CheckExistAsync(Path).ConfigureAwait(true))
                 {
                     ValidPathArray.Add(Path);
                 }

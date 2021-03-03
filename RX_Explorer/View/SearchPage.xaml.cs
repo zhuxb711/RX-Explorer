@@ -67,12 +67,12 @@ namespace RX_Explorer
                     {
                         case SearchCategory.BuiltInEngine_Deep:
                             {
-                                SearchItems = await Task.Run(() => WIN_Native_API.Search(CurrentPath, SearchTarget, true, SettingControl.IsDisplayHiddenItem, IncludeRegex, IngoreCase, Cancellation.Token)).ConfigureAwait(true);
+                                SearchItems = await FileSystemStorageItemBase.SearchAsync(CurrentPath, SearchTarget, true, SettingControl.IsDisplayHiddenItem, IncludeRegex, IngoreCase, Cancellation.Token).ToListAsync();
                                 break;
                             }
                         case SearchCategory.BuiltInEngine_Shallow:
                             {
-                                SearchItems = await Task.Run(() => WIN_Native_API.Search(CurrentPath, SearchTarget, false, SettingControl.IsDisplayHiddenItem, IncludeRegex, IngoreCase, Cancellation.Token)).ConfigureAwait(true);
+                                SearchItems = await FileSystemStorageItemBase.SearchAsync(CurrentPath, SearchTarget, false, SettingControl.IsDisplayHiddenItem, IncludeRegex, IngoreCase, Cancellation.Token).ToListAsync();
                                 break;
                             }
                         case SearchCategory.EverythingEngine:

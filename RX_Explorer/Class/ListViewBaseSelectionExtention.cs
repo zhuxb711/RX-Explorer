@@ -219,8 +219,12 @@ namespace RX_Explorer.Class
             View.Loaded -= View_Loaded;
 
             InnerScrollView = View.FindChildOfType<ScrollViewer>();
-            InnerScrollBar = InnerScrollView.FindChildOfType<ScrollBar>();
-            InnerScrollBar.Scroll += InnerScrollBar_Scroll;
+            InnerScrollBar = View.FindChildOfType<ScrollBar>();
+
+            if (InnerScrollBar != null)
+            {
+                InnerScrollBar.Scroll += InnerScrollBar_Scroll;
+            }
         }
 
         private void SrcollIfNeed(Point RelativeEndPoint)
@@ -338,7 +342,10 @@ namespace RX_Explorer.Class
                 View.RemoveHandler(UIElement.PointerCanceledEvent, PointerCanceledHandler);
                 View.RemoveHandler(UIElement.PointerMovedEvent, PointerMovedHandler);
 
-                InnerScrollBar.Scroll -= InnerScrollBar_Scroll;
+                if (InnerScrollBar != null)
+                {
+                    InnerScrollBar.Scroll -= InnerScrollBar_Scroll;
+                }
 
                 ResetPosition();
 

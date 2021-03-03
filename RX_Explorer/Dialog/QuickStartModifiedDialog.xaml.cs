@@ -320,7 +320,7 @@ namespace RX_Explorer.Dialog
                         {
                             if (Result.IsFile)
                             {
-                                if (await FileSystemStorageItemBase.CheckExist(Protocol.Text).ConfigureAwait(true))
+                                if (await FileSystemStorageItemBase.CheckExistAsync(Protocol.Text).ConfigureAwait(true))
                                 {
                                     try
                                     {

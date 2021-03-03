@@ -40,7 +40,9 @@ namespace RX_Explorer
 {
     public sealed partial class FilePresenter : Page, IDisposable
     {
-        public ObservableCollection<FileSystemStorageItemBase> FileCollection { get; private set; }
+        public ObservableCollection<FileSystemStorageItemBase> FileCollection { get; } = new ObservableCollection<FileSystemStorageItemBase>();
+
+        private readonly ListViewHeaderController ListViewDetailHeader = new ListViewHeaderController();
 
         private FileControl Container
         {
@@ -122,13 +124,6 @@ namespace RX_Explorer
 
                         ListViewControl.ItemsSource = FileCollection;
                         ListViewControl.Visibility = Visibility.Visible;
-
-                        if (itemPresenter.Header == null)
-                        {
-                            ListViewHeaderController Header = ListViewHeaderController.Create();
-                            Header.Filter.RefreshListRequested += Filter_RefreshListRequested;
-                            itemPresenter.Header = Header;
-                        }
                     }
                 }
             }
@@ -200,8 +195,8 @@ namespace RX_Explorer
         {
             InitializeComponent();
 
-            FileCollection = new ObservableCollection<FileSystemStorageItemBase>();
             FileCollection.CollectionChanged += FileCollection_CollectionChanged;
+            ListViewDetailHeader.Filter.RefreshListRequested += Filter_RefreshListRequested;
 
             PointerPressedEventHandler = new PointerEventHandler(ViewControl_PointerPressed);
 
@@ -367,10 +362,7 @@ namespace RX_Explorer
         {
             if (fromPath == CurrentFolder.Path)
             {
-                if (ItemPresenter.Header is ListViewHeaderController Controller)
-                {
-                    Controller.Indicator.SetIndicatorStatus(SortCollectionGenerator.Current.SortTarget, SortCollectionGenerator.Current.SortDirection);
-                }
+                ListViewDetailHeader.Indicator.SetIndicatorStatus(SortCollectionGenerator.Current.SortTarget, SortCollectionGenerator.Current.SortDirection);
 
                 FileSystemStorageItemBase[] ItemList = SortCollectionGenerator.Current.GetSortedCollection(FileCollection).ToArray();
 
@@ -475,11 +467,8 @@ namespace RX_Explorer
 
                 StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCollection.Count.ToString());
 
-                if (ItemPresenter?.Header is ListViewHeaderController Instance)
-                {
-                    Instance.Filter.SetDataSource(FileCollection);
-                    Instance.Indicator.SetIndicatorStatus(Config.SortColumn.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
-                }
+                ListViewDetailHeader.Filter.SetDataSource(FileCollection);
+                ListViewDetailHeader.Indicator.SetIndicatorStatus(Config.SortColumn.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
             }
             catch (Exception ex)
             {
@@ -965,7 +954,7 @@ namespace RX_Explorer
                                                         {
                                                             string TargetFolderPath = Path.GetDirectoryName(SplitGroup[3]);
 
-                                                            if (await FileSystemStorageItemBase.CheckExist(TargetFolderPath).ConfigureAwait(true))
+                                                            if (await FileSystemStorageItemBase.CheckExistAsync(TargetFolderPath).ConfigureAwait(true))
                                                             {
                                                                 if (await FileSystemStorageItemBase.OpenAsync(Path.Combine(TargetFolderPath, Path.GetFileName(SplitGroup[3])), ItemFilters.File).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                                                                 {
@@ -1719,7 +1708,7 @@ namespace RX_Explorer
 
                     if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
-                        if (await FileSystemStorageItemBase.CheckExist(Path.Combine(Path.GetDirectoryName(RenameItem.Path), dialog.DesireName)).ConfigureAwait(true))
+                        if (await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(Path.GetDirectoryName(RenameItem.Path), dialog.DesireName)).ConfigureAwait(true))
                         {
                             QueueContentDialog Dialog = new QueueContentDialog
                             {
@@ -1794,7 +1783,7 @@ namespace RX_Explorer
 
             if (await SelectedItem.GetStorageItemAsync().ConfigureAwait(true) is StorageFile ShareFile)
             {
-                if (!await FileSystemStorageItemBase.CheckExist(ShareFile.Path).ConfigureAwait(true))
+                if (!await FileSystemStorageItemBase.CheckExistAsync(ShareFile.Path).ConfigureAwait(true))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -2130,7 +2119,7 @@ namespace RX_Explorer
 
             if (SelectedItem is FileSystemStorageItemBase Item)
             {
-                if (!await FileSystemStorageItemBase.CheckExist(Item.Path).ConfigureAwait(true))
+                if (!await FileSystemStorageItemBase.CheckExistAsync(Item.Path).ConfigureAwait(true))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -2242,7 +2231,7 @@ namespace RX_Explorer
 
             if (SelectedItem is FileSystemStorageItemBase Item)
             {
-                if (!await FileSystemStorageItemBase.CheckExist(Item.Path).ConfigureAwait(true))
+                if (!await FileSystemStorageItemBase.CheckExistAsync(Item.Path).ConfigureAwait(true))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -2460,7 +2449,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (!await FileSystemStorageItemBase.CheckExist(SelectedItem.Path).ConfigureAwait(true))
+            if (!await FileSystemStorageItemBase.CheckExistAsync(SelectedItem.Path).ConfigureAwait(true))
             {
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
@@ -2586,7 +2575,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (!await FileSystemStorageItemBase.CheckExist(SelectedItem.Path).ConfigureAwait(true))
+            if (!await FileSystemStorageItemBase.CheckExistAsync(SelectedItem.Path).ConfigureAwait(true))
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -2698,7 +2687,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (!await FileSystemStorageItemBase.CheckExist(CurrentFolder.Path).ConfigureAwait(true))
+            if (!await FileSystemStorageItemBase.CheckExistAsync(CurrentFolder.Path).ConfigureAwait(true))
             {
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
@@ -2751,7 +2740,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (await FileSystemStorageItemBase.CheckExist(CurrentFolder.Path).ConfigureAwait(true))
+            if (await FileSystemStorageItemBase.CheckExistAsync(CurrentFolder.Path).ConfigureAwait(true))
             {
                 if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(CurrentFolder.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase NewFolder)
                 {
@@ -2881,7 +2870,7 @@ namespace RX_Explorer
 
             if (SelectedItem != null)
             {
-                if (!await FileSystemStorageItemBase.CheckExist(SelectedItem.Path).ConfigureAwait(true))
+                if (!await FileSystemStorageItemBase.CheckExistAsync(SelectedItem.Path).ConfigureAwait(true))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -2928,7 +2917,7 @@ namespace RX_Explorer
 
             try
             {
-                if (await FileSystemStorageItemBase.CheckExist(CurrentFolder.Path).ConfigureAwait(true))
+                if (await FileSystemStorageItemBase.CheckExistAsync(CurrentFolder.Path).ConfigureAwait(true))
                 {
                     await DisplayItemsInFolder(CurrentFolder, true).ConfigureAwait(true);
                 }
@@ -2979,7 +2968,7 @@ namespace RX_Explorer
                 {
                     if (TabTarget.StorageType == StorageItemTypes.File)
                     {
-                        if (!await FileSystemStorageItemBase.CheckExist(TabTarget.Path).ConfigureAwait(true))
+                        if (!await FileSystemStorageItemBase.CheckExistAsync(TabTarget.Path).ConfigureAwait(true))
                         {
                             QueueContentDialog Dialog = new QueueContentDialog
                             {
@@ -3338,13 +3327,16 @@ namespace RX_Explorer
                                         {
                                             if (TabTarget is HyperlinkStorageItem Item)
                                             {
-                                                if (WIN_Native_API.CheckType(Item.LinkTargetPath) == StorageItemTypes.Folder)
+                                                if (await FileSystemStorageItemBase.OpenAsync(Item.LinkTargetPath).ConfigureAwait(true) is FileSystemStorageItemBase TargetItem)
                                                 {
-                                                    await DisplayItemsInFolder(Item.LinkTargetPath).ConfigureAwait(true);
-                                                }
-                                                else
-                                                {
-                                                    await Item.LaunchAsync().ConfigureAwait(true);
+                                                    if (TargetItem.StorageType == StorageItemTypes.Folder)
+                                                    {
+                                                        await DisplayItemsInFolder(Item.LinkTargetPath).ConfigureAwait(true);
+                                                    }
+                                                    else
+                                                    {
+                                                        await Item.LaunchAsync().ConfigureAwait(true);
+                                                    }
                                                 }
                                             }
 
@@ -3493,7 +3485,7 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        if (await FileSystemStorageItemBase.CheckExist(TabTarget.Path).ConfigureAwait(true))
+                        if (await FileSystemStorageItemBase.CheckExistAsync(TabTarget.Path).ConfigureAwait(true))
                         {
                             await DisplayItemsInFolder(TabTarget).ConfigureAwait(true);
                         }
@@ -3905,7 +3897,7 @@ namespace RX_Explorer
 
             if (SelectedItem is FileSystemStorageItemBase Item)
             {
-                if (!await FileSystemStorageItemBase.CheckExist(Item.Path).ConfigureAwait(true))
+                if (!await FileSystemStorageItemBase.CheckExistAsync(Item.Path).ConfigureAwait(true))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -4818,7 +4810,7 @@ namespace RX_Explorer
             {
                 foreach (FileSystemStorageItemBase Item in SelectedItems.Where((Item) => Item.StorageType == StorageItemTypes.Folder))
                 {
-                    if (!await FileSystemStorageItemBase.CheckExist(Item.Path).ConfigureAwait(true))
+                    if (!await FileSystemStorageItemBase.CheckExistAsync(Item.Path).ConfigureAwait(true))
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
@@ -4835,7 +4827,7 @@ namespace RX_Explorer
 
                 foreach (FileSystemStorageItemBase Item in SelectedItems.Where((Item) => Item.StorageType == StorageItemTypes.File))
                 {
-                    if (!await FileSystemStorageItemBase.CheckExist(Item.Path).ConfigureAwait(true))
+                    if (!await FileSystemStorageItemBase.CheckExistAsync(Item.Path).ConfigureAwait(true))
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
@@ -4970,7 +4962,7 @@ namespace RX_Explorer
 
             foreach (FileSystemStorageItemBase Item in SelectedItems.Where((Item) => Item.StorageType == StorageItemTypes.Folder))
             {
-                if (!await FileSystemStorageItemBase.CheckExist(Item.Path).ConfigureAwait(true))
+                if (!await FileSystemStorageItemBase.CheckExistAsync(Item.Path).ConfigureAwait(true))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -4987,7 +4979,7 @@ namespace RX_Explorer
 
             foreach (FileSystemStorageItemBase Item in SelectedItems.Where((Item) => Item.StorageType == StorageItemTypes.File))
             {
-                if (!await FileSystemStorageItemBase.CheckExist(Item.Path).ConfigureAwait(true))
+                if (!await FileSystemStorageItemBase.CheckExistAsync(Item.Path).ConfigureAwait(true))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -5153,7 +5145,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (await FileSystemStorageItemBase.CheckExist(SelectedItem.Path).ConfigureAwait(true))
+            if (await FileSystemStorageItemBase.CheckExistAsync(SelectedItem.Path).ConfigureAwait(true))
             {
                 try
                 {
@@ -5347,7 +5339,7 @@ namespace RX_Explorer
                         return;
                     }
 
-                    if (await FileSystemStorageItemBase.CheckExist(Path.Combine(Path.GetDirectoryName(CurrentEditItem.Path), NameEditBox.Text)).ConfigureAwait(true))
+                    if (await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(Path.GetDirectoryName(CurrentEditItem.Path), NameEditBox.Text)).ConfigureAwait(true))
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {

@@ -6,6 +6,8 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+      xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
+      xmlns:Behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
       mc:Ignorable="d"
       NavigationCacheMode="Enabled"
       Background="Transparent">
@@ -16,6 +18,7 @@
                 <AppBarButton x:Uid="SearchLocation"
                               x:Name="Location"
                               Label="打开所在位置"
+                              MinWidth="180"
                               Click="Location_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets"
@@ -25,11 +28,13 @@
                 <AppBarButton Icon="Copy"
                               x:Name="CopyPath"
                               Label="复制完整路径"
+                              MinWidth="180"
                               x:Uid="SearchCopyPath"
                               Click="CopyPath_Click" />
                 <AppBarButton Icon="Tag"
                               x:Uid="SearchProperties"
                               Label="属性"
+                              MinWidth="180"
                               Click="Attribute_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
@@ -46,7 +51,6 @@
                    VerticalAlignment="Center"
                    Padding="10,0,10,0"/>
         <ListView Grid.Row="1"
-                  Padding="10,0,10,0"
                   Name="SearchResultList"
                   x:FieldModifier="public"
                   Grid.RowSpan="2"
@@ -55,88 +59,89 @@
                   ContainerContentChanging="SearchResultList_ContainerContentChanging"
                   Holding="SearchResultList_Holding"
                   RightTapped="SearchResultList_RightTapped">
-            <ListView.HeaderTemplate>
-                <DataTemplate>
-                    <Grid Height="35">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="4*" />
-                            <ColumnDefinition Width="3*" />
-                            <ColumnDefinition Width="2*" />
-                            <ColumnDefinition Width="1.5*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Button HorizontalContentAlignment="Left"
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"
-                                x:Name="ListHeaderName"
-                                Click="ListHeaderName_Click"
-                                Background="{StaticResource ElementAcrylicBrush}"
-                                Style="{StaticResource ListHeaderButtonStyle}">
-                            <TextBlock Text="名称"
-                                       FontSize="14"
-                                       x:Uid="SearchName"
-                                       VerticalAlignment="Center"
-                                       TextTrimming="CharacterEllipsis" />
-                        </Button>
-                        <Button HorizontalContentAlignment="Left"
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"
-                                Grid.Column="1"
-                                x:Name="ListHeaderPath"
-                                Click="ListHeaderPath_Click"
-                                Background="{StaticResource ElementAcrylicBrush}"
-                                Style="{StaticResource ListHeaderButtonStyle}">
-                            <TextBlock Text="路径"
-                                       FontSize="14"
-                                       x:Uid="SearchPath"
-                                       VerticalAlignment="Center"
-                                       TextTrimming="CharacterEllipsis" />
-                        </Button>
-                        <Button HorizontalContentAlignment="Left"
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"
-                                Grid.Column="2"
-                                x:Name="ListHeaderModifyDate"
-                                Click="ListHeaderModifyDate_Click"
-                                Background="{StaticResource ElementAcrylicBrush}"
-                                Style="{StaticResource ListHeaderButtonStyle}">
-                            <TextBlock Text="修改日期"
-                                       FontSize="14"
-                                       x:Uid="SearchModified"
-                                       VerticalAlignment="Center"
-                                       TextTrimming="CharacterEllipsis" />
-                        </Button>
-                        <Button HorizontalContentAlignment="Left"
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"
-                                Grid.Column="3"
-                                x:Name="ListHeaderType"
-                                Click="ListHeaderType_Click"
-                                Background="{StaticResource ElementAcrylicBrush}"
-                                Style="{StaticResource ListHeaderButtonStyle}">
-                            <TextBlock Text="类型"
-                                       FontSize="14"
-                                       x:Uid="SearchType"
-                                       VerticalAlignment="Center"
-                                       TextTrimming="CharacterEllipsis" />
-                        </Button>
-                        <Button HorizontalContentAlignment="Left"
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"
-                                Grid.Column="4"
-                                x:Name="ListHeaderSize"
-                                Click="ListHeaderSize_Click"
-                                Background="{StaticResource ElementAcrylicBrush}"
-                                Style="{StaticResource ListHeaderButtonStyle}">
-                            <TextBlock Text="大小"
-                                       FontSize="14"
-                                       x:Uid="SearchSize"
-                                       VerticalAlignment="Center"
-                                       TextTrimming="CharacterEllipsis" />
-                        </Button>
-                    </Grid>
-                </DataTemplate>
-            </ListView.HeaderTemplate>
+            <Interactivity:Interaction.Behaviors>
+                <Behaviors:StickyHeaderBehavior />
+            </Interactivity:Interaction.Behaviors>
+            <ListView.Header>
+                <Grid Height="35">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="4*" />
+                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="1.5*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button HorizontalContentAlignment="Left"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            x:Name="ListHeaderName"
+                            Click="ListHeaderName_Click"
+                            Background="{StaticResource ElementAcrylicBrush}"
+                            Style="{StaticResource ListHeaderButtonStyle}">
+                        <TextBlock Text="名称"
+                                   FontSize="14"
+                                   x:Uid="SearchName"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" />
+                    </Button>
+                    <Button HorizontalContentAlignment="Left"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            Grid.Column="1"
+                            x:Name="ListHeaderPath"
+                            Click="ListHeaderPath_Click"
+                            Background="{StaticResource ElementAcrylicBrush}"
+                            Style="{StaticResource ListHeaderButtonStyle}">
+                        <TextBlock Text="路径"
+                                   FontSize="14"
+                                   x:Uid="SearchPath"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" />
+                    </Button>
+                    <Button HorizontalContentAlignment="Left"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            Grid.Column="2"
+                            x:Name="ListHeaderModifyDate"
+                            Click="ListHeaderModifyDate_Click"
+                            Background="{StaticResource ElementAcrylicBrush}"
+                            Style="{StaticResource ListHeaderButtonStyle}">
+                        <TextBlock Text="修改日期"
+                                   FontSize="14"
+                                   x:Uid="SearchModified"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" />
+                    </Button>
+                    <Button HorizontalContentAlignment="Left"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            Grid.Column="3"
+                            x:Name="ListHeaderType"
+                            Click="ListHeaderType_Click"
+                            Background="{StaticResource ElementAcrylicBrush}"
+                            Style="{StaticResource ListHeaderButtonStyle}">
+                        <TextBlock Text="类型"
+                                   FontSize="14"
+                                   x:Uid="SearchType"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" />
+                    </Button>
+                    <Button HorizontalContentAlignment="Left"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            Grid.Column="4"
+                            x:Name="ListHeaderSize"
+                            Click="ListHeaderSize_Click"
+                            Background="{StaticResource ElementAcrylicBrush}"
+                            Style="{StaticResource ListHeaderButtonStyle}">
+                        <TextBlock Text="大小"
+                                   FontSize="14"
+                                   x:Uid="SearchSize"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" />
+                    </Button>
+                </Grid>
+            </ListView.Header>
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment"

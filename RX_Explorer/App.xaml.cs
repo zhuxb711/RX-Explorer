@@ -117,7 +117,7 @@ namespace RX_Explorer
             {
                 if (frame.Content is MainPage Main && Main.Nav.Content is TabViewContainer TabContainer)
                 {
-                    if (!string.IsNullOrWhiteSpace(e.Arguments) && await FileSystemStorageItemBase.CheckExist(e.Arguments).ConfigureAwait(true))
+                    if (!string.IsNullOrWhiteSpace(e.Arguments) && await FileSystemStorageItemBase.CheckExistAsync(e.Arguments).ConfigureAwait(true))
                     {
                         await TabContainer.CreateNewTabAsync(e.Arguments).ConfigureAwait(true);
                     }
@@ -129,7 +129,7 @@ namespace RX_Explorer
             }
             else
             {
-                if (!string.IsNullOrWhiteSpace(e.Arguments) && await FileSystemStorageItemBase.CheckExist(e.Arguments).ConfigureAwait(true))
+                if (!string.IsNullOrWhiteSpace(e.Arguments) && await FileSystemStorageItemBase.CheckExistAsync(e.Arguments).ConfigureAwait(true))
                 {
                     ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen, new List<string[]> { new string[] { e.Arguments } });
                     Window.Current.Content = extendedSplash;

@@ -127,7 +127,7 @@ namespace RX_Explorer.Class
                             }
                         }
 
-                        if (await CheckExist(Data.LinkTargetPath).ConfigureAwait(true))
+                        if (await CheckExistAsync(Data.LinkTargetPath).ConfigureAwait(true))
                         {
                             LinkType = ShellLinkType.Normal;
                         }

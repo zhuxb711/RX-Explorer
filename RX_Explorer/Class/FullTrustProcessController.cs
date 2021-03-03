@@ -1827,35 +1827,42 @@ namespace RX_Explorer.Class
 
                     foreach (string SourcePath in Source)
                     {
-                        try
+                        if (await FileSystemStorageItemBase.OpenAsync(SourcePath).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                         {
-                            if (WIN_Native_API.CheckType(SourcePath) == StorageItemTypes.File)
+                            try
                             {
-                                MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
-                            }
-                            else
-                            {
-                                string TargetPath = Path.Combine(DestinationPath, Path.GetFileName(SourcePath));
-
-                                if (await FileSystemStorageItemBase.CheckExist(TargetPath).ConfigureAwait(true))
+                                if (Item.StorageType == StorageItemTypes.File)
                                 {
-                                    QueueContentDialog Dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                                        Content = $"{Globalization.GetString("QueueDialog_FolderRepeat_Content")} {Path.GetFileName(SourcePath)}",
-                                        PrimaryButtonText = Globalization.GetString("QueueDialog_FolderRepeat_PrimaryButton"),
-                                        CloseButtonText = Globalization.GetString("QueueDialog_FolderRepeat_CloseButton")
-                                    };
+                                    MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
+                                }
+                                else
+                                {
+                                    string TargetPath = Path.Combine(DestinationPath, Path.GetFileName(SourcePath));
 
-                                    if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
+                                    if (await FileSystemStorageItemBase.CheckExistAsync(TargetPath).ConfigureAwait(true))
                                     {
-                                        if (await FileSystemStorageItemBase.CreateAsync(TargetPath, StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase NewFolder)
+                                        QueueContentDialog Dialog = new QueueContentDialog
                                         {
-                                            MessageList.Add(new KeyValuePair<string, string>(SourcePath, Path.GetFileName(NewFolder.Path)));
+                                            Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                                            Content = $"{Globalization.GetString("QueueDialog_FolderRepeat_Content")} {Path.GetFileName(SourcePath)}",
+                                            PrimaryButtonText = Globalization.GetString("QueueDialog_FolderRepeat_PrimaryButton"),
+                                            CloseButtonText = Globalization.GetString("QueueDialog_FolderRepeat_CloseButton")
+                                        };
+
+                                        if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
+                                        {
+                                            if (await FileSystemStorageItemBase.CreateAsync(TargetPath, StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase NewFolder)
+                                            {
+                                                MessageList.Add(new KeyValuePair<string, string>(SourcePath, Path.GetFileName(NewFolder.Path)));
+                                            }
+                                            else
+                                            {
+                                                throw new Exception($"Could not create a folder on \"{TargetPath}\"");
+                                            }
                                         }
                                         else
                                         {
-                                            throw new Exception($"Could not create a folder on \"{TargetPath}\"");
+                                            MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
                                         }
                                     }
                                     else
@@ -1863,13 +1870,13 @@ namespace RX_Explorer.Class
                                         MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
                                     }
                                 }
-                                else
-                                {
-                                    MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
-                                }
+                            }
+                            catch
+                            {
+                                throw new FileNotFoundException();
                             }
                         }
-                        catch
+                        else
                         {
                             throw new FileNotFoundException();
                         }
@@ -2016,6 +2023,7 @@ namespace RX_Explorer.Class
                 IsAnyActionExcutingInCurrentController = false;
             }
         }
+
         public async Task CopyAsync(IEnumerable<string> Source, string DestinationPath, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
         {
             if (Source == null)
@@ -2033,37 +2041,44 @@ namespace RX_Explorer.Class
 
                     foreach (string SourcePath in Source)
                     {
-                        try
+                        if (await FileSystemStorageItemBase.OpenAsync(SourcePath).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                         {
-                            if (WIN_Native_API.CheckType(SourcePath) == StorageItemTypes.File)
+                            try
                             {
-                                MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
-                            }
-                            else
-                            {
-                                if (Path.GetDirectoryName(SourcePath) != DestinationPath)
+                                if (Item.StorageType == StorageItemTypes.File)
                                 {
-                                    string TargetPath = Path.Combine(DestinationPath, Path.GetFileName(SourcePath));
-
-                                    if (await FileSystemStorageItemBase.CheckExist(TargetPath).ConfigureAwait(true))
+                                    MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
+                                }
+                                else
+                                {
+                                    if (Path.GetDirectoryName(SourcePath) != DestinationPath)
                                     {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                                            Content = $"{Globalization.GetString("QueueDialog_FolderRepeat_Content")} {Path.GetFileName(SourcePath)}",
-                                            PrimaryButtonText = Globalization.GetString("QueueDialog_FolderRepeat_PrimaryButton"),
-                                            CloseButtonText = Globalization.GetString("QueueDialog_FolderRepeat_CloseButton")
-                                        };
+                                        string TargetPath = Path.Combine(DestinationPath, Path.GetFileName(SourcePath));
 
-                                        if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
+                                        if (await FileSystemStorageItemBase.CheckExistAsync(TargetPath).ConfigureAwait(true))
                                         {
-                                            if (await FileSystemStorageItemBase.CreateAsync(TargetPath, StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase NewFolder)
+                                            QueueContentDialog Dialog = new QueueContentDialog
                                             {
-                                                MessageList.Add(new KeyValuePair<string, string>(SourcePath, Path.GetFileName(NewFolder.Path)));
+                                                Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                                                Content = $"{Globalization.GetString("QueueDialog_FolderRepeat_Content")} {Path.GetFileName(SourcePath)}",
+                                                PrimaryButtonText = Globalization.GetString("QueueDialog_FolderRepeat_PrimaryButton"),
+                                                CloseButtonText = Globalization.GetString("QueueDialog_FolderRepeat_CloseButton")
+                                            };
+
+                                            if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
+                                            {
+                                                if (await FileSystemStorageItemBase.CreateAsync(TargetPath, StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase NewFolder)
+                                                {
+                                                    MessageList.Add(new KeyValuePair<string, string>(SourcePath, Path.GetFileName(NewFolder.Path)));
+                                                }
+                                                else
+                                                {
+                                                    throw new Exception($"Could not create a folder on \"{TargetPath}\"");
+                                                }
                                             }
                                             else
                                             {
-                                                throw new Exception($"Could not create a folder on \"{TargetPath}\"");
+                                                MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
                                             }
                                         }
                                         else
@@ -2076,13 +2091,13 @@ namespace RX_Explorer.Class
                                         MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
                                     }
                                 }
-                                else
-                                {
-                                    MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
-                                }
+                            }
+                            catch
+                            {
+                                throw new FileNotFoundException();
                             }
                         }
-                        catch
+                        else
                         {
                             throw new FileNotFoundException();
                         }

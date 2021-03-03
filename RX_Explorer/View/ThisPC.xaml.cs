@@ -243,7 +243,7 @@ namespace RX_Explorer
                     {
                         if (Ur.IsFile)
                         {
-                            if (await FileSystemStorageItemBase.CheckExist(Item.Protocol).ConfigureAwait(true))
+                            if (await FileSystemStorageItemBase.CheckExistAsync(Item.Protocol).ConfigureAwait(true))
                             {
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                 {

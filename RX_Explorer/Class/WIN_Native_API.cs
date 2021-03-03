@@ -87,7 +87,7 @@ namespace RX_Explorer.Class
 
             public SYSTEMTIME(DateTime dt)
             {
-                dt = dt.ToUniversalTime();  // SetSystemTime expects the SYSTEMTIME in UTC
+                dt = dt.ToUniversalTime();
                 Year = (short)dt.Year;
                 Month = (short)dt.Month;
                 DayOfWeek = (short)dt.DayOfWeek;
@@ -718,7 +718,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static StorageItemTypes CheckType(string ItemPath)
+        private static StorageItemTypes CheckType(string ItemPath)
         {
             if (string.IsNullOrWhiteSpace(ItemPath))
             {
@@ -801,7 +801,45 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static ulong CalculateFolderSize(string FolderPath, CancellationToken CancelToken = default)
+        public static ulong CalulateSize(string Path, CancellationToken CancelToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(Path))
+            {
+                throw new ArgumentException("Argument could not be empty", nameof(Path));
+            }
+
+            IntPtr Ptr = FindFirstFileExFromApp(Path.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+
+            try
+            {
+                if (Ptr.ToInt64() != -1)
+                {
+                    if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
+                    {
+                        return CalculateFolderSize(Path, CancelToken);
+                    }
+                    else
+                    {
+                        return CalculateFileSize(Path);
+                    }
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex);
+                return 0;
+            }
+            finally
+            {
+                FindClose(Ptr);
+            }
+        }
+
+        private static ulong CalculateFolderSize(string FolderPath, CancellationToken CancelToken = default)
         {
             if (string.IsNullOrWhiteSpace(FolderPath))
             {
@@ -851,7 +889,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static ulong CalculateFileSize(string FilePath)
+        private static ulong CalculateFileSize(string FilePath)
         {
             if (string.IsNullOrWhiteSpace(FilePath))
             {

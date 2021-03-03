@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Windows.Storage;
 
 namespace RX_Explorer.Class
@@ -21,12 +22,6 @@ namespace RX_Explorer.Class
             this.StorageType = StorageType;
 
             ModifiedTimeRaw = CreateTime.ToLocalTime();
-
-            if (StorageType == StorageItemTypes.File)
-            {
-                SizeRaw = WIN_Native_API.CalculateFileSize(ActualPath);
-            }
-
             InternalPathString = ActualPath;
         }
     }

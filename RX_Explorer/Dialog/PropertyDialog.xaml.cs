@@ -212,7 +212,7 @@ namespace RX_Explorer.Dialog
 
         private async Task<string> CalculateFolderSize(string FolderPath, CancellationToken CancelToken = default)
         {
-            ulong TotalSize = await Task.Run(() => WIN_Native_API.CalculateFolderSize(FolderPath, CancelToken), CancelToken).ConfigureAwait(false);
+            ulong TotalSize = await FileSystemStorageItemBase.GetSizeAsync(FolderPath, CancelToken).ConfigureAwait(false);
 
             if (CancelToken.IsCancellationRequested)
             {
@@ -226,7 +226,7 @@ namespace RX_Explorer.Dialog
 
         private async Task<string> CalculateFolderAndFileCount(string FolderPath, CancellationToken CancelToken = default)
         {
-            (uint FolderCount, uint FileCount) = await Task.Run(() => WIN_Native_API.CalculateFolderAndFileCount(FolderPath, CancelToken), CancelToken).ConfigureAwait(false);
+            (uint FolderCount, uint FileCount) = await FileSystemStorageItemBase.GetFolderAndFileNumAsync(FolderPath, CancelToken).ConfigureAwait(false);
 
             if (Cancellation.IsCancellationRequested)
             {

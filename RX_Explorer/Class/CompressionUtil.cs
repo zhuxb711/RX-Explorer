@@ -93,7 +93,7 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            TotalSize += Convert.ToInt64(await Task.Run(() => WIN_Native_API.CalculateFolderSize(StorageItem.Path)).ConfigureAwait(false));
+                            TotalSize += Convert.ToInt64(await FileSystemStorageItemBase.GetSizeAsync(StorageItem.Path).ConfigureAwait(false));
                         }
                     }
 
@@ -126,7 +126,7 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            long InnerFolderSize = Convert.ToInt64(await Task.Run(() => WIN_Native_API.CalculateFolderSize(StorageItem.Path)).ConfigureAwait(false));
+                            long InnerFolderSize = Convert.ToInt64(await FileSystemStorageItemBase.GetSizeAsync(StorageItem.Path).ConfigureAwait(false));
 
                             await ZipFolderCore(StorageItem, OutputStream, StorageItem.Name, (s, e) =>
                             {
@@ -169,7 +169,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                long TotalSize = Convert.ToInt64(await Task.Run(() => WIN_Native_API.CalculateFolderSize(Folder.Path)).ConfigureAwait(false));
+                long TotalSize = Convert.ToInt64(await FileSystemStorageItemBase.GetSizeAsync(Folder.Path).ConfigureAwait(false));
 
                 long CurrentPosition = 0;
 
@@ -177,7 +177,7 @@ namespace RX_Explorer.Class
                 {
                     if (Item.StorageType == StorageItemTypes.Folder)
                     {
-                        long InnerFolderSize = Convert.ToInt64(await Task.Run(() => WIN_Native_API.CalculateFolderSize(Item.Path)).ConfigureAwait(false));
+                        long InnerFolderSize = Convert.ToInt64(await FileSystemStorageItemBase.GetSizeAsync(Item.Path).ConfigureAwait(false));
 
                         await ZipFolderCore(Item, OutputStream, $"{BaseFolderName}/{Item.Name}", ProgressHandler: (s, e) =>
                         {
@@ -506,7 +506,7 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            TotalSize += Convert.ToInt64(await Task.Run(() => WIN_Native_API.CalculateFolderSize(StorageItem.Path)).ConfigureAwait(false));
+                            TotalSize += Convert.ToInt64(await FileSystemStorageItemBase.GetSizeAsync(StorageItem.Path).ConfigureAwait(false));
                         }
                     }
 
@@ -536,7 +536,7 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            long InnerFolderSize = Convert.ToInt64(await Task.Run(() => WIN_Native_API.CalculateFolderSize(StorageItem.Path)).ConfigureAwait(false));
+                            long InnerFolderSize = Convert.ToInt64(await FileSystemStorageItemBase.GetSizeAsync(StorageItem.Path).ConfigureAwait(false));
 
                             await TarFolderCore(StorageItem, OutputTarStream, StorageItem.Name, (s, e) =>
                             {
@@ -684,7 +684,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                long TotalSize = Convert.ToInt64(await Task.Run(() => WIN_Native_API.CalculateFolderSize(Folder.Path)).ConfigureAwait(false));
+                long TotalSize = Convert.ToInt64(await FileSystemStorageItemBase.GetSizeAsync(Folder.Path).ConfigureAwait(false));
 
                 long CurrentPosition = 0;
 
@@ -692,7 +692,7 @@ namespace RX_Explorer.Class
                 {
                     if (Item.StorageType == StorageItemTypes.Folder)
                     {
-                        long InnerFolderSize = Convert.ToInt64(await Task.Run(() => WIN_Native_API.CalculateFolderSize(Item.Path)).ConfigureAwait(false));
+                        long InnerFolderSize = Convert.ToInt64(await FileSystemStorageItemBase.GetSizeAsync(Item.Path).ConfigureAwait(false));
 
                         await TarFolderCore(Item, OutputStream, $"{BaseFolderName}/{Item.Name}", ProgressHandler: (s, e) =>
                         {

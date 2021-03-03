@@ -7,6 +7,8 @@
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       xmlns:Cls="using:RX_Explorer.Class"
+      xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
+      xmlns:Behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
       mc:Ignorable="d"
       Background="Transparent"
       NavigationCacheMode="Required">
@@ -73,6 +75,9 @@
                   DoubleTapped="ListViewControl_DoubleTapped"
                   ItemsSource="{x:Bind FileCollection}"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
+            <Interactivity:Interaction.Behaviors>
+                <Behaviors:StickyHeaderBehavior />
+            </Interactivity:Interaction.Behaviors>
             <ListView.Header>
                 <Grid Height="35">
                     <Grid.ColumnDefinitions>
