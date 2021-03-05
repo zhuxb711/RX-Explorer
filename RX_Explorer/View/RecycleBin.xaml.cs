@@ -1,13 +1,14 @@
 ﻿using RX_Explorer.Class;
 using RX_Explorer.Dialog;
+using RX_Explorer.Interface;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
+using Windows.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -27,13 +28,16 @@ namespace RX_Explorer.View
             {SortTarget.OriginPath,SortDirection.Ascending }
         };
 
-        private readonly ObservableCollection<RecycleStorageItem> FileCollection = new ObservableCollection<RecycleStorageItem>();
+        private readonly ObservableCollection<IRecycleStorageItem> FileCollection = new ObservableCollection<IRecycleStorageItem>();
 
         private ListViewBaseSelectionExtention SelectionExtention;
+
+        private readonly PointerEventHandler PointerPressedHandler;
 
         public RecycleBin()
         {
             InitializeComponent();
+            PointerPressedHandler = new PointerEventHandler(ListViewControl_PointerPressed);
             Loaded += RecycleBin_Loaded;
             Unloaded += RecycleBin_Unloaded;
         }
@@ -42,10 +46,12 @@ namespace RX_Explorer.View
         {
             SelectionExtention?.Dispose();
             CoreWindow.GetForCurrentThread().KeyDown -= RecycleBin_KeyDown;
+            ListViewControl.RemoveHandler(PointerPressedEvent, PointerPressedHandler);
         }
 
         private void RecycleBin_Loaded(object sender, RoutedEventArgs e)
         {
+            ListViewControl.AddHandler(PointerPressedEvent, PointerPressedHandler, true);
             CoreWindow.GetForCurrentThread().KeyDown += RecycleBin_KeyDown;
             SelectionExtention = new ListViewBaseSelectionExtention(ListViewControl, DrawRectangle);
         }
@@ -77,7 +83,9 @@ namespace RX_Explorer.View
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                foreach (RecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(await Exclusive.Controller.GetRecycleBinItemsAsync().ConfigureAwait(true), SortTarget.Name, SortDirection.Ascending))
+                List<IRecycleStorageItem> Result = await Exclusive.Controller.GetRecycleBinItemsAsync().ConfigureAwait(true);
+
+                foreach (IRecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(Result, SortTarget.Name, SortDirection.Ascending))
                 {
                     FileCollection.Add(Item);
                 }
@@ -102,12 +110,53 @@ namespace RX_Explorer.View
 
         private void ListViewControl_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext == null)
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is IRecycleStorageItem Item)
+            {
+                PointerPoint PointerInfo = e.GetCurrentPoint(null);
+
+                if ((e.OriginalSource as FrameworkElement).FindParentOfType<SelectorItem>() != null)
+                {
+                    if (ListViewControl.SelectionMode != ListViewSelectionMode.Multiple)
+                    {
+                        if (e.KeyModifiers == VirtualKeyModifiers.None)
+                        {
+                            if (ListViewControl.SelectedItems.Contains(Item))
+                            {
+                                SelectionExtention.Disable();
+                            }
+                            else
+                            {
+                                if (PointerInfo.Properties.IsLeftButtonPressed)
+                                {
+                                    ListViewControl.SelectedItem = Item;
+                                }
+
+                                if (e.OriginalSource is ListViewItemPresenter || (e.OriginalSource is TextBlock Block && Block.Name == "EmptyTextblock"))
+                                {
+                                    SelectionExtention.Enable();
+                                }
+                                else
+                                {
+                                    SelectionExtention.Disable();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            SelectionExtention.Disable();
+                        }
+                    }
+                    else
+                    {
+                        SelectionExtention.Disable();
+                    }
+                }
+            }
+            else
             {
                 ListViewControl.SelectedItem = null;
+                SelectionExtention.Enable();
             }
-
-            SelectionExtention.Enable();
         }
 
         private async void ListViewControl_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
@@ -118,13 +167,9 @@ namespace RX_Explorer.View
             }
             else
             {
-                if (args.Item is FileSystemStorageItemBase Item)
+                if (args.Item is FileSystemStorageItemBase File)
                 {
-                    if (Item.StorageType == StorageItemTypes.File)
-                    {
-                        await Item.LoadMorePropertyAsync().ConfigureAwait(true);
-                    }
-
+                    await File.LoadMorePropertyAsync().ConfigureAwait(true);
                     args.ItemContainer.AllowFocusOnInteraction = false;
                 }
             }
@@ -157,7 +202,7 @@ namespace RX_Explorer.View
 
         private async void ListViewControl_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
-            if (ListViewControl.SelectedItem is RecycleStorageItem Item)
+            if (ListViewControl.SelectedItem is FileSystemStorageItemBase Item)
             {
                 PropertyDialog Dialog = new PropertyDialog(Item);
                 await Dialog.ShowAsync().ConfigureAwait(false);
@@ -177,7 +222,7 @@ namespace RX_Explorer.View
                     }
                     else
                     {
-                        if (Element.DataContext is RecycleStorageItem Context)
+                        if (Element.DataContext is IRecycleStorageItem Context)
                         {
                             if (ListViewControl.SelectedItems.Count > 1 && ListViewControl.SelectedItems.Contains(Context))
                             {
@@ -185,7 +230,7 @@ namespace RX_Explorer.View
                             }
                             else
                             {
-                                if (ListViewControl.SelectedItem as RecycleStorageItem == Context)
+                                if (ListViewControl.SelectedItem as IRecycleStorageItem == Context)
                                 {
                                     ListViewControl.ContextFlyout = SelectFlyout;
                                 }
@@ -224,11 +269,11 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
-                RecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Name, SortDirection.Descending).ToArray();
+                IRecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Name, SortDirection.Descending).ToArray();
 
                 FileCollection.Clear();
 
-                foreach (RecycleStorageItem Item in SortResult)
+                foreach (IRecycleStorageItem Item in SortResult)
                 {
                     FileCollection.Add(Item);
                 }
@@ -241,11 +286,11 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
-                RecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Name, SortDirection.Ascending).ToArray();
+                IRecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Name, SortDirection.Ascending).ToArray();
 
                 FileCollection.Clear();
 
-                foreach (RecycleStorageItem Item in SortResult)
+                foreach (IRecycleStorageItem Item in SortResult)
                 {
                     FileCollection.Add(Item);
                 }
@@ -262,11 +307,11 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
-                RecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.ModifiedTime, SortDirection.Descending).ToArray();
+                IRecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.ModifiedTime, SortDirection.Descending).ToArray();
 
                 FileCollection.Clear();
 
-                foreach (RecycleStorageItem Item in SortResult)
+                foreach (IRecycleStorageItem Item in SortResult)
                 {
                     FileCollection.Add(Item);
                 }
@@ -279,11 +324,11 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
-                RecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.ModifiedTime, SortDirection.Ascending).ToArray();
+                IRecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.ModifiedTime, SortDirection.Ascending).ToArray();
 
                 FileCollection.Clear();
 
-                foreach (RecycleStorageItem Item in SortResult)
+                foreach (IRecycleStorageItem Item in SortResult)
                 {
                     FileCollection.Add(Item);
                 }
@@ -300,11 +345,11 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
-                RecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Type, SortDirection.Descending).ToArray();
+                IRecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Type, SortDirection.Descending).ToArray();
 
                 FileCollection.Clear();
 
-                foreach (RecycleStorageItem Item in SortResult)
+                foreach (IRecycleStorageItem Item in SortResult)
                 {
                     FileCollection.Add(Item);
                 }
@@ -317,11 +362,11 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
-                RecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Type, SortDirection.Ascending).ToArray();
+                IRecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Type, SortDirection.Ascending).ToArray();
 
                 FileCollection.Clear();
 
-                foreach (RecycleStorageItem Item in SortResult)
+                foreach (IRecycleStorageItem Item in SortResult)
                 {
                     FileCollection.Add(Item);
                 }
@@ -338,11 +383,11 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.Name] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
-                RecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Size, SortDirection.Descending).ToArray();
+                IRecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Size, SortDirection.Descending).ToArray();
 
                 FileCollection.Clear();
 
-                foreach (RecycleStorageItem Item in SortResult)
+                foreach (IRecycleStorageItem Item in SortResult)
                 {
                     FileCollection.Add(Item);
                 }
@@ -355,11 +400,11 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.Name] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
-                RecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Size, SortDirection.Ascending).ToArray();
+                IRecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Size, SortDirection.Ascending).ToArray();
 
                 FileCollection.Clear();
 
-                foreach (RecycleStorageItem Item in SortResult)
+                foreach (IRecycleStorageItem Item in SortResult)
                 {
                     FileCollection.Add(Item);
                 }
@@ -376,11 +421,11 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
                 SortMap[SortTarget.Name] = SortDirection.Ascending;
 
-                RecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.OriginPath, SortDirection.Descending).ToArray();
+                IRecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.OriginPath, SortDirection.Descending).ToArray();
 
                 FileCollection.Clear();
 
-                foreach (RecycleStorageItem Item in SortResult)
+                foreach (IRecycleStorageItem Item in SortResult)
                 {
                     FileCollection.Add(Item);
                 }
@@ -394,11 +439,11 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
                 SortMap[SortTarget.Name] = SortDirection.Ascending;
 
-                RecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.OriginPath, SortDirection.Ascending).ToArray();
+                IRecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.OriginPath, SortDirection.Ascending).ToArray();
 
                 FileCollection.Clear();
 
-                foreach (RecycleStorageItem Item in SortResult)
+                foreach (IRecycleStorageItem Item in SortResult)
                 {
                     FileCollection.Add(Item);
                 }
@@ -407,7 +452,7 @@ namespace RX_Explorer.View
 
         private async void PropertyButton_Click(object sender, RoutedEventArgs e)
         {
-            if (ListViewControl.SelectedItem is RecycleStorageItem Item)
+            if (ListViewControl.SelectedItem is FileSystemStorageItemBase Item)
             {
                 PropertyDialog Dialog = new PropertyDialog(Item);
                 await Dialog.ShowAsync().ConfigureAwait(false);
@@ -432,18 +477,15 @@ namespace RX_Explorer.View
                 {
                     List<string> ErrorList = new List<string>();
 
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    foreach (IRecycleStorageItem Item in ListViewControl.SelectedItems.ToList())
                     {
-                        foreach (RecycleStorageItem Item in ListViewControl.SelectedItems.ToList())
+                        if (await Item.DeleteAsync().ConfigureAwait(true))
                         {
-                            if (await Exclusive.Controller.DeleteItemInRecycleBinAsync(Item.Path).ConfigureAwait(true))
-                            {
-                                FileCollection.Remove(Item);
-                            }
-                            else
-                            {
-                                ErrorList.Add(Item.Name);
-                            }
+                            FileCollection.Remove(Item);
+                        }
+                        else
+                        {
+                            ErrorList.Add(Item.Name);
                         }
                     }
 
@@ -519,18 +561,15 @@ namespace RX_Explorer.View
 
                 List<string> ErrorList = new List<string>();
 
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                foreach (IRecycleStorageItem Item in ListViewControl.SelectedItems.ToList())
                 {
-                    foreach (RecycleStorageItem Item in ListViewControl.SelectedItems.ToList())
+                    if (await Item.RestoreAsync().ConfigureAwait(true))
                     {
-                        if (await Exclusive.Controller.RestoreItemInRecycleBinAsync(Item.Path).ConfigureAwait(true))
-                        {
-                            FileCollection.Remove(Item);
-                        }
-                        else
-                        {
-                            ErrorList.Add(Item.Name);
-                        }
+                        FileCollection.Remove(Item);
+                    }
+                    else
+                    {
+                        ErrorList.Add(Item.Name);
                     }
                 }
 
@@ -575,7 +614,7 @@ namespace RX_Explorer.View
 
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                foreach (RecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(await Exclusive.Controller.GetRecycleBinItemsAsync().ConfigureAwait(true), SortTarget.Name, SortDirection.Ascending))
+                foreach (IRecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(await Exclusive.Controller.GetRecycleBinItemsAsync().ConfigureAwait(true), SortTarget.Name, SortDirection.Ascending))
                 {
                     FileCollection.Add(Item);
                 }

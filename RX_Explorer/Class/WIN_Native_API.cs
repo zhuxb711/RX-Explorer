@@ -74,7 +74,7 @@ namespace RX_Explorer.Class
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        private struct SYSTEMTIME
+        public struct SYSTEMTIME
         {
             [MarshalAs(UnmanagedType.U2)] public short Year;
             [MarshalAs(UnmanagedType.U2)] public short Month;
@@ -118,7 +118,7 @@ namespace RX_Explorer.Class
         private static extern bool FindClose(IntPtr hFindFile);
 
         [DllImport("api-ms-win-core-timezone-l1-1-0.dll", SetLastError = true)]
-        private static extern bool FileTimeToSystemTime(ref FILETIME lpFileTime, out SYSTEMTIME lpSystemTime);
+        public static extern bool FileTimeToSystemTime(ref FILETIME lpFileTime, out SYSTEMTIME lpSystemTime);
 
         [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern IntPtr CreateFileFromApp(string lpFileName, uint dwDesiredAccess, uint dwShareMode, IntPtr SecurityAttributes, uint dwCreationDisposition, uint dwFlagsAndAttributes, IntPtr hTemplateFile);
@@ -158,7 +158,6 @@ namespace RX_Explorer.Class
         const uint FILE_NOTIFY_CHANGE_FILE_NAME = 0x1;
         const uint FILE_NOTIFY_CHANGE_DIR_NAME = 0x2;
         const uint FILE_NOTIFY_CHANGE_LAST_WRITE = 0x10;
-        static readonly string SecureFolderPath = Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder");
 
         private enum StateChangeType
         {
@@ -168,79 +167,6 @@ namespace RX_Explorer.Class
             Modified_Action = 3,
             Rename_Action_OldName = 4,
             Rename_Action_NewName = 5
-        }
-
-        public static bool DeleteFromPath(string Path)
-        {
-            try
-            {
-                if (CheckType(Path) == StorageItemTypes.Folder)
-                {
-                    IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.Combine(Path, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
-
-                    try
-                    {
-                        if (Ptr.ToInt64() != -1)
-                        {
-                            bool AllSuccess = true;
-
-                            do
-                            {
-                                if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
-                                {
-                                    if (Data.cFileName != "." && Data.cFileName != "..")
-                                    {
-                                        if (!DeleteFromPath(System.IO.Path.Combine(Path, Data.cFileName)))
-                                        {
-                                            AllSuccess = false;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    if (!DeleteFileFromApp(System.IO.Path.Combine(Path, Data.cFileName)))
-                                    {
-                                        AllSuccess = false;
-                                    }
-                                }
-                            }
-                            while (FindNextFile(Ptr, out Data));
-
-                            if (AllSuccess)
-                            {
-                                return RemoveDirectoryFromApp(Path);
-                            }
-                            else
-                            {
-                                return false;
-                            }
-                        }
-                        else
-                        {
-                            LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
-                            return false;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex);
-                        return false;
-                    }
-                    finally
-                    {
-                        FindClose(Ptr);
-                    }
-                }
-                else
-                {
-                    return DeleteFileFromApp(Path);
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex);
-                return false;
-            }
         }
 
         public static FileStream CreateFileStreamFromExistingPath(string Path, AccessMode AccessMode)
@@ -650,20 +576,34 @@ namespace RX_Explorer.Class
                 {
                     do
                     {
-                        FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
-
-                        if (!Attribute.HasFlag(FileAttributes.System))
+                        if (Data.cFileName != "." && Data.cFileName != "..")
                         {
-                            if (Attribute.HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
+                            FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
+
+                            if (!Attribute.HasFlag(FileAttributes.System))
                             {
-                                if (Data.cFileName != "." && Data.cFileName != "..")
+                                if (Attribute.HasFlag(FileAttributes.Directory))
                                 {
-                                    return true;
+                                    if (Filter.HasFlag(ItemFilters.Folder))
+                                    {
+                                        return true;
+                                    }
+                                    else
+                                    {
+                                        return false;
+                                    }
                                 }
-                            }
-                            else if (Filter.HasFlag(ItemFilters.File) && !Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
-                            {
-                                return true;
+                                else if (Filter.HasFlag(ItemFilters.File))
+                                {
+                                    if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        return false;
+                                    }
+                                    else
+                                    {
+                                        return true;
+                                    }
+                                }
                             }
                         }
                     }
@@ -711,45 +651,6 @@ namespace RX_Explorer.Class
             {
                 LogTracer.Log(ex);
                 return false;
-            }
-            finally
-            {
-                FindClose(Ptr);
-            }
-        }
-
-        private static StorageItemTypes CheckType(string ItemPath)
-        {
-            if (string.IsNullOrWhiteSpace(ItemPath))
-            {
-                throw new ArgumentException("Argument could not be empty", nameof(ItemPath));
-            }
-
-            IntPtr Ptr = FindFirstFileExFromApp(Path.GetPathRoot(ItemPath) == ItemPath ? Path.Combine(ItemPath, "*") : ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
-
-            try
-            {
-                if (Ptr.ToInt64() != -1)
-                {
-                    if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
-                    {
-                        return StorageItemTypes.Folder;
-                    }
-                    else
-                    {
-                        return StorageItemTypes.File;
-                    }
-                }
-                else
-                {
-                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
-                    return StorageItemTypes.None;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex);
-                return StorageItemTypes.None;
             }
             finally
             {
@@ -856,16 +757,16 @@ namespace RX_Explorer.Class
 
                     do
                     {
-                        if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
+                        if (Data.cFileName != "." && Data.cFileName != "..")
                         {
-                            if (Data.cFileName != "." && Data.cFileName != "..")
+                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
                             {
                                 TotalSize += CalculateFolderSize(Path.Combine(FolderPath, Data.cFileName), CancelToken);
                             }
-                        }
-                        else
-                        {
-                            TotalSize += ((ulong)Data.nFileSizeHigh << 32) + Data.nFileSizeLow;
+                            else
+                            {
+                                TotalSize += ((ulong)Data.nFileSizeHigh << 32) + Data.nFileSizeLow;
+                            }
                         }
                     }
                     while (FindNextFile(Ptr, out Data) && !CancelToken.IsCancellationRequested);
@@ -946,18 +847,18 @@ namespace RX_Explorer.Class
 
                     do
                     {
-                        if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
+                        if (Data.cFileName != "." && Data.cFileName != "..")
                         {
-                            if (Data.cFileName != "." && Data.cFileName != "..")
+                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
                             {
                                 (uint SubFolderCount, uint SubFileCount) = CalculateFolderAndFileCount(Path.Combine(FolderPath, Data.cFileName), CancelToken);
                                 FolderCount += ++SubFolderCount;
                                 FileCount += SubFileCount;
                             }
-                        }
-                        else
-                        {
-                            FileCount++;
+                            else
+                            {
+                                FileCount++;
+                            }
                         }
                     }
                     while (FindNextFile(Ptr, out Data) && !CancelToken.IsCancellationRequested);
@@ -1003,31 +904,25 @@ namespace RX_Explorer.Class
                 {
                     do
                     {
-                        FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
-
-                        if (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden))
+                        if (Data.cFileName != "." && Data.cFileName != "..")
                         {
-                            if (Attribute.HasFlag(FileAttributes.Directory))
+                            FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
+
+                            if (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden))
                             {
-                                if (Data.cFileName != "." && Data.cFileName != "..")
+                                if (Attribute.HasFlag(FileAttributes.Directory))
                                 {
                                     string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
 
                                     if (Regex.IsMatch(Data.cFileName, IsRegexExpresstion ? SearchWord : @$".*{Regex.Escape(SearchWord)}.*", IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
                                     {
-                                        FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
-                                        DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
-
-                                        FileTimeToSystemTime(ref Data.ftCreationTime, out SYSTEMTIME CreTime);
-                                        DateTime CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc);
-
                                         if (Attribute.HasFlag(FileAttributes.Hidden))
                                         {
-                                            SearchResult.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, CurrentDataPath, CreationTime, ModifiedTime));
+                                            SearchResult.Add(new HiddenStorageFolder(CurrentDataPath, Data));
                                         }
                                         else
                                         {
-                                            SearchResult.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, CurrentDataPath, CreationTime, ModifiedTime));
+                                            SearchResult.Add(new FileSystemStorageFolder(CurrentDataPath, Data));
                                         }
                                     }
 
@@ -1036,39 +931,26 @@ namespace RX_Explorer.Class
                                         SearchResult.AddRange(Search(CurrentDataPath, SearchWord, true, IncludeHiddenItem, IsRegexExpresstion, IgnoreCase, CancelToken));
                                     }
                                 }
-                            }
-                            else
-                            {
-                                if (Regex.IsMatch(Data.cFileName, IsRegexExpresstion ? SearchWord : @$".*{Regex.Escape(SearchWord)}.*", IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
+                                else
                                 {
-                                    string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
-
-                                    FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
-                                    DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
-
-                                    FileTimeToSystemTime(ref Data.ftCreationTime, out SYSTEMTIME CreTime);
-                                    DateTime CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc);
-
-                                    if (Attribute.HasFlag(FileAttributes.Hidden))
+                                    if (Regex.IsMatch(Data.cFileName, IsRegexExpresstion ? SearchWord : @$".*{Regex.Escape(SearchWord)}.*", IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
                                     {
-                                        SearchResult.Add(new HiddenStorageItem(Data, StorageItemTypes.File, CurrentDataPath, CreationTime, ModifiedTime));
-                                    }
-                                    else if (SecureFolderPath == FolderPath)
-                                    {
-                                        if (Data.cFileName.EndsWith(".sle", StringComparison.OrdinalIgnoreCase))
+                                        string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
+
+                                        if (Attribute.HasFlag(FileAttributes.Hidden))
                                         {
-                                            SearchResult.Add(new SecureAreaStorageItem(Data, CurrentDataPath, CreationTime, ModifiedTime));
+                                            SearchResult.Add(new HiddenStorageFile(CurrentDataPath, Data));
                                         }
-                                    }
-                                    else if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                                        else if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                                         {
-                                            SearchResult.Add(new HyperlinkStorageItem(Data, CurrentDataPath, CreationTime, ModifiedTime));
-                                        }
-                                        else
-                                        {
-                                            SearchResult.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, CurrentDataPath, CreationTime, ModifiedTime));
+                                            if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                SearchResult.Add(new LinkStorageFile(CurrentDataPath, Data));
+                                            }
+                                            else
+                                            {
+                                                SearchResult.Add(new FileSystemStorageFile(CurrentDataPath, Data));
+                                            }
                                         }
                                     }
                                 }
@@ -1137,62 +1019,49 @@ namespace RX_Explorer.Class
 
                     do
                     {
-                        FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
-
-                        if (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden))
+                        if (Data.cFileName != "." && Data.cFileName != "..")
                         {
-                            if (Attribute.HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
+                            FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
+
+                            if (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden))
                             {
-                                if (Data.cFileName != "." && Data.cFileName != "..")
+                                if (Attribute.HasFlag(FileAttributes.Directory))
                                 {
-                                    string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
-
-                                    FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
-                                    DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
-
-                                    FileTimeToSystemTime(ref Data.ftCreationTime, out SYSTEMTIME CreTime);
-                                    DateTime CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc);
-
-                                    if (Attribute.HasFlag(FileAttributes.Hidden))
+                                    if (Filter.HasFlag(ItemFilters.Folder))
                                     {
-                                        Result.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, CurrentDataPath, CreationTime, ModifiedTime));
-                                    }
-                                    else
-                                    {
-                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, CurrentDataPath, CreationTime, ModifiedTime));
+                                        string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
+
+                                        if (Attribute.HasFlag(FileAttributes.Hidden))
+                                        {
+                                            Result.Add(new HiddenStorageFolder(CurrentDataPath, Data));
+                                        }
+                                        else
+                                        {
+                                            Result.Add(new FileSystemStorageFolder(CurrentDataPath, Data));
+                                        }
                                     }
                                 }
-                            }
-                            else if (Filter.HasFlag(ItemFilters.File))
-                            {
-                                string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
-
-                                FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
-                                DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
-
-                                FileTimeToSystemTime(ref Data.ftCreationTime, out SYSTEMTIME CreTime);
-                                DateTime CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc);
-
-                                if (Attribute.HasFlag(FileAttributes.Hidden))
+                                else
                                 {
-                                    Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, CurrentDataPath, CreationTime, ModifiedTime));
-                                }
-                                else if (SecureFolderPath == FolderPath)
-                                {
-                                    if (Data.cFileName.EndsWith(".sle", StringComparison.OrdinalIgnoreCase))
+                                    if (Filter.HasFlag(ItemFilters.File))
                                     {
-                                        Result.Add(new SecureAreaStorageItem(Data, CurrentDataPath, CreationTime, ModifiedTime));
-                                    }
-                                }
-                                else if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        Result.Add(new HyperlinkStorageItem(Data, CurrentDataPath, CreationTime, ModifiedTime));
-                                    }
-                                    else
-                                    {
-                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, CurrentDataPath, CreationTime, ModifiedTime));
+                                        string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
+
+                                        if (Attribute.HasFlag(FileAttributes.Hidden))
+                                        {
+                                            Result.Add(new HiddenStorageFile(CurrentDataPath, Data));
+                                        }
+                                        else if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                Result.Add(new LinkStorageFile(CurrentDataPath, Data));
+                                            }
+                                            else
+                                            {
+                                                Result.Add(new FileSystemStorageFile(CurrentDataPath, Data));
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -1219,7 +1088,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static FileSystemStorageItemBase GetStorageItem(string ItemPath, ItemFilters Filter = ItemFilters.Folder | ItemFilters.File)
+        public static FileSystemStorageItemBase GetStorageItem(string ItemPath)
         {
             if (string.IsNullOrWhiteSpace(ItemPath))
             {
@@ -1234,56 +1103,37 @@ namespace RX_Explorer.Class
                 {
                     if (Ptr.ToInt64() != -1)
                     {
-                        FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
-
-                        if (Attribute.HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
+                        if (Data.cFileName != "." && Data.cFileName != "..")
                         {
-                            if (Data.cFileName != "." && Data.cFileName != "..")
+                            FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
+
+                            if (Attribute.HasFlag(FileAttributes.Directory))
                             {
-                                FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
-                                DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
-
-                                FileTimeToSystemTime(ref Data.ftCreationTime, out SYSTEMTIME CreTime);
-                                DateTime CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc);
-
                                 if (Attribute.HasFlag(FileAttributes.Hidden))
                                 {
-                                    return new HiddenStorageItem(Data, StorageItemTypes.Folder, ItemPath, CreationTime, ModifiedTime);
+                                    return new HiddenStorageFolder(ItemPath, Data);
                                 }
                                 else
                                 {
-                                    return new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, ItemPath, CreationTime, ModifiedTime);
+                                    return new FileSystemStorageFolder(ItemPath, Data);
                                 }
                             }
-                        }
-                        else if (Filter.HasFlag(ItemFilters.File))
-                        {
-                            FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
-                            DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
-
-                            FileTimeToSystemTime(ref Data.ftCreationTime, out SYSTEMTIME CreTime);
-                            DateTime CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc);
-
-                            if (Attribute.HasFlag(FileAttributes.Hidden))
+                            else
                             {
-                                return new HiddenStorageItem(Data, StorageItemTypes.File, ItemPath, CreationTime, ModifiedTime);
-                            }
-                            else if (SecureFolderPath == Path.GetDirectoryName(ItemPath))
-                            {
-                                if (Data.cFileName.EndsWith(".sle", StringComparison.OrdinalIgnoreCase))
+                                if (Attribute.HasFlag(FileAttributes.Hidden))
                                 {
-                                    return new SecureAreaStorageItem(Data, ItemPath, CreationTime, ModifiedTime);
+                                    return new HiddenStorageFile(ItemPath, Data);
                                 }
-                            }
-                            else if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
-                            {
-                                if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                                else if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    return new HyperlinkStorageItem(Data, ItemPath, CreationTime, ModifiedTime);
-                                }
-                                else
-                                {
-                                    return new FileSystemStorageItemBase(Data, StorageItemTypes.File, ItemPath, CreationTime, ModifiedTime);
+                                    if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        return new LinkStorageFile(ItemPath, Data);
+                                    }
+                                    else
+                                    {
+                                        return new FileSystemStorageFile(ItemPath, Data);
+                                    }
                                 }
                             }
                         }
@@ -1327,56 +1177,38 @@ namespace RX_Explorer.Class
                     {
                         if (Ptr.ToInt64() != -1)
                         {
-                            FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
-
-                            if (Attribute.HasFlag(FileAttributes.Directory))
+                            if (Data.cFileName != "." && Data.cFileName != "..")
                             {
-                                if (Data.cFileName != "." && Data.cFileName != "..")
-                                {
-                                    FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
-                                    DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
+                                FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
 
-                                    FileTimeToSystemTime(ref Data.ftCreationTime, out SYSTEMTIME CreTime);
-                                    DateTime CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc);
+                                if (Attribute.HasFlag(FileAttributes.Directory))
+                                {
 
                                     if (Attribute.HasFlag(FileAttributes.Hidden))
                                     {
-                                        Result.Add(new HiddenStorageItem(Data, StorageItemTypes.Folder, Path, CreationTime, ModifiedTime));
+                                        Result.Add(new HiddenStorageFolder(Path, Data));
                                     }
                                     else
                                     {
-                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.Folder, Path, CreationTime, ModifiedTime));
+                                        Result.Add(new FileSystemStorageFolder(Path, Data));
                                     }
                                 }
-                            }
-                            else
-                            {
-                                FileTimeToSystemTime(ref Data.ftLastWriteTime, out SYSTEMTIME ModTime);
-                                DateTime ModifiedTime = new DateTime(ModTime.Year, ModTime.Month, ModTime.Day, ModTime.Hour, ModTime.Minute, ModTime.Second, ModTime.Milliseconds, DateTimeKind.Utc);
-
-                                FileTimeToSystemTime(ref Data.ftCreationTime, out SYSTEMTIME CreTime);
-                                DateTime CreationTime = new DateTime(CreTime.Year, CreTime.Month, CreTime.Day, CreTime.Hour, CreTime.Minute, CreTime.Second, CreTime.Milliseconds, DateTimeKind.Utc);
-
-                                if (Attribute.HasFlag(FileAttributes.Hidden))
+                                else
                                 {
-                                    Result.Add(new HiddenStorageItem(Data, StorageItemTypes.File, Path, CreationTime, ModifiedTime));
-                                }
-                                else if (SecureFolderPath == System.IO.Path.GetDirectoryName(Path))
-                                {
-                                    if (Data.cFileName.EndsWith(".sle", StringComparison.OrdinalIgnoreCase))
+                                    if (Attribute.HasFlag(FileAttributes.Hidden))
                                     {
-                                        Result.Add(new SecureAreaStorageItem(Data, Path, CreationTime, ModifiedTime));
+                                        Result.Add(new HiddenStorageFile(Path, Data));
                                     }
-                                }
-                                else if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                                    else if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        Result.Add(new HyperlinkStorageItem(Data, Path, CreationTime, ModifiedTime));
-                                    }
-                                    else
-                                    {
-                                        Result.Add(new FileSystemStorageItemBase(Data, StorageItemTypes.File, Path, CreationTime, ModifiedTime));
+                                        if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            Result.Add(new LinkStorageFile(Path, Data));
+                                        }
+                                        else
+                                        {
+                                            Result.Add(new FileSystemStorageFile(Path, Data));
+                                        }
                                     }
                                 }
                             }
@@ -1398,61 +1230,6 @@ namespace RX_Explorer.Class
             {
                 LogTracer.Log(ex);
                 return new List<FileSystemStorageItemBase>();
-            }
-        }
-
-        public static List<string> GetStorageItemsAndReturnPath(string FolderPath, bool IncludeHiddenItem, ItemFilters Filter)
-        {
-            if (string.IsNullOrWhiteSpace(FolderPath))
-            {
-                throw new ArgumentNullException(nameof(FolderPath), "Argument could not be null");
-            }
-
-            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
-
-            try
-            {
-                if (Ptr.ToInt64() != -1)
-                {
-                    List<string> Result = new List<string>();
-
-                    do
-                    {
-                        FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
-
-                        if (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden))
-                        {
-                            if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory) && Filter.HasFlag(ItemFilters.Folder))
-                            {
-                                if (Data.cFileName != "." && Data.cFileName != "..")
-                                {
-                                    Result.Add(Path.Combine(FolderPath, Data.cFileName));
-                                }
-                            }
-                            else if (Filter.HasFlag(ItemFilters.File))
-                            {
-                                Result.Add(Path.Combine(FolderPath, Data.cFileName));
-                            }
-                        }
-                    }
-                    while (FindNextFile(Ptr, out Data));
-
-                    return Result;
-                }
-                else
-                {
-                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
-                    return new List<string>();
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex);
-                return new List<string>();
-            }
-            finally
-            {
-                FindClose(Ptr);
             }
         }
 

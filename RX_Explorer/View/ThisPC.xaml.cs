@@ -528,9 +528,9 @@ namespace RX_Explorer
 
         private async void LibraryProperties_Click(object sender, RoutedEventArgs e)
         {
-            if (LibraryGrid.SelectedItem is LibraryFolder Library && await FileSystemStorageItemBase.OpenAsync(Library.Folder.Path, ItemFilters.Folder).ConfigureAwait(true) is FileSystemStorageItemBase Item)
+            if (LibraryGrid.SelectedItem is LibraryFolder Library && await FileSystemStorageItemBase.OpenAsync(Library.Folder.Path).ConfigureAwait(true) is FileSystemStorageFolder Folder)
             {
-                PropertyDialog Dialog = new PropertyDialog(Item);
+                PropertyDialog Dialog = new PropertyDialog(Folder);
                 await Dialog.ShowAsync().ConfigureAwait(true);
             }
         }

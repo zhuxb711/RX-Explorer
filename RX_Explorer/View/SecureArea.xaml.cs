@@ -4,10 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
@@ -16,18 +14,23 @@ using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI.Core;
+using Windows.UI.Input;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace RX_Explorer
 {
     public sealed partial class SecureArea : Page
     {
-        private readonly ObservableCollection<SecureAreaStorageItem> SecureCollection = new ObservableCollection<SecureAreaStorageItem>();
+        private readonly ObservableCollection<FileSystemStorageFile> SecureCollection = new ObservableCollection<FileSystemStorageFile>();
 
-        private FileSystemStorageItemBase SecureFolder;
+        private FileSystemStorageFolder SecureFolder;
+
+        private readonly PointerEventHandler PointerPressedHandler;
 
         private string EncryptionAESKey
         {
@@ -60,6 +63,7 @@ namespace RX_Explorer
         public SecureArea()
         {
             InitializeComponent();
+            PointerPressedHandler = new PointerEventHandler(SecureGridView_PointerPressed);
             Loaded += SecureArea_Loaded;
             Unloaded += SecureArea_Unloaded;
             SecureCollection.CollectionChanged += SecureCollection_CollectionChanged;
@@ -72,6 +76,7 @@ namespace RX_Explorer
             SelectionExtention?.Dispose();
             EmptyTips.Visibility = Visibility.Collapsed;
             SecureCollection.Clear();
+            SecureGridView.RemoveHandler(PointerPressedEvent, PointerPressedHandler);
         }
 
         private async void SecureArea_Loaded(object sender, RoutedEventArgs e)
@@ -79,6 +84,8 @@ namespace RX_Explorer
             try
             {
                 WholeArea.Visibility = Visibility.Collapsed;
+
+                SecureGridView.AddHandler(PointerPressedEvent, PointerPressedHandler, true);
 
                 ApplicationView.GetForCurrentView().IsScreenCaptureEnabled = false;
 
@@ -318,9 +325,9 @@ namespace RX_Explorer
         {
             IsNewStart = false;
 
-            SecureFolder = await FileSystemStorageItemBase.CreateAsync(Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder"), StorageItemTypes.Folder, CreateOption.OpenIfExist).ConfigureAwait(true);
+            SecureFolder = await FileSystemStorageItemBase.CreateAsync(Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder"), StorageItemTypes.Folder, CreateOption.OpenIfExist).ConfigureAwait(true) as FileSystemStorageFolder;
 
-            foreach (SecureAreaStorageItem Item in await SecureFolder.GetChildrenItemsAsync(false, ItemFilters.File).ConfigureAwait(true))
+            foreach (FileSystemStorageFile Item in await SecureFolder.GetChildItemsAsync(false, ItemFilters.File).ConfigureAwait(true))
             {
                 SecureCollection.Add(Item);
             }
@@ -367,16 +374,13 @@ namespace RX_Explorer
                 {
                     foreach (string OriginFilePath in FileList.Select((Item) => Item.Path))
                     {
-                        if (await FileSystemStorageItemBase.OpenAsync(OriginFilePath, ItemFilters.File).ConfigureAwait(true) is FileSystemStorageItemBase Item)
+                        if (await FileSystemStorageItemBase.OpenAsync(OriginFilePath).ConfigureAwait(true) is FileSystemStorageFile File)
                         {
-                            if (await Item.EncryptAsync(SecureFolder.Path, EncryptionAESKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is SecureAreaStorageItem EncryptedFile)
+                            if (await File.EncryptAsync(SecureFolder.Path, EncryptionAESKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is FileSystemStorageFile EncryptedFile)
                             {
                                 SecureCollection.Add(EncryptedFile);
 
-                                if (!Item.PermanentDelete())
-                                {
-                                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Delete origin file failed after importing to SecureArea");
-                                }
+                                await File.DeleteAsync(false).ConfigureAwait(true);
                             }
                             else
                             {
@@ -398,7 +402,7 @@ namespace RX_Explorer
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, "An error was threw when importing file");
+                    LogTracer.Log(ex, "An exception was threw when importing file");
 
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -450,16 +454,13 @@ namespace RX_Explorer
                         {
                             foreach (string OriginFilePath in Items.Select((Item) => Item.Path))
                             {
-                                if (await FileSystemStorageItemBase.OpenAsync(OriginFilePath, ItemFilters.File).ConfigureAwait(true) is FileSystemStorageItemBase Item)
+                                if (await FileSystemStorageItemBase.OpenAsync(OriginFilePath).ConfigureAwait(true) is FileSystemStorageFile File)
                                 {
-                                    if (await Item.EncryptAsync(SecureFolder.Path, EncryptionAESKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is SecureAreaStorageItem EncryptedFile)
+                                    if (await File.EncryptAsync(SecureFolder.Path, EncryptionAESKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is FileSystemStorageFile EncryptedFile)
                                     {
                                         SecureCollection.Add(EncryptedFile);
 
-                                        if (!Item.PermanentDelete())
-                                        {
-                                            LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Delete origin file failed after importing to SecureArea");
-                                        }
+                                        await File.DeleteAsync(false).ConfigureAwait(true);
                                     }
                                     else
                                     {
@@ -536,14 +537,55 @@ namespace RX_Explorer
             }
         }
 
-        private void SecureGridView_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void SecureGridView_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext == null)
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageFile Item)
+            {
+                PointerPoint PointerInfo = e.GetCurrentPoint(null);
+
+                if ((e.OriginalSource as FrameworkElement).FindParentOfType<SelectorItem>() != null)
+                {
+                    if (SecureGridView.SelectionMode != ListViewSelectionMode.Multiple)
+                    {
+                        if (e.KeyModifiers == VirtualKeyModifiers.None)
+                        {
+                            if (SecureGridView.SelectedItems.Contains(Item))
+                            {
+                                SelectionExtention.Disable();
+                            }
+                            else
+                            {
+                                if (PointerInfo.Properties.IsLeftButtonPressed)
+                                {
+                                    SecureGridView.SelectedItem = Item;
+                                }
+
+                                if (e.OriginalSource is ListViewItemPresenter || (e.OriginalSource is TextBlock Block && Block.Name == "EmptyTextblock"))
+                                {
+                                    SelectionExtention.Enable();
+                                }
+                                else
+                                {
+                                    SelectionExtention.Disable();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            SelectionExtention.Disable();
+                        }
+                    }
+                    else
+                    {
+                        SelectionExtention.Disable();
+                    }
+                }
+            }
+            else
             {
                 SecureGridView.SelectedItem = null;
+                SelectionExtention.Enable();
             }
-
-            SelectionExtention?.Enable();
         }
 
         private async void DeleteFile_Click(object sender, RoutedEventArgs e)
@@ -558,14 +600,11 @@ namespace RX_Explorer
 
             if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
             {
-                foreach (SecureAreaStorageItem Item in SecureGridView.SelectedItems.ToArray())
+                foreach (FileSystemStorageFile File in SecureGridView.SelectedItems.ToArray())
                 {
-                    SecureCollection.Remove(Item);
+                    SecureCollection.Remove(File);
 
-                    if (!Item.PermanentDelete())
-                    {
-                        LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Delete encrypted file failed");
-                    }
+                    await File.DeleteAsync(true).ConfigureAwait(true);
                 }
             }
         }
@@ -593,16 +632,13 @@ namespace RX_Explorer
                 {
                     ActivateLoading(true, false);
 
-                    foreach (SecureAreaStorageItem Item in SecureGridView.SelectedItems.ToArray())
+                    foreach (FileSystemStorageFile File in SecureGridView.SelectedItems.ToArray())
                     {
-                        if (await Item.DecryptAsync(Folder.Path, EncryptionAESKey, Cancellation.Token).ConfigureAwait(true) is FileSystemStorageItemBase)
+                        if (await File.DecryptAsync(Folder.Path, EncryptionAESKey, Cancellation.Token).ConfigureAwait(true) is FileSystemStorageItemBase)
                         {
-                            SecureCollection.Remove(Item);
+                            SecureCollection.Remove(File);
 
-                            if (!Item.PermanentDelete())
-                            {
-                                LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Delete encrypted file failed after exporting to SecureArea");
-                            }
+                            await File.DeleteAsync(true).ConfigureAwait(true);
                         }
                         else
                         {
@@ -669,11 +705,11 @@ namespace RX_Explorer
             }
         }
 
-        private void SecureGridView_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        private void SecureGridView_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is SecureAreaStorageItem Item)
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageFile File)
                 {
                     if (SecureGridView.SelectedItems.Count > 1)
                     {
@@ -681,7 +717,7 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        SecureGridView.SelectedItem = Item;
+                        SecureGridView.SelectedItem = File;
                         SecureGridView.ContextFlyout = FileFlyout;
                     }
                 }
@@ -695,26 +731,38 @@ namespace RX_Explorer
 
         private async void Property_Click(object sender, RoutedEventArgs e)
         {
-            if (SecureGridView.SelectedItem is SecureAreaStorageItem Item)
+            if (SecureGridView.SelectedItem is FileSystemStorageFile File)
             {
-                SecureFilePropertyDialog Dialog = new SecureFilePropertyDialog(Item);
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                SecureFilePropertyDialog Dialog = new SecureFilePropertyDialog(File);
+                await Dialog.ShowAsync().ConfigureAwait(true);
             }
         }
 
         private async void RenameFile_Click(object sender, RoutedEventArgs e)
         {
-            if (SecureGridView.SelectedItem is SecureAreaStorageItem RenameItem)
+            if (SecureGridView.SelectedItem is FileSystemStorageFile RenameItem)
             {
                 RenameDialog dialog = new RenameDialog(RenameItem);
 
                 if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
-                    if (await RenameItem.GetStorageItemAsync().ConfigureAwait(true) is IStorageItem Item)
+                    if (await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(SecureFolder.Path, dialog.DesireName)).ConfigureAwait(true))
                     {
-                        await Item.RenameAsync(dialog.DesireName);
-                        await RenameItem.Update().ConfigureAwait(false);
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_RenameExist_Content"),
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                        };
+
+                        if (await Dialog.ShowAsync().ConfigureAwait(true) != ContentDialogResult.Primary)
+                        {
+                            return;
+                        }
                     }
+
+                    await RenameItem.RenameAsync(dialog.DesireName).ConfigureAwait(true);
                 }
             }
         }
@@ -854,11 +902,11 @@ namespace RX_Explorer
             Cancellation?.Cancel();
         }
 
-        private void SecureGridView_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
+        private void SecureGridView_Holding(object sender, HoldingRoutedEventArgs e)
         {
             if (e.HoldingState == Windows.UI.Input.HoldingState.Started)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is SecureAreaStorageItem Item)
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageFile File)
                 {
                     if (SecureGridView.SelectedItems.Count > 1)
                     {
@@ -866,7 +914,7 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        SecureGridView.SelectedItem = Item;
+                        SecureGridView.SelectedItem = File;
                         SecureGridView.ContextFlyout = FileFlyout;
                     }
                 }
@@ -875,6 +923,14 @@ namespace RX_Explorer
                     SecureGridView.SelectedItem = null;
                     SecureGridView.ContextFlyout = EmptyFlyout;
                 }
+            }
+        }
+
+        private async void SecureGridView_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
+        {
+            if (args.Item is FileSystemStorageItemBase Item)
+            {
+                await Item.LoadMorePropertyAsync().ConfigureAwait(false);
             }
         }
     }

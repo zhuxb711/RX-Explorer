@@ -20,6 +20,7 @@
         <ComboBox Header="压缩类型"
                   Margin="0,10,0,0"
                   MinWidth="120"
+                  x:Uid="CompressDialogType"
                   Name="CompressionType" 
                   SelectionChanged="CompressionType_SelectionChanged"/>
         <ComboBox x:Uid="CompressDialogLevel"

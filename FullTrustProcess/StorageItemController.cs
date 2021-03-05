@@ -215,7 +215,7 @@ namespace FullTrustProcess
             return UniquePath;
         }
 
-        public static bool Rename(string Source, string DesireName)
+        public static bool Rename(string Source, string DesireName, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostRenameEvent)
         {
             try
             {
@@ -224,12 +224,16 @@ namespace FullTrustProcess
                     Options = ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.RequireElevation | ShellFileOperations.OperationFlags.RenameOnCollision
                 })
                 {
+                    Operation.PostRenameItem += PostRenameEvent;
+
                     using (ShellItem Item = new ShellItem(Source))
                     {
                         Operation.QueueRenameOperation(Item, DesireName);
                     }
 
                     Operation.PerformOperations();
+
+                    Operation.PostRenameItem -= PostRenameEvent;
                 }
 
                 return true;

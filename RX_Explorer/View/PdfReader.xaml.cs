@@ -39,13 +39,13 @@ namespace RX_Explorer
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is FileSystemStorageItemBase Parameters)
+            if (e.Parameter is FileSystemStorageFile Parameters)
             {
                 await Initialize(Parameters).ConfigureAwait(false);
             }
         }
 
-        private async Task Initialize(FileSystemStorageItemBase PdfFile)
+        private async Task Initialize(FileSystemStorageFile PdfFile)
         {
             LoadingControl.IsLoading = true;
 
@@ -68,6 +68,7 @@ namespace RX_Explorer
                     catch (Exception)
                     {
                         PdfPasswordDialog Dialog = new PdfPasswordDialog();
+                        
                         if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                         {
                             Pdf = await PdfDocument.LoadFromStreamAsync(PdfStream, Dialog.Password);

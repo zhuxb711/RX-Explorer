@@ -307,7 +307,7 @@ namespace RX_Explorer
                     await CreateNewTabAsync(MainPage.ThisPage.ActivatePathArray).ConfigureAwait(true);
                 }
 
-                await Task.WhenAll(CommonAccessCollection.LoadQuickStartItemsAsync(), CommonAccessCollection.LoadDeviceAsync(), CommonAccessCollection.LoadLibraryFoldersAsync()).ConfigureAwait(true);
+                await Task.WhenAll(CommonAccessCollection.LoadQuickStartItemsAsync(), CommonAccessCollection.LoadDeviceAsync(), CommonAccessCollection.LoadLibraryFoldersAsync()).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

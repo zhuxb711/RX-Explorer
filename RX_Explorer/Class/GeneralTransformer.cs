@@ -197,7 +197,7 @@ namespace RX_Explorer.Class
         /// <param name="ScaleHeight">缩放高度</param>
         /// <param name="InterpolationMode">插值模式</param>
         /// <returns></returns>
-        public static async Task TranscodeFromImageAsync(FileSystemStorageItemBase SourceFile, FileSystemStorageItemBase DestinationFile, bool IsEnableScale = false, uint ScaleWidth = default, uint ScaleHeight = default, BitmapInterpolationMode InterpolationMode = default)
+        public static async Task TranscodeFromImageAsync(FileSystemStorageFile SourceFile, FileSystemStorageFile DestinationFile, bool IsEnableScale = false, uint ScaleWidth = default, uint ScaleHeight = default, BitmapInterpolationMode InterpolationMode = default)
         {
             IsAnyTransformTaskRunning = true;
 
@@ -235,7 +235,7 @@ namespace RX_Explorer.Class
                 }
                 catch (Exception)
                 {
-                    DestinationFile.PermanentDelete();
+                    await DestinationFile.DeleteAsync(true).ConfigureAwait(true);
 
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                     {

@@ -27,7 +27,7 @@ namespace FullTrustProcess
                             { "ActualPath", Item.FileSystemPath }
                         };
 
-                        if (Path.HasExtension(Item.FileSystemPath))
+                        if (File.Exists(Item.FileSystemPath))
                         {
                             PropertyDic.Add("StorageType", Enum.GetName(typeof(StorageItemTypes), StorageItemTypes.File));
 
@@ -40,10 +40,14 @@ namespace FullTrustProcess
                                 PropertyDic.Add("OriginPath", Item.Name + Item.FileInfo.Extension);
                             }
                         }
-                        else
+                        else if (Directory.Exists(Item.FileSystemPath))
                         {
                             PropertyDic.Add("OriginPath", Item.Name);
                             PropertyDic.Add("StorageType", Enum.GetName(typeof(StorageItemTypes), StorageItemTypes.Folder));
+                        }
+                        else
+                        {
+                            continue;
                         }
 
                         if (Item.Properties.TryGetValue(Ole32.PROPERTYKEY.System.Recycle.DateDeleted, out object DeleteFileTime))
@@ -94,7 +98,7 @@ namespace FullTrustProcess
 
                     if (!Directory.Exists(DirectoryName))
                     {
-                        _ = Directory.CreateDirectory(DirectoryName);
+                        Directory.CreateDirectory(DirectoryName);
                     }
 
                     using (ShellFolder DestItem = new ShellFolder(DirectoryName))
@@ -122,16 +126,22 @@ namespace FullTrustProcess
         {
             try
             {
+                string ExtraInfoFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), System.IO.Path.GetFileName(Path).Replace("$R", "$I"));
+
+                if (File.Exists(ExtraInfoFilePath))
+                {
+                    File.Delete(ExtraInfoFilePath);
+                }
+
                 if (File.Exists(Path))
                 {
                     File.Delete(Path);
 
-                    string ExtraInfoPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), System.IO.Path.GetFileName(Path).Replace("$R", "$I"));
-
-                    if (File.Exists(ExtraInfoPath))
-                    {
-                        File.Delete(ExtraInfoPath);
-                    }
+                    return true;
+                }
+                else if (Directory.Exists(Path))
+                {
+                    Directory.Delete(Path, true);
 
                     return true;
                 }

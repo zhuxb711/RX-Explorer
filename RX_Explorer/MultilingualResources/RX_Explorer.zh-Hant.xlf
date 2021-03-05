@@ -3577,6 +3577,10 @@ Invalid names include
           <source>File type is incorrect, operation cannot be performed</source>
           <target state="translated">文件類型不正確，無法執行操作</target>
         </trans-unit>
+        <trans-unit id="CompressDialogType.Header" translate="yes" xml:space="preserve">
+          <source>Compression type</source>
+          <target state="translated">壓縮類型</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -15,7 +15,7 @@ namespace RX_Explorer
 {
     public sealed partial class TextViewer : Page
     {
-        private FileSystemStorageItemBase TextFile;
+        private FileSystemStorageFile TextFile;
 
         private Encoding CurrentEncoding;
 
@@ -100,7 +100,7 @@ namespace RX_Explorer
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e?.Parameter is FileSystemStorageItemBase Parameters)
+            if (e?.Parameter is FileSystemStorageFile Parameters)
             {
                 TextFile = Parameters;
                 Title.Text = TextFile.Name;
@@ -122,9 +122,9 @@ namespace RX_Explorer
                 {
                     try
                     {
-                        if (await FileSystemStorageItemBase.CreateAsync(TextFile.Path, StorageItemTypes.File, CreateOption.ReplaceExisting).ConfigureAwait(true) is FileSystemStorageItemBase Item)
+                        if (await FileSystemStorageItemBase.CreateAsync(TextFile.Path, StorageItemTypes.File, CreateOption.ReplaceExisting).ConfigureAwait(true) is FileSystemStorageFile File)
                         {
-                            using (FileStream Stream = await Item.GetFileStreamFromFileAsync(AccessMode.Write).ConfigureAwait(true))
+                            using (FileStream Stream = await File.GetFileStreamFromFileAsync(AccessMode.Write).ConfigureAwait(true))
                             using (StreamWriter Writer = new StreamWriter(Stream, CurrentEncoding))
                             {
                                 await Writer.WriteAsync(Text.Text).ConfigureAwait(true);

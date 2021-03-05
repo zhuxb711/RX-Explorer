@@ -908,94 +908,95 @@ namespace RX_Explorer
                     LoadingText.Text = Globalization.GetString("Progress_Tip_Exporting");
                     LoadingControl.IsLoading = true;
 
-                    FileSystemStorageItemBase SecureFolder = await FileSystemStorageItemBase.CreateAsync(Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder"), StorageItemTypes.Folder, CreateOption.OpenIfExist).ConfigureAwait(true);
-
-                    string FileEncryptionAesKey = KeyGenerator.GetMD5WithLength(CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword"), 16);
-
-                    try
+                    if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder"), StorageItemTypes.Folder, CreateOption.OpenIfExist).ConfigureAwait(true) is FileSystemStorageFolder SecureFolder)
                     {
-                        foreach (SecureAreaStorageItem Item in await SecureFolder.GetChildrenItemsAsync(false, ItemFilters.File).ConfigureAwait(true))
-                        {
-                            if (await Item.DecryptAsync(Dialog.ExportFolder.Path, FileEncryptionAesKey).ConfigureAwait(true) is FileSystemStorageItemBase)
-                            {
-                                Item.PermanentDelete();
-                            }
-                        }
+                        string FileEncryptionAesKey = KeyGenerator.GetMD5WithLength(CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword"), 16);
 
                         try
                         {
-                            SQLite.Current.Dispose();
-                            MySQL.Current.Dispose();
-
-                            await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Local);
-                            await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Temporary);
-                            await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Roaming);
-                        }
-                        catch (Exception ex)
-                        {
-                            ApplicationData.Current.LocalSettings.Values.Clear();
-                            LogTracer.Log(ex, $"{nameof(ClearUp_Click)} threw an exception");
-                        }
-
-                        await Task.Delay(1000).ConfigureAwait(true);
-
-                        LoadingControl.IsLoading = false;
-
-                        await Task.Delay(1000).ConfigureAwait(true);
-
-                        Window.Current.Activate();
-
-                        switch (await CoreApplication.RequestRestartAsync(string.Empty))
-                        {
-                            case AppRestartFailureReason.InvalidUser:
-                            case AppRestartFailureReason.NotInForeground:
-                            case AppRestartFailureReason.Other:
+                            foreach (FileSystemStorageFile Item in await SecureFolder.GetChildItemsAsync(false, ItemFilters.File).ConfigureAwait(true))
+                            {
+                                if (await Item.DecryptAsync(Dialog.ExportFolder.Path, FileEncryptionAesKey).ConfigureAwait(true) is FileSystemStorageItemBase)
                                 {
-                                    QueueContentDialog Dialog1 = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_RestartFail_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-
-                                    _ = await Dialog1.ShowAsync().ConfigureAwait(true);
-
-                                    break;
+                                    await Item.DeleteAsync(true).ConfigureAwait(true);
                                 }
+                            }
+
+                            try
+                            {
+                                SQLite.Current.Dispose();
+                                MySQL.Current.Dispose();
+
+                                await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Local);
+                                await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Temporary);
+                                await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Roaming);
+                            }
+                            catch (Exception ex)
+                            {
+                                ApplicationData.Current.LocalSettings.Values.Clear();
+                                LogTracer.Log(ex, $"{nameof(ClearUp_Click)} threw an exception");
+                            }
+
+                            await Task.Delay(1000).ConfigureAwait(true);
+
+                            LoadingControl.IsLoading = false;
+
+                            await Task.Delay(1000).ConfigureAwait(true);
+
+                            Window.Current.Activate();
+
+                            switch (await CoreApplication.RequestRestartAsync(string.Empty))
+                            {
+                                case AppRestartFailureReason.InvalidUser:
+                                case AppRestartFailureReason.NotInForeground:
+                                case AppRestartFailureReason.Other:
+                                    {
+                                        QueueContentDialog Dialog1 = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_RestartFail_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                        };
+
+                                        _ = await Dialog1.ShowAsync().ConfigureAwait(true);
+
+                                        break;
+                                    }
+                            }
                         }
-                    }
-                    catch (PasswordErrorException)
-                    {
-                        QueueContentDialog Dialog1 = new QueueContentDialog
+                        catch (PasswordErrorException)
                         {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_DecryptPasswordError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
+                            QueueContentDialog Dialog1 = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_DecryptPasswordError_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
 
-                        _ = await Dialog1.ShowAsync().ConfigureAwait(true);
-                    }
-                    catch (FileDamagedException)
-                    {
-                        QueueContentDialog Dialog1 = new QueueContentDialog
+                            _ = await Dialog1.ShowAsync().ConfigureAwait(true);
+                        }
+                        catch (FileDamagedException)
                         {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_FileDamageError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
+                            QueueContentDialog Dialog1 = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_FileDamageError_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
 
-                        _ = await Dialog1.ShowAsync().ConfigureAwait(true);
-                    }
-                    catch (Exception)
-                    {
-                        QueueContentDialog Dialog1 = new QueueContentDialog
+                            _ = await Dialog1.ShowAsync().ConfigureAwait(true);
+                        }
+                        catch (Exception)
                         {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
+                            QueueContentDialog Dialog1 = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_EncryptError_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
 
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                        }
                     }
                 }
             }
@@ -1958,7 +1959,9 @@ namespace RX_Explorer
 
                             foreach (StorageFolder DriveFolder in CommonAccessCollection.HardDeviceList.Select((Drive) => Drive.Folder))
                             {
-                                bool HasAnyFolder = await FileSystemStorageItemBase.CheckContainsAnyItemAsync(DriveFolder.Path, ItemFilters.Folder).ConfigureAwait(true);
+                                FileSystemStorageFolder Folder = new FileSystemStorageFolder(DriveFolder, await DriveFolder.GetModifiedTimeAsync().ConfigureAwait(true));
+
+                                bool HasAnyFolder = await Folder.CheckContainsAnyItemAsync(ItemFilters.Folder).ConfigureAwait(true);
 
                                 TreeViewNode RootNode = new TreeViewNode
                                 {

@@ -161,15 +161,13 @@ namespace RX_Explorer.Class
         {
             try
             {
-                FileSystemStorageItemBase TempFolder = await FileSystemStorageItemBase.OpenAsync(ApplicationData.Current.TemporaryFolder.Path, ItemFilters.Folder);
-
-                IEnumerable<FileSystemStorageItemBase> AllPreviousPictureList = (await TempFolder.GetChildrenItemsAsync(false, ItemFilters.File).ConfigureAwait(true)).Where((Item)=> Item.Name.StartsWith("BingDailyPicture_Cache"));
+                IEnumerable<StorageFile> AllPreviousPictureList = (await ApplicationData.Current.TemporaryFolder.GetFilesAsync()).Where((Item) => Item.Name.StartsWith("BingDailyPicture_Cache"));
 
                 if (AllPreviousPictureList.All((Item) => DateTime.TryParseExact(Regex.Match(Item.Name, @"(?<=\[)(.+)(?=\])").Value, "yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime LastUpdateDate) && LastUpdateDate < DateTime.Now.Date))
                 {
-                    foreach (FileSystemStorageItemBase ToDelete in AllPreviousPictureList)
+                    foreach (StorageFile ToDelete in AllPreviousPictureList)
                     {
-                        ToDelete.PermanentDelete();
+                        await ToDelete.DeleteAsync(StorageDeleteOption.PermanentDelete);
                     }
 
                     return true;

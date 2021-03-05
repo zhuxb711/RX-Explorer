@@ -2697,4 +2697,7 @@ Les noms non valides incluent
   <data name="QueueDialog_FileTypeIncorrect_Content" xml:space="preserve">
     <value>Le type de fichier est incorrect, l'opération ne peut pas être effectuée</value>
   </data>
+  <data name="CompressDialogType.Header" xml:space="preserve">
+    <value>Type de compression</value>
+  </data>
 </root>

@@ -60,7 +60,7 @@ namespace RX_Explorer.Class
                     {
                         if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
                         {
-                            await Item.Update().ConfigureAwait(false);
+                            await Item.RefreshAsync().ConfigureAwait(false);
                         }
                     }
                     catch (Exception ex)
@@ -89,7 +89,7 @@ namespace RX_Explorer.Class
                         {
                             if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(NewPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase ExistItem)
                             {
-                                await ExistItem.Replace(NewPath).ConfigureAwait(true);
+                                await ExistItem.ReplaceAsync(NewPath).ConfigureAwait(true);
 
                                 await Task.Delay(700).ConfigureAwait(true);
 
@@ -97,7 +97,7 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                await OlderItem.Replace(NewPath).ConfigureAwait(true);
+                                await OlderItem.ReplaceAsync(NewPath).ConfigureAwait(true);
                             }
                         }
                         else if (CurrentCollection.All((Item) => Item.Path != NewPath))

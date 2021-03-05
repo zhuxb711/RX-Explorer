@@ -166,11 +166,20 @@
     <Compile Include="Class\ContextMenuItem.cs" />
     <Compile Include="Class\Enum.cs" />
     <Compile Include="Class\Exception.cs" />
+    <Compile Include="Class\FileSystemStorageFile.cs" />
+    <Compile Include="Class\FileSystemStorageFolder.cs" />
     <Compile Include="Class\FilterController.cs" />
-    <Compile Include="Class\HiddenStorageItem.cs" />
-    <Compile Include="Class\HyperlinkStorageItem.cs" />
+    <Compile Include="Class\HiddenStorageFile.cs" />
+    <Compile Include="Class\HiddenStorageFolder.cs" />
+    <Compile Include="Class\LinkStorageFile.cs" />
     <Compile Include="Class\InstalledApplication.cs" />
-    <Compile Include="Class\IUknownInterface.cs" />
+    <Compile Include="Class\RecycleStorageFolder.cs" />
+    <Compile Include="Interface\ICryptable.cs" />
+    <Compile Include="Interface\IHiddenStorageItem.cs" />
+    <Compile Include="Interface\ILinkStorageFile.cs" />
+    <Compile Include="Interface\IRecycleStorageItem.cs" />
+    <Compile Include="Interface\IStorageItemOperation.cs" />
+    <Compile Include="Interface\IUknownInterface.cs" />
     <Compile Include="Class\JumpListController.cs" />
     <Compile Include="Class\StartupModeController.cs" />
     <Compile Include="Class\ListViewBaseSelectionExtention.cs" />
@@ -179,8 +188,7 @@
     <Compile Include="Class\OperationRecorder.cs" />
     <Compile Include="Class\PathConfiguration.cs" />
     <Compile Include="Class\PipeLineController.cs" />
-    <Compile Include="Class\RecycleStorageItem.cs" />
-    <Compile Include="Class\SecureAreaStorageItem.cs" />
+    <Compile Include="Class\RecycleStorageFile.cs" />
     <Compile Include="Class\SortCollectionGenerator.cs" />
     <Compile Include="Class\SortIndicatorController.cs" />
     <Compile Include="Class\SpecialTypeGenerator.cs" />
@@ -269,6 +277,8 @@
     <Compile Include="Class\QueueContentDialog.cs" />
     <Compile Include="Class\QuickStartItem.cs" />
     <Compile Include="Class\SQLite.cs" />
+    <Compile Include="Interface\IStorageItemPropertyBase.cs" />
+    <Compile Include="Interface\IUnsupportedStorageItem.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="CustomControl\AppBarButtonWithImage.xaml.cs">
       <DependentUpon>AppBarButtonWithImage.xaml</DependentUpon>
@@ -679,7 +689,7 @@
       <Version>5.0.3</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Net.Compilers.Toolset">
-      <Version>3.8.0</Version>
+      <Version>3.9.0</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

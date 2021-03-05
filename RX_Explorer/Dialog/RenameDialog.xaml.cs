@@ -11,7 +11,7 @@ namespace RX_Explorer.Dialog
     {
         public string DesireName { get; private set; }
 
-        private FileSystemStorageItemBase Item;
+        private readonly FileSystemStorageItemBase Item;
 
         public RenameDialog(FileSystemStorageItemBase Item)
         {
@@ -25,7 +25,7 @@ namespace RX_Explorer.Dialog
 
         private void RenameDialog_Loaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
-            if (Item.StorageType == StorageItemTypes.File)
+            if (Item is FileSystemStorageFile)
             {
                 if (Item.Name != Path.GetExtension(Item.Name))
                 {

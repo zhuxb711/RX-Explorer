@@ -110,34 +110,40 @@
                   IsHoldingEnabled="True"
                   Holding="SecureGridView_Holding"
                   RightTapped="SecureGridView_RightTapped"
+                  ContainerContentChanging="SecureGridView_ContainerContentChanging"
                   Name="SecureGridView"
-                  PointerPressed="SecureGridView_PointerPressed"
                   DragEnter="SecureGridView_DragEnter"
                   Padding="20,10,20,10"
                   ItemsSource="{x:Bind SecureCollection}"
                   ItemContainerTransitions="{x:Bind local:AnimationController.Current.PaneLeftTransitions,Mode=OneWay}">
             <GridView.ItemTemplate>
-                <DataTemplate x:DataType="local:SecureAreaStorageItem">
-                    <StackPanel Width="215"
-                                Padding="5"
-                                Orientation="Horizontal"
-                                AllowDrop="True">
+                <DataTemplate x:DataType="local:FileSystemStorageFile">
+                    <StackPanel Padding="5"
+                                Width="220"
+                                Orientation="Horizontal">
                         <Image VerticalAlignment="Center"
                                Stretch="Uniform"
-                               Source="{x:Bind Thumbnail,Mode=OneWay}"
-                               Height="60"
-                               Width="60" />
+                               Source="ms-appx:///Assets/LockFile.png"
+                               Height="55"
+                               Width="55" />
                         <StackPanel Orientation="Vertical"
                                     VerticalAlignment="Top"
                                     Margin="5,0,0,0">
-                            <TextBlock Text="{x:Bind Name,Mode=OneWay}"
-                                       ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay}"
-                                       FontSize="16"
-                                       Width="140"
-                                       TextTrimming="CharacterEllipsis" />
-                            <TextBlock Text="{x:Bind DisplayType}"
+                            <TextBlock Text="{x:Bind Name, Mode=OneWay}"
+                                       ToolTipService.ToolTip="{x:Bind Name, Mode=OneWay}"
+                                       TextTrimming="CharacterEllipsis"
+                                       HorizontalAlignment="Left"
+                                       MaxWidth="150"
+                                       FontSize="16" />
+                            <TextBlock Text="{x:Bind DisplayType, Mode=OneWay}"
+                                       TextTrimming="CharacterEllipsis"
+                                       HorizontalAlignment="Left"
+                                       MaxWidth="150"
                                        FontSize="13" />
                             <TextBlock Text="{x:Bind Size}"
+                                       TextTrimming="CharacterEllipsis"
+                                       MaxWidth="150"
+                                       HorizontalAlignment="Left"
                                        FontSize="13" />
                         </StackPanel>
                     </StackPanel>

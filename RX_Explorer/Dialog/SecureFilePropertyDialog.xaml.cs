@@ -18,15 +18,15 @@ namespace RX_Explorer.Dialog
 
         public string Level { get; private set; }
 
-        private readonly SecureAreaStorageItem StorageItem;
+        private readonly FileSystemStorageFile StorageItem;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public SecureFilePropertyDialog(SecureAreaStorageItem Item)
+        public SecureFilePropertyDialog(FileSystemStorageFile File)
         {
             InitializeComponent();
 
-            StorageItem = Item ?? throw new ArgumentNullException(nameof(Item), "Parameter could not be null");
+            StorageItem = File ?? throw new ArgumentNullException(nameof(File), "Parameter could not be null");
 
             Loading += SecureFilePropertyDialog_Loading;
         }

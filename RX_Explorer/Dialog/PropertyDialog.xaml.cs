@@ -42,7 +42,7 @@ namespace RX_Explorer.Dialog
 
         private async void PropertyDialog_Loading(FrameworkElement sender, object args)
         {
-            if (Item.StorageType == StorageItemTypes.File)
+            if (Item is FileSystemStorageFile)
             {
                 IncludeArea.Visibility = Visibility.Collapsed;
 
@@ -53,7 +53,7 @@ namespace RX_Explorer.Dialog
                 ChangeTime = Item.ModifiedTimeRaw.ToString("F");
                 FileSize = Item.Size + " (" + Item.SizeRaw.ToString("N0") + $" {Globalization.GetString("Device_Capacity_Unit")})";
 
-                if (Item is HyperlinkStorageItem LinkItem)
+                if (Item is LinkStorageFile LinkItem)
                 {
                     LinkTargetArea.Visibility = Visibility.Visible;
                     ExtraDataArea.Visibility = Visibility.Collapsed;
@@ -138,7 +138,7 @@ namespace RX_Explorer.Dialog
                     }
                 }
             }
-            else
+            else if(Item is FileSystemStorageFolder Folder)
             {
                 ExtraDataArea.Visibility = Visibility.Collapsed;
 
@@ -158,13 +158,13 @@ namespace RX_Explorer.Dialog
                 {
                     Cancellation = new CancellationTokenSource();
 
-                    Task CountTask = CalculateFolderAndFileCount(Item.Path, Cancellation.Token).ContinueWith((task) =>
+                    Task CountTask = CalculateFolderAndFileCount(Folder, Cancellation.Token).ContinueWith((task) =>
                     {
                         Include = task.Result;
                         PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Include)));
                     }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
 
-                    Task SizeTask = CalculateFolderSize(Item.Path, Cancellation.Token).ContinueWith((task) =>
+                    Task SizeTask = CalculateFolderSize(Folder, Cancellation.Token).ContinueWith((task) =>
                     {
                         FileSize = task.Result;
                         PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(FileSize)));
@@ -210,9 +210,9 @@ namespace RX_Explorer.Dialog
             return string.Format("{0:D2}:{1:D2}:{2:D2}", Hour, Minute, Second);
         }
 
-        private async Task<string> CalculateFolderSize(string FolderPath, CancellationToken CancelToken = default)
+        private async Task<string> CalculateFolderSize(FileSystemStorageFolder Folder, CancellationToken CancelToken = default)
         {
-            ulong TotalSize = await FileSystemStorageItemBase.GetSizeAsync(FolderPath, CancelToken).ConfigureAwait(false);
+            ulong TotalSize = await Folder.GetFolderSizeAsync(CancelToken).ConfigureAwait(false);
 
             if (CancelToken.IsCancellationRequested)
             {
@@ -224,9 +224,9 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        private async Task<string> CalculateFolderAndFileCount(string FolderPath, CancellationToken CancelToken = default)
+        private async Task<string> CalculateFolderAndFileCount(FileSystemStorageFolder Folder, CancellationToken CancelToken = default)
         {
-            (uint FolderCount, uint FileCount) = await FileSystemStorageItemBase.GetFolderAndFileNumAsync(FolderPath, CancelToken).ConfigureAwait(false);
+            (uint FolderCount, uint FileCount) = await Folder.GetFolderAndFileNumAsync(CancelToken).ConfigureAwait(false);
 
             if (Cancellation.IsCancellationRequested)
             {

@@ -129,7 +129,7 @@
       <Version>5.0.3</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Net.Compilers.Toolset">
-      <Version>3.8.0</Version>
+      <Version>3.9.0</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

@@ -2802,4 +2802,7 @@ Invalid names include
   <data name="QueueDialog_FileTypeIncorrect_Content" xml:space="preserve">
     <value>File type is incorrect, operation cannot be performed</value>
   </data>
+  <data name="CompressDialogType.Header" xml:space="preserve">
+    <value>Compression type</value>
+  </data>
 </root>

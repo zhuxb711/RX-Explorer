@@ -1,12 +1,12 @@
 ﻿namespace ShareClassLibrary
 {
-    public sealed class HiddenItemPackage
+    public sealed class HiddenDataPackage
     {
         public byte[] IconData { get; }
 
         public string DisplayType { get; }
 
-        public HiddenItemPackage(string DisplayType, byte[] IconData)
+        public HiddenDataPackage(string DisplayType, byte[] IconData)
         {
             this.DisplayType = DisplayType;
             this.IconData = IconData;

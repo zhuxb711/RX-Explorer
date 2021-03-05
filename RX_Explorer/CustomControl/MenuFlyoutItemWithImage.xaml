@@ -13,6 +13,8 @@
         <Style TargetType="local:MenuFlyoutItemWithImage">
             <Setter Property="MinWidth"
                     Value="150" />
+            <Setter Property="MaxWidth" 
+                    Value="350"/>
             <Setter Property="Background"
                     Value="{ThemeResource MenuFlyoutItemRevealBackground}" />
             <Setter Property="BorderBrush"
@@ -175,7 +177,7 @@
                                    Stretch="Uniform" />
                             <TextBlock x:Name="TextBlock"
                                        Text="{TemplateBinding Text}"
-                                       TextTrimming="Clip"
+                                       TextTrimming="CharacterEllipsis"
                                        Foreground="{TemplateBinding Foreground}"
                                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />

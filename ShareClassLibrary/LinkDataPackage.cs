@@ -2,7 +2,7 @@
 
 namespace ShareClassLibrary
 {
-    public sealed class HyperlinkPackage
+    public sealed class LinkDataPackage
     {
         public string LinkPath { get; }
 
@@ -16,7 +16,7 @@ namespace ShareClassLibrary
 
         public byte[] IconData { get; } 
 
-        public HyperlinkPackage(string LinkPath, string LinkTargetPath, string Description, bool NeedRunAsAdmin, byte[]? IconData, params string[] Argument)
+        public LinkDataPackage(string LinkPath, string LinkTargetPath, string Description, bool NeedRunAsAdmin, byte[]? IconData, params string[] Argument)
         {
             this.LinkPath = LinkPath;
             this.LinkTargetPath = LinkTargetPath;

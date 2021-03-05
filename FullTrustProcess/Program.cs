@@ -133,7 +133,7 @@ namespace FullTrustProcess
 
                                 ValueSet Value = new ValueSet
                                 {
-                                    {"Success", JsonSerializer.Serialize(new HiddenItemPackage(Item.FileInfo.TypeName, Stream.ToArray()))}
+                                    {"Success", JsonSerializer.Serialize(new HiddenDataPackage(Item.FileInfo.TypeName, Stream.ToArray()))}
                                 };
 
                                 await args.Request.SendResponseAsync(Value);
@@ -237,7 +237,7 @@ namespace FullTrustProcess
                         }
                     case "Execute_CreateLink":
                         {
-                            HyperlinkPackage Package = JsonSerializer.Deserialize<HyperlinkPackage>(Convert.ToString(args.Request.Message["DataPackage"]));
+                            LinkDataPackage Package = JsonSerializer.Deserialize<LinkDataPackage>(Convert.ToString(args.Request.Message["DataPackage"]));
 
                             string Argument = string.Join(" ", Package.Argument.Select((Para) => (Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"")) ? $"\"{Para}\"" : Para).ToArray());
 
@@ -290,11 +290,10 @@ namespace FullTrustProcess
                                 {
                                     if (StorageItemController.CheckPermission(FileSystemRights.Modify, Path.GetDirectoryName(ExecutePath)))
                                     {
-                                        if (StorageItemController.Rename(ExecutePath, DesireName))
+                                        if (!StorageItemController.Rename(ExecutePath, DesireName, (s, e) =>
                                         {
-                                            Value.Add("Success", string.Empty);
-                                        }
-                                        else
+                                            Value.Add("Success", e.Name);
+                                        }))
                                         {
                                             Value.Add("Error_Failure", "Error happened when rename");
                                         }
@@ -413,7 +412,7 @@ namespace FullTrustProcess
                                             TempBitmap.MakeTransparent();
                                             TempBitmap.Save(IconStream, ImageFormat.Png);
 
-                                            Value.Add("Success", JsonSerializer.Serialize(new HyperlinkPackage(ExecutePath, ActualPath, string.Empty, false, IconStream.ToArray())));
+                                            Value.Add("Success", JsonSerializer.Serialize(new LinkDataPackage(ExecutePath, ActualPath, string.Empty, false, IconStream.ToArray())));
                                         }
                                     }
                                     else
@@ -437,7 +436,7 @@ namespace FullTrustProcess
                                             {
                                                 byte[] IconData = await Helper.GetIconDataFromPackageFamilyName(PackageFamilyName).ConfigureAwait(true);
 
-                                                Value.Add("Success", JsonSerializer.Serialize(new HyperlinkPackage(ExecutePath, PackageFamilyName, Link.Description, false, IconData)));
+                                                Value.Add("Success", JsonSerializer.Serialize(new LinkDataPackage(ExecutePath, PackageFamilyName, Link.Description, false, IconData)));
                                             }
                                         }
                                         else
@@ -465,7 +464,7 @@ namespace FullTrustProcess
                                                 TempBitmap.MakeTransparent();
                                                 TempBitmap.Save(IconStream, ImageFormat.Png);
 
-                                                Value.Add("Success", JsonSerializer.Serialize(new HyperlinkPackage(ExecutePath, ActualPath, Link.Description, Link.RunAsAdministrator, IconStream.ToArray(), Arguments.ToArray())));
+                                                Value.Add("Success", JsonSerializer.Serialize(new LinkDataPackage(ExecutePath, ActualPath, Link.Description, Link.RunAsAdministrator, IconStream.ToArray(), Arguments.ToArray())));
                                             }
                                         }
                                     }

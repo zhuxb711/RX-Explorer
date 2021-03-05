@@ -5,6 +5,7 @@ using NetworkAccess;
 using RX_Explorer.CustomControl;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -26,6 +27,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media;
+using RX_Explorer.Interface;
 using Windows.UI.Xaml.Media.Imaging;
 using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
 using TreeView = Microsoft.UI.Xaml.Controls.TreeView;
@@ -39,10 +41,38 @@ namespace RX_Explorer.Class
     /// </summary>
     public static class Extention
     {
+        public static Task CopyToAsync(this Stream From, Stream To, ProgressChangedEventHandler ProgressHandler)
+        {
+            return Task.Run(() =>
+            {
+                long TotalBytesRead = 0;
+
+                byte[] DataBuffer = new byte[2048];
+
+                while (true)
+                {
+                    int bytesRead = From.Read(DataBuffer, 0, DataBuffer.Length);
+
+                    if (bytesRead > 0)
+                    {
+                        To.Write(DataBuffer, 0, bytesRead);
+                        TotalBytesRead += bytesRead;
+                    }
+                    else
+                    {
+                        To.Flush();
+                        break;
+                    }
+
+                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(TotalBytesRead * 100d / From.Length)), null));
+                }
+            });
+        }
+
         public static SafeFileHandle GetSafeFileHandle(this IStorageItem Item)
         {
-            IntPtr ComInterface = Marshal.GetComInterfaceForObject(Item, typeof(IUknownInterface.IStorageItemHandleAccess));
-            IUknownInterface.IStorageItemHandleAccess StorageHandleAccess = (IUknownInterface.IStorageItemHandleAccess)Marshal.GetObjectForIUnknown(ComInterface);
+            IntPtr ComInterface = Marshal.GetComInterfaceForObject(Item, typeof(IStorageItemHandleAccess));
+            IStorageItemHandleAccess StorageHandleAccess = (IStorageItemHandleAccess)Marshal.GetObjectForIUnknown(ComInterface);
 
             const uint READ_FLAG = 0x120089;
             const uint WRITE_FLAG = 0x120116;
@@ -252,8 +282,8 @@ namespace RX_Explorer.Class
         /// <returns>Safe句柄，Dispose该对象可以解除锁定</returns>
         public static FileStream LockAndBlockAccess(this IStorageItem Item)
         {
-            IntPtr ComInterface = Marshal.GetComInterfaceForObject(Item, typeof(IUknownInterface.IStorageItemHandleAccess));
-            IUknownInterface.IStorageItemHandleAccess StorageHandleAccess = (IUknownInterface.IStorageItemHandleAccess)Marshal.GetObjectForIUnknown(ComInterface);
+            IntPtr ComInterface = Marshal.GetComInterfaceForObject(Item, typeof(IStorageItemHandleAccess));
+            IStorageItemHandleAccess StorageHandleAccess = (IStorageItemHandleAccess)Marshal.GetObjectForIUnknown(ComInterface);
 
             const uint READ_FLAG = 0x120089;
             const uint WRITE_FLAG = 0x120116;
@@ -327,7 +357,7 @@ namespace RX_Explorer.Class
 
             if (Node.Children.Count > 0)
             {
-                List<string> FolderList = WIN_Native_API.GetStorageItemsAndReturnPath((Node.Content as TreeViewNodeContent).Path, SettingControl.IsDisplayHiddenItem, ItemFilters.Folder);
+                List<string> FolderList = WIN_Native_API.GetStorageItems((Node.Content as TreeViewNodeContent).Path, SettingControl.IsDisplayHiddenItem, ItemFilters.Folder).Select((Item)=>Item.Path).ToList();
                 List<string> PathList = Node.Children.Select((Item) => (Item.Content as TreeViewNodeContent).Path).ToList();
                 List<string> AddList = FolderList.Except(PathList).ToList();
                 List<string> RemoveList = PathList.Except(FolderList).ToList();
@@ -336,12 +366,15 @@ namespace RX_Explorer.Class
                 {
                     foreach (string AddPath in AddList)
                     {
-                        Node.Children.Add(new TreeViewNode
+                        if (await FileSystemStorageItemBase.OpenAsync(AddPath) is FileSystemStorageFolder Folder)
                         {
-                            Content = new TreeViewNodeContent(AddPath),
-                            HasUnrealizedChildren = await FileSystemStorageItemBase.CheckContainsAnyItemAsync(AddPath, ItemFilters.Folder).ConfigureAwait(true),
-                            IsExpanded = false
-                        });
+                            Node.Children.Add(new TreeViewNode
+                            {
+                                Content = new TreeViewNodeContent(AddPath),
+                                HasUnrealizedChildren = await Folder.CheckContainsAnyItemAsync(ItemFilters.Folder).ConfigureAwait(true),
+                                IsExpanded = false
+                            });
+                        }
                     }
 
                     foreach (string RemovePath in RemoveList)
@@ -360,7 +393,10 @@ namespace RX_Explorer.Class
             }
             else
             {
-                Node.HasUnrealizedChildren = await FileSystemStorageItemBase.CheckContainsAnyItemAsync((Node.Content as TreeViewNodeContent).Path, ItemFilters.Folder).ConfigureAwait(true);
+                if (await FileSystemStorageItemBase.OpenAsync((Node.Content as TreeViewNodeContent).Path) is FileSystemStorageFolder Folder)
+                {
+                    Node.HasUnrealizedChildren = await Folder.CheckContainsAnyItemAsync(ItemFilters.Folder).ConfigureAwait(true);
+                }
             }
         }
 

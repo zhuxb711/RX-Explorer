@@ -27,7 +27,7 @@ namespace RX_Explorer
     {
         ObservableCollection<PhotoDisplaySupport> PhotoCollection;
         AnimationFlipViewBehavior Behavior = new AnimationFlipViewBehavior();
-        string SelectedPhotoPath;
+        FileSystemStorageFile SelectedPhotoFile;
         int LastSelectIndex;
         double OriginHorizonOffset;
         double OriginVerticalOffset;
@@ -44,9 +44,9 @@ namespace RX_Explorer
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.NavigationMode == NavigationMode.New && e.Parameter is string Parameters)
+            if (e.NavigationMode == NavigationMode.New && e.Parameter is FileSystemStorageFile File)
             {
-                SelectedPhotoPath = Parameters;
+                SelectedPhotoFile = File;
 
                 await Initialize().ConfigureAwait(false);
             }
@@ -62,9 +62,9 @@ namespace RX_Explorer
 
                 Behavior.Attach(Flip);
 
-                if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(SelectedPhotoPath), ItemFilters.Folder).ConfigureAwait(true) is FileSystemStorageItemBase Item)
+                if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(SelectedPhotoFile.Path)).ConfigureAwait(true) is FileSystemStorageFolder Item)
                 {
-                    FileSystemStorageItemBase[] PictureFileList = (await Item.GetChildrenItemsAsync(SettingControl.IsDisplayHiddenItem, ItemFilters.File)).Where((Item) => Item.Type.Equals(".png", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".bmp", StringComparison.OrdinalIgnoreCase)).ToArray();
+                    FileSystemStorageFile[] PictureFileList = (await Item.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, ItemFilters.File)).OfType<FileSystemStorageFile>().Where((Item) => Item.Type.Equals(".png", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".bmp", StringComparison.OrdinalIgnoreCase)).ToArray();
 
                     if (PictureFileList.Length == 0)
                     {
@@ -80,7 +80,7 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        int LastSelectIndex = Array.FindIndex(PictureFileList, (Photo) => Photo.Path.Equals(SelectedPhotoPath, StringComparison.OrdinalIgnoreCase));
+                        int LastSelectIndex = Array.FindIndex(PictureFileList, (Photo) => Photo.Path.Equals(SelectedPhotoFile.Path, StringComparison.OrdinalIgnoreCase));
 
                         if (LastSelectIndex < 0 || LastSelectIndex >= PictureFileList.Length)
                         {
@@ -168,7 +168,7 @@ namespace RX_Explorer
                 Behavior.Detach();
                 PhotoCollection?.Clear();
                 PhotoCollection = null;
-                SelectedPhotoPath = string.Empty;
+                SelectedPhotoFile = null;
                 Flip.SelectionChanged -= Flip_SelectionChanged;
                 Flip.SelectionChanged -= Flip_SelectionChanged1;
                 Flip.Opacity = 0;
@@ -337,7 +337,7 @@ namespace RX_Explorer
 
         private async void TranscodeImage_Click(object sender, RoutedEventArgs e)
         {
-            FileSystemStorageItemBase Item = PhotoCollection[Flip.SelectedIndex].PhotoFile;
+            FileSystemStorageFile Item = PhotoCollection[Flip.SelectedIndex].PhotoFile;
 
             TranscodeImageDialog Dialog = null;
             using (IRandomAccessStream OriginStream = await Item.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read).ConfigureAwait(true))
@@ -363,19 +363,20 @@ namespace RX_Explorer
             try
             {
                 PhotoDisplaySupport Item = PhotoCollection[Flip.SelectedIndex];
-                Item.PhotoFile.PermanentDelete();
+                await Item.PhotoFile.DeleteAsync(true).ConfigureAwait(true);
                 PhotoCollection.Remove(Item);
                 Behavior.InitAnimation(InitOption.Full);
             }
             catch (Exception)
             {
-                QueueContentDialog dialog = new QueueContentDialog
+                QueueContentDialog Dialog = new QueueContentDialog
                 {
                     Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
                     Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
+
+                _ = await Dialog.ShowAsync().ConfigureAwait(true);
             }
         }
 

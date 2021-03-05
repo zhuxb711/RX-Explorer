@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RX_Explorer.Interface;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -58,18 +59,18 @@ namespace RX_Explorer.Class
             }
         }
 
-        public IEnumerable<T> GetSortedCollection<T>(IEnumerable<T> InputCollection) where T : FileSystemStorageItemBase
+        public IEnumerable<T> GetSortedCollection<T>(IEnumerable<T> InputCollection) where T : IStorageItemPropertyBase
         {
             return GetSortedCollection(InputCollection, null, null);
         }
 
-        public IEnumerable<T> GetSortedCollection<T>(IEnumerable<T> InputCollection, SortTarget? Target, SortDirection? Direction) where T : FileSystemStorageItemBase
+        public IEnumerable<T> GetSortedCollection<T>(IEnumerable<T> InputCollection, SortTarget? Target, SortDirection? Direction) where T : IStorageItemPropertyBase
         {
             SortTarget TempTarget = Target ?? SortTarget;
             SortDirection TempDirection = Direction ?? SortDirection;
 
-            IEnumerable<T> FolderList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.Folder);
-            IEnumerable<T> FileList = InputCollection.Where((It) => It.StorageType == StorageItemTypes.File);
+            IEnumerable<T> FolderList = InputCollection.Where((It) => It is FileSystemStorageFolder);
+            IEnumerable<T> FileList = InputCollection.Where((It) => It is FileSystemStorageFile);
 
             switch (TempTarget)
             {
@@ -105,11 +106,11 @@ namespace RX_Explorer.Class
                     }
                 default:
                     {
-                        if (typeof(T) == typeof(RecycleStorageItem))
+                        if (typeof(T) == typeof(IRecycleStorageItem))
                         {
                             return TempDirection == SortDirection.Ascending
-                                ? FolderList.Select((Item) => Item as RecycleStorageItem).OrderBy((Item) => Item.OriginPath).Concat(FileList.Select((Item) => Item as RecycleStorageItem).OrderBy((Item) => Item.OriginPath)).Select((Item) => Item as T)
-                                : FolderList.Select((Item) => Item as RecycleStorageItem).OrderByDescending((Item) => Item.OriginPath).Concat(FileList.Select((Item) => Item as RecycleStorageItem).OrderByDescending((Item) => Item.OriginPath)).Select((Item) => Item as T);
+                                ? FolderList.OfType<IRecycleStorageItem>().OrderBy((Item) => Item.OriginPath).Concat(FileList.OfType<IRecycleStorageItem>().OrderBy((Item) => Item.OriginPath)).OfType<T>()
+                                : FolderList.OfType<IRecycleStorageItem>().OrderByDescending((Item) => Item.OriginPath).Concat(FileList.OfType<IRecycleStorageItem>().OrderByDescending((Item) => Item.OriginPath)).OfType<T>();
                         }
                         else
                         {
@@ -119,7 +120,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public int SearchInsertLocation<T>(ICollection<T> InputCollection, T SearchTarget) where T : FileSystemStorageItemBase
+        public int SearchInsertLocation<T>(ICollection<T> InputCollection, T SearchTarget) where T : IStorageItemPropertyBase
         {
             if (InputCollection == null)
             {
@@ -137,24 +138,24 @@ namespace RX_Explorer.Class
                     {
                         if (SortDirection == SortDirection.Ascending)
                         {
-                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Name, SearchTarget.Name, StringComparison.OrdinalIgnoreCase) > 0);
+                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.GetType() == SearchTarget.GetType()).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Name, SearchTarget.Name, StringComparison.OrdinalIgnoreCase) > 0);
 
-                            if (SearchResult == default)
+                            if (SearchResult.Item == null)
                             {
-                                if (SearchTarget.StorageType == StorageItemTypes.File)
+                                if (SearchTarget is FileSystemStorageFile)
                                 {
                                     return InputCollection.Count;
                                 }
                                 else
                                 {
-                                    return InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.Folder);
+                                    return InputCollection.Count((Item) => Item is FileSystemStorageFolder);
                                 }
                             }
                             else
                             {
-                                if (SearchTarget.StorageType == StorageItemTypes.File)
+                                if (SearchTarget is FileSystemStorageFile)
                                 {
-                                    return SearchResult.Index + InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.Folder);
+                                    return SearchResult.Index + InputCollection.Count((Item) => Item is FileSystemStorageFolder);
                                 }
                                 else
                                 {
@@ -165,11 +166,11 @@ namespace RX_Explorer.Class
                         else
                         {
                             //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
-                            int Index = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Name, SearchTarget.Name, StringComparison.OrdinalIgnoreCase) < 0).Index;
+                            int Index = InputCollection.Where((Item) => Item.GetType() == SearchTarget.GetType()).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Name, SearchTarget.Name, StringComparison.OrdinalIgnoreCase) < 0).Index;
 
-                            if (SearchTarget.StorageType == StorageItemTypes.Folder)
+                            if (SearchTarget is FileSystemStorageFolder)
                             {
-                                Index += InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.File);
+                                Index += InputCollection.Count((Item) => Item is FileSystemStorageFile);
                             }
 
                             return Index;
@@ -179,24 +180,24 @@ namespace RX_Explorer.Class
                     {
                         if (SortDirection == SortDirection.Ascending)
                         {
-                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Type, SearchTarget.Type, StringComparison.OrdinalIgnoreCase) > 0);
+                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.GetType() == SearchTarget.GetType()).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Type, SearchTarget.Type, StringComparison.OrdinalIgnoreCase) > 0);
 
-                            if (SearchResult == default)
+                            if (SearchResult.Item == null)
                             {
-                                if (SearchTarget.StorageType == StorageItemTypes.File)
+                                if (SearchTarget is FileSystemStorageFile)
                                 {
                                     return InputCollection.Count;
                                 }
                                 else
                                 {
-                                    return InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.Folder);
+                                    return InputCollection.Count((Item) => Item is FileSystemStorageFolder);
                                 }
                             }
                             else
                             {
-                                if (SearchTarget.StorageType == StorageItemTypes.File)
+                                if (SearchTarget is FileSystemStorageFile)
                                 {
-                                    return SearchResult.Index + InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.Folder);
+                                    return SearchResult.Index + InputCollection.Count((Item) => Item is FileSystemStorageFolder);
                                 }
                                 else
                                 {
@@ -207,11 +208,11 @@ namespace RX_Explorer.Class
                         else
                         {
                             //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
-                            int Index = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Type, SearchTarget.Type, StringComparison.OrdinalIgnoreCase) < 0).Index;
+                            int Index = InputCollection.Where((Item) => Item.GetType() == SearchTarget.GetType()).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Type, SearchTarget.Type, StringComparison.OrdinalIgnoreCase) < 0).Index;
 
-                            if (SearchTarget.StorageType == StorageItemTypes.Folder)
+                            if (SearchTarget is FileSystemStorageFolder)
                             {
-                                Index += InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.File);
+                                Index += InputCollection.Count((Item) => Item is FileSystemStorageFile);
                             }
 
                             return Index;
@@ -221,24 +222,24 @@ namespace RX_Explorer.Class
                     {
                         if (SortDirection == SortDirection.Ascending)
                         {
-                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => DateTimeOffset.Compare(Value.Item.ModifiedTimeRaw, SearchTarget.ModifiedTimeRaw) > 0);
+                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.GetType() == SearchTarget.GetType()).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => DateTimeOffset.Compare(Value.Item.ModifiedTimeRaw, SearchTarget.ModifiedTimeRaw) > 0);
 
-                            if (SearchResult == default)
+                            if (SearchResult.Item == null)
                             {
-                                if (SearchTarget.StorageType == StorageItemTypes.File)
+                                if (SearchTarget is FileSystemStorageFile)
                                 {
                                     return InputCollection.Count;
                                 }
                                 else
                                 {
-                                    return InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.Folder);
+                                    return InputCollection.Count((Item) => Item is FileSystemStorageFolder);
                                 }
                             }
                             else
                             {
-                                if (SearchTarget.StorageType == StorageItemTypes.File)
+                                if (SearchTarget is FileSystemStorageFile)
                                 {
-                                    return SearchResult.Index + InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.Folder);
+                                    return SearchResult.Index + InputCollection.Count((Item) => Item is FileSystemStorageFolder);
                                 }
                                 else
                                 {
@@ -249,11 +250,11 @@ namespace RX_Explorer.Class
                         else
                         {
                             //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
-                            int Index = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => DateTimeOffset.Compare(Value.Item.ModifiedTimeRaw, SearchTarget.ModifiedTimeRaw) < 0).Index;
+                            int Index = InputCollection.Where((Item) => Item.GetType() == SearchTarget.GetType()).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => DateTimeOffset.Compare(Value.Item.ModifiedTimeRaw, SearchTarget.ModifiedTimeRaw) < 0).Index;
 
-                            if (SearchTarget.StorageType == StorageItemTypes.Folder)
+                            if (SearchTarget is FileSystemStorageFolder)
                             {
-                                Index += InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.File);
+                                Index += InputCollection.Count((Item) => Item is FileSystemStorageFile);
                             }
 
                             return Index;
@@ -263,24 +264,24 @@ namespace RX_Explorer.Class
                     {
                         if (SortDirection == SortDirection.Ascending)
                         {
-                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.SizeRaw.CompareTo(SearchTarget.SizeRaw) > 0);
+                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.GetType() == SearchTarget.GetType()).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.SizeRaw.CompareTo(SearchTarget.SizeRaw) > 0);
 
-                            if (SearchResult == default)
+                            if (SearchResult.Item == null)
                             {
-                                if (SearchTarget.StorageType == StorageItemTypes.File)
+                                if (SearchTarget is FileSystemStorageFile)
                                 {
                                     return InputCollection.Count;
                                 }
                                 else
                                 {
-                                    return InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.Folder);
+                                    return InputCollection.Count((Item) => Item is FileSystemStorageFolder);
                                 }
                             }
                             else
                             {
-                                if (SearchTarget.StorageType == StorageItemTypes.File)
+                                if (SearchTarget is FileSystemStorageFile)
                                 {
-                                    return SearchResult.Index + InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.Folder);
+                                    return SearchResult.Index + InputCollection.Count((Item) => Item is FileSystemStorageFolder);
                                 }
                                 else
                                 {
@@ -291,11 +292,11 @@ namespace RX_Explorer.Class
                         else
                         {
                             //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
-                            int Index = InputCollection.Where((Item) => Item.StorageType == SearchTarget.StorageType).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.SizeRaw.CompareTo(SearchTarget.SizeRaw) < 0).Index;
+                            int Index = InputCollection.Where((Item) => Item.GetType() == SearchTarget.GetType()).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.SizeRaw.CompareTo(SearchTarget.SizeRaw) < 0).Index;
 
-                            if (SearchTarget.StorageType == StorageItemTypes.Folder)
+                            if (SearchTarget is FileSystemStorageFolder)
                             {
-                                Index += InputCollection.Count((Item) => Item.StorageType == StorageItemTypes.File);
+                                Index += InputCollection.Count((Item) => Item is FileSystemStorageFile);
                             }
 
                             return Index;

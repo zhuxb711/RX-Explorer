@@ -58,8 +58,8 @@ namespace RX_Explorer
 
                 if (WeakToFileControl.TryGetTarget(out FileControl Control))
                 {
-                    string CurrentPath = Control.CurrentPresenter.CurrentFolder.Path;
                     string SearchTarget = Control.GlobeSearch.Text;
+                    FileSystemStorageFolder CurrentFolder = Control.CurrentPresenter.CurrentFolder;
 
                     List<FileSystemStorageItemBase> SearchItems = null;
 
@@ -67,19 +67,19 @@ namespace RX_Explorer
                     {
                         case SearchCategory.BuiltInEngine_Deep:
                             {
-                                SearchItems = await FileSystemStorageItemBase.SearchAsync(CurrentPath, SearchTarget, true, SettingControl.IsDisplayHiddenItem, IncludeRegex, IngoreCase, Cancellation.Token).ToListAsync();
+                                SearchItems = await CurrentFolder.SearchAsync(SearchTarget, true, SettingControl.IsDisplayHiddenItem, IncludeRegex, IngoreCase, Cancellation.Token).ToListAsync();
                                 break;
                             }
                         case SearchCategory.BuiltInEngine_Shallow:
                             {
-                                SearchItems = await FileSystemStorageItemBase.SearchAsync(CurrentPath, SearchTarget, false, SettingControl.IsDisplayHiddenItem, IncludeRegex, IngoreCase, Cancellation.Token).ToListAsync();
+                                SearchItems = await CurrentFolder.SearchAsync(SearchTarget, false, SettingControl.IsDisplayHiddenItem, IncludeRegex, IngoreCase, Cancellation.Token).ToListAsync();
                                 break;
                             }
                         case SearchCategory.EverythingEngine:
                             {
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                 {
-                                    SearchItems = await Exclusive.Controller.SearchByEverythingAsync(GlobleSearch ? string.Empty : CurrentPath, SearchTarget, IncludeRegex, IngoreCase, MaxCount).ConfigureAwait(true);
+                                    SearchItems = await Exclusive.Controller.SearchByEverythingAsync(GlobleSearch ? string.Empty : CurrentFolder.Path, SearchTarget, IncludeRegex, IngoreCase, MaxCount).ConfigureAwait(true);
                                 }
                                 break;
                             }

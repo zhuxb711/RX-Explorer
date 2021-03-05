@@ -19,15 +19,15 @@ namespace RX_Explorer.Dialog
 {
     public sealed partial class ProgramPickerDialog : QueueContentDialog
     {
-        private ObservableCollection<ProgramPickerItem> ProgramCollection = new ObservableCollection<ProgramPickerItem>();
+        private readonly ObservableCollection<ProgramPickerItem> ProgramCollection = new ObservableCollection<ProgramPickerItem>();
 
-        private FileSystemStorageItemBase OpenFile;
+        private readonly FileSystemStorageFile OpenFile;
 
         public ProgramPickerItem SelectedProgram { get; private set; }
 
-        private List<ProgramPickerItem> NotRecommandList = new List<ProgramPickerItem>();
+        private readonly List<ProgramPickerItem> NotRecommandList = new List<ProgramPickerItem>();
 
-        public ProgramPickerDialog(FileSystemStorageItemBase OpenFile)
+        public ProgramPickerDialog(FileSystemStorageFile OpenFile)
         {
             InitializeComponent();
 

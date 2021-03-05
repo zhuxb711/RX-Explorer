@@ -19,7 +19,7 @@ namespace RX_Explorer
 {
     public sealed partial class MediaPlayer : Page
     {
-        private FileSystemStorageItemBase MediaFile;
+        private FileSystemStorageFile MediaFile;
         private MediaSource Source;
 
         private readonly Dictionary<string, string> MIMEDictionary = new Dictionary<string, string>
@@ -190,9 +190,12 @@ namespace RX_Explorer
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            MediaFile = e.Parameter as FileSystemStorageItemBase;
-            CoreWindow.GetForCurrentThread().KeyDown += MediaPlayer_KeyDown; ;
-            await Initialize().ConfigureAwait(false);
+            if (e.Parameter is FileSystemStorageFile File)
+            {
+                MediaFile = File;
+                CoreWindow.GetForCurrentThread().KeyDown += MediaPlayer_KeyDown;
+                await Initialize().ConfigureAwait(false);
+            }
         }
 
         private void MediaPlayer_KeyDown(CoreWindow sender, KeyEventArgs args)

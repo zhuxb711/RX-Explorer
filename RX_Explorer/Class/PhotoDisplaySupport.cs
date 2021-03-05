@@ -46,7 +46,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 获取Photo的StorageFile对象
         /// </summary>
-        public FileSystemStorageItemBase PhotoFile { get; private set; }
+        public FileSystemStorageFile PhotoFile { get; private set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -55,7 +55,7 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="ImageSource">缩略图</param>
         /// <param name="File">文件</param>
-        public PhotoDisplaySupport(FileSystemStorageItemBase Item)
+        public PhotoDisplaySupport(FileSystemStorageFile Item)
         {
             PhotoFile = Item;
         }

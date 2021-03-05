@@ -7,6 +7,7 @@
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       xmlns:Cls="using:RX_Explorer.Class"
+      xmlns:Interface ="using:RX_Explorer.Interface"
       xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
       xmlns:Behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
       mc:Ignorable="d"
@@ -30,6 +31,7 @@
                 <AppBarSeparator />
                 <AppBarButton Label="属性"
                               Icon="Tag"
+                              x:Uid="FileAttribute"
                               Name="PropertyButton"
                               Click="PropertyButton_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
@@ -63,7 +65,6 @@
                   x:Name="ListViewControl"
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch"
-                  PointerPressed="ListViewControl_PointerPressed"
                   RightTapped="ListViewControl_RightTapped"
                   SelectionMode="Extended"
                   ContainerContentChanging="ListViewControl_ContainerContentChanging"
@@ -73,6 +74,7 @@
                   SelectionChanged="ListViewControl_SelectionChanged"
                   Holding="ListViewControl_Holding"
                   DoubleTapped="ListViewControl_DoubleTapped"
+                  ShowsScrollingPlaceholders="False"
                   ItemsSource="{x:Bind FileCollection}"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
             <Interactivity:Interaction.Behaviors>
@@ -181,7 +183,7 @@
                 </Style>
             </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
-                <DataTemplate x:DataType="Cls:RecycleStorageItem">
+                <DataTemplate x:DataType="Interface:IRecycleStorageItem">
                     <Grid HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="4*" />
@@ -200,14 +202,16 @@
                             <Image VerticalAlignment="Center"
                                    HorizontalAlignment="Center"
                                    Stretch="Uniform"
-                                   Source="{x:Bind Thumbnail,Mode=OneWay}"
+                                   Source="{x:Bind Thumbnail, Mode=OneWay}"
                                    Height="30"
-                                   Width="30" />
+                                   Width="30" 
+                                   x:Phase="1"/>
                             <TextBlock VerticalAlignment="Center"
                                        FontSize="14"
                                        Grid.Column="1"
                                        HorizontalAlignment="Left"
                                        Text="{x:Bind Name}"
+                                       x:Phase="0"
                                        ToolTipService.ToolTip="{x:Bind Name}"
                                        TextTrimming="CharacterEllipsis" />
                         </Grid>
@@ -217,30 +221,34 @@
                                    Text="{x:Bind OriginPath}"
                                    ToolTipService.ToolTip="{x:Bind OriginPath}"
                                    Grid.Column="1"
+                                   x:Phase="0"
                                    Padding="8,0,0,0"
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"
                                    FontSize="14"
                                    HorizontalAlignment="Left"
-                                   Text="{x:Bind ModifiedTime,Mode=OneWay}"
-                                   ToolTipService.ToolTip="{x:Bind ModifiedTime,Mode=OneWay}"
+                                   Text="{x:Bind ModifiedTime}"
+                                   ToolTipService.ToolTip="{x:Bind ModifiedTime}"
                                    Grid.Column="2"
+                                   x:Phase="0"
                                    Padding="8,0,0,0"
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"
                                    FontSize="14"
                                    HorizontalAlignment="Left"
-                                   Text="{x:Bind DisplayType,Mode=OneWay}"
-                                   ToolTipService.ToolTip="{x:Bind DisplayType}"
+                                   Text="{x:Bind DisplayType, Mode=OneWay}"
+                                   ToolTipService.ToolTip="{x:Bind DisplayType, Mode=OneWay}"
                                    Grid.Column="3"
+                                   x:Phase="0"
                                    Margin="8,0,0,0"
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"
                                    FontSize="14"
                                    HorizontalAlignment="Left"
                                    Padding="8,0,0,0"
-                                   Text="{x:Bind Size}"
-                                   ToolTipService.ToolTip="{x:Bind Size}"
+                                   Text="{x:Bind Size, Mode=OneWay}"
+                                   x:Phase="1"
+                                   ToolTipService.ToolTip="{x:Bind Size, Mode=OneWay}"
                                    TextTrimming="CharacterEllipsis"
                                    Grid.Column="4" />
                         <TextBlock VerticalAlignment="Center"

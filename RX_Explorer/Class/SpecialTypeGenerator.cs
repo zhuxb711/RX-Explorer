@@ -57,11 +57,11 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("The extension must be .zip", nameof(Name));
             }
 
-            if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase Item)
+            if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageFile File)
             {
                 try
                 {
-                    using (FileStream Stream = await Item.GetFileStreamFromFileAsync(AccessMode.ReadWrite).ConfigureAwait(true))
+                    using (FileStream Stream = await File.GetFileStreamFromFileAsync(AccessMode.ReadWrite).ConfigureAwait(true))
                     using (ZipFile Zip = ZipFile.Create(Stream))
                     {
                         Zip.BeginUpdate();
@@ -97,11 +97,11 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("The extension must be .rtf", nameof(Name));
             }
 
-            if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase Item)
+            if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageFile File)
             {
                 try
                 {
-                    using (FileStream Stream = await Item.GetFileStreamFromFileAsync(AccessMode.ReadWrite).ConfigureAwait(true))
+                    using (FileStream Stream = await File.GetFileStreamFromFileAsync(AccessMode.ReadWrite).ConfigureAwait(true))
                     {
                         RichEditBox REB = new RichEditBox();
                         using (InMemoryRandomAccessStream MemoryStream = new InMemoryRandomAccessStream())
@@ -143,11 +143,11 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("The extension must be .xlsx", nameof(Name));
             }
 
-            if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase Item)
+            if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TargetFolder, Name), StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageFile File)
             {
                 try
                 {
-                    using (FileStream FileStream = await Item.GetFileStreamFromFileAsync(AccessMode.ReadWrite).ConfigureAwait(true))
+                    using (FileStream FileStream = await File.GetFileStreamFromFileAsync(AccessMode.ReadWrite).ConfigureAwait(true))
                     using (SpreadsheetDocument Document = SpreadsheetDocument.Create(FileStream, SpreadsheetDocumentType.Workbook))
                     {
                         CreateExcelParts(Document);

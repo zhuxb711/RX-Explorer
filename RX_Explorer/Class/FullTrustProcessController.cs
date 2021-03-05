@@ -1,4 +1,5 @@
-﻿using ShareClassLibrary;
+﻿using RX_Explorer.Interface;
+using ShareClassLibrary;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -798,7 +799,7 @@ namespace RX_Explorer.Class
         }
 
 
-        public async Task<HiddenItemPackage> GetHiddenItemDataAsync(string Path)
+        public async Task<HiddenDataPackage> GetHiddenItemDataAsync(string Path)
         {
             try
             {
@@ -820,7 +821,7 @@ namespace RX_Explorer.Class
                         {
                             if (Response.Message.TryGetValue("Success", out object Result))
                             {
-                                return JsonSerializer.Deserialize<HiddenItemPackage>(Convert.ToString(Result));
+                                return JsonSerializer.Deserialize<HiddenDataPackage>(Convert.ToString(Result));
                             }
                             else
                             {
@@ -984,7 +985,7 @@ namespace RX_Explorer.Class
                     ValueSet Value = new ValueSet
                     {
                         {"ExecuteType", ExecuteType_CreateLink},
-                        {"DataPackage", JsonSerializer.Serialize(new HyperlinkPackage(LinkPath, LinkTarget, LinkDesc, false, null, LinkArgument)) }
+                        {"DataPackage", JsonSerializer.Serialize(new LinkDataPackage(LinkPath, LinkTarget, LinkDesc, false, null, LinkArgument)) }
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -1083,7 +1084,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task RenameAsync(string Path, string DesireName)
+        public async Task<string> RenameAsync(string Path, string DesireName)
         {
             try
             {
@@ -1102,7 +1103,11 @@ namespace RX_Explorer.Class
 
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        if (Response.Message.TryGetValue("Error_Occupied", out object ErrorMessage1))
+                        if(Response.Message.TryGetValue("Success", out object NewName))
+                        {
+                            return Convert.ToString(NewName);
+                        }
+                        else if (Response.Message.TryGetValue("Error_Occupied", out object ErrorMessage1))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage1}");
 
@@ -1119,6 +1124,10 @@ namespace RX_Explorer.Class
                             LogTracer.Log($"An unexpected error was threw in {nameof(RenameAsync)}, message: {ErrorMessage3}");
 
                             throw new InvalidOperationException();
+                        }
+                        else
+                        {
+                            throw new Exception();
                         }
                     }
                     else
@@ -1139,7 +1148,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<HyperlinkPackage> GetLnkDataAsync(string Path)
+        public async Task<LinkDataPackage> GetLnkDataAsync(string Path)
         {
             try
             {
@@ -1159,7 +1168,7 @@ namespace RX_Explorer.Class
                     {
                         if (Response.Message.TryGetValue("Success", out object Result))
                         {
-                            return JsonSerializer.Deserialize<HyperlinkPackage>(Convert.ToString(Result));
+                            return JsonSerializer.Deserialize<LinkDataPackage>(Convert.ToString(Result));
                         }
                         else
                         {
@@ -1587,7 +1596,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<List<RecycleStorageItem>> GetRecycleBinItemsAsync()
+        public async Task<List<IRecycleStorageItem>> GetRecycleBinItemsAsync()
         {
             try
             {
@@ -1607,11 +1616,18 @@ namespace RX_Explorer.Class
                         if (Response.Message.TryGetValue("RecycleBinItems_Json_Result", out object Result))
                         {
                             List<Dictionary<string, string>> JsonList = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(Convert.ToString(Result));
-                            List<RecycleStorageItem> RecycleItems = new List<RecycleStorageItem>(JsonList.Count);
+                            List<IRecycleStorageItem> RecycleItems = new List<IRecycleStorageItem>(JsonList.Count);
 
                             foreach (Dictionary<string, string> PropertyDic in JsonList)
                             {
-                                RecycleItems.Add(new RecycleStorageItem(PropertyDic["ActualPath"], PropertyDic["OriginPath"], Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]), DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
+                                if (Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]) == StorageItemTypes.Folder)
+                                {
+                                    RecycleItems.Add(new RecycleStorageFolder(PropertyDic["ActualPath"], PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
+                                }
+                                else
+                                {
+                                    RecycleItems.Add(new RecycleStorageFile(PropertyDic["ActualPath"], PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
+                                }
                             }
 
                             return RecycleItems;
@@ -1623,25 +1639,25 @@ namespace RX_Explorer.Class
                                 LogTracer.Log($"An unexpected error was threw in {nameof(GetRecycleBinItemsAsync)}, message: {ErrorMessage}");
                             }
 
-                            return new List<RecycleStorageItem>(0);
+                            return new List<IRecycleStorageItem>(0);
                         }
                     }
                     else
                     {
                         LogTracer.Log($"AppServiceResponse in {nameof(GetRecycleBinItemsAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return new List<RecycleStorageItem>(0);
+                        return new List<IRecycleStorageItem>(0);
                     }
                 }
                 else
                 {
                     LogTracer.Log($"{nameof(GetRecycleBinItemsAsync)}: Failed to connect AppService");
-                    return new List<RecycleStorageItem>(0);
+                    return new List<IRecycleStorageItem>(0);
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"{nameof(GetRecycleBinItemsAsync)} throw an error");
-                return new List<RecycleStorageItem>(0);
+                return new List<IRecycleStorageItem>(0);
             }
             finally
             {
@@ -1829,51 +1845,55 @@ namespace RX_Explorer.Class
                     {
                         if (await FileSystemStorageItemBase.OpenAsync(SourcePath).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                         {
-                            try
+                            switch (Item)
                             {
-                                if (Item.StorageType == StorageItemTypes.File)
-                                {
-                                    MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
-                                }
-                                else
-                                {
-                                    string TargetPath = Path.Combine(DestinationPath, Path.GetFileName(SourcePath));
-
-                                    if (await FileSystemStorageItemBase.CheckExistAsync(TargetPath).ConfigureAwait(true))
+                                case FileSystemStorageFile:
                                     {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                                            Content = $"{Globalization.GetString("QueueDialog_FolderRepeat_Content")} {Path.GetFileName(SourcePath)}",
-                                            PrimaryButtonText = Globalization.GetString("QueueDialog_FolderRepeat_PrimaryButton"),
-                                            CloseButtonText = Globalization.GetString("QueueDialog_FolderRepeat_CloseButton")
-                                        };
+                                        MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
 
-                                        if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
+                                        break;
+                                    }
+                                case FileSystemStorageFolder:
+                                    {
+                                        string TargetPath = Path.Combine(DestinationPath, Path.GetFileName(SourcePath));
+
+                                        if (await FileSystemStorageItemBase.CheckExistAsync(TargetPath).ConfigureAwait(true))
                                         {
-                                            if (await FileSystemStorageItemBase.CreateAsync(TargetPath, StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase NewFolder)
+                                            QueueContentDialog Dialog = new QueueContentDialog
                                             {
-                                                MessageList.Add(new KeyValuePair<string, string>(SourcePath, Path.GetFileName(NewFolder.Path)));
+                                                Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                                                Content = $"{Globalization.GetString("QueueDialog_FolderRepeat_Content")} {Path.GetFileName(SourcePath)}",
+                                                PrimaryButtonText = Globalization.GetString("QueueDialog_FolderRepeat_PrimaryButton"),
+                                                CloseButtonText = Globalization.GetString("QueueDialog_FolderRepeat_CloseButton")
+                                            };
+
+                                            if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
+                                            {
+                                                if (await FileSystemStorageItemBase.CreateAsync(TargetPath, StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase NewFolder)
+                                                {
+                                                    MessageList.Add(new KeyValuePair<string, string>(SourcePath, Path.GetFileName(NewFolder.Path)));
+                                                }
+                                                else
+                                                {
+                                                    throw new Exception($"Could not create a folder on \"{TargetPath}\"");
+                                                }
                                             }
                                             else
                                             {
-                                                throw new Exception($"Could not create a folder on \"{TargetPath}\"");
+                                                MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
                                             }
                                         }
                                         else
                                         {
                                             MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
                                         }
+
+                                        break;
                                     }
-                                    else
+                                default:
                                     {
-                                        MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
+                                        throw new FileNotFoundException();
                                     }
-                                }
-                            }
-                            catch
-                            {
-                                throw new FileNotFoundException();
                             }
                         }
                         else
@@ -2043,37 +2063,44 @@ namespace RX_Explorer.Class
                     {
                         if (await FileSystemStorageItemBase.OpenAsync(SourcePath).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                         {
-                            try
+                            switch (Item)
                             {
-                                if (Item.StorageType == StorageItemTypes.File)
-                                {
-                                    MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
-                                }
-                                else
-                                {
-                                    if (Path.GetDirectoryName(SourcePath) != DestinationPath)
+                                case FileSystemStorageFile:
                                     {
-                                        string TargetPath = Path.Combine(DestinationPath, Path.GetFileName(SourcePath));
+                                        MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
 
-                                        if (await FileSystemStorageItemBase.CheckExistAsync(TargetPath).ConfigureAwait(true))
+                                        break;
+                                    }
+                                case FileSystemStorageFolder:
+                                    {
+                                        if (Path.GetDirectoryName(SourcePath) != DestinationPath)
                                         {
-                                            QueueContentDialog Dialog = new QueueContentDialog
-                                            {
-                                                Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                                                Content = $"{Globalization.GetString("QueueDialog_FolderRepeat_Content")} {Path.GetFileName(SourcePath)}",
-                                                PrimaryButtonText = Globalization.GetString("QueueDialog_FolderRepeat_PrimaryButton"),
-                                                CloseButtonText = Globalization.GetString("QueueDialog_FolderRepeat_CloseButton")
-                                            };
+                                            string TargetPath = Path.Combine(DestinationPath, Path.GetFileName(SourcePath));
 
-                                            if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
+                                            if (await FileSystemStorageItemBase.CheckExistAsync(TargetPath).ConfigureAwait(true))
                                             {
-                                                if (await FileSystemStorageItemBase.CreateAsync(TargetPath, StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase NewFolder)
+                                                QueueContentDialog Dialog = new QueueContentDialog
                                                 {
-                                                    MessageList.Add(new KeyValuePair<string, string>(SourcePath, Path.GetFileName(NewFolder.Path)));
+                                                    Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                                                    Content = $"{Globalization.GetString("QueueDialog_FolderRepeat_Content")} {Path.GetFileName(SourcePath)}",
+                                                    PrimaryButtonText = Globalization.GetString("QueueDialog_FolderRepeat_PrimaryButton"),
+                                                    CloseButtonText = Globalization.GetString("QueueDialog_FolderRepeat_CloseButton")
+                                                };
+
+                                                if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
+                                                {
+                                                    if (await FileSystemStorageItemBase.CreateAsync(TargetPath, StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase NewFolder)
+                                                    {
+                                                        MessageList.Add(new KeyValuePair<string, string>(SourcePath, Path.GetFileName(NewFolder.Path)));
+                                                    }
+                                                    else
+                                                    {
+                                                        throw new Exception($"Could not create a folder on \"{TargetPath}\"");
+                                                    }
                                                 }
                                                 else
                                                 {
-                                                    throw new Exception($"Could not create a folder on \"{TargetPath}\"");
+                                                    MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
                                                 }
                                             }
                                             else
@@ -2085,16 +2112,13 @@ namespace RX_Explorer.Class
                                         {
                                             MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
                                         }
+
+                                        break;
                                     }
-                                    else
+                                default:
                                     {
-                                        MessageList.Add(new KeyValuePair<string, string>(SourcePath, string.Empty));
+                                        throw new FileNotFoundException();
                                     }
-                                }
-                            }
-                            catch
-                            {
-                                throw new FileNotFoundException();
                             }
                         }
                         else

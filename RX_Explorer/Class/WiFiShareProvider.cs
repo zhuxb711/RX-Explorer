@@ -78,7 +78,7 @@ namespace RX_Explorer.Class
 
                                if (HttpContext.Request.Url.LocalPath.Substring(1) == FilePathMap.Key)
                                {
-                                   if (await FileSystemStorageItemBase.OpenAsync(FilePathMap.Value, ItemFilters.File).ConfigureAwait(true) is FileSystemStorageItemBase ShareFile)
+                                   if (await FileSystemStorageItemBase.OpenAsync(FilePathMap.Value).ConfigureAwait(true) is FileSystemStorageFile ShareFile)
                                    {
                                        using (FileStream Stream = await ShareFile.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(true))
                                        {

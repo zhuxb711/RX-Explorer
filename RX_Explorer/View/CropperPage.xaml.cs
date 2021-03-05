@@ -23,7 +23,7 @@ namespace RX_Explorer
         SoftwareBitmap OriginBackupImage;
         SoftwareBitmap FilterImage;
         SoftwareBitmap FilterBackupImage;
-        FileSystemStorageItemBase OriginFile;
+        FileSystemStorageFile OriginFile;
         Rect UnchangeRegion;
         ObservableCollection<FilterItem> FilterCollection = new ObservableCollection<FilterItem>();
 

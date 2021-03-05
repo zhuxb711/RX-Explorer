@@ -8,6 +8,7 @@ namespace RX_Explorer.Class
     public sealed class TreeViewNodeContent : INotifyPropertyChanged
     {
         private StorageFolder InnerFolder;
+        private string InnerPath;
 
         public string DisplayName
         {
@@ -25,13 +26,21 @@ namespace RX_Explorer.Class
             }
         }
 
-        private string InnerPath;
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void OnPropertyChanged(string Name)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(Name));
+        }
+
+        public void ReplaceWithNewPath(string NewPath)
+        {
+            if (InnerPath != NewPath)
+            {
+                InnerFolder = null;
+                InnerPath = NewPath;
+                OnPropertyChanged(nameof(DisplayName));
+            }
         }
 
         public async Task<StorageFolder> GetStorageFolderAsync()

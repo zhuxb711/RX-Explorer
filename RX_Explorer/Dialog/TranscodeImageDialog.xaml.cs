@@ -12,7 +12,7 @@ namespace RX_Explorer.Dialog
 {
     public sealed partial class TranscodeImageDialog : QueueContentDialog
     {
-        public FileSystemStorageItemBase TargetFile { get; private set; }
+        public FileSystemStorageFile TargetFile { get; private set; }
 
         private readonly uint PixelWidth;
 
@@ -50,9 +50,9 @@ namespace RX_Explorer.Dialog
 
         private async void SavePositionButton_Click(object sender, RoutedEventArgs e)
         {
-            if (await Picker.PickSaveFileAsync() is StorageFile File)
+            if (await Picker.PickSaveFileAsync() is StorageFile SaveFile)
             {
-                TargetFile = await FileSystemStorageItemBase.OpenAsync(File.Path, ItemFilters.File).ConfigureAwait(false);
+                TargetFile = new FileSystemStorageFile(SaveFile, await SaveFile.GetSizeRawDataAsync().ConfigureAwait(true), await SaveFile.GetModifiedTimeAsync().ConfigureAwait(true));
             }
         }
 
