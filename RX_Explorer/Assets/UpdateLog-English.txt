@@ -1,4 +1,59 @@
 ﻿*****
+###What's new in Ver.6.1.5.0
+
+#####Feature update
+
+>#####Added support for compression formats such as .tar and .gz
+
+>#####Continue to strengthen support for network drives
+
+>#####Enhanced copy and paste function, now you can copy files and folders from the virtual machine [PR #130](https://github.com/zhuxb711/RX-Explorer/pull/130)
+
+>#####Add Bluetooth audio playback function, which can allow audio streaming to the machine for playback
+
+#####Performance improvement
+
+>#####Improved the startup speed of RX in some scenarios
+
+>#####Improved Quicklook detection logic
+
+#####UI update
+
+>#####The number of shortcut menu items is limited, and overlapping menu controls are added
+
+>#####The column header of the detailed list will now be docked at the top and always visible
+
+>#####Improved the progress tracking during the compression and decompression process, and now it is possible to track the progress of a single file in detail
+
+>#####Compression can now be used for more combinations of different file types
+
+>#####Media playback function can now exit the full screen by Esc, and the left mouse button can play/pause step by step
+
+>#####Improved the Bluetooth sharing module and improved stability
+
+>#####Updated some icons
+
+#####Bug fix
+
+>#####Fixed some issues related to renaming, which may cause the security domain to crash or incorrect data
+
+>#####Fixed the problem that may cause the recycle bin to fail to delete the folder
+
+>#####Fixed the problem that the recycle bin may not be able to distinguish files and folders correctly
+
+>#####Fixed the problem that the box selection function may not be used in the recycle bin and security domain
+
+>#####Fixed the problem that the small square of the address address cannot record the path normally in some cases
+
+>#####Fixed the problem that empty folders may not be handled correctly during Zip compression, which will cause empty folders to be incorrectly identified as files
+
+>#####Fixed the problem that closing tabs in some cases may cause a crash
+
+>#####Fixed the problem that if you enter the edit page after rotating the picture 180°in the picture viewer, the picture cannot be displayed correctly
+
+>#####Fixed the problem that the font color prompt box may be switched every time you enter the settings page
+
+*****
 ###What's new in Ver.6.1.0.0
 
 #####Feature update

@@ -1,4 +1,59 @@
 ﻿*****
+###Quoi de neuf dans la version 6.1.5.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Ajout de la prise en charge des formats de compression tels que .tar et .gz
+
+>#####Continuer à renforcer la prise en charge des lecteurs réseau
+
+>#####Fonction de copier-coller améliorée, vous pouvez désormais copier des fichiers et des dossiers depuis la machine virtuelle [PR # 130] (https://github.com/zhuxb711/RX-Explorer/pull/130)
+
+>#####Ajouter la fonction de lecture audio Bluetooth, qui peut permettre la diffusion audio vers la machine pour la lecture
+
+#####Amélioration des performances
+
+>#####Amélioration de la vitesse de démarrage de RX dans certains scénarios
+
+>#####Amélioration de la logique de détection de Quicklook
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Le nombre d'éléments du menu contextuel est limité et des commandes de menu qui se chevauchent sont ajoutées
+
+>#####L'en-tête de colonne de la liste détaillée sera désormais ancré en haut et toujours visible
+
+>#####Amélioration du suivi de la progression pendant le processus de compression et de décompression, et maintenant il est possible de suivre la progression d'un seul fichier en détail
+
+>#####La compression peut maintenant être utilisée pour plus de combinaisons de différents types de fichiers
+
+>#####La fonction de lecture multimédia peut maintenant quitter le plein écran par Esc, et le bouton gauche de la souris peut lire / mettre en pause étape par étape
+
+>#####Amélioration du module de partage Bluetooth et amélioration de la stabilité
+
+>#####Mise à jour de certaines icônes
+
+#####Correction d'un bug
+
+>#####Correction de certains problèmes liés au changement de nom, qui peuvent entraîner le blocage du domaine de sécurité ou des données incorrectes
+
+>#####Correction du problème qui pouvait empêcher la corbeille de supprimer le dossier
+
+>#####Correction du problème qui empêchait la corbeille de distinguer correctement les fichiers et les dossiers
+
+>#####Correction du problème selon lequel la fonction de sélection de boîte ne pouvait pas être utilisée dans la corbeille et le domaine de sécurité
+
+>#####Correction du problème que le petit carré de l'adresse de l'adresse ne peut pas enregistrer le chemin normalement dans certains cas
+
+>#####Correction du problème selon lequel les dossiers vides peuvent ne pas être gérés correctement lors de la compression Zip, ce qui entraînera une identification incorrecte des dossiers vides en tant que fichiers
+
+>#####Correction du problème selon lequel la fermeture des onglets dans certains cas peut provoquer un plantage
+
+>#####Correction du problème suivant: si vous entrez dans la page d'édition après avoir fait pivoter l'image de 180 ° dans la visionneuse d'images, l'image ne peut pas être affichée correctement
+
+>#####Correction du problème de changement de la boîte d'invite de couleur de police à chaque fois que vous entrez dans la page des paramètres
+
+*****
 ###Quoi de neuf dans la version 6.1.0.0
 
 #####Mise à jour des fonctionnalités
