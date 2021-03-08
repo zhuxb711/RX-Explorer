@@ -23,26 +23,6 @@
     <x:Double x:Key="ContentDialogMaxWidth">550</x:Double>
     <x:Double x:Key="ContentDialogMaxHeight">700</x:Double>
 
-    <Style x:Key="ButtonLikeCommandBarFlyout"
-           TargetType="Button">
-        <Setter Property="Background"
-                Value="{ThemeResource CommandBarFlyoutButtonBackground}" />
-        <Setter Property="Foreground"
-                Value="{ThemeResource SystemControlForegroundBaseHighBrush}" />
-        <Setter Property="BorderBrush"
-                Value="{ThemeResource SystemControlTransparentBrush}" />
-        <Setter Property="BorderThickness"
-                Value="0" />
-        <Setter Property="FontFamily"
-                Value="{ThemeResource ContentControlThemeFontFamily}" />
-        <Setter Property="FontWeight"
-                Value="Normal" />
-        <Setter Property="UseSystemFocusVisuals"
-                Value="{StaticResource UseSystemFocusVisuals}" />
-        <Setter Property="AllowFocusOnInteraction"
-                Value="False" />
-    </Style>
-
     <Style x:Key="OnlyClickableButtonStyle"
            TargetType="Button">
         <Setter Property="Background"

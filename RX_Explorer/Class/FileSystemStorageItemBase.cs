@@ -63,7 +63,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                if (ModifiedTimeRaw == DateTimeOffset.MaxValue.ToLocalTime())
+                if (ModifiedTimeRaw == DateTimeOffset.MaxValue.ToLocalTime() || ModifiedTimeRaw == DateTimeOffset.MinValue.ToLocalTime())
                 {
                     return Globalization.GetString("UnknownText");
                 }

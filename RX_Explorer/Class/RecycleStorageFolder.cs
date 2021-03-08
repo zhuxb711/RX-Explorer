@@ -25,6 +25,21 @@ namespace RX_Explorer.Class
             }
         }
 
+        public override string ModifiedTime
+        {
+            get
+            {
+                if (ModifiedTimeRaw == DateTimeOffset.FromFileTime(0))
+                {
+                    return Globalization.GetString("UnknownText");
+                }
+                else
+                {
+                    return ModifiedTimeRaw.ToString("G");
+                }
+            }
+        }
+
         public override Task DeleteAsync(bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
         {
             return DeleteAsync();

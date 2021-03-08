@@ -24,7 +24,8 @@ namespace FullTrustProcess
                     {
                         Dictionary<string, string> PropertyDic = new Dictionary<string, string>
                         {
-                            { "ActualPath", Item.FileSystemPath }
+                            { "ActualPath", Item.FileSystemPath },
+                            { "DeleteTime", (Item.IShellItem as Shell32.IShellItem2).GetFileTime(Ole32.PROPERTYKEY.System.Recycle.DateDeleted).ToInt64().ToString() }
                         };
 
                         if (File.Exists(Item.FileSystemPath))
@@ -48,15 +49,6 @@ namespace FullTrustProcess
                         else
                         {
                             continue;
-                        }
-
-                        if (Item.Properties.TryGetValue(Ole32.PROPERTYKEY.System.Recycle.DateDeleted, out object DeleteFileTime))
-                        {
-                            PropertyDic.Add("DeleteTime", Convert.ToString(((FILETIME)DeleteFileTime).ToInt64()));
-                        }
-                        else
-                        {
-                            PropertyDic.Add("DeleteTime", Convert.ToString(DateTimeOffset.MaxValue.ToFileTime()));
                         }
 
                         RecycleItemList.Add(PropertyDic);

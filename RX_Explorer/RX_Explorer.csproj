@@ -174,6 +174,12 @@
     <Compile Include="Class\LinkStorageFile.cs" />
     <Compile Include="Class\InstalledApplication.cs" />
     <Compile Include="Class\RecycleStorageFolder.cs" />
+    <Compile Include="CustomControl\AppBarButtonWithImage.xaml.cs">
+      <DependentUpon>AppBarButtonWithImage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControl\MenuFlyoutItemWithImage.xaml.cs">
+      <DependentUpon>MenuFlyoutItemWithImage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Interface\ICryptable.cs" />
     <Compile Include="Interface\IHiddenStorageItem.cs" />
     <Compile Include="Interface\ILinkStorageFile.cs" />
@@ -483,6 +489,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="CustomControl\AppBarButtonWithImage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControl\MenuFlyoutItemWithImage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Dialog\BitlockerPasswordDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -704,10 +718,10 @@
       <Version>7.0.0-preview5</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
-      <Version>2.6.0-prerelease.210227001</Version>
+      <Version>2.5.0</Version>
     </PackageReference>
     <PackageReference Include="MySqlConnector">
-      <Version>1.2.1</Version>
+      <Version>1.3.0</Version>
     </PackageReference>
     <PackageReference Include="SharpZipLib">
       <Version>1.3.1</Version>
