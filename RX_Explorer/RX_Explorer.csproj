@@ -201,9 +201,6 @@
     <Compile Include="Class\ViewModeController.cs" />
     <Compile Include="Class\WIN_Native_API.cs" />
     <Compile Include="Class\CredentialProtector.cs" />
-    <Compile Include="CustomControl\MenuFlyoutItemWithImage.xaml.cs">
-      <DependentUpon>MenuFlyoutItemWithImage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Dialog\BitlockerPasswordDialog.xaml.cs">
       <DependentUpon>BitlockerPasswordDialog.xaml</DependentUpon>
     </Compile>
@@ -280,9 +277,6 @@
     <Compile Include="Interface\IStorageItemPropertyBase.cs" />
     <Compile Include="Interface\IUnsupportedStorageItem.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="CustomControl\AppBarButtonWithImage.xaml.cs">
-      <DependentUpon>AppBarButtonWithImage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="View\BlueScreen.xaml.cs">
       <DependentUpon>BlueScreen.xaml</DependentUpon>
     </Compile>
@@ -489,10 +483,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="CustomControl\MenuFlyoutItemWithImage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Dialog\BitlockerPasswordDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -566,10 +556,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="GlobeDictionary.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="CustomControl\AppBarButtonWithImage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -718,7 +704,7 @@
       <Version>7.0.0-preview5</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
-      <Version>2.5.0</Version>
+      <Version>2.6.0-prerelease.210227001</Version>
     </PackageReference>
     <PackageReference Include="MySqlConnector">
       <Version>1.2.1</Version>

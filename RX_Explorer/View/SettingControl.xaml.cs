@@ -1959,7 +1959,7 @@ namespace RX_Explorer
 
                             foreach (StorageFolder DriveFolder in CommonAccessCollection.HardDeviceList.Select((Drive) => Drive.Folder))
                             {
-                                FileSystemStorageFolder Folder = new FileSystemStorageFolder(DriveFolder, await DriveFolder.GetModifiedTimeAsync().ConfigureAwait(true));
+                                FileSystemStorageFolder Folder = new FileSystemStorageFolder(DriveFolder, await DriveFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), await DriveFolder.GetModifiedTimeAsync().ConfigureAwait(true));
 
                                 bool HasAnyFolder = await Folder.CheckContainsAnyItemAsync(ItemFilters.Folder).ConfigureAwait(true);
 

@@ -2,7 +2,7 @@
 using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.Win32.SafeHandles;
 using NetworkAccess;
-using RX_Explorer.CustomControl;
+using RX_Explorer.Interface;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -27,7 +27,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media;
-using RX_Explorer.Interface;
 using Windows.UI.Xaml.Media.Imaging;
 using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
 using TreeView = Microsoft.UI.Xaml.Controls.TreeView;
@@ -159,9 +158,9 @@ namespace RX_Explorer.Class
                             return;
                         }
 
-                        foreach (AppBarButtonWithImage ButtonWithImage in Flyout.SecondaryCommands.OfType<AppBarButtonWithImage>().ToArray())
+                        foreach (AppBarButton ExtraButton in Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Btn) => Btn.Name == "ExtraButton").ToArray())
                         {
-                            Flyout.SecondaryCommands.Remove(ButtonWithImage);
+                            Flyout.SecondaryCommands.Remove(ExtraButton);
                         }
 
                         foreach (AppBarSeparator Separator in Flyout.SecondaryCommands.OfType<AppBarSeparator>().Where((Sep) => Sep.Name == "CustomSep").ToArray())
@@ -172,8 +171,6 @@ namespace RX_Explorer.Class
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         {
                             List<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(SelectedPath, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down)).ConfigureAwait(true);
-
-                            ExtraMenuItems.Reverse();
 
                             if (ExtraMenuItems.Count > 0)
                             {
@@ -197,15 +194,15 @@ namespace RX_Explorer.Class
 
                                     foreach (ContextMenuItem AddItem in ExtraMenuItems.Take(4))
                                     {
-                                        AppBarButtonWithImage Btn = await AddItem.GenerateUIButtonAsync(ClickHandler).ConfigureAwait(true);
-
-                                        Flyout.SecondaryCommands.Insert(Index, Btn);
+                                        Flyout.SecondaryCommands.Insert(Index, await AddItem.GenerateUIButtonAsync(ClickHandler).ConfigureAwait(true));
                                     }
 
-                                    AppBarButtonWithImage MoreItem = new AppBarButtonWithImage
+                                    AppBarButton MoreItem = new AppBarButton
                                     {
                                         Label = Globalization.GetString("CommandBarFlyout_More_Item"),
                                         Icon = new SymbolIcon(Symbol.More),
+                                        Name = "ExtraButton",
+                                        MinWidth = 250
                                     };
 
                                     MenuFlyout MoreFlyout = new MenuFlyout();
@@ -220,8 +217,7 @@ namespace RX_Explorer.Class
                                 {
                                     foreach (ContextMenuItem AddItem in ExtraMenuItems)
                                     {
-                                        AppBarButtonWithImage Btn = await AddItem.GenerateUIButtonAsync(ClickHandler).ConfigureAwait(true);
-
+                                        AppBarButton Btn = await AddItem.GenerateUIButtonAsync(ClickHandler).ConfigureAwait(true);
                                         Flyout.SecondaryCommands.Insert(Index, Btn);
                                     }
 
@@ -230,9 +226,9 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                foreach (AppBarButtonWithImage ButtonWithImage in Flyout.SecondaryCommands.OfType<AppBarButtonWithImage>().ToArray())
+                                foreach (AppBarButton ExtraButton in Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Btn) => Btn.Name == "ExtraButton").ToArray())
                                 {
-                                    Flyout.SecondaryCommands.Remove(ButtonWithImage);
+                                    Flyout.SecondaryCommands.Remove(ExtraButton);
                                 }
 
                                 foreach (AppBarSeparator Separator in Flyout.SecondaryCommands.OfType<AppBarSeparator>().Where((Sep) => Sep.Name == "CustomSep").ToArray())
@@ -357,7 +353,7 @@ namespace RX_Explorer.Class
 
             if (Node.Children.Count > 0)
             {
-                List<string> FolderList = WIN_Native_API.GetStorageItems((Node.Content as TreeViewNodeContent).Path, SettingControl.IsDisplayHiddenItem, ItemFilters.Folder).Select((Item)=>Item.Path).ToList();
+                List<string> FolderList = WIN_Native_API.GetStorageItems((Node.Content as TreeViewNodeContent).Path, SettingControl.IsDisplayHiddenItem, ItemFilters.Folder).Select((Item) => Item.Path).ToList();
                 List<string> PathList = Node.Children.Select((Item) => (Item.Content as TreeViewNodeContent).Path).ToList();
                 List<string> AddList = FolderList.Except(PathList).ToList();
                 List<string> RemoveList = PathList.Except(FolderList).ToList();
@@ -400,7 +396,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task<TreeViewNode> GetChildNodeAsync(this TreeViewNode Node, PathAnalysis Analysis, bool DoNotExpandNodeWhenSearching = false)
+        public static async Task<TreeViewNode> GetNodeAsync(this TreeViewNode Node, PathAnalysis Analysis, bool DoNotExpandNodeWhenSearching = false)
         {
             if (Node == null)
             {
@@ -440,7 +436,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        for (int i = 0; i < 10; i++)
+                        for (int i = 0; i < 5; i++)
                         {
                             if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path.Equals(NextPathLevel, StringComparison.OrdinalIgnoreCase)) is TreeViewNode TargetNode)
                             {
@@ -448,7 +444,7 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                await Task.Delay(300).ConfigureAwait(true);
+                                await Task.Delay(200).ConfigureAwait(true);
                             }
                         }
 
@@ -460,7 +456,7 @@ namespace RX_Explorer.Class
             {
                 if ((Node.Content as TreeViewNodeContent).Path.Equals(NextPathLevel, StringComparison.OrdinalIgnoreCase))
                 {
-                    return await GetChildNodeAsync(Node, Analysis, DoNotExpandNodeWhenSearching).ConfigureAwait(true);
+                    return await GetNodeAsync(Node, Analysis, DoNotExpandNodeWhenSearching).ConfigureAwait(true);
                 }
                 else
                 {
@@ -468,7 +464,7 @@ namespace RX_Explorer.Class
                     {
                         if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path.Equals(NextPathLevel, StringComparison.OrdinalIgnoreCase)) is TreeViewNode TargetNode)
                         {
-                            return await GetChildNodeAsync(TargetNode, Analysis, DoNotExpandNodeWhenSearching).ConfigureAwait(true);
+                            return await GetNodeAsync(TargetNode, Analysis, DoNotExpandNodeWhenSearching).ConfigureAwait(true);
                         }
                         else
                         {
@@ -477,15 +473,15 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        for (int i = 0; i < 10; i++)
+                        for (int i = 0; i < 5; i++)
                         {
                             if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path.Equals(NextPathLevel, StringComparison.OrdinalIgnoreCase)) is TreeViewNode TargetNode)
                             {
-                                return await GetChildNodeAsync(TargetNode, Analysis, DoNotExpandNodeWhenSearching).ConfigureAwait(true);
+                                return await GetNodeAsync(TargetNode, Analysis, DoNotExpandNodeWhenSearching).ConfigureAwait(true);
                             }
                             else
                             {
-                                await Task.Delay(300).ConfigureAwait(true);
+                                await Task.Delay(200).ConfigureAwait(true);
                             }
                         }
 
@@ -830,11 +826,15 @@ namespace RX_Explorer.Class
                     switch (Item)
                     {
                         case StorageFolder Folder:
-                            GetThumbnailTask = Folder.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale).AsTask(Cancellation.Token);
-                            break;
+                            {
+                                GetThumbnailTask = Folder.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale).AsTask(Cancellation.Token);
+                                break;
+                            }
                         case StorageFile File:
-                            GetThumbnailTask = File.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale).AsTask(Cancellation.Token);
-                            break;
+                            {
+                                GetThumbnailTask = File.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale).AsTask(Cancellation.Token);
+                                break;
+                            }
                         default:
                             {
                                 return null;

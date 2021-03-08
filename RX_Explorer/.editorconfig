@@ -50,3 +50,6 @@ dotnet_diagnostic.CA1826.severity = none
 
 # CA2100: Review SQL queries for security vulnerabilities
 dotnet_diagnostic.CA2100.severity = silent
+
+# IDE0090: 使用 "new(...)"
+dotnet_diagnostic.IDE0090.severity = none

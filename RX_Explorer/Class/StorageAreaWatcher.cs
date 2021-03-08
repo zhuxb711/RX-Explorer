@@ -119,9 +119,12 @@ namespace RX_Explorer.Class
 
                         if (!SettingControl.IsDetachTreeViewAndPresenter && TreeView != null)
                         {
-                            foreach (TreeViewNode RootNode in TreeView.RootNodes)
+                            if (TreeView.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == System.IO.Path.GetPathRoot(CurrentLocation)) is TreeViewNode RootNode)
                             {
-                                await RootNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentLocation, string.Empty), true) is TreeViewNode CurrentNode)
+                                {
+                                    await CurrentNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                }
                             }
                         }
                     }
@@ -154,9 +157,12 @@ namespace RX_Explorer.Class
 
                         if (!SettingControl.IsDetachTreeViewAndPresenter && TreeView != null)
                         {
-                            foreach (TreeViewNode RootNode in TreeView.RootNodes)
+                            if (TreeView.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == System.IO.Path.GetPathRoot(CurrentLocation)) is TreeViewNode RootNode)
                             {
-                                await RootNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentLocation, string.Empty), true) is TreeViewNode CurrentNode)
+                                {
+                                    await CurrentNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                }
                             }
                         }
                     }
@@ -192,9 +198,12 @@ namespace RX_Explorer.Class
 
                             if (!SettingControl.IsDetachTreeViewAndPresenter && TreeView != null)
                             {
-                                foreach (TreeViewNode RootNode in TreeView.RootNodes)
+                                if (TreeView.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == System.IO.Path.GetPathRoot(CurrentLocation)) is TreeViewNode RootNode)
                                 {
-                                    await RootNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                    if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentLocation, string.Empty), true) is TreeViewNode CurrentNode)
+                                    {
+                                        await CurrentNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                    }
                                 }
                             }
                         }

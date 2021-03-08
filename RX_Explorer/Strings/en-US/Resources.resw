@@ -2805,4 +2805,7 @@ Invalid names include
   <data name="CompressDialogType.Header" xml:space="preserve">
     <value>Compression type</value>
   </data>
+  <data name="Operate_Text_SplitView" xml:space="preserve">
+    <value>Open in vertical split view</value>
+  </data>
 </root>

@@ -1,4 +1,4 @@
-﻿using RX_Explorer.CustomControl;
+﻿using Microsoft.UI.Xaml.Controls;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
@@ -69,7 +69,13 @@ namespace RX_Explorer.Class
                     {
                         Text = SubItem.Name,
                         Tag = SubItem,
-                        MinWidth = 150
+                        MinWidth = 150,
+                        MaxWidth = 350,
+                        Icon = new FontIcon
+                        {
+                            FontFamily = new Windows.UI.Xaml.Media.FontFamily("Segoe MDL2 Assets"),
+                            Glyph = "\uE2AC"
+                        }
                     };
 
                     await GenerateSubMenuItemsAsync(Item.Items, SubItem.SubMenus, ClickHandler).ConfigureAwait(true);
@@ -78,19 +84,26 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    MenuFlyoutItemWithImage FlyoutItem = new MenuFlyoutItemWithImage
+                    MenuFlyoutItem FlyoutItem = new MenuFlyoutItem
                     {
                         Text = SubItem.Name,
-                        Tag = SubItem
+                        Tag = SubItem,
+                        MinWidth = 150,
+                        MaxWidth = 350
                     };
 
                     if (SubItem.IconData.Length != 0)
                     {
                         using (MemoryStream Stream = new MemoryStream(SubItem.IconData))
                         {
-                            BitmapImage Icon = new BitmapImage();
-                            FlyoutItem.ImageIcon = Icon;
-                            await Icon.SetSourceAsync(Stream.AsRandomAccessStream());
+                            BitmapImage Bitmap = new BitmapImage();
+
+                            await Bitmap.SetSourceAsync(Stream.AsRandomAccessStream());
+
+                            FlyoutItem.Icon = new ImageIcon
+                            {
+                                Source = Bitmap
+                            };
                         }
                     }
                     else
@@ -109,12 +122,14 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<AppBarButtonWithImage> GenerateUIButtonAsync(RoutedEventHandler ClickHandler)
+        public async Task<AppBarButton> GenerateUIButtonAsync(RoutedEventHandler ClickHandler)
         {
-            AppBarButtonWithImage Button = new AppBarButtonWithImage
+            AppBarButton Button = new AppBarButton
             {
                 Label = Name,
-                Tag = this
+                Tag = this,
+                MinWidth = 250,
+                Name = "ExtraButton"
             };
             Button.Click += ClickHandler;
 
@@ -122,9 +137,14 @@ namespace RX_Explorer.Class
             {
                 using (MemoryStream Stream = new MemoryStream(IconData))
                 {
-                    BitmapImage Icon = new BitmapImage();
-                    Button.ImageIcon = Icon;
-                    await Icon.SetSourceAsync(Stream.AsRandomAccessStream());
+                    BitmapImage Bitmap = new BitmapImage();
+
+                    await Bitmap.SetSourceAsync(Stream.AsRandomAccessStream());
+
+                    Button.Icon = new ImageIcon
+                    {
+                        Source = Bitmap
+                    };
                 }
             }
             else

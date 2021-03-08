@@ -116,7 +116,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return AvailableControllerQueue.Any((Controller) => Controller.IsAnyActionExcutingInCurrentController);
+                return AvailableControllerQueue.Count < CurrentRunningControllerNum;
             }
         }
 
@@ -2214,11 +2214,11 @@ namespace RX_Explorer.Class
             return CopyAsync(new string[1] { SourcePath }, Destination, ProgressHandler, IsUndoOperation);
         }
 
-        public async Task<bool> RestoreItemInRecycleBinAsync(string Path)
+        public async Task<bool> RestoreItemInRecycleBinAsync(string OriginPath)
         {
-            if (string.IsNullOrWhiteSpace(Path))
+            if (string.IsNullOrWhiteSpace(OriginPath))
             {
-                throw new ArgumentNullException(nameof(Path), "Parameter could not be null or empty");
+                throw new ArgumentNullException(nameof(OriginPath), "Parameter could not be null or empty");
             }
 
             try
@@ -2230,7 +2230,7 @@ namespace RX_Explorer.Class
                     ValueSet Value = new ValueSet
                     {
                         {"ExecuteType", ExecuteType_Restore_RecycleItem},
-                        {"ExecutePath", Path}
+                        {"ExecutePath", OriginPath}
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);

@@ -3581,6 +3581,10 @@ Les noms non valides incluent
           <source>Compression type</source>
           <target state="translated">Type de compression</target>
         </trans-unit>
+        <trans-unit id="Operate_Text_SplitView" translate="yes" xml:space="preserve">
+          <source>Open in vertical split view</source>
+          <target state="translated">Ouvrir en vue fractionnée verticale</target>
+        </trans-unit>
       </group>
     </body>
   </file>

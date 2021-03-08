@@ -1163,28 +1163,16 @@ namespace RX_Explorer
                                 {
                                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                     {
-                                        if ((await Exclusive.Controller.GetRecycleBinItemsAsync().ConfigureAwait(true)).FirstOrDefault((Item) => Item.OriginPath == SplitGroup[0]) is IRecycleStorageItem Item)
-                                        {
-                                            if (!await Item.RestoreAsync().ConfigureAwait(true))
-                                            {
-                                                QueueContentDialog Dialog = new QueueContentDialog
-                                                {
-                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                    Content = $"{Globalization.GetString("QueueDialog_RecycleBinRestoreError_Content")} {Environment.NewLine}{Item.Name}",
-                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                };
-                                                _ = Dialog.ShowAsync().ConfigureAwait(true);
-                                            }
-                                        }
-                                        else
+                                        if (!await Exclusive.Controller.RestoreItemInRecycleBinAsync(SplitGroup[0]).ConfigureAwait(true))
                                         {
                                             QueueContentDialog Dialog = new QueueContentDialog
                                             {
-                                                Title = Globalization.GetString("Common_Dialog_WarningTitle"),
-                                                Content = Globalization.GetString("QueueDialog_UndoFailure_Content"),
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = $"{Globalization.GetString("QueueDialog_RecycleBinRestoreError_Content")} {Environment.NewLine}{Path.GetFileName(SplitGroup[0])}",
                                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                             };
-                                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+
+                                            _ = Dialog.ShowAsync().ConfigureAwait(true);
                                         }
                                     }
 
@@ -5878,6 +5866,14 @@ namespace RX_Explorer
                         NewTabButton.Click += OpenFolderInNewTab_Click;
                         BottomCommandBar.SecondaryCommands.Add(NewTabButton);
 
+                        AppBarButton SplitViewButton = new AppBarButton
+                        {
+                            Icon = new FontIcon { Glyph = "\uE140" },
+                            Label = Globalization.GetString("Operate_Text_SplitView")
+                        };
+                        SplitViewButton.Click += OpenFolderInVerticalSplitView_Click;
+                        BottomCommandBar.SecondaryCommands.Add(SplitViewButton);
+
                         BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
 
                         AppBarButton CompressionButton = new AppBarButton
@@ -6283,6 +6279,25 @@ namespace RX_Explorer
             }
         }
 
+        private async void OpenFolderInVerticalSplitView_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            if (SelectedItem != null)
+            {
+                await Container.CreateNewBlade(SelectedItem.Path).ConfigureAwait(false);
+            }
+        }
+
+        private void NameEditBox_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == VirtualKey.Enter)
+            {
+                e.Handled = true;
+                ItemPresenter.Focus(FocusState.Programmatic);
+            }
+        }
+
         public void Dispose()
         {
             FileCollection.Clear();
@@ -6308,25 +6323,6 @@ namespace RX_Explorer
             Application.Current.Resuming -= Current_Resuming;
             SortCollectionGenerator.Current.SortWayChanged -= Current_SortWayChanged;
             ViewModeController.ViewModeChanged -= Current_ViewModeChanged;
-        }
-
-        private async void OpenFolderInVerticalSplitView_Click(object sender, RoutedEventArgs e)
-        {
-            CloseAllFlyout();
-
-            if (SelectedItem != null)
-            {
-                await Container.CreateNewBlade(SelectedItem.Path).ConfigureAwait(false);
-            }
-        }
-
-        private void NameEditBox_KeyDown(object sender, KeyRoutedEventArgs e)
-        {
-            if (e.Key == VirtualKey.Enter)
-            {
-                e.Handled = true;
-                ItemPresenter.Focus(FocusState.Programmatic);
-            }
         }
     }
 }

@@ -218,7 +218,7 @@ namespace RX_Explorer.Class
                     if (string.IsNullOrEmpty(DirectoryPath))
                     {
                         StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
-                        return new FileSystemStorageFolder(Folder, await Folder.GetModifiedTimeAsync().ConfigureAwait(false));
+                        return new FileSystemStorageFolder(Folder, await Folder.GetThumbnailBitmapAsync().ConfigureAwait(true), await Folder.GetModifiedTimeAsync().ConfigureAwait(true));
                     }
                     else
                     {
@@ -228,11 +228,11 @@ namespace RX_Explorer.Class
                         {
                             case StorageFolder Folder:
                                 {
-                                    return new FileSystemStorageFolder(Folder, await Folder.GetModifiedTimeAsync().ConfigureAwait(false));
+                                    return new FileSystemStorageFolder(Folder, await Folder.GetThumbnailBitmapAsync().ConfigureAwait(true), await Folder.GetModifiedTimeAsync().ConfigureAwait(true));
                                 }
                             case StorageFile File:
                                 {
-                                    return new FileSystemStorageFile(File, await File.GetSizeRawDataAsync().ConfigureAwait(false), await File.GetModifiedTimeAsync().ConfigureAwait(false));
+                                    return new FileSystemStorageFile(File, await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetSizeRawDataAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true));
                                 }
                             default:
                                 {
@@ -273,17 +273,17 @@ namespace RX_Explorer.Class
                                     case CreateOption.GenerateUniqueName:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
-                                            return new FileSystemStorageFile(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(false), await NewFile.GetModifiedTimeAsync().ConfigureAwait(false));
+                                            return new FileSystemStorageFile(NewFile, await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true));
                                         }
                                     case CreateOption.OpenIfExist:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
-                                            return new FileSystemStorageFile(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(false), await NewFile.GetModifiedTimeAsync().ConfigureAwait(false));
+                                            return new FileSystemStorageFile(NewFile, await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true));
                                         }
                                     case CreateOption.ReplaceExisting:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
-                                            return new FileSystemStorageFile(NewFile, await NewFile.GetSizeRawDataAsync().ConfigureAwait(false), await NewFile.GetModifiedTimeAsync().ConfigureAwait(false));
+                                            return new FileSystemStorageFile(NewFile, await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true));
                                         }
                                     default:
                                         {
@@ -317,17 +317,17 @@ namespace RX_Explorer.Class
                                     case CreateOption.GenerateUniqueName:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
-                                            return new FileSystemStorageFolder(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(false));
+                                            return new FileSystemStorageFolder(NewFolder, await NewFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true));
                                         }
                                     case CreateOption.OpenIfExist:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
-                                            return new FileSystemStorageFolder(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(false));
+                                            return new FileSystemStorageFolder(NewFolder, await NewFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true));
                                         }
                                     case CreateOption.ReplaceExisting:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
-                                            return new FileSystemStorageFolder(NewFolder, await NewFolder.GetModifiedTimeAsync().ConfigureAwait(false));
+                                            return new FileSystemStorageFolder(NewFolder, await NewFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true));
                                         }
                                     default:
                                         {

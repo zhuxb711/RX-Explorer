@@ -3581,6 +3581,10 @@ Invalid names include
           <source>Compression type</source>
           <target state="translated">壓縮類型</target>
         </trans-unit>
+        <trans-unit id="Operate_Text_SplitView" translate="yes" xml:space="preserve">
+          <source>Open in vertical split view</source>
+          <target state="translated">在垂直拆分視圖中打開</target>
+        </trans-unit>
       </group>
     </body>
   </file>

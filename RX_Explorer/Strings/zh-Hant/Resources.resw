@@ -2700,4 +2700,7 @@
   <data name="CompressDialogType.Header" xml:space="preserve">
     <value>壓縮類型</value>
   </data>
+  <data name="Operate_Text_SplitView" xml:space="preserve">
+    <value>在垂直拆分視圖中打開</value>
+  </data>
 </root>

@@ -79,7 +79,7 @@ namespace FullTrustProcess
         {
             try
             {
-                RecycleBin.Empty();
+                RecycleBin.Empty(false);
                 return true;
             }
             catch
@@ -88,25 +88,24 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool Restore(string Path)
+        public static bool Restore(string OriginPath)
         {
             try
             {
-                using (ShellItem SourceItem = new ShellItem(Path))
+                using (ShellItem SourceItem = RecycleBin.GetItemFromOriginalPath(OriginPath))
                 {
-                    string DirectoryName = System.IO.Path.GetDirectoryName(SourceItem.Name);
+                    Directory.CreateDirectory(Path.GetDirectoryName(SourceItem.Name));
 
-                    if (!Directory.Exists(DirectoryName))
+                    if (File.Exists(SourceItem.FileSystemPath))
                     {
-                        Directory.CreateDirectory(DirectoryName);
+                        File.Move(SourceItem.FileSystemPath, StorageItemController.GenerateUniquePath(SourceItem.Name));
+                    }
+                    else if (Directory.Exists(SourceItem.FileSystemPath))
+                    {
+                        Directory.Move(SourceItem.FileSystemPath, StorageItemController.GenerateUniquePath(SourceItem.Name));
                     }
 
-                    using (ShellFolder DestItem = new ShellFolder(DirectoryName))
-                    {
-                        ShellFileOperations.Move(SourceItem, DestItem, null, ShellFileOperations.OperationFlags.AddUndoRecord | ShellFileOperations.OperationFlags.NoConfirmMkDir | ShellFileOperations.OperationFlags.Silent | ShellFileOperations.OperationFlags.RenameOnCollision);
-                    }
-
-                    string ExtraInfoPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), System.IO.Path.GetFileName(Path).Replace("$R", "$I"));
+                    string ExtraInfoPath = Path.Combine(Path.GetDirectoryName(SourceItem.FileSystemPath), Path.GetFileName(SourceItem.FileSystemPath).Replace("$R", "$I"));
 
                     if (File.Exists(ExtraInfoPath))
                     {
@@ -126,6 +125,19 @@ namespace FullTrustProcess
         {
             try
             {
+                if (File.Exists(Path))
+                {
+                    File.Delete(Path);
+                }
+                else if (Directory.Exists(Path))
+                {
+                    Directory.Delete(Path, true);
+                }
+                else
+                {
+                    return false;
+                }
+
                 string ExtraInfoFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), System.IO.Path.GetFileName(Path).Replace("$R", "$I"));
 
                 if (File.Exists(ExtraInfoFilePath))
@@ -133,22 +145,7 @@ namespace FullTrustProcess
                     File.Delete(ExtraInfoFilePath);
                 }
 
-                if (File.Exists(Path))
-                {
-                    File.Delete(Path);
-
-                    return true;
-                }
-                else if (Directory.Exists(Path))
-                {
-                    Directory.Delete(Path, true);
-
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return true;
             }
             catch
             {

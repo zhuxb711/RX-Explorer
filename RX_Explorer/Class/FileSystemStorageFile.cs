@@ -59,7 +59,22 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override BitmapImage Thumbnail { get; protected set; } = AppThemeController.Current.Theme == ElementTheme.Dark ? Const_File_White_Image : Const_File_Black_Image;
+        private BitmapImage InnerThumbnail = AppThemeController.Current.Theme == ElementTheme.Dark ? Const_File_White_Image : Const_File_Black_Image;
+
+        public override BitmapImage Thumbnail
+        {
+            get
+            {
+                return InnerThumbnail;
+            }
+            protected set
+            {
+                if (value != null && value != InnerThumbnail)
+                {
+                    InnerThumbnail = value;
+                }
+            }
+        }
 
         protected StorageFile StorageItem { get; set; }
 
@@ -68,10 +83,11 @@ namespace RX_Explorer.Class
 
         }
 
-        public FileSystemStorageFile(StorageFile Item, ulong SizeRaw, DateTimeOffset ModifiedTimeRaw) : base(Item.Path)
+        public FileSystemStorageFile(StorageFile Item, BitmapImage Thumbnail, ulong SizeRaw, DateTimeOffset ModifiedTimeRaw) : base(Item.Path)
         {
             StorageItem = Item;
 
+            this.Thumbnail = Thumbnail;
             this.ModifiedTimeRaw = ModifiedTimeRaw;
             this.SizeRaw = SizeRaw;
 

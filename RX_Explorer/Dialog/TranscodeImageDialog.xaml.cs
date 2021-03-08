@@ -52,7 +52,7 @@ namespace RX_Explorer.Dialog
         {
             if (await Picker.PickSaveFileAsync() is StorageFile SaveFile)
             {
-                TargetFile = new FileSystemStorageFile(SaveFile, await SaveFile.GetSizeRawDataAsync().ConfigureAwait(true), await SaveFile.GetModifiedTimeAsync().ConfigureAwait(true));
+                TargetFile = new FileSystemStorageFile(SaveFile, await SaveFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await SaveFile.GetSizeRawDataAsync().ConfigureAwait(true), await SaveFile.GetModifiedTimeAsync().ConfigureAwait(true));
             }
         }
 

@@ -48,7 +48,7 @@ namespace RX_Explorer.Class
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                return await Exclusive.Controller.RestoreItemInRecycleBinAsync(Path).ConfigureAwait(true);
+                return await Exclusive.Controller.RestoreItemInRecycleBinAsync(OriginPath).ConfigureAwait(true);
             }
         }
     }

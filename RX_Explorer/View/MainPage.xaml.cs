@@ -197,6 +197,8 @@ namespace RX_Explorer
                     if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                     {
                         ToastNotificationManager.History.Clear();
+                        Application.Current.EnteredBackground -= Current_EnteredBackground;
+                        Application.Current.LeavingBackground -= Current_LeavingBackground;
                     }
                     else
                     {

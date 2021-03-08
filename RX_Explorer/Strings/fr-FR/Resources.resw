@@ -2700,4 +2700,7 @@ Les noms non valides incluent
   <data name="CompressDialogType.Header" xml:space="preserve">
     <value>Type de compression</value>
   </data>
+  <data name="Operate_Text_SplitView" xml:space="preserve">
+    <value>Ouvrir en vue fractionnée verticale</value>
+  </data>
 </root>

@@ -151,7 +151,7 @@ namespace RX_Explorer
         {
             if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => Content.Path != Device.Folder?.Path))
             {
-                FileSystemStorageFolder DeviceFolder = new FileSystemStorageFolder(Device.Folder, await Device.Folder.GetModifiedTimeAsync().ConfigureAwait(true));
+                FileSystemStorageFolder DeviceFolder = new FileSystemStorageFolder(Device.Folder, await Device.Folder.GetThumbnailBitmapAsync().ConfigureAwait(true), await Device.Folder.GetModifiedTimeAsync().ConfigureAwait(true));
 
                 bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(ItemFilters.Folder).ConfigureAwait(true);
 
@@ -395,7 +395,7 @@ namespace RX_Explorer
                 {
                     if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => Path != DriveFolder?.Path))
                     {
-                        FileSystemStorageFolder DeviceFolder = new FileSystemStorageFolder(DriveFolder, await DriveFolder.GetModifiedTimeAsync().ConfigureAwait(true));
+                        FileSystemStorageFolder DeviceFolder = new FileSystemStorageFolder(DriveFolder, await DriveFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), await DriveFolder.GetModifiedTimeAsync().ConfigureAwait(true));
 
                         if (Type == DriveType.Network)
                         {
