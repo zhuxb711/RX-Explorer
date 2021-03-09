@@ -2078,7 +2078,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Recycle bin</value>
   </data>
   <data name="RecycleBin.Content" xml:space="preserve">
-    <value>Recycle bin</value>
+    <value>Recycle Bin</value>
   </data>
   <data name="RecycleOriginLocation.Text" xml:space="preserve">
     <value>Original location</value>
@@ -2460,9 +2460,6 @@ Invalid names include
   <data name="SettingPageBackgroundBlurSlider.Header" xml:space="preserve">
     <value>Adjust background blur effect</value>
   </data>
-  <data name="QueueDialog_UnauthorizedExecute_Content" xml:space="preserve">
-    <value>RX does not have permission to execute the file. Do you want to launch Windows Explorer?</value>
-  </data>
   <data name="SettingPageAlwaysLaunchNew.Content" xml:space="preserve">
     <value>Always start a new process when activated</value>
   </data>
@@ -2533,13 +2530,13 @@ Invalid names include
     <value>Icon loading mode</value>
   </data>
   <data name="LoadMode_FileAndFolder_Text" xml:space="preserve">
-    <value>Load icons for folders and files (slower)</value>
+    <value>Load icons for folders and files (Slower)</value>
   </data>
   <data name="LoadMode_None_Text" xml:space="preserve">
-    <value>Do not load any icons (faster)</value>
+    <value>Do not load any icons (Faster)</value>
   </data>
   <data name="LoadMode_OnlyFile_Text" xml:space="preserve">
-    <value>Load file icon only (balanced)</value>
+    <value>Load file icon only (Balance)</value>
   </data>
   <data name="RunningInAdminModeTip" xml:space="preserve">
     <value>Administrator mode</value>
@@ -2764,7 +2761,7 @@ Invalid names include
     <value>This feature requires Win10 2004 or above</value>
   </data>
   <data name="BluetoothAudio.Text" xml:space="preserve">
-    <value>Bluetooth audio</value>
+    <value>Bluetooth Audio</value>
   </data>
   <data name="BluetoothAudio_Button_Text_1" xml:space="preserve">
     <value>Connect</value>

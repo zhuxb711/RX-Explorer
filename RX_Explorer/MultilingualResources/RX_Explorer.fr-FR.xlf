@@ -2529,7 +2529,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Corbeille</target>
         </trans-unit>
         <trans-unit id="RecycleBin.Content" translate="yes" xml:space="preserve">
-          <source>Recycle bin</source>
+          <source>Recycle Bin</source>
           <target state="translated">Corbeille</target>
         </trans-unit>
         <trans-unit id="RecycleOriginLocation.Text" translate="yes" xml:space="preserve">
@@ -3060,10 +3060,6 @@ Les noms non valides incluent
           <source>Adjust background blur effect</source>
           <target state="translated">Ajuster l'effet de flou d'arrière-plan</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_UnauthorizedExecute_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to execute the file. Do you want to launch Windows Explorer?</source>
-          <target state="translated">RX n'a pas l'autorisation d'exécuter le fichier, voulez-vous lancer l'Explorateur Windows?</target>
-        </trans-unit>
         <trans-unit id="SettingPageAlwaysLaunchNew.Content" translate="yes" xml:space="preserve">
           <source>Always start a new process when activated</source>
           <target state="translated">Toujours démarrer un nouveau processus lorsqu'il est activé</target>
@@ -3157,16 +3153,16 @@ Les noms non valides incluent
           <target state="translated">Mode de chargement des icônes</target>
         </trans-unit>
         <trans-unit id="LoadMode_FileAndFolder_Text" translate="yes" xml:space="preserve">
-          <source>Load icons for folders and files (slower)</source>
-          <target state="translated">Charger les icônes pour les dossiers et les fichiers (plus lent)</target>
+          <source>Load icons for folders and files (Slower)</source>
+          <target state="translated">Charger les icônes pour les dossiers et les fichiers (Plus lent)</target>
         </trans-unit>
         <trans-unit id="LoadMode_None_Text" translate="yes" xml:space="preserve">
-          <source>Do not load any icons (faster)</source>
-          <target state="translated">Ne chargez aucune icône (plus rapidement)</target>
+          <source>Do not load any icons (Faster)</source>
+          <target state="translated">Ne chargez aucune icône (Plus rapidement)</target>
         </trans-unit>
         <trans-unit id="LoadMode_OnlyFile_Text" translate="yes" xml:space="preserve">
-          <source>Load file icon only (balanced)</source>
-          <target state="translated">Icône de chargement de fichier uniquement (équilibrée)</target>
+          <source>Load file icon only (Balance)</source>
+          <target state="translated">Icône de chargement de fichier uniquement (Équilibre)</target>
         </trans-unit>
         <trans-unit id="VideoEditDialogText2.Header" translate="yes" xml:space="preserve">
           <source>Output encoding config</source>
@@ -3498,7 +3494,7 @@ Les noms non valides incluent
           <target state="translated">Cette fonctionnalité nécessite Win10 2004 ou supérieur</target>
         </trans-unit>
         <trans-unit id="BluetoothAudio.Text" translate="yes" xml:space="preserve">
-          <source>Bluetooth audio</source>
+          <source>Bluetooth Audio</source>
           <target state="translated">Audio Bluetooth</target>
         </trans-unit>
         <trans-unit id="BluetoothAudio_Button_Text_1" translate="yes" xml:space="preserve">

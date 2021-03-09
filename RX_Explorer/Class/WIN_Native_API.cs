@@ -158,6 +158,7 @@ namespace RX_Explorer.Class
         const uint FILE_NOTIFY_CHANGE_FILE_NAME = 0x1;
         const uint FILE_NOTIFY_CHANGE_DIR_NAME = 0x2;
         const uint FILE_NOTIFY_CHANGE_LAST_WRITE = 0x10;
+        const uint FILE_NOTIFY_CHANGE_SIZE = 0x8;
 
         private enum StateChangeType
         {
@@ -469,69 +470,72 @@ namespace RX_Explorer.Class
 
                     while (true)
                     {
-                        IntPtr BufferPointer = Marshal.AllocHGlobal(8192);
+                        IntPtr BufferPointer = Marshal.AllocHGlobal(4096);
 
                         try
                         {
-                            if (ReadDirectoryChangesW(Package.Item1, BufferPointer, 8192, false, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE, out _, IntPtr.Zero, IntPtr.Zero))
+                            if (ReadDirectoryChangesW(Package.Item1, BufferPointer, 4096, false, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_SIZE, out uint BytesReturned, IntPtr.Zero, IntPtr.Zero))
                             {
-                                IntPtr CurrentPointer = BufferPointer;
-                                int Offset = 0;
-                                string OldPath = null;
-
-                                do
+                                if (BytesReturned > 0)
                                 {
-                                    CurrentPointer = (IntPtr)(Offset + CurrentPointer.ToInt64());
+                                    IntPtr CurrentPointer = BufferPointer;
+                                    int Offset = 0;
+                                    string OldPath = null;
 
-                                    // Read file length (in bytes) at offset 8
-                                    int FileNameLength = Marshal.ReadInt32(CurrentPointer, 8);
-                                    // Read file name (fileLen/2 characters) from offset 12
-                                    string FileName = Marshal.PtrToStringUni((IntPtr)(12 + CurrentPointer.ToInt64()), FileNameLength / 2);
-                                    // Read action at offset 4
-                                    int ActionIndex = Marshal.ReadInt32(CurrentPointer, 4);
-
-                                    if (ActionIndex < 1 || ActionIndex > 5)
+                                    do
                                     {
-                                        ActionIndex = 0;
-                                    }
+                                        CurrentPointer = (IntPtr)(Offset + CurrentPointer.ToInt64());
 
-                                    switch ((StateChangeType)ActionIndex)
-                                    {
-                                        case StateChangeType.Unknown_Action:
-                                            {
-                                                break;
-                                            }
-                                        case StateChangeType.Added_Action:
-                                            {
-                                                Package.Item2?.Invoke(Path.Combine(FolderPath, FileName));
-                                                break;
-                                            }
-                                        case StateChangeType.Removed_Action:
-                                            {
-                                                Package.Item3?.Invoke(Path.Combine(FolderPath, FileName));
-                                                break;
-                                            }
-                                        case StateChangeType.Modified_Action:
-                                            {
-                                                Package.Item5?.Invoke(Path.Combine(FolderPath, FileName));
-                                                break;
-                                            }
-                                        case StateChangeType.Rename_Action_OldName:
-                                            {
-                                                OldPath = Path.Combine(FolderPath, FileName);
-                                                break;
-                                            }
-                                        case StateChangeType.Rename_Action_NewName:
-                                            {
-                                                Package.Item4?.Invoke(OldPath, Path.Combine(FolderPath, FileName));
-                                                break;
-                                            }
-                                    }
+                                        // Read file length (in bytes) at offset 8
+                                        int FileNameLength = Marshal.ReadInt32(CurrentPointer, 8);
+                                        // Read file name (fileLen/2 characters) from offset 12
+                                        string FileName = Marshal.PtrToStringUni((IntPtr)(12 + CurrentPointer.ToInt64()), FileNameLength / 2);
+                                        // Read action at offset 4
+                                        int ActionIndex = Marshal.ReadInt32(CurrentPointer, 4);
 
-                                    // Read NextEntryOffset at offset 0 and move pointer to next structure if needed
-                                    Offset = Marshal.ReadInt32(CurrentPointer);
+                                        if (ActionIndex < 1 || ActionIndex > 5)
+                                        {
+                                            ActionIndex = 0;
+                                        }
+
+                                        switch ((StateChangeType)ActionIndex)
+                                        {
+                                            case StateChangeType.Unknown_Action:
+                                                {
+                                                    break;
+                                                }
+                                            case StateChangeType.Added_Action:
+                                                {
+                                                    Package.Item2?.Invoke(Path.Combine(FolderPath, FileName));
+                                                    break;
+                                                }
+                                            case StateChangeType.Removed_Action:
+                                                {
+                                                    Package.Item3?.Invoke(Path.Combine(FolderPath, FileName));
+                                                    break;
+                                                }
+                                            case StateChangeType.Modified_Action:
+                                                {
+                                                    Package.Item5?.Invoke(Path.Combine(FolderPath, FileName));
+                                                    break;
+                                                }
+                                            case StateChangeType.Rename_Action_OldName:
+                                                {
+                                                    OldPath = Path.Combine(FolderPath, FileName);
+                                                    break;
+                                                }
+                                            case StateChangeType.Rename_Action_NewName:
+                                                {
+                                                    Package.Item4?.Invoke(OldPath, Path.Combine(FolderPath, FileName));
+                                                    break;
+                                                }
+                                        }
+
+                                        // Read NextEntryOffset at offset 0 and move pointer to next structure if needed
+                                        Offset = Marshal.ReadInt32(CurrentPointer);
+                                    }
+                                    while (Offset != 0);
                                 }
-                                while (Offset != 0);
                             }
                             else
                             {

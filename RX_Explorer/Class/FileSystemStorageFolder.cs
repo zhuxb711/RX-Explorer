@@ -53,13 +53,13 @@ namespace RX_Explorer.Class
             }
         }
 
-        private BitmapImage InnerThumbnail = Const_Folder_Image;
+        private BitmapImage InnerThumbnail;
 
         public override BitmapImage Thumbnail
         {
             get
             {
-                return InnerThumbnail;
+                return InnerThumbnail ??= new BitmapImage(Const_Folder_Image_Uri);
             }
             protected set
             {
@@ -396,6 +396,11 @@ namespace RX_Explorer.Class
                     SizeRaw = await Folder.GetSizeRawDataAsync().ConfigureAwait(true);
                 }
             }
+        }
+
+        protected override bool CheckIfPropertyLoaded()
+        {
+            return StorageItem != null;
         }
 
         public override async Task<IStorageItem> GetStorageItemAsync()

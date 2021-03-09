@@ -2537,7 +2537,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated" state-qualifier="tm-suggestion">資源回收筒</target>
         </trans-unit>
         <trans-unit id="RecycleBin.Content" translate="yes" xml:space="preserve">
-          <source>Recycle bin</source>
+          <source>Recycle Bin</source>
           <target state="translated" state-qualifier="tm-suggestion">資源回收筒</target>
         </trans-unit>
         <trans-unit id="RecycleOriginLocation.Text" translate="yes" xml:space="preserve">
@@ -3060,10 +3060,6 @@ Invalid names include
           <source>Adjust background blur effect</source>
           <target state="translated">調整背景模糊效果</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_UnauthorizedExecute_Content" translate="yes" xml:space="preserve">
-          <source>RX does not have permission to execute the file. Do you want to launch Windows Explorer?</source>
-          <target state="translated">RX沒有執行文件的權限，您要啟動Windows資源管理器嗎？</target>
-        </trans-unit>
         <trans-unit id="SettingPageAlwaysLaunchNew.Content" translate="yes" xml:space="preserve">
           <source>Always start a new process when activated</source>
           <target state="translated">激活後始終啟動新流程</target>
@@ -3157,15 +3153,15 @@ Invalid names include
           <target state="translated">圖標加載方式</target>
         </trans-unit>
         <trans-unit id="LoadMode_FileAndFolder_Text" translate="yes" xml:space="preserve">
-          <source>Load icons for folders and files (slower)</source>
+          <source>Load icons for folders and files (Slower)</source>
           <target state="translated">加載文件夾和文件的圖標(較慢)</target>
         </trans-unit>
         <trans-unit id="LoadMode_None_Text" translate="yes" xml:space="preserve">
-          <source>Do not load any icons (faster)</source>
+          <source>Do not load any icons (Faster)</source>
           <target state="translated">不要加載任何圖標(更快)</target>
         </trans-unit>
         <trans-unit id="LoadMode_OnlyFile_Text" translate="yes" xml:space="preserve">
-          <source>Load file icon only (balanced)</source>
+          <source>Load file icon only (Balance)</source>
           <target state="translated">僅加載文件圖標(平衡)</target>
         </trans-unit>
         <trans-unit id="VideoEditDialogText2.Header" translate="yes" xml:space="preserve">
@@ -3498,7 +3494,7 @@ Invalid names include
           <target state="translated">此功能需要Win10 2004或更高版本</target>
         </trans-unit>
         <trans-unit id="BluetoothAudio.Text" translate="yes" xml:space="preserve">
-          <source>Bluetooth audio</source>
+          <source>Bluetooth Audio</source>
           <target state="translated">藍牙音頻</target>
         </trans-unit>
         <trans-unit id="BluetoothAudio_Button_Text_1" translate="yes" xml:space="preserve">

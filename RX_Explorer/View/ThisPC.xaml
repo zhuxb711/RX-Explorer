@@ -417,7 +417,7 @@
                     </controls:Expander.HeaderTemplate>
                     <GridView Margin="0,20,0,0"
                               Name="DeviceGrid"
-                              ItemsSource="{x:Bind Cls:CommonAccessCollection.HardDeviceList}"
+                              ItemsSource="{x:Bind Cls:CommonAccessCollection.DriveList}"
                               x:FieldModifier="public"
                               IsItemClickEnabled="True"
                               IsDoubleTapEnabled="True"
@@ -432,7 +432,7 @@
                               DoubleTapped="DeviceGrid_DoubleTapped"
                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.DeviceAndLibraryTransitions,Mode=OneWay}">
                         <GridView.ItemTemplate>
-                            <DataTemplate x:DataType="Cls:HardDeviceInfo">
+                            <DataTemplate x:DataType="Cls:DriveRelatedData">
                                 <StackPanel Orientation="Horizontal"
                                             Padding="5">
                                     <Image Height="50"

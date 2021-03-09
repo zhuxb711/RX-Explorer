@@ -59,13 +59,13 @@ namespace RX_Explorer.Class
             }
         }
 
-        private BitmapImage InnerThumbnail = AppThemeController.Current.Theme == ElementTheme.Dark ? Const_File_White_Image : Const_File_Black_Image;
+        private BitmapImage InnerThumbnail;
 
         public override BitmapImage Thumbnail
         {
             get
             {
-                return InnerThumbnail;
+                return InnerThumbnail ??= new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? Const_File_White_Image_Uri : Const_File_Black_Image_Uri);
             }
             protected set
             {
@@ -148,6 +148,11 @@ namespace RX_Explorer.Class
             }
         }
 
+        protected override bool CheckIfPropertyLoaded()
+        {
+            return StorageItem != null;
+        }
+
         public async override Task<IStorageItem> GetStorageItemAsync()
         {
             try
@@ -186,9 +191,9 @@ namespace RX_Explorer.Class
 
             string EncryptedFilePath = System.IO.Path.Combine(OutputDirectory, $"{System.IO.Path.GetFileNameWithoutExtension(Name)}.sle");
 
-            if (await CreateAsync(EncryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile EncryptedFile)
+            if (await CreateAsync(EncryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageFile EncryptedFile)
             {
-                using (FileStream EncryptFileStream = await EncryptedFile.GetFileStreamFromFileAsync(AccessMode.Write).ConfigureAwait(false))
+                using (FileStream EncryptFileStream = await EncryptedFile.GetFileStreamFromFileAsync(AccessMode.Write).ConfigureAwait(true))
                 {
                     string IV = SecureAccessProvider.GetFileEncryptionAesIV(Package.Current);
 
@@ -201,19 +206,19 @@ namespace RX_Explorer.Class
                         IV = Encoding.UTF8.GetBytes(IV)
                     })
                     {
-                        using (FileStream OriginFileStream = await GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
+                        using (FileStream OriginFileStream = await GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(true))
                         using (ICryptoTransform Encryptor = AES.CreateEncryptor())
                         {
                             byte[] ExtraInfoPart1 = Encoding.UTF8.GetBytes($"${KeySize}|{System.IO.Path.GetExtension(Path)}$");
-                            await EncryptFileStream.WriteAsync(ExtraInfoPart1, 0, ExtraInfoPart1.Length, CancelToken).ConfigureAwait(false);
+                            await EncryptFileStream.WriteAsync(ExtraInfoPart1, 0, ExtraInfoPart1.Length, CancelToken).ConfigureAwait(true);
 
                             byte[] PasswordConfirm = Encoding.UTF8.GetBytes("PASSWORD_CORRECT");
                             byte[] PasswordConfirmEncrypted = Encryptor.TransformFinalBlock(PasswordConfirm, 0, PasswordConfirm.Length);
-                            await EncryptFileStream.WriteAsync(PasswordConfirmEncrypted, 0, PasswordConfirmEncrypted.Length, CancelToken).ConfigureAwait(false);
+                            await EncryptFileStream.WriteAsync(PasswordConfirmEncrypted, 0, PasswordConfirmEncrypted.Length, CancelToken).ConfigureAwait(true);
 
                             using (CryptoStream TransformStream = new CryptoStream(EncryptFileStream, Encryptor, CryptoStreamMode.Write))
                             {
-                                await OriginFileStream.CopyToAsync(TransformStream, 2048, CancelToken).ConfigureAwait(false);
+                                await OriginFileStream.CopyToAsync(TransformStream, 2048, CancelToken).ConfigureAwait(true);
                             }
                         }
                     }
@@ -250,7 +255,7 @@ namespace RX_Explorer.Class
                 IV = Encoding.UTF8.GetBytes(IV)
             })
             {
-                using (FileStream EncryptFileStream = await GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
+                using (FileStream EncryptFileStream = await GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(true))
                 {
                     StringBuilder Builder = new StringBuilder();
 
@@ -301,22 +306,22 @@ namespace RX_Explorer.Class
 
                                 string DecryptedFilePath = System.IO.Path.Combine(OutputDirectory, $"{System.IO.Path.GetFileNameWithoutExtension(Name)}{FileType}");
 
-                                if (await CreateAsync(DecryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile DecryptedFile)
+                                if (await CreateAsync(DecryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageFile DecryptedFile)
                                 {
-                                    using (FileStream DecryptFileStream = await DecryptedFile.GetFileStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
+                                    using (FileStream DecryptFileStream = await DecryptedFile.GetFileStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(true))
                                     using (ICryptoTransform Decryptor = AES.CreateDecryptor(AES.Key, AES.IV))
                                     {
                                         EncryptFileStream.Seek(RawInfoData.Length, SeekOrigin.Begin);
 
                                         byte[] PasswordConfirm = new byte[16];
 
-                                        await EncryptFileStream.ReadAsync(PasswordConfirm, 0, PasswordConfirm.Length).ConfigureAwait(false);
+                                        await EncryptFileStream.ReadAsync(PasswordConfirm, 0, PasswordConfirm.Length).ConfigureAwait(true);
 
                                         if (Encoding.UTF8.GetString(Decryptor.TransformFinalBlock(PasswordConfirm, 0, PasswordConfirm.Length)) == "PASSWORD_CORRECT")
                                         {
                                             using (CryptoStream TransformStream = new CryptoStream(EncryptFileStream, Decryptor, CryptoStreamMode.Read))
                                             {
-                                                await TransformStream.CopyToAsync(DecryptFileStream, 2048, CancelToken).ConfigureAwait(false);
+                                                await TransformStream.CopyToAsync(DecryptFileStream, 2048, CancelToken).ConfigureAwait(true);
                                             }
                                         }
                                         else
@@ -348,7 +353,7 @@ namespace RX_Explorer.Class
 
         public async Task<string> GetEncryptionLevelAsync()
         {
-            using (FileStream EncryptFileStream = await GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
+            using (FileStream EncryptFileStream = await GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(true))
             {
                 byte[] DecryptByteBuffer = new byte[20];
 

@@ -1957,7 +1957,7 @@ namespace RX_Explorer
                         {
                             Control.FolderTree.RootNodes.Clear();
 
-                            foreach (StorageFolder DriveFolder in CommonAccessCollection.HardDeviceList.Select((Drive) => Drive.Folder))
+                            foreach (StorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.Folder))
                             {
                                 FileSystemStorageFolder Folder = new FileSystemStorageFolder(DriveFolder, await DriveFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), await DriveFolder.GetModifiedTimeAsync().ConfigureAwait(true));
 
@@ -1980,7 +1980,7 @@ namespace RX_Explorer
                                     {
                                         RootNode.IsExpanded = true;
 
-                                        await Control.FillTreeNode(RootNode).ConfigureAwait(true);
+                                        await Control.FillTreeNodeAsync(RootNode).ConfigureAwait(true);
                                     }
                                 }
                             }

@@ -2309,9 +2309,6 @@ Les noms non valides incluent
   <data name="SettingPageBackgroundBlurSlider.Header" xml:space="preserve">
     <value>Ajuster l'effet de flou d'arrière-plan</value>
   </data>
-  <data name="QueueDialog_UnauthorizedExecute_Content" xml:space="preserve">
-    <value>RX n'a pas l'autorisation d'exécuter le fichier, voulez-vous lancer l'Explorateur Windows?</value>
-  </data>
   <data name="SettingPageAlwaysLaunchNew.Content" xml:space="preserve">
     <value>Toujours démarrer un nouveau processus lorsqu'il est activé</value>
   </data>
@@ -2382,13 +2379,13 @@ Les noms non valides incluent
     <value>Mode de chargement des icônes</value>
   </data>
   <data name="LoadMode_FileAndFolder_Text" xml:space="preserve">
-    <value>Charger les icônes pour les dossiers et les fichiers (plus lent)</value>
+    <value>Charger les icônes pour les dossiers et les fichiers (Plus lent)</value>
   </data>
   <data name="LoadMode_None_Text" xml:space="preserve">
-    <value>Ne chargez aucune icône (plus rapidement)</value>
+    <value>Ne chargez aucune icône (Plus rapidement)</value>
   </data>
   <data name="LoadMode_OnlyFile_Text" xml:space="preserve">
-    <value>Icône de chargement de fichier uniquement (équilibrée)</value>
+    <value>Icône de chargement de fichier uniquement (Équilibre)</value>
   </data>
   <data name="VideoEditDialogText2.Header" xml:space="preserve">
     <value>Config d'encodage de sortie</value>

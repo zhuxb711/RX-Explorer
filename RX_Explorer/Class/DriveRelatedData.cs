@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
@@ -16,7 +18,7 @@ namespace RX_Explorer.Class
     /// <summary>
     /// 提供驱动器的界面支持
     /// </summary>
-    public sealed class HardDeviceInfo : INotifyPropertyChanged
+    public sealed class DriveRelatedData : INotifyPropertyChanged
     {
         /// <summary>
         /// 驱动器缩略图
@@ -90,13 +92,19 @@ namespace RX_Explorer.Class
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public static async Task<DriveRelatedData> CreateAsync(StorageFolder Drive, DriveType DriveType)
+        {
+            BasicProperties Properties = await Drive.GetBasicPropertiesAsync();
+            return new DriveRelatedData(Drive, await Drive.GetThumbnailBitmapAsync().ConfigureAwait(true), await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" }), DriveType);
+        }
+
         /// <summary>
         /// 初始化HardDeviceInfo对象
         /// </summary>
         /// <param name="Device">驱动器文件夹</param>
         /// <param name="Thumbnail">缩略图</param>
         /// <param name="PropertiesRetrieve">额外信息</param>
-        public HardDeviceInfo(StorageFolder Device, BitmapImage Thumbnail, IDictionary<string, object> PropertiesRetrieve, DriveType DriveType)
+        private DriveRelatedData(StorageFolder Device, BitmapImage Thumbnail, IDictionary<string, object> PropertiesRetrieve, DriveType DriveType)
         {
             Folder = Device ?? throw new FileNotFoundException();
 

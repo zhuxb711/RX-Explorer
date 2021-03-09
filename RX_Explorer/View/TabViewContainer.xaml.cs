@@ -102,7 +102,7 @@ namespace RX_Explorer
                                 {
                                     if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync().ConfigureAwait(true))
                                     {
-                                        if (PC.DeviceGrid.SelectedItem is HardDeviceInfo Device && !string.IsNullOrEmpty(Device.Folder.Path))
+                                        if (PC.DeviceGrid.SelectedItem is DriveRelatedData Device && !string.IsNullOrEmpty(Device.Folder.Path))
                                         {
                                             await Exclusive.Controller.ViewWithQuicklookAsync(Device.Folder.Path).ConfigureAwait(true);
                                         }
@@ -119,7 +119,7 @@ namespace RX_Explorer
                             }
                         case VirtualKey.Enter:
                             {
-                                if (PC.DeviceGrid.SelectedItem is HardDeviceInfo Device)
+                                if (PC.DeviceGrid.SelectedItem is DriveRelatedData Device)
                                 {
                                     if (string.IsNullOrEmpty(Device.Folder.Path))
                                     {

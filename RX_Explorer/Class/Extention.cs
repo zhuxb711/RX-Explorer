@@ -351,47 +351,47 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Node), "Node could not be null");
             }
 
-            if (Node.Children.Count > 0)
+            if (await FileSystemStorageItemBase.OpenAsync((Node.Content as TreeViewNodeContent).Path).ConfigureAwait(true) is FileSystemStorageFolder ParentFolder)
             {
-                List<string> FolderList = WIN_Native_API.GetStorageItems((Node.Content as TreeViewNodeContent).Path, SettingControl.IsDisplayHiddenItem, ItemFilters.Folder).Select((Item) => Item.Path).ToList();
-                List<string> PathList = Node.Children.Select((Item) => (Item.Content as TreeViewNodeContent).Path).ToList();
-                List<string> AddList = FolderList.Except(PathList).ToList();
-                List<string> RemoveList = PathList.Except(FolderList).ToList();
-
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                if (Node.Children.Count > 0)
                 {
-                    foreach (string AddPath in AddList)
+                    List<string> FolderList = (await ParentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, ItemFilters.Folder).ConfigureAwait(true)).Select((Item) => Item.Path).ToList();
+                    List<string> PathList = Node.Children.Select((Item) => (Item.Content as TreeViewNodeContent).Path).ToList();
+                    List<string> AddList = FolderList.Except(PathList).ToList();
+                    List<string> RemoveList = PathList.Except(FolderList).ToList();
+
+                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                     {
-                        if (await FileSystemStorageItemBase.OpenAsync(AddPath) is FileSystemStorageFolder Folder)
+                        foreach (string AddPath in AddList)
                         {
-                            Node.Children.Add(new TreeViewNode
+                            if (await FileSystemStorageItemBase.OpenAsync(AddPath).ConfigureAwait(true) is FileSystemStorageFolder Folder)
                             {
-                                Content = new TreeViewNodeContent(AddPath),
-                                HasUnrealizedChildren = await Folder.CheckContainsAnyItemAsync(ItemFilters.Folder).ConfigureAwait(true),
-                                IsExpanded = false
-                            });
+                                Node.Children.Add(new TreeViewNode
+                                {
+                                    Content = new TreeViewNodeContent(AddPath),
+                                    HasUnrealizedChildren = await Folder.CheckContainsAnyItemAsync(ItemFilters.Folder).ConfigureAwait(true),
+                                    IsExpanded = false
+                                });
+                            }
                         }
-                    }
 
-                    foreach (string RemovePath in RemoveList)
-                    {
-                        if (Node.Children.Where((Item) => Item.Content is TreeViewNodeContent).FirstOrDefault((Item) => (Item.Content as TreeViewNodeContent).Path.Equals(RemovePath, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RemoveNode)
+                        foreach (string RemovePath in RemoveList)
                         {
-                            Node.Children.Remove(RemoveNode);
+                            if (Node.Children.Where((Item) => Item.Content is TreeViewNodeContent).FirstOrDefault((Item) => (Item.Content as TreeViewNodeContent).Path.Equals(RemovePath, StringComparison.OrdinalIgnoreCase)) is TreeViewNode RemoveNode)
+                            {
+                                Node.Children.Remove(RemoveNode);
+                            }
                         }
-                    }
-                });
+                    });
 
-                foreach (TreeViewNode SubNode in Node.Children)
-                {
-                    await SubNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                    foreach (TreeViewNode SubNode in Node.Children)
+                    {
+                        await SubNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                    }
                 }
-            }
-            else
-            {
-                if (await FileSystemStorageItemBase.OpenAsync((Node.Content as TreeViewNodeContent).Path) is FileSystemStorageFolder Folder)
+                else
                 {
-                    Node.HasUnrealizedChildren = await Folder.CheckContainsAnyItemAsync(ItemFilters.Folder).ConfigureAwait(true);
+                    Node.HasUnrealizedChildren = await ParentFolder.CheckContainsAnyItemAsync(ItemFilters.Folder).ConfigureAwait(true);
                 }
             }
         }

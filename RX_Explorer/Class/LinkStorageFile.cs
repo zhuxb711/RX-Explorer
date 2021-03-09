@@ -50,29 +50,48 @@ namespace RX_Explorer.Class
 
         public async Task LaunchAsync()
         {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+            try
             {
-                if (LinkType == ShellLinkType.Normal)
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {
-                    await Exclusive.Controller.RunAsync(LinkTargetPath, NeedRunAsAdmin, false, false, Arguments).ConfigureAwait(true);
-                }
-                else
-                {
-                    if (!await Exclusive.Controller.LaunchUWPLnkAsync(LinkTargetPath).ConfigureAwait(true))
+                    if (LinkType == ShellLinkType.Normal)
                     {
-                        await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                        await Exclusive.Controller.RunAsync(LinkTargetPath, NeedRunAsAdmin, false, false, Arguments).ConfigureAwait(true);
+                    }
+                    else
+                    {
+                        if (!await Exclusive.Controller.LaunchUWPLnkAsync(LinkTargetPath).ConfigureAwait(true))
                         {
-                            QueueContentDialog Dialog = new QueueContentDialog
+                            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                             {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
 
-                            await Dialog.ShowAsync().ConfigureAwait(true);
-                        });
+                                await Dialog.ShowAsync().ConfigureAwait(true);
+                            });
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex);
+
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync().ConfigureAwait(true);
+                });
             }
         }
 

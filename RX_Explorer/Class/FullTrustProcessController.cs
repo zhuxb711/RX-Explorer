@@ -1370,12 +1370,12 @@ namespace RX_Explorer.Class
                         if (Response.Message.TryGetValue("Error_Failure", out object ErrorMessage1))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(RunAsync)}, message: {ErrorMessage1}");
-
                             throw new InvalidOperationException();
                         }
                         else if (Response.Message.TryGetValue("Error", out object ErrorMessage2))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(RunAsync)}, message: {ErrorMessage2}");
+                            throw new InvalidOperationException();
                         }
                     }
                     else

@@ -16,7 +16,6 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Data.Xml.Dom;
 using Windows.Storage;
-using Windows.Storage.FileProperties;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
@@ -95,9 +94,9 @@ namespace RX_Explorer
                         GoBackRecord.IsEnabled = value.RecordIndex > 0;
                         GoForwardRecord.IsEnabled = value.RecordIndex < value.GoAndBackRecord.Count - 1;
 
-                        if (TabItem != null)
+                        if (WeakToTabItem.TryGetTarget(out TabViewItem Item))
                         {
-                            TabItem.Header = string.IsNullOrEmpty(Folder.DisplayName) ? $"<{Globalization.GetString("UnknownText")}>" : Folder.DisplayName;
+                            Item.Header = string.IsNullOrEmpty(Folder.DisplayName) ? $"<{Globalization.GetString("UnknownText")}>" : Folder.DisplayName;
                         }
                     }
 
@@ -111,22 +110,7 @@ namespace RX_Explorer
         private ObservableCollection<AddressBlock> AddressButtonList = new ObservableCollection<AddressBlock>();
         private ObservableCollection<AddressBlock> AddressExtentionList = new ObservableCollection<AddressBlock>();
 
-        public TabViewItem TabItem
-        {
-            get
-            {
-                if (WeakToTabItem.TryGetTarget(out TabViewItem Tab))
-                {
-                    return Tab;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        }
-
-        private WeakReference<TabViewItem> WeakToTabItem;
+        public WeakReference<TabViewItem> WeakToTabItem { get; private set; }
 
         public FileControl()
         {
@@ -139,15 +123,21 @@ namespace RX_Explorer
             Loaded += FileControl_Loaded;
         }
 
-        private void CommonAccessCollection_DeviceRemoved(object sender, HardDeviceInfo Device)
+        private async void CommonAccessCollection_DeviceRemoved(object sender, DriveRelatedData Device)
         {
             if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent)?.Path == Device.Folder?.Path) is TreeViewNode Node)
             {
                 FolderTree.RootNodes.Remove(Node);
+                FolderTree.SelectedNode = FolderTree.RootNodes.LastOrDefault();
+
+                if (FolderTree.SelectedNode?.Content is TreeViewNodeContent Content && CurrentPresenter != null)
+                {
+                    await CurrentPresenter.DisplayItemsInFolder(Content.Path).ConfigureAwait(false);
+                }
             }
         }
 
-        private async void CommonAccessCollection_DeviceAdded(object sender, HardDeviceInfo Device)
+        private async void CommonAccessCollection_DeviceAdded(object sender, DriveRelatedData Device)
         {
             if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => Content.Path != Device.Folder?.Path))
             {
@@ -320,7 +310,11 @@ namespace RX_Explorer
                         CommonAccessCollection.DeviceRemoved += CommonAccessCollection_DeviceRemoved;
 
                         WeakToTabItem = Parameters.Item1;
-                        TabItem.Tag = this;
+
+                        if (WeakToTabItem.TryGetTarget(out TabViewItem Item))
+                        {
+                            Item.Tag = this;
+                        }
 
                         ViewModeControl = new ViewModeController();
 
@@ -348,16 +342,19 @@ namespace RX_Explorer
 
         private void Frame_Navigated(object sender, NavigationEventArgs e)
         {
-            TabItem.Header = e.Content switch
+            if (WeakToTabItem.TryGetTarget(out TabViewItem Item))
             {
-                PhotoViewer _ => Globalization.GetString("BuildIn_PhotoViewer_Description"),
-                PdfReader _ => Globalization.GetString("BuildIn_PdfReader_Description"),
-                MediaPlayer _ => Globalization.GetString("BuildIn_MediaPlayer_Description"),
-                TextViewer _ => Globalization.GetString("BuildIn_TextViewer_Description"),
-                CropperPage _ => Globalization.GetString("BuildIn_CropperPage_Description"),
-                SearchPage _ => Globalization.GetString("BuildIn_SearchPage_Description"),
-                _ => string.IsNullOrEmpty(CurrentPresenter.CurrentFolder?.Name) ? $"<{Globalization.GetString("UnknownText")}>" : CurrentPresenter.CurrentFolder?.Name,
-            };
+                Item.Header = e.Content switch
+                {
+                    PhotoViewer _ => Globalization.GetString("BuildIn_PhotoViewer_Description"),
+                    PdfReader _ => Globalization.GetString("BuildIn_PdfReader_Description"),
+                    MediaPlayer _ => Globalization.GetString("BuildIn_MediaPlayer_Description"),
+                    TextViewer _ => Globalization.GetString("BuildIn_TextViewer_Description"),
+                    CropperPage _ => Globalization.GetString("BuildIn_CropperPage_Description"),
+                    SearchPage _ => Globalization.GetString("BuildIn_SearchPage_Description"),
+                    _ => string.IsNullOrEmpty(CurrentPresenter?.CurrentFolder?.Name) ? $"<{Globalization.GetString("UnknownText")}>" : CurrentPresenter?.CurrentFolder?.Name,
+                };
+            }
         }
 
         protected override async void OnNavigatedFrom(NavigationEventArgs e)
@@ -390,8 +387,7 @@ namespace RX_Explorer
             {
                 List<Task> NetworkLoadList = new List<Task>();
 
-                foreach ((StorageFolder DriveFolder, DriveType Type) in CommonAccessCollection.HardDeviceList.Select((Drive) => (Drive.Folder, Drive.DriveType))
-                                                                                                             .ToArray())
+                foreach ((StorageFolder DriveFolder, DriveType Type) in CommonAccessCollection.DriveList.Select((Drive) => (Drive.Folder, Drive.DriveType)).ToArray())
                 {
                     if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => Path != DriveFolder?.Path))
                     {
@@ -434,7 +430,7 @@ namespace RX_Explorer
                     await CreateNewBlade(TargetPath).ConfigureAwait(true);
                 }
 
-                await Task.WhenAll(NetworkLoadList).ConfigureAwait(false);
+                await Task.WhenAll(NetworkLoadList).ConfigureAwait(true);
             }
         }
 
@@ -443,7 +439,7 @@ namespace RX_Explorer
         /// </summary>
         /// <param name="Node">节点</param>
         /// <returns></returns>
-        public async Task FillTreeNode(TreeViewNode Node)
+        public async Task FillTreeNodeAsync(TreeViewNode Node)
         {
             if (Node == null)
             {
@@ -475,7 +471,7 @@ namespace RX_Explorer
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, $"An error was threw in { nameof(FillTreeNode)}");
+                    LogTracer.Log(ex, $"An error was threw in {nameof(FillTreeNodeAsync)}");
                 }
                 finally
                 {
@@ -489,7 +485,7 @@ namespace RX_Explorer
 
         private async void FolderTree_Expanding(TreeView sender, TreeViewExpandingEventArgs args)
         {
-            await FillTreeNode(args.Node).ConfigureAwait(false);
+            await FillTreeNodeAsync(args.Node).ConfigureAwait(false);
         }
 
         private async void FolderTree_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
@@ -807,7 +803,7 @@ namespace RX_Explorer
 
             if (FolderTree.RootNodes.Any((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(CurrentPresenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
             {
-                if (CommonAccessCollection.HardDeviceList.FirstOrDefault((Device) => Device.Folder.Path.Equals(CurrentPresenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)) is HardDeviceInfo Info)
+                if (CommonAccessCollection.DriveList.FirstOrDefault((Device) => Device.Folder.Path.Equals(CurrentPresenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)) is DriveRelatedData Info)
                 {
                     DeviceInfoDialog dialog = new DeviceInfoDialog(Info);
                     _ = await dialog.ShowAsync().ConfigureAwait(true);
@@ -1029,7 +1025,7 @@ namespace RX_Explorer
 
                     QueryText = await CommonEnvironmentVariables.ReplaceVariableAndGetActualPath(QueryText).ConfigureAwait(true);
 
-                    if (Path.IsPathRooted(QueryText) && CommonAccessCollection.HardDeviceList.FirstOrDefault((Drive) => Drive.Folder.Path.Equals(Path.GetPathRoot(QueryText), StringComparison.OrdinalIgnoreCase)) is HardDeviceInfo Device)
+                    if (Path.IsPathRooted(QueryText) && CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Folder.Path.Equals(Path.GetPathRoot(QueryText), StringComparison.OrdinalIgnoreCase)) is DriveRelatedData Device)
                     {
                         if (Device.IsLockedByBitlocker)
                         {
@@ -1042,16 +1038,13 @@ namespace RX_Explorer
 
                                 StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
 
-                                BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
-                                IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
-
-                                HardDeviceInfo NewDevice = new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Device.DriveType);
+                                DriveRelatedData NewDevice = await DriveRelatedData.CreateAsync(DeviceFolder, Device.DriveType).ConfigureAwait(true);
 
                                 if (!NewDevice.IsLockedByBitlocker)
                                 {
-                                    int Index = CommonAccessCollection.HardDeviceList.IndexOf(Device);
-                                    CommonAccessCollection.HardDeviceList.Remove(Device);
-                                    CommonAccessCollection.HardDeviceList.Insert(Index, NewDevice);
+                                    int Index = CommonAccessCollection.DriveList.IndexOf(Device);
+                                    CommonAccessCollection.DriveList.Remove(Device);
+                                    CommonAccessCollection.DriveList.Insert(Index, NewDevice);
                                 }
                                 else
                                 {
@@ -1130,6 +1123,17 @@ namespace RX_Explorer
                         _ = await dialog.ShowAsync().ConfigureAwait(true);
                     }
                 }
+                catch (InvalidOperationException)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync().ConfigureAwait(true);
+                }
                 catch (Exception)
                 {
                     QueueContentDialog dialog = new QueueContentDialog
@@ -1150,7 +1154,7 @@ namespace RX_Explorer
 
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                if (Path.IsPathRooted(sender.Text) && CommonAccessCollection.HardDeviceList.Any((Drive) => Drive.Folder.Path.Equals(Path.GetPathRoot(sender.Text), StringComparison.OrdinalIgnoreCase)))
+                if (Path.IsPathRooted(sender.Text) && CommonAccessCollection.DriveList.Any((Drive) => Drive.Folder.Path.Equals(Path.GetPathRoot(sender.Text), StringComparison.OrdinalIgnoreCase)))
                 {
                     if (Interlocked.Exchange(ref TextChangeLockResource, 1) == 0)
                     {

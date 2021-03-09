@@ -100,25 +100,26 @@ namespace RX_Explorer
         {
             try
             {
-                using (FileStream FileStream = await MediaFile.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
+                using (FileStream FileStream = await MediaFile.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(true))
                 using (var TagFile = TagLib.File.Create(new StreamFileAbstraction(MediaFile.Name, FileStream, FileStream)))
                 {
                     if (TagFile.Tag.Pictures != null && TagFile.Tag.Pictures.Length != 0)
                     {
-                        var ImageData = TagFile.Tag.Pictures[0].Data.Data;
+                        byte[] ImageData = TagFile.Tag.Pictures[0].Data.Data;
 
                         if (ImageData != null && ImageData.Length != 0)
                         {
                             using (MemoryStream ImageStream = new MemoryStream(ImageData))
                             {
-                                BitmapImage bitmap = new BitmapImage
+                                BitmapImage Bitmap = new BitmapImage
                                 {
                                     DecodePixelHeight = 250,
                                     DecodePixelWidth = 250
                                 };
-                                await bitmap.SetSourceAsync(ImageStream.AsRandomAccessStream());
+                                
+                                await Bitmap.SetSourceAsync(ImageStream.AsRandomAccessStream());
 
-                                return bitmap;
+                                return Bitmap;
                             }
                         }
                         else

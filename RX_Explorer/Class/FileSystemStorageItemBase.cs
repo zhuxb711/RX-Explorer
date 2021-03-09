@@ -93,11 +93,11 @@ namespace RX_Explorer.Class
 
         public virtual BitmapImage Thumbnail { get; protected set; }
 
-        protected static readonly BitmapImage Const_Folder_Image = new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
+        protected static readonly Uri Const_Folder_Image_Uri = new Uri("ms-appx:///Assets/FolderIcon.png");
 
-        protected static readonly BitmapImage Const_File_White_Image = new BitmapImage(new Uri("ms-appx:///Assets/Page_Solid_White.png"));
+        protected static readonly Uri Const_File_White_Image_Uri = new Uri("ms-appx:///Assets/Page_Solid_White.png");
 
-        protected static readonly BitmapImage Const_File_Black_Image = new BitmapImage(new Uri("ms-appx:///Assets/Page_Solid_Black.png"));
+        protected static readonly Uri Const_File_Black_Image_Uri = new Uri("ms-appx:///Assets/Page_Solid_Black.png");
 
         public static async Task MoveAsync(string SourcePath, string DirectoryPath, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
         {
@@ -399,9 +399,9 @@ namespace RX_Explorer.Class
 
         public async Task LoadMorePropertyAsync()
         {
-            if (Thumbnail == Const_File_White_Image || Thumbnail == Const_File_Black_Image || Thumbnail == Const_Folder_Image)
+            if ((this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.FileAndFolder)
             {
-                if ((this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.FileAndFolder)
+                if (!CheckIfPropertyLoaded())
                 {
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                     {
@@ -423,6 +423,8 @@ namespace RX_Explorer.Class
                 }
             }
         }
+
+        protected abstract bool CheckIfPropertyLoaded();
 
         protected abstract Task LoadMorePropertyCore(bool ForceUpdate = false);
 

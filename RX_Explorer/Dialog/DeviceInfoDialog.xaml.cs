@@ -7,9 +7,9 @@ namespace RX_Explorer.Dialog
 {
     public sealed partial class DeviceInfoDialog : QueueContentDialog
     {
-        private HardDeviceInfo Device;
+        private DriveRelatedData Device;
 
-        public DeviceInfoDialog(HardDeviceInfo Device)
+        public DeviceInfoDialog(DriveRelatedData Device)
         {
             InitializeComponent();
 

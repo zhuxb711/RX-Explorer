@@ -8,25 +8,30 @@ using Windows.ApplicationModel.Core;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Portable;
 using Windows.Storage;
-using Windows.Storage.FileProperties;
 using Windows.System;
 using Windows.UI.Core;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
     public static class CommonAccessCollection
     {
-        public static ObservableCollection<HardDeviceInfo> HardDeviceList { get; } = new ObservableCollection<HardDeviceInfo>();
+        public static ObservableCollection<DriveRelatedData> DriveList { get; } = new ObservableCollection<DriveRelatedData>();
         public static ObservableCollection<LibraryFolder> LibraryFolderList { get; } = new ObservableCollection<LibraryFolder>();
         public static ObservableCollection<QuickStartItem> QuickStartList { get; } = new ObservableCollection<QuickStartItem>();
         public static ObservableCollection<QuickStartItem> HotWebList { get; } = new ObservableCollection<QuickStartItem>();
 
         private static readonly DeviceWatcher PortalDeviceWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
 
-        public static event EventHandler<HardDeviceInfo> DeviceAdded;
+        private static readonly DispatcherTimer NetworkDriveCheckTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(5)
+        };
 
-        public static event EventHandler<HardDeviceInfo> DeviceRemoved;
+        public static event EventHandler<DriveRelatedData> DeviceAdded;
+
+        public static event EventHandler<DriveRelatedData> DeviceRemoved;
 
         public static event EventHandler<Queue<string>> LibraryNotFound;
 
@@ -264,16 +269,13 @@ namespace RX_Explorer.Class
         public static async Task LoadDeviceAsync()
         {
             foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Network)
-                                                             .Where((NewItem) => HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
+                                                             .Where((NewItem) => DriveList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
             {
                 try
                 {
-                    StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(Drive.RootDirectory.FullName);
+                    StorageFolder DriveFolder = await StorageFolder.GetFolderFromPathAsync(Drive.RootDirectory.FullName);
 
-                    BasicProperties Properties = await Device.GetBasicPropertiesAsync();
-                    IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
-
-                    HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Drive.DriveType));
+                    DriveList.Add(await DriveRelatedData.CreateAsync(DriveFolder, Drive.DriveType).ConfigureAwait(true));
                 }
                 catch (Exception ex)
                 {
@@ -291,6 +293,8 @@ namespace RX_Explorer.Class
                         break;
                     }
             }
+
+            NetworkDriveCheckTimer.Start();
         }
 
         private static async void PortalDeviceWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
@@ -319,14 +323,14 @@ namespace RX_Explorer.Class
                     AllBaseDevice.Remove(PortDevice);
                 }
 
-                List<HardDeviceInfo> OneStepDeviceList = HardDeviceList.Where((Item) => !AllBaseDevice.Contains(Item.Folder.Path)).ToList();
-                List<HardDeviceInfo> TwoStepDeviceList = OneStepDeviceList.Where((RemoveItem) => PortableDevice.All((Item) => Item.Name != RemoveItem.Folder.Name)).ToList();
+                List<DriveRelatedData> OneStepDeviceList = DriveList.Where((Item) => !AllBaseDevice.Contains(Item.Folder.Path)).ToList();
+                List<DriveRelatedData> TwoStepDeviceList = OneStepDeviceList.Where((RemoveItem) => PortableDevice.All((Item) => Item.Name != RemoveItem.Folder.Name)).ToList();
 
                 await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
-                    foreach (HardDeviceInfo Device in TwoStepDeviceList)
+                    foreach (DriveRelatedData Device in TwoStepDeviceList)
                     {
-                        HardDeviceList.Remove(Device);
+                        DriveList.Remove(Device);
                     }
                 });
             }
@@ -342,50 +346,12 @@ namespace RX_Explorer.Class
             {
                 StorageFolder DeviceFolder = StorageDevice.FromId(args.Id);
 
-                if (HardDeviceList.All((Device) => (string.IsNullOrEmpty(Device.Folder.Path) || string.IsNullOrEmpty(DeviceFolder.Path)) ? Device.Folder.Name != DeviceFolder.Name : Device.Folder.Path != DeviceFolder.Path))
+                if (DriveList.All((Device) => (string.IsNullOrEmpty(Device.Folder.Path) || string.IsNullOrEmpty(DeviceFolder.Path)) ? Device.Folder.Name != DeviceFolder.Name : Device.Folder.Path != DeviceFolder.Path))
                 {
-                    BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
-                    IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
-
-                    if (PropertiesRetrieve["System.Capacity"] is ulong && PropertiesRetrieve["System.FreeSpace"] is ulong)
+                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                     {
-                        await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                        {
-                            HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
-                        });
-                    }
-                    else
-                    {
-                        IReadOnlyList<IStorageItem> InnerItemList = await DeviceFolder.GetItemsAsync(0, 2);
-
-                        if (InnerItemList.Count == 1 && InnerItemList[0] is StorageFolder InnerFolder)
-                        {
-                            BasicProperties InnerProperties = await InnerFolder.GetBasicPropertiesAsync();
-                            IDictionary<string, object> InnerPropertiesRetrieve = await InnerProperties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
-
-                            if (InnerPropertiesRetrieve["System.Capacity"] is ulong && InnerPropertiesRetrieve["System.FreeSpace"] is ulong)
-                            {
-                                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                                {
-                                    HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), InnerPropertiesRetrieve, DriveType.Removable));
-                                });
-                            }
-                            else
-                            {
-                                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                                {
-                                    HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
-                                });
-                            }
-                        }
-                        else
-                        {
-                            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                            {
-                                HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
-                            });
-                        }
-                    }
+                        DriveList.Add(await DriveRelatedData.CreateAsync(DeviceFolder, DriveType.Removable).ConfigureAwait(true));
+                    });
                 }
             }
             catch (Exception ex)
@@ -394,29 +360,64 @@ namespace RX_Explorer.Class
             }
         }
 
-        private static void HardDeviceList_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private async static void HardDeviceList_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            switch (e.Action)
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
             {
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
-                    {
-                        foreach (HardDeviceInfo Device in e.NewItems)
+                switch (e.Action)
+                {
+                    case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
                         {
-                            DeviceAdded?.Invoke(null, Device);
-                        }
+                            foreach (DriveRelatedData Device in e.NewItems)
+                            {
+                                DeviceAdded?.Invoke(null, Device);
+                            }
 
-                        break;
-                    }
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
-                    {
-                        foreach (HardDeviceInfo Device in e.NewItems)
+                            break;
+                        }
+                    case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
                         {
-                            DeviceRemoved?.Invoke(null, Device);
-                        }
+                            foreach (DriveRelatedData Device in e.OldItems)
+                            {
+                                DeviceRemoved?.Invoke(null, Device);
+                            }
 
-                        break;
-                    }
+                            break;
+                        }
+                }
+            });
+        }
+
+        private async static void NetworkDriveCheckTimer_Tick(object sender, object e)
+        {
+            NetworkDriveCheckTimer.Stop();
+
+            DriveInfo[] NewNetworkDrive = DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Network).ToArray();
+            DriveRelatedData[] ExistNetworkDrive = DriveList.Where((ExistDrive) => ExistDrive.DriveType == DriveType.Network).ToArray();
+
+            IEnumerable<DriveInfo> AddList = NewNetworkDrive.Where((NewDrive) => ExistNetworkDrive.All((ExistDrive) => ExistDrive.Folder.Path != NewDrive.RootDirectory.FullName));
+            IEnumerable<DriveRelatedData> RemoveList = ExistNetworkDrive.Where((ExistDrive) => NewNetworkDrive.All((NewDrive) => ExistDrive.Folder.Path != NewDrive.RootDirectory.FullName));
+
+            foreach (DriveRelatedData ExistDrive in RemoveList)
+            {
+                DriveList.Remove(ExistDrive);
             }
+
+            foreach (DriveInfo Drive in AddList)
+            {
+                try
+                {
+                    StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(Drive.RootDirectory.FullName);
+
+                    DriveList.Add(await DriveRelatedData.CreateAsync(Device, Drive.DriveType).ConfigureAwait(true));
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"Hide the device \"{Drive.RootDirectory.FullName}\" for error");
+                }
+            }
+
+            NetworkDriveCheckTimer.Start();
         }
 
 
@@ -424,7 +425,8 @@ namespace RX_Explorer.Class
         {
             PortalDeviceWatcher.Added += PortalDeviceWatcher_Added;
             PortalDeviceWatcher.Removed += PortalDeviceWatcher_Removed;
-            HardDeviceList.CollectionChanged += HardDeviceList_CollectionChanged;
+            DriveList.CollectionChanged += HardDeviceList_CollectionChanged;
+            NetworkDriveCheckTimer.Tick += NetworkDriveCheckTimer_Tick;
         }
     }
 }

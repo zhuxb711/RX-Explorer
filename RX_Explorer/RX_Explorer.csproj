@@ -270,7 +270,7 @@
     <Compile Include="Class\FilterItem.cs" />
     <Compile Include="Class\GeneralTransformer.cs" />
     <Compile Include="Class\Globalization.cs" />
-    <Compile Include="Class\HardDeviceInfo.cs" />
+    <Compile Include="Class\DriveRelatedData.cs" />
     <Compile Include="Class\KeyGenerator.cs" />
     <Compile Include="Class\LibraryFolder.cs" />
     <Compile Include="Class\MySQL.cs" />

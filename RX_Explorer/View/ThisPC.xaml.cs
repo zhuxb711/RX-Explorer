@@ -80,7 +80,7 @@ namespace RX_Explorer
                     Storyboard Story = new Storyboard();
                     DoubleAnimation Animation = new DoubleAnimation()
                     {
-                        To = (args.Item as HardDeviceInfo).Percent,
+                        To = (args.Item as DriveRelatedData).Percent,
                         From = 0,
                         EnableDependentAnimation = true,
                         EasingFunction = new CircleEase { EasingMode = EasingMode.EaseInOut },
@@ -117,7 +117,7 @@ namespace RX_Explorer
                         LibraryGrid.SelectedItem = Item;
                         DeviceGrid.SelectedIndex = -1;
                     }
-                    else if (Item is HardDeviceInfo)
+                    else if (Item is DriveRelatedData)
                     {
                         DeviceGrid.SelectedItem = Item;
                         LibraryGrid.SelectedIndex = -1;
@@ -172,7 +172,7 @@ namespace RX_Explorer
         {
             LibraryGrid.SelectedIndex = -1;
 
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Device)
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is DriveRelatedData Device)
             {
                 if (Device.IsLockedByBitlocker)
                 {
@@ -185,18 +185,15 @@ namespace RX_Explorer
                         {
                             await Exclusive.Controller.RunAsync("powershell.exe", true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
 
-                            StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
+                            StorageFolder DriveFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
 
-                            BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
-                            IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
-
-                            HardDeviceInfo NewDevice = new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Device.DriveType);
+                            DriveRelatedData NewDevice = await DriveRelatedData.CreateAsync(DriveFolder, Device.DriveType).ConfigureAwait(true);
 
                             if (!NewDevice.IsLockedByBitlocker)
                             {
-                                int Index = CommonAccessCollection.HardDeviceList.IndexOf(Device);
-                                CommonAccessCollection.HardDeviceList.Remove(Device);
-                                CommonAccessCollection.HardDeviceList.Insert(Index, NewDevice);
+                                int Index = CommonAccessCollection.DriveList.IndexOf(Device);
+                                CommonAccessCollection.DriveList.Remove(Device);
+                                CommonAccessCollection.DriveList.Insert(Index, NewDevice);
                             }
                             else
                             {
@@ -376,7 +373,7 @@ namespace RX_Explorer
 
         private async void Attribute_Click(object sender, RoutedEventArgs e)
         {
-            DeviceInfoDialog Dialog = new DeviceInfoDialog(DeviceGrid.SelectedItem as HardDeviceInfo);
+            DeviceInfoDialog Dialog = new DeviceInfoDialog(DeviceGrid.SelectedItem as DriveRelatedData);
             _ = await Dialog.ShowAsync().ConfigureAwait(true);
         }
 
@@ -384,7 +381,7 @@ namespace RX_Explorer
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Context)
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is DriveRelatedData Context)
                 {
                     DeviceGrid.SelectedItem = Context;
 
@@ -409,7 +406,7 @@ namespace RX_Explorer
         {
             LibraryGrid.SelectedIndex = -1;
 
-            if (DeviceGrid.SelectedItem is HardDeviceInfo Device)
+            if (DeviceGrid.SelectedItem is DriveRelatedData Device)
             {
                 if (Device.IsLockedByBitlocker)
                 {
@@ -423,18 +420,15 @@ namespace RX_Explorer
                             await Exclusive.Controller.RunAsync("powershell.exe", true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
                         }
 
-                        StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
+                        StorageFolder DriveFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
 
-                        BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
-                        IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
-
-                        HardDeviceInfo NewDevice = new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Device.DriveType);
+                        DriveRelatedData NewDevice = await DriveRelatedData.CreateAsync(DriveFolder, Device.DriveType).ConfigureAwait(true);
 
                         if (!NewDevice.IsLockedByBitlocker)
                         {
-                            int Index = CommonAccessCollection.HardDeviceList.IndexOf(Device);
-                            CommonAccessCollection.HardDeviceList.Remove(Device);
-                            CommonAccessCollection.HardDeviceList.Insert(Index, NewDevice);
+                            int Index = CommonAccessCollection.DriveList.IndexOf(Device);
+                            CommonAccessCollection.DriveList.Remove(Device);
+                            CommonAccessCollection.DriveList.Insert(Index, NewDevice);
                         }
                         else
                         {
@@ -541,18 +535,16 @@ namespace RX_Explorer
             {
                 try
                 {
-                    CommonAccessCollection.HardDeviceList.Clear();
+                    CommonAccessCollection.DriveList.Clear();
 
                     foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Network)
-                                                                     .Where((NewItem) => CommonAccessCollection.HardDeviceList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
+                                                                     .Where((NewItem) => CommonAccessCollection.DriveList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
                     {
                         try
                         {
-                            StorageFolder Device = await StorageFolder.GetFolderFromPathAsync(Drive.RootDirectory.FullName);
+                            StorageFolder DriveFolder = await StorageFolder.GetFolderFromPathAsync(Drive.RootDirectory.FullName);
 
-                            BasicProperties Properties = await Device.GetBasicPropertiesAsync();
-                            IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
-                            CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Drive.DriveType));
+                            CommonAccessCollection.DriveList.Add(await DriveRelatedData.CreateAsync(DriveFolder, Drive.DriveType).ConfigureAwait(true));
                         }
                         catch (Exception ex)
                         {
@@ -564,40 +556,11 @@ namespace RX_Explorer
                     {
                         try
                         {
-                            StorageFolder DeviceFolder = StorageDevice.FromId(Device.Id);
+                            StorageFolder DriveFolder = StorageDevice.FromId(Device.Id);
 
-                            if (CommonAccessCollection.HardDeviceList.All((Item) => (string.IsNullOrEmpty(Item.Folder.Path) || string.IsNullOrEmpty(DeviceFolder.Path)) ? Item.Folder.Name != DeviceFolder.Name : Item.Folder.Path != DeviceFolder.Path))
+                            if (CommonAccessCollection.DriveList.All((Item) => (string.IsNullOrEmpty(Item.Folder.Path) || string.IsNullOrEmpty(DriveFolder.Path)) ? Item.Folder.Name != DriveFolder.Name : Item.Folder.Path != DriveFolder.Path))
                             {
-                                BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
-                                IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
-
-                                if (PropertiesRetrieve["System.Capacity"] is ulong && PropertiesRetrieve["System.FreeSpace"] is ulong)
-                                {
-                                    CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
-                                }
-                                else
-                                {
-                                    IReadOnlyList<IStorageItem> InnerItemList = await DeviceFolder.GetItemsAsync(0, 2);
-
-                                    if (InnerItemList.Count == 1 && InnerItemList[0] is StorageFolder InnerFolder)
-                                    {
-                                        BasicProperties InnerProperties = await InnerFolder.GetBasicPropertiesAsync();
-                                        IDictionary<string, object> InnerPropertiesRetrieve = await InnerProperties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
-
-                                        if (InnerPropertiesRetrieve["System.Capacity"] is ulong && InnerPropertiesRetrieve["System.FreeSpace"] is ulong)
-                                        {
-                                            CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), InnerPropertiesRetrieve, DriveType.Removable));
-                                        }
-                                        else
-                                        {
-                                            CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, DriveType.Removable));
-                                    }
-                                }
+                                CommonAccessCollection.DriveList.Add(await DriveRelatedData.CreateAsync(DriveFolder, DriveType.Removable).ConfigureAwait(true));
                             }
                         }
                         catch (Exception ex)
@@ -617,7 +580,7 @@ namespace RX_Explorer
         {
             LibraryGrid.SelectedIndex = -1;
 
-            if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is HardDeviceInfo Device)
+            if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is DriveRelatedData Device)
             {
                 if (Device.IsLockedByBitlocker)
                 {
@@ -631,18 +594,15 @@ namespace RX_Explorer
                             await Exclusive.Controller.RunAsync("powershell.exe", true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
                         }
 
-                        StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
+                        StorageFolder DriveFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
 
-                        BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
-                        IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
-
-                        HardDeviceInfo NewDevice = new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Device.DriveType);
+                        DriveRelatedData NewDevice = await DriveRelatedData.CreateAsync(DriveFolder, Device.DriveType).ConfigureAwait(true);
 
                         if (!NewDevice.IsLockedByBitlocker)
                         {
-                            int Index = CommonAccessCollection.HardDeviceList.IndexOf(Device);
-                            CommonAccessCollection.HardDeviceList.Remove(Device);
-                            CommonAccessCollection.HardDeviceList.Insert(Index, NewDevice);
+                            int Index = CommonAccessCollection.DriveList.IndexOf(Device);
+                            CommonAccessCollection.DriveList.Remove(Device);
+                            CommonAccessCollection.DriveList.Insert(Index, NewDevice);
                         }
                         else
                         {
@@ -687,17 +647,15 @@ namespace RX_Explorer
             };
             Picker.FileTypeFilter.Add("*");
 
-            StorageFolder Device = await Picker.PickSingleFolderAsync();
+            StorageFolder DriveFolder = await Picker.PickSingleFolderAsync();
 
-            if (Device != null)
+            if (DriveFolder != null)
             {
-                if (Device.Path.Equals(Path.GetPathRoot(Device.Path), StringComparison.OrdinalIgnoreCase) && DriveInfo.GetDrives().Where((Drive) => Drive.DriveType == DriveType.Fixed || Drive.DriveType == DriveType.Removable || Drive.DriveType == DriveType.Network).Any((Item) => Item.RootDirectory.FullName == Device.Path))
+                if (DriveFolder.Path.Equals(Path.GetPathRoot(DriveFolder.Path), StringComparison.OrdinalIgnoreCase) && DriveInfo.GetDrives().Where((Drive) => Drive.DriveType == DriveType.Fixed || Drive.DriveType == DriveType.Removable || Drive.DriveType == DriveType.Network).Any((Item) => Item.RootDirectory.FullName == DriveFolder.Path))
                 {
-                    if (CommonAccessCollection.HardDeviceList.All((Item) => Item.Folder.Path != Device.Path))
+                    if (CommonAccessCollection.DriveList.All((Item) => Item.Folder.Path != DriveFolder.Path))
                     {
-                        BasicProperties Properties = await Device.GetBasicPropertiesAsync();
-                        IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
-                        CommonAccessCollection.HardDeviceList.Add(new HardDeviceInfo(Device, await Device.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, new DriveInfo(Device.Path).DriveType));
+                        CommonAccessCollection.DriveList.Add(await DriveRelatedData.CreateAsync(DriveFolder, new DriveInfo(DriveFolder.Path).DriveType));
                     }
                     else
                     {
@@ -777,7 +735,7 @@ namespace RX_Explorer
         {
             if (e.HoldingState == HoldingState.Started)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is HardDeviceInfo Context)
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is DriveRelatedData Context)
                 {
                     DeviceGrid.SelectedItem = Context;
                     DeviceGrid.ContextFlyout = Context.DriveType == DriveType.Removable ? PortableDeviceFlyout : DeviceFlyout;
@@ -802,7 +760,7 @@ namespace RX_Explorer
 
         private async void EjectButton_Click(object sender, RoutedEventArgs e)
         {
-            if (DeviceGrid.SelectedItem is HardDeviceInfo Item)
+            if (DeviceGrid.SelectedItem is DriveRelatedData Item)
             {
                 if (string.IsNullOrEmpty(Item.Folder.Path))
                 {
@@ -930,7 +888,7 @@ namespace RX_Explorer
 
         private async void UnlockBitlocker_Click(object sender, RoutedEventArgs e)
         {
-            if (DeviceGrid.SelectedItem is HardDeviceInfo Device)
+            if (DeviceGrid.SelectedItem is DriveRelatedData Device)
             {
             Retry:
                 BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
@@ -947,13 +905,13 @@ namespace RX_Explorer
                     BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
                     IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
 
-                    HardDeviceInfo NewDevice = new HardDeviceInfo(DeviceFolder, await DeviceFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), PropertiesRetrieve, Device.DriveType);
+                    DriveRelatedData NewDevice = await DriveRelatedData.CreateAsync(DeviceFolder, Device.DriveType).ConfigureAwait(true);
 
                     if (!NewDevice.IsLockedByBitlocker)
                     {
-                        int Index = CommonAccessCollection.HardDeviceList.IndexOf(Device);
-                        CommonAccessCollection.HardDeviceList.Remove(Device);
-                        CommonAccessCollection.HardDeviceList.Insert(Index, NewDevice);
+                        int Index = CommonAccessCollection.DriveList.IndexOf(Device);
+                        CommonAccessCollection.DriveList.Remove(Device);
+                        CommonAccessCollection.DriveList.Insert(Index, NewDevice);
                     }
                     else
                     {

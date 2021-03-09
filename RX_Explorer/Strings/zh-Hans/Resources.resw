@@ -2309,9 +2309,6 @@
   <data name="SettingPageBackgroundBlurSlider.Header" xml:space="preserve">
     <value>调整背景模糊效果</value>
   </data>
-  <data name="QueueDialog_UnauthorizedExecute_Content" xml:space="preserve">
-    <value>RX无权执行此文件，您是否希望启动Windows Explorer?</value>
-  </data>
   <data name="SettingPageAlwaysLaunchNew.Content" xml:space="preserve">
     <value>激活时始终启动新的进程</value>
   </data>

@@ -1044,67 +1044,74 @@ namespace FullTrustProcess
                             {
                                 if (StorageItemController.CheckPermission(FileSystemRights.ReadAndExecute, ExecutePath))
                                 {
-                                    if (string.IsNullOrEmpty(ExecuteParameter))
+                                    try
                                     {
-                                        using (Process Process = new Process())
+                                        if (string.IsNullOrEmpty(ExecuteParameter))
                                         {
-                                            Process.StartInfo.FileName = ExecutePath;
-                                            Process.StartInfo.UseShellExecute = true;
-                                            Process.StartInfo.WorkingDirectory = Path.GetDirectoryName(ExecutePath);
-
-                                            if (ExecuteCreateNoWindow)
+                                            using (Process Process = new Process())
                                             {
-                                                Process.StartInfo.CreateNoWindow = true;
-                                                Process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                                            }
+                                                Process.StartInfo.FileName = ExecutePath;
+                                                Process.StartInfo.UseShellExecute = true;
+                                                Process.StartInfo.WorkingDirectory = Path.GetDirectoryName(ExecutePath);
 
-                                            if (ExecuteAuthority == "Administrator")
-                                            {
-                                                Process.StartInfo.Verb = "runAs";
-                                            }
+                                                if (ExecuteCreateNoWindow)
+                                                {
+                                                    Process.StartInfo.CreateNoWindow = true;
+                                                    Process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                                                }
 
-                                            Process.Start();
+                                                if (ExecuteAuthority == "Administrator")
+                                                {
+                                                    Process.StartInfo.Verb = "runAs";
+                                                }
 
-                                            SetWindowsZPosition(Process);
+                                                Process.Start();
 
-                                            if (ShouldWaitForExit)
-                                            {
-                                                Process.WaitForExit();
+                                                SetWindowsZPosition(Process);
+
+                                                if (ShouldWaitForExit)
+                                                {
+                                                    Process.WaitForExit();
+                                                }
                                             }
                                         }
-                                    }
-                                    else
-                                    {
-                                        using (Process Process = new Process())
+                                        else
                                         {
-                                            Process.StartInfo.FileName = ExecutePath;
-                                            Process.StartInfo.Arguments = ExecuteParameter;
-                                            Process.StartInfo.UseShellExecute = true;
-                                            Process.StartInfo.WorkingDirectory = Path.GetDirectoryName(ExecutePath);
-
-                                            if (ExecuteCreateNoWindow)
+                                            using (Process Process = new Process())
                                             {
-                                                Process.StartInfo.CreateNoWindow = true;
-                                                Process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                                            }
+                                                Process.StartInfo.FileName = ExecutePath;
+                                                Process.StartInfo.Arguments = ExecuteParameter;
+                                                Process.StartInfo.UseShellExecute = true;
+                                                Process.StartInfo.WorkingDirectory = Path.GetDirectoryName(ExecutePath);
 
-                                            if (ExecuteAuthority == "Administrator")
-                                            {
-                                                Process.StartInfo.Verb = "runAs";
-                                            }
+                                                if (ExecuteCreateNoWindow)
+                                                {
+                                                    Process.StartInfo.CreateNoWindow = true;
+                                                    Process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                                                }
 
-                                            Process.Start();
+                                                if (ExecuteAuthority == "Administrator")
+                                                {
+                                                    Process.StartInfo.Verb = "runAs";
+                                                }
 
-                                            SetWindowsZPosition(Process);
+                                                Process.Start();
 
-                                            if (ShouldWaitForExit)
-                                            {
-                                                Process.WaitForExit();
+                                                SetWindowsZPosition(Process);
+
+                                                if (ShouldWaitForExit)
+                                                {
+                                                    Process.WaitForExit();
+                                                }
                                             }
                                         }
-                                    }
 
-                                    Value.Add("Success", string.Empty);
+                                        Value.Add("Success", string.Empty);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Value.Add("Error", $"Path: {ExecutePath}, Parameter: {ExecuteParameter}, Authority: {ExecuteAuthority}, ErrorMessage: {ex.Message}");
+                                    }
                                 }
                                 else
                                 {

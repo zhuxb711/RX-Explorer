@@ -148,9 +148,9 @@ namespace RX_Explorer
                     Container.GoBackRecord.IsEnabled = RecordIndex > 0;
                     Container.GoForwardRecord.IsEnabled = RecordIndex < GoAndBackRecord.Count - 1;
 
-                    if (Container.TabItem != null)
+                    if (Container.WeakToTabItem.TryGetTarget(out TabViewItem Item))
                     {
-                        Container.TabItem.Header = string.IsNullOrEmpty(value.DisplayName) ? $"<{Globalization.GetString("UnknownText")}>" : value.DisplayName;
+                        Item.Header = string.IsNullOrEmpty(value.DisplayName) ? $"<{Globalization.GetString("UnknownText")}>" : value.DisplayName;
                     }
 
                     AreaWatcher?.StartWatchDirectory(value.Path, SettingControl.IsDisplayHiddenItem);
@@ -2715,7 +2715,7 @@ namespace RX_Explorer
 
             if (CurrentFolder.Path.Equals(Path.GetPathRoot(CurrentFolder.Path), StringComparison.OrdinalIgnoreCase))
             {
-                if (CommonAccessCollection.HardDeviceList.FirstOrDefault((Device) => Device.Folder.Path.Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)) is HardDeviceInfo Info)
+                if (CommonAccessCollection.DriveList.FirstOrDefault((Device) => Device.Folder.Path.Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)) is DriveRelatedData Info)
                 {
                     DeviceInfoDialog dialog = new DeviceInfoDialog(Info);
                     _ = await dialog.ShowAsync().ConfigureAwait(true);
@@ -3004,25 +3004,7 @@ namespace RX_Explorer
                                     {
                                         if (Path.IsPathRooted(AdminExecutablePath))
                                         {
-                                            try
-                                            {
-                                                await Exclusive.Controller.RunAsync(AdminExecutablePath, false, false, false, File.Path).ConfigureAwait(true);
-                                            }
-                                            catch (InvalidOperationException)
-                                            {
-                                                QueueContentDialog UnauthorizeDialog = new QueueContentDialog
-                                                {
-                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                    Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
-                                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                                };
-
-                                                if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                                {
-                                                    await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                                                }
-                                            }
+                                            await Exclusive.Controller.RunAsync(AdminExecutablePath, false, false, false, File.Path).ConfigureAwait(true);
                                         }
                                         else
                                         {
@@ -3525,18 +3507,14 @@ namespace RX_Explorer
                 }
                 catch (InvalidOperationException)
                 {
-                    QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
-                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                    {
-                        await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                    }
+                    await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 catch (Exception ex)
                 {
@@ -3710,20 +3688,16 @@ namespace RX_Explorer
                                 {
                                     await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, false, false, false, File.Path).ConfigureAwait(true);
                                 }
-                                catch (InvalidOperationException)
+                                catch (Exception)
                                 {
-                                    QueueContentDialog UnauthorizeDialog = new QueueContentDialog
+                                    QueueContentDialog dialog = new QueueContentDialog
                                     {
                                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_UnauthorizedExecute_Content"),
-                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                     };
 
-                                    if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                    {
-                                        await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                                    }
+                                    await dialog.ShowAsync().ConfigureAwait(true);
                                 }
                             }
                         }
@@ -5311,11 +5285,20 @@ namespace RX_Explorer
                 {
                     try
                     {
-                        await Exclusive.Controller.RunAsync(Profile.Path, Profile.RunAsAdmin, false, false, Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value.Contains("[CurrentLocation]") ? Mat.Value.Replace("[CurrentLocation]", CurrentFolder.Path) : Mat.Value).ToArray()).ConfigureAwait(false);
+                        await Exclusive.Controller.RunAsync(Profile.Path, Profile.RunAsAdmin, false, false, Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value.Contains("[CurrentLocation]") ? Mat.Value.Replace("[CurrentLocation]", CurrentFolder.Path) : Mat.Value).ToArray()).ConfigureAwait(true);
                     }
                     catch (Exception ex)
                     {
                         LogTracer.Log(ex, "An exception was threw when running terminal");
+
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await Dialog.ShowAsync().ConfigureAwait(true);
                     }
                 }
             }
