@@ -2805,4 +2805,10 @@ Invalid names include
   <data name="Operate_Text_SplitView" xml:space="preserve">
     <value>Open in vertical split view</value>
   </data>
+  <data name="DecompressHere.Text" xml:space="preserve">
+    <value>Extract here</value>
+  </data>
+  <data name="DecompressTo" xml:space="preserve">
+    <value>Extract to</value>
+  </data>
 </root>

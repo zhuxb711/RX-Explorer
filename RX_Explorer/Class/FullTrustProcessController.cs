@@ -867,7 +867,7 @@ namespace RX_Explorer.Class
             {
                 IsAnyActionExcutingInCurrentController = true;
 
-                if (Path.Any())
+                if (!string.IsNullOrWhiteSpace(Path))
                 {
                     if (await ConnectRemoteAsync().ConfigureAwait(true))
                     {

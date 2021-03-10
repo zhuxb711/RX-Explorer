@@ -3581,6 +3581,14 @@ Invalid names include
           <source>Open in vertical split view</source>
           <target state="translated">在垂直拆分视图中打开</target>
         </trans-unit>
+        <trans-unit id="DecompressHere.Text" translate="yes" xml:space="preserve">
+          <source>Extract here</source>
+          <target state="translated">解压到此文件夹</target>
+        </trans-unit>
+        <trans-unit id="DecompressTo" translate="yes" xml:space="preserve">
+          <source>Extract to</source>
+          <target state="translated">解压到</target>
+        </trans-unit>
       </group>
     </body>
   </file>

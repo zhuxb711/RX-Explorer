@@ -2,6 +2,7 @@
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
+using RX_Explorer.CustomControl;
 using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
 using System;
@@ -2140,7 +2141,7 @@ namespace RX_Explorer
                     return;
                 }
 
-                CompressDialog dialog = new CompressDialog(true, File.Name);
+                CompressDialog dialog = new CompressDialog(true, Path.GetFileNameWithoutExtension(File.Path));
 
                 if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
@@ -2260,7 +2261,16 @@ namespace RX_Explorer
 
                             try
                             {
-                                await CompressionUtil.ExtractZipAsync(File, async (s, e) =>
+                                FileSystemStorageFolder TargetFolder = ((sender as FrameworkElement).Name == "DecompressionOption2")
+                                                                        ? await FileSystemStorageItemBase.CreateAsync(Path.Combine(Path.GetDirectoryName(File.Path), Path.GetFileNameWithoutExtension(File.Name)), StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) as FileSystemStorageFolder
+                                                                        : CurrentFolder;
+
+                                if (TargetFolder == null)
+                                {
+                                    throw new UnauthorizedAccessException();
+                                }
+
+                                await CompressionUtil.ExtractZipAsync(TargetFolder, File, async (s, e) =>
                                 {
                                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                     {
@@ -2320,7 +2330,16 @@ namespace RX_Explorer
 
                             try
                             {
-                                await CompressionUtil.ExtractTarAsync(File, async (s, e) =>
+                                FileSystemStorageFolder TargetFolder = ((sender as FrameworkElement).Name == "DecompressionOption2")
+                                                                        ? await FileSystemStorageItemBase.CreateAsync(Path.Combine(Path.GetDirectoryName(File.Path), Path.GetFileNameWithoutExtension(File.Name)), StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) as FileSystemStorageFolder
+                                                                        : CurrentFolder;
+
+                                if (TargetFolder == null)
+                                {
+                                    throw new UnauthorizedAccessException();
+                                }
+
+                                await CompressionUtil.ExtractTarAsync(TargetFolder, File, async (s, e) =>
                                 {
                                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                     {
@@ -6278,6 +6297,36 @@ namespace RX_Explorer
             {
                 e.Handled = true;
                 ItemPresenter.Focus(FocusState.Programmatic);
+            }
+        }
+
+        private void DecompressionOptionFlyout_Opening(object sender, object e)
+        {
+            if (!SelectedItem.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase))
+            {
+                MenuFlyoutItemWithImage Item = new MenuFlyoutItemWithImage
+                {
+                    MinWidth = 150,
+                    MaxWidth = 320,
+                    Name = "DecompressionOption2",
+                    Text = $"{Globalization.GetString("DecompressTo")} \"{Path.GetFileNameWithoutExtension(SelectedItem.Path)}\\\"",
+                    Icon = new FontIcon
+                    {
+                        Glyph = "\uF0B2"
+                    }
+                };
+
+                Item.Click += Decompression_Click;
+
+                DecompressionOptionFlyout.Items.Add(Item);
+            }
+        }
+
+        private void DecompressionOptionFlyout_Closed(object sender, object e)
+        {
+            if (DecompressionOptionFlyout.Items.LastOrDefault((Item) => Item.Name == "DecompressionOption2") is MenuFlyoutItemBase Base)
+            {
+                DecompressionOptionFlyout.Items.Remove(Base);
             }
         }
 

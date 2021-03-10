@@ -196,13 +196,13 @@
                                          SelectsOnInvoked="False">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="蓝牙音频"
-                                   x:Uid="BluetoothAudio"/>
+                                   x:Uid="BluetoothAudio" />
                         <Viewbox Margin="10,4,0,0"
                                  Height="15"
                                  VerticalAlignment="Center">
                             <FontIcon Glyph="&#xE9CE;"
                                       Name="BluetoothAudioQuestion"
-                                      PointerPressed="BluetoothAudioQuestion_PointerPressed"/>
+                                      PointerPressed="BluetoothAudioQuestion_PointerPressed" />
                         </Viewbox>
                     </StackPanel>
                     <muxc:NavigationViewItem.Icon>

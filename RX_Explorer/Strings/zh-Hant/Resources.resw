@@ -2700,4 +2700,10 @@
   <data name="Operate_Text_SplitView" xml:space="preserve">
     <value>在垂直拆分視圖中打開</value>
   </data>
+  <data name="DecompressHere.Text" xml:space="preserve">
+    <value>提取到這裡</value>
+  </data>
+  <data name="DecompressTo" xml:space="preserve">
+    <value>提取到</value>
+  </data>
 </root>

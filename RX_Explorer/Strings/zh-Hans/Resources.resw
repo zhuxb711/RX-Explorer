@@ -2700,4 +2700,10 @@
   <data name="Operate_Text_SplitView" xml:space="preserve">
     <value>在垂直拆分视图中打开</value>
   </data>
+  <data name="DecompressHere.Text" xml:space="preserve">
+    <value>解压到此文件夹</value>
+  </data>
+  <data name="DecompressTo" xml:space="preserve">
+    <value>解压到</value>
+  </data>
 </root>

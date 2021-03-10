@@ -1,4 +1,29 @@
 ﻿*****
+###Quoi de neuf dans la version 6.1.7.0
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Nouvelle option de décompression
+
+>#####Ajustement du nombre d'éléments d'extension dans le menu contextuel
+
+#####Correction d'un bug
+
+>#####Correction du problème qui pouvait entraîner l'affichage incorrect de la progression de la décompression
+
+>#####Correction du problème d'apparition d'éléments en double dans le menu contextuel
+
+>#####Correction du problème selon lequel le lecteur réseau ne pouvait pas être détecté s'il changeait
+
+>#####Correction du problème qui provoquait un plantage lors de l'entrée dans le dossier après la réduction ou la suspension
+
+>#####Correction du problème selon lequel la suppression du lecteur réseau lorsque RX affiche les dossiers du lecteur réseau provoquait un plantage
+
+>#####Correction du problème selon lequel le fichier .exe dans la corbeille ne peut pas être supprimé ou restauré
+
+>#####Correction de problèmes liés aux lecteurs réseau
+
+*****
 ###Quoi de neuf dans la version 6.1.5.0
 
 #####Mise à jour des fonctionnalités

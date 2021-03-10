@@ -2700,4 +2700,10 @@ Les noms non valides incluent
   <data name="Operate_Text_SplitView" xml:space="preserve">
     <value>Ouvrir en vue fractionnée verticale</value>
   </data>
+  <data name="DecompressHere.Text" xml:space="preserve">
+    <value>Extraire ici</value>
+  </data>
+  <data name="DecompressTo" xml:space="preserve">
+    <value>Extraire vers</value>
+  </data>
 </root>

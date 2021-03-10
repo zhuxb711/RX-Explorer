@@ -8,6 +8,7 @@
       xmlns:System="using:System"
       xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
       xmlns:Behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
+      xmlns:Custom="using:RX_Explorer.CustomControl"
       mc:Ignorable="d"
       NavigationCacheMode="Required"
       Background="Transparent">
@@ -218,7 +219,8 @@
                                             Name="SystemShare"
                                             Click="SystemShare_Click">
                                 <MenuFlyoutItem.Icon>
-                                    <SymbolIcon Symbol="Share" />
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Glyph="&#xF3E2;" />
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
                             <MenuFlyoutItem Text="WIFI共享"
@@ -251,12 +253,27 @@
                     </AppBarButton.Icon>
                 </AppBarButton>
                 <AppBarButton x:Name="Decompression"
-                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Decompression')}"
-                              Click="Decompression_Click">
+                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Decompression')}">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xF133;" />
                     </AppBarButton.Icon>
+                    <AppBarButton.Flyout>
+                        <MenuFlyout x:Name="DecompressionOptionFlyout"
+                                    Opening="DecompressionOptionFlyout_Opening"
+                                    Closed="DecompressionOptionFlyout_Closed">
+                            <Custom:MenuFlyoutItemWithImage Text="解压到此文件夹"
+                                                            Click="Decompression_Click"
+                                                            x:Uid="DecompressHere"
+                                                            MinWidth="150"
+                                                            MaxWidth="320">
+                                <Custom:MenuFlyoutItemWithImage.Icon>
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Glyph="&#xF0B2;" />
+                                </Custom:MenuFlyoutItemWithImage.Icon>
+                            </Custom:MenuFlyoutItemWithImage>
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
                 </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"

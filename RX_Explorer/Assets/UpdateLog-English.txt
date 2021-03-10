@@ -1,4 +1,29 @@
 ﻿*****
+###What's new in Ver.6.1.7.0
+
+#####UI update
+
+>#####New decompression option
+
+>#####Adjusted the number of extension items in the context menu
+
+#####Bug fix
+
+>#####Fixed the problem that may cause the decompression progress to be displayed incorrectly
+
+>#####Fixed the problem that duplicate items may appear in the context menu
+
+>#####Fixed the problem that the network drive could not be detected if it changed
+
+>#####Fixed the problem that would cause a crash when entering the folder after minimizing or suspending
+
+>#####Fixed the problem that removing the network drive when RX is displaying the folders in the network drive will cause a crash
+
+>#####Fixed the problem that the .exe file in the recycle bin cannot be deleted or restored
+
+>#####Fixed issues related to network drives
+
+*****
 ###What's new in Ver.6.1.5.0
 
 #####Feature update

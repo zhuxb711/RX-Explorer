@@ -3581,6 +3581,14 @@ Les noms non valides incluent
           <source>Open in vertical split view</source>
           <target state="translated">Ouvrir en vue fractionnée verticale</target>
         </trans-unit>
+        <trans-unit id="DecompressHere.Text" translate="yes" xml:space="preserve">
+          <source>Extract here</source>
+          <target state="translated">Extraire ici</target>
+        </trans-unit>
+        <trans-unit id="DecompressTo" translate="yes" xml:space="preserve">
+          <source>Extract to</source>
+          <target state="translated">Extraire vers</target>
+        </trans-unit>
       </group>
     </body>
   </file>
