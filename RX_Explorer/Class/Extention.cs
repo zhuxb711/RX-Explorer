@@ -65,7 +65,7 @@ namespace RX_Explorer.Class
                         break;
                     }
 
-                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(Math.Ceiling(TotalBytesRead * 100d / From.Length)), null));
+                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(TotalBytesRead * 100d / From.Length), null));
                 }
             });
         }

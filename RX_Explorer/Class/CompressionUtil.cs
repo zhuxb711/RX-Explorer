@@ -262,7 +262,7 @@ namespace RX_Explorer.Class
 
                 while (InputZipStream.GetNextEntry() is ZipEntry Entry)
                 {
-                    if (!InputZipStream.CanDecompressEntry)
+                    if (!InputZipStream.CanDecompressEntry || Entry.IsCrypted)
                     {
                         throw new NotImplementedException();
                     }
@@ -298,10 +298,18 @@ namespace RX_Explorer.Class
                             {
                                 using (FileStream NewFileStream = await NewFile.GetFileStreamFromFileAsync(AccessMode.Write).ConfigureAwait(false))
                                 {
-                                    await InputZipStream.CopyToAsync(NewFileStream, (s, e) =>
+                                    //For some files in Zip, CompressedSize or Size might less than zero, then we could not get progress by reading ZipInputStream.Length
+                                    if (Entry.CompressedSize > 0 && Entry.Size > 0)
                                     {
-                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * Entry.CompressedSize)) * 100d / BaseStream.Length), null));
-                                    }).ConfigureAwait(false);
+                                        await InputZipStream.CopyToAsync(NewFileStream, (s, e) =>
+                                        {
+                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * Entry.CompressedSize)) * 100d / BaseStream.Length), null));
+                                        }).ConfigureAwait(false);
+                                    }
+                                    else
+                                    {
+                                        await InputZipStream.CopyToAsync(NewFileStream).ConfigureAwait(false);
+                                    }
                                 }
                             }
                             else
@@ -316,10 +324,18 @@ namespace RX_Explorer.Class
                         {
                             using (FileStream NewFileStream = await NewFile.GetFileStreamFromFileAsync(AccessMode.Write).ConfigureAwait(false))
                             {
-                                await InputZipStream.CopyToAsync(NewFileStream, (s, e) =>
+                                //For some files in Zip, CompressedSize or Size might less than zero, then we could not get progress by reading ZipInputStream.Length
+                                if (Entry.CompressedSize > 0 && Entry.Size > 0)
                                 {
-                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * Entry.CompressedSize)) * 100d / BaseStream.Length), null));
-                                }).ConfigureAwait(true);
+                                    await InputZipStream.CopyToAsync(NewFileStream, (s, e) =>
+                                    {
+                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * Entry.CompressedSize)) * 100d / BaseStream.Length), null));
+                                    }).ConfigureAwait(true);
+                                }
+                                else
+                                {
+                                    await InputZipStream.CopyToAsync(NewFileStream).ConfigureAwait(false);
+                                }
                             }
                         }
                         else
@@ -605,10 +621,17 @@ namespace RX_Explorer.Class
                             {
                                 using (FileStream NewFileStream = await NewFile.GetFileStreamFromFileAsync(AccessMode.Write).ConfigureAwait(false))
                                 {
-                                    await InputTarStream.CopyToAsync(NewFileStream, (s, e) =>
+                                    if (Entry.Size > 0)
                                     {
-                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * Entry.Size)) * 100d / BaseStream.Length), null));
-                                    }).ConfigureAwait(false);
+                                        await InputTarStream.CopyToAsync(NewFileStream, (s, e) =>
+                                        {
+                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * Entry.Size)) * 100d / BaseStream.Length), null));
+                                        }).ConfigureAwait(false);
+                                    }
+                                    else
+                                    {
+                                        await InputTarStream.CopyToAsync(NewFileStream).ConfigureAwait(false);
+                                    }
                                 }
                             }
                             else
@@ -623,10 +646,17 @@ namespace RX_Explorer.Class
                         {
                             using (FileStream NewFileStream = await NewFile.GetFileStreamFromFileAsync(AccessMode.Write).ConfigureAwait(false))
                             {
-                                await InputTarStream.CopyToAsync(NewFileStream, (s, e) =>
+                                if (Entry.Size > 0)
                                 {
-                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * Entry.Size)) * 100d / BaseStream.Length), null));
-                                }).ConfigureAwait(false);
+                                    await InputTarStream.CopyToAsync(NewFileStream, (s, e) =>
+                                    {
+                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * Entry.Size)) * 100d / BaseStream.Length), null));
+                                    }).ConfigureAwait(false);
+                                }
+                                else
+                                {
+                                    await InputTarStream.CopyToAsync(NewFileStream).ConfigureAwait(false);
+                                }
                             }
                         }
                         else
