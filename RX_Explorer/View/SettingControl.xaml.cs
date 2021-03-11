@@ -267,6 +267,7 @@ namespace RX_Explorer
                 LanguageComboBox.Items.Add("English (United States)");
                 LanguageComboBox.Items.Add("Français");
                 LanguageComboBox.Items.Add("中文(繁體)");
+                LanguageComboBox.Items.Add("Español");
 
                 FolderOpenMethod.Items.Add(Globalization.GetString("Folder_Open_Method_2"));
                 FolderOpenMethod.Items.Add(Globalization.GetString("Folder_Open_Method_1"));

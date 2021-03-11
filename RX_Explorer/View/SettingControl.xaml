@@ -8,7 +8,7 @@
              xmlns:control="using:Microsoft.Toolkit.Uwp.UI.Controls"
              xmlns:sys="using:System"
              mc:Ignorable="d"
-             d:DesignHeight="3300"
+             d:DesignHeight="3500"
              d:DesignWidth="1280">
 
     <UserControl.Resources>
@@ -198,7 +198,7 @@
                                   Toggled="OpenLeftArea_Toggled" />
 
                     <ToggleSwitch Margin="0,20,0,0"
-                                  Header="文件夹目录"
+                                  Header="文件夹目录树"
                                   OnContent="启用"
                                   OffContent="隐藏"
                                   x:Name="TreeViewDetach"
@@ -834,15 +834,18 @@
                                FontSize="22" />
                     <TextBlock FontSize="15"
                                Text="特别感谢以下提供翻译的人员:"
-                               Margin="0,20,0,0"
+                               Margin="0,10,0,0"
                                x:Uid="ThankTranslate"
                                Name="ThankTranslate" />
-                    <TextBlock Text="• Yann Lacroix"
+                    <TextBlock Text="• Yann Lacroix (French)"
                                FontSize="14"
-                               Margin="0,3,0,0" />
-                    <TextBlock Text="• 秋夜AuNight"
+                               Margin="5,5,0,0" />
+                    <TextBlock Text="• 秋夜AuNight (Chinese (Traditional))"
                                FontSize="14"
-                               Margin="0,3,0,0" />
+                               Margin="5,5,0,0" />
+                    <TextBlock Text="• Manuel Armenteros del Olmo (Spanish)"
+                               FontSize="14"
+                               Margin="5,5,0,0" />
                 </StackPanel>
                 <StackPanel Grid.Column="2"
                             Name="RightPanel">

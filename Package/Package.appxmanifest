@@ -34,6 +34,7 @@
     <Resource Language="zh-Hans"/>
     <Resource Language="fr-FR"/>
     <Resource Language="zh-Hant"/>
+    <Resource Language="es"/>
   </Resources>
 
   <Applications>

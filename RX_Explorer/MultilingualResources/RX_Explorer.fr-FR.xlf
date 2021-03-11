@@ -227,11 +227,11 @@
           <target state="translated">Couleur de police personnalisée</target>
         </trans-unit>
         <trans-unit id="CustomUISubtype1.Content" translate="yes" xml:space="preserve">
-          <source>Acrylic background</source>
+          <source>Acrylic Background</source>
           <target state="translated">Arrière-plan acrylique</target>
         </trans-unit>
         <trans-unit id="CustomUISubtype2.Content" translate="yes" xml:space="preserve">
-          <source>Custom image background</source>
+          <source>Custom Image Background</source>
           <target state="translated">Image en arrière-plan personnalisée</target>
         </trans-unit>
         <trans-unit id="DeviceAttribute.Label" translate="yes" xml:space="preserve">
@@ -407,7 +407,7 @@
           <target state="translated">Vide</target>
         </trans-unit>
         <trans-unit id="HotWebTitle.Text" translate="yes" xml:space="preserve">
-          <source>Popular Website</source>
+          <source>Popular Websites</source>
           <target state="translated">Sites populaires</target>
         </trans-unit>
         <trans-unit id="LibraryCancelButton.Label" translate="yes" xml:space="preserve">
@@ -832,10 +832,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Type</source>
           <target state="translated">Type</target>
         </trans-unit>
-        <trans-unit id="SecureArea.Content" translate="yes" xml:space="preserve">
-          <source>Security Area</source>
-          <target state="translated">Espace Sécurisé</target>
-        </trans-unit>
         <trans-unit id="SecureAreaAddFileButton.Label" translate="yes" xml:space="preserve">
           <source>Add file</source>
           <target state="translated">Ajouter fichier</target>
@@ -941,8 +937,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">A propos</target>
         </trans-unit>
         <trans-unit id="SettingAdvance.Text" translate="yes" xml:space="preserve">
-          <source>Advance</source>
-          <target state="translated">Avancé</target>
+          <source>Advanced</source>
+          <target state="translated">Avancée</target>
         </trans-unit>
         <trans-unit id="SettingBasicText.Text" translate="yes" xml:space="preserve">
           <source>Basic</source>
@@ -1152,10 +1148,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Save</source>
           <target state="translated">Enregistrer</target>
         </trans-unit>
-        <trans-unit id="ThisPC.Content" translate="yes" xml:space="preserve">
-          <source>ThisPC</source>
-          <target state="translated">Ce PC</target>
-        </trans-unit>
         <trans-unit id="Transcode.Text" translate="yes" xml:space="preserve">
           <source>Transcode</source>
           <target state="translated">Transcription</target>
@@ -1313,8 +1305,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Partage par WiFi</target>
         </trans-unit>
         <trans-unit id="SettingTreeViewDetach.Header" translate="yes" xml:space="preserve">
-          <source>Folder directory</source>
-          <target state="translated">Dossier de destination Arborescence</target>
+          <source>Folder tree</source>
+          <target state="translated">Arborescence des dossiers</target>
         </trans-unit>
         <trans-unit id="SettingTreeViewDetach.OffContent" translate="yes" xml:space="preserve">
           <source>Hide</source>
@@ -1850,7 +1842,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Espace Sécurisé</target>
         </trans-unit>
         <trans-unit id="MainPage_PageDictionary_ThisPC_Label" translate="yes" xml:space="preserve">
-          <source>ThisPC</source>
+          <source>This PC</source>
           <target state="translated">Ce PC</target>
         </trans-unit>
         <trans-unit id="Operate_Text_BluetoothShare" translate="yes" xml:space="preserve">
@@ -2525,10 +2517,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Impossible de créer le clip, impossible de modifier cette vidéo</target>
         </trans-unit>
         <trans-unit id="MainPage_PageDictionary_RecycleBin_Label" translate="yes" xml:space="preserve">
-          <source>Recycle bin</source>
-          <target state="translated">Corbeille</target>
-        </trans-unit>
-        <trans-unit id="RecycleBin.Content" translate="yes" xml:space="preserve">
           <source>Recycle Bin</source>
           <target state="translated">Corbeille</target>
         </trans-unit>
@@ -2757,7 +2745,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Supprimer les attributs masqués</target>
         </trans-unit>
         <trans-unit id="Folder_Open_Method_1" translate="yes" xml:space="preserve">
-          <source>Double click</source>
+          <source>Double Click</source>
           <target state="translated">Double clic</target>
         </trans-unit>
         <trans-unit id="Folder_Open_Method_2" translate="yes" xml:space="preserve">
@@ -2827,12 +2815,12 @@ Les noms non valides incluent
 "LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"</target>
         </trans-unit>
         <trans-unit id="CustomUISubtype3.Content" translate="yes" xml:space="preserve">
-          <source>Bing wallpaper</source>
-          <target state="translated">Fonds d'écran Bing</target>
+          <source>Bing Picture</source>
+          <target state="translated">Image Bing</target>
         </trans-unit>
         <trans-unit id="Setting_UIMode_Recommend" translate="yes" xml:space="preserve">
-          <source>Recommend</source>
-          <target state="translated">Recommander</target>
+          <source>Recommended</source>
+          <target state="translated">Recommandé</target>
         </trans-unit>
         <trans-unit id="Progress_Tip_WaitingForAction" translate="yes" xml:space="preserve">
           <source>Waiting for action...</source>
@@ -3145,8 +3133,8 @@ Les noms non valides incluent
           <target state="translated">Mode d'économie d'énergie acrylique</target>
         </trans-unit>
         <trans-unit id="ExtendedSplashLoadingBingText.Text" translate="yes" xml:space="preserve">
-          <source>Updating Bing wallpaper...</source>
-          <target state="translated">Mise à jour du fond d'écran Bing ...</target>
+          <source>Fetching Bing Pictures</source>
+          <target state="translated">Récupération de photos Bing</target>
         </trans-unit>
         <trans-unit id="FileLoadMode.Header" translate="yes" xml:space="preserve">
           <source>Icon loading mode</source>

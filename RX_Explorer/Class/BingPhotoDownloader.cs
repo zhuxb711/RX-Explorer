@@ -128,8 +128,8 @@ namespace RX_Explorer.Class
             try
             {
                 HttpWebRequest Request = WebRequest.CreateHttp(new Uri("http://cn.bing.com/HPImageArchive.aspx?idx=0&n=1"));
-                Request.Timeout = 2000;
-                Request.ReadWriteTimeout = 2000;
+                Request.Timeout = 5000;
+                Request.ReadWriteTimeout = 5000;
 
                 using (WebResponse Response = await Request.GetResponseAsync().ConfigureAwait(false))
                 using (Stream ResponseStream = Response.GetResponseStream())

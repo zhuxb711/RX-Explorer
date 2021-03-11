@@ -172,7 +172,7 @@
                              ItemInvoked="NavView_ItemInvoked"
                              SelectionFollowsFocus="Disabled">
             <muxc:NavigationView.MenuItems>
-                <muxc:NavigationViewItem Content="这台电脑"
+                <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_ThisPC_Label')}"
                                          x:Uid="ThisPC"
                                          IsSelected="True">
                     <muxc:NavigationViewItem.Icon>
@@ -180,13 +180,13 @@
                                   Glyph="&#xE8CC;" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem Content="回收站"
+                <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_RecycleBin_Label')}"
                                          x:Uid="RecycleBin">
                     <muxc:NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xED10;" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem Content="安全域"
+                <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_SecureArea_Label')}"
                                          x:Uid="SecureArea">
                     <muxc:NavigationViewItem.Icon>
                         <SymbolIcon Symbol="ProtectedDocument" />

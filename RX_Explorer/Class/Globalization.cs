@@ -54,6 +54,13 @@ namespace RX_Explorer.Class
                         ApplicationLanguages.PrimaryLanguageOverride = "zh-Hant";
                         break;
                     }
+                case LanguageEnum.Spanish:
+                    {
+                        ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 4;
+                        ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Abrir con RX-Explorer";
+                        ApplicationLanguages.PrimaryLanguageOverride = "es";
+                        break;
+                    }
             }
 
             return Language != CurrentLanguage;
@@ -129,6 +136,11 @@ namespace RX_Explorer.Class
                             CurrentLanguage = LanguageEnum.Chinese_Traditional;
                             break;
                         }
+                    case 4:
+                        {
+                            CurrentLanguage = LanguageEnum.Spanish;
+                            break;
+                        }
                 }
             }
             else
@@ -137,14 +149,14 @@ namespace RX_Explorer.Class
 
                 if (PrimaryLanguage.StartsWith("zh", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (PrimaryLanguage.Contains("Hant"))
+                    if (PrimaryLanguage.Contains("Hant", StringComparison.OrdinalIgnoreCase))
                     {
                         CurrentLanguage = LanguageEnum.Chinese_Traditional;
                         ApplicationLanguages.PrimaryLanguageOverride = "zh-Hant";
                         ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 3;
                         ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "使用RX文件管理器打開";
                     }
-                    else if (PrimaryLanguage.Contains("Hans"))
+                    else if (PrimaryLanguage.Contains("Hans", StringComparison.OrdinalIgnoreCase))
                     {
                         CurrentLanguage = LanguageEnum.Chinese_Simplified;
                         ApplicationLanguages.PrimaryLanguageOverride = "zh-Hans";
@@ -165,6 +177,13 @@ namespace RX_Explorer.Class
                     ApplicationLanguages.PrimaryLanguageOverride = "fr-FR";
                     ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 2;
                     ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Ouvrir dans RX-Explorer";
+                }
+                else if (PrimaryLanguage.StartsWith("es", StringComparison.OrdinalIgnoreCase))
+                {
+                    CurrentLanguage = LanguageEnum.Spanish;
+                    ApplicationLanguages.PrimaryLanguageOverride = "es";
+                    ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 4;
+                    ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Abrir con RX-Explorer";
                 }
                 else
                 {

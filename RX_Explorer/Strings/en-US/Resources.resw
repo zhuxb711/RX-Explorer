@@ -283,10 +283,10 @@
     <value>Custom font color</value>
   </data>
   <data name="CustomUISubtype1.Content" xml:space="preserve">
-    <value>Acrylic background</value>
+    <value>Acrylic Background</value>
   </data>
   <data name="CustomUISubtype2.Content" xml:space="preserve">
-    <value>Custom image background</value>
+    <value>Custom Image Background</value>
   </data>
   <data name="DeviceAttribute.Label" xml:space="preserve">
     <value>Properties</value>
@@ -427,7 +427,7 @@
     <value>Empty</value>
   </data>
   <data name="HotWebTitle.Text" xml:space="preserve">
-    <value>Popular Website</value>
+    <value>Popular Websites</value>
   </data>
   <data name="LibraryCancelButton.Label" xml:space="preserve">
     <value>Unpin</value>
@@ -751,9 +751,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="SearchType.Text" xml:space="preserve">
     <value>Type</value>
   </data>
-  <data name="SecureArea.Content" xml:space="preserve">
-    <value>Security Area</value>
-  </data>
   <data name="SecureAreaAddFileButton.Label" xml:space="preserve">
     <value>Add file</value>
   </data>
@@ -833,7 +830,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>About</value>
   </data>
   <data name="SettingAdvance.Text" xml:space="preserve">
-    <value>Advance</value>
+    <value>Advanced</value>
   </data>
   <data name="SettingBasicText.Text" xml:space="preserve">
     <value>Basic</value>
@@ -994,9 +991,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="TextViewerSave.Label" xml:space="preserve">
     <value>Save</value>
   </data>
-  <data name="ThisPC.Content" xml:space="preserve">
-    <value>ThisPC</value>
-  </data>
   <data name="Transcode.Text" xml:space="preserve">
     <value>Transcode</value>
   </data>
@@ -1143,7 +1137,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>File name</value>
   </data>
   <data name="SettingTreeViewDetach.Header" xml:space="preserve">
-    <value>Folder directory</value>
+    <value>Folder tree</value>
   </data>
   <data name="SettingTreeViewDetach.OffContent" xml:space="preserve">
     <value>Hide</value>
@@ -1551,7 +1545,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Security Area</value>
   </data>
   <data name="MainPage_PageDictionary_ThisPC_Label" xml:space="preserve">
-    <value>ThisPC</value>
+    <value>This PC</value>
   </data>
   <data name="Operate_Text_BluetoothShare" xml:space="preserve">
     <value>Bluetooth</value>
@@ -2027,7 +2021,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Custom</value>
   </data>
   <data name="Setting_UIMode_Recommend" xml:space="preserve">
-    <value>Recommend</value>
+    <value>Recommended</value>
   </data>
   <data name="Setting_UIMode_SolidColor" xml:space="preserve">
     <value>Solid Color</value>
@@ -2075,9 +2069,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Failed to create clip, unable to edit this video</value>
   </data>
   <data name="MainPage_PageDictionary_RecycleBin_Label" xml:space="preserve">
-    <value>Recycle bin</value>
-  </data>
-  <data name="RecycleBin.Content" xml:space="preserve">
     <value>Recycle Bin</value>
   </data>
   <data name="RecycleOriginLocation.Text" xml:space="preserve">
@@ -2246,7 +2237,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Remove hidden attributes</value>
   </data>
   <data name="Folder_Open_Method_1" xml:space="preserve">
-    <value>Double click</value>
+    <value>Double Click</value>
   </data>
   <data name="Folder_Open_Method_2" xml:space="preserve">
     <value>Click</value>
@@ -2296,7 +2287,7 @@ Invalid names include
     <value>Error</value>
   </data>
   <data name="CustomUISubtype3.Content" xml:space="preserve">
-    <value>Bing wallpaper</value>
+    <value>Bing Picture</value>
   </data>
   <data name="Progress_Tip_WaitingForAction" xml:space="preserve">
     <value>Waiting for action...</value>
@@ -2524,7 +2515,7 @@ Invalid names include
     <value>Acrylic power saving mode</value>
   </data>
   <data name="ExtendedSplashLoadingBingText.Text" xml:space="preserve">
-    <value>Updating Bing wallpaper...</value>
+    <value>Fetching Bing Pictures</value>
   </data>
   <data name="FileLoadMode.Header" xml:space="preserve">
     <value>Icon loading mode</value>

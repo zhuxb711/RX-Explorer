@@ -631,9 +631,6 @@
   <data name="SearchType.Text" xml:space="preserve">
     <value>类型</value>
   </data>
-  <data name="SecureArea.Content" xml:space="preserve">
-    <value>安全域</value>
-  </data>
   <data name="SecureAreaAddFileButton.Label" xml:space="preserve">
     <value>添加文件</value>
   </data>
@@ -871,9 +868,6 @@
   <data name="TextViewerSave.Label" xml:space="preserve">
     <value>保存</value>
   </data>
-  <data name="ThisPC.Content" xml:space="preserve">
-    <value>这台电脑</value>
-  </data>
   <data name="Transcode.Text" xml:space="preserve">
     <value>转码</value>
   </data>
@@ -992,7 +986,7 @@
     <value>WiFi共享</value>
   </data>
   <data name="SettingTreeViewDetach.Header" xml:space="preserve">
-    <value>文件夹目录</value>
+    <value>文件夹目录树</value>
   </data>
   <data name="SettingTreeViewDetach.OffContent" xml:space="preserve">
     <value>隐藏</value>
@@ -1914,9 +1908,6 @@
   <data name="MainPage_PageDictionary_RecycleBin_Label" xml:space="preserve">
     <value>回收站</value>
   </data>
-  <data name="RecycleBin.Content" xml:space="preserve">
-    <value>回收站</value>
-  </data>
   <data name="RecycleOriginLocation.Text" xml:space="preserve">
     <value>原位置</value>
   </data>
@@ -2136,7 +2127,7 @@
 "LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"</value>
   </data>
   <data name="CustomUISubtype3.Content" xml:space="preserve">
-    <value>必应每日壁纸</value>
+    <value>必应图片</value>
   </data>
   <data name="Setting_UIMode_Recommend" xml:space="preserve">
     <value>推荐</value>
@@ -2373,7 +2364,7 @@
     <value>Acrylic省电模式</value>
   </data>
   <data name="ExtendedSplashLoadingBingText.Text" xml:space="preserve">
-    <value>正在更新必应壁纸...</value>
+    <value>正在获取必应图片...</value>
   </data>
   <data name="FileLoadMode.Header" xml:space="preserve">
     <value>图标加载模式</value>

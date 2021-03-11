@@ -273,7 +273,9 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 界面使用繁体中文
         /// </summary>
-        Chinese_Traditional = 8
+        Chinese_Traditional = 8,
+
+        Spanish = 16
     }
 
     /// <summary>

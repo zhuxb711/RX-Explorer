@@ -178,7 +178,7 @@
     <value>自定義文字顏色</value>
   </data>
   <data name="CustomUISubtype1.Content" xml:space="preserve">
-    <value>透明背景</value>
+    <value>Acrylic背景</value>
   </data>
   <data name="CustomUISubtype2.Content" xml:space="preserve">
     <value>自定義背景圖片</value>
@@ -640,9 +640,6 @@
   <data name="SearchType.Text" xml:space="preserve">
     <value>類型</value>
   </data>
-  <data name="SecureArea.Content" xml:space="preserve">
-    <value>加密庫</value>
-  </data>
   <data name="SecureAreaAddFileButton.Label" xml:space="preserve">
     <value>新增檔案</value>
   </data>
@@ -883,9 +880,6 @@
   <data name="TextViewerSave.Label" xml:space="preserve">
     <value>儲存</value>
   </data>
-  <data name="ThisPC.Content" xml:space="preserve">
-    <value>我的電腦</value>
-  </data>
   <data name="Transcode.Text" xml:space="preserve">
     <value>轉檔</value>
   </data>
@@ -1004,7 +998,7 @@
     <value>Wi-Fi 分享</value>
   </data>
   <data name="SettingTreeViewDetach.Header" xml:space="preserve">
-    <value>資料夾目錄</value>
+    <value>資料夾目錄樹</value>
   </data>
   <data name="SettingTreeViewDetach.OffContent" xml:space="preserve">
     <value>隱藏視窗</value>
@@ -1920,9 +1914,6 @@
   <data name="MainPage_PageDictionary_RecycleBin_Label" xml:space="preserve">
     <value>資源回收筒</value>
   </data>
-  <data name="RecycleBin.Content" xml:space="preserve">
-    <value>資源回收筒</value>
-  </data>
   <data name="RecycleOriginLocation.Text" xml:space="preserve">
     <value>原始位置</value>
   </data>
@@ -2139,7 +2130,7 @@
     <value>錯誤</value>
   </data>
   <data name="CustomUISubtype3.Content" xml:space="preserve">
-    <value>Bing 桌布</value>
+    <value>Bing圖片</value>
   </data>
   <data name="Progress_Tip_WaitingForAction" xml:space="preserve">
     <value>正在等候動作</value>
@@ -2373,7 +2364,7 @@
     <value>Acrylic節電模式</value>
   </data>
   <data name="ExtendedSplashLoadingBingText.Text" xml:space="preserve">
-    <value>正在更新Bing壁紙...</value>
+    <value>正在取得Bing圖片</value>
   </data>
   <data name="FileLoadMode.Header" xml:space="preserve">
     <value>圖標加載方式</value>
