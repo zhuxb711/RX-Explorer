@@ -61,7 +61,7 @@ namespace RX_Explorer.Dialog
                 MediaPlay.Source = PreviewSource;
 
                 CutRange.Maximum = VideoClip.OriginalDuration.TotalMilliseconds;
-                CutRange.RangeMax = CutRange.Maximum;
+                CutRange.RangeEnd = CutRange.Maximum;
             }
             catch
             {
@@ -169,11 +169,11 @@ namespace RX_Explorer.Dialog
 
             if (e.ChangedRangeProperty == Microsoft.Toolkit.Uwp.UI.Controls.RangeSelectorProperty.MaximumValue)
             {
-                UpdatePreviewVideoOnDisplay(true, CutRange.RangeMax, null);
+                UpdatePreviewVideoOnDisplay(true, CutRange.RangeEnd, null);
             }
             else
             {
-                UpdatePreviewVideoOnDisplay(false, null, CutRange.RangeMin);
+                UpdatePreviewVideoOnDisplay(false, null, CutRange.RangeStart);
             }
         }
 
@@ -265,7 +265,7 @@ namespace RX_Explorer.Dialog
                     long TotalMillisecond = MilliSecond + (Second + (Minute + (Hour * 60)) * 60) * 1000;
 
                     CutRange.ValueChanged -= CutRange_ValueChanged;
-                    CutRange.RangeMin = TotalMillisecond;
+                    CutRange.RangeStart = TotalMillisecond;
                     CutRange.ValueChanged += CutRange_ValueChanged;
 
                     UpdatePreviewVideoOnDisplay(false, null, TotalMillisecond);
@@ -280,7 +280,7 @@ namespace RX_Explorer.Dialog
                     long TotalMillisecond = (Second + (Minute + (Hour * 60)) * 60) * 1000;
 
                     CutRange.ValueChanged -= CutRange_ValueChanged;
-                    CutRange.RangeMin = TotalMillisecond;
+                    CutRange.RangeStart = TotalMillisecond;
                     CutRange.ValueChanged += CutRange_ValueChanged;
 
                     UpdatePreviewVideoOnDisplay(false, null, TotalMillisecond);
@@ -332,7 +332,7 @@ namespace RX_Explorer.Dialog
                     long TotalMillisecond = MilliSecond + (Second + (Minute + (Hour * 60)) * 60) * 1000;
 
                     CutRange.ValueChanged -= CutRange_ValueChanged;
-                    CutRange.RangeMax = TotalMillisecond;
+                    CutRange.RangeEnd = TotalMillisecond;
                     CutRange.ValueChanged += CutRange_ValueChanged;
 
                     UpdatePreviewVideoOnDisplay(true, TotalMillisecond, null);
@@ -347,7 +347,7 @@ namespace RX_Explorer.Dialog
                     long TotalMillisecond = (Second + (Minute + (Hour * 60)) * 60) * 1000;
 
                     CutRange.ValueChanged -= CutRange_ValueChanged;
-                    CutRange.RangeMax = TotalMillisecond;
+                    CutRange.RangeEnd = TotalMillisecond;
                     CutRange.ValueChanged += CutRange_ValueChanged;
 
                     UpdatePreviewVideoOnDisplay(true, TotalMillisecond, null);

@@ -64,13 +64,13 @@
                              LostFocus="TrimStartTime_LostFocus"
                              KeyDown="TrimStartTime_KeyDown"
                              Name="TrimStartTime"
-                             Text="{x:Bind CutRange.RangeMin,Mode=OneWay,Converter={StaticResource Converter}}" />
+                             Text="{x:Bind CutRange.RangeStart,Mode=OneWay,Converter={StaticResource Converter}}" />
                     <controls:RangeSelector Style="{StaticResource RangeSelectorStyle}"
                                             Margin="5,0,5,0"
                                             Name="CutRange"
                                             Grid.Column="1"
                                             Minimum="0"
-                                            RangeMin="0"
+                                            RangeStart="0"
                                             VerticalAlignment="Center"
                                             StepFrequency="10"
                                             ValueChanged="CutRange_ValueChanged" />
@@ -81,7 +81,7 @@
                              MaxLength="12"
                              KeyDown="TrimEndTime_KeyDown"
                              LostFocus="TrimEndTime_LostFocus"
-                             Text="{x:Bind CutRange.RangeMax,Mode=OneWay,Converter={StaticResource Converter}}" />
+                             Text="{x:Bind CutRange.RangeEnd,Mode=OneWay,Converter={StaticResource Converter}}" />
                 </Grid>
                 <CheckBox Margin="0,10,0,0"
                           IsChecked="True"

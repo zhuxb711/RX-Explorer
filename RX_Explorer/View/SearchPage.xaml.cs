@@ -8,7 +8,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -420,6 +419,45 @@ namespace RX_Explorer
                 foreach (FileSystemStorageItemBase Item in SortResult)
                 {
                     SearchResult.Add(Item);
+                }
+            }
+        }
+
+        private async void SearchResultList_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        {
+            if ((e.OriginalSource as FrameworkElement).DataContext is FileSystemStorageItemBase Item)
+            {
+                try
+                {
+                    string ParentFolderPath = Path.GetDirectoryName(Item.Path);
+
+                    if (WeakToFileControl.TryGetTarget(out FileControl Control))
+                    {
+                        Frame.GoBack();
+
+                        await Control.CurrentPresenter.DisplayItemsInFolder(ParentFolderPath).ConfigureAwait(true);
+
+                        await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, ParentFolderPath).ConfigureAwait(true);
+
+                        if (Control.CurrentPresenter.FileCollection.FirstOrDefault((SItem) => SItem == Item) is FileSystemStorageItemBase Target)
+                        {
+                            Control.CurrentPresenter.ItemPresenter.ScrollIntoView(Target);
+                            Control.CurrentPresenter.SelectedItem = Target;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"An error was threw in {nameof(Location_Click)}");
+
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
                 }
             }
         }

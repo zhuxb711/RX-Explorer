@@ -2028,6 +2028,7 @@ namespace RX_Explorer
                             {
                                 LanguageRestartTip.Visibility = Visibility.Collapsed;
                             }
+
                             break;
                         }
                     case 1:
@@ -2040,6 +2041,7 @@ namespace RX_Explorer
                             {
                                 LanguageRestartTip.Visibility = Visibility.Collapsed;
                             }
+
                             break;
                         }
                     case 2:
@@ -2052,6 +2054,7 @@ namespace RX_Explorer
                             {
                                 LanguageRestartTip.Visibility = Visibility.Collapsed;
                             }
+
                             break;
                         }
                     case 3:
@@ -2064,6 +2067,20 @@ namespace RX_Explorer
                             {
                                 LanguageRestartTip.Visibility = Visibility.Collapsed;
                             }
+
+                            break;
+                        }
+                    case 4:
+                        {
+                            if (Globalization.SwitchTo(LanguageEnum.Spanish))
+                            {
+                                LanguageRestartTip.Visibility = Visibility.Visible;
+                            }
+                            else
+                            {
+                                LanguageRestartTip.Visibility = Visibility.Collapsed;
+                            }
+
                             break;
                         }
                 }

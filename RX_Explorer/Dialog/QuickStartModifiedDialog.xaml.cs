@@ -9,14 +9,12 @@ using System.Net;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Graphics.Imaging;
-using Windows.Management.Deployment;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Dialog
@@ -134,7 +132,7 @@ namespace RX_Explorer.Dialog
                                 }
 
                                 string ImageName = DisplayName.Text + Path.GetExtension(ImageFile.Path);
-                                
+
                                 StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
 
                                 CommonAccessCollection.QuickStartList.Add(new QuickStartItem(Icon.Source as BitmapImage, Protocol.Text, QuickStartType.Application, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text));
@@ -178,7 +176,7 @@ namespace RX_Explorer.Dialog
                                 }
 
                                 string ImageName = DisplayName.Text + Path.GetExtension(ImageFile.Path);
-                                
+
                                 StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("HotWebImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
 
                                 CommonAccessCollection.HotWebList.Add(new QuickStartItem(Icon.Source as BitmapImage, Protocol.Text, QuickStartType.WebSite, $"HotWebImage\\{NewFile.Name}", DisplayName.Text));
@@ -208,7 +206,7 @@ namespace RX_Explorer.Dialog
                                 if (ImageFile != null)
                                 {
                                     string ImageName = DisplayName.Text + Path.GetExtension(ImageFile.Path);
-                                    
+
                                     StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
 
                                     await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application).ConfigureAwait(true);
@@ -270,7 +268,7 @@ namespace RX_Explorer.Dialog
                                 if (ImageFile != null)
                                 {
                                     string ImageName = DisplayName.Text + Path.GetExtension(ImageFile.Path);
-                                    
+
                                     StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("HotWebImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
 
                                     await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, $"HotWebImage\\{NewFile.Name}", Protocol.Text, QuickStartType.WebSite).ConfigureAwait(true);
@@ -355,6 +353,7 @@ namespace RX_Explorer.Dialog
                                                 await Image.SetSourceAsync(ResizeBitmapStream);
 
                                                 ResizeBitmapStream.Seek(0);
+
                                                 using (Stream TransformStream = ResizeBitmapStream.AsStreamForRead())
                                                 using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
                                                 {
@@ -514,22 +513,38 @@ namespace RX_Explorer.Dialog
                         {
                             if (Uri.TryCreate(Protocol.Text, UriKind.Absolute, out Uri Result))
                             {
-                                Uri ImageUri = new Uri(Result, "favicon.ico");
+                                Uri ImageUri = new Uri($"{Result.Scheme}://{Result.Host}/favicon.ico");
 
                                 HttpWebRequest Request = WebRequest.CreateHttp(ImageUri);
                                 using (WebResponse Response = await Request.GetResponseAsync().ConfigureAwait(true))
-                                using (Stream ImageStream = Response.GetResponseStream())
+                                using (Stream WebImageStream = Response.GetResponseStream())
+                                using (MemoryStream TemplateStream = new MemoryStream())
                                 {
-                                    StorageFile DownloadImage = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("DownloadFile.ico", CreationCollisionOption.ReplaceExisting);
-                                    using (Stream FileStream = await DownloadImage.OpenStreamForWriteAsync().ConfigureAwait(true))
+                                    await WebImageStream.CopyToAsync(TemplateStream).ConfigureAwait(true);
+
+                                    TemplateStream.Seek(0, SeekOrigin.Begin);
+
+                                    if (TemplateStream.Length > 0)
                                     {
-                                        await ImageStream.CopyToAsync(FileStream).ConfigureAwait(true);
+                                        BitmapImage Bitmap = new BitmapImage();
+                                        Icon.Source = Bitmap;
+                                        await Bitmap.SetSourceAsync(TemplateStream.AsRandomAccessStream());
+
+                                        TemplateStream.Seek(0, SeekOrigin.Begin);
+
+                                        StorageFile DownloadImage = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("DownloadFile.ico", CreationCollisionOption.ReplaceExisting);
+                                        using (Stream LocalFileStream = await DownloadImage.OpenStreamForWriteAsync().ConfigureAwait(true))
+                                        {
+                                            await TemplateStream.CopyToAsync(LocalFileStream).ConfigureAwait(true);
+                                        }
+
+                                        ImageFile = DownloadImage;
                                     }
-
-                                    ImageFile = DownloadImage;
+                                    else
+                                    {
+                                        FailureTips.IsOpen = true;
+                                    }
                                 }
-
-                                Icon.Source = new BitmapImage(ImageUri);
                             }
                             else
                             {
@@ -546,18 +561,34 @@ namespace RX_Explorer.Dialog
 
                                 HttpWebRequest Request = WebRequest.CreateHttp(QueryUrl);
                                 using (WebResponse Response = await Request.GetResponseAsync().ConfigureAwait(true))
-                                using (Stream ImageStream = Response.GetResponseStream())
+                                using (Stream WebImageStream = Response.GetResponseStream())
+                                using (MemoryStream TemplateStream = new MemoryStream())
                                 {
-                                    StorageFile DownloadImage = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("DownloadFile.ico", CreationCollisionOption.ReplaceExisting);
-                                    using (Stream FileStream = await DownloadImage.OpenStreamForWriteAsync().ConfigureAwait(true))
+                                    await WebImageStream.CopyToAsync(TemplateStream).ConfigureAwait(true);
+
+                                    TemplateStream.Seek(0, SeekOrigin.Begin);
+
+                                    if (TemplateStream.Length > 0)
                                     {
-                                        await ImageStream.CopyToAsync(FileStream).ConfigureAwait(true);
+                                        BitmapImage Bitmap = new BitmapImage();
+                                        Icon.Source = Bitmap;
+                                        await Bitmap.SetSourceAsync(TemplateStream.AsRandomAccessStream());
+
+                                        TemplateStream.Seek(0, SeekOrigin.Begin);
+
+                                        StorageFile DownloadImage = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("DownloadFile.ico", CreationCollisionOption.ReplaceExisting);
+                                        using (Stream LocalFileStream = await DownloadImage.OpenStreamForWriteAsync().ConfigureAwait(true))
+                                        {
+                                            await TemplateStream.CopyToAsync(LocalFileStream).ConfigureAwait(true);
+                                        }
+
+                                        ImageFile = DownloadImage;
                                     }
-
-                                    ImageFile = DownloadImage;
+                                    else
+                                    {
+                                        FailureTips.IsOpen = true;
+                                    }
                                 }
-
-                                Icon.Source = new BitmapImage(QueryUrl);
                             }
                             catch
                             {
@@ -595,6 +626,8 @@ namespace RX_Explorer.Dialog
                             BitmapImage Image = new BitmapImage();
                             Icon.Source = Image;
                             await Image.SetSourceAsync(LogoStream);
+
+                            LogoStream.Seek(0);
 
                             using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
                             {

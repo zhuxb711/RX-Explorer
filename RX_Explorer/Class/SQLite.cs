@@ -1,5 +1,4 @@
-﻿using ComputerVision;
-using Microsoft.Data.Sqlite;
+﻿using Microsoft.Data.Sqlite;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
@@ -7,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
@@ -679,9 +677,11 @@ namespace RX_Explorer.Class
             {
                 while (Reader.Read())
                 {
+                    StorageFile ImageFile = null;
+
                     try
                     {
-                        StorageFile ImageFile = Convert.ToString(Reader[1]).StartsWith("ms-appx")
+                        ImageFile = Convert.ToString(Reader[1]).StartsWith("ms-appx")
                                                 ? await StorageFile.GetFileFromApplicationUriAsync(new Uri(Reader[1].ToString()))
                                                 : await StorageFile.GetFileFromPathAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, Convert.ToString(Reader[1])));
 
@@ -701,9 +701,16 @@ namespace RX_Explorer.Class
                             Result.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.WebSite, new QuickStartItem(Bitmap, Convert.ToString(Reader[2]), QuickStartType.WebSite, Reader[1].ToString(), Reader[0].ToString())));
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        LogTracer.Log(ex, $"Could not load QuickStart item, Name: {Reader[0]}");
+
                         ErrorList.Add(new Tuple<string, string, string>(Convert.ToString(Reader[0]), Convert.ToString(Reader[1]), Convert.ToString(Reader[3])));
+
+                        if (ImageFile != null)
+                        {
+                            await ImageFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                        }
                     }
                 }
             }

@@ -18,7 +18,7 @@
                 <AppBarButton x:Uid="SearchLocation"
                               x:Name="Location"
                               Label="打开所在位置"
-                              MinWidth="180"
+                              MinWidth="160"
                               Click="Location_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets"
@@ -28,13 +28,13 @@
                 <AppBarButton Icon="Copy"
                               x:Name="CopyPath"
                               Label="复制完整路径"
-                              MinWidth="180"
+                              MinWidth="160"
                               x:Uid="SearchCopyPath"
                               Click="CopyPath_Click" />
                 <AppBarButton Icon="Tag"
                               x:Uid="SearchProperties"
                               Label="属性"
-                              MinWidth="180"
+                              MinWidth="160"
                               Click="Attribute_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
@@ -55,6 +55,8 @@
                   x:FieldModifier="public"
                   Grid.RowSpan="2"
                   IsHoldingEnabled="True"
+                  IsDoubleTapEnabled="True"
+                  DoubleTapped="SearchResultList_DoubleTapped"
                   ShowsScrollingPlaceholders="False"
                   ContainerContentChanging="SearchResultList_ContainerContentChanging"
                   Holding="SearchResultList_Holding"
