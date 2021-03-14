@@ -247,9 +247,7 @@ namespace RX_Explorer.Class
             {
                 try
                 {
-                    StorageFolder PinFolder = await StorageFolder.GetFolderFromPathAsync(Library.Item1);
-                    BitmapImage Thumbnail = await PinFolder.GetThumbnailBitmapAsync().ConfigureAwait(true);
-                    LibraryFolderList.Add(new LibraryFolder(PinFolder, Thumbnail, Library.Item2));
+                    LibraryFolderList.Add(await LibraryFolder.CreateAsync(Library.Item1, Library.Item2));
                 }
                 catch (Exception)
                 {

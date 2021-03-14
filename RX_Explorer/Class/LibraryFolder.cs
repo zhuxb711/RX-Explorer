@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -43,16 +45,23 @@ namespace RX_Explorer.Class
 
         public LibraryType Type { get; private set; }
 
-        /// <summary>
-        /// 初始化LibraryFolder
-        /// </summary>
-        /// <param name="Folder">文件夹对象</param>
-        /// <param name="Thumbnail">缩略图</param>
-        /// <param name="Source">类型</param>
-        public LibraryFolder(StorageFolder Folder, BitmapImage Thumbnail, LibraryType Type)
+        public static async Task<LibraryFolder> CreateAsync(string Path, LibraryType Type)
+        {
+            StorageFolder PinFolder = await StorageFolder.GetFolderFromPathAsync(Path);
+            BitmapImage Thumbnail = await PinFolder.GetThumbnailBitmapAsync().ConfigureAwait(true);
+            return new LibraryFolder(PinFolder, Thumbnail, Type);
+        }
+
+        public static async Task<LibraryFolder> CreateAsync(StorageFolder Folder, LibraryType Type)
+        {
+            BitmapImage Thumbnail = await Folder.GetThumbnailBitmapAsync().ConfigureAwait(true);
+            return new LibraryFolder(Folder, Thumbnail, Type);
+        }
+
+        private LibraryFolder(StorageFolder Folder, BitmapImage Thumbnail, LibraryType Type)
         {
             this.Folder = Folder ?? throw new FileNotFoundException();
-            this.Thumbnail = Thumbnail;
+            this.Thumbnail = Thumbnail ?? new BitmapImage(new Uri("ms-appx:///Assets/FolderIcon.png"));
             this.Type = Type;
         }
     }

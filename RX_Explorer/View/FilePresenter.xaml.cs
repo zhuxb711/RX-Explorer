@@ -205,8 +205,10 @@ namespace RX_Explorer
             AreaWatcher = new StorageAreaWatcher(FileCollection);
             EnterLock = new SemaphoreSlim(1, 1);
 
+            CoreWindow.GetForCurrentThread().KeyDown += FilePresenter_KeyDown;
+            CoreWindow.GetForCurrentThread().Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
+
             Loaded += FilePresenter_Loaded;
-            Unloaded += FilePresenter_Unloaded;
 
             Application.Current.Suspending += Current_Suspending;
             Application.Current.Resuming += Current_Resuming;
@@ -214,6 +216,215 @@ namespace RX_Explorer
             ViewModeController.ViewModeChanged += Current_ViewModeChanged;
 
             TryUnlock.IsEnabled = Package.Current.Id.Architecture == ProcessorArchitecture.X64 || Package.Current.Id.Architecture == ProcessorArchitecture.X86 || Package.Current.Id.Architecture == ProcessorArchitecture.X86OnArm64;
+        }
+
+        private void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
+        {
+            if (args.KeyStatus.IsMenuKeyDown)
+            {
+                switch (args.VirtualKey)
+                {
+                    case VirtualKey.Left:
+                        {
+                            Container.GoBackRecord_Click(null, null);
+                            break;
+                        }
+                    case VirtualKey.Right:
+                        {
+                            Container.GoForwardRecord_Click(null, null);
+                            break;
+                        }
+                }
+            }
+        }
+
+        private async void FilePresenter_KeyDown(CoreWindow sender, KeyEventArgs args)
+        {
+            if (Container.CurrentPresenter == this)
+            {
+                if (Container.WeakToTabItem.TryGetTarget(out TabViewItem Tab) && Tab == TabViewContainer.ThisPage.TabViewControl.SelectedItem)
+                {
+                    CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
+                    CoreVirtualKeyStates ShiftState = sender.GetKeyState(VirtualKey.Shift);
+
+                    if (!QueueContentDialog.IsRunningOrWaiting && !Container.BlockKeyboardShortCutInput)
+                    {
+                        args.Handled = true;
+
+                        if (!CtrlState.HasFlag(CoreVirtualKeyStates.Down) && !ShiftState.HasFlag(CoreVirtualKeyStates.Down))
+                        {
+                            NavigateToStorageItem(args.VirtualKey);
+                        }
+
+                        switch (args.VirtualKey)
+                        {
+                            case VirtualKey.Space when SettingControl.IsQuicklookEnable:
+                                {
+                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                    {
+                                        if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync().ConfigureAwait(true))
+                                        {
+                                            string ViewPathWithQuicklook;
+
+                                            if (string.IsNullOrEmpty(SelectedItem?.Path))
+                                            {
+                                                if (!string.IsNullOrEmpty(CurrentFolder?.Path))
+                                                {
+                                                    ViewPathWithQuicklook = CurrentFolder.Path;
+                                                }
+                                                else
+                                                {
+                                                    break;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                ViewPathWithQuicklook = SelectedItem.Path;
+                                            }
+
+                                            await Exclusive.Controller.ViewWithQuicklookAsync(ViewPathWithQuicklook).ConfigureAwait(false);
+                                        }
+                                    }
+
+                                    break;
+                                }
+                            case VirtualKey.F2:
+                                {
+                                    Rename_Click(null, null);
+                                    break;
+                                }
+                            case VirtualKey.F5:
+                                {
+                                    Refresh_Click(null, null);
+                                    break;
+                                }
+                            case VirtualKey.Enter when SelectedItems.Count == 1 && SelectedItem is FileSystemStorageItemBase Item:
+                                {
+                                    await EnterSelectedItem(Item).ConfigureAwait(false);
+                                    break;
+                                }
+                            case VirtualKey.Back:
+                                {
+                                    Container.GoBackRecord_Click(null, null);
+                                    break;
+                                }
+                            case VirtualKey.L when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                                {
+                                    Container.AddressBox.Focus(FocusState.Programmatic);
+                                    break;
+                                }
+                            case VirtualKey.V when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                                {
+                                    Paste_Click(null, null);
+                                    break;
+                                }
+                            case VirtualKey.A when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItem == null:
+                                {
+                                    ItemPresenter.SelectAll();
+                                    break;
+                                }
+                            case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && ShiftState.HasFlag(CoreVirtualKeyStates.Down):
+                                {
+                                    Clipboard.Clear();
+
+                                    DataPackage Package = new DataPackage
+                                    {
+                                        RequestedOperation = DataPackageOperation.Copy
+                                    };
+
+                                    Package.SetText(SelectedItem?.Path ?? CurrentFolder?.Path ?? string.Empty);
+
+                                    Clipboard.SetContent(Package);
+                                    break;
+                                }
+                            case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                                {
+                                    Copy_Click(null, null);
+                                    break;
+                                }
+                            case VirtualKey.X when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                                {
+                                    Cut_Click(null, null);
+                                    break;
+                                }
+                            case VirtualKey.Delete:
+                            case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                                {
+                                    Delete_Click(null, null);
+                                    break;
+                                }
+                            case VirtualKey.F when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                                {
+                                    Container.GlobeSearch.Focus(FocusState.Programmatic);
+                                    break;
+                                }
+                            case VirtualKey.N when ShiftState.HasFlag(CoreVirtualKeyStates.Down) && CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                                {
+                                    CreateFolder_Click(null, null);
+                                    break;
+                                }
+                            case VirtualKey.Z when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && OperationRecorder.Current.Count > 0:
+                                {
+                                    await Ctrl_Z_Click().ConfigureAwait(false);
+                                    break;
+                                }
+                            case VirtualKey.E when ShiftState.HasFlag(CoreVirtualKeyStates.Down) && CurrentFolder != null:
+                                {
+                                    _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
+                                    break;
+                                }
+                            case VirtualKey.T when ShiftState.HasFlag(CoreVirtualKeyStates.Down):
+                                {
+                                    OpenInTerminal_Click(null, null);
+                                    break;
+                                }
+                            case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                                {
+                                    CloseAllFlyout();
+
+                                    if (SelectedItem != null)
+                                    {
+                                        if (SelectedItem is FileSystemStorageFolder)
+                                        {
+                                            await TabViewContainer.ThisPage.CreateNewTabAsync(SelectedItem.Path).ConfigureAwait(true);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        await TabViewContainer.ThisPage.CreateNewTabAsync().ConfigureAwait(true);
+                                    }
+
+                                    break;
+                                }
+                            case VirtualKey.Q when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                                {
+                                    OpenFolderInNewWindow_Click(null, null);
+                                    break;
+                                }
+                            case VirtualKey.Up:
+                            case VirtualKey.Down:
+                                {
+                                    if (SelectedItem == null)
+                                    {
+                                        SelectedItem = FileCollection.FirstOrDefault();
+                                    }
+
+                                    break;
+                                }
+                            case VirtualKey.B when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItem != null:
+                                {
+                                    await Container.CreateNewBlade(SelectedItem.Path).ConfigureAwait(true);
+                                    break;
+                                }
+                            default:
+                                {
+                                    args.Handled = false;
+                                    break;
+                                }
+                        }
+                    }
+                }
+            }
         }
 
         private async void Current_ViewModeChanged(object sender, ViewModeController.ViewModeChangedEventArgs e)
@@ -539,226 +750,11 @@ namespace RX_Explorer
             AreaWatcher.StopWatchDirectory();
         }
 
-        private void FilePresenter_Unloaded(object sender, RoutedEventArgs e)
-        {
-            CoreWindow.GetForCurrentThread().KeyDown -= Window_KeyDown;
-            Dispatcher.AcceleratorKeyActivated -= Dispatcher_AcceleratorKeyActivated;
-        }
-
         private void FilePresenter_Loaded(object sender, RoutedEventArgs e)
         {
-            CoreWindow.GetForCurrentThread().KeyDown += Window_KeyDown;
-            Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
-
             if (this.FindParentOfType<BladeItem>() is BladeItem Parent)
             {
                 Parent.Header = CurrentFolder?.DisplayName;
-            }
-        }
-
-        private void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
-        {
-            if (args.KeyStatus.IsMenuKeyDown)
-            {
-                switch (args.VirtualKey)
-                {
-                    case VirtualKey.Left:
-                        {
-                            Container.GoBackRecord_Click(null, null);
-                            break;
-                        }
-                    case VirtualKey.Right:
-                        {
-                            Container.GoForwardRecord_Click(null, null);
-                            break;
-                        }
-                }
-            }
-        }
-
-        private async void Window_KeyDown(CoreWindow sender, KeyEventArgs args)
-        {
-            if (Container.CurrentPresenter == this)
-            {
-                CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
-                CoreVirtualKeyStates ShiftState = sender.GetKeyState(VirtualKey.Shift);
-
-                if (!QueueContentDialog.IsRunningOrWaiting && !Container.BlockKeyboardShortCutInput)
-                {
-                    args.Handled = true;
-
-                    if (!CtrlState.HasFlag(CoreVirtualKeyStates.Down) && !ShiftState.HasFlag(CoreVirtualKeyStates.Down))
-                    {
-                        NavigateToStorageItem(args.VirtualKey);
-                    }
-
-                    switch (args.VirtualKey)
-                    {
-                        case VirtualKey.Space when SettingControl.IsQuicklookEnable:
-                            {
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                                {
-                                    if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync().ConfigureAwait(true))
-                                    {
-                                        string ViewPathWithQuicklook;
-
-                                        if (string.IsNullOrEmpty(SelectedItem?.Path))
-                                        {
-                                            if (!string.IsNullOrEmpty(CurrentFolder?.Path))
-                                            {
-                                                ViewPathWithQuicklook = CurrentFolder.Path;
-                                            }
-                                            else
-                                            {
-                                                break;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            ViewPathWithQuicklook = SelectedItem.Path;
-                                        }
-
-                                        await Exclusive.Controller.ViewWithQuicklookAsync(ViewPathWithQuicklook).ConfigureAwait(false);
-                                    }
-                                }
-
-                                break;
-                            }
-                        case VirtualKey.F2:
-                            {
-                                Rename_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.F5:
-                            {
-                                Refresh_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.Enter when SelectedItems.Count == 1 && SelectedItem is FileSystemStorageItemBase Item:
-                            {
-                                await EnterSelectedItem(Item).ConfigureAwait(false);
-                                break;
-                            }
-                        case VirtualKey.Back:
-                            {
-                                Container.GoBackRecord_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.L when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                            {
-                                Container.AddressBox.Focus(FocusState.Programmatic);
-                                break;
-                            }
-                        case VirtualKey.V when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                            {
-                                Paste_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.A when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItem == null:
-                            {
-                                ItemPresenter.SelectAll();
-                                break;
-                            }
-                        case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && ShiftState.HasFlag(CoreVirtualKeyStates.Down):
-                            {
-                                Clipboard.Clear();
-
-                                DataPackage Package = new DataPackage
-                                {
-                                    RequestedOperation = DataPackageOperation.Copy
-                                };
-
-                                Package.SetText(SelectedItem?.Path ?? CurrentFolder?.Path ?? string.Empty);
-
-                                Clipboard.SetContent(Package);
-                                break;
-                            }
-                        case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                            {
-                                Copy_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.X when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                            {
-                                Cut_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.Delete:
-                        case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                            {
-                                Delete_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.F when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                            {
-                                Container.GlobeSearch.Focus(FocusState.Programmatic);
-                                break;
-                            }
-                        case VirtualKey.N when ShiftState.HasFlag(CoreVirtualKeyStates.Down) && CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                            {
-                                CreateFolder_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.Z when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && OperationRecorder.Current.Count > 0:
-                            {
-                                await Ctrl_Z_Click().ConfigureAwait(false);
-                                break;
-                            }
-                        case VirtualKey.E when ShiftState.HasFlag(CoreVirtualKeyStates.Down) && CurrentFolder != null:
-                            {
-                                _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                                break;
-                            }
-                        case VirtualKey.T when ShiftState.HasFlag(CoreVirtualKeyStates.Down):
-                            {
-                                OpenInTerminal_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                            {
-                                CloseAllFlyout();
-
-                                if (SelectedItem != null)
-                                {
-                                    if (SelectedItem is FileSystemStorageFolder)
-                                    {
-                                        await TabViewContainer.ThisPage.CreateNewTabAsync(SelectedItem.Path).ConfigureAwait(true);
-                                    }
-                                }
-                                else
-                                {
-                                    await TabViewContainer.ThisPage.CreateNewTabAsync().ConfigureAwait(true);
-                                }
-
-                                break;
-                            }
-                        case VirtualKey.Q when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                            {
-                                OpenFolderInNewWindow_Click(null, null);
-                                break;
-                            }
-                        case VirtualKey.Up:
-                        case VirtualKey.Down:
-                            {
-                                if (SelectedItem == null)
-                                {
-                                    SelectedItem = FileCollection.FirstOrDefault();
-                                }
-
-                                break;
-                            }
-                        case VirtualKey.B when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItem != null:
-                            {
-                                await Container.CreateNewBlade(SelectedItem.Path).ConfigureAwait(true);
-                                break;
-                            }
-                        default:
-                            {
-                                args.Handled = false;
-                                break;
-                            }
-                    }
-                }
             }
         }
 

@@ -140,15 +140,11 @@ namespace RX_Explorer
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                        Content = Globalization.GetString("QueueDialog_MTP_CouldNotAccess_Content"),
-                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                        Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
-                    {
-                        await Launcher.LaunchFolderAsync(Folder);
-                    }
+                    await Dialog.ShowAsync().ConfigureAwait(true);
                 }
                 else
                 {
@@ -879,7 +875,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    CommonAccessCollection.LibraryFolderList.Add(new LibraryFolder(Folder, await Folder.GetThumbnailBitmapAsync().ConfigureAwait(true), LibraryType.UserCustom));
+                    CommonAccessCollection.LibraryFolderList.Add(await LibraryFolder.CreateAsync(Folder, LibraryType.UserCustom));
                     await SQLite.Current.SetLibraryPathAsync(Folder.Path, LibraryType.UserCustom).ConfigureAwait(false);
                     await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path).ConfigureAwait(false);
                 }

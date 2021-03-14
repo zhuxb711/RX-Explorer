@@ -2784,10 +2784,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Enable</source>
           <target state="translated">启用</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_MTP_CouldNotAccess_Content" translate="yes" xml:space="preserve">
-          <source>RX does not support viewing MTP type devices. Try open it by system explorer?</source>
-          <target state="translated">RX不支持查看MTP类型的设备，尝试通过系统资源管理器打开它吗？</target>
-        </trans-unit>
         <trans-unit id="PresentInvalidCharTip.Subtitle" translate="yes" xml:space="preserve">
           <source>Cannot contain illegal characters 
 Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</source>
@@ -3576,6 +3572,10 @@ Invalid names include
         <trans-unit id="DecompressTo" translate="yes" xml:space="preserve">
           <source>Extract to</source>
           <target state="translated">解压到</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CouldNotAccess_Content" translate="yes" xml:space="preserve">
+          <source>RX does not support viewing this drive because its path is empty</source>
+          <target state="translated">RX不支持查看此驱动器，因为它的路径为空</target>
         </trans-unit>
       </group>
     </body>

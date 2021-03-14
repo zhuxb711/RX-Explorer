@@ -2266,8 +2266,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="UseWinAndEActivate.OnContent" xml:space="preserve">
     <value>Enable</value>
   </data>
-  <data name="QueueDialog_MTP_CouldNotAccess_Content" xml:space="preserve">
-    <value>RX does not support viewing MTP type devices. Try open it by system explorer?</value>
+  <data name="QueueDialog_CouldNotAccess_Content" xml:space="preserve">
+    <value>RX does not support viewing this drive because its path is empty</value>
   </data>
   <data name="PresentInvalidCharTip.Subtitle" xml:space="preserve">
     <value>Cannot contain illegal characters 

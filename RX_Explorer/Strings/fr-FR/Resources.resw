@@ -2106,9 +2106,6 @@
   <data name="UseWinAndEActivate.OnContent" xml:space="preserve">
     <value>Activer</value>
   </data>
-  <data name="QueueDialog_MTP_CouldNotAccess_Content" xml:space="preserve">
-    <value>RX ne prend pas en charge l'affichage des périphériques de type MTP. Voulez-vous l'ouvrir avec l'explorateur système?</value>
-  </data>
   <data name="PresentInvalidCharTip.Subtitle" xml:space="preserve">
     <value>Ne peut pas contenir de caractères illégaux
 Les caractères illégaux incluent \ / : * ? " &lt; &gt; |</value>
@@ -2696,5 +2693,8 @@ Les noms non valides incluent
   </data>
   <data name="DecompressTo" xml:space="preserve">
     <value>Extraire vers</value>
+  </data>
+  <data name="QueueDialog_CouldNotAccess_Content" xml:space="preserve">
+    <value>RX ne prend pas en charge l'affichage de ce lecteur car son chemin est vide</value>
   </data>
 </root>

@@ -2106,9 +2106,6 @@
   <data name="UseWinAndEActivate.OnContent" xml:space="preserve">
     <value>启用</value>
   </data>
-  <data name="QueueDialog_MTP_CouldNotAccess_Content" xml:space="preserve">
-    <value>RX不支持查看MTP类型的设备，尝试通过系统资源管理器打开它吗？</value>
-  </data>
   <data name="PresentInvalidCharTip.Subtitle" xml:space="preserve">
     <value>不能包含非法字符
 非法字符包括 \ / : * ? " &lt; &gt; |</value>
@@ -2696,5 +2693,8 @@
   </data>
   <data name="DecompressTo" xml:space="preserve">
     <value>解压到</value>
+  </data>
+  <data name="QueueDialog_CouldNotAccess_Content" xml:space="preserve">
+    <value>RX不支持查看此驱动器，因为它的路径为空</value>
   </data>
 </root>

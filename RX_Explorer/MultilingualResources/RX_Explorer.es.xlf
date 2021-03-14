@@ -2857,10 +2857,6 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <source>Enable</source>
           <target state="translated">Habilitar</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_MTP_CouldNotAccess_Content" translate="yes" xml:space="preserve">
-          <source>RX does not support viewing MTP type devices. Try open it by system explorer?</source>
-          <target state="translated">RX no es compatible con la visualización de dispositivos de tipo MTP. ¿Quieres intentar abrirlo con el explorador de archivos?</target>
-        </trans-unit>
         <trans-unit id="PresentInvalidCharTip.Subtitle" translate="yes" xml:space="preserve">
           <source>Cannot contain illegal characters 
 Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</source>
@@ -3574,6 +3570,10 @@ Las denominaciones no válidas son:
         <trans-unit id="DecompressTo" translate="yes" xml:space="preserve">
           <source>Extract to</source>
           <target state="translated">Extraer a</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_CouldNotAccess_Content" translate="yes" xml:space="preserve">
+          <source>RX does not support viewing this drive because its path is empty</source>
+          <target state="translated">RX no admite la visualización de esta unidad porque su ruta está vacía</target>
         </trans-unit>
       </group>
     </body>

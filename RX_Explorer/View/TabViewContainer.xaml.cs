@@ -126,15 +126,11 @@ namespace RX_Explorer
                                         QueueContentDialog Dialog = new QueueContentDialog
                                         {
                                             Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                            Content = Globalization.GetString("QueueDialog_MTP_CouldNotAccess_Content"),
-                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                            Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                         };
 
-                                        if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
-                                        {
-                                            await Launcher.LaunchFolderAsync(Device.Folder);
-                                        }
+                                        await Dialog.ShowAsync().ConfigureAwait(true);
                                     }
                                     else
                                     {

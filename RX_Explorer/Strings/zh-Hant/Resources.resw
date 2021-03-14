@@ -2109,9 +2109,6 @@
   <data name="UseWinAndEActivate.OnContent" xml:space="preserve">
     <value>啟用</value>
   </data>
-  <data name="QueueDialog_MTP_CouldNotAccess_Content" xml:space="preserve">
-    <value>RX 檔案總管不支持查看MTP類型的設備。 嘗試通過檔案總管打開它嗎？</value>
-  </data>
   <data name="PresentInvalidCharTip.Subtitle" xml:space="preserve">
     <value>不可以包含下列任意字元
 \ / : * ? " &lt; &gt; |</value>
@@ -2696,5 +2693,8 @@
   </data>
   <data name="DecompressTo" xml:space="preserve">
     <value>提取到</value>
+  </data>
+  <data name="QueueDialog_CouldNotAccess_Content" xml:space="preserve">
+    <value>RX不支持查看此驅動器，因為其路徑為空</value>
   </data>
 </root>

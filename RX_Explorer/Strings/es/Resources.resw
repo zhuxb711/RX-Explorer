@@ -2161,9 +2161,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="UseWinAndEActivate.OnContent" xml:space="preserve">
     <value>Habilitar</value>
   </data>
-  <data name="QueueDialog_MTP_CouldNotAccess_Content" xml:space="preserve">
-    <value>RX no es compatible con la visualización de dispositivos de tipo MTP. ¿Quieres intentar abrirlo con el explorador de archivos?</value>
-  </data>
   <data name="PresentInvalidCharTip.Subtitle" xml:space="preserve">
     <value>No puede contener caracteres no válidos 
 Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
@@ -2696,5 +2693,8 @@ Las denominaciones no válidas son:
   </data>
   <data name="DecompressTo" xml:space="preserve">
     <value>Extraer a</value>
+  </data>
+  <data name="QueueDialog_CouldNotAccess_Content" xml:space="preserve">
+    <value>RX no admite la visualización de esta unidad porque su ruta está vacía</value>
   </data>
 </root>

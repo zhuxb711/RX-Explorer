@@ -387,19 +387,19 @@ namespace RX_Explorer
             {
                 List<Task> NetworkLoadList = new List<Task>();
 
-                foreach ((StorageFolder DriveFolder, DriveType Type) in CommonAccessCollection.DriveList.Select((Drive) => (Drive.Folder, Drive.DriveType)).ToArray())
+                foreach (DriveRelatedData DriveData in CommonAccessCollection.DriveList.Where((Drive) => !string.IsNullOrWhiteSpace(Drive.Folder?.Path)).ToArray())
                 {
-                    if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => Path != DriveFolder?.Path))
+                    if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => Path != DriveData.Folder.Path))
                     {
-                        FileSystemStorageFolder DeviceFolder = new FileSystemStorageFolder(DriveFolder, await DriveFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), await DriveFolder.GetModifiedTimeAsync().ConfigureAwait(true));
+                        FileSystemStorageFolder DeviceFolder = new FileSystemStorageFolder(DriveData.Folder, await DriveData.Folder.GetThumbnailBitmapAsync().ConfigureAwait(true), await DriveData.Folder.GetModifiedTimeAsync().ConfigureAwait(true));
 
-                        if (Type == DriveType.Network)
+                        if (DriveData.DriveType == DriveType.Network)
                         {
                             NetworkLoadList.Add(DeviceFolder.CheckContainsAnyItemAsync(ItemFilters.Folder).ContinueWith((task) =>
                             {
                                 TreeViewNode RootNode = new TreeViewNode
                                 {
-                                    Content = new TreeViewNodeContent(DriveFolder),
+                                    Content = new TreeViewNodeContent(DriveData.Folder),
                                     IsExpanded = false,
                                     HasUnrealizedChildren = task.Result
                                 };
@@ -414,7 +414,7 @@ namespace RX_Explorer
 
                             TreeViewNode RootNode = new TreeViewNode
                             {
-                                Content = new TreeViewNodeContent(DriveFolder),
+                                Content = new TreeViewNodeContent(DriveData.Folder),
                                 IsExpanded = false,
                                 HasUnrealizedChildren = HasAnyFolder
                             };
@@ -425,7 +425,7 @@ namespace RX_Explorer
                     }
                 }
 
-                foreach (string TargetPath in InitFolderPathArray)
+                foreach (string TargetPath in InitFolderPathArray.Where((FolderPath) => !string.IsNullOrWhiteSpace(FolderPath)))
                 {
                     await CreateNewBlade(TargetPath).ConfigureAwait(true);
                 }
@@ -1357,7 +1357,7 @@ namespace RX_Explorer
 
             if (string.IsNullOrEmpty(AddressBox.Text))
             {
-                AddressBox.Text = CurrentPresenter?.CurrentFolder?.Path;
+                AddressBox.Text = CurrentPresenter?.CurrentFolder?.Path ?? string.Empty;
             }
 
             AddressButtonContainer.Visibility = Visibility.Collapsed;
