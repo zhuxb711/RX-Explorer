@@ -218,7 +218,7 @@
                       HorizontalAlignment="Left"
                       Grid.Column="3"
                       Margin="5,0,0,0"
-                      Padding="7,0,0,0"
+                      Padding="5,0,0,0"
                       SelectionMode="None"
                       x:Name="AddressButtonContainer"
                       ItemsSource="{x:Bind AddressButtonList}">

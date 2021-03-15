@@ -47,6 +47,7 @@ namespace RX_Explorer.Class
             return Task.Run(() =>
             {
                 long TotalBytesRead = 0;
+                long TotalBytesLength = From.Length;
 
                 byte[] DataBuffer = new byte[2048];
 
@@ -65,7 +66,7 @@ namespace RX_Explorer.Class
                         break;
                     }
 
-                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(TotalBytesRead * 100d / From.Length), null));
+                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(TotalBytesRead * 100d / TotalBytesLength), null));
                 }
             });
         }

@@ -362,6 +362,9 @@
     <Compile Include="Class\Win10VersionChecker.cs" />
     <Compile Include="Class\WiFiShareProvider.cs" />
     <Compile Include="Class\WindowsHelloAuthenticator.cs" />
+    <Compile Include="SeparateWindow\PropertyWindow\PropertyBase.xaml.cs">
+      <DependentUpon>PropertyBase.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -669,6 +672,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialog\CompressDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SeparateWindow\PropertyWindow\PropertyBase.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

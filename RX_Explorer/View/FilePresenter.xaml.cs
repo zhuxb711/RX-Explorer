@@ -5,6 +5,7 @@ using RX_Explorer.Class;
 using RX_Explorer.CustomControl;
 using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
+using RX_Explorer.SeparateWindow.PropertyWindow;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -27,9 +28,12 @@ using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Input;
+using Windows.UI.WindowManagement;
+using Windows.UI.WindowManagement.Preview;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
@@ -2113,8 +2117,17 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            PropertyDialog Dialog = new PropertyDialog(SelectedItem);
-            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+            AppWindow NewWindow = await AppWindow.TryCreateAsync();
+            NewWindow.PersistedStateId = "Properties";
+            NewWindow.Title = "Properties";
+            NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+            NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+            NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
+            ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, SelectedItem));
+            WindowManagementPreview.SetPreferredMinSize(NewWindow, new Windows.Foundation.Size(400, 600));
+
+            await NewWindow.TryShowAsync();
         }
 
         private async void Compression_Click(object sender, RoutedEventArgs e)

@@ -95,7 +95,7 @@ namespace RX_Explorer
             {
                 try
                 {
-                    if (BackgroundController.Current.CurrentType == BackgroundBrushType.BingPicture && await BingPictureDownloader.CheckIfNeedToUpdate().ConfigureAwait(true))
+                    if (BackgroundController.Current.CurrentType == BackgroundBrushType.BingPicture)
                     {
                         LoadingBingArea.Visibility = Visibility.Visible;
                     }

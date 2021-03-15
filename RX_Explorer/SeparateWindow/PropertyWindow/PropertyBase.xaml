@@ -1,0 +1,155 @@
+﻿<Page x:Class="RX_Explorer.SeparateWindow.PropertyWindow.PropertyBase"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:RX_Explorer.SeparateWindow.PropertyWindow"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d"
+      d:DesignHeight="600"
+      d:DesignWidth="400"
+      Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="32"/>
+            <RowDefinition />
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="Properties"
+                   VerticalAlignment="Center"
+                   Padding="12,0,0,0"/>
+        <Pivot Grid.Row="1">
+            <PivotItem>
+                <PivotItem.Header>
+                    <TextBlock Text="General"
+                               FontSize="18" />
+                </PivotItem.Header>
+                <Grid Padding="0,10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="50" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Image Stretch="Uniform"
+                               Name="Thumbnail" />
+                        <TextBox VerticalAlignment="Center"
+                                 Grid.Column="1"
+                                 Margin="10,0,0,0"
+                                 Name="StorageItemName" />
+                    </Grid>
+                    <Grid Grid.Row="1"
+                          Padding="5,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="2*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="10" />
+                            <RowDefinition Height="35"/>
+                            <RowDefinition Height="35"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="35"/>
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <Border Height="2"
+                                Grid.ColumnSpan="2"
+                                HorizontalAlignment="Stretch"
+                                Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                        <TextBlock Text="Type:"
+                                   FontSize="14"
+                                   Grid.Row="1"
+                                   VerticalAlignment="Center"
+                                   Name="TypeLabel" />
+                        <TextBlock Text="Open with:"
+                                   FontSize="14"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="2"
+                                   Name="OpenWithLabel" />
+                        <Border Height="2"
+                                Grid.Row="3"
+                                Grid.ColumnSpan="2"
+                                HorizontalAlignment="Stretch"
+                                Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                        <TextBlock Grid.Row="4"
+                                   FontSize="14"
+                                   VerticalAlignment="Center"
+                                   Text="Location"
+                                   Name="LocationLabel"/>
+                        <TextBlock RelativePanel.AlignRightWithPanel="True"
+                                   Name="TypeContent"
+                                   IsTextSelectionEnabled="True"
+                                   Grid.Row="1"
+                                   Grid.Column="1"
+                                   FontSize="14"
+                                   Padding="2,0,0,0"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" />
+                        <RelativePanel Grid.Row="2"
+                                       Grid.Column="1"
+                                       VerticalAlignment="Center">
+                            <Image Name="OpenWithImage"
+                                   Height="25"
+                                   Stretch="Uniform"
+                                   RelativePanel.AlignLeftWithPanel="True" />
+                            <TextBlock RelativePanel.LeftOf="ChangeOpenWithButton"
+                                       RelativePanel.RightOf="OpenWithImage"
+                                       Name="OpenWithContent"
+                                       IsTextSelectionEnabled="True"
+                                       RelativePanel.AlignVerticalCenterWithPanel="True"
+                                       FontSize="14"
+                                       Margin="8,0,0,0"
+                                       TextTrimming="CharacterEllipsis" />
+                            <Button RelativePanel.AlignRightWithPanel="True"
+                                    RelativePanel.AlignVerticalCenterWithPanel="True"
+                                    Name="ChangeOpenWithButton"
+                                    Content="Change"
+                                    MinWidth="80"
+                                    Padding="5,0" />
+                        </RelativePanel>
+                        <ScrollViewer VerticalAlignment="Center"
+                                      Grid.Row="4"
+                                      Grid.Column="1"
+                                      Padding="2,0,0,0"
+                                      VerticalScrollBarVisibility="Hidden"
+                                      HorizontalScrollBarVisibility="Hidden"
+                                      VerticalScrollMode="Disabled">
+                            <TextBlock Name="LocationContent"
+                                       FontSize="14"
+                                       IsTextSelectionEnabled="True"
+                                        />
+                        </ScrollViewer>
+                    </Grid>
+                </Grid>
+            </PivotItem>
+            <PivotItem>
+                <PivotItem.Header>
+                    <TextBlock Text="Details"
+                               FontSize="18" />
+                </PivotItem.Header>
+                <TextBlock Text="unread emails go here." />
+            </PivotItem>
+        </Pivot>
+        <StackPanel Orientation="Horizontal"
+                    Grid.Row="2"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Margin="0,0,10,0">
+            <Button Content="确定"
+                    Background="{ThemeResource SystemAccentColor}"
+                    Width="120"
+                    Name="ConfirmButton"
+                    Click="ConfirmButton_Click"/>
+            <Button Content="取消" 
+                    Margin="10,0,0,0"
+                    Width="120"
+                    Name="CancelButton"
+                    Click="CancelButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Page>
