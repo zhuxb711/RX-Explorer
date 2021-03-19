@@ -2383,7 +2383,7 @@ Invalid names include
     <value>Enter parameters</value>
   </data>
   <data name="LinkOptionsDialog_LinkDescription.Header" xml:space="preserve">
-    <value>Remarks (optional)</value>
+    <value>Comment (optional)</value>
   </data>
   <data name="LinkOptionsDialog_LinkDescription.PlaceholderText" xml:space="preserve">
     <value>Enter a description of the shortcut</value>

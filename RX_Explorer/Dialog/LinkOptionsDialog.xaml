@@ -24,7 +24,7 @@
                               Target="{x:Bind TargetPath}"/>
     </Cls:QueueContentDialog.Resources>
 
-    <Grid>
+    <ScrollViewer VerticalScrollBarVisibility="Hidden">
         <StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBox Header="目标"
@@ -74,11 +74,32 @@
                      x:Uid="LinkOptionsDialog_LinkArgument"
                      PlaceholderText="输入参数"/>
 
-            <TextBox Header="备注信息 (可选)"
+            <TextBox Header="工作目录 (可选)"
+                     Margin="0,10,0,0"
+                     Name="LinkWorkDirectory"
+                     PlaceholderText="输入路径"/>
+
+            <TextBox Header="备注 (可选)"
                      Margin="0,10,0,0"
                      x:Uid="LinkOptionsDialog_LinkDescription"
                      Name="LinkDescription"
                      PlaceholderText="输入快捷方式的描述" />
+
+            <TextBox Header="热键"
+                     Text="None"
+                     KeyDown="HotKeyInput_KeyDown"
+                     Name="HotKeyInput"
+                     IsReadOnly="True"
+                     Margin="0,10,0,0"/>
+            
+            <ComboBox Header="启动时状态"
+                      Margin="0,10,0,0"
+                      MinWidth="150"
+                      Name="WindowStateComboBox"/>
+
+            <CheckBox Content="以管理员身份启动"
+                      Margin="0,10,0,0"
+                      IsChecked="{x:Bind RunAsAdmin, Mode=TwoWay}"/>
         </StackPanel>
-    </Grid>
+    </ScrollViewer>
 </Cls:QueueContentDialog>

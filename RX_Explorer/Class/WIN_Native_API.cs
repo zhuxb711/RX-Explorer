@@ -159,6 +159,7 @@ namespace RX_Explorer.Class
         const uint FILE_NOTIFY_CHANGE_DIR_NAME = 0x2;
         const uint FILE_NOTIFY_CHANGE_LAST_WRITE = 0x10;
         const uint FILE_NOTIFY_CHANGE_SIZE = 0x8;
+        const uint FILE_NOTIFY_CHANGE_ATTRIBUTES = 0x4;
 
         private enum StateChangeType
         {
@@ -474,7 +475,7 @@ namespace RX_Explorer.Class
 
                         try
                         {
-                            if (ReadDirectoryChangesW(Package.Item1, BufferPointer, 4096, false, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_SIZE, out uint BytesReturned, IntPtr.Zero, IntPtr.Zero))
+                            if (ReadDirectoryChangesW(Package.Item1, BufferPointer, 4096, false, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_SIZE | FILE_NOTIFY_CHANGE_ATTRIBUTES, out uint BytesReturned, IntPtr.Zero, IntPtr.Zero))
                             {
                                 if (BytesReturned > 0)
                                 {

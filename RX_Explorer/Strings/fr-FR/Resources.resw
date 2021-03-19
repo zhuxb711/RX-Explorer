@@ -2229,7 +2229,7 @@ Les noms non valides incluent
     <value>Entrez les paramètres</value>
   </data>
   <data name="LinkOptionsDialog_LinkDescription.Header" xml:space="preserve">
-    <value>Remarques (facultatif)</value>
+    <value>Commenter (facultatif)</value>
   </data>
   <data name="LinkOptionsDialog_LinkDescription.PlaceholderText" xml:space="preserve">
     <value>Entrez une description du raccourci</value>

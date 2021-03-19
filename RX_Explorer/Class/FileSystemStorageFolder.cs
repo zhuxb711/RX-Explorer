@@ -80,9 +80,11 @@ namespace RX_Explorer.Class
         public FileSystemStorageFolder(StorageFolder Item, BitmapImage Thumbnail, DateTimeOffset ModifiedTimeRaw) : base(Item.Path)
         {
             StorageItem = Item;
-            CreationTimeRaw = Item.DateCreated;
+
             this.ModifiedTimeRaw = ModifiedTimeRaw;
             this.Thumbnail = Thumbnail;
+
+            CreationTimeRaw = Item.DateCreated;
         }
 
         public FileSystemStorageFolder(string Path, WIN_Native_API.WIN32_FIND_DATA Data) : base(Path, Data)

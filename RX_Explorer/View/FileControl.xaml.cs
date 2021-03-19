@@ -3,6 +3,7 @@ using Microsoft.Toolkit.Uwp.UI.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
+using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -944,18 +945,18 @@ namespace RX_Explorer
                 {
                     if (string.Equals(QueryText, "Powershell", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Powershell.exe", StringComparison.OrdinalIgnoreCase))
                     {
-                        string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe");
+                        string ExecutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe");
 
-                        await Exclusive.Controller.RunAsync(ExcutePath, true, false, false, "-NoExit", "-Command", "Set-Location", CurrentPresenter.CurrentFolder.Path).ConfigureAwait(false);
+                        await Exclusive.Controller.RunAsync(ExecutePath, Path.GetDirectoryName(ExecutePath), WindowState.Normal, true, false, false, "-NoExit", "-Command", "Set-Location", CurrentPresenter.CurrentFolder.Path).ConfigureAwait(false);
 
                         return;
                     }
 
                     if (string.Equals(QueryText, "Cmd", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Cmd.exe", StringComparison.OrdinalIgnoreCase))
                     {
-                        string ExcutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe");
+                        string ExecutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe");
 
-                        await Exclusive.Controller.RunAsync(ExcutePath, true, false, false, "/k", "cd", "/d", CurrentPresenter.CurrentFolder.Path).ConfigureAwait(false);
+                        await Exclusive.Controller.RunAsync(ExecutePath, Path.GetDirectoryName(ExecutePath), WindowState.Normal, true, false, false, "/k", "cd", "/d", CurrentPresenter.CurrentFolder.Path).ConfigureAwait(false);
 
                         return;
                     }
@@ -967,7 +968,7 @@ namespace RX_Explorer
                             case LaunchQuerySupportStatus.Available:
                             case LaunchQuerySupportStatus.NotSupported:
                                 {
-                                    await Exclusive.Controller.RunAsync("wt.exe", false, false, false, "/d", CurrentPresenter.CurrentFolder.Path).ConfigureAwait(false);
+                                    await Exclusive.Controller.RunAsync("wt.exe", string.Empty, WindowState.Normal, false, false, false, "/d", CurrentPresenter.CurrentFolder.Path).ConfigureAwait(false);
 
                                     break;
                                 }
@@ -1034,7 +1035,7 @@ namespace RX_Explorer
 
                             if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
                             {
-                                await Exclusive.Controller.RunAsync("powershell.exe", true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
+                                await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
 
                                 StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
 

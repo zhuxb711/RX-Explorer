@@ -32,7 +32,6 @@ namespace RX_Explorer
         public SearchPage()
         {
             InitializeComponent();
-            SearchResultList.ItemsSource = SearchResult;
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -93,7 +92,6 @@ namespace RX_Explorer
                     if (Cancellation.IsCancellationRequested)
                     {
                         HasItem.Visibility = Visibility.Visible;
-                        SearchResultList.Visibility = Visibility.Collapsed;
                     }
                     else
                     {

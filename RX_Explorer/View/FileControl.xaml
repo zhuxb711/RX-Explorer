@@ -7,6 +7,7 @@
       xmlns:local="using:RX_Explorer"
       xmlns:Cls="using:RX_Explorer.Class"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+      xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
       NavigationCacheMode="Required"
       mc:Ignorable="d"
       Background="Transparent">
@@ -528,8 +529,9 @@
                           x:FieldModifier="public"
                           Grid.RowSpan="2">
             <controls:Loading.Background>
-                <SolidColorBrush Color="Black"
-                                 Opacity="0.65" />
+                <Brush:AcrylicBrush TintColor="Black"
+                                    TintOpacity="0.65"
+                                    BlurAmount="4" />
             </controls:Loading.Background>
             <StackPanel>
                 <TextBlock Name="ProgressInfo"

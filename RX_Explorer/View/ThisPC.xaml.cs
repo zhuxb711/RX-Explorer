@@ -1,6 +1,7 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
+using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -179,7 +180,7 @@ namespace RX_Explorer
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         {
-                            await Exclusive.Controller.RunAsync("powershell.exe", true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
+                            await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
 
                             StorageFolder DriveFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
 
@@ -244,11 +245,11 @@ namespace RX_Explorer
                                     {
                                         if (Path.GetExtension(Item.Protocol).ToLower() == ".msc")
                                         {
-                                            await Exclusive.Controller.RunAsync("powershell.exe", false, true, false, "-Command", Item.Protocol).ConfigureAwait(true);
+                                            await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", Item.Protocol).ConfigureAwait(true);
                                         }
                                         else
                                         {
-                                            await Exclusive.Controller.RunAsync(Item.Protocol).ConfigureAwait(true);
+                                            await Exclusive.Controller.RunAsync(Item.Protocol, Path.GetDirectoryName(Item.Protocol)).ConfigureAwait(true);
                                         }
                                     }
                                     catch (Exception ex)
@@ -413,7 +414,7 @@ namespace RX_Explorer
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         {
-                            await Exclusive.Controller.RunAsync("powershell.exe", true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
+                            await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
                         }
 
                         StorageFolder DriveFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
@@ -587,7 +588,7 @@ namespace RX_Explorer
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         {
-                            await Exclusive.Controller.RunAsync("powershell.exe", true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
+                            await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
                         }
 
                         StorageFolder DriveFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
@@ -893,7 +894,7 @@ namespace RX_Explorer
                 {
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                     {
-                        await Exclusive.Controller.RunAsync("powershell.exe", true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
+                        await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString").ConfigureAwait(true);
                     }
 
                     StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);

@@ -6,6 +6,7 @@ using RX_Explorer.CustomControl;
 using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
 using RX_Explorer.SeparateWindow.PropertyWindow;
+using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -21,6 +22,7 @@ using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Data.Xml.Dom;
 using Windows.Devices.Input;
 using Windows.Devices.Radios;
+using Windows.Foundation;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -2118,6 +2120,8 @@ namespace RX_Explorer
             CloseAllFlyout();
 
             AppWindow NewWindow = await AppWindow.TryCreateAsync();
+            NewWindow.RequestSize(new Size(420, 650));
+            NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
             NewWindow.PersistedStateId = "Properties";
             NewWindow.Title = "Properties";
             NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
@@ -2125,7 +2129,7 @@ namespace RX_Explorer
             NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
             ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, SelectedItem));
-            WindowManagementPreview.SetPreferredMinSize(NewWindow, new Windows.Foundation.Size(400, 600));
+            WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 650));
 
             await NewWindow.TryShowAsync();
         }
@@ -2615,23 +2619,19 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (!await FileSystemStorageItemBase.CheckExistAsync(SelectedItem.Path).ConfigureAwait(true))
-            {
-                QueueContentDialog dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
+            AppWindow NewWindow = await AppWindow.TryCreateAsync();
+            NewWindow.RequestSize(new Size(420, 650));
+            NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+            NewWindow.PersistedStateId = "Properties";
+            NewWindow.Title = "Properties";
+            NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+            NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+            NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
+            ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, SelectedItem));
+            WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 650));
 
-                return;
-            }
-
-            PropertyDialog Dialog = new PropertyDialog(SelectedItem);
-
-            _ = await Dialog.ShowAsync().ConfigureAwait(false);
+            await NewWindow.TryShowAsync();
         }
 
         private async void WIFIShare_Click(object sender, RoutedEventArgs e)
@@ -3032,7 +3032,7 @@ namespace RX_Explorer
                                     {
                                         if (Path.IsPathRooted(AdminExecutablePath))
                                         {
-                                            await Exclusive.Controller.RunAsync(AdminExecutablePath, false, false, false, File.Path).ConfigureAwait(true);
+                                            await Exclusive.Controller.RunAsync(AdminExecutablePath, Path.GetDirectoryName(AdminExecutablePath), WindowState.Normal, false, false, false, File.Path).ConfigureAwait(true);
                                         }
                                         else
                                         {
@@ -3114,7 +3114,7 @@ namespace RX_Explorer
                                                             {
                                                                 if (Path.IsPathRooted(Dialog.SelectedProgram.Path))
                                                                 {
-                                                                    await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, false, false, false, File.Path).ConfigureAwait(true);
+                                                                    await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), WindowState.Normal, false, false, false, File.Path).ConfigureAwait(true);
                                                                 }
                                                                 else
                                                                 {
@@ -3235,7 +3235,7 @@ namespace RX_Explorer
                                                     {
                                                         if (Path.IsPathRooted(Dialog.SelectedProgram.Path))
                                                         {
-                                                            await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, false, false, false, File.Path).ConfigureAwait(true);
+                                                            await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), WindowState.Normal, false, false, false, File.Path).ConfigureAwait(true);
                                                         }
                                                         else
                                                         {
@@ -3372,13 +3372,13 @@ namespace RX_Explorer
                                             case ".bat":
                                             case ".msi":
                                                 {
-                                                    await Exclusive.Controller.RunAsync(File.Path, RunAsAdministrator).ConfigureAwait(true);
+                                                    await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path), WindowState.Normal, RunAsAdministrator).ConfigureAwait(true);
 
                                                     break;
                                                 }
                                             case ".msc":
                                                 {
-                                                    await Exclusive.Controller.RunAsync("powershell.exe", false, true, false, "-Command", File.Path).ConfigureAwait(true);
+                                                    await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", File.Path).ConfigureAwait(true);
 
                                                     break;
                                                 }
@@ -3455,7 +3455,7 @@ namespace RX_Explorer
                                                         {
                                                             if (Path.IsPathRooted(Dialog.SelectedProgram.Path))
                                                             {
-                                                                await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, false, false, false, File.Path).ConfigureAwait(true);
+                                                                await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), WindowState.Normal, false, false, false, File.Path).ConfigureAwait(true);
                                                             }
                                                             else
                                                             {
@@ -3714,7 +3714,7 @@ namespace RX_Explorer
                             {
                                 try
                                 {
-                                    await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, false, false, false, File.Path).ConfigureAwait(true);
+                                    await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), WindowState.Normal, false, false, false, File.Path).ConfigureAwait(true);
                                 }
                                 catch (Exception)
                                 {
@@ -3879,7 +3879,7 @@ namespace RX_Explorer
                                 {
                                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                     {
-                                        if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(CurrentFolder.Path, Dialog.NewFileName), dialog.Path, dialog.Description, dialog.Arguments).ConfigureAwait(true))
+                                        if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(CurrentFolder.Path, Dialog.NewFileName), dialog.Path, dialog.WorkDirectory, dialog.WindowState, dialog.HotKey, dialog.Comment, dialog.Arguments).ConfigureAwait(true))
                                         {
                                             throw new UnauthorizedAccessException();
                                         }
@@ -5313,7 +5313,7 @@ namespace RX_Explorer
                 {
                     try
                     {
-                        await Exclusive.Controller.RunAsync(Profile.Path, Profile.RunAsAdmin, false, false, Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value.Contains("[CurrentLocation]") ? Mat.Value.Replace("[CurrentLocation]", CurrentFolder.Path) : Mat.Value).ToArray()).ConfigureAwait(true);
+                        await Exclusive.Controller.RunAsync(Profile.Path, string.Empty, WindowState.Normal, Profile.RunAsAdmin, false, false, Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value.Contains("[CurrentLocation]") ? Mat.Value.Replace("[CurrentLocation]", CurrentFolder.Path) : Mat.Value).ToArray()).ConfigureAwait(true);
                     }
                     catch (Exception ex)
                     {

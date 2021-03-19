@@ -42,6 +42,26 @@ namespace RX_Explorer.Class
     {
         private static int ContextMenuLockResource;
 
+        public static string ConvertTimsSpanToString(this TimeSpan Span)
+        {
+            int Hour = 0;
+            int Minute = 0;
+            int Second = Convert.ToInt32(Span.TotalSeconds);
+
+            if (Second >= 60)
+            {
+                Minute = Second / 60;
+                Second %= 60;
+                if (Minute >= 60)
+                {
+                    Hour = Minute / 60;
+                    Minute %= 60;
+                }
+            }
+
+            return string.Format("{0:D2}:{1:D2}:{2:D2}", Hour, Minute, Second);
+        }
+
         public static Task CopyToAsync(this Stream From, Stream To, ProgressChangedEventHandler ProgressHandler)
         {
             return Task.Run(() =>

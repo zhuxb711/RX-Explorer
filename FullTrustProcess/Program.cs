@@ -241,7 +241,16 @@ namespace FullTrustProcess
 
                             string Argument = string.Join(" ", Package.Argument.Select((Para) => (Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"")) ? $"\"{Para}\"" : Para).ToArray());
 
-                            ShellLink.Create(Package.LinkPath, Package.LinkTargetPath, description: Package.Description, arguments: Argument).Dispose();
+                            using (ShellLink Link = ShellLink.Create(Package.LinkPath, Package.LinkTargetPath, Package.Comment, Package.WorkDirectory, Argument))
+                            {
+                                Link.ShowState = (FormWindowState)Package.WindowState;
+                                Link.RunAsAdministrator = Package.NeedRunAsAdmin;
+
+                                if (Package.HotKey > 0)
+                                {
+                                    Link.HotKey = (Package.HotKey >= 112 && Package.HotKey <= 135) ? (Keys)Package.HotKey : (Keys)Package.HotKey | Keys.Control | Keys.Alt;
+                                }
+                            }
 
                             ValueSet Value = new ValueSet
                             {
@@ -376,6 +385,117 @@ namespace FullTrustProcess
 
                             break;
                         }
+                    case "Execute_UpdateLink":
+                        {
+                            LinkDataPackage Package = JsonSerializer.Deserialize<LinkDataPackage>(Convert.ToString(args.Request.Message["DataPackage"]));
+
+                            string Argument = string.Join(" ", Package.Argument.Select((Para) => (Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"")) ? $"\"{Para}\"" : Para).ToArray());
+
+                            ValueSet Value = new ValueSet();
+
+                            if (File.Exists(Package.LinkPath))
+                            {
+                                using (ShellLink Link = new ShellLink(Package.LinkPath))
+                                {
+                                    Link.TargetPath = Package.LinkTargetPath;
+                                    Link.WorkingDirectory = Package.WorkDirectory;
+                                    Link.ShowState = (FormWindowState)Package.WindowState;
+                                    Link.RunAsAdministrator = Package.NeedRunAsAdmin;
+                                    Link.Description = Package.Comment;
+
+                                    if (Package.HotKey > 0)
+                                    {
+                                        Link.HotKey = (Package.HotKey >= 112 && Package.HotKey <= 135) ? (Keys)Package.HotKey : (Keys)Package.HotKey | Keys.Control | Keys.Alt;
+                                    }
+                                    else
+                                    {
+                                        Link.HotKey = Keys.None;
+                                    }
+                                }
+
+                                Value.Add("Success", string.Empty);
+                            }
+                            else
+                            {
+                                Value.Add("Error", "Path is not found");
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
+
+                            break;
+                        }
+                    case "Execute_SetFileAttribute":
+                        {
+                            string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);
+                            KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>[] AttributeGourp = JsonSerializer.Deserialize<KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>[]>(Convert.ToString(args.Request.Message["Attributes"]));
+
+                            ValueSet Value = new ValueSet();
+
+                            if (File.Exists(ExecutePath))
+                            {
+                                FileInfo File = new FileInfo(ExecutePath);
+
+                                foreach (KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes> AttributePair in AttributeGourp)
+                                {
+                                    if (AttributePair.Key == ModifyAttributeAction.Add)
+                                    {
+                                        File.Attributes |= AttributePair.Value;
+                                    }
+                                    else
+                                    {
+                                        File.Attributes &= ~AttributePair.Value;
+                                    }
+                                }
+
+                                Value.Add("Success", string.Empty);
+                            }
+                            else if (Directory.Exists(ExecutePath))
+                            {
+                                DirectoryInfo Dir = new DirectoryInfo(ExecutePath);
+
+                                foreach (KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes> AttributePair in AttributeGourp)
+                                {
+                                    if (AttributePair.Key == ModifyAttributeAction.Add)
+                                    {
+                                        if (AttributePair.Value == System.IO.FileAttributes.ReadOnly)
+                                        {
+                                            foreach (FileInfo SubFile in Helper.GetAllSubFiles(Dir))
+                                            {
+                                                SubFile.Attributes |= AttributePair.Value;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            Dir.Attributes |= AttributePair.Value;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (AttributePair.Value == System.IO.FileAttributes.ReadOnly)
+                                        {
+                                            foreach (FileInfo SubFile in Helper.GetAllSubFiles(Dir))
+                                            {
+                                                SubFile.Attributes &= ~AttributePair.Value;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            Dir.Attributes &= ~AttributePair.Value;
+                                        }
+                                    }
+                                }
+
+                                Value.Add("Success", string.Empty);
+                            }
+                            else
+                            {
+                                Value.Add("Error", "Path not found");
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
+
+                            break;
+                        }
                     case "Execute_GetLnkData":
                         {
                             string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);
@@ -412,7 +532,7 @@ namespace FullTrustProcess
                                             TempBitmap.MakeTransparent();
                                             TempBitmap.Save(IconStream, ImageFormat.Png);
 
-                                            Value.Add("Success", JsonSerializer.Serialize(new LinkDataPackage(ExecutePath, ActualPath, string.Empty, false, IconStream.ToArray())));
+                                            Value.Add("Success", JsonSerializer.Serialize(new LinkDataPackage(ExecutePath, ActualPath, string.Empty, WindowState.Normal, 0, string.Empty, false, IconStream.ToArray())));
                                         }
                                     }
                                     else
@@ -436,7 +556,7 @@ namespace FullTrustProcess
                                             {
                                                 byte[] IconData = await Helper.GetIconDataFromPackageFamilyName(PackageFamilyName).ConfigureAwait(true);
 
-                                                Value.Add("Success", JsonSerializer.Serialize(new LinkDataPackage(ExecutePath, PackageFamilyName, Link.Description, false, IconData)));
+                                                Value.Add("Success", JsonSerializer.Serialize(new LinkDataPackage(ExecutePath, PackageFamilyName, string.Empty, (WindowState)Enum.Parse(typeof(WindowState), Enum.GetName(typeof(FormWindowState), Link.ShowState)), (int)Link.HotKey, Link.Description, false, IconData)));
                                             }
                                         }
                                         else
@@ -464,7 +584,7 @@ namespace FullTrustProcess
                                                 TempBitmap.MakeTransparent();
                                                 TempBitmap.Save(IconStream, ImageFormat.Png);
 
-                                                Value.Add("Success", JsonSerializer.Serialize(new LinkDataPackage(ExecutePath, ActualPath, Link.Description, Link.RunAsAdministrator, IconStream.ToArray(), Arguments.ToArray())));
+                                                Value.Add("Success", JsonSerializer.Serialize(new LinkDataPackage(ExecutePath, ActualPath, Link.WorkingDirectory, (WindowState)Enum.Parse(typeof(WindowState), Enum.GetName(typeof(FormWindowState), Link.ShowState)), (int)Link.HotKey, Link.Description, Link.RunAsAdministrator, IconStream.ToArray(), Arguments.ToArray())));
                                             }
                                         }
                                     }
@@ -1034,7 +1154,9 @@ namespace FullTrustProcess
                             string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);
                             string ExecuteParameter = Convert.ToString(args.Request.Message["ExecuteParameter"]);
                             string ExecuteAuthority = Convert.ToString(args.Request.Message["ExecuteAuthority"]);
-
+                            string ExecuteWindowStyle = Convert.ToString(args.Request.Message["ExecuteWindowStyle"]);
+                            string ExecuteWorkDirectory = Convert.ToString(args.Request.Message["ExecuteWorkDirectory"]);
+                            
                             bool ExecuteCreateNoWindow = Convert.ToBoolean(args.Request.Message["ExecuteCreateNoWindow"]);
                             bool ShouldWaitForExit = Convert.ToBoolean(args.Request.Message["ExecuteShouldWaitForExit"]);
 
@@ -1052,12 +1174,16 @@ namespace FullTrustProcess
                                             {
                                                 Process.StartInfo.FileName = ExecutePath;
                                                 Process.StartInfo.UseShellExecute = true;
-                                                Process.StartInfo.WorkingDirectory = Path.GetDirectoryName(ExecutePath);
+                                                Process.StartInfo.WorkingDirectory = ExecuteWorkDirectory;
 
                                                 if (ExecuteCreateNoWindow)
                                                 {
                                                     Process.StartInfo.CreateNoWindow = true;
                                                     Process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                                                }
+                                                else
+                                                {
+                                                    Process.StartInfo.WindowStyle = (ProcessWindowStyle)Enum.Parse(typeof(ProcessWindowStyle), ExecuteWindowStyle);
                                                 }
 
                                                 if (ExecuteAuthority == "Administrator")
@@ -1082,12 +1208,16 @@ namespace FullTrustProcess
                                                 Process.StartInfo.FileName = ExecutePath;
                                                 Process.StartInfo.Arguments = ExecuteParameter;
                                                 Process.StartInfo.UseShellExecute = true;
-                                                Process.StartInfo.WorkingDirectory = Path.GetDirectoryName(ExecutePath);
+                                                Process.StartInfo.WorkingDirectory = ExecuteWorkDirectory;
 
                                                 if (ExecuteCreateNoWindow)
                                                 {
                                                     Process.StartInfo.CreateNoWindow = true;
                                                     Process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                                                }
+                                                else
+                                                {
+                                                    Process.StartInfo.WindowStyle = (ProcessWindowStyle)Enum.Parse(typeof(ProcessWindowStyle), ExecuteWindowStyle);
                                                 }
 
                                                 if (ExecuteAuthority == "Administrator")

@@ -12,6 +12,14 @@ namespace RX_Explorer.Interface
 
         public string[] Arguments { get; }
 
+        public string WorkDirectory { get; }
+
+        public string Comment { get; }
+
+        public WindowState WindowState { get; }
+        
+        public int HotKey { get; }
+
         public bool NeedRunAsAdmin { get; }
 
         public Task<LinkDataPackage> GetLinkDataAsync();

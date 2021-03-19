@@ -2275,7 +2275,7 @@ Las denominaciones no válidas son:
     <value>Introducir parámetro</value>
   </data>
   <data name="LinkOptionsDialog_LinkDescription.Header" xml:space="preserve">
-    <value>Observaciones (opcional)</value>
+    <value>Comentario (opcional)</value>
   </data>
   <data name="LinkOptionsDialog_LinkDescription.PlaceholderText" xml:space="preserve">
     <value>Introducir descripción para acceso directo</value>

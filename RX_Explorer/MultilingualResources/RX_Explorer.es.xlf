@@ -3012,8 +3012,8 @@ Las denominaciones no válidas son:
           <target state="translated">Introducir parámetro</target>
         </trans-unit>
         <trans-unit id="LinkOptionsDialog_LinkDescription.Header" translate="yes" xml:space="preserve">
-          <source>Remarks (optional)</source>
-          <target state="translated">Observaciones (opcional)</target>
+          <source>Comment (optional)</source>
+          <target state="translated">Comentario (opcional)</target>
         </trans-unit>
         <trans-unit id="LinkOptionsDialog_LinkDescription.PlaceholderText" translate="yes" xml:space="preserve">
           <source>Enter a description of the shortcut</source>

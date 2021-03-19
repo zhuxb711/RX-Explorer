@@ -2951,7 +2951,7 @@ Invalid names include
           <target state="translated">输入参数</target>
         </trans-unit>
         <trans-unit id="LinkOptionsDialog_LinkDescription.Header" translate="yes" xml:space="preserve">
-          <source>Remarks (optional)</source>
+          <source>Comment (optional)</source>
           <target state="translated">备注 (可选)</target>
         </trans-unit>
         <trans-unit id="LinkOptionsDialog_LinkDescription.PlaceholderText" translate="yes" xml:space="preserve">

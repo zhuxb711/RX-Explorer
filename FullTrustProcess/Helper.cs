@@ -1,7 +1,7 @@
 ﻿using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,6 +16,22 @@ namespace FullTrustProcess
 {
     public static class Helper
     {
+        public static IEnumerable<FileInfo> GetAllSubFiles(DirectoryInfo Directory)
+        {
+            foreach (FileInfo File in Directory.EnumerateFiles())
+            {
+                yield return File;
+            }
+
+            foreach (DirectoryInfo Dic in Directory.EnumerateDirectories())
+            {
+                foreach (FileInfo SubFile in GetAllSubFiles(Dic))
+                {
+                    yield return SubFile;
+                }
+            }
+        }
+
         public static Task<T> CreateSTATask<T>(Func<T> Executor)
         {
             TaskCompletionSource<T> CompletionSource = new TaskCompletionSource<T>();
@@ -58,7 +74,7 @@ namespace FullTrustProcess
             {
                 RandomAccessStreamReference Reference = Pack.GetLogoAsRandomAccessStreamReference(new Windows.Foundation.Size(150, 150));
 
-                using(IRandomAccessStreamWithContentType IconStream = await Reference.OpenReadAsync())
+                using (IRandomAccessStreamWithContentType IconStream = await Reference.OpenReadAsync())
                 using (DataReader Reader = new DataReader(IconStream))
                 {
                     byte[] Buffer = new byte[IconStream.Size];

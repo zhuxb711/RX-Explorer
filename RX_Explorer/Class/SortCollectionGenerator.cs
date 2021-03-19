@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.Storage;
 
 namespace RX_Explorer.Class
 {
@@ -132,13 +131,28 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(SearchTarget), "Argument could not be null");
             }
 
+            IEnumerable<T> FilteredCollection = null;
+
+            if (SearchTarget is FileSystemStorageFile)
+            {
+                FilteredCollection = InputCollection.Where((Item) => Item is FileSystemStorageFile);
+            }
+            else if (SearchTarget is FileSystemStorageFolder)
+            {
+                FilteredCollection = InputCollection.Where((Item) => Item is FileSystemStorageFolder);
+            }
+            else
+            {
+                return -1;
+            }
+
             switch (SortTarget)
             {
                 case SortTarget.Name:
                     {
                         if (SortDirection == SortDirection.Ascending)
                         {
-                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.GetType() == SearchTarget.GetType()).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Name, SearchTarget.Name, StringComparison.OrdinalIgnoreCase) > 0);
+                            (int Index, T Item) SearchResult = FilteredCollection.Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Name, SearchTarget.Name, StringComparison.OrdinalIgnoreCase) > 0);
 
                             if (SearchResult.Item == null)
                             {
@@ -166,7 +180,7 @@ namespace RX_Explorer.Class
                         else
                         {
                             //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
-                            int Index = InputCollection.Where((Item) => Item.GetType() == SearchTarget.GetType()).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Name, SearchTarget.Name, StringComparison.OrdinalIgnoreCase) < 0).Index;
+                            int Index = FilteredCollection.Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Name, SearchTarget.Name, StringComparison.OrdinalIgnoreCase) < 0).Index;
 
                             if (SearchTarget is FileSystemStorageFolder)
                             {
@@ -180,7 +194,7 @@ namespace RX_Explorer.Class
                     {
                         if (SortDirection == SortDirection.Ascending)
                         {
-                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.GetType() == SearchTarget.GetType()).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Type, SearchTarget.Type, StringComparison.OrdinalIgnoreCase) > 0);
+                            (int Index, T Item) SearchResult = FilteredCollection.Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Type, SearchTarget.Type, StringComparison.OrdinalIgnoreCase) > 0);
 
                             if (SearchResult.Item == null)
                             {
@@ -208,7 +222,7 @@ namespace RX_Explorer.Class
                         else
                         {
                             //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
-                            int Index = InputCollection.Where((Item) => Item.GetType() == SearchTarget.GetType()).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Type, SearchTarget.Type, StringComparison.OrdinalIgnoreCase) < 0).Index;
+                            int Index = FilteredCollection.Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Type, SearchTarget.Type, StringComparison.OrdinalIgnoreCase) < 0).Index;
 
                             if (SearchTarget is FileSystemStorageFolder)
                             {
@@ -222,7 +236,7 @@ namespace RX_Explorer.Class
                     {
                         if (SortDirection == SortDirection.Ascending)
                         {
-                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.GetType() == SearchTarget.GetType()).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => DateTimeOffset.Compare(Value.Item.ModifiedTimeRaw, SearchTarget.ModifiedTimeRaw) > 0);
+                            (int Index, T Item) SearchResult = FilteredCollection.Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => DateTimeOffset.Compare(Value.Item.ModifiedTimeRaw, SearchTarget.ModifiedTimeRaw) > 0);
 
                             if (SearchResult.Item == null)
                             {
@@ -250,7 +264,7 @@ namespace RX_Explorer.Class
                         else
                         {
                             //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
-                            int Index = InputCollection.Where((Item) => Item.GetType() == SearchTarget.GetType()).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => DateTimeOffset.Compare(Value.Item.ModifiedTimeRaw, SearchTarget.ModifiedTimeRaw) < 0).Index;
+                            int Index = FilteredCollection.Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => DateTimeOffset.Compare(Value.Item.ModifiedTimeRaw, SearchTarget.ModifiedTimeRaw) < 0).Index;
 
                             if (SearchTarget is FileSystemStorageFolder)
                             {
@@ -264,7 +278,7 @@ namespace RX_Explorer.Class
                     {
                         if (SortDirection == SortDirection.Ascending)
                         {
-                            (int Index, T Item) SearchResult = InputCollection.Where((Item) => Item.GetType() == SearchTarget.GetType()).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.SizeRaw.CompareTo(SearchTarget.SizeRaw) > 0);
+                            (int Index, T Item) SearchResult = FilteredCollection.Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.SizeRaw.CompareTo(SearchTarget.SizeRaw) > 0);
 
                             if (SearchResult.Item == null)
                             {
@@ -292,7 +306,7 @@ namespace RX_Explorer.Class
                         else
                         {
                             //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
-                            int Index = InputCollection.Where((Item) => Item.GetType() == SearchTarget.GetType()).Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.SizeRaw.CompareTo(SearchTarget.SizeRaw) < 0).Index;
+                            int Index = FilteredCollection.Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.SizeRaw.CompareTo(SearchTarget.SizeRaw) < 0).Index;
 
                             if (SearchTarget is FileSystemStorageFolder)
                             {

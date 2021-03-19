@@ -68,6 +68,8 @@ namespace RX_Explorer.Class
 
         private const string ExecuteType_CreateLink = "Execute_CreateLink";
 
+        private const string ExecuteType_UpdateLink = "Execute_UpdateLink";
+
         private const string ExecuteType_PasteRemoteFile = "Paste_Remote_File";
 
         private const string ExecuteType_Test_Connection = "Execute_Test_Connection";
@@ -81,6 +83,8 @@ namespace RX_Explorer.Class
         private const string ExecuteType_SearchByEverything = "Execute_SearchByEverything";
 
         private const string ExecuteType_GetHiddenItemInfo = "Execute_GetHiddenItemInfo";
+
+        private const string ExecuteType_SetFileAttribute = "Execute_SetFileAttribute";
 
         private const string ExecuteType_GetMIMEContentType = "Execute_GetMIMEContentType";
 
@@ -440,6 +444,50 @@ namespace RX_Explorer.Class
             {
                 LogTracer.Log(ex, $"{ nameof(GetMIMEContentType)} throw an error");
                 return string.Empty;
+            }
+            finally
+            {
+                IsAnyActionExcutingInCurrentController = false;
+            }
+        }
+
+        public async Task SetFileAttribute(string Path, params KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>[] Attribute)
+        {
+            try
+            {
+                IsAnyActionExcutingInCurrentController = true;
+
+                if (await ConnectRemoteAsync().ConfigureAwait(true))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExecuteType", ExecuteType_SetFileAttribute},
+                        {"ExecutePath", Path},
+                        {"Attributes", JsonSerializer.Serialize(Attribute)}
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                        {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(SetFileAttribute)}, message: {ErrorMessage}");
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"AppServiceResponse in {nameof(SetFileAttribute)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                    }
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(SetFileAttribute)}: Failed to connect AppService ");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{ nameof(SetFileAttribute)} throw an error");
             }
             finally
             {
@@ -974,7 +1022,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<bool> CreateLinkAsync(string LinkPath, string LinkTarget, string LinkDesc, params string[] LinkArgument)
+        public async Task<bool> CreateLinkAsync(string LinkPath, string LinkTarget, string WorkDirectory, WindowState WindowState, int HotKey, string Comment, params string[] LinkArgument)
         {
             try
             {
@@ -985,7 +1033,7 @@ namespace RX_Explorer.Class
                     ValueSet Value = new ValueSet
                     {
                         {"ExecuteType", ExecuteType_CreateLink},
-                        {"DataPackage", JsonSerializer.Serialize(new LinkDataPackage(LinkPath, LinkTarget, LinkDesc, false, null, LinkArgument)) }
+                        {"DataPackage", JsonSerializer.Serialize(new LinkDataPackage(LinkPath, LinkTarget, WorkDirectory, WindowState, HotKey, Comment, false, null, LinkArgument)) }
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -1022,6 +1070,49 @@ namespace RX_Explorer.Class
             {
                 LogTracer.Log(ex, $"{ nameof(CreateLinkAsync)} throw an error");
                 return false;
+            }
+            finally
+            {
+                IsAnyActionExcutingInCurrentController = false;
+            }
+        }
+
+        public async Task UpdateLinkAsync(string LinkPath, string LinkTarget, string WorkDirectory, WindowState WindowState, int HotKey, string Comment, bool NeedRunAsAdmin, params string[] LinkArgument)
+        {
+            try
+            {
+                IsAnyActionExcutingInCurrentController = true;
+
+                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExecuteType", ExecuteType_UpdateLink},
+                        {"DataPackage", JsonSerializer.Serialize(new LinkDataPackage(LinkPath, LinkTarget, WorkDirectory, WindowState, HotKey, Comment, NeedRunAsAdmin, null, LinkArgument)) }
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                        {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(UpdateLinkAsync)}, message: {ErrorMessage}");
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"AppServiceResponse in {nameof(UpdateLinkAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                    }
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(UpdateLinkAsync)}: Failed to connect AppService ");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{ nameof(UpdateLinkAsync)} throw an error");
             }
             finally
             {
@@ -1103,7 +1194,7 @@ namespace RX_Explorer.Class
 
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        if(Response.Message.TryGetValue("Success", out object NewName))
+                        if (Response.Message.TryGetValue("Success", out object NewName))
                         {
                             return Convert.ToString(NewName);
                         }
@@ -1345,7 +1436,7 @@ namespace RX_Explorer.Class
         /// <param name="Path">程序路径</param>
         /// <param name="Parameters">传递的参数</param>
         /// <returns></returns>
-        public async Task RunAsync(string Path, bool RunAsAdmin = false, bool CreateNoWindow = false, bool ShouldWaitForExit = false, params string[] Parameters)
+        public async Task RunAsync(string Path, string WorkDirectory, WindowState WindowStyle = WindowState.Normal, bool RunAsAdmin = false, bool CreateNoWindow = false, bool ShouldWaitForExit = false, params string[] Parameters)
         {
             try
             {
@@ -1360,7 +1451,9 @@ namespace RX_Explorer.Class
                         {"ExecuteParameter", string.Join(' ', Parameters.Select((Para) => (Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"")) ? $"\"{Para}\"" : Para))},
                         {"ExecuteAuthority", RunAsAdmin ? ExecuteAuthority_Administrator : ExecuteAuthority_Normal},
                         {"ExecuteCreateNoWindow", CreateNoWindow },
-                        {"ExecuteShouldWaitForExit", ShouldWaitForExit}
+                        {"ExecuteShouldWaitForExit", ShouldWaitForExit},
+                        {"ExecuteWorkDirectory", WorkDirectory},
+                        {"ExecuteWindowStyle", Enum.GetName(typeof(WindowState), WindowStyle)}
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);

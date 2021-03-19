@@ -8,6 +8,7 @@
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
       xmlns:Behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
+      xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
       mc:Ignorable="d"
       NavigationCacheMode="Enabled"
       Background="Transparent">
@@ -53,7 +54,7 @@
         <ListView Grid.Row="1"
                   Name="SearchResultList"
                   x:FieldModifier="public"
-                  Grid.RowSpan="2"
+                  ItemsSource="{x:Bind SearchResult}"
                   IsHoldingEnabled="True"
                   IsDoubleTapEnabled="True"
                   DoubleTapped="SearchResultList_DoubleTapped"
@@ -231,8 +232,9 @@
                           IsLoading="False"
                           Grid.RowSpan="2">
             <controls:Loading.Background>
-                <SolidColorBrush Color="Black"
-                                 Opacity="0.65" />
+                <Brush:AcrylicBrush TintColor="Black"
+                                    TintOpacity="0.65"
+                                    BlurAmount="4" />
             </controls:Loading.Background>
             <StackPanel>
                 <TextBlock FontSize="15"

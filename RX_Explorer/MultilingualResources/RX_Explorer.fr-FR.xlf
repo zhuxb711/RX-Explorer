@@ -2951,8 +2951,8 @@ Les noms non valides incluent
           <target state="translated">Entrez les paramètres</target>
         </trans-unit>
         <trans-unit id="LinkOptionsDialog_LinkDescription.Header" translate="yes" xml:space="preserve">
-          <source>Remarks (optional)</source>
-          <target state="translated">Remarques (facultatif)</target>
+          <source>Comment (optional)</source>
+          <target state="translated">Commenter (facultatif)</target>
         </trans-unit>
         <trans-unit id="LinkOptionsDialog_LinkDescription.PlaceholderText" translate="yes" xml:space="preserve">
           <source>Enter a description of the shortcut</source>

@@ -1,14 +1,67 @@
 ﻿<Page x:Class="RX_Explorer.SeparateWindow.PropertyWindow.PropertyBase"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:Cls="using:RX_Explorer.Class"
       xmlns:local="using:RX_Explorer.SeparateWindow.PropertyWindow"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+      xmlns:System="using:System"
+      xmlns:Data="using:Windows.UI.Xaml.Data"
+      xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+      xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
       mc:Ignorable="d"
       d:DesignHeight="600"
       d:DesignWidth="400"
       Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}">
 
+    <Page.Resources>
+        <CollectionViewSource x:Name="ContactsCVS"
+                              IsSourceGrouped="True" 
+                              Source="{x:Bind PropertiesCollection}"/>
+        <DataTemplate x:Key="LabelTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding Key, Mode=OneTime}"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1"
+                           Text="{Binding Value, Mode=OneTime}"
+                           TextWrapping="Wrap"
+                           ToolTipService.ToolTip="{Binding Value, Mode=OneTime, Converter={StaticResource EmptyTextConverter}}" />
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="RatingTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding Key, Mode=OneTime}"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Center" />
+                <muxc:RatingControl Grid.Column="1"
+                                    IsReadOnly="True"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Margin="0,8,0,0"
+                                    Value="{Binding Value, Mode=OneTime, Converter={StaticResource RatingConverter}}" />
+            </Grid>
+        </DataTemplate>
+
+        <Cls:EmptyTextFiliterConverter x:Key="EmptyTextConverter"/>
+
+        <Cls:RatingValueConverter x:Key="RatingConverter" />
+
+        <Cls:RatingControlDataTemplateSelector x:Key="DetailListDataTemplateSelector"
+                                               Label="{StaticResource LabelTemplate}"
+                                               Rating="{StaticResource RatingTemplate}"/>
+    </Page.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="32"/>
@@ -18,121 +71,440 @@
         <TextBlock Text="Properties"
                    VerticalAlignment="Center"
                    Padding="12,0,0,0"/>
-        <Pivot Grid.Row="1">
+        <Pivot Grid.Row="1"
+               Name="PivotControl">
             <PivotItem>
                 <PivotItem.Header>
                     <TextBlock Text="General"
                                FontSize="18" />
                 </PivotItem.Header>
-                <Grid Padding="0,10">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="50" />
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
+                <ScrollViewer Padding="5,10"
+                              VerticalScrollBarVisibility="Hidden">
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="50" />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-                        <Image Stretch="Uniform"
-                               Name="Thumbnail" />
-                        <TextBox VerticalAlignment="Center"
-                                 Grid.Column="1"
-                                 Margin="10,0,0,0"
-                                 Name="StorageItemName" />
-                    </Grid>
-                    <Grid Grid.Row="1"
-                          Padding="5,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="2*" />
-                        </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="10" />
-                            <RowDefinition Height="35"/>
-                            <RowDefinition Height="35"/>
-                            <RowDefinition Height="10"/>
-                            <RowDefinition Height="35"/>
-                            <RowDefinition />
-                            <RowDefinition />
+                            <RowDefinition Height="50" />
                             <RowDefinition />
                         </Grid.RowDefinitions>
-                        <Border Height="2"
-                                Grid.ColumnSpan="2"
-                                HorizontalAlignment="Stretch"
-                                Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
-                        <TextBlock Text="Type:"
-                                   FontSize="14"
-                                   Grid.Row="1"
-                                   VerticalAlignment="Center"
-                                   Name="TypeLabel" />
-                        <TextBlock Text="Open with:"
-                                   FontSize="14"
-                                   VerticalAlignment="Center"
-                                   Grid.Row="2"
-                                   Name="OpenWithLabel" />
-                        <Border Height="2"
-                                Grid.Row="3"
-                                Grid.ColumnSpan="2"
-                                HorizontalAlignment="Stretch"
-                                Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
-                        <TextBlock Grid.Row="4"
-                                   FontSize="14"
-                                   VerticalAlignment="Center"
-                                   Text="Location"
-                                   Name="LocationLabel"/>
-                        <TextBlock RelativePanel.AlignRightWithPanel="True"
-                                   Name="TypeContent"
-                                   IsTextSelectionEnabled="True"
-                                   Grid.Row="1"
-                                   Grid.Column="1"
-                                   FontSize="14"
-                                   Padding="2,0,0,0"
-                                   VerticalAlignment="Center"
-                                   TextTrimming="CharacterEllipsis" />
-                        <RelativePanel Grid.Row="2"
-                                       Grid.Column="1"
-                                       VerticalAlignment="Center">
-                            <Image Name="OpenWithImage"
-                                   Height="25"
-                                   Stretch="Uniform"
-                                   RelativePanel.AlignLeftWithPanel="True" />
-                            <TextBlock RelativePanel.LeftOf="ChangeOpenWithButton"
-                                       RelativePanel.RightOf="OpenWithImage"
-                                       Name="OpenWithContent"
-                                       IsTextSelectionEnabled="True"
-                                       RelativePanel.AlignVerticalCenterWithPanel="True"
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50" />
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Image Stretch="Uniform"
+                                   Name="Thumbnail" />
+                            <TextBox VerticalAlignment="Center"
+                                     Grid.Column="2"
+                                     Name="StorageItemName" />
+                        </Grid>
+                        <Grid Grid.Row="1"
+                              x:Name="GeneralSubGrid">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="2*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="10" />
+                                <RowDefinition Height="35" />
+                                <RowDefinition Height="35" />
+                                <RowDefinition Height="10" />
+                                <RowDefinition MaxHeight="80"
+                                               MinHeight="35" />
+                                <RowDefinition Height="35" />
+                                <RowDefinition Height="35" />
+                                <RowDefinition Height="10" />
+                                <RowDefinition Height="35" />
+                                <RowDefinition Height="35" />
+                                <RowDefinition Height="10" />
+                                <RowDefinition Height="50" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <Border Height="2"
+                                    Grid.ColumnSpan="2"
+                                    HorizontalAlignment="Stretch"
+                                    Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                            <TextBlock Text="Type:"
                                        FontSize="14"
-                                       Margin="8,0,0,0"
+                                       Grid.Row="1"
+                                       VerticalAlignment="Center"
+                                       Name="TypeLabel" />
+                            <TextBlock Text="Open with:"
+                                       FontSize="14"
+                                       VerticalAlignment="Center"
+                                       Grid.Row="2"
+                                       Name="OpenWithLabel" />
+                            <Border Height="2"
+                                    Grid.Row="3"
+                                    Grid.ColumnSpan="2"
+                                    HorizontalAlignment="Stretch"
+                                    Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                            <TextBlock Grid.Row="4"
+                                       FontSize="14"
+                                       VerticalAlignment="Center"
+                                       Text="Location"
+                                       Name="LocationLabel" />
+                            <TextBlock Grid.Row="5"
+                                       FontSize="14"
+                                       VerticalAlignment="Center"
+                                       Text="Size"
+                                       Name="SizeLabel" />
+                            <TextBlock Grid.Row="6"
+                                       FontSize="14"
+                                       VerticalAlignment="Center"
+                                       Text="Contains"
+                                       Name="ContainsLabel" />
+                            <TextBlock Grid.Row="8"
+                                       FontSize="14"
+                                       VerticalAlignment="Center"
+                                       Text="Created"
+                                       Name="CreatedLabel" />
+                            <TextBlock Grid.Row="9"
+                                       FontSize="14"
+                                       VerticalAlignment="Center"
+                                       Text="Modified"
+                                       Name="ModifiedLabel" />
+                            <TextBlock RelativePanel.AlignRightWithPanel="True"
+                                       Name="TypeContent"
+                                       IsTextSelectionEnabled="True"
+                                       Grid.Row="1"
+                                       Grid.Column="1"
+                                       FontSize="14"
+                                       Padding="2,0,0,0"
+                                       VerticalAlignment="Center"
                                        TextTrimming="CharacterEllipsis" />
-                            <Button RelativePanel.AlignRightWithPanel="True"
-                                    RelativePanel.AlignVerticalCenterWithPanel="True"
-                                    Name="ChangeOpenWithButton"
-                                    Content="Change"
-                                    MinWidth="80"
-                                    Padding="5,0" />
-                        </RelativePanel>
-                        <ScrollViewer VerticalAlignment="Center"
-                                      Grid.Row="4"
-                                      Grid.Column="1"
-                                      Padding="2,0,0,0"
-                                      VerticalScrollBarVisibility="Hidden"
-                                      HorizontalScrollBarVisibility="Hidden"
-                                      VerticalScrollMode="Disabled">
+                            <RelativePanel Grid.Row="2"
+                                           Grid.Column="1"
+                                           VerticalAlignment="Center">
+                                <Image Name="OpenWithImage"
+                                       Height="25"
+                                       Stretch="Uniform"
+                                       RelativePanel.AlignLeftWithPanel="True" />
+                                <TextBlock RelativePanel.LeftOf="ChangeOpenWithButton"
+                                           RelativePanel.RightOf="OpenWithImage"
+                                           Name="OpenWithContent"
+                                           IsTextSelectionEnabled="True"
+                                           RelativePanel.AlignVerticalCenterWithPanel="True"
+                                           FontSize="14"
+                                           Margin="8,0,0,0"
+                                           TextTrimming="CharacterEllipsis" />
+                                <Button RelativePanel.AlignRightWithPanel="True"
+                                        RelativePanel.AlignVerticalCenterWithPanel="True"
+                                        Name="ChangeOpenWithButton"
+                                        Content="Change"
+                                        MinWidth="80"
+                                        Padding="5,0" />
+                            </RelativePanel>
                             <TextBlock Name="LocationContent"
                                        FontSize="14"
-                                       IsTextSelectionEnabled="True"
-                                        />
-                        </ScrollViewer>
+                                       VerticalAlignment="Center"
+                                       Grid.Row="4"
+                                       Grid.Column="1"
+                                       Padding="2,0,0,0"
+                                       TextWrapping="Wrap"
+                                       MaxLines="5"
+                                       TextTrimming="CharacterEllipsis"
+                                       ToolTipService.ToolTip="{x:Bind LocationContent.Text, Mode=OneWay}"
+                                       IsTextSelectionEnabled="True" />
+                            <TextBlock Name="SizeContent"
+                                       FontSize="14"
+                                       VerticalAlignment="Center"
+                                       Grid.Row="5"
+                                       Grid.Column="1"
+                                       Padding="2,0,0,0"
+                                       TextTrimming="CharacterEllipsis" />
+                            <TextBlock Name="ContainsContent"
+                                       FontSize="14"
+                                       VerticalAlignment="Center"
+                                       Grid.Row="6"
+                                       Grid.Column="1"
+                                       Padding="2,0,0,0"
+                                       TextTrimming="CharacterEllipsis" />
+                            <Border Height="2"
+                                    Grid.Row="7"
+                                    Grid.ColumnSpan="2"
+                                    HorizontalAlignment="Stretch"
+                                    Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                            <TextBlock Name="CreatedContent"
+                                       FontSize="14"
+                                       VerticalAlignment="Center"
+                                       Grid.Row="8"
+                                       Grid.Column="1"
+                                       Padding="2,0,0,0"
+                                       TextTrimming="CharacterEllipsis" />
+                            <TextBlock Name="ModifiedContent"
+                                       FontSize="14"
+                                       VerticalAlignment="Center"
+                                       Grid.Row="9"
+                                       Grid.Column="1"
+                                       Padding="2,0,0,0"
+                                       TextTrimming="CharacterEllipsis" />
+                            <Border Height="2"
+                                    Grid.Row="10"
+                                    Grid.ColumnSpan="2"
+                                    HorizontalAlignment="Stretch"
+                                    Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                            <StackPanel Grid.Row="11"
+                                        Grid.ColumnSpan="2"
+                                        Orientation="Horizontal">
+                                <CheckBox Content="Readonly"
+                                          x:Name="ReadonlyAttribute" />
+                                <CheckBox Content="Hidden"
+                                          x:Name="HiddenAttribute"
+                                          Margin="10,0,0,0" />
+                            </StackPanel>
+                        </Grid>
                     </Grid>
-                </Grid>
+                </ScrollViewer>
+            </PivotItem>
+            <PivotItem>
+                <PivotItem.Header>
+                    <TextBlock Text="Shortcut"
+                               FontSize="18" />
+                </PivotItem.Header>
+                <ScrollViewer Padding="5,10"
+                              VerticalScrollBarVisibility="Hidden">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="50" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50" />
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Image Stretch="Uniform"
+                                   Name="ShortcutThumbnail" />
+                            <TextBlock VerticalAlignment="Center"
+                                       Grid.Column="2"
+                                       Name="ShortcutItemName" />
+                        </Grid>
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="2*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="10" />
+                                <RowDefinition Height="35" />
+                                <RowDefinition Height="35" />
+                                <RowDefinition Height="35" />
+                                <RowDefinition Height="10" />
+                                <RowDefinition Height="35" />
+                                <RowDefinition Height="35" />
+                                <RowDefinition Height="35" />
+                                <RowDefinition Height="35" />
+                                <RowDefinition Height="50" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <Border Height="2"
+                                    Grid.ColumnSpan="2"
+                                    HorizontalAlignment="Stretch"
+                                    Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                            <TextBlock Text="Target type:"
+                                       FontSize="14"
+                                       Grid.Row="1"
+                                       VerticalAlignment="Center"
+                                       Name="ShortcutTargetTypeLabel" />
+                            <TextBlock Name="ShortcutTargetTypeContent"
+                                       FontSize="14"
+                                       VerticalAlignment="Center"
+                                       Grid.Row="1"
+                                       Grid.Column="1"
+                                       Padding="2,0,0,0"
+                                       TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="Target location:"
+                                       FontSize="14"
+                                       Grid.Row="2"
+                                       VerticalAlignment="Center"
+                                       Name="ShortcutTargetLocationLabel" />
+                            <TextBlock Name="ShortcutTargetLocationContent"
+                                       FontSize="14"
+                                       VerticalAlignment="Center"
+                                       Grid.Row="2"
+                                       Grid.Column="1"
+                                       Padding="2,0,0,0"
+                                       TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="Target"
+                                       FontSize="14"
+                                       Grid.Row="3"
+                                       VerticalAlignment="Center"
+                                       Name="ShortcutTargetLabel" />
+                            <TextBox VerticalAlignment="Center"
+                                     Grid.Row="3"
+                                     Grid.Column="1"
+                                     Name="ShortcutTargetContent" />
+                            <Border Height="2"
+                                    Grid.Row="4"
+                                    Grid.ColumnSpan="2"
+                                    HorizontalAlignment="Stretch"
+                                    Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                            <TextBlock Text="Start in:"
+                                       FontSize="14"
+                                       Grid.Row="5"
+                                       VerticalAlignment="Center"
+                                       Name="ShortcutStartInLabel" />
+                            <TextBox VerticalAlignment="Center"
+                                     Grid.Row="5"
+                                     Grid.Column="1"
+                                     Name="ShortcutStartInContent" />
+                            <TextBlock Text="Shortcut key:"
+                                       FontSize="14"
+                                       Grid.Row="6"
+                                       VerticalAlignment="Center"
+                                       Name="ShortcutKeyLabel" />
+                            <TextBox VerticalAlignment="Center"
+                                     Grid.Row="6"
+                                     Grid.Column="1"
+                                     IsReadOnly="True"
+                                     KeyDown="ShortcutKeyContent_KeyDown"
+                                     Name="ShortcutKeyContent" />
+                            <TextBlock Text="Run:"
+                                       FontSize="14"
+                                       Grid.Row="7"
+                                       VerticalAlignment="Center"
+                                       Name="ShortcutWindowStateLabel" />
+                            <ComboBox Grid.Row="7"
+                                      Grid.Column="1"
+                                      HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Center"
+                                      Name="ShortcutWindowsStateContent" />
+                            <TextBlock Text="Comment:"
+                                       FontSize="14"
+                                       Grid.Row="8"
+                                       VerticalAlignment="Center"
+                                       Name="ShortcutCommentLabel" />
+                            <TextBox VerticalAlignment="Center"
+                                     Grid.Row="8"
+                                     Grid.Column="1"
+                                     Name="ShortcutCommentContent" />
+                            <StackPanel Grid.Row="9"
+                                        Grid.ColumnSpan="2"
+                                        Orientation="Horizontal">
+                                <CheckBox x:Name="RunAsAdmin"
+                                          Content="Run as administrator" />
+                                <Button Name="OpenLocation"
+                                        Margin="20,0,0,0"
+                                        Click="OpenLocation_Click"
+                                        Content="Open File Location" />
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </ScrollViewer>
             </PivotItem>
             <PivotItem>
                 <PivotItem.Header>
                     <TextBlock Text="Details"
                                FontSize="18" />
                 </PivotItem.Header>
-                <TextBlock Text="unread emails go here." />
+                <SemanticZoom>
+                    <SemanticZoom.ZoomedInView>
+                        <ListView ItemsSource="{x:Bind ContactsCVS.View, Mode=OneWay}"
+                                  SelectionMode="None"
+                                  ItemTemplateSelector="{StaticResource DetailListDataTemplateSelector}">
+                            <ListView.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <ItemsStackPanel AreStickyGroupHeadersEnabled="True" />
+                                </ItemsPanelTemplate>
+                            </ListView.ItemsPanel>
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment"
+                                            Value="Stretch" />
+                                    <Setter Property="Padding"
+                                            Value="14,0" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.GroupStyle>
+                                <GroupStyle>
+                                    <GroupStyle.HeaderTemplate>
+                                        <DataTemplate x:DataType="Cls:PropertiesGroupItem">
+                                            <TextBlock Text="{x:Bind Key}" />
+                                        </DataTemplate>
+                                    </GroupStyle.HeaderTemplate>
+                                </GroupStyle>
+                            </ListView.GroupStyle>
+                        </ListView>
+                    </SemanticZoom.ZoomedInView>
+                    <SemanticZoom.ZoomedOutView>
+                        <ListView ItemsSource="{x:Bind ContactsCVS.View.CollectionGroups}"
+                                  HorizontalAlignment="Stretch"
+                                  SelectionMode="None">
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="Data:ICollectionViewGroup">
+                                    <TextBlock Text="{x:Bind Group.(Cls:PropertiesGroupItem.Key)}"
+                                               Style="{StaticResource SubtitleTextBlockStyle}"
+                                               TextTrimming="CharacterEllipsis"/>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </SemanticZoom.ZoomedOutView>
+                </SemanticZoom>
+            </PivotItem>
+            <PivotItem>
+                <PivotItem.Header>
+                    <TextBlock Text="Tools"
+                               FontSize="18" />
+                </PivotItem.Header>
+                <StackPanel Padding="5,10">
+                    <Button Content="解除文件占用" />
+                    <Border Height="2"
+                            Margin="0,20,0,10"
+                            HorizontalAlignment="Stretch"
+                            Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition MinWidth="100"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox IsSpellCheckEnabled="False"
+                                 IsReadOnly="True"
+                                 IsEnabled="False"
+                                 Header="MD5"
+                                 Margin="0,10,5,0"
+                                 HorizontalAlignment="Stretch"
+                                 PlaceholderText="{x:Bind Cls:Globalization.GetString('HashPlaceHolderText')}"/>
+                        <Button Margin="5,0,0,0"
+                                Grid.Column="1"
+                                Content="Calculate"
+                                VerticalAlignment="Bottom"/>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition MinWidth="100" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox IsSpellCheckEnabled="False"
+                                 IsReadOnly="True"
+                                 IsEnabled="False"
+                                 Header="SHA-1"
+                                 Margin="0,10,5,0"
+                                 HorizontalAlignment="Stretch"
+                                 PlaceholderText="{x:Bind Cls:Globalization.GetString('HashPlaceHolderText')}" />
+                        <Button Margin="5,0,0,0"
+                                Grid.Column="1"
+                                Content="Calculate"
+                                VerticalAlignment="Bottom" />
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition MinWidth="100" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox IsSpellCheckEnabled="False"
+                                 IsReadOnly="True"
+                                 IsEnabled="False"
+                                 Header="SHA-256"
+                                 Margin="0,10,5,0"
+                                 HorizontalAlignment="Stretch"
+                                 PlaceholderText="{x:Bind Cls:Globalization.GetString('HashPlaceHolderText')}" />
+                        <Button Margin="5,0,0,0"
+                                Grid.Column="1"
+                                Content="Calculate"
+                                VerticalAlignment="Bottom" />
+                    </Grid>
+                </StackPanel>
             </PivotItem>
         </Pivot>
         <StackPanel Orientation="Horizontal"
@@ -151,5 +523,23 @@
                     Name="CancelButton"
                     Click="CancelButton_Click"/>
         </StackPanel>
+
+        <controls:Loading x:Name="LoadingControl"
+                          IsLoading="False"
+                          Grid.RowSpan="3">
+            <controls:Loading.Background>
+                <Brush:AcrylicBrush TintColor="Black"
+                                    TintOpacity="0.65"
+                                    BlurAmount="4" />
+            </controls:Loading.Background>
+            <StackPanel>
+                <TextBlock Text="Applying"
+                           FontSize="16"
+                           HorizontalAlignment="Center"/>
+                <muxc:ProgressBar IsIndeterminate="True"
+                                  Width="180"
+                                  Margin="0,10,0,0" />
+            </StackPanel>
+        </controls:Loading>
     </Grid>
 </Page>

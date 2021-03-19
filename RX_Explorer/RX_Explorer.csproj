@@ -164,11 +164,14 @@
     <Compile Include="Class\CommonEnvironmentVariables.cs" />
     <Compile Include="Class\CompressionUtil.cs" />
     <Compile Include="Class\ContextMenuItem.cs" />
+    <Compile Include="Class\CustomDataTemplateSelector.cs" />
     <Compile Include="Class\Enum.cs" />
     <Compile Include="Class\Exception.cs" />
     <Compile Include="Class\FileSystemStorageFile.cs" />
     <Compile Include="Class\FileSystemStorageFolder.cs" />
     <Compile Include="Class\FilterController.cs" />
+    <Compile Include="Class\GroupItemBase.cs" />
+    <Compile Include="Class\PropertiesGroupItem.cs" />
     <Compile Include="Class\HiddenStorageFile.cs" />
     <Compile Include="Class\HiddenStorageFolder.cs" />
     <Compile Include="Class\LinkStorageFile.cs" />

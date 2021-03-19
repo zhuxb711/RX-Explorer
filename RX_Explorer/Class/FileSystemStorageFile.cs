@@ -59,6 +59,27 @@ namespace RX_Explorer.Class
             }
         }
 
+        private bool isReadOnly;
+
+        public virtual bool IsReadOnly
+        {
+            get
+            {
+                if (StorageItem == null)
+                {
+                    return isReadOnly;
+                }
+                else
+                {
+                    return StorageItem.Attributes.HasFlag(Windows.Storage.FileAttributes.ReadOnly);
+                }
+            }
+            protected set
+            {
+                isReadOnly = value;
+            }
+        }
+
         private BitmapImage InnerThumbnail;
 
         public override BitmapImage Thumbnail
@@ -96,7 +117,7 @@ namespace RX_Explorer.Class
 
         public FileSystemStorageFile(string Path, WIN_Native_API.WIN32_FIND_DATA Data) : base(Path, Data)
         {
-
+            IsReadOnly = ((System.IO.FileAttributes)Data.dwFileAttributes).HasFlag(System.IO.FileAttributes.ReadOnly);
         }
 
         public async virtual Task<FileStream> GetFileStreamFromFileAsync(AccessMode Mode)

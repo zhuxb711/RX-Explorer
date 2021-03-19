@@ -48,6 +48,38 @@ namespace RX_Explorer.Class
 
         protected LinkDataPackage LinkData { get; set; }
 
+        public string WorkDirectory
+        {
+            get
+            {
+                return (LinkData?.WorkDirectory) ?? string.Empty;
+            }
+        }
+
+        public string Comment 
+        { 
+            get
+            {
+                return (LinkData?.Comment) ?? string.Empty;
+            } 
+        }
+
+        public WindowState WindowState
+        {
+            get
+            {
+                return (LinkData?.WindowState).GetValueOrDefault();
+            }
+        }
+
+        public int HotKey
+        {
+            get
+            {
+                return (LinkData?.HotKey).GetValueOrDefault();
+            }
+        }
+
         public async Task LaunchAsync()
         {
             try
@@ -56,7 +88,7 @@ namespace RX_Explorer.Class
                 {
                     if (LinkType == ShellLinkType.Normal)
                     {
-                        await Exclusive.Controller.RunAsync(LinkTargetPath, NeedRunAsAdmin, false, false, Arguments).ConfigureAwait(true);
+                        await Exclusive.Controller.RunAsync(LinkTargetPath, WorkDirectory, WindowState, NeedRunAsAdmin, false, false, Arguments).ConfigureAwait(true);
                     }
                     else
                     {

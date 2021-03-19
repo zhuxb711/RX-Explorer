@@ -58,14 +58,35 @@ namespace RX_Explorer.Class
 
                     try
                     {
-                        if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
+                        if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase OldItem)
                         {
-                            await Item.RefreshAsync().ConfigureAwait(false);
+                            if (await FileSystemStorageItemBase.OpenAsync(Path).ConfigureAwait(true) is FileSystemStorageItemBase ModifiedItem)
+                            {
+                                if (ModifiedItem.GetType() == OldItem.GetType())
+                                {
+                                    await OldItem.RefreshAsync().ConfigureAwait(true);
+                                }
+                                else
+                                {
+                                    CurrentCollection.Remove(OldItem);
+
+                                    int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, ModifiedItem);
+
+                                    if (Index == CurrentCollection.Count - 1)
+                                    {
+                                        CurrentCollection.Add(ModifiedItem);
+                                    }
+                                    else
+                                    {
+                                        CurrentCollection.Insert(Index, ModifiedItem);
+                                    }
+                                }
+                            }
                         }
                     }
                     catch (Exception ex)
                     {
-                        LogTracer.Log(ex, $"{ nameof(StorageAreaWatcher)}: Modify item to collection failed");
+                        LogTracer.Log(ex, $"{ nameof(StorageAreaWatcher)}: Modify item in collection failed");
                     }
                     finally
                     {

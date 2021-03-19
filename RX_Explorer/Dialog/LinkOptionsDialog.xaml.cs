@@ -1,9 +1,11 @@
 ﻿using RX_Explorer.Class;
+using ShareClassLibrary;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -15,11 +17,25 @@ namespace RX_Explorer.Dialog
 
         public string[] Arguments { get; private set; }
 
-        public string Description { get; private set; }
+        public string Comment { get; private set; }
+
+        public string WorkDirectory { get; private set; }
+
+        public int HotKey { get; private set; }
+
+        public bool RunAsAdmin { get; private set; }
+
+        public WindowState WindowState { get; private set; }
 
         public LinkOptionsDialog()
         {
             InitializeComponent();
+
+            WindowStateComboBox.Items.Add("Normal");
+            WindowStateComboBox.Items.Add("Minimized");
+            WindowStateComboBox.Items.Add("Maximized");
+
+            WindowStateComboBox.SelectedIndex = 0;
         }
 
         private async void BrowserFileButton_Click(object sender, RoutedEventArgs e)
@@ -62,6 +78,9 @@ namespace RX_Explorer.Dialog
             else
             {
                 Path = TargetPath.Text;
+                WindowState = (WindowState)WindowStateComboBox.SelectedIndex;
+                WorkDirectory = LinkWorkDirectory.Text;
+                HotKey = (int)Enum.Parse<VirtualKey>(HotKeyInput.Text.Replace("Ctrl + Alt + ", string.Empty));
 
                 if (!string.IsNullOrWhiteSpace(LinkArgument.Text))
                 {
@@ -70,7 +89,35 @@ namespace RX_Explorer.Dialog
 
                 if (!string.IsNullOrWhiteSpace(LinkDescription.Text))
                 {
-                    Description = LinkDescription.Text;
+                    Comment = LinkDescription.Text;
+                }
+            }
+        }
+
+        private void HotKeyInput_KeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (e.Key == VirtualKey.Back)
+            {
+                HotKeyInput.Text = Enum.GetName(typeof(VirtualKey), VirtualKey.None);
+            }
+            else if (e.Key != VirtualKey.Shift && e.Key != VirtualKey.Control && e.Key != VirtualKey.CapitalLock && e.Key != VirtualKey.Menu)
+            {
+                string KeyName = Enum.GetName(typeof(VirtualKey), e.Key);
+
+                if (string.IsNullOrEmpty(KeyName))
+                {
+                    HotKeyInput.Text = Enum.GetName(typeof(VirtualKey), VirtualKey.None);
+                }
+                else
+                {
+                    if (e.Key >= VirtualKey.F1 && e.Key <= VirtualKey.F24)
+                    {
+                        HotKeyInput.Text = KeyName;
+                    }
+                    else
+                    {
+                        HotKeyInput.Text = $"Ctrl + Alt + {KeyName}";
+                    }
                 }
             }
         }

@@ -22,7 +22,7 @@ namespace RX_Explorer.Class
         {
             if (value is int Index)
             {
-                switch(Index)
+                switch (Index)
                 {
                     case 0:
                         {
@@ -235,6 +235,33 @@ namespace RX_Explorer.Class
         {
             int Value = System.Convert.ToInt32(value);
             return Value > 0 ? ("+" + Value) : Value.ToString();
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public sealed class RatingValueConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (uint.TryParse(System.Convert.ToString(value), out uint Result))
+            {
+                if (Result == 0)
+                {
+                    return -1;
+                }
+                else
+                {
+                    return Math.Max(Math.Min(Math.Round(Result / 20f, MidpointRounding.AwayFromZero), 5), 0);
+                }
+            }
+            else
+            {
+                return -1;
+            }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)
