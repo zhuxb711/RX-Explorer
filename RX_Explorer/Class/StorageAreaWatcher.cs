@@ -1,4 +1,5 @@
 ﻿using Microsoft.UI.Xaml.Controls;
+using RX_Explorer.Interface;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -50,50 +51,77 @@ namespace RX_Explorer.Class
 
         private async void Modified(string Path)
         {
-            if (!WIN_Native_API.CheckIfHidden(Path) || IsDisplayHiddenItem)
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
             {
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
-                {
-                    await Locker.WaitAsync().ConfigureAwait(true);
+                await Locker.WaitAsync().ConfigureAwait(true);
 
-                    try
+                try
+                {
+                    if (await FileSystemStorageItemBase.OpenAsync(Path).ConfigureAwait(true) is FileSystemStorageItemBase ModifiedItem)
                     {
                         if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase OldItem)
                         {
-                            if (await FileSystemStorageItemBase.OpenAsync(Path).ConfigureAwait(true) is FileSystemStorageItemBase ModifiedItem)
+                            if (ModifiedItem.GetType() == OldItem.GetType())
                             {
-                                if (ModifiedItem.GetType() == OldItem.GetType())
-                                {
-                                    await OldItem.RefreshAsync().ConfigureAwait(true);
-                                }
-                                else
-                                {
-                                    CurrentCollection.Remove(OldItem);
+                                await OldItem.RefreshAsync().ConfigureAwait(true);
+                            }
+                            else
+                            {
+                                CurrentCollection.Remove(OldItem);
 
-                                    int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, ModifiedItem);
-
-                                    if (Index == CurrentCollection.Count - 1)
+                                if ((ModifiedItem is IHiddenStorageItem && SettingControl.IsDisplayHiddenItem) || ModifiedItem is not IHiddenStorageItem)
+                                {
+                                    if (CurrentCollection.Any())
                                     {
-                                        CurrentCollection.Add(ModifiedItem);
+                                        int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, ModifiedItem);
+
+                                        if (Index >= 0)
+                                        {
+                                            CurrentCollection.Insert(Index, ModifiedItem);
+                                        }
+                                        else
+                                        {
+                                            CurrentCollection.Add(ModifiedItem);
+                                        }
                                     }
                                     else
                                     {
-                                        CurrentCollection.Insert(Index, ModifiedItem);
+                                        CurrentCollection.Add(ModifiedItem);
                                     }
                                 }
                             }
                         }
+                        else if (ModifiedItem is not IHiddenStorageItem)
+                        {
+                            if (CurrentCollection.Any())
+                            {
+                                int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, ModifiedItem);
+
+                                if (Index >= 0)
+                                {
+                                    CurrentCollection.Insert(Index, ModifiedItem);
+                                }
+                                else
+                                {
+                                    CurrentCollection.Add(ModifiedItem);
+                                }
+                            }
+                            else
+                            {
+                                CurrentCollection.Add(ModifiedItem);
+                            }
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, $"{ nameof(StorageAreaWatcher)}: Modify item in collection failed");
-                    }
-                    finally
-                    {
-                        Locker.Release();
-                    }
-                });
-            }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"{ nameof(StorageAreaWatcher)}: Modify item in collection failed");
+                }
+                finally
+                {
+                    Locker.Release();
+                }
+            });
         }
 
         private async void Renamed(string OldPath, string NewPath)
@@ -125,15 +153,22 @@ namespace RX_Explorer.Class
                         {
                             if (await FileSystemStorageItemBase.OpenAsync(NewPath).ConfigureAwait(true) is FileSystemStorageItemBase Item)
                             {
-                                int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, Item);
-
-                                if (Index == CurrentCollection.Count - 1)
+                                if (CurrentCollection.Any())
                                 {
-                                    CurrentCollection.Add(Item);
+                                    int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, Item);
+
+                                    if (Index >= 0)
+                                    {
+                                        CurrentCollection.Insert(Index, Item);
+                                    }
+                                    else
+                                    {
+                                        CurrentCollection.Add(Item);
+                                    }
                                 }
                                 else
                                 {
-                                    CurrentCollection.Insert(Index, Item);
+                                    CurrentCollection.Add(Item);
                                 }
                             }
                         }
@@ -213,9 +248,23 @@ namespace RX_Explorer.Class
                         {
                             await NewItem.LoadMorePropertyAsync().ConfigureAwait(true);
 
-                            int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, NewItem);
+                            if (CurrentCollection.Any())
+                            {
+                                int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, NewItem);
 
-                            CurrentCollection.Insert(Index, NewItem);
+                                if (Index >= 0)
+                                {
+                                    CurrentCollection.Insert(Index, NewItem);
+                                }
+                                else
+                                {
+                                    CurrentCollection.Add(NewItem);
+                                }
+                            }
+                            else
+                            {
+                                CurrentCollection.Add(NewItem);
+                            }
 
                             if (!SettingControl.IsDetachTreeViewAndPresenter && TreeView != null)
                             {

@@ -2727,7 +2727,23 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (!await FileSystemStorageItemBase.CheckExistAsync(CurrentFolder.Path).ConfigureAwait(true))
+            if (await FileSystemStorageItemBase.CheckExistAsync(CurrentFolder.Path).ConfigureAwait(true))
+            {
+                AppWindow NewWindow = await AppWindow.TryCreateAsync();
+                NewWindow.RequestSize(new Size(420, 650));
+                NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+                NewWindow.PersistedStateId = "Properties";
+                NewWindow.Title = "Properties";
+                NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+                NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
+                ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, CurrentFolder));
+                WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 650));
+
+                await NewWindow.TryShowAsync();
+            }
+            else
             {
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
@@ -2736,27 +2752,6 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-
-                return;
-            }
-
-            if (CurrentFolder.Path.Equals(Path.GetPathRoot(CurrentFolder.Path), StringComparison.OrdinalIgnoreCase))
-            {
-                if (CommonAccessCollection.DriveList.FirstOrDefault((Device) => Device.Folder.Path.Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)) is DriveRelatedData Info)
-                {
-                    DeviceInfoDialog dialog = new DeviceInfoDialog(Info);
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    PropertyDialog Dialog = new PropertyDialog(CurrentFolder);
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
-            }
-            else
-            {
-                PropertyDialog Dialog = new PropertyDialog(CurrentFolder);
                 _ = await Dialog.ShowAsync().ConfigureAwait(true);
             }
         }
@@ -3351,18 +3346,25 @@ namespace RX_Explorer
                                                 {
                                                     if (File is LinkStorageFile Item)
                                                     {
-                                                        switch (await FileSystemStorageItemBase.OpenAsync(Item.LinkTargetPath).ConfigureAwait(true))
+                                                        if (Item.LinkType == ShellLinkType.Normal)
                                                         {
-                                                            case FileSystemStorageFolder:
-                                                                {
-                                                                    await DisplayItemsInFolder(Item.LinkTargetPath).ConfigureAwait(true);
-                                                                    break;
-                                                                }
-                                                            case FileSystemStorageFile:
-                                                                {
-                                                                    await Item.LaunchAsync().ConfigureAwait(true);
-                                                                    break;
-                                                                }
+                                                            switch (await FileSystemStorageItemBase.OpenAsync(Item.LinkTargetPath).ConfigureAwait(true))
+                                                            {
+                                                                case FileSystemStorageFolder:
+                                                                    {
+                                                                        await DisplayItemsInFolder(Item.LinkTargetPath).ConfigureAwait(true);
+                                                                        break;
+                                                                    }
+                                                                case FileSystemStorageFile:
+                                                                    {
+                                                                        await Item.LaunchAsync().ConfigureAwait(true);
+                                                                        break;
+                                                                    }
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            await Item.LaunchAsync().ConfigureAwait(true);
                                                         }
                                                     }
 

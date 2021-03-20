@@ -395,21 +395,41 @@ namespace FullTrustProcess
 
                             if (File.Exists(Package.LinkPath))
                             {
-                                using (ShellLink Link = new ShellLink(Package.LinkPath))
+                                if (Path.IsPathRooted(Package.LinkTargetPath))
                                 {
-                                    Link.TargetPath = Package.LinkTargetPath;
-                                    Link.WorkingDirectory = Package.WorkDirectory;
-                                    Link.ShowState = (FormWindowState)Package.WindowState;
-                                    Link.RunAsAdministrator = Package.NeedRunAsAdmin;
-                                    Link.Description = Package.Comment;
+                                    using (ShellLink Link = new ShellLink(Package.LinkPath))
+                                    {
+                                        Link.TargetPath = Package.LinkTargetPath;
+                                        Link.WorkingDirectory = Package.WorkDirectory;
+                                        Link.ShowState = (FormWindowState)Package.WindowState;
+                                        Link.RunAsAdministrator = Package.NeedRunAsAdmin;
+                                        Link.Description = Package.Comment;
 
-                                    if (Package.HotKey > 0)
-                                    {
-                                        Link.HotKey = (Package.HotKey >= 112 && Package.HotKey <= 135) ? (Keys)Package.HotKey : (Keys)Package.HotKey | Keys.Control | Keys.Alt;
+                                        if (Package.HotKey > 0)
+                                        {
+                                            Link.HotKey = (Package.HotKey >= 112 && Package.HotKey <= 135) ? (Keys)Package.HotKey : (Keys)Package.HotKey | Keys.Control | Keys.Alt;
+                                        }
+                                        else
+                                        {
+                                            Link.HotKey = Keys.None;
+                                        }
                                     }
-                                    else
+                                }
+                                else if (Helper.CheckIfPackageFamilyNameExist(Package.LinkTargetPath))
+                                {
+                                    using (ShellLink Link = new ShellLink(Package.LinkPath))
                                     {
-                                        Link.HotKey = Keys.None;
+                                        Link.ShowState = (FormWindowState)Package.WindowState;
+                                        Link.Description = Package.Comment;
+
+                                        if (Package.HotKey > 0)
+                                        {
+                                            Link.HotKey = (Package.HotKey >= 112 && Package.HotKey <= 135) ? (Keys)Package.HotKey : (Keys)Package.HotKey | Keys.Control | Keys.Alt;
+                                        }
+                                        else
+                                        {
+                                            Link.HotKey = Keys.None;
+                                        }
                                     }
                                 }
 
@@ -1156,7 +1176,7 @@ namespace FullTrustProcess
                             string ExecuteAuthority = Convert.ToString(args.Request.Message["ExecuteAuthority"]);
                             string ExecuteWindowStyle = Convert.ToString(args.Request.Message["ExecuteWindowStyle"]);
                             string ExecuteWorkDirectory = Convert.ToString(args.Request.Message["ExecuteWorkDirectory"]);
-                            
+
                             bool ExecuteCreateNoWindow = Convert.ToBoolean(args.Request.Message["ExecuteCreateNoWindow"]);
                             bool ShouldWaitForExit = Convert.ToBoolean(args.Request.Message["ExecuteShouldWaitForExit"]);
 

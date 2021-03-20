@@ -96,7 +96,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 GeneralSubGrid.RowDefinitions[6].Height = new GridLength(0);
                 GeneralSubGrid.RowDefinitions[9].Height = new GridLength(35);
 
-                if(StorageItem is IUnsupportedStorageItem)
+                if (StorageItem is IUnsupportedStorageItem)
                 {
                     PivotControl.Items.Remove(PivotControl.Items.OfType<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == "Tools"));
                 }
@@ -154,6 +154,11 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                                                ShortcutCommentContent.Text,
                                                                RunAsAdmin.IsChecked.GetValueOrDefault()).ConfigureAwait(true);
                 }
+            }
+
+            if (StorageItemName.Text != Path.GetFileNameWithoutExtension(StorageItem.Name))
+            {
+                await StorageItem.RenameAsync(StorageItemName.Text + StorageItem.Type).ConfigureAwait(false);
             }
         }
 

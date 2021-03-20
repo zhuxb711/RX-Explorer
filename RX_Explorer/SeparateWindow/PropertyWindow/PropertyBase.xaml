@@ -313,6 +313,7 @@
                                        Grid.Row="1"
                                        Grid.Column="1"
                                        Padding="2,0,0,0"
+                                       ToolTipService.ToolTip="{x:Bind ShortcutTargetTypeContent.Text, Mode=OneWay}"
                                        TextTrimming="CharacterEllipsis" />
                             <TextBlock Text="Target location:"
                                        FontSize="14"
@@ -325,6 +326,7 @@
                                        Grid.Row="2"
                                        Grid.Column="1"
                                        Padding="2,0,0,0"
+                                       ToolTipService.ToolTip="{x:Bind ShortcutTargetLocationContent.Text, Mode=OneWay}"
                                        TextTrimming="CharacterEllipsis" />
                             <TextBlock Text="Target"
                                        FontSize="14"
