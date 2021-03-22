@@ -2552,34 +2552,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>An unexpected error occurred and the recycle bin could not be emptied</source>
           <target state="translated">Une erreur inattendue s'est produite et la corbeille n'a pas pu être vidée</target>
         </trans-unit>
-        <trans-unit id="ComputeHash.Text" translate="yes" xml:space="preserve">
-          <source>Compute hash</source>
-          <target state="translated">Calculer le hachage</target>
-        </trans-unit>
-        <trans-unit id="Operate_Text_ComputeHash" translate="yes" xml:space="preserve">
-          <source>Compute hash</source>
-          <target state="translated">Calculer le hachage</target>
-        </trans-unit>
-        <trans-unit id="Operate_Text_Tool" translate="yes" xml:space="preserve">
-          <source>Tool</source>
-          <target state="translated">Outil</target>
-        </trans-unit>
-        <trans-unit id="Operate_Text_Unlock" translate="yes" xml:space="preserve">
-          <source>Unlock occupancy</source>
-          <target state="translated">Débloquer l'occupation</target>
-        </trans-unit>
-        <trans-unit id="Tool.Label" translate="yes" xml:space="preserve">
-          <source>Tool</source>
-          <target state="translated">Outil</target>
-        </trans-unit>
-        <trans-unit id="TryUnlock.Text" translate="yes" xml:space="preserve">
-          <source>Unlock occupancy</source>
-          <target state="translated">Débloquer l'occupation</target>
-        </trans-unit>
-        <trans-unit id="Progress_Tip_Unlock" translate="yes" xml:space="preserve">
-          <source>Unoccupying</source>
-          <target state="translated">Inoccupant</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_Unlock_Failure_Content" translate="yes" xml:space="preserve">
           <source>Unoccupied failed</source>
           <target state="translated">Échec inoccupé</target>
@@ -2603,10 +2575,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="ClearRecycleBin.Label" translate="yes" xml:space="preserve">
           <source>Empty recycle bin</source>
           <target state="translated">Poubelle de recyclage vide</target>
-        </trans-unit>
-        <trans-unit id="HashTeachTip.Title" translate="yes" xml:space="preserve">
-          <source>Compute hash</source>
-          <target state="translated">Calculer le hachage</target>
         </trans-unit>
         <trans-unit id="RestoreRecycle.Label" translate="yes" xml:space="preserve">
           <source>Restore</source>

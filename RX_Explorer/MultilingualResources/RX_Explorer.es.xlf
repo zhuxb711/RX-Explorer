@@ -2625,41 +2625,9 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <source>An unexpected error occurred and the recycle bin could not be emptied</source>
           <target state="translated">Se ha producido un error inesperado y la papelera no se puede vaciar.</target>
         </trans-unit>
-        <trans-unit id="ComputeHash.Text" translate="yes" xml:space="preserve">
-          <source>Compute hash</source>
-          <target state="translated">Compute hash</target>
-        </trans-unit>
-        <trans-unit id="Operate_Text_ComputeHash" translate="yes" xml:space="preserve">
-          <source>Compute hash</source>
-          <target state="translated">Compute hash</target>
-        </trans-unit>
-        <trans-unit id="Operate_Text_Tool" translate="yes" xml:space="preserve">
-          <source>Tool</source>
-          <target state="translated">Herramienta</target>
-        </trans-unit>
-        <trans-unit id="Operate_Text_Unlock" translate="yes" xml:space="preserve">
-          <source>Unlock occupancy</source>
-          <target state="translated">Desbloquear ocupación</target>
-        </trans-unit>
-        <trans-unit id="Tool.Label" translate="yes" xml:space="preserve">
-          <source>Tool</source>
-          <target state="translated">Herramienta</target>
-        </trans-unit>
-        <trans-unit id="TryUnlock.Text" translate="yes" xml:space="preserve">
-          <source>Unlock occupancy</source>
-          <target state="translated">Desbloquear ocupación</target>
-        </trans-unit>
         <trans-unit id="ClearRecycleBin.Label" translate="yes" xml:space="preserve">
           <source>Empty recycle bin</source>
           <target state="translated">Vaciar papelera</target>
-        </trans-unit>
-        <trans-unit id="HashTeachTip.Title" translate="yes" xml:space="preserve">
-          <source>Compute hash</source>
-          <target state="translated">Compute hash</target>
-        </trans-unit>
-        <trans-unit id="Progress_Tip_Unlock" translate="yes" xml:space="preserve">
-          <source>Unoccupying</source>
-          <target state="translated">Desocupando</target>
         </trans-unit>
         <trans-unit id="QueueDialog_Unlock_Failure_Content" translate="yes" xml:space="preserve">
           <source>Unoccupied failed</source>

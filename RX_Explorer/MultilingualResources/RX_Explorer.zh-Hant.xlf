@@ -2556,41 +2556,9 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>An unexpected error occurred and the recycle bin could not be emptied</source>
           <target state="translated">發生意外錯誤，無法清空資源回收筒</target>
         </trans-unit>
-        <trans-unit id="ComputeHash.Text" translate="yes" xml:space="preserve">
-          <source>Compute hash</source>
-          <target state="translated">計算哈希值</target>
-        </trans-unit>
-        <trans-unit id="Operate_Text_ComputeHash" translate="yes" xml:space="preserve">
-          <source>Compute hash</source>
-          <target state="translated">計算哈希值</target>
-        </trans-unit>
-        <trans-unit id="Operate_Text_Tool" translate="yes" xml:space="preserve">
-          <source>Tool</source>
-          <target state="translated" state-qualifier="tm-suggestion">工具</target>
-        </trans-unit>
-        <trans-unit id="Operate_Text_Unlock" translate="yes" xml:space="preserve">
-          <source>Unlock occupancy</source>
-          <target state="translated">解除佔用</target>
-        </trans-unit>
-        <trans-unit id="Tool.Label" translate="yes" xml:space="preserve">
-          <source>Tool</source>
-          <target state="translated" state-qualifier="tm-suggestion">工具</target>
-        </trans-unit>
-        <trans-unit id="TryUnlock.Text" translate="yes" xml:space="preserve">
-          <source>Unlock occupancy</source>
-          <target state="translated">解除佔用</target>
-        </trans-unit>
         <trans-unit id="ClearRecycleBin.Label" translate="yes" xml:space="preserve">
           <source>Empty recycle bin</source>
           <target state="translated" state-qualifier="tm-suggestion">清理資源回收筒</target>
-        </trans-unit>
-        <trans-unit id="HashTeachTip.Title" translate="yes" xml:space="preserve">
-          <source>Compute hash</source>
-          <target state="translated">計算哈希值</target>
-        </trans-unit>
-        <trans-unit id="Progress_Tip_Unlock" translate="yes" xml:space="preserve">
-          <source>Unoccupying</source>
-          <target state="translated">覆蓋中</target>
         </trans-unit>
         <trans-unit id="QueueDialog_Unlock_Failure_Content" translate="yes" xml:space="preserve">
           <source>Unoccupied failed</source>

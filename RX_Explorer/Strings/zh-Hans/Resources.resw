@@ -1932,27 +1932,6 @@
   <data name="QueueDialog_RecycleBinEmptyError_Content" xml:space="preserve">
     <value>出现意外错误，无法清空回收站</value>
   </data>
-  <data name="ComputeHash.Text" xml:space="preserve">
-    <value>计算哈希值</value>
-  </data>
-  <data name="Operate_Text_ComputeHash" xml:space="preserve">
-    <value>计算哈希值</value>
-  </data>
-  <data name="Operate_Text_Tool" xml:space="preserve">
-    <value>工具</value>
-  </data>
-  <data name="Operate_Text_Unlock" xml:space="preserve">
-    <value>解除文件占用</value>
-  </data>
-  <data name="Tool.Label" xml:space="preserve">
-    <value>工具</value>
-  </data>
-  <data name="TryUnlock.Text" xml:space="preserve">
-    <value>解除文件占用</value>
-  </data>
-  <data name="Progress_Tip_Unlock" xml:space="preserve">
-    <value>正在解除占用</value>
-  </data>
   <data name="QueueDialog_Unlock_Failure_Content" xml:space="preserve">
     <value>无法解除文件占用</value>
   </data>
@@ -1970,9 +1949,6 @@
   </data>
   <data name="ClearRecycleBin.Label" xml:space="preserve">
     <value>清空回收站</value>
-  </data>
-  <data name="HashTeachTip.Title" xml:space="preserve">
-    <value>计算哈希值</value>
   </data>
   <data name="RestoreRecycle.Label" xml:space="preserve">
     <value>还原</value>

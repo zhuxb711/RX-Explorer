@@ -1935,32 +1935,8 @@
   <data name="QueueDialog_RecycleBinEmptyError_Content" xml:space="preserve">
     <value>發生意外錯誤，無法清空資源回收筒</value>
   </data>
-  <data name="ComputeHash.Text" xml:space="preserve">
-    <value>計算哈希值</value>
-  </data>
-  <data name="Operate_Text_ComputeHash" xml:space="preserve">
-    <value>計算哈希值</value>
-  </data>
-  <data name="Operate_Text_Tool" xml:space="preserve">
-    <value>工具</value>
-  </data>
-  <data name="Operate_Text_Unlock" xml:space="preserve">
-    <value>解除佔用</value>
-  </data>
-  <data name="Tool.Label" xml:space="preserve">
-    <value>工具</value>
-  </data>
-  <data name="TryUnlock.Text" xml:space="preserve">
-    <value>解除佔用</value>
-  </data>
   <data name="ClearRecycleBin.Label" xml:space="preserve">
     <value>清理資源回收筒</value>
-  </data>
-  <data name="HashTeachTip.Title" xml:space="preserve">
-    <value>計算哈希值</value>
-  </data>
-  <data name="Progress_Tip_Unlock" xml:space="preserve">
-    <value>覆蓋中</value>
   </data>
   <data name="QueueDialog_Unlock_Failure_Content" xml:space="preserve">
     <value>清除失敗</value>
