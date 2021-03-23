@@ -49,6 +49,7 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="OpenFile"
                               Label="打开"
+                              MinWidth="250"
                               x:Uid="FileOpen"
                               Click="ItemOpen_Click">
                     <AppBarButton.KeyboardAccelerators>
@@ -59,6 +60,7 @@
                 </AppBarButton>
                 <AppBarButton Label="打开文件所在位置"
                               x:Uid="LnkOpenLocation"
+                              MinWidth="250"
                               x:Name="LnkOpenLocation"
                               Click="LnkOpenLocation_Click">
                     <AppBarButton.Icon>
@@ -69,6 +71,7 @@
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               x:Uid="FileAttribute"
+                              MinWidth="250"
                               Label="属性"
                               Click="FileProperty_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
@@ -99,6 +102,7 @@
                 <AppBarButton Icon="OpenFile"
                               Label="打开"
                               x:Uid="FileOpen"
+                              MinWidth="250"
                               x:Name="FileOpen"
                               Click="ItemOpen_Click">
                     <AppBarButton.KeyboardAccelerators>
@@ -110,6 +114,7 @@
                 <AppBarButton Label="打开方式..."
                               Name="OtherOpenMethod"
                               x:Uid="OtherOpenMethod"
+                              MinWidth="250"
                               Icon="OpenWith">
                     <AppBarButton.Flyout>
                         <MenuFlyout x:Name="FileOpenMethodFlyout">
@@ -137,6 +142,7 @@
                 <AppBarSeparator />
                 <AppBarButton Label="工具"
                               x:Uid="Tool"
+                              MinWidth="250"
                               x:Name="FileTool">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets"
@@ -169,6 +175,7 @@
                 </AppBarButton>
                 <AppBarButton Icon="Edit"
                               Label="编辑"
+                              MinWidth="250"
                               x:Uid="FileEdit"
                               x:Name="FileEdit">
                     <AppBarButton.Flyout>
@@ -210,6 +217,7 @@
                 <AppBarButton Icon="Share"
                               x:Uid="FileShare"
                               Label="共享"
+                              MinWidth="250"
                               Name="FileShare">
                     <AppBarButton.Flyout>
                         <MenuFlyout Placement="Right">
@@ -245,6 +253,7 @@
                 </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton x:Name="Compression"
+                              MinWidth="250"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Compression')}"
                               Click="Compression_Click">
                     <AppBarButton.Icon>
@@ -253,6 +262,7 @@
                     </AppBarButton.Icon>
                 </AppBarButton>
                 <AppBarButton x:Name="Decompression"
+                              MinWidth="250"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Decompression')}">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -277,6 +287,7 @@
                 </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
+                              MinWidth="250"
                               Name="Attribute"
                               x:Uid="FileAttribute"
                               Label="属性"
@@ -300,6 +311,7 @@
                           Click="Delete_Click" />
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton x:Name="MixCompression"
+                              MinWidth="250"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Compression')}"
                               Click="MixCompression_Click">
                     <AppBarButton.Icon>
@@ -308,6 +320,7 @@
                     </AppBarButton.Icon>
                 </AppBarButton>
                 <AppBarButton x:Name="MixDecompression"
+                              MinWidth="250"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Decompression')}"
                               Click="MixDecompression_Click">
                     <AppBarButton.Icon>
@@ -339,6 +352,7 @@
                           Click="Rename_Click" />
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow"
+                              MinWidth="250"
                               Label="打开"
                               x:Uid="FolderOpen"
                               x:Name="FolderOpen"
@@ -350,6 +364,7 @@
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Label="在新标签页中打开"
+                              MinWidth="250"
                               x:Name="OpenFolderInNewTab"
                               x:Uid="OpenFolderInNewTab"
                               Click="OpenFolderInNewTab_Click">
@@ -364,6 +379,7 @@
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Label="在新窗口中打开"
+                              MinWidth="250"
                               x:Name="OpenFolderInNewWindow"
                               x:Uid="OpenFolderInNewWindow"
                               Click="OpenFolderInNewWindow_Click">
@@ -378,6 +394,7 @@
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Label="在垂直拆分视图中打开"
+                              MinWidth="250"
                               x:Name="OpenFolderInVerticalSplitView"
                               x:Uid="OpenFolderInVerticalSplitView"
                               Click="OpenFolderInVerticalSplitView_Click">
@@ -393,6 +410,7 @@
                 </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton x:Name="CompressFolder"
+                              MinWidth="250"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Compression')}"
                               Click="CompressFolder_Click">
                     <AppBarButton.Icon>
@@ -403,6 +421,7 @@
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Label="属性"
+                              MinWidth="250"
                               x:Uid="FolderAttribute"
                               x:Name="FolderProperty"
                               Click="FolderProperty_Click" />
@@ -429,6 +448,7 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Add"
                               Label="新建"
+                              MinWidth="250"
                               x:Uid="EmptyFlyoutNew">
                     <AppBarButton.Flyout>
                         <MenuFlyout>
@@ -448,6 +468,7 @@
                 </AppBarButton>
                 <AppBarButton Icon="Sort"
                               Label="排序"
+                              MinWidth="250"
                               x:Uid="CollectionSort">
                     <AppBarButton.Flyout>
                         <MenuFlyout Opening="SortMenuFlyout_Opening">
@@ -493,6 +514,7 @@
                 </AppBarButton>
                 <AppBarButton Icon="Refresh"
                               Label="刷新"
+                              MinWidth="250"
                               x:Uid="RefreshView"
                               x:Name="Refresh"
                               Click="Refresh_Click" />
@@ -500,6 +522,7 @@
                 <AppBarButton Label="在终端中打开..."
                               Name="OpenInTerminal"
                               x:Uid="OpenInTerminal"
+                              MinWidth="250"
                               Click="OpenInTerminal_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets"
@@ -512,6 +535,7 @@
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarButton Label="使用系统管理器打开"
+                              MinWidth="250"
                               x:Uid="SystemManagerOpen"
                               x:Name="UseSystemFileMananger"
                               Click="UseSystemFileMananger_Click">
@@ -527,6 +551,7 @@
                 </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
+                              MinWidth="250"
                               Label="属性"
                               x:Uid="FolderAttribute"
                               x:Name="ParentProperty"
