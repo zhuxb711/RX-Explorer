@@ -106,6 +106,111 @@ namespace FullTrustProcess
             {
                 switch (args.Request.Message["ExecuteType"])
                 {
+                    case "Execute_GetDocumentProperties":
+                        {
+                            string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);
+
+                            ValueSet Value = new ValueSet();
+
+                            if (File.Exists(ExecutePath))
+                            {
+                                Dictionary<string, string> PropertiesDic = new Dictionary<string, string>(9);
+
+                                using (ShellItem Item = new ShellItem(ExecutePath))
+                                {
+                                    if (Item.Properties.TryGetValue(Ole32.PROPERTYKEY.System.Document.LastAuthor, out string LastAuthor))
+                                    {
+                                        PropertiesDic.Add("LastAuthor", LastAuthor);
+                                    }
+                                    else
+                                    {
+                                        PropertiesDic.Add("LastAuthor", string.Empty);
+                                    }
+
+                                    if (Item.Properties.TryGetValue(Ole32.PROPERTYKEY.System.Document.Version, out string Version))
+                                    {
+                                        PropertiesDic.Add("Version", Version);
+                                    }
+                                    else
+                                    {
+                                        PropertiesDic.Add("Version", string.Empty);
+                                    }
+
+                                    if (Item.Properties.TryGetValue(Ole32.PROPERTYKEY.System.Document.RevisionNumber, out string RevisionNumber))
+                                    {
+                                        PropertiesDic.Add("RevisionNumber", RevisionNumber);
+                                    }
+                                    else
+                                    {
+                                        PropertiesDic.Add("RevisionNumber", string.Empty);
+                                    }
+
+                                    if (Item.Properties.TryGetValue(Ole32.PROPERTYKEY.System.Document.PageCount, out int PageCount))
+                                    {
+                                        PropertiesDic.Add("PageCount", Convert.ToString(PageCount));
+                                    }
+                                    else
+                                    {
+                                        PropertiesDic.Add("PageCount", string.Empty);
+                                    }
+
+                                    if (Item.Properties.TryGetValue(Ole32.PROPERTYKEY.System.Document.WordCount, out int WordCount))
+                                    {
+                                        PropertiesDic.Add("WordCount", Convert.ToString(WordCount));
+                                    }
+                                    else
+                                    {
+                                        PropertiesDic.Add("WordCount", string.Empty);
+                                    }
+
+                                    if (Item.Properties.TryGetValue(Ole32.PROPERTYKEY.System.Document.CharacterCount, out int CharacterCount))
+                                    {
+                                        PropertiesDic.Add("CharacterCount", Convert.ToString(CharacterCount));
+                                    }
+                                    else
+                                    {
+                                        PropertiesDic.Add("CharacterCount", string.Empty);
+                                    }
+
+                                    if (Item.Properties.TryGetValue(Ole32.PROPERTYKEY.System.Document.LineCount, out int LineCount))
+                                    {
+                                        PropertiesDic.Add("LineCount", Convert.ToString(LineCount));
+                                    }
+                                    else
+                                    {
+                                        PropertiesDic.Add("LineCount", string.Empty);
+                                    }
+
+                                    if (Item.Properties.TryGetValue(Ole32.PROPERTYKEY.System.Document.Template, out string Template))
+                                    {
+                                        PropertiesDic.Add("Template", Template);
+                                    }
+                                    else
+                                    {
+                                        PropertiesDic.Add("Template", string.Empty);
+                                    }
+
+                                    if (Item.Properties.TryGetValue(Ole32.PROPERTYKEY.System.Document.TotalEditingTime, out ulong TotalEditingTime))
+                                    {
+                                        PropertiesDic.Add("TotalEditingTime", Convert.ToString(TotalEditingTime));
+                                    }
+                                    else
+                                    {
+                                        PropertiesDic.Add("TotalEditingTime", string.Empty);
+                                    }
+                                }
+
+                                Value.Add("Success", JsonSerializer.Serialize(PropertiesDic));
+                            }
+                            else
+                            {
+                                Value.Add("Error", "File not found");
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
+
+                            break;
+                        }
                     case "Execute_GetMIMEContentType":
                         {
                             string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);

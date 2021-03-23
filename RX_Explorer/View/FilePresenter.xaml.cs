@@ -220,8 +220,6 @@ namespace RX_Explorer
             Application.Current.Resuming += Current_Resuming;
             SortCollectionGenerator.Current.SortWayChanged += Current_SortWayChanged;
             ViewModeController.ViewModeChanged += Current_ViewModeChanged;
-
-            TryUnlock.IsEnabled = Package.Current.Id.Architecture == ProcessorArchitecture.X64 || Package.Current.Id.Architecture == ProcessorArchitecture.X86 || Package.Current.Id.Architecture == ProcessorArchitecture.X86OnArm64;
         }
 
         private void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
@@ -1834,7 +1832,6 @@ namespace RX_Explorer
 
             if (SelectedItem is FileSystemStorageFile File)
             {
-                FileTool.IsEnabled = true;
                 FileEdit.IsEnabled = false;
                 FileShare.IsEnabled = true;
 
@@ -5117,194 +5114,6 @@ namespace RX_Explorer
             }
         }
 
-        private async void TryUnlock_Click(object sender, RoutedEventArgs e)
-        {
-            CloseAllFlyout();
-
-            if (SelectedItem is FileSystemStorageFile File)
-            {
-                try
-                {
-                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Unlock")).ConfigureAwait(true);
-
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                    {
-                        if (await Exclusive.Controller.TryUnlockFileOccupy(File.Path).ConfigureAwait(true))
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                Content = Globalization.GetString("QueueDialog_Unlock_Success_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                        }
-                        else
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                Content = Globalization.GetString("QueueDialog_Unlock_Failure_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                        }
-                    }
-                }
-                catch (FileNotFoundException)
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                        Content = Globalization.GetString("QueueDialog_Unlock_FileNotFound_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-
-                }
-                catch (UnlockException)
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                        Content = Globalization.GetString("QueueDialog_Unlock_NoLock_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
-                catch
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                        Content = Globalization.GetString("QueueDialog_Unlock_UnexpectedError_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
-                finally
-                {
-                    await Container.LoadingActivation(false).ConfigureAwait(false);
-                }
-            }
-        }
-
-        private async void CalculateHash_Click(object sender, RoutedEventArgs e)
-        {
-            CloseAllFlyout();
-
-            if (SelectedItem is FileSystemStorageFile File)
-            {
-                if (await FileSystemStorageItemBase.CheckExistAsync(File.Path).ConfigureAwait(true))
-                {
-                    try
-                    {
-                        if (HashTeachTip.IsOpen)
-                        {
-                            HashTeachTip.IsOpen = false;
-                        }
-
-                        Hash_SHA1.IsEnabled = false;
-                        Hash_SHA256.IsEnabled = false;
-                        Hash_MD5.IsEnabled = false;
-
-                        Hash_SHA1.Text = string.Empty;
-                        Hash_SHA256.Text = string.Empty;
-                        Hash_MD5.Text = string.Empty;
-
-                        await Task.Delay(500).ConfigureAwait(true);
-
-                        HashTeachTip.Target = ItemPresenter.ContainerFromItem(SelectedItem) as FrameworkElement;
-                        HashTeachTip.IsOpen = true;
-
-                        using (CancellationTokenSource HashCancellation = new CancellationTokenSource())
-                        {
-                            try
-                            {
-                                HashTeachTip.Tag = HashCancellation;
-
-                                using (FileStream Stream1 = await File.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(true))
-                                using (FileStream Stream2 = await File.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(true))
-                                using (FileStream Stream3 = await File.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(true))
-                                using (SHA256 SHA256Alg = SHA256.Create())
-                                using (MD5 MD5Alg = MD5.Create())
-                                using (SHA1 SHA1Alg = SHA1.Create())
-                                {
-                                    Task Task1 = SHA256Alg.GetHashAsync(Stream1, HashCancellation.Token).ContinueWith((beforeTask) =>
-                                    {
-                                        Hash_SHA256.Text = beforeTask.Result;
-                                        Hash_SHA256.IsEnabled = true;
-                                    }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
-
-                                    Task Task2 = MD5Alg.GetHashAsync(Stream2, HashCancellation.Token).ContinueWith((beforeTask) =>
-                                    {
-                                        Hash_MD5.Text = beforeTask.Result;
-                                        Hash_MD5.IsEnabled = true;
-                                    }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
-
-                                    Task Task3 = SHA1Alg.GetHashAsync(Stream3, HashCancellation.Token).ContinueWith((beforeTask) =>
-                                    {
-                                        Hash_SHA1.Text = beforeTask.Result;
-                                        Hash_SHA1.IsEnabled = true;
-                                    }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
-
-                                    await Task.WhenAll(Task1, Task2, Task3).ConfigureAwait(true);
-                                }
-                            }
-                            finally
-                            {
-                                HashTeachTip.Tag = null;
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "Error: CalculateHash failed");
-                    }
-                }
-                else
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                }
-            }
-        }
-
-        private void Hash_SHA1_Copy_Click(object sender, RoutedEventArgs e)
-        {
-            DataPackage Package = new DataPackage();
-            Package.SetText(Hash_SHA1.Text);
-            Clipboard.SetContent(Package);
-        }
-
-        private void Hash_SHA256_Copy_Click(object sender, RoutedEventArgs e)
-        {
-            DataPackage Package = new DataPackage();
-            Package.SetText(Hash_SHA256.Text);
-            Clipboard.SetContent(Package);
-        }
-
-        private void Hash_MD5_Copy_Click(object sender, RoutedEventArgs e)
-        {
-            DataPackage Package = new DataPackage();
-            Package.SetText(Hash_MD5.Text);
-            Clipboard.SetContent(Package);
-        }
-
-        private void HashTeachTip_Closing(TeachingTip sender, TeachingTipClosingEventArgs args)
-        {
-            if (sender.Tag is CancellationTokenSource Source)
-            {
-                Source.Cancel();
-            }
-        }
-
         private async void OpenInTerminal_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
@@ -5730,31 +5539,6 @@ namespace RX_Explorer
                         });
 
                         BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
-
-                        MenuFlyout ToolFlyout = new MenuFlyout();
-                        MenuFlyoutItem UnLock = new MenuFlyoutItem
-                        {
-                            Icon = new FontIcon { Glyph = "\uE785" },
-                            Text = Globalization.GetString("Operate_Text_Unlock")
-                        };
-                        UnLock.Click += TryUnlock_Click;
-                        ToolFlyout.Items.Add(UnLock);
-
-                        MenuFlyoutItem Hash = new MenuFlyoutItem
-                        {
-                            Icon = new FontIcon { Glyph = "\uE2B2" },
-                            Text = Globalization.GetString("Operate_Text_ComputeHash")
-                        };
-                        Hash.Click += CalculateHash_Click;
-                        ToolFlyout.Items.Add(Hash);
-
-                        BottomCommandBar.SecondaryCommands.Add(new AppBarButton
-                        {
-                            Icon = new FontIcon { Glyph = "\uE90F" },
-                            Label = Globalization.GetString("Operate_Text_Tool"),
-                            IsEnabled = FileTool.IsEnabled,
-                            Flyout = ToolFlyout
-                        });
 
                         MenuFlyout EditFlyout = new MenuFlyout();
                         MenuFlyoutItem MontageItem = new MenuFlyoutItem

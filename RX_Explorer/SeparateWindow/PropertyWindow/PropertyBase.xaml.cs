@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -46,7 +47,10 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             { 5, "Empty" }
         };
 
-        private CancellationTokenSource Cancellation;
+        private CancellationTokenSource FolderCancellation;
+        private CancellationTokenSource Md5Cancellation;
+        private CancellationTokenSource SHA1Cancellation;
+        private CancellationTokenSource SHA256Cancellation;
         private int ConfirmButtonLockResource;
 
         public PropertyBase(AppWindow Window, FileSystemStorageItemBase StorageItem)
@@ -95,6 +99,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 GeneralSubGrid.RowDefinitions[3].Height = new GridLength(10);
                 GeneralSubGrid.RowDefinitions[6].Height = new GridLength(0);
                 GeneralSubGrid.RowDefinitions[9].Height = new GridLength(35);
+
+                Unlock.IsEnabled = Package.Current.Id.Architecture == ProcessorArchitecture.X64 || Package.Current.Id.Architecture == ProcessorArchitecture.X86 || Package.Current.Id.Architecture == ProcessorArchitecture.X86OnArm64;
 
                 if (StorageItem is IUnsupportedStorageItem)
                 {
@@ -165,7 +171,10 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         private void Window_Closed(AppWindow sender, AppWindowClosedEventArgs args)
         {
             Window.Closed -= Window_Closed;
-            Cancellation?.Cancel();
+            FolderCancellation?.Cancel();
+            Md5Cancellation?.Cancel();
+            SHA1Cancellation?.Cancel();
+            SHA256Cancellation?.Cancel();
         }
 
         private void PropertyBase_Loaded(object sender, RoutedEventArgs e)
@@ -267,7 +276,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         {
             if (await StorageItem.GetStorageItemAsync().ConfigureAwait(true) is StorageFile File)
             {
-                Dictionary<string, object> BasicPropertiesDictionary = new Dictionary<string, object>
+                Dictionary<string, object> BasicPropertiesDictionary = new Dictionary<string, object>(10)
                 {
                     { "Name", StorageItem.Name },
                     { "Item type", StorageItem.DisplayType },
@@ -331,7 +340,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 {
                     VideoProperties VideoProperties = await File.Properties.GetVideoPropertiesAsync();
 
-                    Dictionary<string, object> VideoPropertiesDictionary = new Dictionary<string, object>
+                    Dictionary<string, object> VideoPropertiesDictionary = new Dictionary<string, object>(5)
                     {
                         { "Duration", VideoProperties.Duration.ConvertTimsSpanToString() },
                         { "Frame width", VideoProperties.Width.ToString() },
@@ -354,7 +363,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                     MusicProperties AudioProperties = await File.Properties.GetMusicPropertiesAsync();
 
-                    Dictionary<string, object> AudioPropertiesDictionary = new Dictionary<string, object>
+                    Dictionary<string, object> AudioPropertiesDictionary = new Dictionary<string, object>(3)
                     {
                         { "Bitrate", AudioProperties.Bitrate / 1024f < 1024 ? $"{Math.Round(AudioProperties.Bitrate / 1024f, 2):N2} Kbps" : $"{Math.Round(AudioProperties.Bitrate / 1048576f, 2):N2} Mbps" }
                     };
@@ -381,7 +390,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                     PropertiesCollection.Add(new PropertiesGroupItem("Audio", AudioPropertiesDictionary.ToArray()));
 
-                    Dictionary<string, object> DescriptionPropertiesDictionary = new Dictionary<string, object>
+                    Dictionary<string, object> DescriptionPropertiesDictionary = new Dictionary<string, object>(4)
                     {
                         { "Title", VideoProperties.Title },
                         { "Subtitle", VideoProperties.Subtitle },
@@ -401,7 +410,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                     PropertiesCollection.Add(new PropertiesGroupItem("Description", DescriptionPropertiesDictionary.ToArray()));
 
-                    Dictionary<string, object> ExtraPropertiesDictionary = new Dictionary<string, object>
+                    Dictionary<string, object> ExtraPropertiesDictionary = new Dictionary<string, object>(6)
                     {
                         { "Year", VideoProperties.Year == 0 ? string.Empty : Convert.ToString(VideoProperties.Year) },
                         { "Directors", string.Join(", ", VideoProperties.Directors) },
@@ -427,9 +436,10 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 {
                     MusicProperties AudioProperties = await File.Properties.GetMusicPropertiesAsync();
 
-                    Dictionary<string, object> AudioPropertiesDictionary = new Dictionary<string, object>
+                    Dictionary<string, object> AudioPropertiesDictionary = new Dictionary<string, object>(3)
                     {
-                        { "Bitrate", AudioProperties.Bitrate / 1024f < 1024 ? $"{Math.Round(AudioProperties.Bitrate / 1024f, 2):N2} Kbps" : $"{Math.Round(AudioProperties.Bitrate / 1048576f, 2):N2} Mbps" }
+                        { "Bitrate", AudioProperties.Bitrate / 1024f < 1024 ? $"{Math.Round(AudioProperties.Bitrate / 1024f, 2):N2} Kbps" : $"{Math.Round(AudioProperties.Bitrate / 1048576f, 2):N2} Mbps" },
+                        { "Duration", AudioProperties.Duration.ConvertTimsSpanToString() }
                     };
 
                     IDictionary<string, object> AudioResult = await File.Properties.RetrievePropertiesAsync(new string[] { "System.Audio.SampleRate", "System.Audio.ChannelCount" });
@@ -454,7 +464,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                     PropertiesCollection.Add(new PropertiesGroupItem("Audio", AudioPropertiesDictionary.ToArray()));
 
-                    Dictionary<string, object> DescriptionPropertiesDictionary = new Dictionary<string, object>
+                    Dictionary<string, object> DescriptionPropertiesDictionary = new Dictionary<string, object>(4)
                     {
                         { "Title", AudioProperties.Title },
                         { "Subtitle", AudioProperties.Subtitle },
@@ -474,7 +484,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                     PropertiesCollection.Add(new PropertiesGroupItem("Description", DescriptionPropertiesDictionary.ToArray()));
 
-                    Dictionary<string, object> ExtraPropertiesDictionary = new Dictionary<string, object>
+                    Dictionary<string, object> ExtraPropertiesDictionary = new Dictionary<string, object>(10)
                     {
                         { "Year", AudioProperties.Year == 0 ? string.Empty : Convert.ToString(AudioProperties.Year) },
                         { "Genre", string.Join(", ", AudioProperties.Genre) },
@@ -504,7 +514,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 {
                     ImageProperties ImageProperties = await File.Properties.GetImagePropertiesAsync();
 
-                    Dictionary<string, object> ImagePropertiesDictionary = new Dictionary<string, object>
+                    Dictionary<string, object> ImagePropertiesDictionary = new Dictionary<string, object>(5)
                     {
                         { "Dimensions", $"{ImageProperties.Width} x {ImageProperties.Height}" },
                         { "Width", Convert.ToString(ImageProperties.Width) },
@@ -544,7 +554,9 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         ImagePropertiesDictionary.Add("Color space", string.Empty);
                     }
 
-                    Dictionary<string, object> DescriptionPropertiesDictionary = new Dictionary<string, object>
+                    PropertiesCollection.Add(new PropertiesGroupItem("Image", ImagePropertiesDictionary.ToArray()));
+
+                    Dictionary<string, object> DescriptionPropertiesDictionary = new Dictionary<string, object>(4)
                     {
                         { "Title", ImageProperties.Title },
                         { "Date taken", ImageProperties.DateTaken.ToString("G") },
@@ -564,7 +576,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                     PropertiesCollection.Add(new PropertiesGroupItem("Description", DescriptionPropertiesDictionary.ToArray()));
 
-                    Dictionary<string, object> ExtraPropertiesDictionary = new Dictionary<string, object>
+                    Dictionary<string, object> ExtraPropertiesDictionary = new Dictionary<string, object>(6)
                     {
                         { "Camera model", ImageProperties.CameraModel },
                         { "Camera manufacturer", ImageProperties.CameraManufacturer },
@@ -575,6 +587,55 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                     };
 
                     PropertiesCollection.Add(new PropertiesGroupItem("Extra", ExtraPropertiesDictionary.ToArray()));
+                }
+                else if (ContentType.StartsWith("application/msword", StringComparison.OrdinalIgnoreCase)
+                        || ContentType.StartsWith("application/vnd.ms-excel", StringComparison.OrdinalIgnoreCase)
+                        || ContentType.StartsWith("application/vnd.ms-powerpoint", StringComparison.OrdinalIgnoreCase)
+                        || ContentType.StartsWith("application/vnd.openxmlformats-officedocument", StringComparison.OrdinalIgnoreCase))
+                {
+                    DocumentProperties DocProperties = await File.Properties.GetDocumentPropertiesAsync();
+
+                    Dictionary<string, object> DescriptionPropertiesDictionary = new Dictionary<string, object>(4)
+                    {
+                        { "Title", DocProperties.Title },
+                        { "Comment", DocProperties.Comment },
+                        { "Keywords", string.Join(", ", DocProperties.Keywords) },
+                        { "Authors", string.Join(", ", DocProperties.Author) },
+                    };
+
+                    PropertiesCollection.Add(new PropertiesGroupItem("Description", DescriptionPropertiesDictionary.ToArray()));
+
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    {
+                        Dictionary<string, string> DocExtraProperties = await Exclusive.Controller.GetDocumentProperties(StorageItem.Path).ConfigureAwait(true);
+
+                        if (DocExtraProperties.TryGetValue("TotalEditingTime", out string TotalEditingTime))
+                        {
+                            DocExtraProperties["TotalEditingTime"] = TimeSpan.FromMilliseconds(Convert.ToUInt64(TotalEditingTime) / 10000).ConvertTimsSpanToString();
+                        }
+
+                        IDictionary<string, object> DocTimeResult = await File.Properties.RetrievePropertiesAsync(new string[] { "System.Document.DateCreated", "System.Document.DateSaved" });
+
+                        if (DocTimeResult.TryGetValue("System.Document.DateCreated", out object DateCreated))
+                        {
+                            DocExtraProperties.Add("Content created", ((DateTimeOffset)DateCreated).ToString("G"));
+                        }
+                        else
+                        {
+                            DocExtraProperties.Add("Content created", string.Empty);
+                        }
+
+                        if (DocTimeResult.TryGetValue("System.Document.DateSaved", out object DateSaved))
+                        {
+                            DocExtraProperties.Add("Date last saved", ((DateTimeOffset)DateSaved).ToString("G"));
+                        }
+                        else
+                        {
+                            DocExtraProperties.Add("Date last saved", string.Empty);
+                        }
+
+                        PropertiesCollection.Add(new PropertiesGroupItem("Extra", DocExtraProperties.Select((Pair) => new KeyValuePair<string, object>(Pair.Key, Pair.Value))));
+                    }
                 }
             }
             else
@@ -613,14 +674,14 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                 try
                 {
-                    Cancellation = new CancellationTokenSource();
+                    FolderCancellation = new CancellationTokenSource();
 
-                    Task CountTask = CalculateFolderAndFileCount(Folder, Cancellation.Token).ContinueWith((task) =>
+                    Task CountTask = CalculateFolderAndFileCount(Folder, FolderCancellation.Token).ContinueWith((task) =>
                     {
                         ContainsContent.Text = task.Result;
                     }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
 
-                    Task SizeTask = CalculateFolderSize(Folder, Cancellation.Token).ContinueWith((task) =>
+                    Task SizeTask = CalculateFolderSize(Folder, FolderCancellation.Token).ContinueWith((task) =>
                     {
                         SizeContent.Text = task.Result;
                     }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
@@ -637,8 +698,8 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 }
                 finally
                 {
-                    Cancellation.Dispose();
-                    Cancellation = null;
+                    FolderCancellation.Dispose();
+                    FolderCancellation = null;
                 }
             }
             else if (StorageItem is FileSystemStorageFile File)
@@ -885,6 +946,155 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         Control.CurrentPresenter.ItemPresenter.ScrollIntoView(Target);
                         Control.CurrentPresenter.SelectedItem = Target;
                     }
+                }
+            }
+        }
+
+        private async void CalculateMd5_Click(object sender, RoutedEventArgs e)
+        {
+            if (await FileSystemStorageItemBase.CheckExistAsync(StorageItem.Path).ConfigureAwait(true))
+            {
+                if (StorageItem is FileSystemStorageFile File)
+                {
+                    MD5TextBox.Text = Globalization.GetString("HashPlaceHolderText");
+                    Md5Cancellation = new CancellationTokenSource();
+
+                    try
+                    {
+                        using (FileStream Stream = await File.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(true))
+                        using (MD5 MD5Alg = MD5.Create())
+                        {
+                            await MD5Alg.GetHashAsync(Stream, Md5Cancellation.Token).ContinueWith((beforeTask) =>
+                            {
+                                MD5TextBox.Text = beforeTask.Result;
+                                MD5TextBox.IsEnabled = true;
+                            }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "Calculate MD5 failed");
+                    }
+                    finally
+                    {
+                        Md5Cancellation?.Dispose();
+                        Md5Cancellation = null;
+                    }
+                }
+            }
+            else
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                    XamlRoot = XamlRoot
+                };
+
+                await Dialog.ShowAsync().ConfigureAwait(true);
+            }
+        }
+
+        private async void CalculateSHA1_Click(object sender, RoutedEventArgs e)
+        {
+            if (StorageItem is FileSystemStorageFile File)
+            {
+                SHA1TextBox.Text = Globalization.GetString("HashPlaceHolderText");
+                SHA1Cancellation = new CancellationTokenSource();
+
+                try
+                {
+                    using (FileStream Stream = await File.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(true))
+                    using (SHA1 SHA1Alg = SHA1.Create())
+                    {
+                        await SHA1Alg.GetHashAsync(Stream, SHA1Cancellation.Token).ContinueWith((beforeTask) =>
+                        {
+                            SHA1TextBox.Text = beforeTask.Result;
+                            SHA1TextBox.IsEnabled = true;
+                        }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Calculate SHA1 failed");
+                }
+                finally
+                {
+                    SHA1Cancellation?.Dispose();
+                    SHA1Cancellation = null;
+                }
+            }
+        }
+
+        private async void CalculateSHA256_Click(object sender, RoutedEventArgs e)
+        {
+            if (StorageItem is FileSystemStorageFile File)
+            {
+                SHA256TextBox.Text = Globalization.GetString("HashPlaceHolderText");
+                SHA256Cancellation = new CancellationTokenSource();
+
+                try
+                {
+                    using (FileStream Stream = await File.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(true))
+                    using (SHA256 SHA256Alg = SHA256.Create())
+                    {
+                        await SHA256Alg.GetHashAsync(Stream, SHA256Cancellation.Token).ContinueWith((beforeTask) =>
+                        {
+                            SHA256TextBox.Text = beforeTask.Result;
+                            SHA256TextBox.IsEnabled = true;
+                        }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Calculate SHA256 failed");
+                }
+                finally
+                {
+                    SHA256Cancellation?.Dispose();
+                    SHA256Cancellation = null;
+                }
+            }
+        }
+
+        private async void Unlock_Click(object sender, RoutedEventArgs e)
+        {
+            if (StorageItem is FileSystemStorageFile File)
+            {
+                try
+                {
+                    UnlockProgressRing.Visibility = Visibility.Visible;
+                    UnlockText.Visibility = Visibility.Collapsed;
+
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    {
+                        if (await Exclusive.Controller.TryUnlockFileOccupy(File.Path).ConfigureAwait(true))
+                        {
+                            UnlockText.Text = Globalization.GetString("QueueDialog_Unlock_Success_Content");
+                        }
+                        else
+                        {
+                            UnlockText.Text = Globalization.GetString("QueueDialog_Unlock_Failure_Content");
+                        }
+                    }
+                }
+                catch (FileNotFoundException)
+                {
+                    UnlockText.Text = Globalization.GetString("QueueDialog_Unlock_FileNotFound_Content");
+                }
+                catch (UnlockException)
+                {
+                    UnlockText.Text = Globalization.GetString("QueueDialog_Unlock_NoLock_Content");
+                }
+                catch
+                {
+                    UnlockText.Text = Globalization.GetString("QueueDialog_Unlock_UnexpectedError_Content");
+                }
+                finally
+                {
+                    UnlockProgressRing.Visibility = Visibility.Collapsed;
+                    UnlockText.Visibility = Visibility.Visible;
                 }
             }
         }

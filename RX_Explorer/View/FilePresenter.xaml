@@ -140,39 +140,6 @@
                     </AppBarButton.Flyout>
                 </AppBarButton>
                 <AppBarSeparator />
-                <AppBarButton Label="工具"
-                              x:Uid="Tool"
-                              MinWidth="250"
-                              x:Name="FileTool">
-                    <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets"
-                                  Glyph="&#xE90F;" />
-                    </AppBarButton.Icon>
-                    <AppBarButton.Flyout>
-                        <MenuFlyout>
-                            <MenuFlyoutItem Name="TryUnlock"
-                                            Text="解除文件占用"
-                                            MinWidth="160"
-                                            Click="TryUnlock_Click"
-                                            x:Uid="TryUnlock">
-                                <MenuFlyoutItem.Icon>
-                                    <FontIcon FontFamily="Segoe MDL2 Assets"
-                                              Glyph="&#xE785;" />
-                                </MenuFlyoutItem.Icon>
-                            </MenuFlyoutItem>
-                            <MenuFlyoutItem Name="CalculateHash"
-                                            Text="计算哈希值"
-                                            MinWidth="160"
-                                            Click="CalculateHash_Click"
-                                            x:Uid="ComputeHash">
-                                <MenuFlyoutItem.Icon>
-                                    <FontIcon FontFamily="Segoe MDL2 Assets"
-                                              Glyph="&#xE2B2;" />
-                                </MenuFlyoutItem.Icon>
-                            </MenuFlyoutItem>
-                        </MenuFlyout>
-                    </AppBarButton.Flyout>
-                </AppBarButton>
                 <AppBarButton Icon="Edit"
                               Label="编辑"
                               MinWidth="250"
@@ -593,67 +560,6 @@
                                x:Uid="WIFIShareText"
                                TextWrapping="WrapWholeWords"
                                Text="传输过程中请勿关闭此窗口，否则将停止分享" />
-                </StackPanel>
-            </muxc:TeachingTip.Content>
-        </muxc:TeachingTip>
-
-        <muxc:TeachingTip PreferredPlacement="Auto"
-                          Title="Hash计算"
-                          x:Name="HashTeachTip"
-                          IsLightDismissEnabled="True"
-                          x:Uid="HashTeachTip"
-                          Closing="HashTeachTip_Closing">
-            <muxc:TeachingTip.Content>
-                <StackPanel HorizontalAlignment="Center">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBox IsSpellCheckEnabled="False"
-                                 IsReadOnly="True"
-                                 x:Name="Hash_MD5"
-                                 Header="MD5"
-                                 PlaceholderText="{x:Bind Cls:Globalization.GetString('HashPlaceHolderText')}"
-                                 ToolTipService.ToolTip="{x:Bind Hash_MD5.Text,Mode=OneWay}"
-                                 Width="245" />
-                        <Button Margin="5,0,0,0"
-                                VerticalAlignment="Bottom"
-                                x:Name="Hash_MD5_Copy"
-                                Click="Hash_MD5_Copy_Click">
-                            <FontIcon FontFamily="Segoe MDL2 Assets"
-                                      Glyph="&#xE8C8;"
-                                      VerticalAlignment="Center" />
-                        </Button>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBox IsSpellCheckEnabled="False"
-                                 IsReadOnly="True"
-                                 Header="SHA-256"
-                                 Name="Hash_SHA256"
-                                 PlaceholderText="{x:Bind Cls:Globalization.GetString('HashPlaceHolderText')}"
-                                 ToolTipService.ToolTip="{x:Bind Hash_SHA256.Text,Mode=OneWay}"
-                                 Width="245" />
-                        <Button Margin="5,0,0,0"
-                                VerticalAlignment="Bottom"
-                                Name="Hash_SHA256_Copy"
-                                Click="Hash_SHA256_Copy_Click">
-                            <FontIcon FontFamily="Segoe MDL2 Assets"
-                                      Glyph="&#xE8C8;" />
-                        </Button>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBox IsSpellCheckEnabled="False"
-                                 IsReadOnly="True"
-                                 Header="SHA-1"
-                                 Name="Hash_SHA1"
-                                 PlaceholderText="{x:Bind Cls:Globalization.GetString('HashPlaceHolderText')}"
-                                 ToolTipService.ToolTip="{x:Bind Hash_SHA1.Text,Mode=OneWay}"
-                                 Width="245" />
-                        <Button Margin="5,0,0,0"
-                                VerticalAlignment="Bottom"
-                                Name="Hash_SHA1_Copy"
-                                Click="Hash_SHA1_Copy_Click">
-                            <FontIcon FontFamily="Segoe MDL2 Assets"
-                                      Glyph="&#xE8C8;" />
-                        </Button>
-                    </StackPanel>
                 </StackPanel>
             </muxc:TeachingTip.Content>
         </muxc:TeachingTip>

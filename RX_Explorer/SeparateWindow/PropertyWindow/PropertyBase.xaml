@@ -450,7 +450,29 @@
                                FontSize="18" />
                 </PivotItem.Header>
                 <StackPanel Padding="5,10">
-                    <Button Content="解除文件占用" />
+                    <RelativePanel>
+                        <Button Content="解除文件占用"
+                                Name="Unlock"
+                                Click="Unlock_Click" 
+                                RelativePanel.AlignLeftWithPanel="True"
+                                RelativePanel.AlignVerticalCenterWithPanel="True"/>
+                        <muxc:ProgressRing Margin="10,0,0,0"
+                                           Height="24"
+                                           Width="24"
+                                           Name="UnlockProgressRing"
+                                           Visibility="Collapsed"
+                                           RelativePanel.AlignVerticalCenterWithPanel="True"
+                                           RelativePanel.RightOf="Unlock"/>
+                        <TextBlock VerticalAlignment="Center"
+                                   Name="UnlockText"
+                                   TextWrapping="WrapWholeWords"
+                                   TextTrimming="CharacterEllipsis"
+                                   Margin="10,0,0,0"
+                                   Visibility="Collapsed"
+                                   RelativePanel.RightOf="UnlockProgressRing"
+                                   RelativePanel.AlignRightWithPanel="True"
+                                   RelativePanel.AlignVerticalCenterWithPanel="True"/>
+                    </RelativePanel>
                     <Border Height="2"
                             Margin="0,20,0,10"
                             HorizontalAlignment="Stretch"
@@ -464,13 +486,15 @@
                                  IsReadOnly="True"
                                  IsEnabled="False"
                                  Header="MD5"
+                                 Name="MD5TextBox"
                                  Margin="0,10,5,0"
-                                 HorizontalAlignment="Stretch"
-                                 PlaceholderText="{x:Bind Cls:Globalization.GetString('HashPlaceHolderText')}"/>
+                                 HorizontalAlignment="Stretch"/>
                         <Button Margin="5,0,0,0"
                                 Grid.Column="1"
                                 Content="Calculate"
-                                VerticalAlignment="Bottom"/>
+                                VerticalAlignment="Bottom"
+                                Name="CalculateMd5"
+                                Click="CalculateMd5_Click"/>
                     </Grid>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -481,12 +505,14 @@
                                  IsReadOnly="True"
                                  IsEnabled="False"
                                  Header="SHA-1"
+                                 Name="SHA1TextBox"
                                  Margin="0,10,5,0"
-                                 HorizontalAlignment="Stretch"
-                                 PlaceholderText="{x:Bind Cls:Globalization.GetString('HashPlaceHolderText')}" />
+                                 HorizontalAlignment="Stretch" />
                         <Button Margin="5,0,0,0"
                                 Grid.Column="1"
                                 Content="Calculate"
+                                Name="CalculateSHA1"
+                                Click="CalculateSHA1_Click"
                                 VerticalAlignment="Bottom" />
                     </Grid>
                     <Grid>
@@ -498,13 +524,15 @@
                                  IsReadOnly="True"
                                  IsEnabled="False"
                                  Header="SHA-256"
+                                 Name="SHA256TextBox"
                                  Margin="0,10,5,0"
-                                 HorizontalAlignment="Stretch"
-                                 PlaceholderText="{x:Bind Cls:Globalization.GetString('HashPlaceHolderText')}" />
+                                 HorizontalAlignment="Stretch" />
                         <Button Margin="5,0,0,0"
                                 Grid.Column="1"
+                                Name="CalculateSHA256"
                                 Content="Calculate"
-                                VerticalAlignment="Bottom" />
+                                VerticalAlignment="Bottom"
+                                Click="CalculateSHA256_Click"/>
                     </Grid>
                 </StackPanel>
             </PivotItem>

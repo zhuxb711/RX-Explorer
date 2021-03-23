@@ -96,6 +96,8 @@ namespace RX_Explorer.Class
 
         private const string ExecuteType_LaunchUWPLnkFile = "Execute_LaunchUWPLnkFile";
 
+        private const string ExecuteType_GetDocumentProperties = "Execute_GetDocumentProperties";
+
         private readonly static Thread DispatcherThread = new Thread(DispatcherMethod)
         {
             IsBackground = true,
@@ -444,6 +446,61 @@ namespace RX_Explorer.Class
             {
                 LogTracer.Log(ex, $"{ nameof(GetMIMEContentType)} throw an error");
                 return string.Empty;
+            }
+            finally
+            {
+                IsAnyActionExcutingInCurrentController = false;
+            }
+        }
+
+        public async Task<Dictionary<string, string>> GetDocumentProperties(string Path)
+        {
+            try
+            {
+                IsAnyActionExcutingInCurrentController = true;
+
+                if (await ConnectRemoteAsync().ConfigureAwait(true))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExecuteType", ExecuteType_GetDocumentProperties},
+                        {"ExecutePath", Path}
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Success", out object Properties))
+                        {
+                            return JsonSerializer.Deserialize<Dictionary<string, string>>(Convert.ToString(Properties));
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(GetDocumentProperties)}, message: {ErrorMessage}");
+                            }
+
+                            return new Dictionary<string, string>(0);
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"AppServiceResponse in {nameof(GetDocumentProperties)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        return new Dictionary<string, string>(0);
+                    }
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(GetDocumentProperties)}: Failed to connect AppService ");
+                    return new Dictionary<string, string>(0);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{ nameof(GetDocumentProperties)} throw an error");
+                return new Dictionary<string, string>(0);
             }
             finally
             {

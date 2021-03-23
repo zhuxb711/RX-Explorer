@@ -1987,32 +1987,8 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_RecycleBinEmptyError_Content" xml:space="preserve">
     <value>Se ha producido un error inesperado y la papelera no se puede vaciar.</value>
   </data>
-  <data name="ComputeHash.Text" xml:space="preserve">
-    <value>Compute hash</value>
-  </data>
-  <data name="Operate_Text_ComputeHash" xml:space="preserve">
-    <value>Compute hash</value>
-  </data>
-  <data name="Operate_Text_Tool" xml:space="preserve">
-    <value>Herramienta</value>
-  </data>
-  <data name="Operate_Text_Unlock" xml:space="preserve">
-    <value>Desbloquear ocupación</value>
-  </data>
-  <data name="Tool.Label" xml:space="preserve">
-    <value>Herramienta</value>
-  </data>
-  <data name="TryUnlock.Text" xml:space="preserve">
-    <value>Desbloquear ocupación</value>
-  </data>
   <data name="ClearRecycleBin.Label" xml:space="preserve">
     <value>Vaciar papelera</value>
-  </data>
-  <data name="HashTeachTip.Title" xml:space="preserve">
-    <value>Compute hash</value>
-  </data>
-  <data name="Progress_Tip_Unlock" xml:space="preserve">
-    <value>Desocupando</value>
   </data>
   <data name="QueueDialog_Unlock_Failure_Content" xml:space="preserve">
     <value>La desocupación ha fallado.</value>
