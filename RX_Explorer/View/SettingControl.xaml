@@ -663,7 +663,6 @@
                                 <StackPanel Orientation="Horizontal">
                                     <GridView Name="PictureGirdView"
                                               MaxWidth="275"
-                                              ItemsSource="{x:Bind PictureList}"
                                               Margin="15,15,0,0"
                                               VerticalAlignment="Top"
                                               IsRightTapEnabled="True"
