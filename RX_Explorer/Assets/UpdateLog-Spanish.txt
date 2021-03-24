@@ -1,0 +1,36 @@
+﻿*****
+###Novedades de la versión 6.2.0.0
+
+#####Actualización de funciones
+
+>#####Haz doble clic en un elemento de los resultados de la búsqueda para ir directamente a la ubicación correspondiente
+
+>#####Se agregó soporte para "español"
+
+>#####Rehaga completamente el cuadro de diálogo "Propiedades", ahora puede mostrar más información como una ventana separada
+
+#####Actualización de la interfaz de usuario
+
+>#####Mover algunos elementos del menú contextual a la página "Herramientas" en la ventana "Propiedades"
+
+>#####El mensaje "Cargando ..." ahora usará un fondo acrílico
+
+>#####Puede agregar más contenido personalizado al crear un nuevo archivo lnk
+
+>#####La barra de direcciones se ha optimizado para rutas extremadamente largas
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que la configuración del fondo de la imagen no se puede sincronizar en todos los procesos
+
+>#####Se solucionó el problema de que algunos archivos no se descomprimieran correctamente
+
+>#####Se corrigieron algunos problemas al agregar páginas web al área de inicio rápido, lo que puede hacer que las páginas web no se guarden
+
+>#####Se solucionó el problema de que hacer clic en la barra de direcciones podía causar un bloqueo en algunos casos
+
+>#####Se solucionó el problema de que las teclas de acceso directo fallaran después de cambiar de "esta computadora" a otras pestañas y regresar
+
+>#####Se solucionó el problema de que el archivo lnk que apuntaba a la aplicación para UWP no se abriera correctamente
+
+>#####Se solucionó el problema de que el contenido extendido en el menú no se podía borrar correctamente después de cerrar la configuración del "Menú contextual extendido"

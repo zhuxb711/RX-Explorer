@@ -76,6 +76,7 @@
             <PivotItem>
                 <PivotItem.Header>
                     <TextBlock Text="General"
+                               Name="GeneralTab"
                                FontSize="18" />
                 </PivotItem.Header>
                 <ScrollViewer Padding="5,10"
@@ -126,11 +127,15 @@
                             <TextBlock Text="Type:"
                                        FontSize="14"
                                        Grid.Row="1"
+                                       x:Uid="Properties_General_Type"
+                                       TextTrimming="CharacterEllipsis"
                                        VerticalAlignment="Center"
                                        Name="TypeLabel" />
                             <TextBlock Text="Open with:"
                                        FontSize="14"
+                                       x:Uid="Properties_General_OpenWith"
                                        VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis"
                                        Grid.Row="2"
                                        Name="OpenWithLabel" />
                             <Border Height="2"
@@ -141,27 +146,37 @@
                             <TextBlock Grid.Row="4"
                                        FontSize="14"
                                        VerticalAlignment="Center"
-                                       Text="Location"
+                                       x:Uid="Properties_General_Location"
+                                       TextTrimming="CharacterEllipsis"
+                                       Text="Location:"
                                        Name="LocationLabel" />
                             <TextBlock Grid.Row="5"
+                                       x:Uid="Properties_General_Size"
+                                       TextTrimming="CharacterEllipsis"
                                        FontSize="14"
                                        VerticalAlignment="Center"
-                                       Text="Size"
+                                       Text="Size:"
                                        Name="SizeLabel" />
                             <TextBlock Grid.Row="6"
                                        FontSize="14"
+                                       TextTrimming="CharacterEllipsis"
+                                       x:Uid="Properties_General_Contains"
                                        VerticalAlignment="Center"
-                                       Text="Contains"
+                                       Text="Contains:"
                                        Name="ContainsLabel" />
                             <TextBlock Grid.Row="8"
                                        FontSize="14"
+                                       TextTrimming="CharacterEllipsis"
+                                       x:Uid="Properties_General_CreatedTime"
                                        VerticalAlignment="Center"
-                                       Text="Created"
+                                       Text="Created:"
                                        Name="CreatedLabel" />
                             <TextBlock Grid.Row="9"
                                        FontSize="14"
+                                       x:Uid="Properties_General_ModifiedTime"
                                        VerticalAlignment="Center"
-                                       Text="Modified"
+                                       TextTrimming="CharacterEllipsis"
+                                       Text="Modified:"
                                        Name="ModifiedLabel" />
                             <TextBlock RelativePanel.AlignRightWithPanel="True"
                                        Name="TypeContent"
@@ -190,7 +205,9 @@
                                 <Button RelativePanel.AlignRightWithPanel="True"
                                         RelativePanel.AlignVerticalCenterWithPanel="True"
                                         Name="ChangeOpenWithButton"
+                                        Click="ChangeOpenWithButton_Click"
                                         Content="Change"
+                                        x:Uid="Properties_General_Change"
                                         MinWidth="80"
                                         Padding="5,0" />
                             </RelativePanel>
@@ -247,9 +264,11 @@
                                         Grid.ColumnSpan="2"
                                         Orientation="Horizontal">
                                 <CheckBox Content="Readonly"
+                                          x:Uid="Properties_General_ReadonlyCheckbox"
                                           x:Name="ReadonlyAttribute" />
                                 <CheckBox Content="Hidden"
                                           x:Name="HiddenAttribute"
+                                          x:Uid="Properties_General_HiddenCheckbox"
                                           Margin="10,0,0,0" />
                             </StackPanel>
                         </Grid>
@@ -259,7 +278,8 @@
             <PivotItem>
                 <PivotItem.Header>
                     <TextBlock Text="Shortcut"
-                               FontSize="18" />
+                               FontSize="18" 
+                               Name="ShortcutTab"/>
                 </PivotItem.Header>
                 <ScrollViewer Padding="5,10"
                               VerticalScrollBarVisibility="Hidden">
@@ -304,6 +324,8 @@
                                     Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
                             <TextBlock Text="Target type:"
                                        FontSize="14"
+                                       x:Uid="Properties_Shortcut_TargetType"
+                                       TextTrimming="CharacterEllipsis"
                                        Grid.Row="1"
                                        VerticalAlignment="Center"
                                        Name="ShortcutTargetTypeLabel" />
@@ -317,19 +339,23 @@
                                        TextTrimming="CharacterEllipsis" />
                             <TextBlock Text="Target location:"
                                        FontSize="14"
+                                       x:Uid="Properties_Shortcut_TargetLocation"
                                        Grid.Row="2"
+                                       TextTrimming="CharacterEllipsis"
                                        VerticalAlignment="Center"
                                        Name="ShortcutTargetLocationLabel" />
                             <TextBlock Name="ShortcutTargetLocationContent"
                                        FontSize="14"
                                        VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis"
                                        Grid.Row="2"
                                        Grid.Column="1"
                                        Padding="2,0,0,0"
-                                       ToolTipService.ToolTip="{x:Bind ShortcutTargetLocationContent.Text, Mode=OneWay}"
-                                       TextTrimming="CharacterEllipsis" />
+                                       ToolTipService.ToolTip="{x:Bind ShortcutTargetLocationContent.Text, Mode=OneWay}" />
                             <TextBlock Text="Target"
                                        FontSize="14"
+                                       x:Uid="Properties_Shortcut_Target"
+                                       TextTrimming="CharacterEllipsis"
                                        Grid.Row="3"
                                        VerticalAlignment="Center"
                                        Name="ShortcutTargetLabel" />
@@ -345,6 +371,8 @@
                             <TextBlock Text="Start in:"
                                        FontSize="14"
                                        Grid.Row="5"
+                                       x:Uid="Properties_Shortcut_StartIn"
+                                       TextTrimming="CharacterEllipsis"
                                        VerticalAlignment="Center"
                                        Name="ShortcutStartInLabel" />
                             <TextBox VerticalAlignment="Center"
@@ -353,6 +381,8 @@
                                      Name="ShortcutStartInContent" />
                             <TextBlock Text="Shortcut key:"
                                        FontSize="14"
+                                       x:Uid="Properties_Shortcut_Key"
+                                       TextTrimming="CharacterEllipsis"
                                        Grid.Row="6"
                                        VerticalAlignment="Center"
                                        Name="ShortcutKeyLabel" />
@@ -363,6 +393,8 @@
                                      KeyDown="ShortcutKeyContent_KeyDown"
                                      Name="ShortcutKeyContent" />
                             <TextBlock Text="Run:"
+                                       x:Uid="Properties_Shortcut_Run"
+                                       TextTrimming="CharacterEllipsis"
                                        FontSize="14"
                                        Grid.Row="7"
                                        VerticalAlignment="Center"
@@ -375,6 +407,8 @@
                             <TextBlock Text="Comment:"
                                        FontSize="14"
                                        Grid.Row="8"
+                                       x:Uid="Properties_Shortcut_Comment"
+                                       TextTrimming="CharacterEllipsis"
                                        VerticalAlignment="Center"
                                        Name="ShortcutCommentLabel" />
                             <TextBox VerticalAlignment="Center"
@@ -385,9 +419,11 @@
                                         Grid.ColumnSpan="2"
                                         Orientation="Horizontal">
                                 <CheckBox x:Name="RunAsAdmin"
+                                          x:Uid="Properties_Shortcut_RunAsAdmin"
                                           Content="Run as administrator" />
                                 <Button Name="OpenLocation"
                                         Margin="20,0,0,0"
+                                        x:Uid="Properties_Shortcut_OpenLocation"
                                         Click="OpenLocation_Click"
                                         Content="Open File Location" />
                             </StackPanel>
@@ -398,7 +434,8 @@
             <PivotItem>
                 <PivotItem.Header>
                     <TextBlock Text="Details"
-                               FontSize="18" />
+                               FontSize="18" 
+                               Name="DetailsTab"/>
                 </PivotItem.Header>
                 <SemanticZoom>
                     <SemanticZoom.ZoomedInView>
@@ -447,11 +484,13 @@
             <PivotItem>
                 <PivotItem.Header>
                     <TextBlock Text="Tools"
-                               FontSize="18" />
+                               FontSize="18"
+                               Name="ToolsTab"/>
                 </PivotItem.Header>
                 <StackPanel Padding="5,10">
                     <RelativePanel>
-                        <Button Content="解除文件占用"
+                        <Button Content="Unlock occupation"
+                                x:Uid="Properties_Tools_Unlock"
                                 Name="Unlock"
                                 Click="Unlock_Click" 
                                 RelativePanel.AlignLeftWithPanel="True"
@@ -491,6 +530,7 @@
                                  HorizontalAlignment="Stretch"/>
                         <Button Margin="5,0,0,0"
                                 Grid.Column="1"
+                                x:Uid="Properties_Tools_CalculateButton"
                                 Content="Calculate"
                                 VerticalAlignment="Bottom"
                                 Name="CalculateMd5"
@@ -512,6 +552,7 @@
                                 Grid.Column="1"
                                 Content="Calculate"
                                 Name="CalculateSHA1"
+                                x:Uid="Properties_Tools_CalculateButton"
                                 Click="CalculateSHA1_Click"
                                 VerticalAlignment="Bottom" />
                     </Grid>
@@ -531,6 +572,7 @@
                                 Grid.Column="1"
                                 Name="CalculateSHA256"
                                 Content="Calculate"
+                                x:Uid="Properties_Tools_CalculateButton"
                                 VerticalAlignment="Bottom"
                                 Click="CalculateSHA256_Click"/>
                     </Grid>
@@ -542,12 +584,12 @@
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
                     Margin="0,0,10,0">
-            <Button Content="确定"
+            <Button Content="{x:Bind Cls:Globalization.GetString('Common_Dialog_ConfirmButton')}"
                     Background="{ThemeResource SystemAccentColor}"
                     Width="120"
                     Name="ConfirmButton"
                     Click="ConfirmButton_Click"/>
-            <Button Content="取消" 
+            <Button Content="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}" 
                     Margin="10,0,0,0"
                     Width="120"
                     Name="CancelButton"
@@ -565,6 +607,7 @@
             <StackPanel>
                 <TextBlock Text="Applying"
                            FontSize="16"
+                           x:Uid="Properties_Loading_Text"
                            HorizontalAlignment="Center"/>
                 <muxc:ProgressBar IsIndeterminate="True"
                                   Width="180"

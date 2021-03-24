@@ -3,7 +3,7 @@
 *****
 #### Le domaine de sécurité fournit un fichier sécurisé basé sur le mécanisme de chiffrement AES et prend entièrement en charge l'utilisation de Windows Hello pour l'authentification d'identité.
 
-![Local Image](/Assets/SAIntro1_fr.png)
+![Local Image](/Assets/SAIntro_fr.png)
 
 ### Fonctions de sécurité
 

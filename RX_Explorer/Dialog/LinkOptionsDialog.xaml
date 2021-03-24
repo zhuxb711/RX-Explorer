@@ -76,8 +76,9 @@
 
             <TextBox Header="工作目录 (可选)"
                      Margin="0,10,0,0"
+                     x:Uid="LinkOptionsDialog_LinkWorkDirectory"
                      Name="LinkWorkDirectory"
-                     PlaceholderText="输入路径"/>
+                     PlaceholderText="输入工作目录路径"/>
 
             <TextBox Header="备注 (可选)"
                      Margin="0,10,0,0"
@@ -85,20 +86,23 @@
                      Name="LinkDescription"
                      PlaceholderText="输入快捷方式的描述" />
 
-            <TextBox Header="热键"
+            <TextBox Header="快捷键"
                      Text="None"
                      KeyDown="HotKeyInput_KeyDown"
                      Name="HotKeyInput"
+                     x:Uid="LinkOptionsDialog_LinkShortCutKey"
                      IsReadOnly="True"
                      Margin="0,10,0,0"/>
             
-            <ComboBox Header="启动时状态"
+            <ComboBox Header="启动"
                       Margin="0,10,0,0"
+                      x:Uid="LinkOptionsDialog_LinkWindowState"
                       MinWidth="150"
                       Name="WindowStateComboBox"/>
 
             <CheckBox Content="以管理员身份启动"
                       Margin="0,10,0,0"
+                      x:Uid="LinkOptionsDialog_LinkRunAsAdmin"
                       IsChecked="{x:Bind RunAsAdmin, Mode=TwoWay}"/>
         </StackPanel>
     </ScrollViewer>

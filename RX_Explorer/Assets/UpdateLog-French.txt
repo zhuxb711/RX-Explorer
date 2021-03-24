@@ -1,4 +1,41 @@
 ﻿*****
+###Quoi de neuf dans la version 6.2.0.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Double-cliquez sur un élément dans les résultats de la recherche pour accéder directement à l'emplacement correspondant
+
+>#####Ajout de la prise en charge de "espagnol"
+
+>#####Refaites complètement la boîte de dialogue "Propriétés", maintenant il peut afficher plus d'informations dans une fenêtre séparée
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Déplacer certains éléments du menu contextuel vers la page "Outils" dans la fenêtre "Propriétés"
+
+>#####L'invite "Chargement ..." utilisera désormais un arrière-plan acrylique
+
+>#####Vous pouvez ajouter plus de contenu personnalisé lors de la création d'un nouveau fichier lnk
+
+>#####La barre d'adresse a été optimisée pour les chemins extrêmement longs
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel les paramètres d'arrière-plan de l'image ne peuvent pas être synchronisés entre les processus
+
+>#####Correction du problème selon lequel certains fichiers peuvent ne pas être décompressés correctement
+
+>#####Correction de certains problèmes lors de l'ajout de pages Web à la zone de lancement rapide, ce qui pouvait entraîner l'échec de l'enregistrement des pages Web
+
+>#####Correction du problème selon lequel le fait de cliquer sur la barre d'adresse peut provoquer un crash dans certains cas
+
+>#####Correction du problème d'échec des touches de raccourci après le passage de "cet ordinateur" à d'autres onglets et le retour
+
+>#####Correction du problème selon lequel le fichier lnk pointant vers l'application UWP ne pouvait pas être ouvert correctement
+
+>#####Correction du problème suivant: le contenu étendu du menu ne pouvait pas être effacé correctement après la fermeture des paramètres du "Menu contextuel étendu"
+
+*****
 ###Quoi de neuf dans la version 6.1.7.0
 
 #####Mise à jour de l'interface utilisateur

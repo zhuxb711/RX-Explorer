@@ -31,9 +31,9 @@ namespace RX_Explorer.Dialog
         {
             InitializeComponent();
 
-            WindowStateComboBox.Items.Add("Normal");
-            WindowStateComboBox.Items.Add("Minimized");
-            WindowStateComboBox.Items.Add("Maximized");
+            WindowStateComboBox.Items.Add(Globalization.GetString("ShortcutWindowsStateText1"));
+            WindowStateComboBox.Items.Add(Globalization.GetString("ShortcutWindowsStateText2"));
+            WindowStateComboBox.Items.Add(Globalization.GetString("ShortcutWindowsStateText3"));
 
             WindowStateComboBox.SelectedIndex = 0;
         }
@@ -96,29 +96,44 @@ namespace RX_Explorer.Dialog
 
         private void HotKeyInput_KeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
         {
-            if (e.Key == VirtualKey.Back)
+            switch (e.Key)
             {
-                HotKeyInput.Text = Enum.GetName(typeof(VirtualKey), VirtualKey.None);
-            }
-            else if (e.Key != VirtualKey.Shift && e.Key != VirtualKey.Control && e.Key != VirtualKey.CapitalLock && e.Key != VirtualKey.Menu)
-            {
-                string KeyName = Enum.GetName(typeof(VirtualKey), e.Key);
+                case VirtualKey.Back:
+                    {
+                        HotKeyInput.Text = Enum.GetName(typeof(VirtualKey), VirtualKey.None);
+                        break;
+                    }
+                case VirtualKey.Shift:
+                case VirtualKey.Control:
+                case VirtualKey.CapitalLock:
+                case VirtualKey.Menu:
+                case VirtualKey.Space:
+                case VirtualKey.Tab:
+                    {
+                        break;
+                    }
+                default:
+                    {
+                        string KeyName = Enum.GetName(typeof(VirtualKey), e.Key);
 
-                if (string.IsNullOrEmpty(KeyName))
-                {
-                    HotKeyInput.Text = Enum.GetName(typeof(VirtualKey), VirtualKey.None);
-                }
-                else
-                {
-                    if (e.Key >= VirtualKey.F1 && e.Key <= VirtualKey.F24)
-                    {
-                        HotKeyInput.Text = KeyName;
+                        if (string.IsNullOrEmpty(KeyName))
+                        {
+                            HotKeyInput.Text = Enum.GetName(typeof(VirtualKey), VirtualKey.None);
+                        }
+                        else
+                        {
+                            if ((e.Key >= VirtualKey.F1 && e.Key <= VirtualKey.F24) || (e.Key >= VirtualKey.NumberPad0 && e.Key <= VirtualKey.NumberPad9))
+                            {
+                                HotKeyInput.Text = KeyName;
+                            }
+                            else
+                            {
+                                HotKeyInput.Text = $"Ctrl + Alt + {KeyName}";
+                            }
+                        }
+
+                        break;
                     }
-                    else
-                    {
-                        HotKeyInput.Text = $"Ctrl + Alt + {KeyName}";
-                    }
-                }
             }
         }
     }

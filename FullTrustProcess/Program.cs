@@ -346,14 +346,14 @@ namespace FullTrustProcess
 
                             string Argument = string.Join(" ", Package.Argument.Select((Para) => (Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"")) ? $"\"{Para}\"" : Para).ToArray());
 
-                            using (ShellLink Link = ShellLink.Create(Package.LinkPath, Package.LinkTargetPath, Package.Comment, Package.WorkDirectory, Argument))
+                            using (ShellLink Link = ShellLink.Create(StorageItemController.GenerateUniquePath(Package.LinkPath), Package.LinkTargetPath, Package.Comment, Package.WorkDirectory, Argument))
                             {
                                 Link.ShowState = (FormWindowState)Package.WindowState;
                                 Link.RunAsAdministrator = Package.NeedRunAsAdmin;
 
                                 if (Package.HotKey > 0)
                                 {
-                                    Link.HotKey = (Package.HotKey >= 112 && Package.HotKey <= 135) ? (Keys)Package.HotKey : (Keys)Package.HotKey | Keys.Control | Keys.Alt;
+                                    Link.HotKey = (((Package.HotKey >= 112 && Package.HotKey <= 135) || (Package.HotKey >= 96 && Package.HotKey <= 105)) || (Package.HotKey >= 96 && Package.HotKey <= 105)) ? (Keys)Package.HotKey : (Keys)Package.HotKey | Keys.Control | Keys.Alt;
                                 }
                             }
 
@@ -512,7 +512,7 @@ namespace FullTrustProcess
 
                                         if (Package.HotKey > 0)
                                         {
-                                            Link.HotKey = (Package.HotKey >= 112 && Package.HotKey <= 135) ? (Keys)Package.HotKey : (Keys)Package.HotKey | Keys.Control | Keys.Alt;
+                                            Link.HotKey = (((Package.HotKey >= 112 && Package.HotKey <= 135) || (Package.HotKey >= 96 && Package.HotKey <= 105)) || (Package.HotKey >= 96 && Package.HotKey <= 105)) ? (Keys)Package.HotKey : (Keys)Package.HotKey | Keys.Control | Keys.Alt;
                                         }
                                         else
                                         {
@@ -529,7 +529,7 @@ namespace FullTrustProcess
 
                                         if (Package.HotKey > 0)
                                         {
-                                            Link.HotKey = (Package.HotKey >= 112 && Package.HotKey <= 135) ? (Keys)Package.HotKey : (Keys)Package.HotKey | Keys.Control | Keys.Alt;
+                                            Link.HotKey = ((Package.HotKey >= 112 && Package.HotKey <= 135) || (Package.HotKey >= 96 && Package.HotKey <= 105)) ? (Keys)Package.HotKey : (Keys)Package.HotKey | Keys.Control | Keys.Alt;
                                         }
                                         else
                                         {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -15,7 +11,7 @@ namespace RX_Explorer.Class
 
         protected override DataTemplate SelectTemplateCore(object item)
         {
-            if (item is KeyValuePair<string, object> Pair && Pair.Key == "Rating")
+            if (item is KeyValuePair<string, object> Pair && Pair.Key == Globalization.GetString("Properties_Details_Rating"))
             {
                 return Rating;
             }

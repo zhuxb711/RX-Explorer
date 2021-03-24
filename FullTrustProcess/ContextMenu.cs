@@ -164,7 +164,7 @@ namespace FullTrustProcess
 
                             using (User32.SafeHMENU Menu = User32.CreatePopupMenu())
                             {
-                                ContextObject.QueryContextMenu(Menu, 0, 0, int.MaxValue, (FetchExtensionMenu ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_SYNCCASCADEMENU).ThrowIfFailed();
+                                ContextObject.QueryContextMenu(Menu, 0, 0, Convert.ToUInt32(short.MaxValue), (FetchExtensionMenu ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_SYNCCASCADEMENU).ThrowIfFailed();
 
                                 return FetchContextMenuCore(ContextObject, Menu);
                             }
@@ -196,7 +196,7 @@ namespace FullTrustProcess
 
                             using (User32.SafeHMENU Menu = User32.CreatePopupMenu())
                             {
-                                ContextObject.QueryContextMenu(Menu, 0, 0, int.MaxValue, (IsLastExtendedMenuRequested ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_SYNCCASCADEMENU).ThrowIfFailed();
+                                ContextObject.QueryContextMenu(Menu, 0, 0, Convert.ToUInt32(short.MaxValue), (IsLastExtendedMenuRequested ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_OPTIMIZEFORINVOKE | Shell32.CMF.CMF_SYNCCASCADEMENU).ThrowIfFailed();
 
                                 if (string.IsNullOrEmpty(Verb))
                                 {

@@ -45,29 +45,8 @@
   <data name="AppEdit.Label" xml:space="preserve">
     <value>编辑</value>
   </data>
-  <data name="AttributeCreated.Text" xml:space="preserve">
-    <value>创建时间</value>
-  </data>
-  <data name="AttributeDialog.CloseButtonText" xml:space="preserve">
-    <value>确定</value>
-  </data>
-  <data name="AttributeDialog.Title" xml:space="preserve">
-    <value>属性</value>
-  </data>
   <data name="AttributeName.Text" xml:space="preserve">
     <value>名称</value>
-  </data>
-  <data name="AttributeInclude.Text" xml:space="preserve">
-    <value>包括</value>
-  </data>
-  <data name="AttributeExtraData.Text" xml:space="preserve">
-    <value>相关信息</value>
-  </data>
-  <data name="AttributeLocation.Text" xml:space="preserve">
-    <value>路径</value>
-  </data>
-  <data name="AttributeModified.Text" xml:space="preserve">
-    <value>修改时间</value>
   </data>
   <data name="AttributeSecureLevel.Text" xml:space="preserve">
     <value>安全等级</value>
@@ -2162,9 +2141,6 @@
   <data name="Link_Admin_DisplayType" xml:space="preserve">
     <value>快捷方式</value>
   </data>
-  <data name="AttributeTargetPath.Text" xml:space="preserve">
-    <value>目标</value>
-  </data>
   <data name="QueueDialog_SetWallpaperFailure_Content" xml:space="preserve">
     <value>由于出现未知错误，无法将图片设置为壁纸</value>
   </data>
@@ -2672,5 +2648,326 @@
   </data>
   <data name="QueueDialog_CouldNotAccess_Content" xml:space="preserve">
     <value>RX不支持查看此驱动器，因为它的路径为空</value>
+  </data>
+  <data name="OfflineAvailabilityStatusText1" xml:space="preserve">
+    <value>脱机不可用</value>
+  </data>
+  <data name="OfflineAvailabilityStatusText2" xml:space="preserve">
+    <value>脱机部分可用</value>
+  </data>
+  <data name="OfflineAvailabilityStatusText3" xml:space="preserve">
+    <value>完全</value>
+  </data>
+  <data name="OfflineAvailabilityStatusText4" xml:space="preserve">
+    <value>完全固定</value>
+  </data>
+  <data name="OfflineAvailabilityStatusText5" xml:space="preserve">
+    <value>排除在外</value>
+  </data>
+  <data name="OfflineAvailabilityStatusText6" xml:space="preserve">
+    <value>无</value>
+  </data>
+  <data name="OfflineAvailabilityText1" xml:space="preserve">
+    <value>仅在线可用</value>
+  </data>
+  <data name="OfflineAvailabilityText2" xml:space="preserve">
+    <value>可用</value>
+  </data>
+  <data name="OfflineAvailabilityText3" xml:space="preserve">
+    <value>脱机可用</value>
+  </data>
+  <data name="OpenWithEmptyText" xml:space="preserve">
+    <value>选择一个应用</value>
+  </data>
+  <data name="Properties_Details_Tab" xml:space="preserve">
+    <value>详细信息</value>
+  </data>
+  <data name="Properties_General_Tab" xml:space="preserve">
+    <value>常规</value>
+  </data>
+  <data name="Properties_Shortcut_Tab" xml:space="preserve">
+    <value>快捷方式</value>
+  </data>
+  <data name="Properties_Tools_Tab" xml:space="preserve">
+    <value>工具</value>
+  </data>
+  <data name="ShortcutWindowsStateText1" xml:space="preserve">
+    <value>正常</value>
+  </data>
+  <data name="ShortcutWindowsStateText2" xml:space="preserve">
+    <value>最小化窗口</value>
+  </data>
+  <data name="ShortcutWindowsStateText3" xml:space="preserve">
+    <value>最大化窗口</value>
+  </data>
+  <data name="Properties_Details_AlbumArtist" xml:space="preserve">
+    <value>专辑歌手</value>
+  </data>
+  <data name="Properties_Details_Artist" xml:space="preserve">
+    <value>艺术家</value>
+  </data>
+  <data name="Properties_Details_Audio_Label" xml:space="preserve">
+    <value>音频</value>
+  </data>
+  <data name="Properties_Details_Authors" xml:space="preserve">
+    <value>作者</value>
+  </data>
+  <data name="Properties_Details_Availability" xml:space="preserve">
+    <value>可用性</value>
+  </data>
+  <data name="Properties_Details_Basic_Label" xml:space="preserve">
+    <value>基本</value>
+  </data>
+  <data name="Properties_Details_BitDepth" xml:space="preserve">
+    <value>位深</value>
+  </data>
+  <data name="Properties_Details_Bitrate" xml:space="preserve">
+    <value>比特率</value>
+  </data>
+  <data name="Properties_Details_Channels" xml:space="preserve">
+    <value>通道</value>
+  </data>
+  <data name="Properties_Details_CharacterCount" xml:space="preserve">
+    <value>字符数</value>
+  </data>
+  <data name="Properties_Details_ColorSpace" xml:space="preserve">
+    <value>色彩空间</value>
+  </data>
+  <data name="Properties_Details_ColorSpace_SRGB" xml:space="preserve">
+    <value>SRGB</value>
+  </data>
+  <data name="Properties_Details_ColorSpace_Uncalibrated" xml:space="preserve">
+    <value>未校准</value>
+  </data>
+  <data name="Properties_Details_Comment" xml:space="preserve">
+    <value>备注</value>
+  </data>
+  <data name="Properties_Details_Composers" xml:space="preserve">
+    <value>作曲家</value>
+  </data>
+  <data name="Properties_Details_ComputerName" xml:space="preserve">
+    <value>计算机名称</value>
+  </data>
+  <data name="Properties_Details_Conductors" xml:space="preserve">
+    <value>指挥家</value>
+  </data>
+  <data name="Properties_Details_ContentCreated" xml:space="preserve">
+    <value>内容创建日期</value>
+  </data>
+  <data name="Properties_Details_Copyright" xml:space="preserve">
+    <value>版权</value>
+  </data>
+  <data name="Properties_Details_DateCreated" xml:space="preserve">
+    <value>创建日期</value>
+  </data>
+  <data name="Properties_Details_DateLastSaved" xml:space="preserve">
+    <value>上次保存日期</value>
+  </data>
+  <data name="Properties_Details_DateModified" xml:space="preserve">
+    <value>修改日期</value>
+  </data>
+  <data name="Properties_Details_DateTaken" xml:space="preserve">
+    <value>拍摄日期</value>
+  </data>
+  <data name="Properties_Details_Description" xml:space="preserve">
+    <value>说明</value>
+  </data>
+  <data name="Properties_Details_Dimensions" xml:space="preserve">
+    <value>尺寸</value>
+  </data>
+  <data name="Properties_Details_Directors" xml:space="preserve">
+    <value>导演</value>
+  </data>
+  <data name="Properties_Details_Duration" xml:space="preserve">
+    <value>持续时间</value>
+  </data>
+  <data name="Properties_Details_Extra_Label" xml:space="preserve">
+    <value>其他</value>
+  </data>
+  <data name="Properties_Details_FolderPath" xml:space="preserve">
+    <value>文件夹路径</value>
+  </data>
+  <data name="Properties_Details_FrameHeight" xml:space="preserve">
+    <value>帧高度</value>
+  </data>
+  <data name="Properties_Details_FrameRate" xml:space="preserve">
+    <value>帧速率</value>
+  </data>
+  <data name="Properties_Details_FrameRatePerSecond" xml:space="preserve">
+    <value>帧/秒</value>
+  </data>
+  <data name="Properties_Details_FrameWidth" xml:space="preserve">
+    <value>帧宽度</value>
+  </data>
+  <data name="Properties_Details_Genre" xml:space="preserve">
+    <value>类型</value>
+  </data>
+  <data name="Properties_Details_Height" xml:space="preserve">
+    <value>高度</value>
+  </data>
+  <data name="Properties_Details_Image_Label" xml:space="preserve">
+    <value>图像</value>
+  </data>
+  <data name="Properties_Details_ItemType" xml:space="preserve">
+    <value>类型</value>
+  </data>
+  <data name="Properties_Details_Keywords" xml:space="preserve">
+    <value>关键字</value>
+  </data>
+  <data name="Properties_Details_LastAuthor" xml:space="preserve">
+    <value>上次修改作者</value>
+  </data>
+  <data name="Properties_Details_LineCount" xml:space="preserve">
+    <value>行数</value>
+  </data>
+  <data name="Properties_Details_Name" xml:space="preserve">
+    <value>名称</value>
+  </data>
+  <data name="Properties_Details_OfflineAvailabilityStatus" xml:space="preserve">
+    <value>脱机状态</value>
+  </data>
+  <data name="Properties_Details_Owner" xml:space="preserve">
+    <value>所有者</value>
+  </data>
+  <data name="Properties_Details_PageCount" xml:space="preserve">
+    <value>页数</value>
+  </data>
+  <data name="Properties_Details_Producers" xml:space="preserve">
+    <value>制作人</value>
+  </data>
+  <data name="Properties_Details_Publisher" xml:space="preserve">
+    <value>出版商</value>
+  </data>
+  <data name="Properties_Details_Rating" xml:space="preserve">
+    <value>评价</value>
+  </data>
+  <data name="Properties_Details_RevisionNumber" xml:space="preserve">
+    <value>修订版本号</value>
+  </data>
+  <data name="Properties_Details_SampleRate" xml:space="preserve">
+    <value>采样率</value>
+  </data>
+  <data name="Properties_Details_Size" xml:space="preserve">
+    <value>大小</value>
+  </data>
+  <data name="Properties_Details_Subtitle" xml:space="preserve">
+    <value>副标题</value>
+  </data>
+  <data name="Properties_Details_Template" xml:space="preserve">
+    <value>模板</value>
+  </data>
+  <data name="Properties_Details_Title" xml:space="preserve">
+    <value>标题</value>
+  </data>
+  <data name="Properties_Details_TotalEditingTime" xml:space="preserve">
+    <value>总编辑时间</value>
+  </data>
+  <data name="Properties_Details_TrackNum" xml:space="preserve">
+    <value>音轨数量</value>
+  </data>
+  <data name="Properties_Details_Version" xml:space="preserve">
+    <value>版本</value>
+  </data>
+  <data name="Properties_Details_Video_Label" xml:space="preserve">
+    <value>视频</value>
+  </data>
+  <data name="Properties_Details_Width" xml:space="preserve">
+    <value>宽度</value>
+  </data>
+  <data name="Properties_Details_WordCount" xml:space="preserve">
+    <value>字数</value>
+  </data>
+  <data name="Properties_Details_Year" xml:space="preserve">
+    <value>年份</value>
+  </data>
+  <data name="Properties_General_Contains.Text" xml:space="preserve">
+    <value>包含:</value>
+  </data>
+  <data name="Properties_General_CreatedTime.Text" xml:space="preserve">
+    <value>创建日期:</value>
+  </data>
+  <data name="Properties_General_Location.Text" xml:space="preserve">
+    <value>位置:</value>
+  </data>
+  <data name="Properties_General_ModifiedTime.Text" xml:space="preserve">
+    <value>修改日期:</value>
+  </data>
+  <data name="Properties_General_OpenWith.Text" xml:space="preserve">
+    <value>打开方式:</value>
+  </data>
+  <data name="Properties_General_ReadonlyCheckbox.Content" xml:space="preserve">
+    <value>只读</value>
+  </data>
+  <data name="Properties_General_Size.Text" xml:space="preserve">
+    <value>大小:</value>
+  </data>
+  <data name="Properties_General_Type.Text" xml:space="preserve">
+    <value>类型:</value>
+  </data>
+  <data name="Properties_Loading_Text.Text" xml:space="preserve">
+    <value>正在应用</value>
+  </data>
+  <data name="Properties_Shortcut_Comment.Text" xml:space="preserve">
+    <value>备注:</value>
+  </data>
+  <data name="Properties_Shortcut_Key.Text" xml:space="preserve">
+    <value>快捷键:</value>
+  </data>
+  <data name="Properties_Shortcut_OpenLocation.Content" xml:space="preserve">
+    <value>打开文件位置</value>
+  </data>
+  <data name="Properties_Shortcut_Run.Text" xml:space="preserve">
+    <value>启动:</value>
+  </data>
+  <data name="Properties_Shortcut_RunAsAdmin.Content" xml:space="preserve">
+    <value>以管理员身份运行</value>
+  </data>
+  <data name="Properties_Shortcut_StartIn.Text" xml:space="preserve">
+    <value>起始位置:</value>
+  </data>
+  <data name="Properties_Shortcut_Target.Text" xml:space="preserve">
+    <value>目标</value>
+  </data>
+  <data name="Properties_Shortcut_TargetLocation.Text" xml:space="preserve">
+    <value>目标位置:</value>
+  </data>
+  <data name="Properties_Shortcut_TargetType.Text" xml:space="preserve">
+    <value>目标类型:</value>
+  </data>
+  <data name="Properties_Tools_CalculateButton.Content" xml:space="preserve">
+    <value>计算</value>
+  </data>
+  <data name="Properties_Tools_Unlock.Content" xml:space="preserve">
+    <value>解除文件占用</value>
+  </data>
+  <data name="Properties_Window_Title" xml:space="preserve">
+    <value>属性</value>
+  </data>
+  <data name="ShortcutHotKey_None" xml:space="preserve">
+    <value>无</value>
+  </data>
+  <data name="ShortcutTargetApplicationType" xml:space="preserve">
+    <value>应用程序</value>
+  </data>
+  <data name="Properties_General_HiddenCheckbox.Content" xml:space="preserve">
+    <value>隐藏</value>
+  </data>
+  <data name="Properties_General_Change.Content" xml:space="preserve">
+    <value>更改</value>
+  </data>
+  <data name="LinkOptionsDialog_LinkRunAsAdmin.Content" xml:space="preserve">
+    <value>以管理员身份运行</value>
+  </data>
+  <data name="LinkOptionsDialog_LinkShortCutKey.Header" xml:space="preserve">
+    <value>快捷键</value>
+  </data>
+  <data name="LinkOptionsDialog_LinkWindowState.Header" xml:space="preserve">
+    <value>启动</value>
+  </data>
+  <data name="LinkOptionsDialog_LinkWorkDirectory.Header" xml:space="preserve">
+    <value>工作目录 (可选)</value>
+  </data>
+  <data name="LinkOptionsDialog_LinkWorkDirectory.PlaceholderText" xml:space="preserve">
+    <value>输入工作目录路径 </value>
   </data>
 </root>

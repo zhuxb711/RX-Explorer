@@ -1,4 +1,41 @@
 ﻿*****
+###What's new in Ver.6.2.0.0
+
+#####Feature update
+
+>#####Double-click an item in the search results to jump directly to the corresponding location
+
+>#####Added support for "Spanish"
+
+>#####Completely redo the "Properties" dialog, now it can display more information as a separate window
+
+#####UI update
+
+>#####Move some items of the context menu to the "Tools" page in the "Properties" window
+
+>#####"Loading..." prompt will now use Acrylic background
+
+>#####You can add more custom content when creating a new lnk file
+
+>#####The address bar has been optimized for extremely long paths
+
+#####Bug fix
+
+>#####Fixed the problem that the picture background settings cannot be synchronized across processes
+
+>#####Fixed the problem that some files may not be decompressed correctly
+
+>#####Fixed some problems when adding webpages to the quick launch area, which may cause webpages to fail to save
+
+>#####Fixed the problem that clicking the address bar may cause a crash in some cases
+
+>#####Fixed the problem that the shortcut keys fail after switching from "this computer" to other tabs and returning
+
+>#####Fixed the problem that the lnk file pointing to the UWP application may not be opened correctly
+
+>#####Fixed the problem that the extended content in the menu could not be cleared correctly after closing the "Extended context menu" settings
+
+*****
 ###What's new in Ver.6.1.7.0
 
 #####UI update

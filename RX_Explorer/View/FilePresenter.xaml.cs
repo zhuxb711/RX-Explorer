@@ -17,6 +17,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Data.Xml.Dom;
@@ -2117,16 +2118,16 @@ namespace RX_Explorer
             CloseAllFlyout();
 
             AppWindow NewWindow = await AppWindow.TryCreateAsync();
-            NewWindow.RequestSize(new Size(420, 650));
+            NewWindow.RequestSize(new Size(420, 600));
             NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
             NewWindow.PersistedStateId = "Properties";
-            NewWindow.Title = "Properties";
+            NewWindow.Title = Globalization.GetString("Properties_Window_Title");
             NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
             NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
             NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
             ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, SelectedItem));
-            WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 650));
+            WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
 
             await NewWindow.TryShowAsync();
         }
@@ -2617,16 +2618,16 @@ namespace RX_Explorer
             CloseAllFlyout();
 
             AppWindow NewWindow = await AppWindow.TryCreateAsync();
-            NewWindow.RequestSize(new Size(420, 650));
+            NewWindow.RequestSize(new Size(420, 600));
             NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
             NewWindow.PersistedStateId = "Properties";
-            NewWindow.Title = "Properties";
+            NewWindow.Title = Globalization.GetString("Properties_Window_Title");
             NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
             NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
             NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
             ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, SelectedItem));
-            WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 650));
+            WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
 
             await NewWindow.TryShowAsync();
         }
@@ -2727,16 +2728,16 @@ namespace RX_Explorer
             if (await FileSystemStorageItemBase.CheckExistAsync(CurrentFolder.Path).ConfigureAwait(true))
             {
                 AppWindow NewWindow = await AppWindow.TryCreateAsync();
-                NewWindow.RequestSize(new Size(420, 650));
+                NewWindow.RequestSize(new Size(420, 600));
                 NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
                 NewWindow.PersistedStateId = "Properties";
-                NewWindow.Title = "Properties";
+                NewWindow.Title = Globalization.GetString("Properties_Window_Title");
                 NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
                 NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
                 NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
                 ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, CurrentFolder));
-                WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 650));
+                WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
 
                 await NewWindow.TryShowAsync();
             }

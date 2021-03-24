@@ -33,6 +33,11 @@ namespace RX_Explorer.Dialog
                         IntroFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/IntroFile-French.txt")).AsTask().Result;
                         break;
                     }
+                case LanguageEnum.Spanish:
+                    {
+                        IntroFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/IntroFile-Spanish.txt")).AsTask().Result;
+                        break;
+                    }
             }
 
             MarkDown.Text = FileIO.ReadTextAsync(IntroFile).AsTask().Result;

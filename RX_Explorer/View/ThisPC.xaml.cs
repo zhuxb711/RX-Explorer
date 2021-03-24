@@ -1,6 +1,7 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
+using RX_Explorer.SeparateWindow.PropertyWindow;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
@@ -10,14 +11,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Portable;
+using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
 using Windows.System;
+using Windows.UI;
 using Windows.UI.Input;
 using Windows.UI.Notifications;
+using Windows.UI.WindowManagement;
+using Windows.UI.WindowManagement.Preview;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 using ProgressBar = Microsoft.UI.Xaml.Controls.ProgressBar;
@@ -521,8 +527,19 @@ namespace RX_Explorer
         {
             if (LibraryGrid.SelectedItem is LibraryFolder Library && await FileSystemStorageItemBase.OpenAsync(Library.Folder.Path).ConfigureAwait(true) is FileSystemStorageFolder Folder)
             {
-                PropertyDialog Dialog = new PropertyDialog(Folder);
-                await Dialog.ShowAsync().ConfigureAwait(true);
+                AppWindow NewWindow = await AppWindow.TryCreateAsync();
+                NewWindow.RequestSize(new Size(420, 600));
+                NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+                NewWindow.PersistedStateId = "Properties";
+                NewWindow.Title = Globalization.GetString("Properties_Window_Title");
+                NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+                NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
+                ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, Folder));
+                WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
+
+                await NewWindow.TryShowAsync();
             }
         }
 

@@ -3,7 +3,7 @@
 *****
 ####The security domain provides a file safe based on the AES encryption mechanism and fully supports Windows Hello for identity authentication
 
-![Local Image](/Assets/SAIntro1_en.png)
+![Local Image](/Assets/SAIntro_en.png)
 
 ###Security Features
 

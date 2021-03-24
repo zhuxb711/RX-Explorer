@@ -1,5 +1,6 @@
 ﻿using RX_Explorer.Class;
 using RX_Explorer.Dialog;
+using RX_Explorer.SeparateWindow.PropertyWindow;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,8 +9,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Foundation;
+using Windows.UI;
+using Windows.UI.WindowManagement;
+using Windows.UI.WindowManagement.Preview;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Navigation;
 
 namespace RX_Explorer
@@ -169,8 +175,19 @@ namespace RX_Explorer
         {
             if (SearchResultList.SelectedItem is FileSystemStorageItemBase Item)
             {
-                PropertyDialog Dialog = new PropertyDialog(Item);
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                AppWindow NewWindow = await AppWindow.TryCreateAsync();
+                NewWindow.RequestSize(new Size(420, 600));
+                NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+                NewWindow.PersistedStateId = "Properties";
+                NewWindow.Title = Globalization.GetString("Properties_Window_Title");
+                NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+                NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
+                ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, Item));
+                WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
+
+                await NewWindow.TryShowAsync();
             }
         }
 

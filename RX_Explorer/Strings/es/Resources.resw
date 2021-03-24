@@ -45,29 +45,8 @@
   <data name="AppEdit.Label" xml:space="preserve">
     <value>Editar</value>
   </data>
-  <data name="AttributeCreated.Text" xml:space="preserve">
-    <value>Creado</value>
-  </data>
-  <data name="AttributeDialog.CloseButtonText" xml:space="preserve">
-    <value>Vale</value>
-  </data>
-  <data name="AttributeDialog.Title" xml:space="preserve">
-    <value>Propiedades</value>
-  </data>
   <data name="AttributeName.Text" xml:space="preserve">
     <value>Nombre</value>
-  </data>
-  <data name="AttributeInclude.Text" xml:space="preserve">
-    <value>Incluye</value>
-  </data>
-  <data name="AttributeExtraData.Text" xml:space="preserve">
-    <value>Info. relacionada</value>
-  </data>
-  <data name="AttributeLocation.Text" xml:space="preserve">
-    <value>Ubicación</value>
-  </data>
-  <data name="AttributeModified.Text" xml:space="preserve">
-    <value>Modificado</value>
   </data>
   <data name="AttributeSecureLevel.Text" xml:space="preserve">
     <value>Nivel de seguridad</value>
@@ -2208,9 +2187,6 @@ Las denominaciones no válidas son:
   <data name="Link_Admin_DisplayType" xml:space="preserve">
     <value>Acceso directo</value>
   </data>
-  <data name="AttributeTargetPath.Text" xml:space="preserve">
-    <value>Destino</value>
-  </data>
   <data name="QueueDialog_SetWallpaperFailure_Content" xml:space="preserve">
     <value>No se ha podido fijar la imagen como fondo debido a un error desconocido.</value>
   </data>
@@ -2672,5 +2648,326 @@ Las denominaciones no válidas son:
   </data>
   <data name="QueueDialog_CouldNotAccess_Content" xml:space="preserve">
     <value>RX no admite la visualización de esta unidad porque su ruta está vacía</value>
+  </data>
+  <data name="OfflineAvailabilityStatusText1" xml:space="preserve">
+    <value>No disponible sin conexión</value>
+  </data>
+  <data name="OfflineAvailabilityStatusText2" xml:space="preserve">
+    <value>Parcialmente disponible sin conexión</value>
+  </data>
+  <data name="OfflineAvailabilityStatusText3" xml:space="preserve">
+    <value>Completo</value>
+  </data>
+  <data name="OfflineAvailabilityStatusText4" xml:space="preserve">
+    <value>Completo fijado</value>
+  </data>
+  <data name="OfflineAvailabilityStatusText5" xml:space="preserve">
+    <value>Excluido</value>
+  </data>
+  <data name="OfflineAvailabilityStatusText6" xml:space="preserve">
+    <value>Vacío</value>
+  </data>
+  <data name="OfflineAvailabilityText1" xml:space="preserve">
+    <value>Solo online</value>
+  </data>
+  <data name="OfflineAvailabilityText2" xml:space="preserve">
+    <value>Disponible</value>
+  </data>
+  <data name="OfflineAvailabilityText3" xml:space="preserve">
+    <value>Disponible sin conexión</value>
+  </data>
+  <data name="OpenWithEmptyText" xml:space="preserve">
+    <value>Elige una aplicación</value>
+  </data>
+  <data name="Properties_Details_Tab" xml:space="preserve">
+    <value>Detalles</value>
+  </data>
+  <data name="Properties_General_Tab" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Properties_Shortcut_Tab" xml:space="preserve">
+    <value>Atajo</value>
+  </data>
+  <data name="Properties_Tools_Tab" xml:space="preserve">
+    <value>Instrumentos</value>
+  </data>
+  <data name="ShortcutWindowsStateText1" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="ShortcutWindowsStateText2" xml:space="preserve">
+    <value>Minimizado</value>
+  </data>
+  <data name="ShortcutWindowsStateText3" xml:space="preserve">
+    <value>Maximizado</value>
+  </data>
+  <data name="Properties_Details_AlbumArtist" xml:space="preserve">
+    <value>Artista de un album</value>
+  </data>
+  <data name="Properties_Details_Artist" xml:space="preserve">
+    <value>Artista</value>
+  </data>
+  <data name="Properties_Details_Audio_Label" xml:space="preserve">
+    <value>Audio</value>
+  </data>
+  <data name="Properties_Details_Authors" xml:space="preserve">
+    <value>Autores</value>
+  </data>
+  <data name="Properties_Details_Availability" xml:space="preserve">
+    <value>Disponibilidad</value>
+  </data>
+  <data name="Properties_Details_Basic_Label" xml:space="preserve">
+    <value>Básico</value>
+  </data>
+  <data name="Properties_Details_BitDepth" xml:space="preserve">
+    <value>Profundidad de bits</value>
+  </data>
+  <data name="Properties_Details_Bitrate" xml:space="preserve">
+    <value>Bitrate</value>
+  </data>
+  <data name="Properties_Details_Channels" xml:space="preserve">
+    <value>Canales</value>
+  </data>
+  <data name="Properties_Details_CharacterCount" xml:space="preserve">
+    <value>Número de letras</value>
+  </data>
+  <data name="Properties_Details_ColorSpace" xml:space="preserve">
+    <value>Espacio de color</value>
+  </data>
+  <data name="Properties_Details_ColorSpace_SRGB" xml:space="preserve">
+    <value>SRGB</value>
+  </data>
+  <data name="Properties_Details_ColorSpace_Uncalibrated" xml:space="preserve">
+    <value>Sin calibrar</value>
+  </data>
+  <data name="Properties_Details_Comment" xml:space="preserve">
+    <value>Comentario</value>
+  </data>
+  <data name="Properties_Details_Composers" xml:space="preserve">
+    <value>Compositores</value>
+  </data>
+  <data name="Properties_Details_ComputerName" xml:space="preserve">
+    <value>Nombre del ordenador</value>
+  </data>
+  <data name="Properties_Details_Conductors" xml:space="preserve">
+    <value>Conductores</value>
+  </data>
+  <data name="Properties_Details_ContentCreated" xml:space="preserve">
+    <value>Contenido creado</value>
+  </data>
+  <data name="Properties_Details_Copyright" xml:space="preserve">
+    <value>Derechos de autor</value>
+  </data>
+  <data name="Properties_Details_DateCreated" xml:space="preserve">
+    <value>Fecha de creacion</value>
+  </data>
+  <data name="Properties_Details_DateLastSaved" xml:space="preserve">
+    <value>Fecha de último guardado</value>
+  </data>
+  <data name="Properties_Details_DateModified" xml:space="preserve">
+    <value>Fecha modificada</value>
+  </data>
+  <data name="Properties_Details_DateTaken" xml:space="preserve">
+    <value>Fecha que se tendrá</value>
+  </data>
+  <data name="Properties_Details_Description" xml:space="preserve">
+    <value>Descripción</value>
+  </data>
+  <data name="Properties_Details_Dimensions" xml:space="preserve">
+    <value>Dimensiones</value>
+  </data>
+  <data name="Properties_Details_Directors" xml:space="preserve">
+    <value>Directores</value>
+  </data>
+  <data name="Properties_Details_Duration" xml:space="preserve">
+    <value>Duración</value>
+  </data>
+  <data name="Properties_Details_Extra_Label" xml:space="preserve">
+    <value>Extra</value>
+  </data>
+  <data name="Properties_Details_FolderPath" xml:space="preserve">
+    <value>Ruta de la carpeta</value>
+  </data>
+  <data name="Properties_Details_FrameHeight" xml:space="preserve">
+    <value>Altura del marco</value>
+  </data>
+  <data name="Properties_Details_FrameRate" xml:space="preserve">
+    <value>Cuadros por segundo</value>
+  </data>
+  <data name="Properties_Details_FrameRatePerSecond" xml:space="preserve">
+    <value>fotogramas/segundo</value>
+  </data>
+  <data name="Properties_Details_FrameWidth" xml:space="preserve">
+    <value>Ancho del marco</value>
+  </data>
+  <data name="Properties_Details_Genre" xml:space="preserve">
+    <value>Género</value>
+  </data>
+  <data name="Properties_Details_Height" xml:space="preserve">
+    <value>Altura</value>
+  </data>
+  <data name="Properties_Details_Image_Label" xml:space="preserve">
+    <value>Imagen</value>
+  </data>
+  <data name="Properties_Details_ItemType" xml:space="preserve">
+    <value>Tipo de artículo</value>
+  </data>
+  <data name="Properties_Details_Keywords" xml:space="preserve">
+    <value>Palabras clave</value>
+  </data>
+  <data name="Properties_Details_LastAuthor" xml:space="preserve">
+    <value>Último autor</value>
+  </data>
+  <data name="Properties_Details_LineCount" xml:space="preserve">
+    <value>Recuento de líneas</value>
+  </data>
+  <data name="Properties_Details_Name" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="Properties_Details_OfflineAvailabilityStatus" xml:space="preserve">
+    <value>Estado sin conexión</value>
+  </data>
+  <data name="Properties_Details_Owner" xml:space="preserve">
+    <value>Dueño</value>
+  </data>
+  <data name="Properties_Details_PageCount" xml:space="preserve">
+    <value>Recuento de páginas</value>
+  </data>
+  <data name="Properties_Details_Producers" xml:space="preserve">
+    <value>Productores</value>
+  </data>
+  <data name="Properties_Details_Publisher" xml:space="preserve">
+    <value>Editor</value>
+  </data>
+  <data name="Properties_Details_Rating" xml:space="preserve">
+    <value>Clasificación</value>
+  </data>
+  <data name="Properties_Details_RevisionNumber" xml:space="preserve">
+    <value>Número de revisión</value>
+  </data>
+  <data name="Properties_Details_SampleRate" xml:space="preserve">
+    <value>Frecuencia de muestreo</value>
+  </data>
+  <data name="Properties_Details_Size" xml:space="preserve">
+    <value>Tamaño</value>
+  </data>
+  <data name="Properties_Details_Subtitle" xml:space="preserve">
+    <value>Subtitular</value>
+  </data>
+  <data name="Properties_Details_Template" xml:space="preserve">
+    <value>Plantilla</value>
+  </data>
+  <data name="Properties_Details_Title" xml:space="preserve">
+    <value>Título</value>
+  </data>
+  <data name="Properties_Details_TotalEditingTime" xml:space="preserve">
+    <value>Tiempo total de edición</value>
+  </data>
+  <data name="Properties_Details_TrackNum" xml:space="preserve">
+    <value>Número de pista</value>
+  </data>
+  <data name="Properties_Details_Version" xml:space="preserve">
+    <value>Versión</value>
+  </data>
+  <data name="Properties_Details_Video_Label" xml:space="preserve">
+    <value>Video</value>
+  </data>
+  <data name="Properties_Details_Width" xml:space="preserve">
+    <value>Ancho</value>
+  </data>
+  <data name="Properties_Details_WordCount" xml:space="preserve">
+    <value>El recuento de palabras</value>
+  </data>
+  <data name="Properties_Details_Year" xml:space="preserve">
+    <value>Año</value>
+  </data>
+  <data name="Properties_General_Contains.Text" xml:space="preserve">
+    <value>Contiene:</value>
+  </data>
+  <data name="Properties_General_CreatedTime.Text" xml:space="preserve">
+    <value>Creado:</value>
+  </data>
+  <data name="Properties_General_Location.Text" xml:space="preserve">
+    <value>Localización:</value>
+  </data>
+  <data name="Properties_General_ModifiedTime.Text" xml:space="preserve">
+    <value>Modificado:</value>
+  </data>
+  <data name="Properties_General_OpenWith.Text" xml:space="preserve">
+    <value>Abierto con:</value>
+  </data>
+  <data name="Properties_General_ReadonlyCheckbox.Content" xml:space="preserve">
+    <value>Solo lectura</value>
+  </data>
+  <data name="Properties_General_Size.Text" xml:space="preserve">
+    <value>Tamaño:</value>
+  </data>
+  <data name="Properties_General_Type.Text" xml:space="preserve">
+    <value>Escribe:</value>
+  </data>
+  <data name="Properties_Loading_Text.Text" xml:space="preserve">
+    <value>Aplicando</value>
+  </data>
+  <data name="Properties_Shortcut_Comment.Text" xml:space="preserve">
+    <value>Comentario:</value>
+  </data>
+  <data name="Properties_Shortcut_Key.Text" xml:space="preserve">
+    <value>Tecla de acceso directo:</value>
+  </data>
+  <data name="Properties_Shortcut_OpenLocation.Content" xml:space="preserve">
+    <value>Abrir localización de archivo</value>
+  </data>
+  <data name="Properties_Shortcut_Run.Text" xml:space="preserve">
+    <value>Correr:</value>
+  </data>
+  <data name="Properties_Shortcut_RunAsAdmin.Content" xml:space="preserve">
+    <value>Ejecutar como administrador</value>
+  </data>
+  <data name="Properties_Shortcut_StartIn.Text" xml:space="preserve">
+    <value>Empezar en:</value>
+  </data>
+  <data name="Properties_Shortcut_Target.Text" xml:space="preserve">
+    <value>Objetivo</value>
+  </data>
+  <data name="Properties_Shortcut_TargetLocation.Text" xml:space="preserve">
+    <value>Ubicación del objetivo:</value>
+  </data>
+  <data name="Properties_Shortcut_TargetType.Text" xml:space="preserve">
+    <value>Tipo de objetivo:</value>
+  </data>
+  <data name="Properties_Tools_CalculateButton.Content" xml:space="preserve">
+    <value>Calcular</value>
+  </data>
+  <data name="Properties_Tools_Unlock.Content" xml:space="preserve">
+    <value>Desbloquear ocupación</value>
+  </data>
+  <data name="Properties_Window_Title" xml:space="preserve">
+    <value>Propiedades</value>
+  </data>
+  <data name="ShortcutHotKey_None" xml:space="preserve">
+    <value>Ninguno</value>
+  </data>
+  <data name="ShortcutTargetApplicationType" xml:space="preserve">
+    <value>Solicitud</value>
+  </data>
+  <data name="Properties_General_HiddenCheckbox.Content" xml:space="preserve">
+    <value>Oculto</value>
+  </data>
+  <data name="Properties_General_Change.Content" xml:space="preserve">
+    <value>Cambio</value>
+  </data>
+  <data name="LinkOptionsDialog_LinkRunAsAdmin.Content" xml:space="preserve">
+    <value>Ejecutar como administrador</value>
+  </data>
+  <data name="LinkOptionsDialog_LinkShortCutKey.Header" xml:space="preserve">
+    <value>Tecla de acceso directo</value>
+  </data>
+  <data name="LinkOptionsDialog_LinkWindowState.Header" xml:space="preserve">
+    <value>Correr</value>
+  </data>
+  <data name="LinkOptionsDialog_LinkWorkDirectory.Header" xml:space="preserve">
+    <value>Directorio de trabajo (opcional)</value>
+  </data>
+  <data name="LinkOptionsDialog_LinkWorkDirectory.PlaceholderText" xml:space="preserve">
+    <value>Ingrese la ruta del directorio de trabajo</value>
   </data>
 </root>

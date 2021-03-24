@@ -8,7 +8,7 @@
       <group id="RX_EXPLORER/STRINGS/EN-US/RESOURCES.RESW" datatype="resx">
         <trans-unit id="AddDevice.Label" translate="yes" xml:space="preserve">
           <source>Add drive</source>
-          <target state="translated">Niveau de sécurité</target>
+          <target state="translated">Ajouter un lecteur</target>
         </trans-unit>
         <trans-unit id="AESCheckBox.Content" translate="yes" xml:space="preserve">
           <source>Delete source file after encryption is complete</source>
@@ -50,37 +50,9 @@
           <source>Edit</source>
           <target state="translated">Editer</target>
         </trans-unit>
-        <trans-unit id="AttributeCreated.Text" translate="yes" xml:space="preserve">
-          <source>Created</source>
-          <target state="translated">Créé</target>
-        </trans-unit>
-        <trans-unit id="AttributeDialog.CloseButtonText" translate="yes" xml:space="preserve">
-          <source>OK</source>
-          <target state="translated">OK</target>
-        </trans-unit>
-        <trans-unit id="AttributeDialog.Title" translate="yes" xml:space="preserve">
-          <source>Properties</source>
-          <target state="translated">Propriétés</target>
-        </trans-unit>
         <trans-unit id="AttributeName.Text" translate="yes" xml:space="preserve">
           <source>Name</source>
           <target state="translated">Nom</target>
-        </trans-unit>
-        <trans-unit id="AttributeInclude.Text" translate="yes" xml:space="preserve">
-          <source>Includes</source>
-          <target state="translated">Inclut</target>
-        </trans-unit>
-        <trans-unit id="AttributeExtraData.Text" translate="yes" xml:space="preserve">
-          <source>Related Info</source>
-          <target state="translated">Informations relatives</target>
-        </trans-unit>
-        <trans-unit id="AttributeLocation.Text" translate="yes" xml:space="preserve">
-          <source>Location</source>
-          <target state="translated">Localisation</target>
-        </trans-unit>
-        <trans-unit id="AttributeModified.Text" translate="yes" xml:space="preserve">
-          <source>Modified</source>
-          <target state="translated">Modifié</target>
         </trans-unit>
         <trans-unit id="AttributeSecureLevel.Text" translate="yes" xml:space="preserve">
           <source>Security Level</source>
@@ -2862,10 +2834,6 @@ Les noms non valides incluent
           <source>Shortcut</source>
           <target state="translated">Raccourci</target>
         </trans-unit>
-        <trans-unit id="AttributeTargetPath.Text" translate="yes" xml:space="preserve">
-          <source>Target</source>
-          <target state="translated">Cible</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_SetWallpaperFailure_Content" translate="yes" xml:space="preserve">
           <source>Unable to set the picture as wallpaper due to an unknown error</source>
           <target state="translated">Impossible de définir l'image comme fond d'écran en raison d'une erreur inconnue</target>
@@ -3544,6 +3512,434 @@ Les noms non valides incluent
         <trans-unit id="QueueDialog_CouldNotAccess_Content" translate="yes" xml:space="preserve">
           <source>RX does not support viewing this drive because its path is empty</source>
           <target state="translated">RX ne prend pas en charge l'affichage de ce lecteur car son chemin est vide</target>
+        </trans-unit>
+        <trans-unit id="OfflineAvailabilityStatusText1" translate="yes" xml:space="preserve">
+          <source>Not Available Offline</source>
+          <target state="translated">Non disponible hors ligne</target>
+        </trans-unit>
+        <trans-unit id="OfflineAvailabilityStatusText2" translate="yes" xml:space="preserve">
+          <source>Partially Available Offline</source>
+          <target state="translated">Partiellement disponible hors ligne</target>
+        </trans-unit>
+        <trans-unit id="OfflineAvailabilityStatusText3" translate="yes" xml:space="preserve">
+          <source>Complete</source>
+          <target state="translated">Compléter</target>
+        </trans-unit>
+        <trans-unit id="OfflineAvailabilityStatusText4" translate="yes" xml:space="preserve">
+          <source>Complete Pinned</source>
+          <target state="translated">Terminer épinglé</target>
+        </trans-unit>
+        <trans-unit id="OfflineAvailabilityStatusText5" translate="yes" xml:space="preserve">
+          <source>Excluded</source>
+          <target state="translated">Exclu</target>
+        </trans-unit>
+        <trans-unit id="OfflineAvailabilityStatusText6" translate="yes" xml:space="preserve">
+          <source>Empty</source>
+          <target state="translated">Vider</target>
+        </trans-unit>
+        <trans-unit id="OfflineAvailabilityText1" translate="yes" xml:space="preserve">
+          <source>Online-only</source>
+          <target state="translated">En ligne seulement</target>
+        </trans-unit>
+        <trans-unit id="OfflineAvailabilityText2" translate="yes" xml:space="preserve">
+          <source>Available</source>
+          <target state="translated">Disponible</target>
+        </trans-unit>
+        <trans-unit id="OfflineAvailabilityText3" translate="yes" xml:space="preserve">
+          <source>Available offline</source>
+          <target state="translated">Disponible hors ligne</target>
+        </trans-unit>
+        <trans-unit id="OpenWithEmptyText" translate="yes" xml:space="preserve">
+          <source>Pick an app</source>
+          <target state="translated">Choisissez une application</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Tab" translate="yes" xml:space="preserve">
+          <source>Details</source>
+          <target state="translated">Des détails</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_Tab" translate="yes" xml:space="preserve">
+          <source>General</source>
+          <target state="translated">Général</target>
+        </trans-unit>
+        <trans-unit id="Properties_Shortcut_Tab" translate="yes" xml:space="preserve">
+          <source>Shortcut</source>
+          <target state="translated">Raccourci</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_Tab" translate="yes" xml:space="preserve">
+          <source>Tools</source>
+          <target state="translated">Outils</target>
+        </trans-unit>
+        <trans-unit id="ShortcutWindowsStateText1" translate="yes" xml:space="preserve">
+          <source>Normal</source>
+          <target state="translated">Normal</target>
+        </trans-unit>
+        <trans-unit id="ShortcutWindowsStateText2" translate="yes" xml:space="preserve">
+          <source>Minimized</source>
+          <target state="translated">Minimisé</target>
+        </trans-unit>
+        <trans-unit id="ShortcutWindowsStateText3" translate="yes" xml:space="preserve">
+          <source>Maximized</source>
+          <target state="translated">Maximisé</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_AlbumArtist" translate="yes" xml:space="preserve">
+          <source>Album artist</source>
+          <target state="translated">Artiste de l'album</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Artist" translate="yes" xml:space="preserve">
+          <source>Artist</source>
+          <target state="translated">Artiste</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Audio_Label" translate="yes" xml:space="preserve">
+          <source>Audio</source>
+          <target state="translated">l'audio</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Authors" translate="yes" xml:space="preserve">
+          <source>Authors</source>
+          <target state="translated">Auteurs</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Availability" translate="yes" xml:space="preserve">
+          <source>Availability</source>
+          <target state="translated">Disponibilité</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Basic_Label" translate="yes" xml:space="preserve">
+          <source>Basic</source>
+          <target state="translated">De base</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_BitDepth" translate="yes" xml:space="preserve">
+          <source>Bit depth</source>
+          <target state="translated">Peu profond</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Bitrate" translate="yes" xml:space="preserve">
+          <source>Bitrate</source>
+          <target state="translated">Débit binaire</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Channels" translate="yes" xml:space="preserve">
+          <source>Channels</source>
+          <target state="translated">Canaux</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_CharacterCount" translate="yes" xml:space="preserve">
+          <source>Character count</source>
+          <target state="translated">Nombre de caractères</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_ColorSpace" translate="yes" xml:space="preserve">
+          <source>Color space</source>
+          <target state="translated">Espace colorimétrique</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_ColorSpace_SRGB" translate="yes" xml:space="preserve">
+          <source>SRGB</source>
+          <target state="translated">SRGB</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_ColorSpace_Uncalibrated" translate="yes" xml:space="preserve">
+          <source>Uncalibrated</source>
+          <target state="translated">Non calibré</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Comment" translate="yes" xml:space="preserve">
+          <source>Comment</source>
+          <target state="translated">Commentaire</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Composers" translate="yes" xml:space="preserve">
+          <source>Composers</source>
+          <target state="translated">Compositeurs</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_ComputerName" translate="yes" xml:space="preserve">
+          <source>Computer name</source>
+          <target state="translated">Nom de l'ordinateur</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Conductors" translate="yes" xml:space="preserve">
+          <source>Conductors</source>
+          <target state="translated">Conducteurs</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_ContentCreated" translate="yes" xml:space="preserve">
+          <source>Content created</source>
+          <target state="translated">Contenu créé</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Copyright" translate="yes" xml:space="preserve">
+          <source>Copyright</source>
+          <target state="translated">Droits d'auteur</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_DateCreated" translate="yes" xml:space="preserve">
+          <source>Date created</source>
+          <target state="translated">Date créée</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_DateLastSaved" translate="yes" xml:space="preserve">
+          <source>Date last saved</source>
+          <target state="translated">Date du dernier enregistrement</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_DateModified" translate="yes" xml:space="preserve">
+          <source>Date modified</source>
+          <target state="translated">Date modifiée</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_DateTaken" translate="yes" xml:space="preserve">
+          <source>Date taken</source>
+          <target state="translated">Date prise</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Description" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Description</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Dimensions" translate="yes" xml:space="preserve">
+          <source>Dimensions</source>
+          <target state="translated">Dimensions</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Directors" translate="yes" xml:space="preserve">
+          <source>Directors</source>
+          <target state="translated">Administrateurs</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Duration" translate="yes" xml:space="preserve">
+          <source>Duration</source>
+          <target state="translated">Durée</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Extra_Label" translate="yes" xml:space="preserve">
+          <source>Extra</source>
+          <target state="translated">En plus</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_FolderPath" translate="yes" xml:space="preserve">
+          <source>Folder path</source>
+          <target state="translated">Chemin du dossier</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_FrameHeight" translate="yes" xml:space="preserve">
+          <source>Frame height</source>
+          <target state="translated">Hauteur du cadre</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_FrameRate" translate="yes" xml:space="preserve">
+          <source>Frame rate</source>
+          <target state="translated">Fréquence d'images</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_FrameRatePerSecond" translate="yes" xml:space="preserve">
+          <source>frames/second</source>
+          <target state="translated">images/seconde</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_FrameWidth" translate="yes" xml:space="preserve">
+          <source>Frame width</source>
+          <target state="translated">Largeur du cadre</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Genre" translate="yes" xml:space="preserve">
+          <source>Genre</source>
+          <target state="translated">Genre</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Height" translate="yes" xml:space="preserve">
+          <source>Height</source>
+          <target state="translated">Hauteur</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Image_Label" translate="yes" xml:space="preserve">
+          <source>Image</source>
+          <target state="translated">Image</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_ItemType" translate="yes" xml:space="preserve">
+          <source>Item type</source>
+          <target state="translated">Type d'élément</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Keywords" translate="yes" xml:space="preserve">
+          <source>Keywords</source>
+          <target state="translated">Mots clés</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_LastAuthor" translate="yes" xml:space="preserve">
+          <source>Last author</source>
+          <target state="translated">Dernier auteur</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_LineCount" translate="yes" xml:space="preserve">
+          <source>Line count</source>
+          <target state="translated">Nombre de lignes</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Name" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">Nom</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_OfflineAvailabilityStatus" translate="yes" xml:space="preserve">
+          <source>Offline status</source>
+          <target state="translated">Statut hors ligne</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Owner" translate="yes" xml:space="preserve">
+          <source>Owner</source>
+          <target state="translated">Propriétaire</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_PageCount" translate="yes" xml:space="preserve">
+          <source>Page count</source>
+          <target state="translated">Nombre de pages</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Producers" translate="yes" xml:space="preserve">
+          <source>Producers</source>
+          <target state="translated">Les producteurs</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Publisher" translate="yes" xml:space="preserve">
+          <source>Publisher</source>
+          <target state="translated">Éditeur</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Rating" translate="yes" xml:space="preserve">
+          <source>Rating</source>
+          <target state="translated">Notation</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_RevisionNumber" translate="yes" xml:space="preserve">
+          <source>Revision number</source>
+          <target state="translated">Numéro de révision</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_SampleRate" translate="yes" xml:space="preserve">
+          <source>Sample rate</source>
+          <target state="translated">Taux d'échantillonnage</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Size" translate="yes" xml:space="preserve">
+          <source>Size</source>
+          <target state="translated">Taille</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Subtitle" translate="yes" xml:space="preserve">
+          <source>Subtitle</source>
+          <target state="translated">Sous-titre</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Template" translate="yes" xml:space="preserve">
+          <source>Template</source>
+          <target state="translated">Modèle</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Title" translate="yes" xml:space="preserve">
+          <source>Title</source>
+          <target state="translated">Titre</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_TotalEditingTime" translate="yes" xml:space="preserve">
+          <source>Total editing time</source>
+          <target state="translated">Temps d'édition total</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_TrackNum" translate="yes" xml:space="preserve">
+          <source>Track number</source>
+          <target state="translated">Numéro de piste</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Version" translate="yes" xml:space="preserve">
+          <source>Version</source>
+          <target state="translated">Version</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Video_Label" translate="yes" xml:space="preserve">
+          <source>Video</source>
+          <target state="translated">Vidéo</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Width" translate="yes" xml:space="preserve">
+          <source>Width</source>
+          <target state="translated">Largeur</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_WordCount" translate="yes" xml:space="preserve">
+          <source>Word count</source>
+          <target state="translated">Nombre de mots</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Year" translate="yes" xml:space="preserve">
+          <source>Year</source>
+          <target state="translated">An</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_Contains.Text" translate="yes" xml:space="preserve">
+          <source>Contains:</source>
+          <target state="translated">Contient:</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_CreatedTime.Text" translate="yes" xml:space="preserve">
+          <source>Created:</source>
+          <target state="translated">Créé:</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_Location.Text" translate="yes" xml:space="preserve">
+          <source>Location:</source>
+          <target state="translated">Lieu:</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_ModifiedTime.Text" translate="yes" xml:space="preserve">
+          <source>Modified:</source>
+          <target state="translated">Modifié:</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_OpenWith.Text" translate="yes" xml:space="preserve">
+          <source>Open with:</source>
+          <target state="translated">Ouvrir avec:</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_ReadonlyCheckbox.Content" translate="yes" xml:space="preserve">
+          <source>Readonly</source>
+          <target state="translated">Lecture seulement</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_Size.Text" translate="yes" xml:space="preserve">
+          <source>Size:</source>
+          <target state="translated">Taille:</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_Type.Text" translate="yes" xml:space="preserve">
+          <source>Type:</source>
+          <target state="translated">Type:</target>
+        </trans-unit>
+        <trans-unit id="Properties_Loading_Text.Text" translate="yes" xml:space="preserve">
+          <source>Applying</source>
+          <target state="translated">Postuler</target>
+        </trans-unit>
+        <trans-unit id="Properties_Shortcut_Comment.Text" translate="yes" xml:space="preserve">
+          <source>Comment:</source>
+          <target state="translated">Commentaire:</target>
+        </trans-unit>
+        <trans-unit id="Properties_Shortcut_Key.Text" translate="yes" xml:space="preserve">
+          <source>Shortcut key:</source>
+          <target state="translated">Touche de raccourci:</target>
+        </trans-unit>
+        <trans-unit id="Properties_Shortcut_OpenLocation.Content" translate="yes" xml:space="preserve">
+          <source>Open File Location</source>
+          <target state="translated">Lieu de fichier ouvert</target>
+        </trans-unit>
+        <trans-unit id="Properties_Shortcut_Run.Text" translate="yes" xml:space="preserve">
+          <source>Run:</source>
+          <target state="translated">Courir:</target>
+        </trans-unit>
+        <trans-unit id="Properties_Shortcut_RunAsAdmin.Content" translate="yes" xml:space="preserve">
+          <source>Run as administrator</source>
+          <target state="translated">Exécuter en tant qu'administrateur</target>
+        </trans-unit>
+        <trans-unit id="Properties_Shortcut_StartIn.Text" translate="yes" xml:space="preserve">
+          <source>Start in:</source>
+          <target state="translated">Commencez dans:</target>
+        </trans-unit>
+        <trans-unit id="Properties_Shortcut_Target.Text" translate="yes" xml:space="preserve">
+          <source>Target</source>
+          <target state="translated">Cibler</target>
+        </trans-unit>
+        <trans-unit id="Properties_Shortcut_TargetLocation.Text" translate="yes" xml:space="preserve">
+          <source>Target location:</source>
+          <target state="translated">Emplacement cible:</target>
+        </trans-unit>
+        <trans-unit id="Properties_Shortcut_TargetType.Text" translate="yes" xml:space="preserve">
+          <source>Target type:</source>
+          <target state="translated">Type de cible:</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_CalculateButton.Content" translate="yes" xml:space="preserve">
+          <source>Calculate</source>
+          <target state="translated">Calculer</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_Unlock.Content" translate="yes" xml:space="preserve">
+          <source>Unlock occupation</source>
+          <target state="translated">Déverrouiller l'occupation</target>
+        </trans-unit>
+        <trans-unit id="Properties_Window_Title" translate="yes" xml:space="preserve">
+          <source>Properties</source>
+          <target state="translated">Propriétés</target>
+        </trans-unit>
+        <trans-unit id="ShortcutHotKey_None" translate="yes" xml:space="preserve">
+          <source>None</source>
+          <target state="translated">Aucun</target>
+        </trans-unit>
+        <trans-unit id="ShortcutTargetApplicationType" translate="yes" xml:space="preserve">
+          <source>Application</source>
+          <target state="translated">Application</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_HiddenCheckbox.Content" translate="yes" xml:space="preserve">
+          <source>Hidden</source>
+          <target state="translated">Caché</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_Change.Content" translate="yes" xml:space="preserve">
+          <source>Change</source>
+          <target state="translated">Changer</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_LinkRunAsAdmin.Content" translate="yes" xml:space="preserve">
+          <source>Run as administrator</source>
+          <target state="translated">Exécuter en tant qu'administrateur</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_LinkShortCutKey.Header" translate="yes" xml:space="preserve">
+          <source>Shortcut key</source>
+          <target state="translated">Touche de raccourci</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_LinkWindowState.Header" translate="yes" xml:space="preserve">
+          <source>Run</source>
+          <target state="translated">Courir</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_LinkWorkDirectory.Header" translate="yes" xml:space="preserve">
+          <source>Work directory (optional)</source>
+          <target state="translated">Répertoire de travail (facultatif)</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_LinkWorkDirectory.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter work directory path</source>
+          <target state="translated">Entrez le chemin du répertoire de travail</target>
         </trans-unit>
       </group>
     </body>

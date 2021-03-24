@@ -177,6 +177,7 @@
     <Compile Include="Class\LinkStorageFile.cs" />
     <Compile Include="Class\InstalledApplication.cs" />
     <Compile Include="Class\RecycleStorageFolder.cs" />
+    <Compile Include="Class\SystemFontFamilyController.cs" />
     <Compile Include="CustomControl\AppBarButtonWithImage.xaml.cs">
       <DependentUpon>AppBarButtonWithImage.xaml</DependentUpon>
     </Compile>
@@ -328,9 +329,6 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialog\PropertyDialog.xaml.cs">
-      <DependentUpon>PropertyDialog.xaml</DependentUpon>
-    </Compile>
     <Compile Include="View\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -388,11 +386,13 @@
     <Content Include="Assets\IntroFile-Chinese_T.txt" />
     <Content Include="Assets\IntroFile-English.txt" />
     <Content Include="Assets\IntroFile-French.txt" />
+    <Content Include="Assets\IntroFile-Spanish.txt" />
     <Content Include="Assets\Lock.png" />
     <Content Include="Assets\LockFile.png" />
     <Content Include="Assets\Page_Solid_Black.png" />
     <Content Include="Assets\Page_Solid_White.png" />
     <Content Include="Assets\RX-icon.png" />
+    <Content Include="Assets\SAIntro_es.png" />
     <Content Include="Assets\SAIntro_cn_s.png" />
     <Content Include="Assets\SAIntro_cn_t.png" />
     <Content Include="Assets\SAIntro_en.png" />
@@ -401,6 +401,7 @@
     <Content Include="Assets\UpdateLog-Chinese_T.txt" />
     <Content Include="Assets\UpdateLog-English.txt" />
     <Content Include="Assets\UpdateLog-French.txt" />
+    <Content Include="Assets\UpdateLog-Spanish.txt" />
     <Content Include="CustomImage\Picture10.jpg" />
     <Content Include="CustomImage\Picture15.jpg" />
     <Content Include="CustomImage\Picture14.jpg" />
@@ -634,10 +635,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Dialog\PropertyDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="View\MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -734,7 +731,10 @@
       <Version>2.5.0</Version>
     </PackageReference>
     <PackageReference Include="MySqlConnector">
-      <Version>1.3.1</Version>
+      <Version>1.3.2</Version>
+    </PackageReference>
+    <PackageReference Include="SharpDX.Direct2D1">
+      <Version>4.2.0</Version>
     </PackageReference>
     <PackageReference Include="SharpZipLib">
       <Version>1.3.1</Version>

@@ -20,18 +20,25 @@ namespace RX_Explorer.Dialog
     public sealed partial class ProgramPickerDialog : QueueContentDialog
     {
         private readonly ObservableCollection<ProgramPickerItem> ProgramCollection = new ObservableCollection<ProgramPickerItem>();
+        private readonly List<ProgramPickerItem> NotRecommandList = new List<ProgramPickerItem>();
 
         private readonly FileSystemStorageFile OpenFile;
 
         public ProgramPickerItem SelectedProgram { get; private set; }
 
-        private readonly List<ProgramPickerItem> NotRecommandList = new List<ProgramPickerItem>();
+        private bool OpenFromPropertiesWindow;
 
-        public ProgramPickerDialog(FileSystemStorageFile OpenFile)
+        public ProgramPickerDialog(FileSystemStorageFile OpenFile, bool OpenFromPropertiesWindow = false)
         {
             InitializeComponent();
 
             this.OpenFile = OpenFile ?? throw new ArgumentNullException(nameof(OpenFile), "Parameter could not be null");
+            this.OpenFromPropertiesWindow = OpenFromPropertiesWindow;
+
+            if (OpenFromPropertiesWindow)
+            {
+                UseAsAdmin.Visibility = Visibility.Collapsed;
+            }
 
             Loading += ProgramPickerDialog_Loading;
         }
@@ -357,7 +364,7 @@ namespace RX_Explorer.Dialog
                 {
                     SelectedProgram = OtherItem;
 
-                    if (UseAsAdmin.IsChecked.GetValueOrDefault())
+                    if (UseAsAdmin.IsChecked.GetValueOrDefault() || OpenFromPropertiesWindow)
                     {
                         await SQLite.Current.SetDefaultProgramPickerRecordAsync(OpenFile.Type, OtherItem.Path).ConfigureAwait(true);
                     }

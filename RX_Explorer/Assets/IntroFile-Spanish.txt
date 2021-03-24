@@ -1,0 +1,24 @@
+﻿###Area segura
+
+*****
+####El dominio de seguridad proporciona una caja fuerte para archivos basada en el mecanismo de cifrado AES y es totalmente compatible con Windows Hello para la autenticación de identidad.
+
+![Imagen local](/Assets/SAIntro_es.png)
+
+###Características de seguridad
+
+*****
+####Proporciona opciones de nivel de seguridad ajustables para garantizar la seguridad de los archivos
+
++ Nivel de cifrado de seguridad ajustable gratuito
+
++ Admite la autenticación de Windows Hello
+
++ Acelere el cifrado y descifrado con instrucciones de hardware AES-NI
+
++ Bloquear el acceso y la extracción de otro software
+
+*****
+###Esta función es una función adicional que se puede desbloquear después de donar al desarrollador.
+###Esta función está activa permanentemente después de desbloquear
+###Haga clic en ↓↓↓ Desbloquear

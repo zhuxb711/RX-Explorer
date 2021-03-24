@@ -3,6 +3,7 @@ using Microsoft.Toolkit.Uwp.UI.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
+using RX_Explorer.SeparateWindow.PropertyWindow;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
@@ -16,13 +17,17 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Data.Xml.Dom;
+using Windows.Foundation;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
+using Windows.UI.WindowManagement;
+using Windows.UI.WindowManagement.Preview;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
@@ -811,14 +816,36 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    PropertyDialog Dialog = new PropertyDialog(CurrentPresenter.CurrentFolder);
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    AppWindow NewWindow = await AppWindow.TryCreateAsync();
+                    NewWindow.RequestSize(new Size(420, 600));
+                    NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+                    NewWindow.PersistedStateId = "Properties";
+                    NewWindow.Title = Globalization.GetString("Properties_Window_Title");
+                    NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+                    NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                    NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
+                    ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, CurrentPresenter.CurrentFolder));
+                    WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
+
+                    await NewWindow.TryShowAsync();
                 }
             }
             else
             {
-                PropertyDialog Dialog = new PropertyDialog(CurrentPresenter.CurrentFolder);
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                AppWindow NewWindow = await AppWindow.TryCreateAsync();
+                NewWindow.RequestSize(new Size(420, 600));
+                NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+                NewWindow.PersistedStateId = "Properties";
+                NewWindow.Title = Globalization.GetString("Properties_Window_Title");
+                NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+                NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
+                ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, CurrentPresenter.CurrentFolder));
+                WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
+
+                await NewWindow.TryShowAsync();
             }
         }
 

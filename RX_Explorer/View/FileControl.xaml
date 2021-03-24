@@ -210,7 +210,16 @@
                             GotFocus="AddressBox_GotFocus"
                             LostFocus="AddressBox_LostFocus"
                             QuerySubmitted="AddressBox_QuerySubmitted"
-                            TextChanged="AddressBox_TextChanged" />
+                            TextChanged="AddressBox_TextChanged">
+                <AutoSuggestBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" 
+                                   ToolTipService.ToolTip="{Binding}"
+                                   HorizontalAlignment="Stretch"
+                                   TextTrimming="CharacterEllipsis"/>
+                    </DataTemplate>
+                </AutoSuggestBox.ItemTemplate>
+            </AutoSuggestBox>
 
             <ListView ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                       ScrollViewer.HorizontalScrollMode="Enabled"

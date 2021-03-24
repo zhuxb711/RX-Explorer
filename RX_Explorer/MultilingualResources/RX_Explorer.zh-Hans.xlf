@@ -50,37 +50,9 @@
           <source>Edit</source>
           <target state="translated">编辑</target>
         </trans-unit>
-        <trans-unit id="AttributeCreated.Text" translate="yes" xml:space="preserve">
-          <source>Created</source>
-          <target state="translated">创建时间</target>
-        </trans-unit>
-        <trans-unit id="AttributeDialog.CloseButtonText" translate="yes" xml:space="preserve">
-          <source>OK</source>
-          <target state="translated">确定</target>
-        </trans-unit>
-        <trans-unit id="AttributeDialog.Title" translate="yes" xml:space="preserve">
-          <source>Properties</source>
-          <target state="translated">属性</target>
-        </trans-unit>
         <trans-unit id="AttributeName.Text" translate="yes" xml:space="preserve">
           <source>Name</source>
           <target state="translated">名称</target>
-        </trans-unit>
-        <trans-unit id="AttributeInclude.Text" translate="yes" xml:space="preserve">
-          <source>Includes</source>
-          <target state="translated">包括</target>
-        </trans-unit>
-        <trans-unit id="AttributeExtraData.Text" translate="yes" xml:space="preserve">
-          <source>Related Info</source>
-          <target state="translated">相关信息</target>
-        </trans-unit>
-        <trans-unit id="AttributeLocation.Text" translate="yes" xml:space="preserve">
-          <source>Location</source>
-          <target state="translated">路径</target>
-        </trans-unit>
-        <trans-unit id="AttributeModified.Text" translate="yes" xml:space="preserve">
-          <source>Modified</source>
-          <target state="translated">修改时间</target>
         </trans-unit>
         <trans-unit id="AttributeSecureLevel.Text" translate="yes" xml:space="preserve">
           <source>Security Level</source>
@@ -2862,10 +2834,6 @@ Invalid names include
           <source>Shortcut</source>
           <target state="translated">快捷方式</target>
         </trans-unit>
-        <trans-unit id="AttributeTargetPath.Text" translate="yes" xml:space="preserve">
-          <source>Target</source>
-          <target state="translated">目标</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_SetWallpaperFailure_Content" translate="yes" xml:space="preserve">
           <source>Unable to set the picture as wallpaper due to an unknown error</source>
           <target state="translated">由于出现未知错误，无法将图片设置为壁纸</target>
@@ -3544,6 +3512,434 @@ Invalid names include
         <trans-unit id="QueueDialog_CouldNotAccess_Content" translate="yes" xml:space="preserve">
           <source>RX does not support viewing this drive because its path is empty</source>
           <target state="translated">RX不支持查看此驱动器，因为它的路径为空</target>
+        </trans-unit>
+        <trans-unit id="OfflineAvailabilityStatusText1" translate="yes" xml:space="preserve">
+          <source>Not Available Offline</source>
+          <target state="translated">脱机不可用</target>
+        </trans-unit>
+        <trans-unit id="OfflineAvailabilityStatusText2" translate="yes" xml:space="preserve">
+          <source>Partially Available Offline</source>
+          <target state="translated">脱机部分可用</target>
+        </trans-unit>
+        <trans-unit id="OfflineAvailabilityStatusText3" translate="yes" xml:space="preserve">
+          <source>Complete</source>
+          <target state="translated">完全</target>
+        </trans-unit>
+        <trans-unit id="OfflineAvailabilityStatusText4" translate="yes" xml:space="preserve">
+          <source>Complete Pinned</source>
+          <target state="translated">完全固定</target>
+        </trans-unit>
+        <trans-unit id="OfflineAvailabilityStatusText5" translate="yes" xml:space="preserve">
+          <source>Excluded</source>
+          <target state="translated">排除在外</target>
+        </trans-unit>
+        <trans-unit id="OfflineAvailabilityStatusText6" translate="yes" xml:space="preserve">
+          <source>Empty</source>
+          <target state="translated">无</target>
+        </trans-unit>
+        <trans-unit id="OfflineAvailabilityText1" translate="yes" xml:space="preserve">
+          <source>Online-only</source>
+          <target state="translated">仅在线可用</target>
+        </trans-unit>
+        <trans-unit id="OfflineAvailabilityText2" translate="yes" xml:space="preserve">
+          <source>Available</source>
+          <target state="translated">可用</target>
+        </trans-unit>
+        <trans-unit id="OfflineAvailabilityText3" translate="yes" xml:space="preserve">
+          <source>Available offline</source>
+          <target state="translated">脱机可用</target>
+        </trans-unit>
+        <trans-unit id="OpenWithEmptyText" translate="yes" xml:space="preserve">
+          <source>Pick an app</source>
+          <target state="translated">选择一个应用</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Tab" translate="yes" xml:space="preserve">
+          <source>Details</source>
+          <target state="translated">详细信息</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_Tab" translate="yes" xml:space="preserve">
+          <source>General</source>
+          <target state="translated">常规</target>
+        </trans-unit>
+        <trans-unit id="Properties_Shortcut_Tab" translate="yes" xml:space="preserve">
+          <source>Shortcut</source>
+          <target state="translated">快捷方式</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_Tab" translate="yes" xml:space="preserve">
+          <source>Tools</source>
+          <target state="translated">工具</target>
+        </trans-unit>
+        <trans-unit id="ShortcutWindowsStateText1" translate="yes" xml:space="preserve">
+          <source>Normal</source>
+          <target state="translated">正常</target>
+        </trans-unit>
+        <trans-unit id="ShortcutWindowsStateText2" translate="yes" xml:space="preserve">
+          <source>Minimized</source>
+          <target state="translated">最小化窗口</target>
+        </trans-unit>
+        <trans-unit id="ShortcutWindowsStateText3" translate="yes" xml:space="preserve">
+          <source>Maximized</source>
+          <target state="translated">最大化窗口</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_AlbumArtist" translate="yes" xml:space="preserve">
+          <source>Album artist</source>
+          <target state="translated">专辑歌手</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Artist" translate="yes" xml:space="preserve">
+          <source>Artist</source>
+          <target state="translated">艺术家</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Audio_Label" translate="yes" xml:space="preserve">
+          <source>Audio</source>
+          <target state="translated">音频</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Authors" translate="yes" xml:space="preserve">
+          <source>Authors</source>
+          <target state="translated">作者</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Availability" translate="yes" xml:space="preserve">
+          <source>Availability</source>
+          <target state="translated">可用性</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Basic_Label" translate="yes" xml:space="preserve">
+          <source>Basic</source>
+          <target state="translated">基本</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_BitDepth" translate="yes" xml:space="preserve">
+          <source>Bit depth</source>
+          <target state="translated">位深</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Bitrate" translate="yes" xml:space="preserve">
+          <source>Bitrate</source>
+          <target state="translated">比特率</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Channels" translate="yes" xml:space="preserve">
+          <source>Channels</source>
+          <target state="translated">通道</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_CharacterCount" translate="yes" xml:space="preserve">
+          <source>Character count</source>
+          <target state="translated">字符数</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_ColorSpace" translate="yes" xml:space="preserve">
+          <source>Color space</source>
+          <target state="translated">色彩空间</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_ColorSpace_SRGB" translate="yes" xml:space="preserve">
+          <source>SRGB</source>
+          <target state="translated">SRGB</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_ColorSpace_Uncalibrated" translate="yes" xml:space="preserve">
+          <source>Uncalibrated</source>
+          <target state="translated">未校准</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Comment" translate="yes" xml:space="preserve">
+          <source>Comment</source>
+          <target state="translated">备注</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Composers" translate="yes" xml:space="preserve">
+          <source>Composers</source>
+          <target state="translated">作曲家</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_ComputerName" translate="yes" xml:space="preserve">
+          <source>Computer name</source>
+          <target state="translated">计算机名称</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Conductors" translate="yes" xml:space="preserve">
+          <source>Conductors</source>
+          <target state="translated">指挥家</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_ContentCreated" translate="yes" xml:space="preserve">
+          <source>Content created</source>
+          <target state="translated">内容创建日期</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Copyright" translate="yes" xml:space="preserve">
+          <source>Copyright</source>
+          <target state="translated">版权</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_DateCreated" translate="yes" xml:space="preserve">
+          <source>Date created</source>
+          <target state="translated">创建日期</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_DateLastSaved" translate="yes" xml:space="preserve">
+          <source>Date last saved</source>
+          <target state="translated">上次保存日期</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_DateModified" translate="yes" xml:space="preserve">
+          <source>Date modified</source>
+          <target state="translated">修改日期</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_DateTaken" translate="yes" xml:space="preserve">
+          <source>Date taken</source>
+          <target state="translated">拍摄日期</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Description" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">说明</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Dimensions" translate="yes" xml:space="preserve">
+          <source>Dimensions</source>
+          <target state="translated">尺寸</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Directors" translate="yes" xml:space="preserve">
+          <source>Directors</source>
+          <target state="translated">导演</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Duration" translate="yes" xml:space="preserve">
+          <source>Duration</source>
+          <target state="translated">持续时间</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Extra_Label" translate="yes" xml:space="preserve">
+          <source>Extra</source>
+          <target state="translated">其他</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_FolderPath" translate="yes" xml:space="preserve">
+          <source>Folder path</source>
+          <target state="translated">文件夹路径</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_FrameHeight" translate="yes" xml:space="preserve">
+          <source>Frame height</source>
+          <target state="translated">帧高度</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_FrameRate" translate="yes" xml:space="preserve">
+          <source>Frame rate</source>
+          <target state="translated">帧速率</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_FrameRatePerSecond" translate="yes" xml:space="preserve">
+          <source>frames/second</source>
+          <target state="translated">帧/秒</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_FrameWidth" translate="yes" xml:space="preserve">
+          <source>Frame width</source>
+          <target state="translated">帧宽度</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Genre" translate="yes" xml:space="preserve">
+          <source>Genre</source>
+          <target state="translated">类型</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Height" translate="yes" xml:space="preserve">
+          <source>Height</source>
+          <target state="translated">高度</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Image_Label" translate="yes" xml:space="preserve">
+          <source>Image</source>
+          <target state="translated">图像</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_ItemType" translate="yes" xml:space="preserve">
+          <source>Item type</source>
+          <target state="translated">类型</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Keywords" translate="yes" xml:space="preserve">
+          <source>Keywords</source>
+          <target state="translated">关键字</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_LastAuthor" translate="yes" xml:space="preserve">
+          <source>Last author</source>
+          <target state="translated">上次修改作者</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_LineCount" translate="yes" xml:space="preserve">
+          <source>Line count</source>
+          <target state="translated">行数</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Name" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">名称</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_OfflineAvailabilityStatus" translate="yes" xml:space="preserve">
+          <source>Offline status</source>
+          <target state="translated">脱机状态</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Owner" translate="yes" xml:space="preserve">
+          <source>Owner</source>
+          <target state="translated">所有者</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_PageCount" translate="yes" xml:space="preserve">
+          <source>Page count</source>
+          <target state="translated">页数</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Producers" translate="yes" xml:space="preserve">
+          <source>Producers</source>
+          <target state="translated">制作人</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Publisher" translate="yes" xml:space="preserve">
+          <source>Publisher</source>
+          <target state="translated">出版商</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Rating" translate="yes" xml:space="preserve">
+          <source>Rating</source>
+          <target state="translated">评价</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_RevisionNumber" translate="yes" xml:space="preserve">
+          <source>Revision number</source>
+          <target state="translated">修订版本号</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_SampleRate" translate="yes" xml:space="preserve">
+          <source>Sample rate</source>
+          <target state="translated">采样率</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Size" translate="yes" xml:space="preserve">
+          <source>Size</source>
+          <target state="translated">大小</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Subtitle" translate="yes" xml:space="preserve">
+          <source>Subtitle</source>
+          <target state="translated">副标题</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Template" translate="yes" xml:space="preserve">
+          <source>Template</source>
+          <target state="translated">模板</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Title" translate="yes" xml:space="preserve">
+          <source>Title</source>
+          <target state="translated">标题</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_TotalEditingTime" translate="yes" xml:space="preserve">
+          <source>Total editing time</source>
+          <target state="translated">总编辑时间</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_TrackNum" translate="yes" xml:space="preserve">
+          <source>Track number</source>
+          <target state="translated">音轨数量</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Version" translate="yes" xml:space="preserve">
+          <source>Version</source>
+          <target state="translated">版本</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Video_Label" translate="yes" xml:space="preserve">
+          <source>Video</source>
+          <target state="translated">视频</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Width" translate="yes" xml:space="preserve">
+          <source>Width</source>
+          <target state="translated">宽度</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_WordCount" translate="yes" xml:space="preserve">
+          <source>Word count</source>
+          <target state="translated">字数</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Year" translate="yes" xml:space="preserve">
+          <source>Year</source>
+          <target state="translated">年份</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_Contains.Text" translate="yes" xml:space="preserve">
+          <source>Contains:</source>
+          <target state="translated">包含:</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_CreatedTime.Text" translate="yes" xml:space="preserve">
+          <source>Created:</source>
+          <target state="translated">创建日期:</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_Location.Text" translate="yes" xml:space="preserve">
+          <source>Location:</source>
+          <target state="translated">位置:</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_ModifiedTime.Text" translate="yes" xml:space="preserve">
+          <source>Modified:</source>
+          <target state="translated">修改日期:</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_OpenWith.Text" translate="yes" xml:space="preserve">
+          <source>Open with:</source>
+          <target state="translated">打开方式:</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_ReadonlyCheckbox.Content" translate="yes" xml:space="preserve">
+          <source>Readonly</source>
+          <target state="translated">只读</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_Size.Text" translate="yes" xml:space="preserve">
+          <source>Size:</source>
+          <target state="translated">大小:</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_Type.Text" translate="yes" xml:space="preserve">
+          <source>Type:</source>
+          <target state="translated">类型:</target>
+        </trans-unit>
+        <trans-unit id="Properties_Loading_Text.Text" translate="yes" xml:space="preserve">
+          <source>Applying</source>
+          <target state="translated">正在应用</target>
+        </trans-unit>
+        <trans-unit id="Properties_Shortcut_Comment.Text" translate="yes" xml:space="preserve">
+          <source>Comment:</source>
+          <target state="translated">备注:</target>
+        </trans-unit>
+        <trans-unit id="Properties_Shortcut_Key.Text" translate="yes" xml:space="preserve">
+          <source>Shortcut key:</source>
+          <target state="translated">快捷键:</target>
+        </trans-unit>
+        <trans-unit id="Properties_Shortcut_OpenLocation.Content" translate="yes" xml:space="preserve">
+          <source>Open File Location</source>
+          <target state="translated">打开文件位置</target>
+        </trans-unit>
+        <trans-unit id="Properties_Shortcut_Run.Text" translate="yes" xml:space="preserve">
+          <source>Run:</source>
+          <target state="translated">启动:</target>
+        </trans-unit>
+        <trans-unit id="Properties_Shortcut_RunAsAdmin.Content" translate="yes" xml:space="preserve">
+          <source>Run as administrator</source>
+          <target state="translated">以管理员身份运行</target>
+        </trans-unit>
+        <trans-unit id="Properties_Shortcut_StartIn.Text" translate="yes" xml:space="preserve">
+          <source>Start in:</source>
+          <target state="translated">起始位置:</target>
+        </trans-unit>
+        <trans-unit id="Properties_Shortcut_Target.Text" translate="yes" xml:space="preserve">
+          <source>Target</source>
+          <target state="translated">目标</target>
+        </trans-unit>
+        <trans-unit id="Properties_Shortcut_TargetLocation.Text" translate="yes" xml:space="preserve">
+          <source>Target location:</source>
+          <target state="translated">目标位置:</target>
+        </trans-unit>
+        <trans-unit id="Properties_Shortcut_TargetType.Text" translate="yes" xml:space="preserve">
+          <source>Target type:</source>
+          <target state="translated">目标类型:</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_CalculateButton.Content" translate="yes" xml:space="preserve">
+          <source>Calculate</source>
+          <target state="translated">计算</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_Unlock.Content" translate="yes" xml:space="preserve">
+          <source>Unlock occupation</source>
+          <target state="translated">解除文件占用</target>
+        </trans-unit>
+        <trans-unit id="Properties_Window_Title" translate="yes" xml:space="preserve">
+          <source>Properties</source>
+          <target state="translated">属性</target>
+        </trans-unit>
+        <trans-unit id="ShortcutHotKey_None" translate="yes" xml:space="preserve">
+          <source>None</source>
+          <target state="translated">无</target>
+        </trans-unit>
+        <trans-unit id="ShortcutTargetApplicationType" translate="yes" xml:space="preserve">
+          <source>Application</source>
+          <target state="translated">应用程序</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_HiddenCheckbox.Content" translate="yes" xml:space="preserve">
+          <source>Hidden</source>
+          <target state="translated">隐藏</target>
+        </trans-unit>
+        <trans-unit id="Properties_General_Change.Content" translate="yes" xml:space="preserve">
+          <source>Change</source>
+          <target state="translated">更改</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_LinkRunAsAdmin.Content" translate="yes" xml:space="preserve">
+          <source>Run as administrator</source>
+          <target state="translated">以管理员身份运行</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_LinkShortCutKey.Header" translate="yes" xml:space="preserve">
+          <source>Shortcut key</source>
+          <target state="translated">快捷键</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_LinkWindowState.Header" translate="yes" xml:space="preserve">
+          <source>Run</source>
+          <target state="translated">启动</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_LinkWorkDirectory.Header" translate="yes" xml:space="preserve">
+          <source>Work directory (optional)</source>
+          <target state="translated">工作目录 (可选)</target>
+        </trans-unit>
+        <trans-unit id="LinkOptionsDialog_LinkWorkDirectory.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter work directory path</source>
+          <target state="translated">输入工作目录路径 </target>
         </trans-unit>
       </group>
     </body>
