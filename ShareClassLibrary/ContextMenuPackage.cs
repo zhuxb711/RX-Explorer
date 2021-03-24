@@ -10,6 +10,10 @@
 
         public byte[] IconData { get; set; }
 
+        public bool IncludeExtensionItem { get; set; }
+
+        public string[] RelatedPath { get; set; }
+
         public ContextMenuPackage[] SubMenus { get; set; }
     }
 }

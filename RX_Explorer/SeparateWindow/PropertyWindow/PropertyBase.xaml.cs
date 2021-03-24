@@ -35,14 +35,14 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         private readonly AppWindow Window;
         private readonly FileSystemStorageItemBase StorageItem;
         private readonly ObservableCollection<PropertiesGroupItem> PropertiesCollection = new ObservableCollection<PropertiesGroupItem>();
-        private static readonly Dictionary<uint, string> OfflineAvailabilityMap = new Dictionary<uint, string>
+        private static readonly Dictionary<uint, string> OfflineAvailabilityMap = new Dictionary<uint, string>(3)
         {
             { 0, Globalization.GetString("OfflineAvailabilityText1") },
             { 1, Globalization.GetString("OfflineAvailabilityText2") },
             { 2, Globalization.GetString("OfflineAvailabilityText3") }
         };
 
-        private static readonly Dictionary<uint, string> OfflineAvailabilityStatusMap = new Dictionary<uint, string>
+        private static readonly Dictionary<uint, string> OfflineAvailabilityStatusMap = new Dictionary<uint, string>(6)
         {
             { 0, Globalization.GetString("OfflineAvailabilityStatusText1") },
             { 1, Globalization.GetString("OfflineAvailabilityStatusText2") },
@@ -61,9 +61,11 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         public PropertyBase(AppWindow Window, FileSystemStorageItemBase StorageItem)
         {
             InitializeComponent();
+
             this.Window = Window;
             this.StorageItem = StorageItem;
 
+            PropertiesTitleLeft.Text = StorageItem.DisplayName;
             GeneralTab.Text = Globalization.GetString("Properties_General_Tab");
             ShortcutTab.Text = Globalization.GetString("Properties_Shortcut_Tab");
             DetailsTab.Text = Globalization.GetString("Properties_Details_Tab");
@@ -675,7 +677,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         private async Task LoadDataForGeneralPage()
         {
             Thumbnail.Source = StorageItem.Thumbnail;
-            StorageItemName.Text = Path.GetFileNameWithoutExtension(StorageItem.Name);
+            StorageItemName.Text = Path.GetFileNameWithoutExtension(StorageItem.DisplayName);
             TypeContent.Text = StorageItem.DisplayType;
             LocationContent.Text = StorageItem.Path;
             SizeContent.Text = $"{StorageItem.Size} ({StorageItem.SizeRaw:N0} {Globalization.GetString("Device_Capacity_Unit")})";

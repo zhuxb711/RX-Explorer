@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -18,13 +19,11 @@ namespace FullTrustProcess
     {
         private const int BufferSize = 512;
 
-        private static bool IsLastExtendedMenuRequested = false;
-
         private static readonly HashSet<string> VerbFilterHashSet = new HashSet<string>
         {
             "open","opennewprocess","pintohome","cut","copy","paste","delete","properties","openas",
             "link","runas","rename","pintostartscreen","windows.share","windows.modernshare",
-            "{e82bd2a8-8d63-42fd-b1ae-d364c201d8a7}", "copyaspath"
+            "{e82bd2a8-8d63-42fd-b1ae-d364c201d8a7}", "copyaspath", "opencontaining"
         };
 
         private static readonly HashSet<string> NameFilterHashSet = new HashSet<string>();
@@ -42,7 +41,102 @@ namespace FullTrustProcess
             }
         }
 
-        private static ContextMenuPackage[] FetchContextMenuCore(Shell32.IContextMenu Context, HMENU Menu)
+        public static Task<ContextMenuPackage[]> FetchContextMenuItemsAsync(string Path, bool IncludeExtensionItem = false)
+        {
+            return FetchContextMenuItemsAsync(new string[] { Path }, IncludeExtensionItem);
+        }
+
+        public static Task<ContextMenuPackage[]> FetchContextMenuItemsAsync(string[] PathArray, bool IncludeExtensionItem = false)
+        {
+            if (PathArray.Length > 0)
+            {
+                return Helper.CreateSTATask(() =>
+                {
+                    try
+                    {
+                        if (Array.TrueForAll(PathArray, (Path) => File.Exists(Path) || Directory.Exists(Path)))
+                        {
+                            Shell32.IContextMenu ContextObject = GetContextMenuObject(PathArray);
+
+                            using (User32.SafeHMENU Menu = User32.CreatePopupMenu())
+                            {
+                                ContextObject.QueryContextMenu(Menu, 0, 0, Convert.ToUInt32(short.MaxValue), (IncludeExtensionItem ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_SYNCCASCADEMENU).ThrowIfFailed();
+
+                                return FetchContextMenuCore(ContextObject, Menu, PathArray, IncludeExtensionItem);
+                            }
+                        }
+                        else
+                        {
+                            return Array.Empty<ContextMenuPackage>();
+                        }
+                    }
+                    catch
+                    {
+                        return Array.Empty<ContextMenuPackage>();
+                    }
+                });
+            }
+            else
+            {
+                return Task.FromResult(Array.Empty<ContextMenuPackage>());
+            }
+        }
+
+        private static Shell32.IContextMenu GetContextMenuObject(params string[] PathArray)
+        {
+            if (PathArray.Count() > 1)
+            {
+                ShellItem[] Items = PathArray.Select((Path) => new ShellItem(Path)).ToArray();
+                ShellFolder[] ParentFolders = Items.Select((Item) => Item.Parent).ToArray();
+
+                try
+                {
+                    if (ParentFolders.Skip(1).All((Folder) => Folder == ParentFolders[0]))
+                    {
+                        return ParentFolders[0].GetChildrenUIObjects<Shell32.IContextMenu>(null, Items);
+                    }
+                    else
+                    {
+                        throw new ArgumentException("All items must have the same parent");
+                    }
+                }
+                finally
+                {
+                    Array.ForEach(Items, (It) => It.Dispose());
+                    Array.ForEach(ParentFolders, (It) => It.Dispose());
+                }
+            }
+            else
+            {
+                using (ShellItem Item = new ShellItem(PathArray.First()))
+                {
+                    if (Item is ShellFolder Folder)
+                    {
+                        return Folder.IShellFolder.CreateViewObject<Shell32.IContextMenu>(HWND.NULL);
+                    }
+                    else
+                    {
+                        if (Item.Parent is ShellFolder ParentFolder)
+                        {
+                            try
+                            {
+                                return ParentFolder.GetChildrenUIObjects<Shell32.IContextMenu>(null, Item);
+                            }
+                            finally
+                            {
+                                ParentFolder?.Dispose();
+                            }
+                        }
+                        else
+                        {
+                            return Item.GetHandler<Shell32.IContextMenu>(Shell32.BHID.BHID_SFUIObject);
+                        }
+                    }
+                }
+            }
+        }
+
+        private static ContextMenuPackage[] FetchContextMenuCore(Shell32.IContextMenu Context, HMENU Menu, string[] RelatedPath, bool IncludeExtensionItem)
         {
             int MenuItemNum = User32.GetMenuItemCount(Menu);
 
@@ -84,7 +178,9 @@ namespace FullTrustProcess
                                             {
                                                 Name = Regex.Replace(Name, @"\(&\S*\)|&", string.Empty),
                                                 Id = Convert.ToInt32(Info.wID),
-                                                Verb = Verb
+                                                Verb = Verb,
+                                                IncludeExtensionItem = IncludeExtensionItem,
+                                                RelatedPath = RelatedPath
                                             };
 
                                             if (Info.hbmpItem != HBITMAP.NULL && ((IntPtr)Info.hbmpItem).ToInt64() != -1)
@@ -116,7 +212,7 @@ namespace FullTrustProcess
 
                                             if (Info.hSubMenu != HMENU.NULL)
                                             {
-                                                Package.SubMenus = FetchContextMenuCore(Context, Info.hSubMenu);
+                                                Package.SubMenus = FetchContextMenuCore(Context, Info.hSubMenu, RelatedPath, IncludeExtensionItem);
                                             }
                                             else
                                             {
@@ -148,55 +244,21 @@ namespace FullTrustProcess
             return MenuItems.ToArray();
         }
 
-        public static Task<ContextMenuPackage[]> FetchContextMenuItemsAsync(string Path, bool FetchExtensionMenu = false)
+        public static Task<bool> InvokeVerbAsync(string[] RelatedPath, string Verb, int Id, bool IncludeExtensionItem)
         {
-            IsLastExtendedMenuRequested = FetchExtensionMenu;
-
-            return Helper.CreateSTATask(() =>
+            if (RelatedPath.Length > 0)
             {
-                try
+                return Helper.CreateSTATask(() =>
                 {
-                    if (File.Exists(Path) || Directory.Exists(Path))
+                    try
                     {
-                        using (ShellItem Item = ShellItem.Open(Path))
+                        if (Array.TrueForAll(RelatedPath, (Path) => File.Exists(Path) || Directory.Exists(Path)))
                         {
-                            Shell32.IContextMenu ContextObject = Item.GetHandler<Shell32.IContextMenu>(Shell32.BHID.BHID_SFUIObject);
+                            Shell32.IContextMenu ContextObject = GetContextMenuObject(RelatedPath);
 
                             using (User32.SafeHMENU Menu = User32.CreatePopupMenu())
                             {
-                                ContextObject.QueryContextMenu(Menu, 0, 0, Convert.ToUInt32(short.MaxValue), (FetchExtensionMenu ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_SYNCCASCADEMENU).ThrowIfFailed();
-
-                                return FetchContextMenuCore(ContextObject, Menu);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        return Array.Empty<ContextMenuPackage>();
-                    }
-                }
-                catch
-                {
-                    return Array.Empty<ContextMenuPackage>();
-                }
-            });
-        }
-
-        public static Task<bool> InvokeVerbAsync(string Path, string Verb, int Id)
-        {
-            return Helper.CreateSTATask(() =>
-            {
-                try
-                {
-                    if (File.Exists(Path) || Directory.Exists(Path))
-                    {
-                        using (ShellItem Item = ShellItem.Open(Path))
-                        {
-                            Shell32.IContextMenu ContextObject = Item.GetHandler<Shell32.IContextMenu>(Shell32.BHID.BHID_SFUIObject);
-
-                            using (User32.SafeHMENU Menu = User32.CreatePopupMenu())
-                            {
-                                ContextObject.QueryContextMenu(Menu, 0, 0, Convert.ToUInt32(short.MaxValue), (IsLastExtendedMenuRequested ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_OPTIMIZEFORINVOKE | Shell32.CMF.CMF_SYNCCASCADEMENU).ThrowIfFailed();
+                                ContextObject.QueryContextMenu(Menu, 0, 0, Convert.ToUInt32(short.MaxValue), (IncludeExtensionItem ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_SYNCCASCADEMENU).ThrowIfFailed();
 
                                 if (string.IsNullOrEmpty(Verb))
                                 {
@@ -215,12 +277,11 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    using (SafeResourceId VerbSID = new SafeResourceId(Verb, CharSet.Ansi))
+                                    using (SafeResourceId VerbId = new SafeResourceId(Verb, CharSet.Ansi))
                                     {
                                         Shell32.CMINVOKECOMMANDINFOEX VerbInvokeCommand = new Shell32.CMINVOKECOMMANDINFOEX
                                         {
-                                            lpVerb = VerbSID,
-                                            lpVerbW = Verb,
+                                            lpVerb = VerbId,
                                             nShow = ShowWindowCommand.SW_SHOWNORMAL,
                                             fMask = Shell32.CMIC.CMIC_MASK_FLAG_NO_UI,
                                             cbSize = Convert.ToUInt32(Marshal.SizeOf(typeof(Shell32.CMINVOKECOMMANDINFOEX)))
@@ -249,17 +310,21 @@ namespace FullTrustProcess
                                 }
                             }
                         }
+                        else
+                        {
+                            return false;
+                        }
                     }
-                    else
+                    catch
                     {
                         return false;
                     }
-                }
-                catch
-                {
-                    return false;
-                }
-            });
+                });
+            }
+            else
+            {
+                return Task.FromResult(false);
+            }
         }
     }
 }

@@ -525,8 +525,10 @@ namespace RX_Explorer
 
         private async void LibraryProperties_Click(object sender, RoutedEventArgs e)
         {
-            if (LibraryGrid.SelectedItem is LibraryFolder Library && await FileSystemStorageItemBase.OpenAsync(Library.Folder.Path).ConfigureAwait(true) is FileSystemStorageFolder Folder)
+            if (LibraryGrid.SelectedItem is LibraryFolder Library)
             {
+                FileSystemStorageFolder Folder = new FileSystemStorageFolder(Library.Folder, await Library.Folder.GetThumbnailBitmapAsync().ConfigureAwait(true), await Library.Folder.GetModifiedTimeAsync().ConfigureAwait(true));
+
                 AppWindow NewWindow = await AppWindow.TryCreateAsync();
                 NewWindow.RequestSize(new Size(420, 600));
                 NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));

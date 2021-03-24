@@ -45,18 +45,29 @@ namespace RX_Explorer.Class
             }
         }
 
-        public ContextMenuItem[] SubMenus { get; }
+        public string[] RelatedPath
+        {
+            get
+            {
+                return DataPackage.RelatedPath;
+            }
+        }
 
-        public string BelongTo { get; }
+        private ContextMenuItem[] subMenu;
+
+        public ContextMenuItem[] SubMenus
+        {
+            get
+            {
+                return subMenu ??= DataPackage.SubMenus.Select((Menu) => new ContextMenuItem(Menu)).ToArray();
+            }
+        }
 
         private readonly ContextMenuPackage DataPackage;
 
-        public ContextMenuItem(ContextMenuPackage DataPackage, string BelongTo)
+        public ContextMenuItem(ContextMenuPackage DataPackage)
         {
             this.DataPackage = DataPackage;
-            this.BelongTo = BelongTo;
-
-            SubMenus = DataPackage.SubMenus.Select((Menu) => new ContextMenuItem(Menu, BelongTo)).ToArray();
         }
 
         public static async Task GenerateSubMenuItemsAsync(IList<MenuFlyoutItemBase> Items, ContextMenuItem[] SubMenus, RoutedEventHandler ClickHandler)
@@ -166,7 +177,7 @@ namespace RX_Explorer.Class
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                await Exclusive.Controller.InvokeContextMenuItemAsync(this).ConfigureAwait(false);
+                await Exclusive.Controller.InvokeContextMenuItemAsync(DataPackage).ConfigureAwait(false);
             }
         }
 

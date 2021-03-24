@@ -144,87 +144,91 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
+                        string[] SelectedPathArray = null;
+
                         if (ListControl.SelectedItems.Count <= 1)
                         {
-                            string SelectedPath = null;
-
                             if (ListControl.SelectedItem is FileSystemStorageItemBase Selected)
                             {
-                                SelectedPath = Selected.Path;
+                                SelectedPathArray = new string[] { Selected.Path };
                             }
                             else if (ListControl.FindParentOfType<FileControl>() is FileControl Control && !string.IsNullOrEmpty(Control.CurrentPresenter.CurrentFolder?.Path))
                             {
-                                SelectedPath = Control.CurrentPresenter.CurrentFolder.Path;
+                                SelectedPathArray = new string[] { Control.CurrentPresenter.CurrentFolder.Path };
                             }
+                        }
+                        else
+                        {
+                            SelectedPathArray = ListControl.SelectedItems.OfType<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray();
+                        }
 
-                            if (!string.IsNullOrWhiteSpace(SelectedPath))
+                        if (SelectedPathArray != null)
+                        {
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                List<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(SelectedPathArray, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down)).ConfigureAwait(true);
+
+                                foreach (AppBarButton ExtraButton in Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Btn) => Btn.Name == "ExtraButton").ToArray())
                                 {
-                                    List<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(SelectedPath, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down)).ConfigureAwait(true);
+                                    Flyout.SecondaryCommands.Remove(ExtraButton);
+                                }
 
-                                    foreach (AppBarButton ExtraButton in Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Btn) => Btn.Name == "ExtraButton").ToArray())
+                                foreach (AppBarSeparator Separator in Flyout.SecondaryCommands.OfType<AppBarSeparator>().Where((Sep) => Sep.Name == "CustomSep").ToArray())
+                                {
+                                    Flyout.SecondaryCommands.Remove(Separator);
+                                }
+
+                                if (ExtraMenuItems.Count > 0)
+                                {
+                                    async void ClickHandler(object sender, RoutedEventArgs args)
                                     {
-                                        Flyout.SecondaryCommands.Remove(ExtraButton);
+                                        if (sender is FrameworkElement Btn)
+                                        {
+                                            if (Btn.Tag is ContextMenuItem MenuItem)
+                                            {
+                                                Flyout.Hide();
+                                                await MenuItem.InvokeAsync().ConfigureAwait(true);
+                                            }
+                                        }
                                     }
 
-                                    foreach (AppBarSeparator Separator in Flyout.SecondaryCommands.OfType<AppBarSeparator>().Where((Sep) => Sep.Name == "CustomSep").ToArray())
+                                    short ShowExtNum = Convert.ToInt16(Math.Max(9 - Flyout.SecondaryCommands.Count((Item) => Item is AppBarButton), 0));
+
+                                    int Index = Flyout.SecondaryCommands.IndexOf(Flyout.SecondaryCommands.OfType<AppBarSeparator>().FirstOrDefault()) + 1;
+
+                                    if (ExtraMenuItems.Count > ShowExtNum + 1)
                                     {
-                                        Flyout.SecondaryCommands.Remove(Separator);
+                                        Flyout.SecondaryCommands.Insert(Index, new AppBarSeparator { Name = "CustomSep" });
+
+                                        foreach (ContextMenuItem AddItem in ExtraMenuItems.Take(ShowExtNum))
+                                        {
+                                            Flyout.SecondaryCommands.Insert(Index, await AddItem.GenerateUIButtonAsync(ClickHandler).ConfigureAwait(true));
+                                        }
+
+                                        AppBarButton MoreItem = new AppBarButton
+                                        {
+                                            Label = Globalization.GetString("CommandBarFlyout_More_Item"),
+                                            Icon = new SymbolIcon(Symbol.More),
+                                            Name = "ExtraButton",
+                                            MinWidth = 250
+                                        };
+
+                                        MenuFlyout MoreFlyout = new MenuFlyout();
+
+                                        await ContextMenuItem.GenerateSubMenuItemsAsync(MoreFlyout.Items, ExtraMenuItems.Skip(ShowExtNum).ToArray(), ClickHandler).ConfigureAwait(true);
+
+                                        MoreItem.Flyout = MoreFlyout;
+
+                                        Flyout.SecondaryCommands.Insert(Index + ShowExtNum, MoreItem);
                                     }
-
-                                    if (ExtraMenuItems.Count > 0)
+                                    else
                                     {
-                                        async void ClickHandler(object sender, RoutedEventArgs args)
+                                        foreach (ContextMenuItem AddItem in ExtraMenuItems)
                                         {
-                                            if (sender is FrameworkElement Btn)
-                                            {
-                                                if (Btn.Tag is ContextMenuItem MenuItem)
-                                                {
-                                                    Flyout.Hide();
-                                                    await MenuItem.InvokeAsync().ConfigureAwait(true);
-                                                }
-                                            }
+                                            Flyout.SecondaryCommands.Insert(Index, await AddItem.GenerateUIButtonAsync(ClickHandler).ConfigureAwait(true));
                                         }
 
-                                        const short ShowExtNum = 2;
-
-                                        int Index = Flyout.SecondaryCommands.IndexOf(Flyout.SecondaryCommands.OfType<AppBarSeparator>().FirstOrDefault()) + 1;
-
-                                        if (ExtraMenuItems.Count > ShowExtNum)
-                                        {
-                                            Flyout.SecondaryCommands.Insert(Index, new AppBarSeparator { Name = "CustomSep" });
-
-                                            foreach (ContextMenuItem AddItem in ExtraMenuItems.Take(ShowExtNum))
-                                            {
-                                                Flyout.SecondaryCommands.Insert(Index, await AddItem.GenerateUIButtonAsync(ClickHandler).ConfigureAwait(true));
-                                            }
-
-                                            AppBarButton MoreItem = new AppBarButton
-                                            {
-                                                Label = Globalization.GetString("CommandBarFlyout_More_Item"),
-                                                Icon = new SymbolIcon(Symbol.More),
-                                                Name = "ExtraButton",
-                                                MinWidth = 250
-                                            };
-
-                                            MenuFlyout MoreFlyout = new MenuFlyout();
-
-                                            await ContextMenuItem.GenerateSubMenuItemsAsync(MoreFlyout.Items, ExtraMenuItems.Skip(ShowExtNum).ToArray(), ClickHandler).ConfigureAwait(true);
-
-                                            MoreItem.Flyout = MoreFlyout;
-
-                                            Flyout.SecondaryCommands.Insert(Index + ShowExtNum, MoreItem);
-                                        }
-                                        else
-                                        {
-                                            foreach (ContextMenuItem AddItem in ExtraMenuItems)
-                                            {
-                                                Flyout.SecondaryCommands.Insert(Index, await AddItem.GenerateUIButtonAsync(ClickHandler).ConfigureAwait(true));
-                                            }
-
-                                            Flyout.SecondaryCommands.Insert(Index + ExtraMenuItems.Count, new AppBarSeparator { Name = "CustomSep" });
-                                        }
+                                        Flyout.SecondaryCommands.Insert(Index + ExtraMenuItems.Count, new AppBarSeparator { Name = "CustomSep" });
                                     }
                                 }
                             }

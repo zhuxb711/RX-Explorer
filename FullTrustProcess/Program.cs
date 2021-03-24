@@ -56,7 +56,12 @@ namespace FullTrustProcess
                     AliveCheckTimer = new Timer(AliveCheck, null, 10000, 10000);
 
                     //Loading the menu in advance can speed up the re-generation speed and ensure the stability of the number of menu items
-                    await ContextMenu.FetchContextMenuItemsAsync(Environment.GetEnvironmentVariable("TMP"), true);
+                    string TempFolderPath = Environment.GetEnvironmentVariable("TMP");
+
+                    if (Directory.Exists(TempFolderPath))
+                    {
+                        await ContextMenu.FetchContextMenuItemsAsync(TempFolderPath, true);
+                    }
                 }
                 else
                 {
@@ -298,10 +303,9 @@ namespace FullTrustProcess
                         }
                     case "Execute_GetContextMenuItems":
                         {
-                            string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);
-                            bool IncludeExtensionItem = Convert.ToBoolean(args.Request.Message["IncludeExtensionItem"]);
+                            string[] ExecutePath = JsonSerializer.Deserialize<string[]>(Convert.ToString(args.Request.Message["ExecutePath"]));
 
-                            ContextMenuPackage[] ContextMenuItems = await ContextMenu.FetchContextMenuItemsAsync(ExecutePath, IncludeExtensionItem);
+                            ContextMenuPackage[] ContextMenuItems = await ContextMenu.FetchContextMenuItemsAsync(ExecutePath, Convert.ToBoolean(args.Request.Message["IncludeExtensionItem"]));
 
                             ValueSet Value = new ValueSet
                             {
@@ -314,26 +318,20 @@ namespace FullTrustProcess
                         }
                     case "Execute_InvokeContextMenuItem":
                         {
-                            string Path = Convert.ToString(args.Request.Message["ExecutePath"]);
-                            string Verb = Convert.ToString(args.Request.Message["InvokeVerb"]);
-                            int Id = Convert.ToInt32(args.Request.Message["InvokeId"]);
+                            string[] RelatedPath = JsonSerializer.Deserialize<string[]>(Convert.ToString(args.Request.Message["RelatedPath"]));
+                            string Verb = Convert.ToString(args.Request.Message["Verb"]);
+                            int Id = Convert.ToInt32(args.Request.Message["Id"]);
+                            bool IncludeExtensionItem = Convert.ToBoolean(args.Request.Message["IncludeExtensionItem"]);
 
                             ValueSet Value = new ValueSet();
 
-                            if (!string.IsNullOrWhiteSpace(Path))
+                            if (await ContextMenu.InvokeVerbAsync(RelatedPath, Verb, Id, IncludeExtensionItem))
                             {
-                                if (await ContextMenu.InvokeVerbAsync(Path, Verb, Id))
-                                {
-                                    Value.Add("Success", string.Empty);
-                                }
-                                else
-                                {
-                                    Value.Add("Error", $"Execute Id: \"{Id}\", Verb: \"{Verb}\" failed");
-                                }
+                                Value.Add("Success", string.Empty);
                             }
                             else
                             {
-                                Value.Add("Error", "Path could not be empty");
+                                Value.Add("Error", $"Execute Id: \"{Id}\", Verb: \"{Verb}\" failed");
                             }
 
                             await args.Request.SendResponseAsync(Value);

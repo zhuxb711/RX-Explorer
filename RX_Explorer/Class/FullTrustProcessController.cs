@@ -966,20 +966,20 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<List<ContextMenuItem>> GetContextMenuItemsAsync(string Path, bool IncludeExtensionItem = false)
+        public async Task<List<ContextMenuItem>> GetContextMenuItemsAsync(string[] PathArray, bool IncludeExtensionItem = false)
         {
             try
             {
                 IsAnyActionExcutingInCurrentController = true;
 
-                if (!string.IsNullOrWhiteSpace(Path))
+                if (PathArray.All((Path) => !string.IsNullOrWhiteSpace(Path)))
                 {
                     if (await ConnectRemoteAsync().ConfigureAwait(true))
                     {
                         ValueSet Value = new ValueSet
                         {
                             {"ExecuteType", ExecuteType_GetContextMenuItems},
-                            {"ExecutePath", Path},
+                            {"ExecutePath", JsonSerializer.Serialize(PathArray)},
                             {"IncludeExtensionItem", IncludeExtensionItem }
                         };
 
@@ -989,7 +989,7 @@ namespace RX_Explorer.Class
                         {
                             if (Response.Message.TryGetValue("Success", out object Result))
                             {
-                                return JsonSerializer.Deserialize<ContextMenuPackage[]>(Convert.ToString(Result)).Select((Item) => new ContextMenuItem(Item, Path)).ToList();
+                                return JsonSerializer.Deserialize<ContextMenuPackage[]>(Convert.ToString(Result)).Select((Item) => new ContextMenuItem(Item)).ToList();
                             }
                             else
                             {
@@ -1029,11 +1029,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task InvokeContextMenuItemAsync(ContextMenuItem Item)
+        public async Task InvokeContextMenuItemAsync(ContextMenuPackage Package)
         {
-            if (Item == null)
+            if (Package == null)
             {
-                throw new ArgumentNullException(nameof(Item), "Argument could not be null");
+                throw new ArgumentNullException(nameof(Package), "Argument could not be null");
             }
 
             try
@@ -1045,9 +1045,10 @@ namespace RX_Explorer.Class
                     ValueSet Value = new ValueSet
                     {
                         {"ExecuteType", ExecuteType_InvokeContextMenuItem},
-                        {"ExecutePath", Item.BelongTo },
-                        {"InvokeId", Item.Id},
-                        {"InvokeVerb", Item.Verb }
+                        {"RelatedPath", JsonSerializer.Serialize(Package.RelatedPath) },
+                        {"Verb", Package.Verb },
+                        {"Id", Package.Id },
+                        {"IncludeExtensionItem", Package.IncludeExtensionItem }
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
