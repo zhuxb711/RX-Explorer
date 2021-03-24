@@ -243,6 +243,7 @@ namespace RX_Explorer
             Version.Text = string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
 
             EmptyFeedBack.Text = Globalization.GetString("Progress_Tip_Loading");
+            PictureGirdView.ItemsSource = PictureList;
 
             Loaded += SettingPage_Loaded;
             Loading += SettingControl_Loading;
@@ -1656,14 +1657,6 @@ namespace RX_Explorer
             {
                 try
                 {
-                    if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string CurrentBackgroundUri)
-                    {
-                        if (CurrentBackgroundUri == PictureItem.PictureUri?.ToString())
-                        {
-                            return;
-                        }
-                    }
-
                     if (await PictureItem.GetFullSizeBitmapImageAsync().ConfigureAwait(true) is BitmapImage Bitmap)
                     {
                         BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureItem.PictureUri);

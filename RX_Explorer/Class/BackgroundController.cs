@@ -636,19 +636,8 @@ namespace RX_Explorer.Class
             {
                 case BackgroundBrushType.Picture:
                     {
-                        if (ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] is string CurrentBackgroundUri)
-                        {
-                            if (CurrentBackgroundUri != ImageUri?.ToString())
-                            {
-                                PictureBackgroundBrush.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), $"if parameter: \"{nameof(Type)}\" is {nameof(BackgroundBrushType.Picture)}, parameter: \"{nameof(Background)}\" could not be null");
-                                ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = ImageUri?.ToString();
-                            }
-                        }
-                        else
-                        {
-                            PictureBackgroundBrush.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), $"if parameter: \"{nameof(Type)}\" is {nameof(BackgroundBrushType.Picture)}, parameter: \"{nameof(Background)}\" could not be null");
-                            ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = ImageUri?.ToString();
-                        }
+                        PictureBackgroundBrush.ImageSource = Background ?? throw new ArgumentNullException(nameof(Background), $"if parameter: \"{nameof(Type)}\" is {nameof(BackgroundBrushType.Picture)}, parameter: \"{nameof(Background)}\" could not be null");
+                        ApplicationData.Current.LocalSettings.Values["PictureBackgroundUri"] = ImageUri?.ToString();
 
                         break;
                     }
