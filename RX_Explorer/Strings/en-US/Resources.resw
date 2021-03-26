@@ -3075,4 +3075,10 @@ Invalid names include
   <data name="LinkOptionsDialog_LinkWorkDirectory.PlaceholderText" xml:space="preserve">
     <value>Enter work directory path</value>
   </data>
+  <data name="QueueDialog_ClipboardFlushTip_Content" xml:space="preserve">
+    <value>Do you want to save the last item you copied so that it will continue to be available after the application is closed? This may take some time, and the app will automatically close when finished</value>
+  </data>
+  <data name="QueueDialog_ClipboardFlushRemember_Content" xml:space="preserve">
+    <value>Remember my choice and don't remind me next time</value>
+  </data>
 </root>

@@ -2970,4 +2970,10 @@
   <data name="LinkOptionsDialog_LinkWorkDirectory.PlaceholderText" xml:space="preserve">
     <value>輸入工作目錄路徑</value>
   </data>
+  <data name="QueueDialog_ClipboardFlushTip_Content" xml:space="preserve">
+    <value>您是否要保存最後復制的項目，以便在關閉應用程序後繼續可用？ 這可能需要一些時間，應用會在完成後自動關閉</value>
+  </data>
+  <data name="QueueDialog_ClipboardFlushRemember_Content" xml:space="preserve">
+    <value>記住我的選擇，下次不提醒我</value>
+  </data>
 </root>

@@ -40,6 +40,7 @@ using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Xaml.Navigation;
 using ZXing;
 using ZXing.QrCode;
 using ZXing.QrCode.Internal;
@@ -214,7 +215,7 @@ namespace RX_Explorer
 
             CoreWindow.GetForCurrentThread().KeyDown += FilePresenter_KeyDown;
             CoreWindow.GetForCurrentThread().Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
-
+            
             Loaded += FilePresenter_Loaded;
 
             Application.Current.Suspending += Current_Suspending;
@@ -225,7 +226,7 @@ namespace RX_Explorer
 
         private void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
         {
-            if (args.KeyStatus.IsMenuKeyDown)
+            if (Container.CurrentPresenter == this && args.KeyStatus.IsMenuKeyDown && MainPage.ThisPage.NavView.SelectedItem.ToString() == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
             {
                 switch (args.VirtualKey)
                 {
@@ -245,7 +246,7 @@ namespace RX_Explorer
 
         private async void FilePresenter_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
-            if (Container.CurrentPresenter == this)
+            if (Container.CurrentPresenter == this && MainPage.ThisPage.NavView.SelectedItem.ToString() == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
             {
                 if (Container.WeakToTabItem.TryGetTarget(out TabViewItem Tab) && Tab == TabViewContainer.ThisPage.TabViewControl.SelectedItem)
                 {
@@ -1562,6 +1563,9 @@ namespace RX_Explorer
 
             if (SelectedItems.Count > 0)
             {
+                //We should take the path of what we want to delete first. Or we might delete some items incorrectly
+                string[] PathList = SelectedItems.Select((Item) => Item.Path).ToArray();
+
                 bool ExecuteDelete = false;
 
                 if (ApplicationData.Current.LocalSettings.Values["DeleteConfirmSwitch"] is bool DeleteConfirm)
@@ -1603,8 +1607,6 @@ namespace RX_Explorer
 
                     try
                     {
-                        IEnumerable<string> PathList = SelectedItems.Select((Item) => Item.Path);
-
                         await FileSystemStorageItemBase.DeleteAsync(PathList, PermanentDelete, (s, arg) =>
                         {
                             if (Container.ProBar.Value < arg.ProgressPercentage)
@@ -2046,7 +2048,7 @@ namespace RX_Explorer
                                 }
                                 else
                                 {
-                                    if (SelectedItem == Context)
+                                    if (SelectedItem == Context && SettingControl.IsDoubleClickEnable)
                                     {
                                         switch (Context)
                                         {
@@ -4769,7 +4771,7 @@ namespace RX_Explorer
                                 }
                                 else
                                 {
-                                    if (SelectedItem == Context)
+                                    if (SelectedItem == Context && SettingControl.IsDoubleClickEnable)
                                     {
                                         switch (Context)
                                         {

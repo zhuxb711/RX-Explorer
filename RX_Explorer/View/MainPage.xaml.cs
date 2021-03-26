@@ -11,6 +11,7 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Background;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Data.Xml.Dom;
 using Windows.Devices.Enumeration;
 using Windows.Foundation;
 using Windows.Media.Audio;
@@ -203,6 +204,100 @@ namespace RX_Explorer
                     else
                     {
                         e.Handled = true;
+                        return;
+                    }
+                }
+
+                bool ShouldKeepClipboardTipShow = false;
+
+                try
+                {
+                    DataPackageView Package = Clipboard.GetContent();
+
+                    if (Package.Contains(StandardDataFormats.StorageItems))
+                    {
+                        ShouldKeepClipboardTipShow = true;
+                    }
+                    else if (Package.Contains(StandardDataFormats.Text))
+                    {
+                        string XmlText = await Package.GetTextAsync();
+
+                        if (XmlText.Contains("RX-Explorer"))
+                        {
+                            XmlDocument Document = new XmlDocument();
+                            Document.LoadXml(XmlText);
+
+                            IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
+
+                            if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
+                            {
+                                ShouldKeepClipboardTipShow = true;
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                    ShouldKeepClipboardTipShow = false;
+                }
+
+                if (ShouldKeepClipboardTipShow)
+                {
+                    if (ApplicationData.Current.LocalSettings.Values["ClipboardFlushAlways"] is bool IsFlush)
+                    {
+                        if (IsFlush)
+                        {
+                            Clipboard.Flush();
+                        }
+                    }
+                    else
+                    {
+                        StackPanel Panel = new StackPanel
+                        {
+                            HorizontalAlignment = HorizontalAlignment.Stretch
+                        };
+
+                        TextBlock Text = new TextBlock
+                        {
+                            Text = Globalization.GetString("QueueDialog_ClipboardFlushTip_Content"),
+                            TextWrapping = TextWrapping.WrapWholeWords
+                        };
+
+                        CheckBox Box = new CheckBox
+                        {
+                            Content = Globalization.GetString("QueueDialog_ClipboardFlushRemember_Content"),
+                            Margin = new Thickness(0, 10, 0, 0)
+                        };
+
+                        Panel.Children.Add(Text);
+                        Panel.Children.Add(Box);
+
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                            Content = Panel,
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                        };
+
+                        ContentDialogResult Result = await Dialog.ShowAsync().ConfigureAwait(true);
+
+                        if (Result == ContentDialogResult.Primary)
+                        {
+                            Clipboard.Flush();
+                        }
+
+                        if (Box.IsChecked.GetValueOrDefault())
+                        {
+                            if (Result == ContentDialogResult.Primary)
+                            {
+                                ApplicationData.Current.LocalSettings.Values["ClipboardFlushAlways"] = true;
+                            }
+                            else
+                            {
+                                ApplicationData.Current.LocalSettings.Values["ClipboardFlushAlways"] = false;
+                            }
+                        }
                     }
                 }
             }

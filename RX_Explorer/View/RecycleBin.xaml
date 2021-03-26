@@ -23,12 +23,24 @@
                               Icon="Delete"
                               Name="PermanentDelete"
                               x:Uid="RecyclePermanentDelete"
-                              Click="PermanentDelete_Click" />
+                              Click="PermanentDelete_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="D"
+                                             Modifiers="Control"
+                                             IsEnabled="False" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
                 <AppBarButton Label="还原"
                               Icon="Redo"
                               Name="RestoreRecycle"
                               x:Uid="RestoreRecycle"
-                              Click="RestoreRecycle_Click" />
+                              Click="RestoreRecycle_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="R"
+                                             Modifiers="Control"
+                                             IsEnabled="False" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton Label="属性"
                               Icon="Tag"
@@ -45,7 +57,12 @@
                               Label="刷新"
                               x:Uid="RefreshView"
                               x:Name="Refresh"
-                              Click="Refresh_Click" />
+                              Click="Refresh_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="F5"
+                                             IsEnabled="False" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton Label="清空回收站"
                               x:Uid="ClearRecycleBin"
@@ -56,6 +73,11 @@
                         <FontIcon FontFamily="Segoe MDL2 Assets"
                                   Glyph="&#xED62;" />
                     </AppBarButton.Icon>
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="E"
+                                             Modifiers="Control"
+                                             IsEnabled="False" />
+                    </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>

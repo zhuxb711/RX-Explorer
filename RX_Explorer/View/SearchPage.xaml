@@ -21,6 +21,11 @@
                               Label="打开所在位置"
                               MinWidth="160"
                               Click="Location_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="L"
+                                             Modifiers="Control"
+                                             IsEnabled="False" />
+                    </AppBarButton.KeyboardAccelerators>
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets"
                                   Glyph="&#xF133;" />
@@ -32,6 +37,7 @@
                               MinWidth="160"
                               x:Uid="SearchCopyPath"
                               Click="CopyPath_Click" />
+                <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               x:Uid="SearchProperties"
                               Label="属性"

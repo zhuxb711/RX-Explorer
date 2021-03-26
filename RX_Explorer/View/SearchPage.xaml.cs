@@ -10,7 +10,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
+using Windows.System;
 using Windows.UI;
+using Windows.UI.Core;
 using Windows.UI.WindowManagement;
 using Windows.UI.WindowManagement.Preview;
 using Windows.UI.Xaml;
@@ -46,7 +48,25 @@ namespace RX_Explorer
             {
                 WeakToFileControl = Parameters.Item1;
 
+                CoreWindow.GetForCurrentThread().KeyDown += SearchPage_KeyDown;
+
                 await Initialize(Parameters.Item2, Parameters.Item3.GetValueOrDefault(), Parameters.Item4.GetValueOrDefault(), Parameters.Item5.GetValueOrDefault(), Parameters.Item6.GetValueOrDefault()).ConfigureAwait(false);
+            }
+        }
+
+        private void SearchPage_KeyDown(CoreWindow sender, KeyEventArgs args)
+        {
+            SearchCommandFlyout.Hide();
+
+            CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
+
+            switch (args.VirtualKey)
+            {
+                case VirtualKey.L when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                    {
+                        Location_Click(null, null);
+                        break;
+                    }
             }
         }
 
@@ -130,6 +150,7 @@ namespace RX_Explorer
         {
             Cancellation?.Cancel();
             SearchResult.Clear();
+            CoreWindow.GetForCurrentThread().KeyDown -= SearchPage_KeyDown;
         }
 
         private async void Location_Click(object sender, RoutedEventArgs e)

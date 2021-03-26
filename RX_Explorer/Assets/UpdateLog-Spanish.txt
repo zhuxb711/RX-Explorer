@@ -1,4 +1,21 @@
 ﻿*****
+###Novedades de la versión 6.2.1.0
+
+#####Actualización de la interfaz de usuario
+
+>#####Se agregó un recordatorio si se debe conservar el contenido copiado antes de cerrar la aplicación
+
+>#####Se agregaron algunos accesos directos a la papelera de reciclaje y la página de búsqueda
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que la condición de activación de la tecla de método abreviado no se podía reconocer correctamente
+
+>#####Se solucionó el problema de congelación al ingresar a la carpeta
+
+>#####Se solucionó el problema de que el archivo incorrecto se podía eliminar en el modo de un solo clic
+
+*****
 ###Novedades de la versión 6.2.0.0
 
 #####Actualización de funciones

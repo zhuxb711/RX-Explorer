@@ -1,4 +1,21 @@
 ﻿*****
+###What's new in Ver.6.2.1.0
+
+#####UI update
+
+>#####Added a reminder whether to keep the copied content before closing the application
+
+>#####Added some shortcuts to the recycle bin and search page
+
+#####Bug fix
+
+>#####Fixed the problem that the shortcut key trigger condition could not be recognized correctly
+
+>#####Fixed the problem of freezing when entering the folder
+
+>#####Fixed the problem that the wrong file may be deleted in single-click mode
+
+*****
 ###What's new in Ver.6.2.0.0
 
 #####Feature update

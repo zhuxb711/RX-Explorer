@@ -1,5 +1,4 @@
 ﻿using RX_Explorer.Class;
-using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
 using RX_Explorer.SeparateWindow.PropertyWindow;
 using System;
@@ -44,28 +43,15 @@ namespace RX_Explorer.View
         {
             InitializeComponent();
             PointerPressedHandler = new PointerEventHandler(ListViewControl_PointerPressed);
-            Loaded += RecycleBin_Loaded;
-            Unloaded += RecycleBin_Unloaded;
-        }
-
-        private void RecycleBin_Unloaded(object sender, RoutedEventArgs e)
-        {
-            SelectionExtention?.Dispose();
-            CoreWindow.GetForCurrentThread().KeyDown -= RecycleBin_KeyDown;
-            ListViewControl.RemoveHandler(PointerPressedEvent, PointerPressedHandler);
-        }
-
-        private void RecycleBin_Loaded(object sender, RoutedEventArgs e)
-        {
-            ListViewControl.AddHandler(PointerPressedEvent, PointerPressedHandler, true);
-            CoreWindow.GetForCurrentThread().KeyDown += RecycleBin_KeyDown;
-            SelectionExtention = new ListViewBaseSelectionExtention(ListViewControl, DrawRectangle);
         }
 
         private void RecycleBin_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
             if (!LoadingControl.IsLoading)
             {
+                SelectFlyout.Hide();
+                EmptyFlyout.Hide();
+
                 CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
 
                 switch (args.VirtualKey)
@@ -81,12 +67,26 @@ namespace RX_Explorer.View
                             PermanentDelete_Click(null, null);
                             break;
                         }
+                    case VirtualKey.R when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        {
+                            RestoreRecycle_Click(null, null);
+                            break;
+                        }
+                    case VirtualKey.E when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                        {
+                            ClearRecycleBin_Click(null, null);
+                            break;
+                        }
                 }
             }
         }
 
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
+            ListViewControl.AddHandler(PointerPressedEvent, PointerPressedHandler, true);
+            CoreWindow.GetForCurrentThread().KeyDown += RecycleBin_KeyDown;
+            SelectionExtention = new ListViewBaseSelectionExtention(ListViewControl, DrawRectangle);
+
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
                 List<IRecycleStorageItem> Result = await Exclusive.Controller.GetRecycleBinItemsAsync().ConfigureAwait(true);
@@ -112,6 +112,10 @@ namespace RX_Explorer.View
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             FileCollection.Clear();
+
+            SelectionExtention?.Dispose();
+            CoreWindow.GetForCurrentThread().KeyDown -= RecycleBin_KeyDown;
+            ListViewControl.RemoveHandler(PointerPressedEvent, PointerPressedHandler);
         }
 
         private void ListViewControl_PointerPressed(object sender, PointerRoutedEventArgs e)

@@ -3941,6 +3941,14 @@ Les noms non valides incluent
           <source>Enter work directory path</source>
           <target state="translated">Entrez le chemin du répertoire de travail</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_ClipboardFlushTip_Content" translate="yes" xml:space="preserve">
+          <source>Do you want to save the last item you copied so that it will continue to be available after the application is closed? This may take some time, and the app will automatically close when finished</source>
+          <target state="translated">Voulez-vous enregistrer le dernier élément que vous avez copié afin qu'il reste disponible après la fermeture de l'application? Cela peut prendre un certain temps et l'application se fermera automatiquement lorsque vous aurez terminé</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ClipboardFlushRemember_Content" translate="yes" xml:space="preserve">
+          <source>Remember my choice and don't remind me next time</source>
+          <target state="translated">Souviens-toi de mon choix et ne me le rappelle pas la prochaine fois</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -2970,4 +2970,10 @@
   <data name="LinkOptionsDialog_LinkWorkDirectory.PlaceholderText" xml:space="preserve">
     <value>输入工作目录路径 </value>
   </data>
+  <data name="QueueDialog_ClipboardFlushTip_Content" xml:space="preserve">
+    <value>您是否希望保存您复制的最后一项以便该应用程序关闭后继续可用？这可能会花费一些时间，应用将在完成后自动关闭</value>
+  </data>
+  <data name="QueueDialog_ClipboardFlushRemember_Content" xml:space="preserve">
+    <value>记住我的选择，下次不再提示</value>
+  </data>
 </root>

@@ -1,4 +1,21 @@
 ﻿*****
+###Quoi de neuf dans la version 6.2.1.0
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Ajout d'un rappel s'il faut conserver le contenu copié avant de fermer l'application
+
+>#####Ajout de quelques raccourcis vers la corbeille et la page de recherche
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel la condition de déclenchement de la touche de raccourci ne pouvait pas être reconnue correctement
+
+>#####Correction du problème de gel lors de l'entrée dans le dossier
+
+>#####Correction du problème de suppression du mauvais fichier en mode simple clic
+
+*****
 ###Quoi de neuf dans la version 6.2.0.0
 
 #####Mise à jour des fonctionnalités

@@ -3941,6 +3941,14 @@ Invalid names include
           <source>Enter work directory path</source>
           <target state="translated">输入工作目录路径 </target>
         </trans-unit>
+        <trans-unit id="QueueDialog_ClipboardFlushTip_Content" translate="yes" xml:space="preserve">
+          <source>Do you want to save the last item you copied so that it will continue to be available after the application is closed? This may take some time, and the app will automatically close when finished</source>
+          <target state="translated">您是否希望保存您复制的最后一项以便该应用程序关闭后继续可用？这可能会花费一些时间，应用将在完成后自动关闭</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ClipboardFlushRemember_Content" translate="yes" xml:space="preserve">
+          <source>Remember my choice and don't remind me next time</source>
+          <target state="translated">记住我的选择，下次不再提示</target>
+        </trans-unit>
       </group>
     </body>
   </file>

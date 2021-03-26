@@ -2970,4 +2970,10 @@ Las denominaciones no válidas son:
   <data name="LinkOptionsDialog_LinkWorkDirectory.PlaceholderText" xml:space="preserve">
     <value>Ingrese la ruta del directorio de trabajo</value>
   </data>
+  <data name="QueueDialog_ClipboardFlushTip_Content" xml:space="preserve">
+    <value>¿Desea guardar el último elemento que copió para que siga estando disponible después de que se cierre la aplicación? Esto puede llevar algún tiempo y la aplicación se cerrará automáticamente cuando termine.</value>
+  </data>
+  <data name="QueueDialog_ClipboardFlushRemember_Content" xml:space="preserve">
+    <value>Recuerda mi elección y no me lo recuerdes la próxima vez</value>
+  </data>
 </root>
