@@ -240,6 +240,7 @@
                                     Opening="DecompressionOptionFlyout_Opening">
                             <Custom:MenuFlyoutItemWithImage Text="解压选项..."
                                                             Name="DecompressOption"
+                                                            x:Uid="DecompressOption"
                                                             MinWidth="150"
                                                             MaxWidth="320"
                                                             Click="DecompressOption_Click">

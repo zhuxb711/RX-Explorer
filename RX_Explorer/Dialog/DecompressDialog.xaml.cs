@@ -61,12 +61,29 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            if (CurrentEncoding == null)
+            var Deferral = args.GetDeferral();
+
+            try
             {
-                args.Cancel = true;
-                InvalidTip.IsOpen = true;
+                if (CurrentEncoding == null)
+                {
+                    args.Cancel = true;
+                    InvalidTip.IsOpen = true;
+                }
+                else if (await FileSystemStorageItemBase.OpenAsync(ExtractLocation).ConfigureAwait(true) is not FileSystemStorageFolder)
+                {
+                    args.Cancel = true;
+                }
+            }
+            catch(Exception ex)
+            {
+                LogTracer.Log(ex);
+            }
+            finally
+            {
+                Deferral.Complete();
             }
         }
 

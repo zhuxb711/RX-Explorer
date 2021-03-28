@@ -1578,7 +1578,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Paste</value>
   </data>
   <data name="Operate_Text_Property" xml:space="preserve">
-    <value>Property</value>
+    <value>Properties</value>
   </data>
   <data name="Operate_Text_Refresh" xml:space="preserve">
     <value>Refresh</value>
@@ -3080,5 +3080,26 @@ Invalid names include
   </data>
   <data name="QueueDialog_ClipboardFlushRemember_Content" xml:space="preserve">
     <value>Remember my choice and don't remind me next time</value>
+  </data>
+  <data name="DecompressionOptionDialog.Title" xml:space="preserve">
+    <value>Extract option</value>
+  </data>
+  <data name="DecompressionOptionDialog_EncodingComboBox.Header" xml:space="preserve">
+    <value>Specify encoding</value>
+  </data>
+  <data name="DecompressionOptionDialog_EncodingComboBox.PlaceholderText" xml:space="preserve">
+    <value>Please enter the Encoding Name or CodePage</value>
+  </data>
+  <data name="DecompressionOptionDialog_LocationButton.Content" xml:space="preserve">
+    <value>Select location</value>
+  </data>
+  <data name="DecompressionOptionDialog_LocationText.Header" xml:space="preserve">
+    <value>Extract to the location</value>
+  </data>
+  <data name="DecompressionOptionDialog_LocationText.PlaceholderText" xml:space="preserve">
+    <value>Must be a valid file folder path</value>
+  </data>
+  <data name="DecompressOption.Text" xml:space="preserve">
+    <value>Extract option...</value>
   </data>
 </root>

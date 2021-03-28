@@ -1427,7 +1427,7 @@
     <value>Coller</value>
   </data>
   <data name="Operate_Text_Property" xml:space="preserve">
-    <value>Propriété</value>
+    <value>Propriétés</value>
   </data>
   <data name="Operate_Text_Refresh" xml:space="preserve">
     <value>Rafraîchir</value>
@@ -2975,5 +2975,26 @@ Les noms non valides incluent
   </data>
   <data name="QueueDialog_ClipboardFlushRemember_Content" xml:space="preserve">
     <value>Souviens-toi de mon choix et ne me le rappelle pas la prochaine fois</value>
+  </data>
+  <data name="DecompressionOptionDialog.Title" xml:space="preserve">
+    <value>Option d'extraction</value>
+  </data>
+  <data name="DecompressionOptionDialog_EncodingComboBox.Header" xml:space="preserve">
+    <value>Spécifier l'encodage</value>
+  </data>
+  <data name="DecompressionOptionDialog_EncodingComboBox.PlaceholderText" xml:space="preserve">
+    <value>Veuillez entrer le nom de codage ou la page de code</value>
+  </data>
+  <data name="DecompressionOptionDialog_LocationButton.Content" xml:space="preserve">
+    <value>Sélectionnez l'emplacement</value>
+  </data>
+  <data name="DecompressionOptionDialog_LocationText.Header" xml:space="preserve">
+    <value>Extraire vers l'emplacement</value>
+  </data>
+  <data name="DecompressionOptionDialog_LocationText.PlaceholderText" xml:space="preserve">
+    <value>Doit être un chemin de dossier de fichiers valide</value>
+  </data>
+  <data name="DecompressOption.Text" xml:space="preserve">
+    <value>Option d'extraction ...</value>
   </data>
 </root>

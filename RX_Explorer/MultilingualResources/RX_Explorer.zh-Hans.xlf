@@ -1886,7 +1886,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">粘贴</target>
         </trans-unit>
         <trans-unit id="Operate_Text_Property" translate="yes" xml:space="preserve">
-          <source>Property</source>
+          <source>Properties</source>
           <target state="translated">属性</target>
         </trans-unit>
         <trans-unit id="Operate_Text_Refresh" translate="yes" xml:space="preserve">
@@ -3948,6 +3948,34 @@ Invalid names include
         <trans-unit id="QueueDialog_ClipboardFlushRemember_Content" translate="yes" xml:space="preserve">
           <source>Remember my choice and don't remind me next time</source>
           <target state="translated">记住我的选择，下次不再提示</target>
+        </trans-unit>
+        <trans-unit id="DecompressionOptionDialog.Title" translate="yes" xml:space="preserve">
+          <source>Extract option</source>
+          <target state="translated">解压选项</target>
+        </trans-unit>
+        <trans-unit id="DecompressionOptionDialog_EncodingComboBox.Header" translate="yes" xml:space="preserve">
+          <source>Specify encoding</source>
+          <target state="translated">指定编码格式</target>
+        </trans-unit>
+        <trans-unit id="DecompressionOptionDialog_EncodingComboBox.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Please enter the Encoding Name or CodePage</source>
+          <target state="translated">请输入编码名称或者CodePage</target>
+        </trans-unit>
+        <trans-unit id="DecompressionOptionDialog_LocationButton.Content" translate="yes" xml:space="preserve">
+          <source>Select location</source>
+          <target state="translated">选择位置</target>
+        </trans-unit>
+        <trans-unit id="DecompressionOptionDialog_LocationText.Header" translate="yes" xml:space="preserve">
+          <source>Extract to the location</source>
+          <target state="translated">解压至指定位置</target>
+        </trans-unit>
+        <trans-unit id="DecompressionOptionDialog_LocationText.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Must be a valid file folder path</source>
+          <target state="translated">必须为有效的文件夹路径</target>
+        </trans-unit>
+        <trans-unit id="DecompressOption.Text" translate="yes" xml:space="preserve">
+          <source>Extract option...</source>
+          <target state="translated">解压选项...</target>
         </trans-unit>
       </group>
     </body>

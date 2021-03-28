@@ -2976,4 +2976,25 @@
   <data name="QueueDialog_ClipboardFlushRemember_Content" xml:space="preserve">
     <value>记住我的选择，下次不再提示</value>
   </data>
+  <data name="DecompressionOptionDialog.Title" xml:space="preserve">
+    <value>解压选项</value>
+  </data>
+  <data name="DecompressionOptionDialog_EncodingComboBox.Header" xml:space="preserve">
+    <value>指定编码格式</value>
+  </data>
+  <data name="DecompressionOptionDialog_EncodingComboBox.PlaceholderText" xml:space="preserve">
+    <value>请输入编码名称或者CodePage</value>
+  </data>
+  <data name="DecompressionOptionDialog_LocationButton.Content" xml:space="preserve">
+    <value>选择位置</value>
+  </data>
+  <data name="DecompressionOptionDialog_LocationText.Header" xml:space="preserve">
+    <value>解压至指定位置</value>
+  </data>
+  <data name="DecompressionOptionDialog_LocationText.PlaceholderText" xml:space="preserve">
+    <value>必须为有效的文件夹路径</value>
+  </data>
+  <data name="DecompressOption.Text" xml:space="preserve">
+    <value>解压选项...</value>
+  </data>
 </root>

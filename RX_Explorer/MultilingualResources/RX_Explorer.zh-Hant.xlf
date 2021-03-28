@@ -376,7 +376,7 @@
         </trans-unit>
         <trans-unit id="FolderAttribute.Label" translate="yes" xml:space="preserve">
           <source>Properties</source>
-          <target state="translated" state-qualifier="tm-suggestion">內容</target>
+          <target state="translated" state-qualifier="tm-suggestion">屬性</target>
         </trans-unit>
         <trans-unit id="FolderOpen.Label" translate="yes" xml:space="preserve">
           <source>Open</source>
@@ -1902,8 +1902,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated" state-qualifier="tm-suggestion">貼上</target>
         </trans-unit>
         <trans-unit id="Operate_Text_Property" translate="yes" xml:space="preserve">
-          <source>Property</source>
-          <target state="translated" state-qualifier="tm-suggestion">內容</target>
+          <source>Properties</source>
+          <target state="translated">屬性</target>
         </trans-unit>
         <trans-unit id="Operate_Text_Refresh" translate="yes" xml:space="preserve">
           <source>Refresh</source>
@@ -3948,6 +3948,34 @@ Invalid names include
         <trans-unit id="QueueDialog_ClipboardFlushRemember_Content" translate="yes" xml:space="preserve">
           <source>Remember my choice and don't remind me next time</source>
           <target state="translated">記住我的選擇，下次不提醒我</target>
+        </trans-unit>
+        <trans-unit id="DecompressionOptionDialog.Title" translate="yes" xml:space="preserve">
+          <source>Extract option</source>
+          <target state="translated">提取選項</target>
+        </trans-unit>
+        <trans-unit id="DecompressionOptionDialog_EncodingComboBox.Header" translate="yes" xml:space="preserve">
+          <source>Specify encoding</source>
+          <target state="translated">指定編碼</target>
+        </trans-unit>
+        <trans-unit id="DecompressionOptionDialog_EncodingComboBox.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Please enter the Encoding Name or CodePage</source>
+          <target state="translated">請輸入編碼名稱或代碼頁</target>
+        </trans-unit>
+        <trans-unit id="DecompressionOptionDialog_LocationButton.Content" translate="yes" xml:space="preserve">
+          <source>Select location</source>
+          <target state="translated">選擇位置</target>
+        </trans-unit>
+        <trans-unit id="DecompressionOptionDialog_LocationText.Header" translate="yes" xml:space="preserve">
+          <source>Extract to the location</source>
+          <target state="translated">提取到該位置</target>
+        </trans-unit>
+        <trans-unit id="DecompressionOptionDialog_LocationText.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Must be a valid file folder path</source>
+          <target state="translated">必須是有效的文件夾路徑</target>
+        </trans-unit>
+        <trans-unit id="DecompressOption.Text" translate="yes" xml:space="preserve">
+          <source>Extract option...</source>
+          <target state="translated">提取選項...</target>
         </trans-unit>
       </group>
     </body>

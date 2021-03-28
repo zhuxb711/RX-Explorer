@@ -289,7 +289,7 @@
     <value>分享</value>
   </data>
   <data name="FolderAttribute.Label" xml:space="preserve">
-    <value>內容</value>
+    <value>屬性</value>
   </data>
   <data name="FolderOpen.Label" xml:space="preserve">
     <value>開啟</value>
@@ -1439,7 +1439,7 @@
     <value>貼上</value>
   </data>
   <data name="Operate_Text_Property" xml:space="preserve">
-    <value>內容</value>
+    <value>屬性</value>
   </data>
   <data name="Operate_Text_Refresh" xml:space="preserve">
     <value>重新整理</value>
@@ -2975,5 +2975,26 @@
   </data>
   <data name="QueueDialog_ClipboardFlushRemember_Content" xml:space="preserve">
     <value>記住我的選擇，下次不提醒我</value>
+  </data>
+  <data name="DecompressionOptionDialog.Title" xml:space="preserve">
+    <value>提取選項</value>
+  </data>
+  <data name="DecompressionOptionDialog_EncodingComboBox.Header" xml:space="preserve">
+    <value>指定編碼</value>
+  </data>
+  <data name="DecompressionOptionDialog_EncodingComboBox.PlaceholderText" xml:space="preserve">
+    <value>請輸入編碼名稱或代碼頁</value>
+  </data>
+  <data name="DecompressionOptionDialog_LocationButton.Content" xml:space="preserve">
+    <value>選擇位置</value>
+  </data>
+  <data name="DecompressionOptionDialog_LocationText.Header" xml:space="preserve">
+    <value>提取到該位置</value>
+  </data>
+  <data name="DecompressionOptionDialog_LocationText.PlaceholderText" xml:space="preserve">
+    <value>必須是有效的文件夾路徑</value>
+  </data>
+  <data name="DecompressOption.Text" xml:space="preserve">
+    <value>提取選項...</value>
   </data>
 </root>

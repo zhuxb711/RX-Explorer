@@ -1473,7 +1473,7 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>Pegar</value>
   </data>
   <data name="Operate_Text_Property" xml:space="preserve">
-    <value>Propiedad</value>
+    <value>Propiedades</value>
   </data>
   <data name="Operate_Text_Refresh" xml:space="preserve">
     <value>Recargar</value>
@@ -2975,5 +2975,26 @@ Las denominaciones no válidas son:
   </data>
   <data name="QueueDialog_ClipboardFlushRemember_Content" xml:space="preserve">
     <value>Recuerda mi elección y no me lo recuerdes la próxima vez</value>
+  </data>
+  <data name="DecompressionOptionDialog.Title" xml:space="preserve">
+    <value>Opción de extracción</value>
+  </data>
+  <data name="DecompressionOptionDialog_EncodingComboBox.Header" xml:space="preserve">
+    <value>Especificar codificación</value>
+  </data>
+  <data name="DecompressionOptionDialog_EncodingComboBox.PlaceholderText" xml:space="preserve">
+    <value>Ingrese el nombre de codificación o la página de código</value>
+  </data>
+  <data name="DecompressionOptionDialog_LocationButton.Content" xml:space="preserve">
+    <value>Seleccionar ubicación</value>
+  </data>
+  <data name="DecompressionOptionDialog_LocationText.Header" xml:space="preserve">
+    <value>Extraer a la ubicación</value>
+  </data>
+  <data name="DecompressionOptionDialog_LocationText.PlaceholderText" xml:space="preserve">
+    <value>Debe ser una ruta de carpeta de archivo válida</value>
+  </data>
+  <data name="DecompressOption.Text" xml:space="preserve">
+    <value>Opción de extracción ...</value>
   </data>
 </root>

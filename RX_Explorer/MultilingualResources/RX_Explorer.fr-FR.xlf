@@ -1886,8 +1886,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Coller</target>
         </trans-unit>
         <trans-unit id="Operate_Text_Property" translate="yes" xml:space="preserve">
-          <source>Property</source>
-          <target state="translated">Propriété</target>
+          <source>Properties</source>
+          <target state="translated">Propriétés</target>
         </trans-unit>
         <trans-unit id="Operate_Text_Refresh" translate="yes" xml:space="preserve">
           <source>Refresh</source>
@@ -3948,6 +3948,34 @@ Les noms non valides incluent
         <trans-unit id="QueueDialog_ClipboardFlushRemember_Content" translate="yes" xml:space="preserve">
           <source>Remember my choice and don't remind me next time</source>
           <target state="translated">Souviens-toi de mon choix et ne me le rappelle pas la prochaine fois</target>
+        </trans-unit>
+        <trans-unit id="DecompressionOptionDialog.Title" translate="yes" xml:space="preserve">
+          <source>Extract option</source>
+          <target state="translated">Option d'extraction</target>
+        </trans-unit>
+        <trans-unit id="DecompressionOptionDialog_EncodingComboBox.Header" translate="yes" xml:space="preserve">
+          <source>Specify encoding</source>
+          <target state="translated">Spécifier l'encodage</target>
+        </trans-unit>
+        <trans-unit id="DecompressionOptionDialog_EncodingComboBox.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Please enter the Encoding Name or CodePage</source>
+          <target state="translated">Veuillez entrer le nom de codage ou la page de code</target>
+        </trans-unit>
+        <trans-unit id="DecompressionOptionDialog_LocationButton.Content" translate="yes" xml:space="preserve">
+          <source>Select location</source>
+          <target state="translated">Sélectionnez l'emplacement</target>
+        </trans-unit>
+        <trans-unit id="DecompressionOptionDialog_LocationText.Header" translate="yes" xml:space="preserve">
+          <source>Extract to the location</source>
+          <target state="translated">Extraire vers l'emplacement</target>
+        </trans-unit>
+        <trans-unit id="DecompressionOptionDialog_LocationText.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Must be a valid file folder path</source>
+          <target state="translated">Doit être un chemin de dossier de fichiers valide</target>
+        </trans-unit>
+        <trans-unit id="DecompressOption.Text" translate="yes" xml:space="preserve">
+          <source>Extract option...</source>
+          <target state="translated">Option d'extraction ...</target>
         </trans-unit>
       </group>
     </body>

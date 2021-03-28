@@ -8,6 +8,7 @@
                         xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
                         mc:Ignorable="d"
                         Title="解压选项"
+                        x:Uid="DecompressionOptionDialog"
                         PrimaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_ConfirmButton')}"
                         SecondaryButtonText="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}"
                         PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
@@ -25,12 +26,14 @@
     <StackPanel MinWidth="300">
         <RelativePanel>
             <TextBox Header="解压至指定位置"
-                     PlaceholderText="必须为有效的文件路径"
+                     PlaceholderText="必须为有效的文件夹路径"
+                     x:Uid="DecompressionOptionDialog_LocationText"
                      RelativePanel.AlignLeftWithPanel="True"
                      Name="LocationText"
                      RelativePanel.LeftOf="SelectLocationButton"
                      Text="{x:Bind ExtractLocation, Mode=TwoWay}"/>
             <Button Content="选择位置"
+                    x:Uid="DecompressionOptionDialog_LocationButton"
                     RelativePanel.AlignBottomWithPanel="True"
                     RelativePanel.AlignRightWithPanel="True"
                     MinWidth="80"
@@ -41,6 +44,7 @@
         <ComboBox Header="指定编码格式"
                   IsEditable="True"
                   Margin="0,10,0,0"
+                  x:Uid="DecompressionOptionDialog_EncodingComboBox"
                   PlaceholderText="请输入编码名称或CodePage"
                   TextSubmitted="EncodingOption_TextSubmitted"
                   VerticalAlignment="Center"

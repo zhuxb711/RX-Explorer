@@ -214,8 +214,9 @@ namespace RX_Explorer
             AreaWatcher = new StorageAreaWatcher(FileCollection);
             EnterLock = new SemaphoreSlim(1, 1);
 
-            CoreWindow.GetForCurrentThread().KeyDown += FilePresenter_KeyDown;
-            CoreWindow.GetForCurrentThread().Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
+            CoreWindow Window = CoreWindow.GetForCurrentThread();
+            Window.KeyDown += FilePresenter_KeyDown;
+            Window.Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
             
             Loaded += FilePresenter_Loaded;
 
@@ -227,7 +228,10 @@ namespace RX_Explorer
 
         private void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
         {
-            if (Container.CurrentPresenter == this && args.KeyStatus.IsMenuKeyDown && MainPage.ThisPage.NavView.SelectedItem.ToString() == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
+            if (Container.CurrentPresenter == this 
+                && args.KeyStatus.IsMenuKeyDown
+                && MainPage.ThisPage.NavView.SelectedItem is NavigationViewItem NavItem
+                && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
             {
                 switch (args.VirtualKey)
                 {
@@ -247,7 +251,9 @@ namespace RX_Explorer
 
         private async void FilePresenter_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
-            if (Container.CurrentPresenter == this && MainPage.ThisPage.NavView.SelectedItem is NavigationViewItem NavItem && NavItem.Content.ToString() == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
+            if (Container.CurrentPresenter == this 
+                && MainPage.ThisPage.NavView.SelectedItem is NavigationViewItem NavItem 
+                && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
             {
                 if (Container.WeakToTabItem.TryGetTarget(out TabViewItem Tab) && Tab == TabViewContainer.ThisPage.TabViewControl.SelectedItem)
                 {
@@ -6218,6 +6224,13 @@ namespace RX_Explorer
 
             RecordIndex = 0;
             GoAndBackRecord.Clear();
+
+            FileCollection.CollectionChanged -= FileCollection_CollectionChanged;
+            ListViewDetailHeader.Filter.RefreshListRequested -= Filter_RefreshListRequested;
+
+            CoreWindow Window = CoreWindow.GetForCurrentThread();
+            Window.KeyDown -= FilePresenter_KeyDown;
+            Window.Dispatcher.AcceleratorKeyActivated -= Dispatcher_AcceleratorKeyActivated;
 
             Application.Current.Suspending -= Current_Suspending;
             Application.Current.Resuming -= Current_Resuming;
