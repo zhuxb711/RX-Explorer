@@ -2366,7 +2366,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
         </trans-unit>
         <trans-unit id="QueueDialog_UnauthorizedDecompression_Content" translate="yes" xml:space="preserve">
           <source>RX does not have permission to decompression the Zip file here, it may be that you do not have access to this file.\r\rDo you want to launch Windows Explorer?</source>
-          <target state="translated">RX无权在此处解压Zip文件，可能是您无权访问此文件\r\您是否希望启动Windows Explorer?</target>
+          <target state="translated">RX无权在此处解压Zip文件，可能是您无权访问此文件\r\r您是否希望启动Windows Explorer?</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_UndoFailure_Content" translate="yes" xml:space="preserve">

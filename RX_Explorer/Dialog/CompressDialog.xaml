@@ -11,15 +11,15 @@
                           x:Uid="CompressDialog"
                           PrimaryButtonClick="QueueContentDialog_PrimaryButtonClick">
 
-    <StackPanel>
+    <StackPanel MinWidth="300">
         <TextBox Header="文件名"
                  x:Uid="CompressDialogName"
                  Name="FName"
-                 MinWidth="250"
+                 MinWidth="280"
                  HorizontalAlignment="Left"/>
         <ComboBox Header="压缩类型"
                   Margin="0,10,0,0"
-                  MinWidth="120"
+                  MinWidth="150"
                   x:Uid="CompressDialogType"
                   Name="CompressionType" 
                   SelectionChanged="CompressionType_SelectionChanged"/>

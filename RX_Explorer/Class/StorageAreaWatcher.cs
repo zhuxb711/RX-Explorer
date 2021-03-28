@@ -55,71 +55,74 @@ namespace RX_Explorer.Class
             {
                 await Locker.WaitAsync().ConfigureAwait(true);
 
-                try
+                if (CurrentLocation == System.IO.Path.GetDirectoryName(Path))
                 {
-                    if (await FileSystemStorageItemBase.OpenAsync(Path).ConfigureAwait(true) is FileSystemStorageItemBase ModifiedItem)
+                    try
                     {
-                        if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase OldItem)
+                        if (await FileSystemStorageItemBase.OpenAsync(Path).ConfigureAwait(true) is FileSystemStorageItemBase ModifiedItem)
                         {
-                            if (ModifiedItem.GetType() == OldItem.GetType())
+                            if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase OldItem)
                             {
-                                await OldItem.RefreshAsync().ConfigureAwait(true);
-                            }
-                            else
-                            {
-                                CurrentCollection.Remove(OldItem);
-
-                                if ((ModifiedItem is IHiddenStorageItem && SettingControl.IsDisplayHiddenItem) || ModifiedItem is not IHiddenStorageItem)
+                                if (ModifiedItem.GetType() == OldItem.GetType())
                                 {
-                                    if (CurrentCollection.Any())
-                                    {
-                                        int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, ModifiedItem);
+                                    await OldItem.RefreshAsync().ConfigureAwait(true);
+                                }
+                                else
+                                {
+                                    CurrentCollection.Remove(OldItem);
 
-                                        if (Index >= 0)
+                                    if ((ModifiedItem is IHiddenStorageItem && SettingControl.IsDisplayHiddenItem) || ModifiedItem is not IHiddenStorageItem)
+                                    {
+                                        if (CurrentCollection.Any())
                                         {
-                                            CurrentCollection.Insert(Index, ModifiedItem);
+                                            int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, ModifiedItem);
+
+                                            if (Index >= 0)
+                                            {
+                                                CurrentCollection.Insert(Index, ModifiedItem);
+                                            }
+                                            else
+                                            {
+                                                CurrentCollection.Add(ModifiedItem);
+                                            }
                                         }
                                         else
                                         {
                                             CurrentCollection.Add(ModifiedItem);
                                         }
                                     }
+                                }
+                            }
+                            else if (ModifiedItem is not IHiddenStorageItem)
+                            {
+                                if (CurrentCollection.Any())
+                                {
+                                    int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, ModifiedItem);
+
+                                    if (Index >= 0)
+                                    {
+                                        CurrentCollection.Insert(Index, ModifiedItem);
+                                    }
                                     else
                                     {
                                         CurrentCollection.Add(ModifiedItem);
                                     }
-                                }
-                            }
-                        }
-                        else if (ModifiedItem is not IHiddenStorageItem)
-                        {
-                            if (CurrentCollection.Any())
-                            {
-                                int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, ModifiedItem);
-
-                                if (Index >= 0)
-                                {
-                                    CurrentCollection.Insert(Index, ModifiedItem);
                                 }
                                 else
                                 {
                                     CurrentCollection.Add(ModifiedItem);
                                 }
                             }
-                            else
-                            {
-                                CurrentCollection.Add(ModifiedItem);
-                            }
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"{ nameof(StorageAreaWatcher)}: Modify item in collection failed");
-                }
-                finally
-                {
-                    Locker.Release();
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, $"{ nameof(StorageAreaWatcher)}: Modify item in collection failed");
+                    }
+                    finally
+                    {
+                        Locker.Release();
+                    }
                 }
             });
         }
@@ -134,52 +137,55 @@ namespace RX_Explorer.Class
                     {
                         await Locker.WaitAsync().ConfigureAwait(true);
 
-                        if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(OldPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase OlderItem)
+                        if (CurrentLocation == System.IO.Path.GetDirectoryName(NewPath))
                         {
-                            if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(NewPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase ExistItem)
+                            if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(OldPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase OlderItem)
                             {
-                                await ExistItem.ReplaceAsync(NewPath).ConfigureAwait(true);
-
-                                await Task.Delay(700).ConfigureAwait(true);
-
-                                CurrentCollection.Remove(OlderItem);
-                            }
-                            else
-                            {
-                                await OlderItem.ReplaceAsync(NewPath).ConfigureAwait(true);
-                            }
-                        }
-                        else if (CurrentCollection.All((Item) => Item.Path != NewPath))
-                        {
-                            if (await FileSystemStorageItemBase.OpenAsync(NewPath).ConfigureAwait(true) is FileSystemStorageItemBase Item)
-                            {
-                                if (CurrentCollection.Any())
+                                if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(NewPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase ExistItem)
                                 {
-                                    int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, Item);
+                                    await ExistItem.ReplaceAsync(NewPath).ConfigureAwait(true);
 
-                                    if (Index >= 0)
+                                    await Task.Delay(700).ConfigureAwait(true);
+
+                                    CurrentCollection.Remove(OlderItem);
+                                }
+                                else
+                                {
+                                    await OlderItem.ReplaceAsync(NewPath).ConfigureAwait(true);
+                                }
+                            }
+                            else if (CurrentCollection.All((Item) => Item.Path != NewPath))
+                            {
+                                if (await FileSystemStorageItemBase.OpenAsync(NewPath).ConfigureAwait(true) is FileSystemStorageItemBase Item)
+                                {
+                                    if (CurrentCollection.Any())
                                     {
-                                        CurrentCollection.Insert(Index, Item);
+                                        int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, Item);
+
+                                        if (Index >= 0)
+                                        {
+                                            CurrentCollection.Insert(Index, Item);
+                                        }
+                                        else
+                                        {
+                                            CurrentCollection.Add(Item);
+                                        }
                                     }
                                     else
                                     {
                                         CurrentCollection.Add(Item);
                                     }
                                 }
-                                else
-                                {
-                                    CurrentCollection.Add(Item);
-                                }
                             }
-                        }
 
-                        if (!SettingControl.IsDetachTreeViewAndPresenter && TreeView != null)
-                        {
-                            if (TreeView.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == System.IO.Path.GetPathRoot(CurrentLocation)) is TreeViewNode RootNode)
+                            if (!SettingControl.IsDetachTreeViewAndPresenter && TreeView != null)
                             {
-                                if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentLocation, string.Empty), true) is TreeViewNode CurrentNode)
+                                if (TreeView.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == System.IO.Path.GetPathRoot(CurrentLocation)) is TreeViewNode RootNode)
                                 {
-                                    await CurrentNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                    if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentLocation, string.Empty), true) is TreeViewNode CurrentNode)
+                                    {
+                                        await CurrentNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                    }
                                 }
                             }
                         }
@@ -206,18 +212,21 @@ namespace RX_Explorer.Class
                     {
                         await Locker.WaitAsync().ConfigureAwait(true);
 
-                        if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
+                        if (CurrentLocation == System.IO.Path.GetDirectoryName(Path))
                         {
-                            CurrentCollection.Remove(Item);
-                        }
-
-                        if (!SettingControl.IsDetachTreeViewAndPresenter && TreeView != null)
-                        {
-                            if (TreeView.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == System.IO.Path.GetPathRoot(CurrentLocation)) is TreeViewNode RootNode)
+                            if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Item)
                             {
-                                if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentLocation, string.Empty), true) is TreeViewNode CurrentNode)
+                                CurrentCollection.Remove(Item);
+                            }
+
+                            if (!SettingControl.IsDetachTreeViewAndPresenter && TreeView != null)
+                            {
+                                if (TreeView.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == System.IO.Path.GetPathRoot(CurrentLocation)) is TreeViewNode RootNode)
                                 {
-                                    await CurrentNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                    if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentLocation, string.Empty), true) is TreeViewNode CurrentNode)
+                                    {
+                                        await CurrentNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                    }
                                 }
                             }
                         }
@@ -244,35 +253,38 @@ namespace RX_Explorer.Class
                     {
                         await Locker.WaitAsync().ConfigureAwait(true);
 
-                        if (CurrentCollection.All((Item) => Item.Path != Path) && await FileSystemStorageItemBase.OpenAsync(Path).ConfigureAwait(true) is FileSystemStorageItemBase NewItem)
+                        if (CurrentLocation == System.IO.Path.GetDirectoryName(Path))
                         {
-                            await NewItem.LoadMorePropertyAsync().ConfigureAwait(true);
-
-                            if (CurrentCollection.Any())
+                            if (CurrentCollection.All((Item) => Item.Path != Path) && await FileSystemStorageItemBase.OpenAsync(Path).ConfigureAwait(true) is FileSystemStorageItemBase NewItem)
                             {
-                                int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, NewItem);
+                                await NewItem.LoadMorePropertyAsync().ConfigureAwait(true);
 
-                                if (Index >= 0)
+                                if (CurrentCollection.Any())
                                 {
-                                    CurrentCollection.Insert(Index, NewItem);
+                                    int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, NewItem);
+
+                                    if (Index >= 0)
+                                    {
+                                        CurrentCollection.Insert(Index, NewItem);
+                                    }
+                                    else
+                                    {
+                                        CurrentCollection.Add(NewItem);
+                                    }
                                 }
                                 else
                                 {
                                     CurrentCollection.Add(NewItem);
                                 }
-                            }
-                            else
-                            {
-                                CurrentCollection.Add(NewItem);
-                            }
 
-                            if (!SettingControl.IsDetachTreeViewAndPresenter && TreeView != null)
-                            {
-                                if (TreeView.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == System.IO.Path.GetPathRoot(CurrentLocation)) is TreeViewNode RootNode)
+                                if (!SettingControl.IsDetachTreeViewAndPresenter && TreeView != null)
                                 {
-                                    if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentLocation, string.Empty), true) is TreeViewNode CurrentNode)
+                                    if (TreeView.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == System.IO.Path.GetPathRoot(CurrentLocation)) is TreeViewNode RootNode)
                                     {
-                                        await CurrentNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                        if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentLocation, string.Empty), true) is TreeViewNode CurrentNode)
+                                        {
+                                            await CurrentNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                        }
                                     }
                                 }
                             }

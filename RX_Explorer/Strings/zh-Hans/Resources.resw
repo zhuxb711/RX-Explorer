@@ -1791,7 +1791,7 @@
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UnauthorizedDecompression_Content" xml:space="preserve">
-    <value>RX无权在此处解压Zip文件，可能是您无权访问此文件\r\您是否希望启动Windows Explorer?</value>
+    <value>RX无权在此处解压Zip文件，可能是您无权访问此文件\r\r您是否希望启动Windows Explorer?</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_UndoFailure_Content" xml:space="preserve">

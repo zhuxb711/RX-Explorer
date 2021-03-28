@@ -66,27 +66,35 @@ namespace RX_Explorer.Class
         {
             return Task.Run(() =>
             {
-                long TotalBytesRead = 0;
-                long TotalBytesLength = From.Length;
-
-                byte[] DataBuffer = new byte[2048];
-
-                while (true)
+                try
                 {
-                    int bytesRead = From.Read(DataBuffer, 0, DataBuffer.Length);
+                    long TotalBytesRead = 0;
+                    long TotalBytesLength = From.Length;
 
-                    if (bytesRead > 0)
-                    {
-                        To.Write(DataBuffer, 0, bytesRead);
-                        TotalBytesRead += bytesRead;
-                    }
-                    else
-                    {
-                        To.Flush();
-                        break;
-                    }
+                    byte[] DataBuffer = new byte[2048];
 
-                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(TotalBytesRead * 100d / TotalBytesLength), null));
+                    while (true)
+                    {
+                        int bytesRead = From.Read(DataBuffer, 0, DataBuffer.Length);
+
+                        if (bytesRead > 0)
+                        {
+                            To.Write(DataBuffer, 0, bytesRead);
+                            TotalBytesRead += bytesRead;
+                        }
+                        else
+                        {
+                            To.Flush();
+                            break;
+                        }
+
+                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(TotalBytesRead * 100d / TotalBytesLength), null));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not track the progress of coping the stream");
+                    From.CopyTo(To);
                 }
             });
         }

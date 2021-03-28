@@ -44,6 +44,7 @@ using Windows.UI.Xaml.Navigation;
 using ZXing;
 using ZXing.QrCode;
 using ZXing.QrCode.Internal;
+using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace RX_Explorer
@@ -246,7 +247,7 @@ namespace RX_Explorer
 
         private async void FilePresenter_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
-            if (Container.CurrentPresenter == this && MainPage.ThisPage.NavView.SelectedItem.ToString() == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
+            if (Container.CurrentPresenter == this && MainPage.ThisPage.NavView.SelectedItem is NavigationViewItem NavItem && NavItem.Content.ToString() == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
             {
                 if (Container.WeakToTabItem.TryGetTarget(out TabViewItem Tab) && Tab == TabViewContainer.ThisPage.TabViewControl.SelectedItem)
                 {
@@ -2154,7 +2155,7 @@ namespace RX_Explorer
                     return;
                 }
 
-                CompressDialog dialog = new CompressDialog(true, Path.GetFileNameWithoutExtension(File.Path));
+                CompressDialog dialog = new CompressDialog(true, Path.GetFileName(File.Path));
 
                 if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
                 {
@@ -2269,20 +2270,43 @@ namespace RX_Explorer
                 switch (File.Type.ToLower())
                 {
                     case ".zip":
+                    case ".tar":
+                    case ".gz":
                         {
-                            await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
-
-                            try
+                            break;
+                        }
+                    default:
+                        {
+                            QueueContentDialog dialog = new QueueContentDialog
                             {
-                                FileSystemStorageFolder TargetFolder = ((sender as FrameworkElement).Name == "DecompressionOption2")
-                                                                        ? await FileSystemStorageItemBase.CreateAsync(Path.Combine(Path.GetDirectoryName(File.Path), Path.GetFileNameWithoutExtension(File.Name)), StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) as FileSystemStorageFolder
-                                                                        : CurrentFolder;
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_FileTypeIncorrect_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
 
-                                if (TargetFolder == null)
-                                {
-                                    throw new UnauthorizedAccessException();
-                                }
+                            await dialog.ShowAsync().ConfigureAwait(true);
 
+                            return;
+                        }
+                }
+
+                await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
+
+                try
+                {
+                    FileSystemStorageFolder TargetFolder = ((sender as FrameworkElement)?.Name == "DecompressionOption2")
+                                                            ? await FileSystemStorageItemBase.CreateAsync(Path.Combine(Path.GetDirectoryName(File.Path), Path.GetFileNameWithoutExtension(File.Name)), StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) as FileSystemStorageFolder
+                                                            : CurrentFolder;
+
+                    if (TargetFolder == null)
+                    {
+                        throw new UnauthorizedAccessException();
+                    }
+
+                    switch (File.Type.ToLower())
+                    {
+                        case ".zip":
+                            {
                                 await CompressionUtil.ExtractZipAsync(TargetFolder, File, async (s, e) =>
                                 {
                                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
@@ -2294,64 +2318,11 @@ namespace RX_Explorer
                                         }
                                     });
                                 }).ConfigureAwait(true);
+
+                                break;
                             }
-                            catch (UnauthorizedAccessException)
+                        case ".tar":
                             {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"),
-                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                                };
-
-                                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                {
-                                    _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                                }
-                            }
-                            catch (NotImplementedException)
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_CanNotDecompressEncrypted_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                            }
-                            catch (Exception ex)
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_DecompressionError_Content") + ex.Message,
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                _ = await dialog.ShowAsync().ConfigureAwait(true);
-                            }
-
-                            await Container.LoadingActivation(false).ConfigureAwait(true);
-
-                            break;
-                        }
-                    case ".tar":
-                        {
-                            await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
-
-                            try
-                            {
-                                FileSystemStorageFolder TargetFolder = ((sender as FrameworkElement).Name == "DecompressionOption2")
-                                                                        ? await FileSystemStorageItemBase.CreateAsync(Path.Combine(Path.GetDirectoryName(File.Path), Path.GetFileNameWithoutExtension(File.Name)), StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) as FileSystemStorageFolder
-                                                                        : CurrentFolder;
-
-                                if (TargetFolder == null)
-                                {
-                                    throw new UnauthorizedAccessException();
-                                }
-
                                 await CompressionUtil.ExtractTarAsync(TargetFolder, File, async (s, e) =>
                                 {
                                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
@@ -2363,45 +2334,12 @@ namespace RX_Explorer
                                         }
                                     });
                                 }).ConfigureAwait(true);
+
+                                break;
                             }
-                            catch (UnauthorizedAccessException)
+                        case ".gz":
                             {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"),
-                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                                };
-
-                                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                {
-                                    _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_DecompressionError_Content") + ex.Message,
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                _ = await dialog.ShowAsync().ConfigureAwait(true);
-                            }
-
-                            await Container.LoadingActivation(false).ConfigureAwait(true);
-
-                            break;
-                        }
-                    case ".gz":
-                        {
-                            await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
-
-                            try
-                            {
-                                await CompressionUtil.ExtractGZipAsync(File, async (s, e) =>
+                                await CompressionUtil.ExtractGZipAsync(TargetFolder, File, async (s, e) =>
                                 {
                                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                     {
@@ -2412,51 +2350,51 @@ namespace RX_Explorer
                                         }
                                     });
                                 }).ConfigureAwait(true);
+
+                                break;
                             }
-                            catch (UnauthorizedAccessException)
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"),
-                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                                };
+                    }
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"),
+                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                    };
 
-                                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                {
-                                    _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_DecompressionError_Content") + ex.Message,
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
+                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    {
+                        _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
+                    }
+                }
+                catch (NotImplementedException)
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_CanNotDecompressEncrypted_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
 
-                                _ = await dialog.ShowAsync().ConfigureAwait(true);
-                            }
+                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                }
+                catch (Exception ex)
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_DecompressionError_Content") + ex.Message,
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
 
-                            await Container.LoadingActivation(false).ConfigureAwait(true);
-
-                            break;
-                        }
-                    default:
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_FileTypeIncorrect_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            await Dialog.ShowAsync().ConfigureAwait(true);
-
-                            break;
-                        }
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                }
+                finally
+                {
+                    await Container.LoadingActivation(false).ConfigureAwait(true);
                 }
             }
         }
@@ -6100,31 +6038,163 @@ namespace RX_Explorer
 
         private void DecompressionOptionFlyout_Opening(object sender, object e)
         {
-            if (!SelectedItem.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase))
-            {
-                MenuFlyoutItemWithImage Item = new MenuFlyoutItemWithImage
-                {
-                    MinWidth = 150,
-                    MaxWidth = 320,
-                    Name = "DecompressionOption2",
-                    Text = $"{Globalization.GetString("DecompressTo")} \"{Path.GetFileNameWithoutExtension(SelectedItem.Path)}\\\"",
-                    Icon = new FontIcon
-                    {
-                        Glyph = "\uF0B2"
-                    }
-                };
-
-                Item.Click += Decompression_Click;
-
-                DecompressionOptionFlyout.Items.Add(Item);
-            }
+            DecompressionOption2.Text = $"{Globalization.GetString("DecompressTo")} \"{Path.GetFileNameWithoutExtension(SelectedItem.Path)}\\\"";
         }
 
-        private void DecompressionOptionFlyout_Closed(object sender, object e)
+        private async void DecompressOption_Click(object sender, RoutedEventArgs e)
         {
-            if (DecompressionOptionFlyout.Items.LastOrDefault((Item) => Item.Name == "DecompressionOption2") is MenuFlyoutItemBase Base)
+            if (SelectedItem is FileSystemStorageFile File)
             {
-                DecompressionOptionFlyout.Items.Remove(Base);
+                CloseAllFlyout();
+
+                if (!await FileSystemStorageItemBase.CheckExistAsync(File.Path).ConfigureAwait(true))
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+
+                    return;
+                }
+
+                switch (File.Type.ToLower())
+                {
+                    case ".zip":
+                    case ".tar":
+                    case ".gz":
+                        {
+                            break;
+                        }
+                    default:
+                        {
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_FileTypeIncorrect_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            await dialog.ShowAsync().ConfigureAwait(true);
+
+                            return;
+                        }
+                }
+
+                DecompressDialog Dialog = new DecompressDialog(Path.GetDirectoryName(File.Path));
+
+                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                {
+                    try
+                    {
+                        await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
+
+                        FileSystemStorageFolder TargetFolder = await FileSystemStorageItemBase.CreateAsync(Path.Combine(Dialog.ExtractLocation, Path.GetFileNameWithoutExtension(File.Name)), StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) as FileSystemStorageFolder;
+
+                        if (TargetFolder == null)
+                        {
+                            throw new UnauthorizedAccessException();
+                        }
+
+                        CompressionUtil.SetEncoding(Dialog.CurrentEncoding);
+
+                        switch (File.Type.ToLower())
+                        {
+                            case ".zip":
+                                {
+                                    await CompressionUtil.ExtractZipAsync(TargetFolder, File, async (s, e) =>
+                                    {
+                                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            if (Container.ProBar.Value < e.ProgressPercentage)
+                                            {
+                                                Container.ProBar.IsIndeterminate = false;
+                                                Container.ProBar.Value = e.ProgressPercentage;
+                                            }
+                                        });
+                                    }).ConfigureAwait(true);
+
+                                    break;
+                                }
+                            case ".tar":
+                                {
+                                    await CompressionUtil.ExtractTarAsync(TargetFolder, File, async (s, e) =>
+                                    {
+                                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            if (Container.ProBar.Value < e.ProgressPercentage)
+                                            {
+                                                Container.ProBar.IsIndeterminate = false;
+                                                Container.ProBar.Value = e.ProgressPercentage;
+                                            }
+                                        });
+                                    }).ConfigureAwait(true);
+
+                                    break;
+                                }
+                            case ".gz":
+                                {
+                                    await CompressionUtil.ExtractGZipAsync(TargetFolder, File, async (s, e) =>
+                                    {
+                                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            if (Container.ProBar.Value < e.ProgressPercentage)
+                                            {
+                                                Container.ProBar.IsIndeterminate = false;
+                                                Container.ProBar.Value = e.ProgressPercentage;
+                                            }
+                                        });
+                                    }).ConfigureAwait(true);
+
+                                    break;
+                                }
+                        }
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"),
+                            PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
+                        };
+
+                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                        {
+                            _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
+                        }
+                    }
+                    catch (NotImplementedException)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_CanNotDecompressEncrypted_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    }
+                    catch (Exception ex)
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_DecompressionError_Content") + ex.Message,
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    }
+                    finally
+                    {
+                        await Container.LoadingActivation(false).ConfigureAwait(true);
+                    }
+                }
             }
         }
 

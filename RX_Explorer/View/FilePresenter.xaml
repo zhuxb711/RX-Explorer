@@ -237,11 +237,29 @@
                     </AppBarButton.Icon>
                     <AppBarButton.Flyout>
                         <MenuFlyout x:Name="DecompressionOptionFlyout"
-                                    Opening="DecompressionOptionFlyout_Opening"
-                                    Closed="DecompressionOptionFlyout_Closed">
+                                    Opening="DecompressionOptionFlyout_Opening">
+                            <Custom:MenuFlyoutItemWithImage Text="解压选项..."
+                                                            Name="DecompressOption"
+                                                            MinWidth="150"
+                                                            MaxWidth="320"
+                                                            Click="DecompressOption_Click">
+                                <Custom:MenuFlyoutItemWithImage.Icon>
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Glyph="&#xF0B2;" />
+                                </Custom:MenuFlyoutItemWithImage.Icon>
+                            </Custom:MenuFlyoutItemWithImage>
                             <Custom:MenuFlyoutItemWithImage Text="解压到此文件夹"
                                                             Click="Decompression_Click"
                                                             x:Uid="DecompressHere"
+                                                            MinWidth="150"
+                                                            MaxWidth="320">
+                                <Custom:MenuFlyoutItemWithImage.Icon>
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Glyph="&#xF0B2;" />
+                                </Custom:MenuFlyoutItemWithImage.Icon>
+                            </Custom:MenuFlyoutItemWithImage>
+                            <Custom:MenuFlyoutItemWithImage Click="Decompression_Click"
+                                                            x:Name="DecompressionOption2"
                                                             MinWidth="150"
                                                             MaxWidth="320">
                                 <Custom:MenuFlyoutItemWithImage.Icon>

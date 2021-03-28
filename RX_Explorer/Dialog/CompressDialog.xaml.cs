@@ -12,14 +12,14 @@ namespace RX_Explorer.Dialog
         /// </summary>
         public string FileName { get; private set; }
 
+        private readonly string SuggestName;
+
         /// <summary>
         /// 获取压缩等级
         /// </summary>
         public CompressionLevel Level { get; private set; }
 
         public CompressionType Type { get; private set; }
-
-        private readonly string SuggestName;
 
         public CompressDialog(bool ShouldDisplayGzip, string SuggestName)
         {
@@ -112,7 +112,7 @@ namespace RX_Explorer.Dialog
             {
                 case 0:
                     {
-                        FName.Text = $"{(string.IsNullOrEmpty(SuggestName) ? Globalization.GetString("Compression_Admin_Name_Text") : SuggestName)}.zip";
+                        FName.Text = $"{(string.IsNullOrEmpty(SuggestName) ? Globalization.GetString("Compression_Admin_Name_Text") : Path.GetFileNameWithoutExtension(SuggestName))}.zip";
                         FName.Select(0, FName.Text.Length - 4);
                         Type = Class.CompressionType.Zip;
                         CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Visible;
@@ -121,7 +121,7 @@ namespace RX_Explorer.Dialog
                     }
                 case 1:
                     {
-                        FName.Text = $"{(string.IsNullOrEmpty(SuggestName) ? Globalization.GetString("Compression_Admin_Name_Text") : SuggestName)}.tar";
+                        FName.Text = $"{(string.IsNullOrEmpty(SuggestName) ? Globalization.GetString("Compression_Admin_Name_Text") : Path.GetFileNameWithoutExtension(SuggestName))}.tar";
                         FName.Select(0, FName.Text.Length - 4);
                         Type = Class.CompressionType.Tar;
                         CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
