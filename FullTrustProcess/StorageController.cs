@@ -7,13 +7,103 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
+using System.Text;
 using System.Text.RegularExpressions;
+using Vanara.PInvoke;
 using Vanara.Windows.Shell;
 
 namespace FullTrustProcess
 {
-    public static class StorageItemController
+    public static class StorageController
     {
+        /// <summary>
+        /// Find out what process(es) have a lock on the specified file.
+        /// </summary>
+        /// <param name="path">Path of the file.</param>
+        /// <returns>Processes locking the file</returns>
+        public static List<Process> GetLockingProcesses(string path)
+        {
+            StringBuilder SessionKey = new StringBuilder(Guid.NewGuid().ToString());
+
+            if (RstrtMgr.RmStartSession(out uint SessionHandle, 0, SessionKey).Succeeded)
+            {
+                try
+                {
+                    string[] ResourcesFileName = new string[] { path };
+
+                    if (RstrtMgr.RmRegisterResources(SessionHandle, (uint)ResourcesFileName.Length, ResourcesFileName, 0, null, 0, null).Succeeded)
+                    {
+                        uint pnProcInfo = 0;
+
+                        //Note: there's a race condition here -- the first call to RmGetList() returns
+                        //      the total number of process. However, when we call RmGetList() again to get
+                        //      the actual processes this number may have increased.
+                        Win32Error Error = RstrtMgr.RmGetList(SessionHandle, out uint pnProcInfoNeeded, ref pnProcInfo, null, out _);
+
+                        if (Error == Win32Error.ERROR_MORE_DATA)
+                        {
+                            // Create an array to store the process results
+                            RstrtMgr.RM_PROCESS_INFO[] ProcessInfo = new RstrtMgr.RM_PROCESS_INFO[pnProcInfoNeeded];
+
+                            pnProcInfo = pnProcInfoNeeded;
+
+                            // Get the list
+                            if (RstrtMgr.RmGetList(SessionHandle, out pnProcInfoNeeded, ref pnProcInfo, ProcessInfo, out _).Succeeded)
+                            {
+                                List<Process> LockProcesses = new List<Process>((int)pnProcInfo);
+
+                                // Enumerate all of the results and add them to the 
+                                // list to be returned
+                                for (int i = 0; i < pnProcInfo; i++)
+                                {
+                                    try
+                                    {
+                                        LockProcesses.Add(Process.GetProcessById(Convert.ToInt32(ProcessInfo[i].Process.dwProcessId)));
+                                    }
+                                    catch
+                                    {
+                                        // catch the error -- in case the process is no longer running
+                                        Debug.WriteLine("Process is no longer running");
+                                    }
+                                }
+
+                                return LockProcesses;
+                            }
+                            else
+                            {
+                                Debug.WriteLine("Could not list processes locking resource");
+                                return new List<Process>(0);
+                            }
+                        }
+                        else if (Error != Win32Error.ERROR_SUCCESS)
+                        {
+                            Debug.WriteLine("Could not list processes locking resource. Failed to get size of result.");
+                            return new List<Process>(0);
+                        }
+                        else
+                        {
+                            Debug.WriteLine("Unknown error");
+                            return new List<Process>(0);
+                        }
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Could not register resource");
+                        return new List<Process>(0);
+                    }
+                }
+                finally
+                {
+                    RstrtMgr.RmEndSession(SessionHandle);
+                }
+            }
+            else
+            {
+                Debug.WriteLine("Could not begin restart session. Unable to determine file locker.");
+                return new List<Process>(0);
+            }
+        }
+
         public static bool CheckOccupied(string Path)
         {
             if (File.Exists(Path))
@@ -34,63 +124,6 @@ namespace FullTrustProcess
             else
             {
                 return false;
-            }
-        }
-
-        public static bool TryUnoccupied(string Path)
-        {
-            if (File.Exists(Path))
-            {
-                try
-                {
-                    if (!CheckOccupied(Path))
-                    {
-                        return true;
-                    }
-
-                    using (Process CheckTool = new Process())
-                    {
-                        CheckTool.StartInfo.FileName = "handle.exe";
-                        CheckTool.StartInfo.Arguments = $"\"{Path}\" /accepteula";
-                        CheckTool.StartInfo.UseShellExecute = false;
-                        CheckTool.StartInfo.RedirectStandardOutput = true;
-                        CheckTool.StartInfo.CreateNoWindow = true;
-                        CheckTool.Start();
-                        CheckTool.WaitForExit();
-
-                        bool IsKilled = false;
-
-                        foreach (Match match in Regex.Matches(CheckTool.StandardOutput.ReadToEnd(), @"(?<=\s+pid:\s+)\b(\d+)\b(?=\s+)"))
-                        {
-                            using (Process TargetProcess = Process.GetProcessById(Convert.ToInt32(match.Value)))
-                            {
-                                try
-                                {
-                                    TargetProcess.Kill();
-                                    IsKilled = true;
-                                }
-                                catch (InvalidOperationException)
-                                {
-
-                                }
-                                catch
-                                {
-                                    return false;
-                                }
-                            }
-                        }
-
-                        return IsKilled;
-                    }
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                throw new FileNotFoundException();
             }
         }
 

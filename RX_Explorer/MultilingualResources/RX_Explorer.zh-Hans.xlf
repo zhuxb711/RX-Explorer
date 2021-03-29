@@ -1748,7 +1748,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">计算器</target>
         </trans-unit>
         <trans-unit id="ExtendedSplash_QuickStartItem_Name_3" translate="yes" xml:space="preserve">
-          <source>Setting</source>
+          <source>Settings</source>
           <target state="translated">设置</target>
         </trans-unit>
         <trans-unit id="ExtendedSplash_QuickStartItem_Name_4" translate="yes" xml:space="preserve">

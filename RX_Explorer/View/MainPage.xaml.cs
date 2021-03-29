@@ -214,24 +214,27 @@ namespace RX_Explorer
                 {
                     DataPackageView Package = Clipboard.GetContent();
 
-                    if (Package.Contains(StandardDataFormats.StorageItems))
+                    if (Package.Properties.PackageFamilyName == Windows.ApplicationModel.Package.Current.Id.FamilyName)
                     {
-                        ShouldKeepClipboardTipShow = true;
-                    }
-                    else if (Package.Contains(StandardDataFormats.Text))
-                    {
-                        string XmlText = await Package.GetTextAsync();
-
-                        if (XmlText.Contains("RX-Explorer"))
+                        if (Package.Contains(StandardDataFormats.StorageItems))
                         {
-                            XmlDocument Document = new XmlDocument();
-                            Document.LoadXml(XmlText);
+                            ShouldKeepClipboardTipShow = true;
+                        }
+                        else if (Package.Contains(StandardDataFormats.Text))
+                        {
+                            string XmlText = await Package.GetTextAsync();
 
-                            IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
-
-                            if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
+                            if (XmlText.Contains("RX-Explorer"))
                             {
-                                ShouldKeepClipboardTipShow = true;
+                                XmlDocument Document = new XmlDocument();
+                                Document.LoadXml(XmlText);
+
+                                IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
+
+                                if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
+                                {
+                                    ShouldKeepClipboardTipShow = true;
+                                }
                             }
                         }
                     }

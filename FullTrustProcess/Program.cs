@@ -1,4 +1,5 @@
-﻿using ShareClassLibrary;
+﻿using Microsoft.Win32;
+using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -123,85 +124,169 @@ namespace FullTrustProcess
 
                                 using (ShellItem Item = new ShellItem(ExecutePath))
                                 {
-                                    if (Item.Properties.TryGetValue(Ole32.PROPERTYKEY.System.Document.LastAuthor, out string LastAuthor))
+                                    if (Item.IShellItem is Shell32.IShellItem2 IShell2)
                                     {
-                                        PropertiesDic.Add("LastAuthor", LastAuthor);
-                                    }
-                                    else
-                                    {
-                                        PropertiesDic.Add("LastAuthor", string.Empty);
-                                    }
+                                        try
+                                        {
+                                            string LastAuthor = IShell2.GetString(Ole32.PROPERTYKEY.System.Document.LastAuthor);
 
-                                    if (Item.Properties.TryGetValue(Ole32.PROPERTYKEY.System.Document.Version, out string Version))
-                                    {
-                                        PropertiesDic.Add("Version", Version);
-                                    }
-                                    else
-                                    {
-                                        PropertiesDic.Add("Version", string.Empty);
-                                    }
+                                            if (string.IsNullOrEmpty(LastAuthor))
+                                            {
+                                                PropertiesDic.Add("LastAuthor", string.Empty);
+                                            }
+                                            else
+                                            {
+                                                PropertiesDic.Add("LastAuthor", LastAuthor);
+                                            }
+                                        }
+                                        catch
+                                        {
+                                            PropertiesDic.Add("LastAuthor", string.Empty);
+                                        }
 
-                                    if (Item.Properties.TryGetValue(Ole32.PROPERTYKEY.System.Document.RevisionNumber, out string RevisionNumber))
-                                    {
-                                        PropertiesDic.Add("RevisionNumber", RevisionNumber);
-                                    }
-                                    else
-                                    {
-                                        PropertiesDic.Add("RevisionNumber", string.Empty);
-                                    }
+                                        try
+                                        {
+                                            string Version = IShell2.GetString(Ole32.PROPERTYKEY.System.Document.Version);
 
-                                    if (Item.Properties.TryGetValue(Ole32.PROPERTYKEY.System.Document.PageCount, out int PageCount))
-                                    {
-                                        PropertiesDic.Add("PageCount", Convert.ToString(PageCount));
-                                    }
-                                    else
-                                    {
-                                        PropertiesDic.Add("PageCount", string.Empty);
-                                    }
+                                            if (string.IsNullOrEmpty(Version))
+                                            {
+                                                PropertiesDic.Add("Version", string.Empty);
+                                            }
+                                            else
+                                            {
+                                                PropertiesDic.Add("Version", Version);
+                                            }
+                                        }
+                                        catch
+                                        {
+                                            PropertiesDic.Add("Version", string.Empty);
+                                        }
 
-                                    if (Item.Properties.TryGetValue(Ole32.PROPERTYKEY.System.Document.WordCount, out int WordCount))
-                                    {
-                                        PropertiesDic.Add("WordCount", Convert.ToString(WordCount));
-                                    }
-                                    else
-                                    {
-                                        PropertiesDic.Add("WordCount", string.Empty);
-                                    }
+                                        try
+                                        {
+                                            string RevisionNumber = IShell2.GetString(Ole32.PROPERTYKEY.System.Document.RevisionNumber);
 
-                                    if (Item.Properties.TryGetValue(Ole32.PROPERTYKEY.System.Document.CharacterCount, out int CharacterCount))
-                                    {
-                                        PropertiesDic.Add("CharacterCount", Convert.ToString(CharacterCount));
-                                    }
-                                    else
-                                    {
-                                        PropertiesDic.Add("CharacterCount", string.Empty);
-                                    }
+                                            if (string.IsNullOrEmpty(RevisionNumber))
+                                            {
+                                                PropertiesDic.Add("RevisionNumber", string.Empty);
+                                            }
+                                            else
+                                            {
+                                                PropertiesDic.Add("RevisionNumber", RevisionNumber);
+                                            }
+                                        }
+                                        catch
+                                        {
+                                            PropertiesDic.Add("RevisionNumber", string.Empty);
+                                        }
 
-                                    if (Item.Properties.TryGetValue(Ole32.PROPERTYKEY.System.Document.LineCount, out int LineCount))
-                                    {
-                                        PropertiesDic.Add("LineCount", Convert.ToString(LineCount));
-                                    }
-                                    else
-                                    {
-                                        PropertiesDic.Add("LineCount", string.Empty);
-                                    }
+                                        try
+                                        {
+                                            string Template = IShell2.GetString(Ole32.PROPERTYKEY.System.Document.Template);
 
-                                    if (Item.Properties.TryGetValue(Ole32.PROPERTYKEY.System.Document.Template, out string Template))
-                                    {
-                                        PropertiesDic.Add("Template", Template);
-                                    }
-                                    else
-                                    {
-                                        PropertiesDic.Add("Template", string.Empty);
-                                    }
+                                            if (string.IsNullOrEmpty(Template))
+                                            {
+                                                PropertiesDic.Add("Template", string.Empty);
+                                            }
+                                            else
+                                            {
+                                                PropertiesDic.Add("Template", Template);
+                                            }
+                                        }
+                                        catch
+                                        {
+                                            PropertiesDic.Add("Template", string.Empty);
+                                        }
 
-                                    if (Item.Properties.TryGetValue(Ole32.PROPERTYKEY.System.Document.TotalEditingTime, out ulong TotalEditingTime))
-                                    {
-                                        PropertiesDic.Add("TotalEditingTime", Convert.ToString(TotalEditingTime));
-                                    }
-                                    else
-                                    {
-                                        PropertiesDic.Add("TotalEditingTime", string.Empty);
+                                        try
+                                        {
+                                            int PageCount = IShell2.GetInt32(Ole32.PROPERTYKEY.System.Document.PageCount);
+
+                                            if (PageCount > 0)
+                                            {
+                                                PropertiesDic.Add("PageCount", Convert.ToString(PageCount));
+                                            }
+                                            else
+                                            {
+                                                PropertiesDic.Add("PageCount", string.Empty);
+                                            }
+                                        }
+                                        catch
+                                        {
+                                            PropertiesDic.Add("PageCount", string.Empty);
+                                        }
+
+                                        try
+                                        {
+                                            int WordCount = IShell2.GetInt32(Ole32.PROPERTYKEY.System.Document.WordCount);
+
+                                            if (WordCount > 0)
+                                            {
+                                                PropertiesDic.Add("WordCount", Convert.ToString(WordCount));
+                                            }
+                                            else
+                                            {
+                                                PropertiesDic.Add("WordCount", string.Empty);
+                                            }
+                                        }
+                                        catch
+                                        {
+                                            PropertiesDic.Add("WordCount", string.Empty);
+                                        }
+
+                                        try
+                                        {
+                                            int CharacterCount = IShell2.GetInt32(Ole32.PROPERTYKEY.System.Document.CharacterCount);
+
+                                            if (CharacterCount > 0)
+                                            {
+                                                PropertiesDic.Add("CharacterCount", Convert.ToString(CharacterCount));
+                                            }
+                                            else
+                                            {
+                                                PropertiesDic.Add("CharacterCount", string.Empty);
+                                            }
+                                        }
+                                        catch
+                                        {
+                                            PropertiesDic.Add("CharacterCount", string.Empty);
+                                        }
+
+                                        try
+                                        {
+                                            int LineCount = IShell2.GetInt32(Ole32.PROPERTYKEY.System.Document.LineCount);
+
+                                            if (LineCount > 0)
+                                            {
+                                                PropertiesDic.Add("LineCount", Convert.ToString(LineCount));
+                                            }
+                                            else
+                                            {
+                                                PropertiesDic.Add("LineCount", string.Empty);
+                                            }
+                                        }
+                                        catch
+                                        {
+                                            PropertiesDic.Add("LineCount", string.Empty);
+                                        }
+
+                                        try
+                                        {
+                                            ulong TotalEditingTime = IShell2.GetUInt64(Ole32.PROPERTYKEY.System.Document.TotalEditingTime);
+
+                                            if (TotalEditingTime > 0)
+                                            {
+                                                PropertiesDic.Add("TotalEditingTime", Convert.ToString(TotalEditingTime));
+                                            }
+                                            else
+                                            {
+                                                PropertiesDic.Add("TotalEditingTime", string.Empty);
+                                            }
+                                        }
+                                        catch
+                                        {
+                                            PropertiesDic.Add("TotalEditingTime", string.Empty);
+                                        }
                                     }
                                 }
 
@@ -344,7 +429,7 @@ namespace FullTrustProcess
 
                             string Argument = string.Join(" ", Package.Argument.Select((Para) => (Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"")) ? $"\"{Para}\"" : Para).ToArray());
 
-                            using (ShellLink Link = ShellLink.Create(StorageItemController.GenerateUniquePath(Package.LinkPath), Package.LinkTargetPath, Package.Comment, Package.WorkDirectory, Argument))
+                            using (ShellLink Link = ShellLink.Create(StorageController.GenerateUniquePath(Package.LinkPath), Package.LinkTargetPath, Package.Comment, Package.WorkDirectory, Argument))
                             {
                                 Link.ShowState = (FormWindowState)Package.WindowState;
                                 Link.RunAsAdministrator = Package.NeedRunAsAdmin;
@@ -394,15 +479,15 @@ namespace FullTrustProcess
 
                             if (File.Exists(ExecutePath) || Directory.Exists(ExecutePath))
                             {
-                                if (StorageItemController.CheckOccupied(ExecutePath))
+                                if (StorageController.CheckOccupied(ExecutePath))
                                 {
                                     Value.Add("Error_Occupied", "FileLoadException");
                                 }
                                 else
                                 {
-                                    if (StorageItemController.CheckPermission(FileSystemRights.Modify, Path.GetDirectoryName(ExecutePath)))
+                                    if (StorageController.CheckPermission(FileSystemRights.Modify, Path.GetDirectoryName(ExecutePath)))
                                     {
-                                        if (!StorageItemController.Rename(ExecutePath, DesireName, (s, e) =>
+                                        if (!StorageController.Rename(ExecutePath, DesireName, (s, e) =>
                                         {
                                             Value.Add("Success", e.Name);
                                         }))
@@ -726,7 +811,7 @@ namespace FullTrustProcess
                         {
                             ValueSet Value = new ValueSet();
 
-                            string[] EnvironmentVariables = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.User).Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+                            string[] EnvironmentVariables = Environment.GetEnvironmentVariable("Path").Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
 
                             if (EnvironmentVariables.Where((Var) => Var.Contains("WindowsApps")).Select((Var) => Path.Combine(Var, "RX-Explorer.exe")).FirstOrDefault((Path) => File.Exists(Path)) is string AliasLocation)
                             {
@@ -745,13 +830,40 @@ namespace FullTrustProcess
                                     }
                                 }
 
-                                using (Process Process = Process.Start(TempFile.Path))
+                                using (Process RegisterProcess = new Process())
                                 {
-                                    SetWindowsZPosition(Process);
-                                    Process.WaitForExit();
+                                    RegisterProcess.StartInfo.FileName = TempFile.Path;
+                                    RegisterProcess.StartInfo.UseShellExecute = true;
+                                    RegisterProcess.Start();
+
+                                    SetWindowsZPosition(RegisterProcess);
+                                    RegisterProcess.WaitForExit();
                                 }
 
-                                Value.Add("Success", string.Empty);
+                                RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("shell", false)?.OpenSubKey("opennewwindow", false)?.OpenSubKey("command", false);
+
+                                if (Key != null)
+                                {
+                                    try
+                                    {
+                                        if (Convert.ToString(Key.GetValue(string.Empty)) == $"{AliasLocation} %1" && Key.GetValue("DelegateExecute") == null)
+                                        {
+                                            Value.Add("Success", string.Empty);
+                                        }
+                                        else
+                                        {
+                                            Value.Add("Error", "Registry verification failed");
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        Key.Dispose();
+                                    }
+                                }
+                                else
+                                {
+                                    Value.Add("Success", string.Empty);
+                                }
                             }
                             else
                             {
@@ -764,6 +876,8 @@ namespace FullTrustProcess
                         }
                     case "Execute_Restore_Win_E":
                         {
+                            ValueSet Value = new ValueSet();
+
                             StorageFile RestoreFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Restore_WIN_E.reg"));
 
                             using (Process Process = Process.Start(RestoreFile.Path))
@@ -772,10 +886,30 @@ namespace FullTrustProcess
                                 Process.WaitForExit();
                             }
 
-                            ValueSet Value = new ValueSet
+                            RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("shell", false)?.OpenSubKey("opennewwindow", false)?.OpenSubKey("command", false);
+
+                            if (Key != null)
                             {
-                                { "Success", string.Empty }
-                            };
+                                try
+                                {
+                                    if (Convert.ToString(Key.GetValue("DelegateExecute")) == "{11dbb47c-a525-400b-9e80-a54615a090c0}" && string.IsNullOrEmpty(Convert.ToString(Key.GetValue(string.Empty))))
+                                    {
+                                        Value.Add("Success", string.Empty);
+                                    }
+                                    else
+                                    {
+                                        Value.Add("Error", "Registry verification failed");
+                                    }
+                                }
+                                finally
+                                {
+                                    Key.Dispose();
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Success", string.Empty);
+                            }
 
                             await args.Request.SendResponseAsync(Value);
 
@@ -938,15 +1072,40 @@ namespace FullTrustProcess
 
                             if (File.Exists(Path))
                             {
-                                if (StorageItemController.CheckOccupied(Path))
+                                if (StorageController.CheckOccupied(Path))
                                 {
-                                    if (StorageItemController.TryUnoccupied(Path))
+                                    List<Process> LockingProcesses = StorageController.GetLockingProcesses(Path);
+
+                                    try
                                     {
+                                        LockingProcesses.ForEach((Process) =>
+                                        {
+                                            if (!Process.CloseMainWindow())
+                                            {
+                                                Process.Kill();
+                                            }
+                                        });
+
                                         Value.Add("Success", string.Empty);
                                     }
-                                    else
+                                    catch (Exception ex)
                                     {
+                                        Debug.WriteLine($"Kill process failed, reason: {ex.Message}");
                                         Value.Add("Error_Failure", "Unoccupied failed");
+                                    }
+                                    finally
+                                    {
+                                        LockingProcesses.ForEach((Process) =>
+                                        {
+                                            try
+                                            {
+                                                Process.Dispose();
+                                            }
+                                            catch
+                                            {
+                                                Debug.WriteLine("Process is no longer running");
+                                            }
+                                        });
                                     }
                                 }
                                 else
@@ -979,9 +1138,9 @@ namespace FullTrustProcess
 
                             if (SourcePathList.All((Item) => Directory.Exists(Item.Key) || File.Exists(Item.Key)))
                             {
-                                if (StorageItemController.CheckPermission(FileSystemRights.Modify, DestinationPath))
+                                if (StorageController.CheckPermission(FileSystemRights.Modify, DestinationPath))
                                 {
-                                    if (StorageItemController.Copy(SourcePathList, DestinationPath, (s, e) =>
+                                    if (StorageController.Copy(SourcePathList, DestinationPath, (s, e) =>
                                     {
                                         lock (Locker)
                                         {
@@ -1078,15 +1237,15 @@ namespace FullTrustProcess
 
                             if (SourcePathList.All((Item) => Directory.Exists(Item.Key) || File.Exists(Item.Key)))
                             {
-                                if (SourcePathList.Any((Item) => StorageItemController.CheckOccupied(Item.Key)))
+                                if (SourcePathList.Any((Item) => StorageController.CheckOccupied(Item.Key)))
                                 {
                                     Value.Add("Error_Capture", "An error occurred while moving the folder");
                                 }
                                 else
                                 {
-                                    if (StorageItemController.CheckPermission(FileSystemRights.Modify, DestinationPath))
+                                    if (StorageController.CheckPermission(FileSystemRights.Modify, DestinationPath))
                                     {
-                                        if (StorageItemController.Move(SourcePathList, DestinationPath, (s, e) =>
+                                        if (StorageController.Move(SourcePathList, DestinationPath, (s, e) =>
                                         {
                                             lock (Locker)
                                             {
@@ -1184,15 +1343,15 @@ namespace FullTrustProcess
                             {
                                 if (ExecutePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                                 {
-                                    if (ExecutePathList.Any((Item) => StorageItemController.CheckOccupied(Item)))
+                                    if (ExecutePathList.Any((Item) => StorageController.CheckOccupied(Item)))
                                     {
                                         Value.Add("Error_Capture", "An error occurred while deleting the folder");
                                     }
                                     else
                                     {
-                                        if (ExecutePathList.All((Path) => (Directory.Exists(Path) || File.Exists(Path)) && StorageItemController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path))))
+                                        if (ExecutePathList.All((Path) => (Directory.Exists(Path) || File.Exists(Path)) && StorageController.CheckPermission(FileSystemRights.Modify, System.IO.Path.GetDirectoryName(Path))))
                                         {
-                                            if (StorageItemController.Delete(ExecutePathList, PermanentDelete, (s, e) =>
+                                            if (StorageController.Delete(ExecutePathList, PermanentDelete, (s, e) =>
                                             {
                                                 lock (Locker)
                                                 {
@@ -1287,7 +1446,7 @@ namespace FullTrustProcess
 
                             if (!string.IsNullOrEmpty(ExecutePath))
                             {
-                                if (StorageItemController.CheckPermission(FileSystemRights.ReadAndExecute, ExecutePath))
+                                if (StorageController.CheckPermission(FileSystemRights.ReadAndExecute, ExecutePath))
                                 {
                                     try
                                     {
@@ -1423,7 +1582,7 @@ namespace FullTrustProcess
                                                     Directory.CreateDirectory(DirectoryPath);
                                                 }
 
-                                                string UniqueName = StorageItemController.GenerateUniquePath(System.IO.Path.Combine(Path, Package.Name));
+                                                string UniqueName = StorageController.GenerateUniquePath(System.IO.Path.Combine(Path, Package.Name));
 
                                                 using (FileStream Stream = new FileStream(UniqueName, FileMode.CreateNew))
                                                 {
@@ -1498,11 +1657,31 @@ namespace FullTrustProcess
         {
             try
             {
-                User32.SetWindowPos(OtherProcess.MainWindowHandle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_SHOWWINDOW);
+                if (OtherProcess.WaitForInputIdle(5000))
+                {
+                    for (int i = 0; i < 10 && OtherProcess.MainWindowHandle == IntPtr.Zero; i++)
+                    {
+                        Thread.Sleep(500);
+                        OtherProcess.Refresh();
+                    }
+
+                    if (OtherProcess.MainWindowHandle != IntPtr.Zero)
+                    {
+                        User32.SwitchToThisWindow(OtherProcess.MainWindowHandle, false);
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Error: Could not switch to window because MainWindowHandle is always invalid");
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("Error: Could not switch to window because WaitForInputIdle is timeout after 5000ms");
+                }
             }
             catch (Exception e)
             {
-                Debug.WriteLine($"Error: SetWindowsZPosition threw an error, message: {e.Message}");
+                Debug.WriteLine($"Error: {nameof(SetWindowsZPosition)} threw an error, message: {e.Message}");
             }
         }
 

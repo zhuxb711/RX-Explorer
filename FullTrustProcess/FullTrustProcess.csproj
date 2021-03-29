@@ -92,7 +92,7 @@
     <Compile Include="ExtensionAssociate.cs" />
     <Compile Include="MIMEHelper.cs" />
     <Compile Include="RemoteDataObject.cs" />
-    <Compile Include="StorageItemController.cs" />
+    <Compile Include="StorageController.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuicklookConnector.cs" />
@@ -138,6 +138,9 @@
       <Version>5.0.1</Version>
     </PackageReference>
     <PackageReference Include="Vanara.PInvoke.Msi">
+      <Version>3.3.7</Version>
+    </PackageReference>
+    <PackageReference Include="Vanara.PInvoke.RstrtMgr">
       <Version>3.3.7</Version>
     </PackageReference>
     <PackageReference Include="Vanara.PInvoke.UrlMon">

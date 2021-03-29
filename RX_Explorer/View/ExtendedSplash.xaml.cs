@@ -146,16 +146,21 @@ namespace RX_Explorer
                     ApplicationData.Current.LocalSettings.Values["QuickStartInitialFinished1"] = true;
                 }
 
-                await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/MicrosoftStore.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_1"), QuickStartType.Application).ConfigureAwait(false);
-                await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Calculator.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_2"), QuickStartType.Application).ConfigureAwait(false);
-                await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Setting.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_3"), QuickStartType.Application).ConfigureAwait(false);
-                await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Email.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_4"), QuickStartType.Application).ConfigureAwait(false);
-                await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Calendar.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_5"), QuickStartType.Application).ConfigureAwait(false);
-                await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Photos.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_6"), QuickStartType.Application).ConfigureAwait(false);
-                await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Weather.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_7"), QuickStartType.Application).ConfigureAwait(false);
-                await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///HotWebImage/Facebook.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_9"), QuickStartType.WebSite).ConfigureAwait(false);
-                await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///HotWebImage/Instagram.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_10"), QuickStartType.WebSite).ConfigureAwait(false);
-                await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///HotWebImage/Twitter.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_11"), QuickStartType.WebSite).ConfigureAwait(false);
+                if (ApplicationData.Current.LocalSettings.Values.ContainsKey("RefreshQuickStart"))
+                {
+                    await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/MicrosoftStore.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_1"), QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Calculator.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_2"), QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Setting.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_3"), QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Email.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_4"), QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Calendar.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_5"), QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Photos.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_6"), QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Weather.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_7"), QuickStartType.Application).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///HotWebImage/Facebook.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_9"), QuickStartType.WebSite).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///HotWebImage/Instagram.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_10"), QuickStartType.WebSite).ConfigureAwait(false);
+                    await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///HotWebImage/Twitter.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_11"), QuickStartType.WebSite).ConfigureAwait(false);
+
+                    ApplicationData.Current.LocalSettings.Values.Remove("RefreshQuickStart");
+                }
 
                 bool IsFileAccessible = await CheckAccessAuthority().ConfigureAwait(false);
 

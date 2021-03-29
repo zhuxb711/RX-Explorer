@@ -2,7 +2,6 @@
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
-using RX_Explorer.CustomControl;
 using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
 using RX_Explorer.SeparateWindow.PropertyWindow;
@@ -17,7 +16,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
-using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Data.Xml.Dom;
@@ -40,7 +38,6 @@ using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
-using Windows.UI.Xaml.Navigation;
 using ZXing;
 using ZXing.QrCode;
 using ZXing.QrCode.Internal;
@@ -217,7 +214,7 @@ namespace RX_Explorer
             CoreWindow Window = CoreWindow.GetForCurrentThread();
             Window.KeyDown += FilePresenter_KeyDown;
             Window.Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
-            
+
             Loaded += FilePresenter_Loaded;
 
             Application.Current.Suspending += Current_Suspending;
@@ -228,7 +225,7 @@ namespace RX_Explorer
 
         private void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
         {
-            if (Container.CurrentPresenter == this 
+            if (Container.CurrentPresenter == this
                 && args.KeyStatus.IsMenuKeyDown
                 && MainPage.ThisPage.NavView.SelectedItem is NavigationViewItem NavItem
                 && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
@@ -251,8 +248,8 @@ namespace RX_Explorer
 
         private async void FilePresenter_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
-            if (Container.CurrentPresenter == this 
-                && MainPage.ThisPage.NavView.SelectedItem is NavigationViewItem NavItem 
+            if (Container.CurrentPresenter == this
+                && MainPage.ThisPage.NavView.SelectedItem is NavigationViewItem NavItem
                 && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
             {
                 if (Container.WeakToTabItem.TryGetTarget(out TabViewItem Tab) && Tab == TabViewContainer.ThisPage.TabViewControl.SelectedItem)
@@ -1224,6 +1221,8 @@ namespace RX_Explorer
                         RequestedOperation = DataPackageOperation.Copy
                     };
 
+                    Package.Properties.PackageFamilyName = Windows.ApplicationModel.Package.Current.Id.FamilyName;
+
                     IEnumerable<FileSystemStorageItemBase> StorageItems = SelectedItemsCopy.Where((Item) => Item is not IUnsupportedStorageItem);
 
                     if (StorageItems.Any())
@@ -1501,6 +1500,8 @@ namespace RX_Explorer
                     {
                         RequestedOperation = DataPackageOperation.Move
                     };
+
+                    Package.Properties.PackageFamilyName = Windows.ApplicationModel.Package.Current.Id.FamilyName;
 
                     IEnumerable<FileSystemStorageItemBase> StorageItems = SelectedItemsCopy.Where((Item) => Item is not IUnsupportedStorageItem);
 
@@ -5944,9 +5945,16 @@ namespace RX_Explorer
 
         private void ViewControl_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
         {
-            if (e.Key == VirtualKey.Space)
+            if (e.OriginalSource is not TextBox)
             {
-                e.Handled = true;
+                switch (e.Key)
+                {
+                    case VirtualKey.Space:
+                        {
+                            e.Handled = true;
+                            break;
+                        }
+                }
             }
         }
 

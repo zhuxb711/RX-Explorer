@@ -1764,7 +1764,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated" state-qualifier="tm-suggestion">小算盤</target>
         </trans-unit>
         <trans-unit id="ExtendedSplash_QuickStartItem_Name_3" translate="yes" xml:space="preserve">
-          <source>Setting</source>
+          <source>Settings</source>
           <target state="translated" state-qualifier="tm-suggestion">設定</target>
         </trans-unit>
         <trans-unit id="ExtendedSplash_QuickStartItem_Name_4" translate="yes" xml:space="preserve">

@@ -1474,7 +1474,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Calculator</value>
   </data>
   <data name="ExtendedSplash_QuickStartItem_Name_3" xml:space="preserve">
-    <value>Setting</value>
+    <value>Settings</value>
   </data>
   <data name="ExtendedSplash_QuickStartItem_Name_4" xml:space="preserve">
     <value>Email</value>

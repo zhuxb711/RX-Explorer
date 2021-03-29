@@ -69,13 +69,17 @@
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
         <RelativePanel Padding="12,0"
-                       VerticalAlignment="Center">
-            <TextBlock x:Name="PropertiesTitleLeft"
-                       RelativePanel.AlignLeftWithPanel="True"/>
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Center"
+                       MaxWidth="300">
+            <TextBlock RelativePanel.AlignLeftWithPanel="True"
+                       RelativePanel.LeftOf="PropertiesTitleRight"
+                       TextTrimming="CharacterEllipsis"
+                       Name="PropertiesTitleLeft"/>
             <TextBlock Text="{x:Bind Cls:Globalization.GetString('Properties_Window_Title')}"
-                       RelativePanel.RightOf="PropertiesTitleLeft"
+                       x:Name="PropertiesTitleRight"
                        RelativePanel.AlignRightWithPanel="True"
-                       Margin="10,0,0,0"/>
+                       Padding="10,0"/>
         </RelativePanel>
         <Pivot Grid.Row="1"
                Name="PivotControl">

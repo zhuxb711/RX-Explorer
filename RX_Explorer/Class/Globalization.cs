@@ -63,7 +63,16 @@ namespace RX_Explorer.Class
                     }
             }
 
-            return Language != CurrentLanguage;
+            if (Language != CurrentLanguage)
+            {
+                ApplicationData.Current.LocalSettings.Values["RefreshQuickStart"] = true;
+                return true;
+            }
+            else
+            {
+                ApplicationData.Current.LocalSettings.Values.Remove("RefreshQuickStart");
+                return false;
+            }
         }
 
         public static string GetString(string Key)

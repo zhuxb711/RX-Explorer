@@ -1809,7 +1809,7 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <target state="translated">Calculadora</target>
         </trans-unit>
         <trans-unit id="ExtendedSplash_QuickStartItem_Name_3" translate="yes" xml:space="preserve">
-          <source>Setting</source>
+          <source>Settings</source>
           <target state="translated">Ajustes</target>
         </trans-unit>
         <trans-unit id="ExtendedSplash_QuickStartItem_Name_4" translate="yes" xml:space="preserve">

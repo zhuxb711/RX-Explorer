@@ -24,9 +24,17 @@ namespace FullTrustProcess
                     {
                         Dictionary<string, string> PropertyDic = new Dictionary<string, string>
                         {
-                            { "ActualPath", Item.FileSystemPath },
-                            { "DeleteTime", (Item.IShellItem as Shell32.IShellItem2).GetFileTime(Ole32.PROPERTYKEY.System.Recycle.DateDeleted).ToInt64().ToString() }
+                            { "ActualPath", Item.FileSystemPath }
                         };
+
+                        try
+                        {
+                            PropertyDic.Add("DeleteTime", (Item.IShellItem as Shell32.IShellItem2).GetFileTime(Ole32.PROPERTYKEY.System.Recycle.DateDeleted).ToInt64().ToString());
+                        }
+                        catch
+                        {
+                            PropertyDic.Add("DeleteTime", default(FILETIME).ToInt64().ToString());
+                        }
 
                         if (File.Exists(Item.FileSystemPath))
                         {
@@ -90,11 +98,11 @@ namespace FullTrustProcess
 
                     if (File.Exists(SourceItem.FileSystemPath))
                     {
-                        File.Move(SourceItem.FileSystemPath, StorageItemController.GenerateUniquePath(SourceItem.Name));
+                        File.Move(SourceItem.FileSystemPath, StorageController.GenerateUniquePath(SourceItem.Name));
                     }
                     else if (Directory.Exists(SourceItem.FileSystemPath))
                     {
-                        Directory.Move(SourceItem.FileSystemPath, StorageItemController.GenerateUniquePath(SourceItem.Name));
+                        Directory.Move(SourceItem.FileSystemPath, StorageController.GenerateUniquePath(SourceItem.Name));
                     }
 
                     string ExtraInfoPath = Path.Combine(Path.GetDirectoryName(SourceItem.FileSystemPath), Path.GetFileName(SourceItem.FileSystemPath).Replace("$R", "$I"));

@@ -677,7 +677,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         private async Task LoadDataForGeneralPage()
         {
             Thumbnail.Source = StorageItem.Thumbnail;
-            StorageItemName.Text = Path.GetFileNameWithoutExtension(StorageItem.DisplayName);
+            StorageItemName.Text = StorageItem.DisplayName;
             TypeContent.Text = StorageItem.DisplayType;
             LocationContent.Text = StorageItem.Path;
             SizeContent.Text = $"{StorageItem.Size} ({StorageItem.SizeRaw:N0} {Globalization.GetString("Device_Capacity_Unit")})";
