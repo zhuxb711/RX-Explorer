@@ -1,11 +1,21 @@
 ﻿*****
-###Novedades de la versión 6.2.1.0
+###Novedades de la versión 6.2.3.0
+
+#####Actualización de funciones
+
+>#####Se actualizó el mecanismo de implementación de la función desocupada
+
+>#####Nueva opción de descompresión, puede especificar la ubicación de descompresión y el formato de codificación
 
 #####Actualización de la interfaz de usuario
 
 >#####Se agregó un recordatorio si se debe conservar el contenido copiado antes de cerrar la aplicación
 
 >#####Se agregaron algunos accesos directos a la papelera de reciclaje y la página de búsqueda
+
+>#####Se agregó una ventana emergente de opción adicional al botón "Liberar ocupación"
+
+>#####Si no se puede activar un elemento de menú extendido, aparecerá un mensaje de error
 
 #####Arreglo del fallo
 
@@ -14,6 +24,20 @@
 >#####Se solucionó el problema de congelación al ingresar a la carpeta
 
 >#####Se solucionó el problema de que el archivo incorrecto se podía eliminar en el modo de un solo clic
+
+>#####Se solucionó el problema de que RX permanecía a la vanguardia al abrir otras aplicaciones
+
+>#####Se solucionó el problema de que el cuadro de propiedades podía crear un identificador en el archivo y hacer que el archivo no se pudiera eliminar o mover
+
+>#####Se solucionó el problema de que Win + E no se enciende correctamente en algunas computadoras
+
+>#####Se solucionó el problema de que es posible que el área de inicio rápido no pueda guardar los cambios de nombre correctamente
+
+>#####Se solucionó el problema de que el cuadro de propiedades podía mostrar un título demasiado largo
+
+>#####Se solucionó el problema de que el nombre en el cuadro de propiedades no se mostrara correctamente
+
+>#####Se solucionó el problema de que no se puede ingresar "Espacio" al hacer doble clic para cambiar el nombre
 
 *****
 ###Novedades de la versión 6.2.0.0

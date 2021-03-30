@@ -106,7 +106,7 @@ namespace RX_Explorer.Class
 
         private static readonly AutoResetEvent DispatcherSleepLocker = new AutoResetEvent(false);
 
-        private const ushort DynamicBackupProcessNum = 1;
+        private const ushort DynamicBackupProcessNum = 2;
 
         private readonly int CurrentProcessId;
 
@@ -1029,7 +1029,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task InvokeContextMenuItemAsync(ContextMenuPackage Package)
+        public async Task<bool> InvokeContextMenuItemAsync(ContextMenuPackage Package)
         {
             if (Package == null)
             {
@@ -1058,21 +1058,29 @@ namespace RX_Explorer.Class
                         if (Response.Message.TryGetValue("Error", out object ErrorMessage))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(GetContextMenuItemsAsync)}, message: {ErrorMessage}");
+                            return false;
+                        }
+                        else
+                        {
+                            return true;
                         }
                     }
                     else
                     {
                         LogTracer.Log($"AppServiceResponse in {nameof(GetContextMenuItemsAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        return false;
                     }
                 }
                 else
                 {
                     LogTracer.Log($"{nameof(GetContextMenuItemsAsync)}: Failed to connect AppService ");
+                    return false;
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"{ nameof(GetContextMenuItemsAsync)} throw an error");
+                return false;
             }
             finally
             {
@@ -1816,7 +1824,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<bool> TryUnlockFileOccupy(string Path)
+        public async Task<bool> TryUnlockFileOccupy(string Path, bool ForceClose = false)
         {
             try
             {
@@ -1827,7 +1835,8 @@ namespace RX_Explorer.Class
                     ValueSet Value = new ValueSet
                     {
                         {"ExecuteType", ExecuteType_UnlockOccupy},
-                        {"ExecutePath", Path }
+                        {"ExecutePath", Path },
+                        {"ForceClose", ForceClose }
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);

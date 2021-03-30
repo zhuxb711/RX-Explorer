@@ -1,11 +1,21 @@
 ﻿*****
-###Quoi de neuf dans la version 6.2.1.0
+###Quoi de neuf dans la version 6.2.3.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Mise à jour du mécanisme d'implémentation de la fonction inoccupée
+
+>#####Nouvelle option de décompression, peut spécifier l'emplacement de décompression et le format d'encodage
 
 #####Mise à jour de l'interface utilisateur
 
 >#####Ajout d'un rappel s'il faut conserver le contenu copié avant de fermer l'application
 
 >#####Ajout de quelques raccourcis vers la corbeille et la page de recherche
+
+>#####Ajout d'une fenêtre contextuelle d'options supplémentaire au bouton "Libérer l'occupation"
+
+>#####Si un élément de menu étendu ne peut pas être déclenché, un message d'erreur apparaîtra
 
 #####Correction d'un bug
 
@@ -14,6 +24,20 @@
 >#####Correction du problème de gel lors de l'entrée dans le dossier
 
 >#####Correction du problème de suppression du mauvais fichier en mode simple clic
+
+>#####Correction du problème qui faisait que RX restait au premier plan lors de l'ouverture d'autres applications
+
+>#####Correction du problème selon lequel la zone de propriété pouvait créer un handle sur le fichier et empêcher le fichier d'être supprimé ou déplacé
+
+>#####Correction du problème selon lequel Win + E peut ne pas être activé correctement sur certains ordinateurs
+
+>#####Correction du problème qui empêchait la zone de démarrage rapide d'enregistrer correctement les modifications de nom
+
+>#####Correction du problème selon lequel la zone de propriété pouvait afficher un titre trop long
+
+>#####Correction du problème selon lequel le nom dans la zone de propriété pouvait ne pas s'afficher correctement
+
+>#####Correction du problème selon lequel "Espace" ne pouvait pas être entré lors d'un double-clic pour renommer
 
 *****
 ###Quoi de neuf dans la version 6.2.0.0

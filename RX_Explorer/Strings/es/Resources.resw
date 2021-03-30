@@ -2997,4 +2997,22 @@ Las denominaciones no válidas son:
   <data name="DecompressOption.Text" xml:space="preserve">
     <value>Opción de extracción ...</value>
   </data>
+  <data name="QueueDialog_InvokeContextMenuError_Content" xml:space="preserve">
+    <value>No se puede ejecutar este elemento de menú</value>
+  </data>
+  <data name="Properties_Tools_UnlockFlyout_CloseForce.Content" xml:space="preserve">
+    <value>Fuerza para cerrar</value>
+  </data>
+  <data name="Properties_Tools_UnlockFlyout_CloseNormal.Content" xml:space="preserve">
+    <value>Solicitud de cierre</value>
+  </data>
+  <data name="Properties_Tools_UnlockFlyout_Text1.Text" xml:space="preserve">
+    <value>¿Cómo desbloqueas la ocupación?</value>
+  </data>
+  <data name="Properties_Tools_UnlockFlyout_Text2.Text" xml:space="preserve">
+    <value>Haga clic en "Solicitud de cierre" para notificar a la aplicación que está usando este archivo para salir, y la aplicación puede guardar todos los datos.</value>
+  </data>
+  <data name="Properties_Tools_UnlockFlyout_Text3.Text" xml:space="preserve">
+    <value>Haga clic en "Fuerza para cerrar" para salir de la aplicación inmediatamente y se perderán todos los datos no guardados.</value>
+  </data>
 </root>

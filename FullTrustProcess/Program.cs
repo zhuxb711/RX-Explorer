@@ -1069,6 +1069,7 @@ namespace FullTrustProcess
                             ValueSet Value = new ValueSet();
 
                             string Path = Convert.ToString(args.Request.Message["ExecutePath"]);
+                            bool ForceClose = Convert.ToBoolean(args.Request.Message["ForceClose"]);
 
                             if (File.Exists(Path))
                             {
@@ -1080,7 +1081,7 @@ namespace FullTrustProcess
                                     {
                                         LockingProcesses.ForEach((Process) =>
                                         {
-                                            if (!Process.CloseMainWindow())
+                                            if (ForceClose || !Process.CloseMainWindow())
                                             {
                                                 Process.Kill();
                                             }
@@ -1099,6 +1100,11 @@ namespace FullTrustProcess
                                         {
                                             try
                                             {
+                                                if (!ForceClose)
+                                                {
+                                                    Process.WaitForExit();
+                                                }
+
                                                 Process.Dispose();
                                             }
                                             catch

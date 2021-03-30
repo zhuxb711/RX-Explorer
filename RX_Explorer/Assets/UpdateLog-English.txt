@@ -1,11 +1,21 @@
 ﻿*****
-###What's new in Ver.6.2.1.0
+###What's new in Ver.6.2.3.0
+
+#####Feature update
+
+>#####Updated the implementation mechanism of the unoccupied function
+
+>#####New decompression option, can specify decompression location and encoding format
 
 #####UI update
 
 >#####Added a reminder whether to keep the copied content before closing the application
 
 >#####Added some shortcuts to the recycle bin and search page
+
+>#####Added an additional option popup to the "Release Occupation" button
+
+>#####If an extended menu item cannot be triggered, an error message will pop up
 
 #####Bug fix
 
@@ -14,6 +24,20 @@
 >#####Fixed the problem of freezing when entering the folder
 
 >#####Fixed the problem that the wrong file may be deleted in single-click mode
+
+>#####Fixed the problem that RX remained at the forefront when opening other applications
+
+>#####Fixed the problem that the property box may create a handle on the file and cause the file cannot be deleted or moved
+
+>#####Fixed the problem that Win+E may not be turned on correctly on some computers
+
+>#####Fixed the problem that the quick start area may not be able to save the name changes correctly
+
+>#####Fixed the problem that the property box may display too long title
+
+>#####Fixed the problem that the name in the property box might not be displayed correctly
+
+>#####Fixed the problem that "Space" cannot be entered when double-clicking to rename
 
 *****
 ###What's new in Ver.6.2.0.0

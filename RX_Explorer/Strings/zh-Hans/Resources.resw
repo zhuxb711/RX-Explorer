@@ -2997,4 +2997,22 @@
   <data name="DecompressOption.Text" xml:space="preserve">
     <value>解压选项...</value>
   </data>
+  <data name="QueueDialog_InvokeContextMenuError_Content" xml:space="preserve">
+    <value>无法执行此菜单项</value>
+  </data>
+  <data name="Properties_Tools_UnlockFlyout_CloseForce.Content" xml:space="preserve">
+    <value>强制终止应用</value>
+  </data>
+  <data name="Properties_Tools_UnlockFlyout_CloseNormal.Content" xml:space="preserve">
+    <value>请求关闭应用</value>
+  </data>
+  <data name="Properties_Tools_UnlockFlyout_Text1.Text" xml:space="preserve">
+    <value>您要如何解除占用?</value>
+  </data>
+  <data name="Properties_Tools_UnlockFlyout_Text2.Text" xml:space="preserve">
+    <value>点击"请求关闭应用"将通知正在使用此文件的应用退出，应用可以保存所有数据</value>
+  </data>
+  <data name="Properties_Tools_UnlockFlyout_Text3.Text" xml:space="preserve">
+    <value>点击"强制终止应用"将立即退出应用，所有未保存的数据都将丢失</value>
+  </data>
 </root>

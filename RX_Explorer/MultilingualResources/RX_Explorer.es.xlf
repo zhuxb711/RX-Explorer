@@ -3975,6 +3975,30 @@ Las denominaciones no válidas son:
           <source>Extract option...</source>
           <target state="translated">Opción de extracción ...</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_InvokeContextMenuError_Content" translate="yes" xml:space="preserve">
+          <source>Cannot execute this menu item</source>
+          <target state="translated">No se puede ejecutar este elemento de menú</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_UnlockFlyout_CloseForce.Content" translate="yes" xml:space="preserve">
+          <source>Force to close</source>
+          <target state="translated">Fuerza para cerrar</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_UnlockFlyout_CloseNormal.Content" translate="yes" xml:space="preserve">
+          <source>Request to close</source>
+          <target state="translated">Solicitud de cierre</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_UnlockFlyout_Text1.Text" translate="yes" xml:space="preserve">
+          <source>How do you unlock the occupation?</source>
+          <target state="translated">¿Cómo desbloqueas la ocupación?</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_UnlockFlyout_Text2.Text" translate="yes" xml:space="preserve">
+          <source>Click "Request to close" to notify the application that is using this file to exit, and the application can save all data</source>
+          <target state="translated">Haga clic en "Solicitud de cierre" para notificar a la aplicación que está usando este archivo para salir, y la aplicación puede guardar todos los datos.</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_UnlockFlyout_Text3.Text" translate="yes" xml:space="preserve">
+          <source>Click "Force to close" to exit the application immediately, and all unsaved data will be lost</source>
+          <target state="translated">Haga clic en "Fuerza para cerrar" para salir de la aplicación inmediatamente y se perderán todos los datos no guardados.</target>
+        </trans-unit>
       </group>
     </body>
   </file>

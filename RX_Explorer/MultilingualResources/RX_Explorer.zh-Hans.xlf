@@ -3977,6 +3977,30 @@ Invalid names include
           <source>Extract option...</source>
           <target state="translated">解压选项...</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_InvokeContextMenuError_Content" translate="yes" xml:space="preserve">
+          <source>Cannot execute this menu item</source>
+          <target state="translated">无法执行此菜单项</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_UnlockFlyout_CloseForce.Content" translate="yes" xml:space="preserve">
+          <source>Force to close</source>
+          <target state="translated">强制终止应用</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_UnlockFlyout_CloseNormal.Content" translate="yes" xml:space="preserve">
+          <source>Request to close</source>
+          <target state="translated">请求关闭应用</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_UnlockFlyout_Text1.Text" translate="yes" xml:space="preserve">
+          <source>How do you unlock the occupation?</source>
+          <target state="translated">您要如何解除占用?</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_UnlockFlyout_Text2.Text" translate="yes" xml:space="preserve">
+          <source>Click "Request to close" to notify the application that is using this file to exit, and the application can save all data</source>
+          <target state="translated">点击"请求关闭应用"将通知正在使用此文件的应用退出，应用可以保存所有数据</target>
+        </trans-unit>
+        <trans-unit id="Properties_Tools_UnlockFlyout_Text3.Text" translate="yes" xml:space="preserve">
+          <source>Click "Force to close" to exit the application immediately, and all unsaved data will be lost</source>
+          <target state="translated">点击"强制终止应用"将立即退出应用，所有未保存的数据都将丢失</target>
+        </trans-unit>
       </group>
     </body>
   </file>

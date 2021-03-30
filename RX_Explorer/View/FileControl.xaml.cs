@@ -145,43 +145,46 @@ namespace RX_Explorer
 
         private async void CommonAccessCollection_DeviceAdded(object sender, DriveRelatedData Device)
         {
-            if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => Content.Path != Device.Folder?.Path))
+            if (!string.IsNullOrWhiteSpace(Device.Folder.Path))
             {
-                FileSystemStorageFolder DeviceFolder = new FileSystemStorageFolder(Device.Folder, await Device.Folder.GetThumbnailBitmapAsync().ConfigureAwait(true), await Device.Folder.GetModifiedTimeAsync().ConfigureAwait(true));
-
-                if (Device.DriveType == DriveType.Network)
+                if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => Content.Path != Device.Folder?.Path))
                 {
-                    await Task.Run(() => DeviceFolder.CheckContainsAnyItemAsync(ItemFilters.Folder)).ContinueWith((task) =>
+                    FileSystemStorageFolder DeviceFolder = new FileSystemStorageFolder(Device.Folder, await Device.Folder.GetThumbnailBitmapAsync().ConfigureAwait(true), await Device.Folder.GetModifiedTimeAsync().ConfigureAwait(true));
+
+                    if (Device.DriveType == DriveType.Network)
                     {
+                        await Task.Run(() => DeviceFolder.CheckContainsAnyItemAsync(ItemFilters.Folder)).ContinueWith((task) =>
+                        {
+                            TreeViewNode RootNode = new TreeViewNode
+                            {
+                                Content = new TreeViewNodeContent(Device.Folder),
+                                IsExpanded = false,
+                                HasUnrealizedChildren = task.Result
+                            };
+
+                            FolderTree.RootNodes.Add(RootNode);
+                            FolderTree.UpdateLayout();
+                        }, TaskScheduler.FromCurrentSynchronizationContext());
+                    }
+                    else
+                    {
+                        bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(ItemFilters.Folder).ConfigureAwait(true);
+
                         TreeViewNode RootNode = new TreeViewNode
                         {
                             Content = new TreeViewNodeContent(Device.Folder),
                             IsExpanded = false,
-                            HasUnrealizedChildren = task.Result
+                            HasUnrealizedChildren = HasAnyFolder
                         };
 
                         FolderTree.RootNodes.Add(RootNode);
-                        FolderTree.UpdateLayout();
-                    }, TaskScheduler.FromCurrentSynchronizationContext());
+                    }
                 }
-                else
+
+                if (FolderTree.RootNodes.FirstOrDefault() is TreeViewNode Node)
                 {
-                    bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(ItemFilters.Folder).ConfigureAwait(true);
-
-                    TreeViewNode RootNode = new TreeViewNode
-                    {
-                        Content = new TreeViewNodeContent(Device.Folder),
-                        IsExpanded = false,
-                        HasUnrealizedChildren = HasAnyFolder
-                    };
-
-                    FolderTree.RootNodes.Add(RootNode);
+                    FolderTree.SelectNodeAndScrollToVertical(Node);
                 }
-            }
-
-            if (FolderTree.RootNodes.FirstOrDefault() is TreeViewNode Node)
-            {
-                FolderTree.SelectNodeAndScrollToVertical(Node);
             }
         }
 

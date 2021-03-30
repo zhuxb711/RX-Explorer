@@ -20,12 +20,9 @@ using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
 using Windows.System;
-using Windows.UI;
 using Windows.UI.WindowManagement;
-using Windows.UI.WindowManagement.Preview;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.SeparateWindow.PropertyWindow
@@ -1081,8 +1078,24 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             }
         }
 
+        private async void ChangeOpenWithButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (StorageItem is FileSystemStorageFile File)
+            {
+                await CoreApplication.MainView.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                {
+                    ProgramPickerDialog Dialog = new ProgramPickerDialog(File, true);
+                    await Dialog.ShowAsync().ConfigureAwait(true);
+                });
+
+                await Window.CloseAsync();
+            }
+        }
+
         private async void Unlock_Click(object sender, RoutedEventArgs e)
         {
+            UnlockFlyout.Hide();
+
             if (StorageItem is FileSystemStorageFile File)
             {
                 try
@@ -1092,7 +1105,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                     {
-                        if (await Exclusive.Controller.TryUnlockFileOccupy(File.Path).ConfigureAwait(true))
+                        if (await Exclusive.Controller.TryUnlockFileOccupy(File.Path, ((Button)sender).Name == "CloseForce").ConfigureAwait(true))
                         {
                             UnlockText.Text = Globalization.GetString("QueueDialog_Unlock_Success_Content");
                         }
@@ -1119,20 +1132,6 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                     UnlockProgressRing.Visibility = Visibility.Collapsed;
                     UnlockText.Visibility = Visibility.Visible;
                 }
-            }
-        }
-
-        private async void ChangeOpenWithButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (StorageItem is FileSystemStorageFile File)
-            {
-                await CoreApplication.MainView.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
-                {
-                    ProgramPickerDialog Dialog = new ProgramPickerDialog(File, true);
-                    await Dialog.ShowAsync().ConfigureAwait(true);
-                });
-
-                await Window.CloseAsync();
             }
         }
     }

@@ -173,11 +173,11 @@ namespace RX_Explorer.Class
             return Button;
         }
 
-        public async Task InvokeAsync()
+        public async Task<bool> InvokeAsync()
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                await Exclusive.Controller.InvokeContextMenuItemAsync(DataPackage).ConfigureAwait(false);
+                return await Exclusive.Controller.InvokeContextMenuItemAsync(DataPackage).ConfigureAwait(false);
             }
         }
 

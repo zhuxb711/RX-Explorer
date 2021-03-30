@@ -110,13 +110,19 @@ namespace FullTrustProcess
             {
                 try
                 {
-                    FileInfo Info = new FileInfo(Path);
-
-                    Info.Open(FileMode.Open, FileAccess.Read, FileShare.None).Dispose();
-
-                    return false;
+                    using (Kernel32.SafeHFILE Handle = Kernel32.CreateFile(Path, Kernel32.FileAccess.FILE_GENERIC_READ, FileShare.None, null, FileMode.Open, FileFlagsAndAttributes.FILE_ATTRIBUTE_NORMAL))
+                    {
+                        if (Handle.IsInvalid)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
                 }
-                catch (IOException)
+                catch
                 {
                     return true;
                 }

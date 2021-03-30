@@ -195,7 +195,18 @@ namespace RX_Explorer.Class
                                             if (Btn.Tag is ContextMenuItem MenuItem)
                                             {
                                                 Flyout.Hide();
-                                                await MenuItem.InvokeAsync().ConfigureAwait(true);
+                                                
+                                                if(!await MenuItem.InvokeAsync().ConfigureAwait(true))
+                                                {
+                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_InvokeContextMenuError_Content"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                    };
+
+                                                    await Dialog.ShowAsync().ConfigureAwait(true);
+                                                }
                                             }
                                         }
                                     }

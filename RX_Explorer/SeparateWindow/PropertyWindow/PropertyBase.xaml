@@ -502,9 +502,47 @@
                         <Button Content="Unlock occupation"
                                 x:Uid="Properties_Tools_Unlock"
                                 Name="Unlock"
-                                Click="Unlock_Click" 
                                 RelativePanel.AlignLeftWithPanel="True"
-                                RelativePanel.AlignVerticalCenterWithPanel="True"/>
+                                RelativePanel.AlignVerticalCenterWithPanel="True">
+                            <Button.Flyout>
+                                <Flyout Placement="BottomEdgeAlignedLeft"
+                                        x:Name="UnlockFlyout">
+                                    <StackPanel MaxWidth="320">
+                                        <TextBlock Text="您要如何解除占用?"
+                                                   x:Uid="Properties_Tools_UnlockFlyout_Text1"/>
+                                        <TextBlock Text="点击&quot;请求关闭应用&quot;将通知正在使用此文件的应用退出，应用可以保存所有数据"
+                                                   TextWrapping="WrapWholeWords"
+                                                   x:Uid="Properties_Tools_UnlockFlyout_Text2"
+                                                   Margin="0,10,0,0"
+                                                   FontSize="12"/>
+                                        <TextBlock Text="点击&quot;强制终止应用&quot;将立即退出应用，所有未保存的数据都将丢失"
+                                                   TextWrapping="WrapWholeWords"
+                                                   x:Uid="Properties_Tools_UnlockFlyout_Text3"
+                                                   Margin="0,5,0,0"
+                                                   FontSize="12"/>
+                                        <Grid Margin="0,10,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition />
+                                                <ColumnDefinition />
+                                            </Grid.ColumnDefinitions>
+                                            <Button Content="请求关闭应用"
+                                                    HorizontalAlignment="Stretch"
+                                                    x:Uid="Properties_Tools_UnlockFlyout_CloseNormal"
+                                                    Name="CloseNormal"
+                                                    Click="Unlock_Click"
+                                                    Margin="0,0,5,0"/>
+                                            <Button Content="强制终止应用"
+                                                    Grid.Column="1"
+                                                    Margin="5,0,0,0"
+                                                    Name="CloseForce"
+                                                    x:Uid="Properties_Tools_UnlockFlyout_CloseForce"
+                                                    Click="Unlock_Click"
+                                                    HorizontalAlignment="Stretch"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </Flyout>
+                            </Button.Flyout>
+                        </Button>
                         <muxc:ProgressRing Margin="10,0,0,0"
                                            Height="24"
                                            Width="24"
@@ -517,6 +555,7 @@
                                    TextWrapping="WrapWholeWords"
                                    TextTrimming="CharacterEllipsis"
                                    Margin="10,0,0,0"
+                                   FontSize="12"
                                    Visibility="Collapsed"
                                    RelativePanel.RightOf="UnlockProgressRing"
                                    RelativePanel.AlignRightWithPanel="True"

@@ -2997,4 +2997,22 @@
   <data name="DecompressOption.Text" xml:space="preserve">
     <value>提取選項...</value>
   </data>
+  <data name="QueueDialog_InvokeContextMenuError_Content" xml:space="preserve">
+    <value>無法執行此菜單項</value>
+  </data>
+  <data name="Properties_Tools_UnlockFlyout_CloseForce.Content" xml:space="preserve">
+    <value>強制關閉</value>
+  </data>
+  <data name="Properties_Tools_UnlockFlyout_CloseNormal.Content" xml:space="preserve">
+    <value>請求關閉</value>
+  </data>
+  <data name="Properties_Tools_UnlockFlyout_Text1.Text" xml:space="preserve">
+    <value>你如何解鎖佔用?</value>
+  </data>
+  <data name="Properties_Tools_UnlockFlyout_Text2.Text" xml:space="preserve">
+    <value>單擊“請求關閉”以通知正在使用此文件的應用程序退出，並且該應用程序可以保存所有數據</value>
+  </data>
+  <data name="Properties_Tools_UnlockFlyout_Text3.Text" xml:space="preserve">
+    <value>單擊“強制關閉”立即退出應用程序，所有未保存的數據都將丟失</value>
+  </data>
 </root>

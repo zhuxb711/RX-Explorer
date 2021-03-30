@@ -3102,4 +3102,22 @@ Invalid names include
   <data name="DecompressOption.Text" xml:space="preserve">
     <value>Extract option...</value>
   </data>
+  <data name="QueueDialog_InvokeContextMenuError_Content" xml:space="preserve">
+    <value>Cannot execute this menu item</value>
+  </data>
+  <data name="Properties_Tools_UnlockFlyout_CloseForce.Content" xml:space="preserve">
+    <value>Force to close</value>
+  </data>
+  <data name="Properties_Tools_UnlockFlyout_CloseNormal.Content" xml:space="preserve">
+    <value>Request to close</value>
+  </data>
+  <data name="Properties_Tools_UnlockFlyout_Text1.Text" xml:space="preserve">
+    <value>How do you unlock the occupation?</value>
+  </data>
+  <data name="Properties_Tools_UnlockFlyout_Text2.Text" xml:space="preserve">
+    <value>Click "Request to close" to notify the application that is using this file to exit, and the application can save all data</value>
+  </data>
+  <data name="Properties_Tools_UnlockFlyout_Text3.Text" xml:space="preserve">
+    <value>Click "Force to close" to exit the application immediately, and all unsaved data will be lost</value>
+  </data>
 </root>

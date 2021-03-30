@@ -203,7 +203,9 @@ namespace RX_Explorer.Class
                     }
             }
 
-            if (Handle == IntPtr.Zero || Handle.ToInt64() == -1)
+            SafeFileHandle SHandle = new SafeFileHandle(Handle, true);
+
+            if (SHandle.IsInvalid)
             {
                 throw new Win32Exception(Marshal.GetLastWin32Error());
             }
@@ -213,15 +215,15 @@ namespace RX_Explorer.Class
                 case AccessMode.Exclusive:
                 case AccessMode.ReadWrite:
                     {
-                        return new FileStream(new SafeFileHandle(Handle, true), FileAccess.ReadWrite);
+                        return new FileStream(SHandle, FileAccess.ReadWrite);
                     }
                 case AccessMode.Write:
                     {
-                        return new FileStream(new SafeFileHandle(Handle, true), FileAccess.Write);
+                        return new FileStream(SHandle, FileAccess.Write);
                     }
                 case AccessMode.Read:
                     {
-                        return new FileStream(new SafeFileHandle(Handle, true), FileAccess.Read);
+                        return new FileStream(SHandle, FileAccess.Read);
                     }
                 default:
                     {
