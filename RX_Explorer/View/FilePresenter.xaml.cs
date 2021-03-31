@@ -2,6 +2,7 @@
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
+using RX_Explorer.CustomControl;
 using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
 using RX_Explorer.SeparateWindow.PropertyWindow;
@@ -5396,11 +5397,10 @@ namespace RX_Explorer
                 DeleteButton.Click += Delete_Click;
                 BottomCommandBar.PrimaryCommands.Add(DeleteButton);
 
-                BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
-
                 AppBarButton CompressionButton = new AppBarButton
                 {
                     Icon = new SymbolIcon(Symbol.Bookmarks),
+                    MinWidth = 250,
                     Label = Globalization.GetString("Operate_Text_Compression")
                 };
                 CompressionButton.Click += MixCompression_Click;
@@ -5409,6 +5409,7 @@ namespace RX_Explorer
                 AppBarButton DecompressionButton = new AppBarButton
                 {
                     Icon = new SymbolIcon(Symbol.Bookmarks),
+                    MinWidth = 250,
                     Label = Globalization.GetString("Operate_Text_Decompression")
                 };
                 DecompressionButton.Click += MixDecompression_Click;
@@ -5455,6 +5456,7 @@ namespace RX_Explorer
                         AppBarButton OpenButton = new AppBarButton
                         {
                             Icon = new SymbolIcon(Symbol.OpenFile),
+                            MinWidth = 250,
                             Label = Globalization.GetString("Operate_Text_Open")
                         };
                         OpenButton.Click += ItemOpen_Click;
@@ -5464,6 +5466,8 @@ namespace RX_Explorer
                         MenuFlyoutItem AdminItem = new MenuFlyoutItem
                         {
                             Icon = new FontIcon { Glyph = "\uEA0D" },
+                            MinWidth = 150,
+                            MaxWidth = 300,
                             Text = Globalization.GetString("Operate_Text_OpenAsAdministrator"),
                             IsEnabled = RunWithSystemAuthority.IsEnabled
                         };
@@ -5473,6 +5477,8 @@ namespace RX_Explorer
                         MenuFlyoutItem OtherItem = new MenuFlyoutItem
                         {
                             Icon = new SymbolIcon(Symbol.SwitchApps),
+                            MinWidth = 150,
+                            MaxWidth = 300,
                             Text = Globalization.GetString("Operate_Text_ChooseAnotherApp"),
                             IsEnabled = ChooseOtherApp.IsEnabled
                         };
@@ -5482,6 +5488,7 @@ namespace RX_Explorer
                         BottomCommandBar.SecondaryCommands.Add(new AppBarButton
                         {
                             Icon = new SymbolIcon(Symbol.OpenWith),
+                            MinWidth = 250,
                             Label = Globalization.GetString("Operate_Text_OpenWith"),
                             Flyout = OpenFlyout
                         });
@@ -5492,6 +5499,8 @@ namespace RX_Explorer
                         MenuFlyoutItem MontageItem = new MenuFlyoutItem
                         {
                             Icon = new FontIcon { Glyph = "\uE177" },
+                            MinWidth = 150,
+                            MaxWidth = 300,
                             Text = Globalization.GetString("Operate_Text_Montage"),
                             IsEnabled = VideoEdit.IsEnabled
                         };
@@ -5501,6 +5510,8 @@ namespace RX_Explorer
                         MenuFlyoutItem MergeItem = new MenuFlyoutItem
                         {
                             Icon = new FontIcon { Glyph = "\uE11E" },
+                            MinWidth = 150,
+                            MaxWidth = 300,
                             Text = Globalization.GetString("Operate_Text_Merge"),
                             IsEnabled = VideoMerge.IsEnabled
                         };
@@ -5510,6 +5521,8 @@ namespace RX_Explorer
                         MenuFlyoutItem TranscodeItem = new MenuFlyoutItem
                         {
                             Icon = new FontIcon { Glyph = "\uE1CA" },
+                            MinWidth = 150,
+                            MaxWidth = 300,
                             Text = Globalization.GetString("Operate_Text_Transcode"),
                             IsEnabled = Transcode.IsEnabled
                         };
@@ -5519,6 +5532,7 @@ namespace RX_Explorer
                         BottomCommandBar.SecondaryCommands.Add(new AppBarButton
                         {
                             Icon = new SymbolIcon(Symbol.Edit),
+                            MinWidth = 250,
                             Label = Globalization.GetString("Operate_Text_Edit"),
                             IsEnabled = FileEdit.IsEnabled,
                             Flyout = EditFlyout
@@ -5528,6 +5542,8 @@ namespace RX_Explorer
                         MenuFlyoutItem SystemShareItem = new MenuFlyoutItem
                         {
                             Icon = new SymbolIcon(Symbol.Share),
+                            MinWidth = 150,
+                            MaxWidth = 300,
                             Text = Globalization.GetString("Operate_Text_SystemShare")
                         };
                         SystemShareItem.Click += SystemShare_Click;
@@ -5536,6 +5552,8 @@ namespace RX_Explorer
                         MenuFlyoutItem WIFIShareItem = new MenuFlyoutItem
                         {
                             Icon = new FontIcon { Glyph = "\uE701" },
+                            MinWidth = 150,
+                            MaxWidth = 300,
                             Text = Globalization.GetString("Operate_Text_WIFIShare")
                         };
                         WIFIShareItem.Click += WIFIShare_Click;
@@ -5544,6 +5562,8 @@ namespace RX_Explorer
                         MenuFlyoutItem BluetoothShare = new MenuFlyoutItem
                         {
                             Icon = new FontIcon { Glyph = "\uE702" },
+                            MinWidth = 150,
+                            MaxWidth = 300,
                             Text = Globalization.GetString("Operate_Text_BluetoothShare")
                         };
                         BluetoothShare.Click += BluetoothShare_Click;
@@ -5552,6 +5572,7 @@ namespace RX_Explorer
                         BottomCommandBar.SecondaryCommands.Add(new AppBarButton
                         {
                             Icon = new SymbolIcon(Symbol.Share),
+                            MinWidth = 250,
                             Label = Globalization.GetString("Operate_Text_Share"),
                             IsEnabled = FileShare.IsEnabled,
                             Flyout = ShareFlyout
@@ -5562,24 +5583,67 @@ namespace RX_Explorer
                         AppBarButton CompressionButton = new AppBarButton
                         {
                             Icon = new SymbolIcon(Symbol.Bookmarks),
+                            MinWidth = 250,
                             Label = Compression.Label
                         };
                         CompressionButton.Click += Compression_Click;
                         BottomCommandBar.SecondaryCommands.Add(CompressionButton);
 
-                        AppBarButton DecompressionButton = new AppBarButton
+                        MenuFlyout DecompressionFlyout = new MenuFlyout();
+
+                        MenuFlyoutItem DecompressionOption1 = new MenuFlyoutItem
+                        {
+                            Text = Globalization.GetString("DecompressOption/Text"),
+                            MinWidth = 150,
+                            MaxWidth = 300,
+                            Icon = new FontIcon
+                            {
+                                Glyph = "\uF0B2"
+                            }
+                        };
+                        DecompressionOption1.Click += DecompressOption_Click;
+                        DecompressionFlyout.Items.Add(DecompressionOption1);
+
+                        MenuFlyoutItem DecompressionOption2= new MenuFlyoutItem
+                        {
+                            Text = Globalization.GetString("DecompressHere/Text"),
+                            MinWidth = 150,
+                            MaxWidth = 300,
+                            Icon = new FontIcon
+                            {
+                                Glyph = "\uF0B2"
+                            },
+                        };
+                        DecompressionOption2.Click += Decompression_Click;
+                        DecompressionFlyout.Items.Add(DecompressionOption2);
+
+                        MenuFlyoutItemWithImage DecompressionOption3 = new MenuFlyoutItemWithImage
+                        {
+                            Text = $"{Globalization.GetString("DecompressTo")} \"{Path.GetFileNameWithoutExtension(SelectedItem.Path)}\\\"",
+                            MinWidth = 150,
+                            MaxWidth = 300,
+                            Icon = new FontIcon
+                            {
+                                Glyph = "\uF0B2"
+                            }
+                        };
+                        DecompressionOption3.Click += Decompression_Click;
+                        DecompressionFlyout.Items.Add(DecompressionOption3);
+
+                        BottomCommandBar.SecondaryCommands.Add(new AppBarButton
                         {
                             Icon = new SymbolIcon(Symbol.Bookmarks),
-                            Label = Globalization.GetString("Operate_Text_Decompression")
-                        };
-                        DecompressionButton.Click += MixDecompression_Click;
-                        BottomCommandBar.SecondaryCommands.Add(DecompressionButton);
+                            MinWidth = 250,
+                            Label = Globalization.GetString("Operate_Text_Decompression"),
+                            Flyout = DecompressionFlyout
+                        });
 
                         BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
 
                         AppBarButton PropertyButton = new AppBarButton
                         {
                             Icon = new SymbolIcon(Symbol.Tag),
+                            MinWidth = 250,
                             Label = Globalization.GetString("Operate_Text_Property")
                         };
                         PropertyButton.Click += FileProperty_Click;
@@ -5590,6 +5654,7 @@ namespace RX_Explorer
                         AppBarButton OpenButton = new AppBarButton
                         {
                             Icon = new SymbolIcon(Symbol.BackToWindow),
+                            MinWidth = 250,
                             Label = Globalization.GetString("Operate_Text_Open")
                         };
                         OpenButton.Click += ItemOpen_Click;
@@ -5598,6 +5663,7 @@ namespace RX_Explorer
                         AppBarButton NewWindowButton = new AppBarButton
                         {
                             Icon = new FontIcon { Glyph = "\uE727" },
+                            MinWidth = 250,
                             Label = Globalization.GetString("Operate_Text_NewWindow")
                         };
                         NewWindowButton.Click += OpenFolderInNewWindow_Click;
@@ -5606,6 +5672,7 @@ namespace RX_Explorer
                         AppBarButton NewTabButton = new AppBarButton
                         {
                             Icon = new FontIcon { Glyph = "\uF7ED" },
+                            MinWidth = 250,
                             Label = Globalization.GetString("Operate_Text_NewTab")
                         };
                         NewTabButton.Click += OpenFolderInNewTab_Click;
@@ -5614,6 +5681,7 @@ namespace RX_Explorer
                         AppBarButton SplitViewButton = new AppBarButton
                         {
                             Icon = new FontIcon { Glyph = "\uE140" },
+                            MinWidth = 250,
                             Label = Globalization.GetString("Operate_Text_SplitView")
                         };
                         SplitViewButton.Click += OpenFolderInVerticalSplitView_Click;
@@ -5624,6 +5692,7 @@ namespace RX_Explorer
                         AppBarButton CompressionButton = new AppBarButton
                         {
                             Icon = new SymbolIcon(Symbol.Bookmarks),
+                            MinWidth = 250,
                             Label = Globalization.GetString("Operate_Text_Compression")
                         };
                         CompressionButton.Click += CompressFolder_Click;
@@ -5634,6 +5703,7 @@ namespace RX_Explorer
                         AppBarButton PropertyButton = new AppBarButton
                         {
                             Icon = new SymbolIcon(Symbol.Tag),
+                            MinWidth = 250,
                             Label = Globalization.GetString("Operate_Text_Property")
                         };
                         PropertyButton.Click += FolderProperty_Click;
@@ -5675,17 +5745,6 @@ namespace RX_Explorer
                         IsEnablePaste = false;
                     }
 
-                    bool IsEnableUndo = false;
-
-                    if (OperationRecorder.Current.Count > 0)
-                    {
-                        IsEnableUndo = true;
-                    }
-                    else
-                    {
-                        IsEnableUndo = false;
-                    }
-
                     AppBarButton PasteButton = new AppBarButton
                     {
                         Icon = new SymbolIcon(Symbol.Paste),
@@ -5699,7 +5758,7 @@ namespace RX_Explorer
                     {
                         Icon = new SymbolIcon(Symbol.Undo),
                         Label = Globalization.GetString("Operate_Text_Undo"),
-                        IsEnabled = IsEnableUndo
+                        IsEnabled = OperationRecorder.Current.Count > 0
                     };
                     UndoButton.Click += Undo_Click;
                     BottomCommandBar.PrimaryCommands.Add(UndoButton);
@@ -5717,7 +5776,8 @@ namespace RX_Explorer
                     {
                         Icon = new SymbolIcon(Symbol.Page2),
                         Text = Globalization.GetString("Operate_Text_CreateFile"),
-                        MinWidth = 150
+                        MinWidth = 150,
+                        MaxWidth = 300
                     };
                     CreateFileItem.Click += CreateFile_Click;
                     NewFlyout.Items.Add(CreateFileItem);
@@ -5726,7 +5786,8 @@ namespace RX_Explorer
                     {
                         Icon = new SymbolIcon(Symbol.NewFolder),
                         Text = Globalization.GetString("Operate_Text_CreateFolder"),
-                        MinWidth = 150
+                        MinWidth = 150,
+                        MaxWidth = 300
                     };
                     CreateFolder.Click += CreateFolder_Click;
                     NewFlyout.Items.Add(CreateFolder);
@@ -5734,6 +5795,7 @@ namespace RX_Explorer
                     BottomCommandBar.SecondaryCommands.Add(new AppBarButton
                     {
                         Icon = new SymbolIcon(Symbol.Add),
+                        MinWidth = 250,
                         Label = Globalization.GetString("Operate_Text_Create"),
                         Flyout = NewFlyout
                     });
@@ -5797,6 +5859,8 @@ namespace RX_Explorer
                     RadioMenuFlyoutItem SortName = new RadioMenuFlyoutItem
                     {
                         Text = Globalization.GetString("Operate_Text_SortTarget_Name"),
+                        MinWidth = 150,
+                        MaxWidth = 300,
                         IsChecked = NameCheck
                     };
                     SortName.Click += OrderByName_Click;
@@ -5805,6 +5869,8 @@ namespace RX_Explorer
                     RadioMenuFlyoutItem SortTime = new RadioMenuFlyoutItem
                     {
                         Text = Globalization.GetString("Operate_Text_SortTarget_Time"),
+                        MinWidth = 150,
+                        MaxWidth = 300,
                         IsChecked = TimeCheck
                     };
                     SortTime.Click += OrderByTime_Click;
@@ -5813,6 +5879,8 @@ namespace RX_Explorer
                     RadioMenuFlyoutItem SortType = new RadioMenuFlyoutItem
                     {
                         Text = Globalization.GetString("Operate_Text_SortTarget_Type"),
+                        MinWidth = 150,
+                        MaxWidth = 300,
                         IsChecked = TypeCheck
                     };
                     SortType.Click += OrderByType_Click;
@@ -5821,6 +5889,8 @@ namespace RX_Explorer
                     RadioMenuFlyoutItem SortSize = new RadioMenuFlyoutItem
                     {
                         Text = Globalization.GetString("Operate_Text_SortTarget_Size"),
+                        MinWidth = 150,
+                        MaxWidth = 300,
                         IsChecked = SizeCheck
                     };
                     SortSize.Click += OrderBySize_Click;
@@ -5831,6 +5901,8 @@ namespace RX_Explorer
                     RadioMenuFlyoutItem Asc = new RadioMenuFlyoutItem
                     {
                         Text = Globalization.GetString("Operate_Text_SortDirection_Asc"),
+                        MinWidth = 150,
+                        MaxWidth = 300,
                         IsChecked = AscCheck
                     };
                     Asc.Click += Asc_Click;
@@ -5839,6 +5911,8 @@ namespace RX_Explorer
                     RadioMenuFlyoutItem Desc = new RadioMenuFlyoutItem
                     {
                         Text = Globalization.GetString("Operate_Text_SortDirection_Desc"),
+                        MinWidth = 150,
+                        MaxWidth = 300,
                         IsChecked = DescCheck
                     };
                     Desc.Click += Desc_Click;
@@ -5847,6 +5921,7 @@ namespace RX_Explorer
                     BottomCommandBar.SecondaryCommands.Add(new AppBarButton
                     {
                         Icon = new SymbolIcon(Symbol.Sort),
+                        MinWidth = 250,
                         Label = Globalization.GetString("Operate_Text_Sort"),
                         Flyout = SortFlyout
                     });
@@ -5856,6 +5931,7 @@ namespace RX_Explorer
                     AppBarButton WinExButton = new AppBarButton
                     {
                         Icon = new FontIcon { Glyph = "\uEC50" },
+                        MinWidth = 250,
                         Label = Globalization.GetString("Operate_Text_OpenInWinExplorer")
                     };
                     WinExButton.Click += UseSystemFileMananger_Click;
@@ -5864,6 +5940,7 @@ namespace RX_Explorer
                     AppBarButton TerminalButton = new AppBarButton
                     {
                         Icon = new FontIcon { Glyph = "\uE756" },
+                        MinWidth = 250,
                         Label = Globalization.GetString("Operate_Text_OpenInTerminal")
                     };
                     TerminalButton.Click += OpenInTerminal_Click;
@@ -5874,6 +5951,7 @@ namespace RX_Explorer
                     AppBarButton PropertyButton = new AppBarButton
                     {
                         Icon = new SymbolIcon(Symbol.Tag),
+                        MinWidth = 250,
                         Label = Globalization.GetString("Operate_Text_Property")
                     };
                     PropertyButton.Click += ParentProperty_Click;

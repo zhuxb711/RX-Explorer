@@ -242,7 +242,7 @@
                                                             Name="DecompressOption"
                                                             x:Uid="DecompressOption"
                                                             MinWidth="150"
-                                                            MaxWidth="320"
+                                                            MaxWidth="300"
                                                             Click="DecompressOption_Click">
                                 <Custom:MenuFlyoutItemWithImage.Icon>
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -253,7 +253,7 @@
                                                             Click="Decompression_Click"
                                                             x:Uid="DecompressHere"
                                                             MinWidth="150"
-                                                            MaxWidth="320">
+                                                            MaxWidth="300">
                                 <Custom:MenuFlyoutItemWithImage.Icon>
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                               Glyph="&#xF0B2;" />
@@ -262,7 +262,7 @@
                             <Custom:MenuFlyoutItemWithImage Click="Decompression_Click"
                                                             x:Name="DecompressionOption2"
                                                             MinWidth="150"
-                                                            MaxWidth="320">
+                                                            MaxWidth="300">
                                 <Custom:MenuFlyoutItemWithImage.Icon>
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                               Glyph="&#xF0B2;" />
