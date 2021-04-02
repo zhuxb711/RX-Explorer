@@ -41,6 +41,10 @@ namespace RX_Explorer
         public ThisPC()
         {
             InitializeComponent();
+
+            LibraryExpander.IsExpanded = SettingControl.LibraryExpanderIsExpand;
+            DeviceExpander.IsExpanded = SettingControl.DeviceExpanderIsExpand;
+
             Loaded += ThisPC_Loaded;
         }
 
@@ -766,11 +770,13 @@ namespace RX_Explorer
 
         private void LibraryExpander_Collapsed(object sender, EventArgs e)
         {
+            SettingControl.LibraryExpanderIsExpand = false;
             LibraryGrid.SelectedIndex = -1;
         }
 
         private void DeviceExpander_Collapsed(object sender, EventArgs e)
         {
+            SettingControl.DeviceExpanderIsExpand = false;
             DeviceGrid.SelectedIndex = -1;
         }
 
@@ -790,7 +796,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabViewControl.TabItems.OfType<TabViewItem>().Where((Tab) => Tab.Tag is FileControl Control && Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder?.Path) == Item.Folder.Path).ToArray())
+                    foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabCollection.Where((Tab) => (Tab.Content as Frame).CurrentSourcePageType != typeof(ThisPC) && Tab.Tag is FileControl Control && Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder?.Path) == Item.Folder.Path).ToArray())
                     {
                         await TabViewContainer.ThisPage.CleanUpAndRemoveTabItem(Tab).ConfigureAwait(true);
                     }
@@ -818,16 +824,23 @@ namespace RX_Explorer
 
         private void ShowEjectNotification()
         {
-            ToastNotificationManager.History.Remove("MergeVideoNotification");
+            try
+            {
+                ToastNotificationManager.History.Remove("MergeVideoNotification");
 
-            ToastContentBuilder Builder = new ToastContentBuilder()
-                                          .SetToastScenario(ToastScenario.Default)
-                                          .AddToastActivationInfo("Transcode", ToastActivationType.Foreground)
-                                          .AddText(Globalization.GetString("Eject_Toast_Text_1"))
-                                          .AddText(Globalization.GetString("Eject_Toast_Text_2"))
-                                          .AddText(Globalization.GetString("Eject_Toast_Text_3"));
+                ToastContentBuilder Builder = new ToastContentBuilder()
+                                              .SetToastScenario(ToastScenario.Default)
+                                              .AddToastActivationInfo("Transcode", ToastActivationType.Foreground)
+                                              .AddText(Globalization.GetString("Eject_Toast_Text_1"))
+                                              .AddText(Globalization.GetString("Eject_Toast_Text_2"))
+                                              .AddText(Globalization.GetString("Eject_Toast_Text_3"));
 
-            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Builder.GetToastContent().GetXml()));
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Builder.GetToastContent().GetXml()));
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Toast notification could not be sent");
+            }
         }
 
         private async void AddQuickStartWeb_Click(object sender, RoutedEventArgs e)
@@ -954,6 +967,16 @@ namespace RX_Explorer
             {
                 e.Handled = true;
             }
+        }
+
+        private void LibraryExpander_Expanded(object sender, EventArgs e)
+        {
+            SettingControl.LibraryExpanderIsExpand = true;
+        }
+
+        private void DeviceExpander_Expanded(object sender, EventArgs e)
+        {
+            SettingControl.DeviceExpanderIsExpand = true;
         }
     }
 }

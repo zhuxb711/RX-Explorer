@@ -3120,4 +3120,19 @@ Invalid names include
   <data name="Properties_Tools_UnlockFlyout_Text3.Text" xml:space="preserve">
     <value>Click "Force to close" to exit the application immediately, and all unsaved data will be lost</value>
   </data>
+  <data name="Properties_Details_CameraManufacturer" xml:space="preserve">
+    <value>Camera manufacturer</value>
+  </data>
+  <data name="Properties_Details_CameraModel" xml:space="preserve">
+    <value>Camera model</value>
+  </data>
+  <data name="Properties_Details_Latitude" xml:space="preserve">
+    <value>Latitude</value>
+  </data>
+  <data name="Properties_Details_Longitude" xml:space="preserve">
+    <value>Longitude</value>
+  </data>
+  <data name="Properties_Details_PeopleNames" xml:space="preserve">
+    <value>People names</value>
+  </data>
 </root>

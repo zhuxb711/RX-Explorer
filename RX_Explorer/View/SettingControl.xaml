@@ -18,21 +18,12 @@
                           IsLightDismissEnabled="True"
                           Title="Acrylic主题颜色"
                           x:Uid="SettingPageColorPickerTip"
-                          Target="{x:Bind AcrylicColor}"
-                          HeroContentPlacement="Top">
-            <muxc:TeachingTip.HeroContent>
-                <Image Stretch="UniformToFill"
-                       Height="130"
-                       Source="ms-appx:///Assets/ColorPickerHero.png" />
-            </muxc:TeachingTip.HeroContent>
+                          Target="{x:Bind AcrylicColor}">
             <muxc:TeachingTip.Content>
-                <ColorPicker ColorSpectrumShape="Ring"
-                             IsMoreButtonVisible="True"
-                             IsColorSliderVisible="True"
-                             IsColorChannelTextInputVisible="True"
-                             IsHexInputVisible="False"
-                             Color="{x:Bind local:BackgroundController.Current.AcrylicColor,Mode=TwoWay}"
-                             x:Name="AcrylicColorPicker" />
+                <control:ColorPicker ColorSpectrumShape="Box"
+                                     IsAlphaEnabled="True"
+                                     Color="{x:Bind local:BackgroundController.Current.AcrylicColor,Mode=TwoWay}"
+                                     x:Name="AcrylicColorPicker"/>
             </muxc:TeachingTip.Content>
         </muxc:TeachingTip>
 

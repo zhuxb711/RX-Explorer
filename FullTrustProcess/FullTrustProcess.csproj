@@ -143,6 +143,9 @@
     <PackageReference Include="Vanara.PInvoke.RstrtMgr">
       <Version>3.3.7</Version>
     </PackageReference>
+    <PackageReference Include="Vanara.PInvoke.SetupAPI">
+      <Version>3.3.7</Version>
+    </PackageReference>
     <PackageReference Include="Vanara.PInvoke.UrlMon">
       <Version>3.3.7</Version>
     </PackageReference>

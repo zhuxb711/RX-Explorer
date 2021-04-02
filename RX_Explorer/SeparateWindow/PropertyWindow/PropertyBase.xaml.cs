@@ -569,7 +569,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                     Dictionary<string, object> DescriptionPropertiesDictionary = new Dictionary<string, object>(4)
                     {
                         { Globalization.GetString("Properties_Details_Title"), ImageProperties.Title },
-                        { Globalization.GetString("Properties_Details_DateTaken"), ImageProperties.DateTaken.ToString("G") },
+                        { Globalization.GetString("Properties_Details_DateTaken"), ImageProperties.DateTaken.ToFileTime() > 0 ? ImageProperties.DateTaken.ToString("G") : string.Empty},
                         { Globalization.GetString("Properties_Details_Rating"), ImageProperties.Rating }
                     };
 
@@ -588,12 +588,12 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                     Dictionary<string, object> ExtraPropertiesDictionary = new Dictionary<string, object>(6)
                     {
-                        { "Camera model", ImageProperties.CameraModel },
-                        { "Camera manufacturer", ImageProperties.CameraManufacturer },
-                        { "Keywords", string.Join(", ", ImageProperties.Keywords) },
-                        { "Latitude", Convert.ToString(ImageProperties.Latitude) },
-                        { "Longitude", Convert.ToString(ImageProperties.Longitude) },
-                        { "People names", string.Join(", ", ImageProperties.PeopleNames) }
+                        { Globalization.GetString("Properties_Details_CameraModel"), ImageProperties.CameraModel },
+                        { Globalization.GetString("Properties_Details_CameraManufacturer"), ImageProperties.CameraManufacturer },
+                        { Globalization.GetString("Properties_Details_Keywords"), string.Join(", ", ImageProperties.Keywords) },
+                        { Globalization.GetString("Properties_Details_Latitude"), Convert.ToString(ImageProperties.Latitude) },
+                        { Globalization.GetString("Properties_Details_Longitude"), Convert.ToString(ImageProperties.Longitude) },
+                        { Globalization.GetString("Properties_Details_PeopleNames"), string.Join(", ", ImageProperties.PeopleNames) }
                     };
 
                     PropertiesCollection.Add(new PropertiesGroupItem(Globalization.GetString("Properties_Details_Extra_Label"), ExtraPropertiesDictionary.ToArray()));
@@ -966,7 +966,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             {
                 await TabViewContainer.ThisPage.CreateNewTabAsync(new string[] { Path.GetDirectoryName(Link.LinkTargetPath) }).ConfigureAwait(true);
 
-                if (TabViewContainer.ThisPage.TabViewControl.TabItems.OfType<TabViewItem>().LastOrDefault()?.Tag is FileControl Control)
+                if (TabViewContainer.ThisPage.TabCollection.LastOrDefault()?.Tag is FileControl Control)
                 {
                     while (Control.CurrentPresenter == null)
                     {

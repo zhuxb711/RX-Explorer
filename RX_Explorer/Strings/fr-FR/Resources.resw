@@ -3015,4 +3015,19 @@ Les noms non valides incluent
   <data name="Properties_Tools_UnlockFlyout_Text3.Text" xml:space="preserve">
     <value>Cliquez sur "Forcer la fermeture" pour quitter l'application immédiatement et toutes les données non enregistrées seront perdues</value>
   </data>
+  <data name="Properties_Details_CameraManufacturer" xml:space="preserve">
+    <value>Fabricant d'appareil photo</value>
+  </data>
+  <data name="Properties_Details_CameraModel" xml:space="preserve">
+    <value>Modèle d'appareil photo</value>
+  </data>
+  <data name="Properties_Details_Latitude" xml:space="preserve">
+    <value>Latitude</value>
+  </data>
+  <data name="Properties_Details_Longitude" xml:space="preserve">
+    <value>Longitude</value>
+  </data>
+  <data name="Properties_Details_PeopleNames" xml:space="preserve">
+    <value>Noms de personnes</value>
+  </data>
 </root>

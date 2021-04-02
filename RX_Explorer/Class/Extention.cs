@@ -892,21 +892,28 @@ namespace RX_Explorer.Class
 
                         Cancellation.Cancel();
 
-                        if (!ToastNotificationManager.History.GetHistory().Any((Toast) => Toast.Tag == "DelayLoadNotification"))
+                        try
                         {
-                            ToastContentBuilder Builder = new ToastContentBuilder()
-                                                          .SetToastScenario(ToastScenario.Default)
-                                                          .AddToastActivationInfo("Transcode", ToastActivationType.Foreground)
-                                                          .AddText(Globalization.GetString("DelayLoadNotification_Title"))
-                                                          .AddText(Globalization.GetString("DelayLoadNotification_Content_1"))
-                                                          .AddText(Globalization.GetString("DelayLoadNotification_Content_2"));
-
-                            ToastNotification Notification = new ToastNotification(Builder.GetToastContent().GetXml())
+                            if (ToastNotificationManager.History.GetHistory().All((Toast) => Toast.Tag != "DelayLoadNotification"))
                             {
-                                Tag = "DelayLoadNotification"
-                            };
+                                ToastContentBuilder Builder = new ToastContentBuilder()
+                                                              .SetToastScenario(ToastScenario.Default)
+                                                              .AddToastActivationInfo("Transcode", ToastActivationType.Foreground)
+                                                              .AddText(Globalization.GetString("DelayLoadNotification_Title"))
+                                                              .AddText(Globalization.GetString("DelayLoadNotification_Content_1"))
+                                                              .AddText(Globalization.GetString("DelayLoadNotification_Content_2"));
 
-                            ToastNotificationManager.CreateToastNotifier().Show(Notification);
+                                ToastNotification Notification = new ToastNotification(Builder.GetToastContent().GetXml())
+                                {
+                                    Tag = "DelayLoadNotification"
+                                };
+
+                                ToastNotificationManager.CreateToastNotifier().Show(Notification);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, "Toast notification could not be sent");
                         }
 
                         return null;

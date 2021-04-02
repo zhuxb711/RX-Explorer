@@ -46,16 +46,23 @@ namespace RX_Explorer.Class
                 SendUpdatableToastWithProgressForMergeVideo();
                 Progress<double> CropVideoProgress = new Progress<double>((CurrentValue) =>
                 {
-                    string Tag = "MergeVideoNotification";
-
-                    var data = new NotificationData
+                    try
                     {
-                        SequenceNumber = 0
-                    };
-                    data.Values["ProgressValue"] = Math.Round(CurrentValue / 100, 2, MidpointRounding.AwayFromZero).ToString();
-                    data.Values["ProgressValueString"] = Convert.ToInt32(CurrentValue) + "%";
+                        string Tag = "MergeVideoNotification";
 
-                    ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
+                        NotificationData data = new NotificationData
+                        {
+                            SequenceNumber = 0
+                        };
+                        data.Values["ProgressValue"] = Math.Round(CurrentValue / 100, 2, MidpointRounding.AwayFromZero).ToString();
+                        data.Values["ProgressValueString"] = Convert.ToInt32(CurrentValue) + "%";
+
+                        ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "Toast notification could not be sent");
+                    }
                 });
 
                 try
@@ -127,16 +134,23 @@ namespace RX_Explorer.Class
 
                 Progress<double> CropVideoProgress = new Progress<double>((CurrentValue) =>
                 {
-                    string Tag = "CropVideoNotification";
-
-                    var data = new NotificationData
+                    try
                     {
-                        SequenceNumber = 0
-                    };
-                    data.Values["ProgressValue"] = Math.Round(CurrentValue / 100, 2, MidpointRounding.AwayFromZero).ToString();
-                    data.Values["ProgressValueString"] = Convert.ToInt32(CurrentValue) + "%";
+                        string Tag = "CropVideoNotification";
 
-                    ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
+                        NotificationData data = new NotificationData
+                        {
+                            SequenceNumber = 0
+                        };
+                        data.Values["ProgressValue"] = Math.Round(CurrentValue / 100, 2, MidpointRounding.AwayFromZero).ToString();
+                        data.Values["ProgressValueString"] = Convert.ToInt32(CurrentValue) + "%";
+
+                        ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, "Toast notification could not be sent");
+                    }
                 });
 
                 try
@@ -350,12 +364,19 @@ namespace RX_Explorer.Class
                         SendUpdatableToastWithProgressForTranscode(Para.Item1, Para.Item2);
                         Progress<double> TranscodeProgress = new Progress<double>((CurrentValue) =>
                         {
-                            NotificationData Data = new NotificationData();
-                            Data.SequenceNumber = 0;
-                            Data.Values["ProgressValue"] = (Math.Ceiling(CurrentValue) / 100).ToString();
-                            Data.Values["ProgressValueString"] = Convert.ToInt32(CurrentValue) + "%";
+                            try
+                            {
+                                NotificationData Data = new NotificationData();
+                                Data.SequenceNumber = 0;
+                                Data.Values["ProgressValue"] = (Math.Ceiling(CurrentValue) / 100).ToString();
+                                Data.Values["ProgressValueString"] = Convert.ToInt32(CurrentValue) + "%";
 
-                            ToastNotificationManager.CreateToastNotifier().Update(Data, "TranscodeNotification");
+                                ToastNotificationManager.CreateToastNotifier().Update(Data, "TranscodeNotification");
+                            }
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex, "Toast notification could not be sent");
+                            }
                         });
 
                         Result.TranscodeAsync().AsTask(AVTranscodeCancellation.Token, TranscodeProgress).Wait();
@@ -416,15 +437,17 @@ namespace RX_Explorer.Class
 
         private static void SendUpdatableToastWithProgressForCropVideo(StorageFile SourceFile)
         {
-            ToastContent content = new ToastContent()
+            try
             {
-                Launch = "Transcode",
-                Scenario = ToastScenario.Reminder,
-                Visual = new ToastVisual()
+                ToastContent content = new ToastContent()
                 {
-                    BindingGeneric = new ToastBindingGeneric()
+                    Launch = "Transcode",
+                    Scenario = ToastScenario.Reminder,
+                    Visual = new ToastVisual()
                     {
-                        Children =
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
                         {
                             new AdaptiveText()
                             {
@@ -439,46 +462,53 @@ namespace RX_Explorer.Class
                                 Status = new BindableString("ProgressStatus")
                             }
                         }
+                        }
                     }
-                }
-            };
+                };
 
-            NotificationData Data = new NotificationData
-            {
-                SequenceNumber = 0
-            };
-            Data.Values["ProgressValue"] = "0";
-            Data.Values["ProgressValueString"] = "0%";
-            Data.Values["ProgressStatus"] = Globalization.GetString("Toast_ClickToCancel_Text");
-
-            ToastNotification Toast = new ToastNotification(content.GetXml())
-            {
-                Tag = "CropVideoNotification",
-                Data = Data
-            };
-
-            Toast.Activated += (s, e) =>
-            {
-                if (s.Tag == "CropVideoNotification")
+                NotificationData Data = new NotificationData
                 {
-                    AVTranscodeCancellation.Cancel();
-                }
-            };
+                    SequenceNumber = 0
+                };
+                Data.Values["ProgressValue"] = "0";
+                Data.Values["ProgressValueString"] = "0%";
+                Data.Values["ProgressStatus"] = Globalization.GetString("Toast_ClickToCancel_Text");
 
-            ToastNotificationManager.CreateToastNotifier().Show(Toast);
+                ToastNotification Toast = new ToastNotification(content.GetXml())
+                {
+                    Tag = "CropVideoNotification",
+                    Data = Data
+                };
+
+                Toast.Activated += (s, e) =>
+                {
+                    if (s.Tag == "CropVideoNotification")
+                    {
+                        AVTranscodeCancellation.Cancel();
+                    }
+                };
+
+                ToastNotificationManager.CreateToastNotifier().Show(Toast);
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Toast notification could not be sent");
+            }
         }
 
         private static void SendUpdatableToastWithProgressForMergeVideo()
         {
-            ToastContent content = new ToastContent()
+            try
             {
-                Launch = "Transcode",
-                Scenario = ToastScenario.Reminder,
-                Visual = new ToastVisual()
+                ToastContent content = new ToastContent()
                 {
-                    BindingGeneric = new ToastBindingGeneric()
+                    Launch = "Transcode",
+                    Scenario = ToastScenario.Reminder,
+                    Visual = new ToastVisual()
                     {
-                        Children =
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
                         {
                             new AdaptiveText()
                             {
@@ -493,48 +523,55 @@ namespace RX_Explorer.Class
                                 Status = new BindableString("ProgressStatus")
                             }
                         }
+                        }
                     }
-                }
-            };
+                };
 
-            NotificationData Data = new NotificationData
-            {
-                SequenceNumber = 0
-            };
-            Data.Values["ProgressValue"] = "0";
-            Data.Values["ProgressValueString"] = "0%";
-            Data.Values["ProgressStatus"] = Globalization.GetString("Toast_ClickToCancel_Text");
-
-            ToastNotification Toast = new ToastNotification(content.GetXml())
-            {
-                Tag = "MergeVideoNotification",
-                Data = Data
-            };
-
-            Toast.Activated += (s, e) =>
-            {
-                if (s.Tag == "MergeVideoNotification")
+                NotificationData Data = new NotificationData
                 {
-                    AVTranscodeCancellation.Cancel();
-                }
-            };
+                    SequenceNumber = 0
+                };
+                Data.Values["ProgressValue"] = "0";
+                Data.Values["ProgressValueString"] = "0%";
+                Data.Values["ProgressStatus"] = Globalization.GetString("Toast_ClickToCancel_Text");
 
-            ToastNotificationManager.CreateToastNotifier().Show(Toast);
+                ToastNotification Toast = new ToastNotification(content.GetXml())
+                {
+                    Tag = "MergeVideoNotification",
+                    Data = Data
+                };
+
+                Toast.Activated += (s, e) =>
+                {
+                    if (s.Tag == "MergeVideoNotification")
+                    {
+                        AVTranscodeCancellation.Cancel();
+                    }
+                };
+
+                ToastNotificationManager.CreateToastNotifier().Show(Toast);
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Toast notification could not be sent");
+            }
         }
 
         private static void SendUpdatableToastWithProgressForTranscode(StorageFile SourceFile, StorageFile DestinationFile)
         {
-            string Tag = "TranscodeNotification";
-
-            ToastContent content = new ToastContent()
+            try
             {
-                Launch = "Transcode",
-                Scenario = ToastScenario.Reminder,
-                Visual = new ToastVisual()
+                string Tag = "TranscodeNotification";
+
+                ToastContent content = new ToastContent()
                 {
-                    BindingGeneric = new ToastBindingGeneric()
+                    Launch = "Transcode",
+                    Scenario = ToastScenario.Reminder,
+                    Visual = new ToastVisual()
                     {
-                        Children =
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
                         {
                             new AdaptiveText()
                             {
@@ -549,48 +586,55 @@ namespace RX_Explorer.Class
                                 Status = new BindableString("ProgressStatus")
                             }
                         }
+                        }
                     }
-                }
-            };
+                };
 
-            NotificationData Data = new NotificationData
-            {
-                SequenceNumber = 0
-            };
-            Data.Values["ProgressValue"] = "0";
-            Data.Values["ProgressValueString"] = "0%";
-            Data.Values["ProgressStatus"] = Globalization.GetString("Toast_ClickToCancel_Text");
-
-            ToastNotification Toast = new ToastNotification(content.GetXml())
-            {
-                Tag = Tag,
-                Data = Data
-            };
-
-            Toast.Activated += (s, e) =>
-            {
-                if (s.Tag == "TranscodeNotification")
+                NotificationData Data = new NotificationData
                 {
-                    AVTranscodeCancellation.Cancel();
-                }
-            };
+                    SequenceNumber = 0
+                };
+                Data.Values["ProgressValue"] = "0";
+                Data.Values["ProgressValueString"] = "0%";
+                Data.Values["ProgressStatus"] = Globalization.GetString("Toast_ClickToCancel_Text");
 
-            ToastNotificationManager.CreateToastNotifier().Show(Toast);
+                ToastNotification Toast = new ToastNotification(content.GetXml())
+                {
+                    Tag = Tag,
+                    Data = Data
+                };
+
+                Toast.Activated += (s, e) =>
+                {
+                    if (s.Tag == "TranscodeNotification")
+                    {
+                        AVTranscodeCancellation.Cancel();
+                    }
+                };
+
+                ToastNotificationManager.CreateToastNotifier().Show(Toast);
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Toast notification could not be sent");
+            }
         }
 
         private static void ShowCropCompleteNotification()
         {
-            ToastNotificationManager.History.Remove("CropVideoNotification");
-
-            ToastContent Content = new ToastContent()
+            try
             {
-                Scenario = ToastScenario.Default,
-                Launch = "Transcode",
-                Visual = new ToastVisual()
+                ToastNotificationManager.History.Remove("CropVideoNotification");
+
+                ToastContent Content = new ToastContent()
                 {
-                    BindingGeneric = new ToastBindingGeneric()
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
                     {
-                        Children =
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
                         {
                             new AdaptiveText()
                             {
@@ -603,25 +647,33 @@ namespace RX_Explorer.Class
                             }
                         }
 
-                    }
-                },
-            };
-            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+                        }
+                    },
+                };
+
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Toast notification could not be sent");
+            }
         }
 
         private static void ShowMergeCompleteNotification()
         {
-            ToastNotificationManager.History.Remove("MergeVideoNotification");
-
-            ToastContent Content = new ToastContent()
+            try
             {
-                Scenario = ToastScenario.Default,
-                Launch = "Transcode",
-                Visual = new ToastVisual()
+                ToastNotificationManager.History.Remove("MergeVideoNotification");
+
+                ToastContent Content = new ToastContent()
                 {
-                    BindingGeneric = new ToastBindingGeneric()
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
                     {
-                        Children =
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
                             {
                                 new AdaptiveText()
                                 {
@@ -633,25 +685,33 @@ namespace RX_Explorer.Class
                                     Text = Globalization.GetString("Toast_ClickToClear_Text")
                                 }
                             }
-                    }
-                },
-            };
-            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+                        }
+                    },
+                };
+
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Toast notification could not be sent");
+            }
         }
 
         private static void ShowTranscodeCompleteNotification(StorageFile SourceFile, StorageFile DestinationFile)
         {
-            ToastNotificationManager.History.Remove("TranscodeNotification");
-
-            ToastContent Content = new ToastContent()
+            try
             {
-                Scenario = ToastScenario.Default,
-                Launch = "Transcode",
-                Visual = new ToastVisual()
+                ToastNotificationManager.History.Remove("TranscodeNotification");
+
+                ToastContent Content = new ToastContent()
                 {
-                    BindingGeneric = new ToastBindingGeneric()
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
                     {
-                        Children =
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
                             {
                                 new AdaptiveText()
                                 {
@@ -668,26 +728,33 @@ namespace RX_Explorer.Class
                                     Text = Globalization.GetString("Toast_ClickToClear_Text")
                                 }
                             }
-                    }
-                },
-            };
+                        }
+                    },
+                };
 
-            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Toast notification could not be sent");
+            }
         }
 
         private static void ShowCropCancelNotification()
         {
-            ToastNotificationManager.History.Remove("CropVideoNotification");
-
-            ToastContent Content = new ToastContent()
+            try
             {
-                Scenario = ToastScenario.Default,
-                Launch = "Transcode",
-                Visual = new ToastVisual()
+                ToastNotificationManager.History.Remove("CropVideoNotification");
+
+                ToastContent Content = new ToastContent()
                 {
-                    BindingGeneric = new ToastBindingGeneric()
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
                     {
-                        Children =
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
                             {
                                 new AdaptiveText()
                                 {
@@ -704,26 +771,33 @@ namespace RX_Explorer.Class
                                     Text = Globalization.GetString("Toast_ClickToClear_Text")
                                 }
                             }
+                        }
                     }
-                }
-            };
+                };
 
-            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Toast notification could not be sent");
+            }
         }
 
         private static void ShowMergeCancelNotification()
         {
-            ToastNotificationManager.History.Remove("MergeVideoNotification");
-
-            ToastContent Content = new ToastContent()
+            try
             {
-                Scenario = ToastScenario.Default,
-                Launch = "Transcode",
-                Visual = new ToastVisual()
+                ToastNotificationManager.History.Remove("MergeVideoNotification");
+
+                ToastContent Content = new ToastContent()
                 {
-                    BindingGeneric = new ToastBindingGeneric()
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
                     {
-                        Children =
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
                             {
                                 new AdaptiveText()
                                 {
@@ -740,26 +814,33 @@ namespace RX_Explorer.Class
                                     Text = Globalization.GetString("Toast_ClickToClear_Text")
                                 }
                             }
+                        }
                     }
-                }
-            };
+                };
 
-            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Toast notification could not be sent");
+            }
         }
 
         private static void ShowTranscodeCancelNotification()
         {
-            ToastNotificationManager.History.Remove("TranscodeNotification");
-
-            ToastContent Content = new ToastContent()
+            try
             {
-                Scenario = ToastScenario.Default,
-                Launch = "Transcode",
-                Visual = new ToastVisual()
+                ToastNotificationManager.History.Remove("TranscodeNotification");
+
+                ToastContent Content = new ToastContent()
                 {
-                    BindingGeneric = new ToastBindingGeneric()
+                    Scenario = ToastScenario.Default,
+                    Launch = "Transcode",
+                    Visual = new ToastVisual()
                     {
-                        Children =
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
                             {
                                 new AdaptiveText()
                                 {
@@ -776,10 +857,16 @@ namespace RX_Explorer.Class
                                     Text = Globalization.GetString("Toast_ClickToClear_Text")
                                 }
                             }
+                        }
                     }
-                }
-            };
-            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+                };
+
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Content.GetXml()));
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Toast notification could not be sent");
+            }
         }
     }
 }

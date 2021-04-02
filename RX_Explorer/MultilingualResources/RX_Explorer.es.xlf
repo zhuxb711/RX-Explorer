@@ -3999,6 +3999,26 @@ Las denominaciones no válidas son:
           <source>Click "Force to close" to exit the application immediately, and all unsaved data will be lost</source>
           <target state="translated">Haga clic en "Fuerza para cerrar" para salir de la aplicación inmediatamente y se perderán todos los datos no guardados.</target>
         </trans-unit>
+        <trans-unit id="Properties_Details_CameraManufacturer" translate="yes" xml:space="preserve">
+          <source>Camera manufacturer</source>
+          <target state="translated">Fabricante de la cámara</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_CameraModel" translate="yes" xml:space="preserve">
+          <source>Camera model</source>
+          <target state="translated">Modelo de cámara</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Latitude" translate="yes" xml:space="preserve">
+          <source>Latitude</source>
+          <target state="translated">Latitud</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Longitude" translate="yes" xml:space="preserve">
+          <source>Longitude</source>
+          <target state="translated">Longitud</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_PeopleNames" translate="yes" xml:space="preserve">
+          <source>People names</source>
+          <target state="translated">Nombres de personas</target>
+        </trans-unit>
       </group>
     </body>
   </file>

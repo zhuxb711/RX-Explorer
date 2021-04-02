@@ -253,7 +253,7 @@ namespace RX_Explorer
                 && MainPage.ThisPage.NavView.SelectedItem is NavigationViewItem NavItem
                 && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
             {
-                if (Container.WeakToTabItem.TryGetTarget(out TabViewItem Tab) && Tab == TabViewContainer.ThisPage.TabViewControl.SelectedItem)
+                if (Container.WeakToTabItem.TryGetTarget(out TabViewItem Tab) && (Tab.Content as Frame) == TabViewContainer.CurrentNavigationControl)
                 {
                     CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
                     CoreVirtualKeyStates ShiftState = sender.GetKeyState(VirtualKey.Shift);

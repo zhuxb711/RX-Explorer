@@ -788,7 +788,7 @@ namespace RX_Explorer
             {
                 ApplicationData.Current.LocalSettings.Values["FileLoadMode"] = FileLoadMode.SelectedIndex;
 
-                foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabViewControl.TabItems)
+                foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabCollection)
                 {
                     if ((Tab.Content as Frame)?.Content is FileControl Control && Control.CurrentPresenter.CurrentFolder != null)
                     {
@@ -1359,7 +1359,7 @@ namespace RX_Explorer
         {
             ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = OpenLeftArea.IsOn;
 
-            foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabViewControl.TabItems)
+            foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabCollection)
             {
                 if ((Tab.Content as Frame)?.Content is ThisPC PC)
                 {
@@ -1934,7 +1934,7 @@ namespace RX_Explorer
             {
                 IsDetachTreeViewAndPresenter = !TreeViewDetach.IsOn;
 
-                foreach (FileControl Control in TabViewContainer.ThisPage.TabViewControl.TabItems.OfType<TabViewItem>().Select((Tab) => Tab.Tag).OfType<FileControl>())
+                foreach (FileControl Control in TabViewContainer.ThisPage.TabCollection.Select((Tab) => Tab.Tag).OfType<FileControl>())
                 {
                     if (Control.CurrentPresenter?.CurrentFolder != null)
                     {
@@ -2114,7 +2114,7 @@ namespace RX_Explorer
             {
                 IsDisplayHiddenItem = DisplayHiddenItem.IsOn;
 
-                foreach (FileControl Control in TabViewContainer.ThisPage.TabViewControl.TabItems.OfType<TabViewItem>().Select((Tab) => Tab.Tag).OfType<FileControl>())
+                foreach (FileControl Control in TabViewContainer.ThisPage.TabCollection.Select((Tab) => Tab.Tag).OfType<FileControl>())
                 {
                     if (Control.CurrentPresenter.CurrentFolder != null)
                     {

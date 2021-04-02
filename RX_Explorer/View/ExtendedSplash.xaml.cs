@@ -105,7 +105,7 @@ namespace RX_Explorer
                     Frame RootFrame = new Frame();
                     Window.Current.Content = RootFrame;
 
-                    if (Parameter == null || Parameter.Count == 0)
+                    if ((Parameter?.Count).GetValueOrDefault() == 0)
                     {
                         MainPage Main = new MainPage(Splash.ImageLocation);
                         RootFrame.Content = Main;
@@ -206,16 +206,25 @@ namespace RX_Explorer
         {
             await Launcher.LaunchUriAsync(new Uri("ms-settings:privacy-broadfilesystemaccess"));
 
-            ToastContentBuilder Builder = new ToastContentBuilder()
+            try
+            {
+                ToastContentBuilder Builder = new ToastContentBuilder()
                                           .SetToastScenario(ToastScenario.Reminder)
                                           .AddText(Globalization.GetString("Toast_BroadFileSystemAccess_Text_1"))
                                           .AddText(Globalization.GetString("Toast_BroadFileSystemAccess_Text_2"))
                                           .AddButton(Globalization.GetString("Toast_BroadFileSystemAccess_ActionButton_1"), ToastActivationType.Foreground, "Restart")
                                           .AddButton(new ToastButtonDismiss(Globalization.GetString("Toast_BroadFileSystemAccess_ActionButton_2")));
 
-            ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Builder.GetToastContent().GetXml()));
-
-            await ApplicationView.GetForCurrentView().TryConsolidateAsync();
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Builder.GetToastContent().GetXml()));
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Toast notification could not be sent");
+            }
+            finally
+            {
+                await ApplicationView.GetForCurrentView().TryConsolidateAsync();
+            }
         }
 
         private void Current_SizeChanged(object sender, WindowSizeChangedEventArgs e)

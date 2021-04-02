@@ -30,8 +30,8 @@
     <Grid>
         <muxc:TabView TabWidthMode="Equal"
                       Name="TabViewControl"
-                      x:FieldModifier="public"
                       VerticalAlignment="Stretch"
+                      TabItemsSource="{x:Bind TabCollection}"
                       AllowDropTabs="True"
                       AllowDrop="True"
                       CanDragTabs="True"
