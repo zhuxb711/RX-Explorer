@@ -182,6 +182,7 @@ namespace RX_Explorer
         private string LastPressString;
         private CancellationTokenSource DelayRenameCancel;
         private CancellationTokenSource DelayEnterCancel;
+        private CancellationTokenSource DelaySelectionCancel;
         private int CurrentViewModeIndex = -1;
 
         public FileSystemStorageItemBase SelectedItem
@@ -4235,7 +4236,10 @@ namespace RX_Explorer
                 args.ItemContainer.Drop -= ItemContainer_Drop;
                 args.ItemContainer.DragOver -= ItemContainer_DragOver;
                 args.ItemContainer.PointerEntered -= ItemContainer_PointerEntered;
+                args.ItemContainer.PointerExited -= ItemContainer_PointerExited;
                 args.ItemContainer.DragEnter -= ItemContainer_DragEnter;
+                args.ItemContainer.PointerCanceled -= ItemContainer_PointerCanceled;
+                args.ItemContainer.PointerCaptureLost -= ItemContainer_PointerCaptureLost;
             }
             else
             {
@@ -4252,6 +4256,9 @@ namespace RX_Explorer
 
                 args.ItemContainer.DragStarting += ItemContainer_DragStarting;
                 args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
+                args.ItemContainer.PointerExited += ItemContainer_PointerExited;
+                args.ItemContainer.PointerCanceled += ItemContainer_PointerCanceled;
+                args.ItemContainer.PointerCaptureLost += ItemContainer_PointerCaptureLost;
 
                 args.RegisterUpdateCallback(async (s, e) =>
                 {
@@ -4276,22 +4283,20 @@ namespace RX_Explorer
                 DelayEnterCancel?.Dispose();
                 DelayEnterCancel = new CancellationTokenSource();
 
-                Task.Delay(1500).ContinueWith((task, obj) =>
+                Task.Delay(1500).ContinueWith((task, input) =>
                 {
                     try
                     {
-                        ValueTuple<CancellationTokenSource, FileSystemStorageItemBase> Tuple = (ValueTuple<CancellationTokenSource, FileSystemStorageItemBase>)obj;
-
-                        if (!Tuple.Item1.IsCancellationRequested)
+                        if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
                         {
-                            _ = EnterSelectedItem(Tuple.Item2);
+                            _ = EnterSelectedItem(Item);
                         }
                     }
                     catch (Exception ex)
                     {
                         LogTracer.Log(ex, "An exception was thew in DelayEnterProcess");
                     }
-                }, new ValueTuple<CancellationTokenSource, FileSystemStorageItemBase>(DelayEnterCancel, Item), TaskScheduler.FromCurrentSynchronizationContext());
+                }, DelayEnterCancel, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 
@@ -4447,18 +4452,47 @@ namespace RX_Explorer
 
         private void ItemContainer_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
-            if (!SettingControl.IsDoubleClickEnable
-                && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple
-                && SelectedItems.Count <= 1
-                && e.KeyModifiers != VirtualKeyModifiers.Control
-                && e.KeyModifiers != VirtualKeyModifiers.Shift
-                && !Container.BlockKeyboardShortCutInput)
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
+                if (!SettingControl.IsDoubleClickEnable
+                    && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple
+                    && !SelectedItems.Contains(Item)
+                    && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Control)
+                    && !e.KeyModifiers.HasFlag(VirtualKeyModifiers.Shift)
+                    && !Container.BlockKeyboardShortCutInput)
                 {
-                    SelectedItem = Item;
+                    DelaySelectionCancel?.Cancel();
+                    DelaySelectionCancel?.Dispose();
+                    DelaySelectionCancel = new CancellationTokenSource();
+
+                    Task.Delay(800).ContinueWith((task, input) =>
+                    {
+                        if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                        {
+                            SelectedItem = Item;
+                        }
+                    }, DelaySelectionCancel, TaskScheduler.FromCurrentSynchronizationContext());
                 }
             }
+        }
+
+        private void ItemContainer_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            DelaySelectionCancel?.Cancel();
+        }
+
+        private void ItemContainer_PointerCaptureLost(object sender, PointerRoutedEventArgs e)
+        {
+            DelayEnterCancel?.Cancel();
+            DelayRenameCancel?.Cancel();
+            DelaySelectionCancel?.Cancel();
+        }
+
+        private void ItemContainer_PointerCanceled(object sender, PointerRoutedEventArgs e)
+        {
+            DelayEnterCancel?.Cancel();
+            DelayRenameCancel?.Cancel();
+            DelaySelectionCancel?.Cancel();
         }
 
         private async void ViewControl_Drop(object sender, DragEventArgs e)
@@ -5115,9 +5149,9 @@ namespace RX_Explorer
                         DelayRenameCancel?.Dispose();
                         DelayRenameCancel = new CancellationTokenSource();
 
-                        Task.Delay(1000).ContinueWith((task) =>
+                        Task.Delay(1200).ContinueWith((task, input) =>
                         {
-                            if (DelayRenameCancel != null && !DelayRenameCancel.IsCancellationRequested)
+                            if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
                             {
                                 NameLabel.Visibility = Visibility.Collapsed;
 
@@ -5131,7 +5165,7 @@ namespace RX_Explorer
 
                                 Container.BlockKeyboardShortCutInput = true;
                             }
-                        }, TaskScheduler.FromCurrentSynchronizationContext());
+                        }, DelayRenameCancel, TaskScheduler.FromCurrentSynchronizationContext());
                     }
                 }
             }
@@ -5604,7 +5638,7 @@ namespace RX_Explorer
                         DecompressionOption1.Click += DecompressOption_Click;
                         DecompressionFlyout.Items.Add(DecompressionOption1);
 
-                        MenuFlyoutItem DecompressionOption2= new MenuFlyoutItem
+                        MenuFlyoutItem DecompressionOption2 = new MenuFlyoutItem
                         {
                             Text = Globalization.GetString("DecompressHere/Text"),
                             MinWidth = 150,
@@ -6299,6 +6333,7 @@ namespace RX_Explorer
             SelectionExtention?.Dispose();
             DelayRenameCancel?.Dispose();
             DelayEnterCancel?.Dispose();
+            DelaySelectionCancel?.Dispose();
             EnterLock?.Dispose();
 
             AreaWatcher = null;
@@ -6306,6 +6341,7 @@ namespace RX_Explorer
             SelectionExtention = null;
             DelayRenameCancel = null;
             DelayEnterCancel = null;
+            DelaySelectionCancel = null;
             EnterLock = null;
 
             RecordIndex = 0;

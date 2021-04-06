@@ -346,19 +346,20 @@ namespace RX_Explorer
 
                 switch (Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.LaunchCount)
                 {
+                    case 5:
+                    case 20:
+                        {
+                            await PurchaseApplicationAsync().ConfigureAwait(true);
+                            break;
+                        }
                     case 10:
                         {
                             await PinApplicationToTaskBarAsync().ConfigureAwait(true);
                             break;
                         }
-                    case 20:
+                    case 15:
                         {
                             RequestRateApplication();
-                            break;
-                        }
-                    case 30:
-                        {
-                            await PurchaseApplicationAsync().ConfigureAwait(true);
                             break;
                         }
                 }
@@ -437,7 +438,6 @@ namespace RX_Explorer
                             Builder.SetTrigger(Trigger);
                             Builder.AddCondition(new SystemCondition(SystemConditionType.InternetAvailable));
                             Builder.AddCondition(new SystemCondition(SystemConditionType.UserPresent));
-                            Builder.AddCondition(new SystemCondition(SystemConditionType.FreeNetworkAvailable));
                             Builder.Register();
 
                             break;
