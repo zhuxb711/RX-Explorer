@@ -736,5 +736,10 @@ namespace RX_Explorer
                 }
             }
         }
+
+        private void TaskListPanelButton_Click(object sender, RoutedEventArgs e)
+        {
+            TaskListPanel.IsPaneOpen = true;
+        }
     }
 }
