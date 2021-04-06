@@ -313,27 +313,28 @@
                                    VerticalAlignment="Stretch"
                                    AllowFocusOnInteraction="False"
                                    Background="Transparent"
-                                   IsExpanded="{x:Bind local:SettingControl.LibraryExpanderIsExpand, Mode=TwoWay}"
+                                   Expanded="LibraryExpander_Expanded"
                                    Collapsed="LibraryExpander_Collapsed"
                                    ExpandDirection="Down"
                                    HorizontalContentAlignment="Stretch"
                                    VerticalContentAlignment="Top"
-                                   Margin="5"
-                                   HeaderStyle="{StaticResource CustomExpanderHeaderStyle}">
+                                   HeaderStyle="{ThemeResource CustomExpanderHeaderStyle}"
+                                   Margin="5">
                     <controls:Expander.HeaderTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
+                            <RelativePanel>
                                 <TextBlock Text="文件夹和库"
-                                           x:Uid="LibraryExpander" />
-                                <Line Stroke="Gray"
-                                      StrokeThickness="2"
-                                      X1="0"
-                                      X2="2500"
-                                      Y1="4"
-                                      Y2="4"
-                                      Margin="15,0,0,0"
-                                      VerticalAlignment="Center" />
-                            </StackPanel>
+                                           x:Uid="LibraryExpander"
+                                           x:Name="LibraryExpanderLabel"
+                                           RelativePanel.AlignLeftWithPanel="True"
+                                           RelativePanel.AlignVerticalCenterWithPanel="True"/>
+                                <Border Background="Gray"
+                                        Margin="15,0,0,0"
+                                        Height="2"
+                                        RelativePanel.RightOf="LibraryExpanderLabel"
+                                        RelativePanel.AlignRightWithPanel="True"
+                                        RelativePanel.AlignVerticalCenterWithPanel="True" />
+                            </RelativePanel>
                         </DataTemplate>
                     </controls:Expander.HeaderTemplate>
                     <GridView Margin="0,20,0,0"
@@ -394,25 +395,27 @@
                                    HorizontalContentAlignment="Stretch"
                                    IsExpanded="{x:Bind local:SettingControl.DeviceExpanderIsExpand,Mode=TwoWay}"
                                    ExpandDirection="Down"
+                                   Expanded="DeviceExpander_Expanded"
                                    Collapsed="DeviceExpander_Collapsed"
                                    VerticalContentAlignment="Top"
                                    AllowFocusOnInteraction="False"
-                                   Margin="5"
-                                   HeaderStyle="{StaticResource CustomExpanderHeaderStyle}">
+                                   HeaderStyle="{ThemeResource CustomExpanderHeaderStyle}"
+                                   Margin="5">
                     <controls:Expander.HeaderTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
+                            <RelativePanel>
                                 <TextBlock Text="设备和驱动器"
-                                           x:Uid="DeviceExpander" />
-                                <Line Stroke="Gray"
-                                      StrokeThickness="2"
-                                      X1="0"
-                                      X2="2500"
-                                      Y1="4"
-                                      Y2="4"
-                                      Margin="15,0,0,0"
-                                      VerticalAlignment="Center" />
-                            </StackPanel>
+                                           x:Uid="DeviceExpander"
+                                           x:Name="DeviceExpanderLabel"
+                                           RelativePanel.AlignLeftWithPanel="True"
+                                           RelativePanel.AlignVerticalCenterWithPanel="True"/>
+                                <Border Background="Gray"
+                                        Margin="15,0,0,0"
+                                        Height="2"
+                                        RelativePanel.RightOf="DeviceExpanderLabel"
+                                        RelativePanel.AlignRightWithPanel="True"
+                                        RelativePanel.AlignVerticalCenterWithPanel="True"/>
+                            </RelativePanel>
                         </DataTemplate>
                     </controls:Expander.HeaderTemplate>
                     <GridView Margin="0,20,0,0"

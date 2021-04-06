@@ -101,15 +101,19 @@ namespace RX_Explorer.Class
 
         [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         private static extern IntPtr FindFirstFileExFromApp(string lpFileName,
-                                                           FINDEX_INFO_LEVELS fInfoLevelId,
-                                                           out WIN32_FIND_DATA lpFindFileData,
-                                                           FINDEX_SEARCH_OPS fSearchOp,
-                                                           IntPtr lpSearchFilter,
-                                                           int dwAdditionalFlags);
+                                                            FINDEX_INFO_LEVELS fInfoLevelId,
+                                                            out WIN32_FIND_DATA lpFindFileData,
+                                                            FINDEX_SEARCH_OPS fSearchOp,
+                                                            IntPtr lpSearchFilter,
+                                                            FINDEX_ADDITIONAL_FLAGS dwAdditionalFlags);
 
-        private const int FIND_FIRST_EX_CASE_SENSITIVE = 1;
-        private const int FIND_FIRST_EX_LARGE_FETCH = 2;
-        private const int FIND_FIRST_EX_ON_DISK_ENTRIES_ONLY = 4;
+        private enum FINDEX_ADDITIONAL_FLAGS
+        {
+            NONE = 0,
+            FIND_FIRST_EX_CASE_SENSITIVE = 1,
+            FIND_FIRST_EX_LARGE_FETCH = 2,
+            FIND_FIRST_EX_ON_DISK_ENTRIES_ONLY = 4
+        }
 
         [DllImport("api-ms-win-core-file-l1-1-0.dll", CharSet = CharSet.Unicode)]
         private static extern bool FindNextFile(IntPtr hFindFile, out WIN32_FIND_DATA lpFindFileData);
@@ -140,6 +144,8 @@ namespace RX_Explorer.Class
 
         [DllImport("api-ms-win-core-file-fromapp-l1-1-0.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern bool RemoveDirectoryFromApp(string lpPathName);
+
+        private static readonly IntPtr INVALID_HANDLE = new IntPtr(-1);
 
         const uint GENERIC_READ = 0x80000000;
         const uint GENERIC_WRITE = 0x40000000;
@@ -326,7 +332,7 @@ namespace RX_Explorer.Class
 
                                 IntPtr Handle = CreateFileFromApp(UniquePath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
 
-                                if (Handle == IntPtr.Zero || Handle.ToInt64() == -1)
+                                if (Handle == IntPtr.Zero || Handle == INVALID_HANDLE)
                                 {
                                     LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not create a new file");
                                     NewPath = string.Empty;
@@ -343,7 +349,7 @@ namespace RX_Explorer.Class
                             {
                                 IntPtr Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
 
-                                if (Handle == IntPtr.Zero || Handle.ToInt64() == -1)
+                                if (Handle == IntPtr.Zero || Handle == INVALID_HANDLE)
                                 {
                                     LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not create a new file");
                                     NewPath = string.Empty;
@@ -361,7 +367,7 @@ namespace RX_Explorer.Class
                         {
                             IntPtr Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
 
-                            if (Handle == IntPtr.Zero || Handle.ToInt64() == -1)
+                            if (Handle == IntPtr.Zero || Handle == INVALID_HANDLE)
                             {
                                 LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not create a new file");
                                 NewPath = string.Empty;
@@ -378,7 +384,7 @@ namespace RX_Explorer.Class
                         {
                             IntPtr Handle = CreateFileFromApp(Path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
 
-                            if (Handle == IntPtr.Zero || Handle.ToInt64() == -1)
+                            if (Handle == IntPtr.Zero || Handle == INVALID_HANDLE)
                             {
                                 LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()), "Could not create a new file");
                                 NewPath = string.Empty;
@@ -462,7 +468,7 @@ namespace RX_Explorer.Class
             {
                 IntPtr hDir = CreateFileFromApp(FolderPath, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, IntPtr.Zero);
 
-                if (hDir == IntPtr.Zero || hDir.ToInt64() == -1)
+                if (hDir == IntPtr.Zero || hDir == INVALID_HANDLE)
                 {
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
@@ -575,11 +581,11 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(FolderPath));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.NONE);
 
             try
             {
-                if (Ptr.ToInt64() != -1)
+                if (Ptr != INVALID_HANDLE)
                 {
                     do
                     {
@@ -641,23 +647,19 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(Path));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.GetPathRoot(Path) == Path ? System.IO.Path.Combine(Path, "*") : Path.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out _, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(System.IO.Path.GetPathRoot(Path) == Path ? System.IO.Path.Combine(Path, "*") : Path.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out _, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.NONE);
 
             try
             {
-                if (Ptr.ToInt64() != -1)
+                if (Ptr != INVALID_HANDLE)
                 {
                     return true;
                 }
                 else
                 {
+                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
                     return false;
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex);
-                return false;
             }
             finally
             {
@@ -677,11 +679,11 @@ namespace RX_Explorer.Class
                 return false;
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.NONE);
 
             try
             {
-                if (Ptr.ToInt64() != -1)
+                if (Ptr != INVALID_HANDLE)
                 {
                     if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Hidden))
                     {
@@ -694,13 +696,9 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
+                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
                     return false;
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex);
-                return false;
             }
             finally
             {
@@ -715,11 +713,11 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(Path));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(Path.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(Path.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.FIND_FIRST_EX_LARGE_FETCH);
 
             try
             {
-                if (Ptr.ToInt64() != -1)
+                if (Ptr != INVALID_HANDLE)
                 {
                     if (((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
                     {
@@ -732,13 +730,9 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
+                    LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
                     return 0;
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex);
-                return 0;
             }
             finally
             {
@@ -753,11 +747,11 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(FolderPath));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.FIND_FIRST_EX_LARGE_FETCH);
 
             try
             {
-                if (Ptr.ToInt64() != -1)
+                if (Ptr != INVALID_HANDLE)
                 {
                     ulong TotalSize = 0;
 
@@ -803,11 +797,11 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(FilePath));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(FilePath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(FilePath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.FIND_FIRST_EX_LARGE_FETCH);
 
             try
             {
-                if (Ptr.ToInt64() != -1)
+                if (Ptr != INVALID_HANDLE)
                 {
                     if (!((FileAttributes)Data.dwFileAttributes).HasFlag(FileAttributes.Directory))
                     {
@@ -842,11 +836,11 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(FolderPath));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.FIND_FIRST_EX_LARGE_FETCH);
 
             try
             {
-                if (Ptr.ToInt64() != -1)
+                if (Ptr != INVALID_HANDLE)
                 {
                     uint FolderCount = 0;
                     uint FileCount = 0;
@@ -900,28 +894,107 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(SearchWord));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
-
-            List<FileSystemStorageItemBase> SearchResult = new List<FileSystemStorageItemBase>();
+            IntPtr Ptr = IntPtr.Zero;
 
             try
             {
-                if (Ptr.ToInt64() != -1)
+                if (IsRegexExpresstion)
                 {
-                    do
+                    Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.FIND_FIRST_EX_LARGE_FETCH);
+
+                    if (Ptr != IntPtr.Zero && Ptr != INVALID_HANDLE)
                     {
-                        if (Data.cFileName != "." && Data.cFileName != "..")
+                        List<FileSystemStorageItemBase> SearchResult = new List<FileSystemStorageItemBase>();
+
+                        do
                         {
-                            FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
-
-                            if (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden))
+                            if (Data.cFileName != "." && Data.cFileName != "..")
                             {
-                                if (Attribute.HasFlag(FileAttributes.Directory))
-                                {
-                                    string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
+                                FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
 
-                                    if (Regex.IsMatch(Data.cFileName, IsRegexExpresstion ? SearchWord : @$".*{Regex.Escape(SearchWord)}.*", IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
+                                if (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden))
+                                {
+                                    if (Attribute.HasFlag(FileAttributes.Directory))
                                     {
+                                        string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
+
+                                        if (Regex.IsMatch(Data.cFileName, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
+                                        {
+                                            if (Attribute.HasFlag(FileAttributes.Hidden))
+                                            {
+                                                SearchResult.Add(new HiddenStorageFolder(CurrentDataPath, Data));
+                                            }
+                                            else
+                                            {
+                                                SearchResult.Add(new FileSystemStorageFolder(CurrentDataPath, Data));
+                                            }
+                                        }
+
+                                        if (SearchInSubFolders)
+                                        {
+                                            SearchResult.AddRange(Search(CurrentDataPath, SearchWord, true, IncludeHiddenItem, IsRegexExpresstion, IgnoreCase, CancelToken));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (Regex.IsMatch(Data.cFileName, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
+                                        {
+                                            string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
+
+                                            if (Attribute.HasFlag(FileAttributes.Hidden))
+                                            {
+                                                SearchResult.Add(new HiddenStorageFile(CurrentDataPath, Data));
+                                            }
+                                            else if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    SearchResult.Add(new LinkStorageFile(CurrentDataPath, Data));
+                                                }
+                                                else
+                                                {
+                                                    SearchResult.Add(new FileSystemStorageFile(CurrentDataPath, Data));
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        while (FindNextFile(Ptr, out Data) && !CancelToken.IsCancellationRequested);
+
+                        return SearchResult;
+                    }
+                    else
+                    {
+                        return new List<FileSystemStorageItemBase>(0);
+                    }
+                }
+                else
+                {
+                    Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, $"*{SearchWord}*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.FIND_FIRST_EX_LARGE_FETCH);
+
+                    if (Ptr != IntPtr.Zero && Ptr != INVALID_HANDLE)
+                    {
+                        List<FileSystemStorageItemBase> SearchResult = new List<FileSystemStorageItemBase>();
+
+                        do
+                        {
+                            if (Data.cFileName != "." && Data.cFileName != "..")
+                            {
+                                if(!IgnoreCase && !Data.cFileName.Contains(SearchWord,StringComparison.Ordinal))
+                                {
+                                    continue;
+                                }
+
+                                FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
+
+                                if (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden))
+                                {
+                                    if (Attribute.HasFlag(FileAttributes.Directory))
+                                    {
+                                        string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
+
                                         if (Attribute.HasFlag(FileAttributes.Hidden))
                                         {
                                             SearchResult.Add(new HiddenStorageFolder(CurrentDataPath, Data));
@@ -930,16 +1003,13 @@ namespace RX_Explorer.Class
                                         {
                                             SearchResult.Add(new FileSystemStorageFolder(CurrentDataPath, Data));
                                         }
-                                    }
 
-                                    if (SearchInSubFolders)
-                                    {
-                                        SearchResult.AddRange(Search(CurrentDataPath, SearchWord, true, IncludeHiddenItem, IsRegexExpresstion, IgnoreCase, CancelToken));
+                                        if (SearchInSubFolders)
+                                        {
+                                            SearchResult.AddRange(Search(CurrentDataPath, SearchWord, true, IncludeHiddenItem, IsRegexExpresstion, IgnoreCase, CancelToken));
+                                        }
                                     }
-                                }
-                                else
-                                {
-                                    if (Regex.IsMatch(Data.cFileName, IsRegexExpresstion ? SearchWord : @$".*{Regex.Escape(SearchWord)}.*", IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
+                                    else
                                     {
                                         string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
 
@@ -962,20 +1032,20 @@ namespace RX_Explorer.Class
                                 }
                             }
                         }
-                    }
-                    while (FindNextFile(Ptr, out Data) && !CancelToken.IsCancellationRequested);
+                        while (FindNextFile(Ptr, out Data) && !CancelToken.IsCancellationRequested);
 
-                    return SearchResult;
-                }
-                else
-                {
-                    return SearchResult;
+                        return SearchResult;
+                    }
+                    else
+                    {
+                        return new List<FileSystemStorageItemBase>(0);
+                    }
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex);
-                return SearchResult;
+                return new List<FileSystemStorageItemBase>(0);
             }
             finally
             {
@@ -990,17 +1060,11 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(ItemPath), "Argument could not be null");
             }
 
-            IntPtr Ptr = IntPtr.Zero;
+            IntPtr Ptr = FindFirstFileExFromApp(Path.GetPathRoot(ItemPath) == ItemPath ? Path.Combine(ItemPath, "*") : ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out _, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.NONE);
 
             try
             {
-                Ptr = FindFirstFileExFromApp(Path.GetPathRoot(ItemPath) == ItemPath ? Path.Combine(ItemPath, "*") : ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
-
-                return Ptr.ToInt64() != -1;
-            }
-            catch
-            {
-                return false;
+                return Ptr != INVALID_HANDLE;
             }
             finally
             {
@@ -1015,11 +1079,11 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(FolderPath));
             }
 
-            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+            IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.FIND_FIRST_EX_LARGE_FETCH);
 
             try
             {
-                if (Ptr.ToInt64() != -1)
+                if (Ptr != INVALID_HANDLE)
                 {
                     List<FileSystemStorageItemBase> Result = new List<FileSystemStorageItemBase>();
 
@@ -1103,11 +1167,11 @@ namespace RX_Explorer.Class
 
             try
             {
-                IntPtr Ptr = FindFirstFileExFromApp(ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+                IntPtr Ptr = FindFirstFileExFromApp(ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.NONE);
 
                 try
                 {
-                    if (Ptr.ToInt64() != -1)
+                    if (Ptr != INVALID_HANDLE)
                     {
                         if (Data.cFileName != "." && Data.cFileName != "..")
                         {
@@ -1177,11 +1241,11 @@ namespace RX_Explorer.Class
 
                 foreach (string Path in PathArray)
                 {
-                    IntPtr Ptr = FindFirstFileExFromApp(Path.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FIND_FIRST_EX_LARGE_FETCH);
+                    IntPtr Ptr = FindFirstFileExFromApp(Path.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.FIND_FIRST_EX_LARGE_FETCH);
 
                     try
                     {
-                        if (Ptr.ToInt64() != -1)
+                        if (Ptr != INVALID_HANDLE)
                         {
                             if (Data.cFileName != "." && Data.cFileName != "..")
                             {

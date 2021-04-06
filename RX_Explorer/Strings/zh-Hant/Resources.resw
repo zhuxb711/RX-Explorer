@@ -3015,4 +3015,19 @@
   <data name="Properties_Tools_UnlockFlyout_Text3.Text" xml:space="preserve">
     <value>單擊“強制關閉”立即退出應用程序，所有未保存的數據都將丟失</value>
   </data>
+  <data name="Properties_Details_CameraManufacturer" xml:space="preserve">
+    <value>相機製造商</value>
+  </data>
+  <data name="Properties_Details_CameraModel" xml:space="preserve">
+    <value>相機型號</value>
+  </data>
+  <data name="Properties_Details_Latitude" xml:space="preserve">
+    <value>緯度</value>
+  </data>
+  <data name="Properties_Details_Longitude" xml:space="preserve">
+    <value>經度</value>
+  </data>
+  <data name="Properties_Details_PeopleNames" xml:space="preserve">
+    <value>人名</value>
+  </data>
 </root>

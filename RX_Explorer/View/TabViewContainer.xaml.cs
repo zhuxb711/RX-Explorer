@@ -2,6 +2,8 @@
 using RX_Explorer.Class;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,10 +11,6 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Data.Xml.Dom;
-using Windows.Devices.Enumeration;
-using Windows.Devices.Portable;
-using Windows.Storage;
-using Windows.Storage.FileProperties;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
@@ -20,7 +18,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Animation;
-using Windows.UI.Xaml.Media.Imaging;
 using SymbolIconSource = Microsoft.UI.Xaml.Controls.SymbolIconSource;
 using TabView = Microsoft.UI.Xaml.Controls.TabView;
 using TabViewTabCloseRequestedEventArgs = Microsoft.UI.Xaml.Controls.TabViewTabCloseRequestedEventArgs;
@@ -31,6 +28,7 @@ namespace RX_Explorer
     {
         public static Frame CurrentNavigationControl { get; private set; }
 
+        public readonly ObservableCollection<TabViewItem> TabCollection = new ObservableCollection<TabViewItem>();
 
         public static TabViewContainer ThisPage { get; private set; }
 
@@ -39,10 +37,25 @@ namespace RX_Explorer
             InitializeComponent();
             ThisPage = this;
             Loaded += TabViewContainer_Loaded;
+            TabCollection.CollectionChanged += TabCollection_CollectionChanged;
             Application.Current.Suspending += Current_Suspending;
             CoreWindow.GetForCurrentThread().PointerPressed += TabViewContainer_PointerPressed;
             CoreWindow.GetForCurrentThread().KeyDown += TabViewContainer_KeyDown;
             CommonAccessCollection.LibraryNotFound += CommonAccessCollection_LibraryNotFound;
+        }
+
+        private void TabCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                case NotifyCollectionChangedAction.Move:
+                    {
+                        UpdateLayout();
+                        TabViewControl.SelectedIndex = e.NewStartingIndex;
+                        break;
+                    }
+            }
         }
 
         private async void CommonAccessCollection_LibraryNotFound(object sender, Queue<string> ErrorList)
@@ -215,16 +228,13 @@ namespace RX_Explorer
             {
                 foreach (string[] PathArray in BulkTabWithPath)
                 {
-                    TabViewControl.TabItems.Add(await CreateNewTabCoreAsync(PathArray).ConfigureAwait(true));
-                    TabViewControl.UpdateLayout();
+                    TabCollection.Add(await CreateNewTabCoreAsync(PathArray).ConfigureAwait(true));
                 }
             }
             catch (Exception ex)
             {
-                TabViewControl.TabItems.Add(await CreateNewTabCoreAsync().ConfigureAwait(true));
-                TabViewControl.UpdateLayout();
-
                 LogTracer.Log(ex, "Error happened when try to create a new tab");
+                TabCollection.Add(await CreateNewTabCoreAsync().ConfigureAwait(true));
             }
         }
 
@@ -232,37 +242,27 @@ namespace RX_Explorer
         {
             try
             {
-                TabViewItem Item = await CreateNewTabCoreAsync(PathArray).ConfigureAwait(true);
-                TabViewControl.TabItems.Add(Item);
-                TabViewControl.SelectedItem = Item;
+                TabCollection.Add(await CreateNewTabCoreAsync(PathArray).ConfigureAwait(true));
             }
             catch (Exception ex)
             {
-                TabViewItem Item = await CreateNewTabCoreAsync().ConfigureAwait(true);
-                TabViewControl.TabItems.Add(Item);
-                TabViewControl.SelectedItem = Item;
-
                 LogTracer.Log(ex, "Error happened when try to create a new tab");
+                TabCollection.Add(await CreateNewTabCoreAsync().ConfigureAwait(true));
             }
         }
 
         public async Task CreateNewTabAsync(int InsertIndex, params string[] PathArray)
         {
-            int Index = InsertIndex > 0 ? (InsertIndex <= TabViewControl.TabItems.Count ? InsertIndex : TabViewControl.TabItems.Count) : 0;
+            int Index = InsertIndex > 0 ? (InsertIndex <= TabCollection.Count ? InsertIndex : TabCollection.Count) : 0;
 
             try
             {
-                TabViewItem Item = await CreateNewTabCoreAsync(PathArray).ConfigureAwait(true);
-                TabViewControl.TabItems.Insert(Index, Item);
-                TabViewControl.SelectedItem = Item;
+                TabCollection.Insert(Index, await CreateNewTabCoreAsync(PathArray).ConfigureAwait(true));
             }
             catch (Exception ex)
             {
-                TabViewItem Item = await CreateNewTabCoreAsync().ConfigureAwait(true);
-                TabViewControl.TabItems.Insert(Index, Item);
-                TabViewControl.SelectedItem = Item;
-
                 LogTracer.Log(ex, "Error happened when try to create a new tab");
+                TabCollection.Insert(Index, await CreateNewTabCoreAsync().ConfigureAwait(true));
             }
         }
 
@@ -272,7 +272,7 @@ namespace RX_Explorer
             {
                 List<string[]> PathList = new List<string[]>();
 
-                foreach (FileControl Control in TabViewControl.TabItems.OfType<TabViewItem>().Select((Tab) => Tab.Tag as FileControl))
+                foreach (FileControl Control in TabCollection.Select((Tab) => Tab.Tag as FileControl))
                 {
                     if (Control != null)
                     {
@@ -323,7 +323,7 @@ namespace RX_Explorer
 
         private async Task<TabViewItem> CreateNewTabCoreAsync(params string[] PathForNewTab)
         {
-            FullTrustProcessController.RequestResizeController(TabViewControl.TabItems.Count + 1);
+            FullTrustProcessController.RequestResizeController(TabCollection.Count + 1);
 
             Frame frame = new Frame();
 
@@ -440,7 +440,7 @@ namespace RX_Explorer
 
         private void TabViewControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            foreach (Frame Nav in TabViewControl.TabItems.Select((Item) => (Item as TabViewItem).Content as Frame))
+            foreach (Frame Nav in TabCollection.Select((Item) => Item.Content as Frame))
             {
                 Nav.Navigated -= Nav_Navigated;
             }
@@ -594,9 +594,9 @@ namespace RX_Explorer
                         {
                             string[] Split = ItemNode.InnerText.Split("||", StringSplitOptions.RemoveEmptyEntries);
 
-                            int InsertIndex = TabViewControl.TabItems.Count;
+                            int InsertIndex = TabCollection.Count;
 
-                            for (int i = 0; i < TabViewControl.TabItems.Count; i++)
+                            for (int i = 0; i < TabCollection.Count; i++)
                             {
                                 TabViewItem Item = TabViewControl.ContainerFromIndex(i) as TabViewItem;
 
@@ -663,11 +663,11 @@ namespace RX_Explorer
             Tab.DoubleTapped -= Item_DoubleTapped;
             Tab.Content = null;
 
-            TabViewControl.TabItems.Remove(Tab);
+            TabCollection.Remove(Tab);
 
-            FullTrustProcessController.RequestResizeController(TabViewControl.TabItems.Count);
+            FullTrustProcessController.RequestResizeController(TabCollection.Count);
 
-            if (TabViewControl.TabItems.Count == 0)
+            if (TabCollection.Count == 0)
             {
                 await ApplicationView.GetForCurrentView().TryConsolidateAsync();
             }
@@ -688,7 +688,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if (TabViewControl.SelectedIndex < TabViewControl.TabItems.Count - 1)
+                    if (TabViewControl.SelectedIndex < TabCollection.Count - 1)
                     {
                         TabViewControl.SelectedIndex += 1;
                     }
@@ -726,7 +726,7 @@ namespace RX_Explorer
         {
             if (TabViewControl.SelectedItem is TabViewItem Item)
             {
-                List<TabViewItem> ToBeRemoveList = TabViewControl.TabItems.OfType<TabViewItem>().ToList();
+                List<TabViewItem> ToBeRemoveList = TabCollection.ToList();
 
                 ToBeRemoveList.Remove(Item);
 
@@ -735,6 +735,11 @@ namespace RX_Explorer
                     await CleanUpAndRemoveTabItem(RemoveItem).ConfigureAwait(true);
                 }
             }
+        }
+
+        private void TaskListPanelButton_Click(object sender, RoutedEventArgs e)
+        {
+            TaskListPanel.IsPaneOpen = true;
         }
     }
 }

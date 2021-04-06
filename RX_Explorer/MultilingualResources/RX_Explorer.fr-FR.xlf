@@ -4001,6 +4001,26 @@ Les noms non valides incluent
           <source>Click "Force to close" to exit the application immediately, and all unsaved data will be lost</source>
           <target state="translated">Cliquez sur "Forcer la fermeture" pour quitter l'application immédiatement et toutes les données non enregistrées seront perdues</target>
         </trans-unit>
+        <trans-unit id="Properties_Details_CameraManufacturer" translate="yes" xml:space="preserve">
+          <source>Camera manufacturer</source>
+          <target state="translated">Fabricant d'appareil photo</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_CameraModel" translate="yes" xml:space="preserve">
+          <source>Camera model</source>
+          <target state="translated">Modèle d'appareil photo</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Latitude" translate="yes" xml:space="preserve">
+          <source>Latitude</source>
+          <target state="translated">Latitude</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Longitude" translate="yes" xml:space="preserve">
+          <source>Longitude</source>
+          <target state="translated">Longitude</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_PeopleNames" translate="yes" xml:space="preserve">
+          <source>People names</source>
+          <target state="translated">Noms de personnes</target>
+        </trans-unit>
       </group>
     </body>
   </file>

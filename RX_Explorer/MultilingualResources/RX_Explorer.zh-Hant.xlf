@@ -4001,6 +4001,26 @@ Invalid names include
           <source>Click "Force to close" to exit the application immediately, and all unsaved data will be lost</source>
           <target state="translated">單擊“強制關閉”立即退出應用程序，所有未保存的數據都將丟失</target>
         </trans-unit>
+        <trans-unit id="Properties_Details_CameraManufacturer" translate="yes" xml:space="preserve">
+          <source>Camera manufacturer</source>
+          <target state="translated">相機製造商</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_CameraModel" translate="yes" xml:space="preserve">
+          <source>Camera model</source>
+          <target state="translated">相機型號</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Latitude" translate="yes" xml:space="preserve">
+          <source>Latitude</source>
+          <target state="translated">緯度</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_Longitude" translate="yes" xml:space="preserve">
+          <source>Longitude</source>
+          <target state="translated">經度</target>
+        </trans-unit>
+        <trans-unit id="Properties_Details_PeopleNames" translate="yes" xml:space="preserve">
+          <source>People names</source>
+          <target state="translated">人名</target>
+        </trans-unit>
       </group>
     </body>
   </file>

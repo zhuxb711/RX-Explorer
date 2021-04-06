@@ -3015,4 +3015,19 @@ Las denominaciones no válidas son:
   <data name="Properties_Tools_UnlockFlyout_Text3.Text" xml:space="preserve">
     <value>Haga clic en "Fuerza para cerrar" para salir de la aplicación inmediatamente y se perderán todos los datos no guardados.</value>
   </data>
+  <data name="Properties_Details_CameraManufacturer" xml:space="preserve">
+    <value>Fabricante de la cámara</value>
+  </data>
+  <data name="Properties_Details_CameraModel" xml:space="preserve">
+    <value>Modelo de cámara</value>
+  </data>
+  <data name="Properties_Details_Latitude" xml:space="preserve">
+    <value>Latitud</value>
+  </data>
+  <data name="Properties_Details_Longitude" xml:space="preserve">
+    <value>Longitud</value>
+  </data>
+  <data name="Properties_Details_PeopleNames" xml:space="preserve">
+    <value>Nombres de personas</value>
+  </data>
 </root>
