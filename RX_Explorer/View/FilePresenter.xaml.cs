@@ -2966,493 +2966,73 @@ namespace RX_Explorer
                                 }
 
                                 string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(File.Type).ConfigureAwait(true);
+                                using FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController();
 
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+
+                                if (string.IsNullOrEmpty(AdminExecutablePath))
                                 {
-                                    if (!string.IsNullOrEmpty(AdminExecutablePath) && AdminExecutablePath != Package.Current.Id.FamilyName)
+                                    NavigationTransitionInfo info = AnimationController.Current.IsEnableAnimation ?
+                                        new DrillInNavigationTransitionInfo() :
+                                        new SuppressNavigationTransitionInfo();
+
+
+                                    switch (File.Type.ToLower())
                                     {
-                                        if (Path.IsPathRooted(AdminExecutablePath))
-                                        {
-                                            await Exclusive.Controller.RunAsync(AdminExecutablePath, Path.GetDirectoryName(AdminExecutablePath), WindowState.Normal, false, false, false, File.Path).ConfigureAwait(true);
-                                        }
-                                        else
-                                        {
-                                            if ((await Launcher.FindFileHandlersAsync(File.Type)).FirstOrDefault((Item) => Item.PackageFamilyName == AdminExecutablePath) is AppInfo Info)
+                                        case ".exe":
+                                        case ".bat":
+                                        case ".msi":
                                             {
-                                                if (await File.GetStorageItemAsync().ConfigureAwait(true) is StorageFile InnerFile)
+                                                await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path), WindowState.Normal, RunAsAdministrator).ConfigureAwait(true);
+                                                return;
+                                            }
+                                        case ".msc":
+                                            {
+                                                await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", File.Path).ConfigureAwait(true);
+                                                return;
+                                            }
+                                    }
+
+                                    if (!OpenFileInternally(File) && await File.GetStorageItemAsync() is StorageFile InnerFile)
+                                    {
+                                        await Launcher.LaunchFileAsync(InnerFile);
+                                        return;
+                                    }
+                                }
+
+
+
+                                if (!string.IsNullOrEmpty(AdminExecutablePath) && AdminExecutablePath != Package.Current.Id.FamilyName)
+                                {
+                                    if (Path.IsPathRooted(AdminExecutablePath))
+                                    {
+                                        await Exclusive.Controller.RunAsync(AdminExecutablePath, Path.GetDirectoryName(AdminExecutablePath), WindowState.Normal, false, false, false, File.Path).ConfigureAwait(true);
+                                    }
+                                    else
+                                    {
+                                        if ((await Launcher.FindFileHandlersAsync(File.Type)).FirstOrDefault((Item) => Item.PackageFamilyName == AdminExecutablePath) is AppInfo Info)
+                                        {
+                                            if (await File.GetStorageItemAsync().ConfigureAwait(true) is StorageFile InnerFile)
+                                            {
+                                                if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { TargetApplicationPackageFamilyName = Info.PackageFamilyName, DisplayApplicationPicker = false }))
                                                 {
-                                                    if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { TargetApplicationPackageFamilyName = Info.PackageFamilyName, DisplayApplicationPicker = false }))
-                                                    {
-                                                        ProgramPickerDialog Dialog = new ProgramPickerDialog(File);
-
-                                                        if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                                        {
-                                                            if (Dialog.SelectedProgram.Path == Package.Current.Id.FamilyName)
-                                                            {
-                                                                switch (File.Type.ToLower())
-                                                                {
-                                                                    case ".jpg":
-                                                                    case ".png":
-                                                                    case ".bmp":
-                                                                        {
-                                                                            if (AnimationController.Current.IsEnableAnimation)
-                                                                            {
-                                                                                Container.Frame.Navigate(typeof(PhotoViewer), File, new DrillInNavigationTransitionInfo());
-                                                                            }
-                                                                            else
-                                                                            {
-                                                                                Container.Frame.Navigate(typeof(PhotoViewer), File, new SuppressNavigationTransitionInfo());
-                                                                            }
-                                                                            break;
-                                                                        }
-                                                                    case ".mkv":
-                                                                    case ".mp4":
-                                                                    case ".mp3":
-                                                                    case ".flac":
-                                                                    case ".wma":
-                                                                    case ".wmv":
-                                                                    case ".m4a":
-                                                                    case ".mov":
-                                                                    case ".alac":
-                                                                        {
-                                                                            if (AnimationController.Current.IsEnableAnimation)
-                                                                            {
-                                                                                Container.Frame.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
-                                                                            }
-                                                                            else
-                                                                            {
-                                                                                Container.Frame.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
-                                                                            }
-                                                                            break;
-                                                                        }
-                                                                    case ".txt":
-                                                                        {
-                                                                            if (AnimationController.Current.IsEnableAnimation)
-                                                                            {
-                                                                                Container.Frame.Navigate(typeof(TextViewer), File, new DrillInNavigationTransitionInfo());
-                                                                            }
-                                                                            else
-                                                                            {
-                                                                                Container.Frame.Navigate(typeof(TextViewer), File, new SuppressNavigationTransitionInfo());
-                                                                            }
-                                                                            break;
-                                                                        }
-                                                                    case ".pdf":
-                                                                        {
-                                                                            if (AnimationController.Current.IsEnableAnimation)
-                                                                            {
-                                                                                Container.Frame.Navigate(typeof(PdfReader), File, new DrillInNavigationTransitionInfo());
-                                                                            }
-                                                                            else
-                                                                            {
-                                                                                Container.Frame.Navigate(typeof(PdfReader), File, new SuppressNavigationTransitionInfo());
-                                                                            }
-                                                                            break;
-                                                                        }
-                                                                }
-                                                            }
-                                                            else
-                                                            {
-                                                                if (Path.IsPathRooted(Dialog.SelectedProgram.Path))
-                                                                {
-                                                                    await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), WindowState.Normal, false, false, false, File.Path).ConfigureAwait(true);
-                                                                }
-                                                                else
-                                                                {
-                                                                    if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.Path, DisplayApplicationPicker = false }))
-                                                                    {
-                                                                        if (ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] is string ProgramExcute1)
-                                                                        {
-                                                                            ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] = ProgramExcute1.Replace($"{File.Type}|{File.Name};", string.Empty);
-                                                                        }
-
-                                                                        QueueContentDialog dialog = new QueueContentDialog
-                                                                        {
-                                                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                                                            Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
-                                                                            PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
-                                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                                                        };
-
-                                                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                                                        {
-                                                                            if (!await Launcher.LaunchFileAsync(InnerFile))
-                                                                            {
-                                                                                LauncherOptions options = new LauncherOptions
-                                                                                {
-                                                                                    DisplayApplicationPicker = true
-                                                                                };
-                                                                                _ = await Launcher.LaunchFileAsync(InnerFile, options);
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    QueueContentDialog Dialog = new QueueContentDialog
-                                                    {
-                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                        Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
-                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                    };
-
-                                                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                                                    await OpenFileWithProgramPicker(File, Exclusive);
                                                 }
                                             }
                                             else
                                             {
-                                                ProgramPickerDialog Dialog = new ProgramPickerDialog(File);
-
-                                                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                                QueueContentDialog Dialog = new QueueContentDialog
                                                 {
-                                                    if (Dialog.SelectedProgram.Path == Package.Current.Id.FamilyName)
-                                                    {
-                                                        switch (File.Type.ToLower())
-                                                        {
-                                                            case ".jpg":
-                                                            case ".png":
-                                                            case ".bmp":
-                                                                {
-                                                                    if (AnimationController.Current.IsEnableAnimation)
-                                                                    {
-                                                                        Container.Frame.Navigate(typeof(PhotoViewer), File, new DrillInNavigationTransitionInfo());
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        Container.Frame.Navigate(typeof(PhotoViewer), File, new SuppressNavigationTransitionInfo());
-                                                                    }
-                                                                    break;
-                                                                }
-                                                            case ".mkv":
-                                                            case ".mp4":
-                                                            case ".mp3":
-                                                            case ".flac":
-                                                            case ".wma":
-                                                            case ".wmv":
-                                                            case ".m4a":
-                                                            case ".mov":
-                                                                {
-                                                                    if (AnimationController.Current.IsEnableAnimation)
-                                                                    {
-                                                                        Container.Frame.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        Container.Frame.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
-                                                                    }
-                                                                    break;
-                                                                }
-                                                            case ".txt":
-                                                                {
-                                                                    if (AnimationController.Current.IsEnableAnimation)
-                                                                    {
-                                                                        Container.Frame.Navigate(typeof(TextViewer), File, new DrillInNavigationTransitionInfo());
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        Container.Frame.Navigate(typeof(TextViewer), File, new SuppressNavigationTransitionInfo());
-                                                                    }
-                                                                    break;
-                                                                }
-                                                            case ".pdf":
-                                                                {
-                                                                    if (AnimationController.Current.IsEnableAnimation)
-                                                                    {
-                                                                        Container.Frame.Navigate(typeof(PdfReader), File, new DrillInNavigationTransitionInfo());
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        Container.Frame.Navigate(typeof(PdfReader), File, new SuppressNavigationTransitionInfo());
-                                                                    }
-                                                                    break;
-                                                                }
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        if (Path.IsPathRooted(Dialog.SelectedProgram.Path))
-                                                        {
-                                                            await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), WindowState.Normal, false, false, false, File.Path).ConfigureAwait(true);
-                                                        }
-                                                        else
-                                                        {
-                                                            if (await File.GetStorageItemAsync().ConfigureAwait(true) is StorageFile InnerFile)
-                                                            {
-                                                                if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.Path, DisplayApplicationPicker = false }))
-                                                                {
-                                                                    if (ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] is string ProgramExcute1)
-                                                                    {
-                                                                        ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] = ProgramExcute1.Replace($"{File.Type}|{File.Name};", string.Empty);
-                                                                    }
+                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                };
 
-                                                                    QueueContentDialog dialog = new QueueContentDialog
-                                                                    {
-                                                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                                                        Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
-                                                                        PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
-                                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                                                    };
-
-                                                                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                                                    {
-                                                                        if (!await Launcher.LaunchFileAsync(InnerFile))
-                                                                        {
-                                                                            LauncherOptions options = new LauncherOptions
-                                                                            {
-                                                                                DisplayApplicationPicker = true
-                                                                            };
-                                                                            _ = await Launcher.LaunchFileAsync(InnerFile, options);
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                            else
-                                                            {
-                                                                QueueContentDialog dialog = new QueueContentDialog
-                                                                {
-                                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                                    Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
-                                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                                };
-
-                                                                _ = await dialog.ShowAsync().ConfigureAwait(true);
-                                                            }
-                                                        }
-                                                    }
-                                                }
+                                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
                                             }
                                         }
-                                    }
-                                    else
-                                    {
-                                        switch (File.Type.ToLower())
+                                        else
                                         {
-                                            case ".jpg":
-                                            case ".png":
-                                            case ".bmp":
-                                                {
-                                                    if (AnimationController.Current.IsEnableAnimation)
-                                                    {
-                                                        Container.Frame.Navigate(typeof(PhotoViewer), File, new DrillInNavigationTransitionInfo());
-                                                    }
-                                                    else
-                                                    {
-                                                        Container.Frame.Navigate(typeof(PhotoViewer), File, new SuppressNavigationTransitionInfo());
-                                                    }
-                                                    break;
-                                                }
-                                            case ".mkv":
-                                            case ".mp4":
-                                            case ".mp3":
-                                            case ".flac":
-                                            case ".wma":
-                                            case ".wmv":
-                                            case ".m4a":
-                                            case ".mov":
-                                                {
-                                                    if (AnimationController.Current.IsEnableAnimation)
-                                                    {
-                                                        Container.Frame.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
-                                                    }
-                                                    else
-                                                    {
-                                                        Container.Frame.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
-                                                    }
-                                                    break;
-                                                }
-                                            case ".txt":
-                                                {
-                                                    if (AnimationController.Current.IsEnableAnimation)
-                                                    {
-                                                        Container.Frame.Navigate(typeof(TextViewer), File, new DrillInNavigationTransitionInfo());
-                                                    }
-                                                    else
-                                                    {
-                                                        Container.Frame.Navigate(typeof(TextViewer), File, new SuppressNavigationTransitionInfo());
-                                                    }
-                                                    break;
-                                                }
-                                            case ".pdf":
-                                                {
-                                                    if (AnimationController.Current.IsEnableAnimation)
-                                                    {
-                                                        Container.Frame.Navigate(typeof(PdfReader), File, new DrillInNavigationTransitionInfo());
-                                                    }
-                                                    else
-                                                    {
-                                                        Container.Frame.Navigate(typeof(PdfReader), File, new SuppressNavigationTransitionInfo());
-                                                    }
-                                                    break;
-                                                }
-                                            case ".lnk":
-                                                {
-                                                    if (File is LinkStorageFile Item)
-                                                    {
-                                                        if (Item.LinkType == ShellLinkType.Normal)
-                                                        {
-                                                            switch (await FileSystemStorageItemBase.OpenAsync(Item.LinkTargetPath).ConfigureAwait(true))
-                                                            {
-                                                                case FileSystemStorageFolder:
-                                                                    {
-                                                                        await DisplayItemsInFolder(Item.LinkTargetPath).ConfigureAwait(true);
-                                                                        break;
-                                                                    }
-                                                                case FileSystemStorageFile:
-                                                                    {
-                                                                        await Item.LaunchAsync().ConfigureAwait(true);
-                                                                        break;
-                                                                    }
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            await Item.LaunchAsync().ConfigureAwait(true);
-                                                        }
-                                                    }
-
-                                                    break;
-                                                }
-                                            case ".exe":
-                                            case ".bat":
-                                            case ".msi":
-                                                {
-                                                    await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path), WindowState.Normal, RunAsAdministrator).ConfigureAwait(true);
-
-                                                    break;
-                                                }
-                                            case ".msc":
-                                                {
-                                                    await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", File.Path).ConfigureAwait(true);
-
-                                                    break;
-                                                }
-                                            default:
-                                                {
-                                                    ProgramPickerDialog Dialog = new ProgramPickerDialog(File);
-
-                                                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                                    {
-                                                        if (Dialog.SelectedProgram.Path == Package.Current.Id.FamilyName)
-                                                        {
-                                                            switch (File.Type.ToLower())
-                                                            {
-                                                                case ".jpg":
-                                                                case ".png":
-                                                                case ".bmp":
-                                                                    {
-                                                                        if (AnimationController.Current.IsEnableAnimation)
-                                                                        {
-                                                                            Container.Frame.Navigate(typeof(PhotoViewer), File, new DrillInNavigationTransitionInfo());
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            Container.Frame.Navigate(typeof(PhotoViewer), File, new SuppressNavigationTransitionInfo());
-                                                                        }
-                                                                        break;
-                                                                    }
-                                                                case ".mkv":
-                                                                case ".mp4":
-                                                                case ".mp3":
-                                                                case ".flac":
-                                                                case ".wma":
-                                                                case ".wmv":
-                                                                case ".m4a":
-                                                                case ".mov":
-                                                                    {
-                                                                        if (AnimationController.Current.IsEnableAnimation)
-                                                                        {
-                                                                            Container.Frame.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            Container.Frame.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
-                                                                        }
-                                                                        break;
-                                                                    }
-                                                                case ".txt":
-                                                                    {
-                                                                        if (AnimationController.Current.IsEnableAnimation)
-                                                                        {
-                                                                            Container.Frame.Navigate(typeof(TextViewer), File, new DrillInNavigationTransitionInfo());
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            Container.Frame.Navigate(typeof(TextViewer), File, new SuppressNavigationTransitionInfo());
-                                                                        }
-                                                                        break;
-                                                                    }
-                                                                case ".pdf":
-                                                                    {
-                                                                        if (AnimationController.Current.IsEnableAnimation)
-                                                                        {
-                                                                            Container.Frame.Navigate(typeof(PdfReader), File, new DrillInNavigationTransitionInfo());
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            Container.Frame.Navigate(typeof(PdfReader), File, new SuppressNavigationTransitionInfo());
-                                                                        }
-                                                                        break;
-                                                                    }
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            if (Path.IsPathRooted(Dialog.SelectedProgram.Path))
-                                                            {
-                                                                await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), WindowState.Normal, false, false, false, File.Path).ConfigureAwait(true);
-                                                            }
-                                                            else
-                                                            {
-                                                                if (await File.GetStorageItemAsync().ConfigureAwait(true) is StorageFile InnerFile)
-                                                                {
-                                                                    if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.Path, DisplayApplicationPicker = false }))
-                                                                    {
-                                                                        if (ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] is string ProgramExcute1)
-                                                                        {
-                                                                            ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] = ProgramExcute1.Replace($"{File.Type}|{File.Name};", string.Empty);
-                                                                        }
-
-                                                                        QueueContentDialog dialog = new QueueContentDialog
-                                                                        {
-                                                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                                                            Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
-                                                                            PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
-                                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                                                        };
-
-                                                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                                                        {
-                                                                            if (!await Launcher.LaunchFileAsync(InnerFile))
-                                                                            {
-                                                                                LauncherOptions options = new LauncherOptions
-                                                                                {
-                                                                                    DisplayApplicationPicker = true
-                                                                                };
-                                                                                _ = await Launcher.LaunchFileAsync(InnerFile, options);
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                                else
-                                                                {
-                                                                    QueueContentDialog dialog = new QueueContentDialog
-                                                                    {
-                                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                                        Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
-                                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                                    };
-
-                                                                    _ = await dialog.ShowAsync().ConfigureAwait(true);
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                    break;
-                                                }
+                                            await OpenFileWithProgramPicker(File, Exclusive);
                                         }
                                     }
                                 }
@@ -3502,6 +3082,134 @@ namespace RX_Explorer
                 }
             }
         }
+
+        private bool OpenFileInternally(FileSystemStorageFile File)
+        {
+            switch (File.Type.ToLower())
+            {
+                case ".jpg":
+                case ".png":
+                case ".bmp":
+                    {
+                        if (AnimationController.Current.IsEnableAnimation)
+                        {
+                            Container.Frame.Navigate(typeof(PhotoViewer), File, new DrillInNavigationTransitionInfo());
+                        }
+                        else
+                        {
+                            Container.Frame.Navigate(typeof(PhotoViewer), File, new SuppressNavigationTransitionInfo());
+                        }
+                        return true;
+                    }
+                case ".mkv":
+                case ".mp4":
+                case ".mp3":
+                case ".flac":
+                case ".wma":
+                case ".wmv":
+                case ".m4a":
+                case ".mov":
+                case ".alac":
+                    {
+                        if (AnimationController.Current.IsEnableAnimation)
+                        {
+                            Container.Frame.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
+                        }
+                        else
+                        {
+                            Container.Frame.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
+                        }
+                        return true;
+                    }
+                case ".txt":
+                    {
+                        if (AnimationController.Current.IsEnableAnimation)
+                        {
+                            Container.Frame.Navigate(typeof(TextViewer), File, new DrillInNavigationTransitionInfo());
+                        }
+                        else
+                        {
+                            Container.Frame.Navigate(typeof(TextViewer), File, new SuppressNavigationTransitionInfo());
+                        }
+                        return true;
+                    }
+                case ".pdf":
+                    {
+                        if (AnimationController.Current.IsEnableAnimation)
+                        {
+                            Container.Frame.Navigate(typeof(PdfReader), File, new DrillInNavigationTransitionInfo());
+                        }
+                        else
+                        {
+                            Container.Frame.Navigate(typeof(PdfReader), File, new SuppressNavigationTransitionInfo());
+                        }
+                        return false;
+                    }
+            }
+
+            return false;
+        }
+
+        private async Task OpenFileWithProgramPicker(FileSystemStorageFile File, FullTrustProcessController.ExclusiveUsage? Exclusive = null)
+        {
+            var Dialog = new ProgramPickerDialog(File);
+
+            if (await Dialog.ShowAsync().ConfigureAwait(true) != ContentDialogResult.Primary)
+            {
+                return;
+            }
+
+            if (Dialog.SelectedProgram.Path == Package.Current.Id.FamilyName)
+            {
+                OpenFileInternally(File);
+            }
+            else
+            {
+                Exclusive ??= await FullTrustProcessController.GetAvailableController();
+
+                if (Path.IsPathRooted(Dialog.SelectedProgram.Path))
+                {
+                    await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), WindowState.Normal, false, false, false, File.Path).ConfigureAwait(true);
+                    return;
+                }
+
+
+                if (await File.GetStorageItemAsync() is not IStorageFile InnerFile)
+                    return;
+
+                if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.Path, DisplayApplicationPicker = false }))
+                {
+                    if (ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] is string ProgramExcute1)
+                    {
+                        ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] = ProgramExcute1.Replace($"{File.Type}|{File.Name};", string.Empty);
+                    }
+
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                        Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
+                        PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                    };
+
+                    if (await dialog.ShowAsync().ConfigureAwait(true) != ContentDialogResult.Primary)
+                    {
+                        return;
+                    }
+
+                    if (!await Launcher.LaunchFileAsync(InnerFile))
+                    {
+                        LauncherOptions options = new LauncherOptions
+                        {
+                            DisplayApplicationPicker = true
+                        };
+                        _ = await Launcher.LaunchFileAsync(InnerFile, options);
+                    }
+                }
+            }
+        }
+
+
 
         private async void VideoEdit_Click(object sender, RoutedEventArgs e)
         {
@@ -3587,143 +3295,7 @@ namespace RX_Explorer
 
             if (SelectedItem is FileSystemStorageFile File)
             {
-                ProgramPickerDialog Dialog = new ProgramPickerDialog(File);
-
-                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                {
-                    if (Dialog.SelectedProgram.Path == Package.Current.Id.FamilyName)
-                    {
-                        switch (File.Type.ToLower())
-                        {
-                            case ".jpg":
-                            case ".png":
-                            case ".bmp":
-                                {
-                                    if (AnimationController.Current.IsEnableAnimation)
-                                    {
-                                        Container.Frame.Navigate(typeof(PhotoViewer), File, new DrillInNavigationTransitionInfo());
-                                    }
-                                    else
-                                    {
-                                        Container.Frame.Navigate(typeof(PhotoViewer), File, new SuppressNavigationTransitionInfo());
-                                    }
-                                    break;
-                                }
-                            case ".mkv":
-                            case ".mp4":
-                            case ".mp3":
-                            case ".flac":
-                            case ".wma":
-                            case ".wmv":
-                            case ".m4a":
-                            case ".mov":
-                                {
-                                    if (AnimationController.Current.IsEnableAnimation)
-                                    {
-                                        Container.Frame.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
-                                    }
-                                    else
-                                    {
-                                        Container.Frame.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
-                                    }
-                                    break;
-                                }
-                            case ".txt":
-                                {
-                                    if (AnimationController.Current.IsEnableAnimation)
-                                    {
-                                        Container.Frame.Navigate(typeof(TextViewer), File, new DrillInNavigationTransitionInfo());
-                                    }
-                                    else
-                                    {
-                                        Container.Frame.Navigate(typeof(TextViewer), File, new SuppressNavigationTransitionInfo());
-                                    }
-                                    break;
-                                }
-                            case ".pdf":
-                                {
-                                    if (AnimationController.Current.IsEnableAnimation)
-                                    {
-                                        Container.Frame.Navigate(typeof(PdfReader), File, new DrillInNavigationTransitionInfo());
-                                    }
-                                    else
-                                    {
-                                        Container.Frame.Navigate(typeof(PdfReader), File, new SuppressNavigationTransitionInfo());
-                                    }
-                                    break;
-                                }
-                        }
-                    }
-                    else
-                    {
-                        if (Path.IsPathRooted(Dialog.SelectedProgram.Path))
-                        {
-                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                            {
-                                try
-                                {
-                                    await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), WindowState.Normal, false, false, false, File.Path).ConfigureAwait(true);
-                                }
-                                catch (Exception)
-                                {
-                                    QueueContentDialog dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-
-                                    await dialog.ShowAsync().ConfigureAwait(true);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if ((await File.GetStorageItemAsync().ConfigureAwait(true)) is StorageFile InnerFile)
-                            {
-                                if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.Path, DisplayApplicationPicker = false }))
-                                {
-                                    if (ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] is string ProgramExcute)
-                                    {
-                                        ApplicationData.Current.LocalSettings.Values["AdminProgramForExcute"] = ProgramExcute.Replace($"{InnerFile.FileType}|{InnerFile.Name};", string.Empty);
-                                    }
-
-                                    QueueContentDialog dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                        Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
-                                        PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                    };
-
-                                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                    {
-                                        if (!await Launcher.LaunchFileAsync(InnerFile))
-                                        {
-                                            LauncherOptions Options = new LauncherOptions
-                                            {
-                                                DisplayApplicationPicker = true
-                                            };
-
-                                            _ = await Launcher.LaunchFileAsync(InnerFile, Options);
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                _ = await dialog.ShowAsync().ConfigureAwait(true);
-                            }
-                        }
-                    }
-                }
+                await OpenFileWithProgramPicker(File);
             }
         }
 
@@ -5604,7 +5176,7 @@ namespace RX_Explorer
                         DecompressionOption1.Click += DecompressOption_Click;
                         DecompressionFlyout.Items.Add(DecompressionOption1);
 
-                        MenuFlyoutItem DecompressionOption2= new MenuFlyoutItem
+                        MenuFlyoutItem DecompressionOption2 = new MenuFlyoutItem
                         {
                             Text = Globalization.GetString("DecompressHere/Text"),
                             MinWidth = 150,

@@ -79,7 +79,7 @@ namespace RX_Explorer.Dialog
                                     BitmapImage Image = new BitmapImage();
                                     await Image.SetSourceAsync(Stream);
 
-                                    RecommandList.Add(new ProgramPickerItem(Image, Info.DisplayInfo.DisplayName, Info.DisplayInfo.Description, Info.PackageFamilyName));
+                                    ProgramCollection.Add(new ProgramPickerItem(Image, Info.DisplayInfo.DisplayName, Info.DisplayInfo.Description, Info.PackageFamilyName));
                                 }
                             }
                         }
@@ -130,7 +130,7 @@ namespace RX_Explorer.Dialog
 
                                     if (Package.IsRecommanded)
                                     {
-                                        RecommandList.Add(new ProgramPickerItem(ThumbnailBitmap, string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path));
+                                        ProgramCollection.Add(new ProgramPickerItem(ThumbnailBitmap, string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path));
                                     }
                                     else
                                     {
@@ -143,7 +143,7 @@ namespace RX_Explorer.Dialog
                         {
                             if (Package.IsRecommanded)
                             {
-                                RecommandList.Add(new ProgramPickerItem(new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? new Uri("ms-appx:///Assets/Page_Solid_White.png") : new Uri("ms-appx:///Assets/Page_Solid_Black.png")), string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path));
+                                ProgramCollection.Add(new ProgramPickerItem(new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? new Uri("ms-appx:///Assets/Page_Solid_White.png") : new Uri("ms-appx:///Assets/Page_Solid_Black.png")), string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path));
                             }
                             else
                             {
@@ -258,7 +258,7 @@ namespace RX_Explorer.Dialog
                 }
             }
 
-            if (RecommandList.Count == 0)
+            if (ProgramCollection.Count == 0)
             {
                 ShowMore.Visibility = Visibility.Collapsed;
 
