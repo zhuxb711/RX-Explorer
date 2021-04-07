@@ -3109,21 +3109,16 @@ namespace RX_Explorer
 
         private bool OpenFileInternally(FileSystemStorageFile File)
         {
+            Type internalType = null;
+
             switch (File.Type.ToLower())
             {
                 case ".jpg":
                 case ".png":
                 case ".bmp":
                     {
-                        if (AnimationController.Current.IsEnableAnimation)
-                        {
-                            Container.Frame.Navigate(typeof(PhotoViewer), File, new DrillInNavigationTransitionInfo());
-                        }
-                        else
-                        {
-                            Container.Frame.Navigate(typeof(PhotoViewer), File, new SuppressNavigationTransitionInfo());
-                        }
-                        return true;
+                        internalType = typeof(PhotoViewer);
+                        break;
                     }
                 case ".mkv":
                 case ".mp4":
@@ -3135,40 +3130,27 @@ namespace RX_Explorer
                 case ".mov":
                 case ".alac":
                     {
-                        if (AnimationController.Current.IsEnableAnimation)
-                        {
-                            Container.Frame.Navigate(typeof(MediaPlayer), File, new DrillInNavigationTransitionInfo());
-                        }
-                        else
-                        {
-                            Container.Frame.Navigate(typeof(MediaPlayer), File, new SuppressNavigationTransitionInfo());
-                        }
-                        return true;
+                        internalType = typeof(MediaPlayer);
+                        break;
                     }
                 case ".txt":
                     {
-                        if (AnimationController.Current.IsEnableAnimation)
-                        {
-                            Container.Frame.Navigate(typeof(TextViewer), File, new DrillInNavigationTransitionInfo());
-                        }
-                        else
-                        {
-                            Container.Frame.Navigate(typeof(TextViewer), File, new SuppressNavigationTransitionInfo());
-                        }
-                        return true;
+                        internalType = typeof(TextViewer);
+                        break;
                     }
                 case ".pdf":
                     {
-                        if (AnimationController.Current.IsEnableAnimation)
-                        {
-                            Container.Frame.Navigate(typeof(PdfReader), File, new DrillInNavigationTransitionInfo());
-                        }
-                        else
-                        {
-                            Container.Frame.Navigate(typeof(PdfReader), File, new SuppressNavigationTransitionInfo());
-                        }
-                        return true;
+                        internalType = typeof(PdfReader);
+                        break;
                     }
+            }
+
+            if (internalType is not null)
+            {
+                NavigationTransitionInfo info = AnimationController.Current.IsEnableAnimation ?
+                                                    new DrillInNavigationTransitionInfo() :
+                                                    new SuppressNavigationTransitionInfo();
+                Container.Frame.Navigate(internalType, File, info);
             }
 
             return false;
