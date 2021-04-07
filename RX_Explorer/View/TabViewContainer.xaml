@@ -27,40 +27,96 @@
         </muxc:CommandBarFlyout>
     </Page.Resources>
 
-    <Grid>
-        <muxc:TabView TabWidthMode="Equal"
-                      Name="TabViewControl"
-                      VerticalAlignment="Stretch"
-                      TabItemsSource="{x:Bind TabCollection}"
-                      AllowDropTabs="True"
-                      AllowDrop="True"
-                      CanDragTabs="True"
-                      RightTapped="TabViewControl_RightTapped"
-                      PointerWheelChanged="TabViewControl_PointerWheelChanged"
-                      TabStripDragOver="TabViewControl_TabStripDragOver"
-                      TabStripDrop="TabViewControl_TabStripDrop"
-                      TabDragCompleted="TabViewControl_TabDragCompleted"
-                      TabDragStarting="TabViewControl_TabDragStarting"
-                      SelectionChanged="TabViewControl_SelectionChanged"
-                      TabCloseRequested="TabViewControl_TabCloseRequested"
-                      TabDroppedOutside="TabViewControl_TabDroppedOutside"
-                      AddTabButtonClick="TabViewControl_AddTabButtonClick">
-            <muxc:TabView.Resources>
-                <SolidColorBrush x:Key="TabViewBackground"
-                                 Color="Transparent" />
-                <AcrylicBrush x:Key="TabViewItemHeaderBackgroundSelected"
-                              BackgroundSource="Backdrop"
-                              TintLuminosityOpacity="0.5"
-                              TintColor="{ThemeResource SystemAltMediumColor}"
-                              FallbackColor="{ThemeResource SystemAccentColor}" />
-            </muxc:TabView.Resources>
-        </muxc:TabView>
-        <controls:InAppNotification StackMode="Replace"
-                                    Name="Notification"
-                                    MinWidth="300"
-                                    x:FieldModifier="public"
-                                    ShowDismissButton="False"
-                                    HorizontalAlignment="Center" />
+    <SplitView DisplayMode="Overlay"
+               PanePlacement="Right"
+               Name="TaskListPanel"
+               PaneBackground="{ThemeResource ElementAcrylicBrush}">
+        <Grid>
+            <muxc:TabView TabWidthMode="Equal"
+                          Name="TabViewControl"
+                          VerticalAlignment="Stretch"
+                          TabItemsSource="{x:Bind TabCollection}"
+                          AllowDropTabs="True"
+                          AllowDrop="True"
+                          CanDragTabs="True"
+                          RightTapped="TabViewControl_RightTapped"
+                          PointerWheelChanged="TabViewControl_PointerWheelChanged"
+                          TabStripDragOver="TabViewControl_TabStripDragOver"
+                          TabStripDrop="TabViewControl_TabStripDrop"
+                          TabDragCompleted="TabViewControl_TabDragCompleted"
+                          TabDragStarting="TabViewControl_TabDragStarting"
+                          SelectionChanged="TabViewControl_SelectionChanged"
+                          TabCloseRequested="TabViewControl_TabCloseRequested"
+                          TabDroppedOutside="TabViewControl_TabDroppedOutside"
+                          AddTabButtonClick="TabViewControl_AddTabButtonClick">
+                <muxc:TabView.Resources>
+                    <SolidColorBrush x:Key="TabViewBackground"
+                                     Color="Transparent" />
+                    <AcrylicBrush x:Key="TabViewItemHeaderBackgroundSelected"
+                                  BackgroundSource="Backdrop"
+                                  TintLuminosityOpacity="0.5"
+                                  TintColor="{ThemeResource SystemAltMediumColor}"
+                                  FallbackColor="{ThemeResource SystemAccentColor}" />
+                </muxc:TabView.Resources>
+                <muxc:TabView.TabStripFooter>
+                    <Button HorizontalAlignment="Right"
+                            VerticalAlignment="Bottom"
+                            Background="Transparent"
+                            Height="32"
+                            Name="TaskListPanelButton"
+                            Click="TaskListPanelButton_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Viewbox>
+                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                          Glyph="&#xF0E3;" />
+                            </Viewbox>
+                            <TextBlock Text="任务列表"
+                                       Margin="5,0,0,0" />
+                        </StackPanel>
+                    </Button>
+                </muxc:TabView.TabStripFooter>
+            </muxc:TabView>
+            <controls:InAppNotification StackMode="Replace"
+                                        Name="Notification"
+                                        MinWidth="300"
+                                        x:FieldModifier="public"
+                                        ShowDismissButton="False"
+                                        HorizontalAlignment="Center" />
 
-    </Grid>
+        </Grid>
+
+        <SplitView.Pane>
+            <Grid Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <TextBlock Text="正在进行中的任务"
+                           FontSize="16"
+                           VerticalAlignment="Center"/>
+                <ListView Grid.Row="1"
+                          Margin="0,5,0,0">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <TextBlock />
+                                <TextBlock Margin="0,5,0,0"/>
+                                <TextBlock Margin="0,5,0,0"/>
+                                <RelativePanel Margin="0,5,0,0">
+                                    <muxc:ProgressBar RelativePanel.AlignLeftWithPanel="True"
+                                                      RelativePanel.RightOf="ProgressText"
+                                                      RelativePanel.AlignVerticalCenterWithPanel="True"/>
+                                    <TextBlock x:Name="ProgressText"
+                                               Margin="5,0,0,0"
+                                               RelativePanel.AlignVerticalCenterWithPanel="True"
+                                               RelativePanel.AlignRightWithPanel="True"/>
+                                </RelativePanel>
+                                <TextBlock Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
+        </SplitView.Pane>
+    </SplitView>
 </Page>
