@@ -2970,11 +2970,6 @@ namespace RX_Explorer
 
                                 if (string.IsNullOrEmpty(AdminExecutablePath) || AdminExecutablePath == Package.Current.Id.FamilyName)
                                 {
-                                    NavigationTransitionInfo info = AnimationController.Current.IsEnableAnimation ?
-                                        new DrillInNavigationTransitionInfo() :
-                                        new SuppressNavigationTransitionInfo();
-
-
                                     switch (File.Type.ToLower())
                                     {
                                         case ".exe":
