@@ -3109,41 +3109,17 @@ namespace RX_Explorer
 
         private bool OpenFileInternally(FileSystemStorageFile File)
         {
-            Type internalType = null;
-
-            switch (File.Type.ToLower())
+            Type internalType = File.Type.ToLower() switch
             {
-                case ".jpg":
-                case ".png":
-                case ".bmp":
-                    {
-                        internalType = typeof(PhotoViewer);
-                        break;
-                    }
-                case ".mkv":
-                case ".mp4":
-                case ".mp3":
-                case ".flac":
-                case ".wma":
-                case ".wmv":
-                case ".m4a":
-                case ".mov":
-                case ".alac":
-                    {
-                        internalType = typeof(MediaPlayer);
-                        break;
-                    }
-                case ".txt":
-                    {
-                        internalType = typeof(TextViewer);
-                        break;
-                    }
-                case ".pdf":
-                    {
-                        internalType = typeof(PdfReader);
-                        break;
-                    }
-            }
+                ".jdg" or ".png" or ".bmp" => typeof(PhotoViewer),
+                ".mkv" or ".mp4" or ".mp3" or
+                ".flac" or ".wma" or ".wmv" or
+                ".m4a" or ".mov" or ".alac" => typeof(MediaPlayer),
+                ".txt" => typeof(TextViewer),
+                ".pdf" => typeof(PdfReader),
+                _ => null
+            };
+
 
             if (internalType is not null)
             {
