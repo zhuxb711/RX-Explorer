@@ -162,7 +162,6 @@ namespace RX_Explorer.Dialog
                 }
             }
 
-
             string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(OpenFile.Type).ConfigureAwait(true);
 
             if (!string.IsNullOrEmpty(AdminExecutablePath))

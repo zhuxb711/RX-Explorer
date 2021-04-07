@@ -2966,100 +2966,124 @@ namespace RX_Explorer
                                     return;
                                 }
 
-                                string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(File.Type).ConfigureAwait(true);
-
-
-                                if (string.IsNullOrEmpty(AdminExecutablePath) || AdminExecutablePath == Package.Current.Id.FamilyName)
+                                switch (File.Type.ToLower())
                                 {
-                                    switch (File.Type.ToLower())
-                                    {
-                                        case ".exe":
-                                        case ".bat":
-                                        case ".msi":
+                                    case ".exe":
+                                    case ".bat":
+                                    case ".msi":
+                                        {
+                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                             {
-                                                using FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController();
                                                 await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path), WindowState.Normal, RunAsAdministrator).ConfigureAwait(true);
-                                                return;
                                             }
-                                        case ".msc":
-                                            {
-                                                using FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController();
-                                                await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", File.Path).ConfigureAwait(true);
-                                                return;
-                                            }
-                                        case ".lnk":
-                                            {
-                                                if (File is not LinkStorageFile Item)
-                                                {
-                                                    break;
-                                                }
 
-                                                if (Item.LinkType != ShellLinkType.Normal)
+                                            break;
+                                        }
+                                    case ".msc":
+                                        {
+                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                            {
+                                                await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", File.Path).ConfigureAwait(true);
+                                            }
+
+                                            break;
+                                        }
+                                    case ".lnk":
+                                        {
+                                            if (File is LinkStorageFile Item)
+                                            {
+                                                if (Item.LinkType == ShellLinkType.Normal)
+                                                {
+                                                    switch (await FileSystemStorageItemBase.OpenAsync(Item.LinkTargetPath).ConfigureAwait(true))
+                                                    {
+                                                        case FileSystemStorageFolder:
+                                                            {
+                                                                await DisplayItemsInFolder(Item.LinkTargetPath).ConfigureAwait(true);
+                                                                break;
+                                                            }
+                                                        case FileSystemStorageFile:
+                                                            {
+                                                                await Item.LaunchAsync().ConfigureAwait(true);
+                                                                break;
+                                                            }
+                                                    }
+                                                }
+                                                else
                                                 {
                                                     await Item.LaunchAsync().ConfigureAwait(true);
-                                                    return;
                                                 }
-
-                                                switch (await FileSystemStorageItemBase.OpenAsync(Item.LinkTargetPath).ConfigureAwait(true))
-                                                {
-                                                    case FileSystemStorageFolder:
-                                                        {
-                                                            await DisplayItemsInFolder(Item.LinkTargetPath).ConfigureAwait(true);
-                                                            break;
-                                                        }
-                                                    case FileSystemStorageFile:
-                                                        {
-                                                            await Item.LaunchAsync().ConfigureAwait(true);
-                                                            break;
-                                                        }
-                                                }
-
-                                                break;
                                             }
-                                        default:
-                                            if (!OpenFileInternally(File) && await File.GetStorageItemAsync() is StorageFile InnerFile)
-                                            {
-                                                using var Exclusive = await FullTrustProcessController.GetAvailableController();
-                                                await Exclusive.Controller.RunAsync(File.Path, "");
-                                                return;
-                                            }
+
                                             break;
-                                    }
-                                }
-
-
-
-                                if (Path.IsPathRooted(AdminExecutablePath))
-                                {
-                                    using FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController();
-                                    await Exclusive.Controller.RunAsync(AdminExecutablePath, Path.GetDirectoryName(AdminExecutablePath), WindowState.Normal, false, false, false, File.Path).ConfigureAwait(true);
-                                    return;
-                                }
-
-                                if ((await Launcher.FindFileHandlersAsync(File.Type)).FirstOrDefault((Item) => Item.PackageFamilyName == AdminExecutablePath) is AppInfo Info)
-                                {
-                                    if (await File.GetStorageItemAsync().ConfigureAwait(true) is StorageFile InnerFile)
-                                    {
-                                        if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { TargetApplicationPackageFamilyName = Info.PackageFamilyName, DisplayApplicationPicker = false }))
-                                        {
-                                            await OpenFileWithProgramPicker(File);
                                         }
-                                    }
-                                    else
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
+                                    default:
                                         {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
+                                            string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(File.Type).ConfigureAwait(true);
 
-                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                                    }
-                                }
-                                else
-                                {
-                                    await OpenFileWithProgramPicker(File);
+                                            if (string.IsNullOrEmpty(AdminExecutablePath) || AdminExecutablePath == Package.Current.Id.FamilyName)
+                                            {
+                                                if (!TryOpenInternally(File))
+                                                {
+                                                    if (await File.GetStorageItemAsync() is StorageFile SFile)
+                                                    {
+                                                        if (!await Launcher.LaunchFileAsync(SFile))
+                                                        {
+                                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                                            {
+                                                                await Exclusive.Controller.RunAsync(File.Path, string.Empty);
+                                                            }
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                                        {
+                                                            await Exclusive.Controller.RunAsync(File.Path, string.Empty);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if (Path.IsPathRooted(AdminExecutablePath))
+                                                {
+                                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                                    {
+                                                        await Exclusive.Controller.RunAsync(AdminExecutablePath, Path.GetDirectoryName(AdminExecutablePath), Parameters: File.Path).ConfigureAwait(true);
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    if ((await Launcher.FindFileHandlersAsync(File.Type)).FirstOrDefault((Item) => Item.PackageFamilyName == AdminExecutablePath) is AppInfo Info)
+                                                    {
+                                                        if (await File.GetStorageItemAsync().ConfigureAwait(true) is StorageFile InnerFile)
+                                                        {
+                                                            if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { TargetApplicationPackageFamilyName = Info.PackageFamilyName, DisplayApplicationPicker = false }))
+                                                            {
+                                                                await OpenFileWithProgramPicker(File);
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            QueueContentDialog Dialog = new QueueContentDialog
+                                                            {
+                                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                                Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
+                                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                            };
+
+                                                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        await OpenFileWithProgramPicker(File);
+                                                    }
+                                                }
+                                            }
+
+                                            break;
+                                        }
                                 }
 
                                 break;
@@ -3108,9 +3132,9 @@ namespace RX_Explorer
             }
         }
 
-        private bool OpenFileInternally(FileSystemStorageFile File)
+        private bool TryOpenInternally(FileSystemStorageFile File)
         {
-            Type internalType = File.Type.ToLower() switch
+            Type InternalType = File.Type.ToLower() switch
             {
                 ".jdg" or ".png" or ".bmp" => typeof(PhotoViewer),
                 ".mkv" or ".mp4" or ".mp3" or
@@ -3122,71 +3146,65 @@ namespace RX_Explorer
             };
 
 
-            if (internalType is not null)
+            if (InternalType != null)
             {
-                NavigationTransitionInfo info = AnimationController.Current.IsEnableAnimation ?
-                                                    new DrillInNavigationTransitionInfo() :
-                                                    new SuppressNavigationTransitionInfo();
-                Container.Frame.Navigate(internalType, File, info);
-            }
+                NavigationTransitionInfo NavigationTransition = AnimationController.Current.IsEnableAnimation
+                                                ? new DrillInNavigationTransitionInfo()
+                                                : new SuppressNavigationTransitionInfo();
 
-            return false;
+                Container.Frame.Navigate(InternalType, File, NavigationTransition);
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private async Task OpenFileWithProgramPicker(FileSystemStorageFile File)
         {
-            var Dialog = new ProgramPickerDialog(File);
+            ProgramPickerDialog Dialog = new ProgramPickerDialog(File);
 
-            if (await Dialog.ShowAsync().ConfigureAwait(true) != ContentDialogResult.Primary)
+            if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
             {
-                return;
-            }
-
-            if (Dialog.SelectedProgram.Path == Package.Current.Id.FamilyName)
-            {
-                OpenFileInternally(File);
-            }
-            else
-            {
-                if (Path.IsPathRooted(Dialog.SelectedProgram.Path))
+                if (Dialog.SelectedProgram.Path == Package.Current.Id.FamilyName)
                 {
-                    using var Exclusive = await FullTrustProcessController.GetAvailableController();
-                    await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), WindowState.Normal, false, false, false, File.Path).ConfigureAwait(true);
-                    return;
+                    TryOpenInternally(File);
                 }
-
-
-                if (await File.GetStorageItemAsync() is not IStorageFile InnerFile)
-                    return;
-
-                if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.Path, DisplayApplicationPicker = false }))
+                else
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
+                    if (Path.IsPathRooted(Dialog.SelectedProgram.Path))
                     {
-                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                        Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
-                        PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                    };
-
-                    if (await dialog.ShowAsync().ConfigureAwait(true) != ContentDialogResult.Primary)
-                    {
-                        return;
-                    }
-
-                    if (!await Launcher.LaunchFileAsync(InnerFile))
-                    {
-                        LauncherOptions options = new LauncherOptions
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         {
-                            DisplayApplicationPicker = true
-                        };
-                        _ = await Launcher.LaunchFileAsync(InnerFile, options);
+                            await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), Parameters: File.Path).ConfigureAwait(true);
+                        }
+                    }
+                    else if (await File.GetStorageItemAsync() is StorageFile InnerFile)
+                    {
+                        if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.Path, DisplayApplicationPicker = false }))
+                        {
+                            QueueContentDialog Dialog1 = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
+                                PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                            };
+
+                            if (await Dialog1.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                            {
+                                if (!await Launcher.LaunchFileAsync(InnerFile))
+                                {
+                                    await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { DisplayApplicationPicker = true });
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
-
-
 
         private async void VideoEdit_Click(object sender, RoutedEventArgs e)
         {
