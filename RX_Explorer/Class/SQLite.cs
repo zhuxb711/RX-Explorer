@@ -267,19 +267,14 @@ namespace RX_Explorer.Class
         {
             List<AssociationPackage> ExistedPackage = await GetProgramPickerRecordAsync(FileType, true).ConfigureAwait(false);
 
-            StringBuilder DeletePathBuilder = new StringBuilder();
-            foreach (AssociationPackage Package in ExistedPackage.Except(AssociationList))
-            {
-                DeletePathBuilder.Append($"Delete From ProgramPicker Where FileType = '{FileType}' And Path = '{Package.ExecutablePath}';");
-            }
-
-            StringBuilder AddPathBuilder = new StringBuilder();
+            StringBuilder PathBuilder = new StringBuilder();
+            
             foreach (AssociationPackage Package in AssociationList.Except(ExistedPackage))
             {
-                AddPathBuilder.Append($"Insert Or Ignore Into ProgramPicker Values ('{FileType}', '{Package.ExecutablePath}', 'False', '{Package.IsRecommanded}');");
+                PathBuilder.Append($"Insert Into ProgramPicker(Path, FileType, IsDefault, IsRecommanded) Values ('{Package.ExecutablePath}', '{FileType}', 'False', '{Package.IsRecommanded}') On Conflict (Path, FileType) Do Update Set IsDefault = 'False', IsRecommanded = '{Package.IsRecommanded}' Where FileType = '{FileType}' And Path = '{Package.ExecutablePath}' Collate NoCase");
             }
 
-            string SQLQuery = DeletePathBuilder.ToString() + AddPathBuilder.ToString();
+            string SQLQuery = PathBuilder.ToString();
 
             if (!string.IsNullOrWhiteSpace(SQLQuery))
             {
@@ -292,10 +287,9 @@ namespace RX_Explorer.Class
 
         public async Task<string> GetDefaultProgramPickerRecordAsync(string Extension)
         {
-            using (SqliteCommand Command = new SqliteCommand("Select Path From ProgramPicker Where FileType = @FileType And IsDefault = 'True'", Connection))
+            using (SqliteCommand Command = new SqliteCommand($"Select Path From ProgramPicker Where FileType = @FileType And IsDefault = 'True'", Connection))
             {
                 Command.Parameters.AddWithValue("@FileType", Extension);
-
                 return Convert.ToString(await Command.ExecuteScalarAsync().ConfigureAwait(false));
             }
         }
@@ -308,7 +302,7 @@ namespace RX_Explorer.Class
                 await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
 
-            using (SqliteCommand Command = new SqliteCommand("Update ProgramPicker Set IsDefault = 'True' Where FileType = @FileType And Path = @Path Collate NoCase", Connection))
+            using (SqliteCommand Command = new SqliteCommand("Insert Into ProgramPicker(Path, FileType, IsDefault) Values (@Path, @FileType, 'True') On Conflict (Path, FileType) Do Update Set IsDefault = 'True' Where FileType = @FileType And Path = @Path Collate NoCase", Connection))
             {
                 Command.Parameters.AddWithValue("@FileType", FileType);
                 Command.Parameters.AddWithValue("@Path", Path);
@@ -333,6 +327,7 @@ namespace RX_Explorer.Class
                             //Reader.IsDBNull check is for the user who updated to v5.8.0 and v5.8.0 have DatabaseTable defect on 'ProgramPicker', maybe we could delete this check after several version
                             if (IncludeUWPApplication)
                             {
+                                System.Diagnostics.Debug.WriteLine($"{Reader[0]}  {Reader[1]}  {Reader[2]}  {Reader[3]}");
                                 Result.Add(new AssociationPackage(Extension, Convert.ToString(Reader[1]), !Reader.IsDBNull(3) && Convert.ToBoolean(Reader[3])));
                             }
                             else
