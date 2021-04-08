@@ -271,7 +271,7 @@ namespace RX_Explorer.Class
             
             foreach (AssociationPackage Package in AssociationList.Except(ExistedPackage))
             {
-                PathBuilder.Append($"Insert Into ProgramPicker(Path, FileType, IsDefault, IsRecommanded) Values ('{Package.ExecutablePath}', '{FileType}', 'False', '{Package.IsRecommanded}') On Conflict (Path, FileType) Do Update Set IsDefault = 'False', IsRecommanded = '{Package.IsRecommanded}' Where FileType = '{FileType}' And Path = '{Package.ExecutablePath}' Collate NoCase");
+                PathBuilder.Append($"Insert Into ProgramPicker(Path, FileType, IsDefault, IsRecommanded) Values ('{Package.ExecutablePath}', '{FileType}', 'False', '{Package.IsRecommanded}') On Conflict (Path, FileType) Do Update Set IsDefault = 'False', IsRecommanded = '{Package.IsRecommanded}' Where FileType = '{FileType}' And Path = '{Package.ExecutablePath}' Collate NoCase;");
             }
 
             string SQLQuery = PathBuilder.ToString();
@@ -327,14 +327,12 @@ namespace RX_Explorer.Class
                             //Reader.IsDBNull check is for the user who updated to v5.8.0 and v5.8.0 have DatabaseTable defect on 'ProgramPicker', maybe we could delete this check after several version
                             if (IncludeUWPApplication)
                             {
-                                System.Diagnostics.Debug.WriteLine($"{Reader[0]}  {Reader[1]}  {Reader[2]}  {Reader[3]}");
                                 Result.Add(new AssociationPackage(Extension, Convert.ToString(Reader[1]), !Reader.IsDBNull(3) && Convert.ToBoolean(Reader[3])));
                             }
                             else
                             {
                                 if (Path.IsPathRooted(Convert.ToString(Reader[1])))
                                 {
-                                    System.Diagnostics.Debug.WriteLine($"{Reader[0]}  {Reader[1]}  {Reader[2]}  {Reader[3]}");
                                     Result.Add(new AssociationPackage(Extension, Convert.ToString(Reader[1]), !Reader.IsDBNull(3) && Convert.ToBoolean(Reader[3])));
                                 }
                             }
