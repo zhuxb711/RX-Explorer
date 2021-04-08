@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Vanara.PInvoke;
 using Vanara.Windows.Shell;
+using Windows.ApplicationModel;
 using Windows.ApplicationModel.AppService;
 using Windows.Foundation.Collections;
 using Windows.Storage;
@@ -47,7 +48,7 @@ namespace FullTrustProcess
                 Connection = new AppServiceConnection
                 {
                     AppServiceName = "CommunicateService",
-                    PackageFamilyName = "36186RuoFan.USB_q3e6crc0w375t"
+                    PackageFamilyName = Package.Current.Id.FamilyName
                 };
                 Connection.RequestReceived += Connection_RequestReceived;
                 Connection.ServiceClosed += Connection_ServiceClosed;
@@ -1024,11 +1025,11 @@ namespace FullTrustProcess
                         }
                     case "Execute_Restore_RecycleItem":
                         {
-                            string Path = Convert.ToString(args.Request.Message["ExecutePath"]);
+                            string[] PathList = JsonSerializer.Deserialize<string[]>(Convert.ToString(args.Request.Message["ExecutePath"]));
 
                             ValueSet Result = new ValueSet
                             {
-                                {"Restore_Result", RecycleBinController.Restore(Path) }
+                                {"Restore_Result", RecycleBinController.Restore(PathList) }
                             };
 
                             await args.Request.SendResponseAsync(Result);
@@ -1135,7 +1136,6 @@ namespace FullTrustProcess
                             string SourcePathJson = Convert.ToString(args.Request.Message["SourcePath"]);
                             string DestinationPath = Convert.ToString(args.Request.Message["DestinationPath"]);
                             string Guid = Convert.ToString(args.Request.Message["Guid"]);
-                            bool IsUndo = Convert.ToBoolean(args.Request.Message["Undo"]);
 
                             List<KeyValuePair<string, string>> SourcePathList = JsonSerializer.Deserialize<List<KeyValuePair<string, string>>>(SourcePathJson);
                             List<string> OperationRecordList = new List<string>();
@@ -1170,15 +1170,15 @@ namespace FullTrustProcess
                                     },
                                     (se, arg) =>
                                     {
-                                        if (arg.Result == HRESULT.S_OK && !IsUndo)
+                                        if (arg.Result == HRESULT.S_OK)
                                         {
                                             if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
                                             {
-                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{(Directory.Exists(arg.SourceItem.FileSystemPath) ? "Folder" : "File")}||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
+                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
                                             }
                                             else
                                             {
-                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{(Directory.Exists(arg.SourceItem.FileSystemPath) ? "Folder" : "File")}||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
+                                                OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Copy||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
                                             }
                                         }
                                     }))
@@ -1234,7 +1234,6 @@ namespace FullTrustProcess
                             string SourcePathJson = Convert.ToString(args.Request.Message["SourcePath"]);
                             string DestinationPath = Convert.ToString(args.Request.Message["DestinationPath"]);
                             string Guid = Convert.ToString(args.Request.Message["Guid"]);
-                            bool IsUndo = Convert.ToBoolean(args.Request.Message["Undo"]);
 
                             List<KeyValuePair<string, string>> SourcePathList = JsonSerializer.Deserialize<List<KeyValuePair<string, string>>>(SourcePathJson);
                             List<string> OperationRecordList = new List<string>();
@@ -1275,20 +1274,21 @@ namespace FullTrustProcess
                                         },
                                         (se, arg) =>
                                         {
-                                            if (arg.Result == HRESULT.COPYENGINE_S_DONT_PROCESS_CHILDREN && !IsUndo)
+                                            if (arg.Result == HRESULT.COPYENGINE_S_DONT_PROCESS_CHILDREN)
                                             {
                                                 if (arg.DestItem == null || string.IsNullOrEmpty(arg.Name))
                                                 {
-                                                    OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{(Directory.Exists(arg.SourceItem.FileSystemPath) ? "Folder" : "File")}||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
+                                                    OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{Path.Combine(arg.DestFolder.FileSystemPath, arg.SourceItem.Name)}");
                                                 }
                                                 else
                                                 {
-                                                    OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{(Directory.Exists(arg.SourceItem.FileSystemPath) ? "Folder" : "File")}||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
+                                                    OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Move||{Path.Combine(arg.DestFolder.FileSystemPath, arg.Name)}");
                                                 }
                                             }
                                         }))
                                         {
                                             Value.Add("Success", string.Empty);
+
                                             if (OperationRecordList.Count > 0)
                                             {
                                                 Value.Add("OperationRecord", JsonSerializer.Serialize(OperationRecordList));
@@ -1338,7 +1338,6 @@ namespace FullTrustProcess
                             string ExecutePathJson = Convert.ToString(args.Request.Message["ExecutePath"]);
                             string Guid = Convert.ToString(args.Request.Message["Guid"]);
                             bool PermanentDelete = Convert.ToBoolean(args.Request.Message["PermanentDelete"]);
-                            bool IsUndo = Convert.ToBoolean(args.Request.Message["Undo"]);
 
                             List<string> ExecutePathList = JsonSerializer.Deserialize<List<string>>(ExecutePathJson);
                             List<string> OperationRecordList = new List<string>();
@@ -1381,7 +1380,7 @@ namespace FullTrustProcess
                                             },
                                             (se, arg) =>
                                             {
-                                                if (!PermanentDelete && !IsUndo)
+                                                if (!PermanentDelete)
                                                 {
                                                     OperationRecordList.Add($"{arg.SourceItem.FileSystemPath}||Delete");
                                                 }

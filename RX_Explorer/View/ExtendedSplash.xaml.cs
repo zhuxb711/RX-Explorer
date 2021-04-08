@@ -100,7 +100,7 @@ namespace RX_Explorer
                         LoadingBingArea.Visibility = Visibility.Visible;
                     }
 
-                    await BackgroundController.Current.Initialize().ConfigureAwait(true);
+                    await BackgroundController.Current.Initialize();
 
                     Frame RootFrame = new Frame();
                     Window.Current.Content = RootFrame;

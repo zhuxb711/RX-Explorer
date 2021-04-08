@@ -72,7 +72,7 @@ namespace RX_Explorer.Dialog
                     args.Cancel = true;
                     InvalidTip.IsOpen = true;
                 }
-                else if (await FileSystemStorageItemBase.OpenAsync(ExtractLocation).ConfigureAwait(true) is not FileSystemStorageFolder)
+                else if (await FileSystemStorageItemBase.OpenAsync(ExtractLocation) is not FileSystemStorageFolder)
                 {
                     args.Cancel = true;
                 }

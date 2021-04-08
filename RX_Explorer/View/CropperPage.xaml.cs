@@ -48,7 +48,7 @@ namespace RX_Explorer
                 if (e?.Parameter is PhotoDisplaySupport Item)
                 {
                     OriginFile = Item.PhotoFile;
-                    OriginImage = await Item.GenerateImageWithRotation().ConfigureAwait(true);
+                    OriginImage = await Item.GenerateImageWithRotation();
                     OriginBackupImage = SoftwareBitmap.Copy(OriginImage);
 
                     WriteableBitmap WBitmap = new WriteableBitmap(OriginImage.PixelWidth, OriginImage.PixelHeight);
@@ -194,27 +194,27 @@ namespace RX_Explorer
                     switch (File.FileType)
                     {
                         case ".png":
-                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Png).ConfigureAwait(true);
+                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Png);
                             break;
                         case ".jpg":
                         case ".jpeg":
-                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Jpeg).ConfigureAwait(true);
+                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Jpeg);
                             break;
                         case ".bmp":
-                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Bmp).ConfigureAwait(true);
+                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Bmp);
                             break;
                         case ".gif":
-                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Gif).ConfigureAwait(true);
+                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Gif);
                             break;
                         case ".tiff":
-                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Tiff).ConfigureAwait(true);
+                            await Cropper.SaveAsync(Stream, BitmapFileFormat.Tiff);
                             break;
                         default:
                             throw new InvalidOperationException("Unsupport image format");
                     }
                 }
 
-                await Task.Delay(1000).ConfigureAwait(true);
+                await Task.Delay(1000);
                 LoadingControl.IsLoading = false;
 
                 Frame.GoBack();
@@ -306,33 +306,33 @@ namespace RX_Explorer
         {
             LoadingControl.IsLoading = true;
 
-            using (IRandomAccessStream Stream = await OriginFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.ReadWrite).ConfigureAwait(true))
+            using (IRandomAccessStream Stream = await OriginFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.ReadWrite))
             {
                 switch (OriginFile.Type.ToLower())
                 {
                     case ".png":
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Png).ConfigureAwait(true);
+                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Png);
                         break;
                     case ".jpg":
                     case ".jpeg":
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Jpeg).ConfigureAwait(true);
+                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Jpeg);
                         break;
                     case ".bmp":
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Bmp).ConfigureAwait(true);
+                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Bmp);
                         break;
                     case ".gif":
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Gif).ConfigureAwait(true);
+                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Gif);
                         break;
                     case ".tiff":
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Tiff).ConfigureAwait(true);
+                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Tiff);
                         break;
                     default:
-                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Png).ConfigureAwait(true);
+                        await Cropper.SaveAsync(Stream, BitmapFileFormat.Png);
                         break;
                 }
             }
 
-            await Task.Delay(1000).ConfigureAwait(true);
+            await Task.Delay(1000);
 
             LoadingControl.IsLoading = false;
 

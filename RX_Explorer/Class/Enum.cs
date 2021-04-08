@@ -2,6 +2,22 @@
 
 namespace RX_Explorer.Class
 {
+    public enum OperationKind
+    {
+        Copy,
+        Move,
+        Delete
+    }
+
+    public enum OperationStatus
+    {
+        Waiting,
+        Processing,
+        Error,
+        Complete,
+        Cancel
+    }
+
     public enum Version
     {
         Windows10_1809 = 7,

@@ -1396,9 +1396,6 @@
   <data name="Operate_Text_Compression" xml:space="preserve">
     <value>壓縮</value>
   </data>
-  <data name="Operate_Text_Copy" xml:space="preserve">
-    <value>複製</value>
-  </data>
   <data name="Operate_Text_Create" xml:space="preserve">
     <value>新增</value>
   </data>
@@ -1622,9 +1619,6 @@
   <data name="Progress_Tip_Compressing" xml:space="preserve">
     <value>正在壓縮...</value>
   </data>
-  <data name="Progress_Tip_Copying" xml:space="preserve">
-    <value>複製...</value>
-  </data>
   <data name="Progress_Tip_Deleting" xml:space="preserve">
     <value>正在刪除...</value>
   </data>
@@ -1640,14 +1634,8 @@
   <data name="Progress_Tip_Loading" xml:space="preserve">
     <value>正在讀取...</value>
   </data>
-  <data name="Progress_Tip_Moving" xml:space="preserve">
-    <value>移動中...</value>
-  </data>
   <data name="Progress_Tip_Transcoding" xml:space="preserve">
     <value>轉檔中...</value>
-  </data>
-  <data name="Progress_Tip_Undoing" xml:space="preserve">
-    <value>正在復原...</value>
   </data>
   <data name="QueueDialog_CopyFailForNotExist_Content" xml:space="preserve">
     <value>某些檔案不存在，無法將其複製到指定位置</value>
@@ -3029,5 +3017,60 @@
   </data>
   <data name="Properties_Details_PeopleNames" xml:space="preserve">
     <value>人名</value>
+  </data>
+  <data name="TaskListCancelTaskButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>取消此任務</value>
+  </data>
+  <data name="TaskListEmptyTip.Text" xml:space="preserve">
+    <value>空的</value>
+  </data>
+  <data name="TaskListPanelTitle.Text" xml:space="preserve">
+    <value>任務列表</value>
+  </data>
+  <data name="TaskListRemoveTaskButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>刪除該記錄</value>
+  </data>
+  <data name="TaskList_From_Label" xml:space="preserve">
+    <value>來自</value>
+  </data>
+  <data name="TaskList_More_Items" xml:space="preserve">
+    <value>更多項目</value>
+    <comment>for example: 5 more items</comment>
+  </data>
+  <data name="TaskList_OperationKind_Copy" xml:space="preserve">
+    <value>複製任務</value>
+  </data>
+  <data name="TaskList_OperationKind_Delete" xml:space="preserve">
+    <value>刪除任務</value>
+  </data>
+  <data name="TaskList_OperationKind_Move" xml:space="preserve">
+    <value>移動任務</value>
+  </data>
+  <data name="TaskList_OperationKind_Undo" xml:space="preserve">
+    <value>撤消任務</value>
+  </data>
+  <data name="TaskList_Task_Status_Cancelled" xml:space="preserve">
+    <value>已取消</value>
+  </data>
+  <data name="TaskList_Task_Status_Completed" xml:space="preserve">
+    <value>已完成</value>
+  </data>
+  <data name="TaskList_Task_Status_Error" xml:space="preserve">
+    <value>錯誤</value>
+  </data>
+  <data name="TaskList_Task_Status_Processing" xml:space="preserve">
+    <value>處理中</value>
+  </data>
+  <data name="TaskList_Task_Status_Waiting" xml:space="preserve">
+    <value>等待中</value>
+  </data>
+  <data name="TaskList_To_Label" xml:space="preserve">
+    <value>至</value>
+  </data>
+  <data name="TaskListAllowParalledTask.Content" xml:space="preserve">
+    <value>允許並行執行任務</value>
+  </data>
+  <data name="TaskListAlwaysOpenPanel.Text" xml:space="preserve">
+    <value>創建新任務後始終彈出面板</value>
   </data>
 </root>

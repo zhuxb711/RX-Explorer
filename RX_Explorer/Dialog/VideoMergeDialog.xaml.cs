@@ -42,7 +42,7 @@ namespace RX_Explorer.Dialog
 
         private async void VideoMergeDialog_Loading(FrameworkElement sender, object args)
         {
-            SourceThumbnail.Source = await SourceFile.GetThumbnailBitmapAsync().ConfigureAwait(true);
+            SourceThumbnail.Source = await SourceFile.GetThumbnailBitmapAsync();
             SourceFileName.Text = SourceFile.Name;
         }
 
@@ -130,7 +130,7 @@ namespace RX_Explorer.Dialog
                 ClipThumbnail.Visibility = Visibility.Visible;
                 this.MergeFile = MergeFile;
                 ClipName.Text = MergeFile.Name;
-                ClipThumbnail.Source = await MergeFile.GetThumbnailBitmapAsync().ConfigureAwait(true);
+                ClipThumbnail.Source = await MergeFile.GetThumbnailBitmapAsync();
             }
         }
     }

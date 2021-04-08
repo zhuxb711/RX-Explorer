@@ -176,8 +176,8 @@ namespace RX_Explorer.Dialog
                         ProgressControl.Value = 0;
                         CloseButtonText = string.Empty;
                         SecondaryButtonText = Globalization.GetString("BluetoothTranfer.SecondaryButtonText");
-                        await ObexClient.ConnectAsync().ConfigureAwait(true);
-                        await ObexClient.SendFileAsync(FileToSend).ConfigureAwait(true);
+                        await ObexClient.ConnectAsync();
+                        await ObexClient.SendFileAsync(FileToSend);
                     }
                     catch (Exception)
                     {
@@ -191,7 +191,7 @@ namespace RX_Explorer.Dialog
 
                     try
                     {
-                        await ObexClient.AbortAsync().ConfigureAwait(true);
+                        await ObexClient.AbortAsync();
                     }
                     catch (Exception)
                     {

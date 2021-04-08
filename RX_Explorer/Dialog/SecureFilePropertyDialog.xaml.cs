@@ -36,7 +36,7 @@ namespace RX_Explorer.Dialog
             FileSize = StorageItem.Size;
             FileName = StorageItem.Name;
             FileType = StorageItem.DisplayType;
-            Level = await StorageItem.GetEncryptionLevelAsync().ConfigureAwait(true);
+            Level = await StorageItem.GetEncryptionLevelAsync();
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FileSize)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FileName)));

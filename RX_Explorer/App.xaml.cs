@@ -117,19 +117,19 @@ namespace RX_Explorer
             {
                 if (frame.Content is MainPage Main && Main.Nav.Content is TabViewContainer TabContainer)
                 {
-                    if (!string.IsNullOrWhiteSpace(e.Arguments) && await FileSystemStorageItemBase.CheckExistAsync(e.Arguments).ConfigureAwait(true))
+                    if (!string.IsNullOrWhiteSpace(e.Arguments) && await FileSystemStorageItemBase.CheckExistAsync(e.Arguments))
                     {
-                        await TabContainer.CreateNewTabAsync(e.Arguments).ConfigureAwait(true);
+                        await TabContainer.CreateNewTabAsync(e.Arguments);
                     }
                     else
                     {
-                        await TabContainer.CreateNewTabAsync().ConfigureAwait(true);
+                        await TabContainer.CreateNewTabAsync();
                     }
                 }
             }
             else
             {
-                if (!string.IsNullOrWhiteSpace(e.Arguments) && await FileSystemStorageItemBase.CheckExistAsync(e.Arguments).ConfigureAwait(true))
+                if (!string.IsNullOrWhiteSpace(e.Arguments) && await FileSystemStorageItemBase.CheckExistAsync(e.Arguments))
                 {
                     ExtendedSplash extendedSplash = new ExtendedSplash(e.SplashScreen, new List<string[]> { new string[] { e.Arguments } });
                     Window.Current.Content = extendedSplash;
@@ -211,16 +211,16 @@ namespace RX_Explorer
 
                             if (string.IsNullOrWhiteSpace(Path) || Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase))
                             {
-                                await TabContainer.CreateNewTabAsync().ConfigureAwait(true);
+                                await TabContainer.CreateNewTabAsync();
                             }
                             else
                             {
-                                await TabContainer.CreateNewTabAsync(Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path).ConfigureAwait(true);
+                                await TabContainer.CreateNewTabAsync(Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path);
                             }
                         }
                         else
                         {
-                            await TabContainer.CreateNewTabAsync().ConfigureAwait(true);
+                            await TabContainer.CreateNewTabAsync();
                         }
                     }
                 }
@@ -284,7 +284,7 @@ namespace RX_Explorer
                 {
                     if (mainPageFrame.Content is MainPage mainPage && mainPage.Nav.Content is TabViewContainer Container)
                     {
-                        await Container.CreateNewTabAsync(args.Files.Select((File) => File.Path).ToArray()).ConfigureAwait(true);
+                        await Container.CreateNewTabAsync(args.Files.Select((File) => File.Path).ToArray());
                     }
                 }
                 else

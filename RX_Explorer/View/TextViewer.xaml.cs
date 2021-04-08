@@ -48,14 +48,14 @@ namespace RX_Explorer
         private async void TextViewer_Loaded(object sender, RoutedEventArgs e)
         {
             LoadingControl.IsLoading = true;
-            await Initialize().ConfigureAwait(true);
-            await Task.Delay(500).ConfigureAwait(true);
+            await Initialize();
+            await Task.Delay(500);
             LoadingControl.IsLoading = false;
         }
 
         private async Task Initialize()
         {
-            Encoding DetectedEncoding = await DetectEncodingFromFileAsync().ConfigureAwait(true);
+            Encoding DetectedEncoding = await DetectEncodingFromFileAsync();
 
             if (DetectedEncoding != null)
             {
@@ -78,7 +78,7 @@ namespace RX_Explorer
         {
             try
             {
-                using (FileStream DetectStream = await TextFile.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(true))
+                using (FileStream DetectStream = await TextFile.GetFileStreamFromFileAsync(AccessMode.Read))
                 {
                     return await Task.Run(() =>
                     {
@@ -122,12 +122,12 @@ namespace RX_Explorer
                 {
                     try
                     {
-                        if (await FileSystemStorageItemBase.CreateAsync(TextFile.Path, StorageItemTypes.File, CreateOption.ReplaceExisting).ConfigureAwait(true) is FileSystemStorageFile File)
+                        if (await FileSystemStorageItemBase.CreateAsync(TextFile.Path, StorageItemTypes.File, CreateOption.ReplaceExisting) is FileSystemStorageFile File)
                         {
-                            using (FileStream Stream = await File.GetFileStreamFromFileAsync(AccessMode.Write).ConfigureAwait(true))
+                            using (FileStream Stream = await File.GetFileStreamFromFileAsync(AccessMode.Write))
                             using (StreamWriter Writer = new StreamWriter(Stream, CurrentEncoding))
                             {
-                                await Writer.WriteAsync(Text.Text).ConfigureAwait(true);
+                                await Writer.WriteAsync(Text.Text);
                             }
                         }
                         else
@@ -144,7 +144,7 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
-                        await Dialog.ShowAsync().ConfigureAwait(true);
+                        await Dialog.ShowAsync();
                     }
 
                     Frame.GoBack();
@@ -215,10 +215,10 @@ namespace RX_Explorer
 
             try
             {
-                using (FileStream Stream = await TextFile.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(true))
+                using (FileStream Stream = await TextFile.GetFileStreamFromFileAsync(AccessMode.Read))
                 using (StreamReader Reader = new StreamReader(Stream, Enco, false))
                 {
-                    Text.Text = await Reader.ReadToEndAsync().ConfigureAwait(true);
+                    Text.Text = await Reader.ReadToEndAsync();
                 }
             }
             catch
@@ -230,10 +230,10 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                await Dialog.ShowAsync().ConfigureAwait(true);
+                await Dialog.ShowAsync();
             }
 
-            await Task.Delay(500).ConfigureAwait(true);
+            await Task.Delay(500);
             LoadingControl.IsLoading = false;
         }
     }

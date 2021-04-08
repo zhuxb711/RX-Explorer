@@ -24,7 +24,7 @@ namespace RX_Explorer.Class
         {
             if (HiddenData == null || ForceUpdate)
             {
-                HiddenData = await GetHiddenDataAsync().ConfigureAwait(true);
+                HiddenData = await GetHiddenDataAsync();
 
                 if ((HiddenData?.IconData.Length).GetValueOrDefault() > 0)
                 {
@@ -55,7 +55,7 @@ namespace RX_Explorer.Class
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                return await Exclusive.Controller.GetHiddenItemDataAsync(Path).ConfigureAwait(true);
+                return await Exclusive.Controller.GetHiddenItemDataAsync(Path);
             }
         }
 

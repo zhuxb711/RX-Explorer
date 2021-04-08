@@ -35,7 +35,7 @@ namespace RX_Explorer.Class
 
                     while (Percentage < 100)
                     {
-                        string ReadText = await Reader.ReadLineAsync().ConfigureAwait(true);
+                        string ReadText = await Reader.ReadLineAsync();
 
                         if (string.IsNullOrEmpty(ReadText) || ReadText == "Error_Stop_Signal")
                         {
@@ -88,7 +88,7 @@ namespace RX_Explorer.Class
 
                 if (WindowsVersionChecker.IsNewerOrEqual(Version.Windows10_2004))
                 {
-                    await Controller.RequestCreateNewPipeLineAsync(GUID).ConfigureAwait(true);
+                    await Controller.RequestCreateNewPipeLineAsync(GUID);
 
                     PipeHandle = WIN_Native_API.GetHandleFromNamedPipe($"Explorer_And_FullTrustProcess_NamedPipe-{GUID}");
 

@@ -54,10 +54,10 @@ namespace RX_Explorer.Dialog
             {
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {
-                    List<AssociationPackage> AssocList = await Exclusive.Controller.GetAssociateFromPathAsync(OpenFile.Path).ConfigureAwait(true);
+                    List<AssociationPackage> AssocList = await Exclusive.Controller.GetAssociateFromPathAsync(OpenFile.Path);
                     List<AppInfo> AppInfoList = (await Launcher.FindFileHandlersAsync(OpenFile.Type)).ToList();
 
-                    await SQLite.Current.UpdateProgramPickerRecordAsync(OpenFile.Type, AssocList.Concat(AppInfoList.Select((Info) => new AssociationPackage(OpenFile.Type, Info.PackageFamilyName, true)))).ConfigureAwait(true);
+                    await SQLite.Current.UpdateProgramPickerRecordAsync(OpenFile.Type, AssocList.Concat(AppInfoList.Select((Info) => new AssociationPackage(OpenFile.Type, Info.PackageFamilyName, true))));
 
                     foreach (AppInfo Info in AppInfoList)
                     {
@@ -95,11 +95,11 @@ namespace RX_Explorer.Dialog
                 LogTracer.Log(ex, "An exception was threw when fetching association data");
             }
 
-            foreach (AssociationPackage Package in await SQLite.Current.GetProgramPickerRecordAsync(OpenFile.Type, false).ConfigureAwait(true))
+            foreach (AssociationPackage Package in await SQLite.Current.GetProgramPickerRecordAsync(OpenFile.Type, false))
             {
                 try
                 {
-                    if (await FileSystemStorageItemBase.CheckExistAsync(Package.ExecutablePath).ConfigureAwait(true))
+                    if (await FileSystemStorageItemBase.CheckExistAsync(Package.ExecutablePath))
                     {
                         StorageFile ExecuteFile = await StorageFile.GetFileFromPathAsync(Package.ExecutablePath);
 
@@ -112,7 +112,7 @@ namespace RX_Explorer.Dialog
                             ExtraAppName = Convert.ToString(DescriptionRaw);
                         }
 
-                        if (await ExecuteFile.GetThumbnailRawStreamAsync().ConfigureAwait(true) is IRandomAccessStream ThumbnailStream)
+                        if (await ExecuteFile.GetThumbnailRawStreamAsync() is IRandomAccessStream ThumbnailStream)
                         {
                             using (ThumbnailStream)
                             {
@@ -153,7 +153,7 @@ namespace RX_Explorer.Dialog
                     }
                     else
                     {
-                        await SQLite.Current.DeleteProgramPickerRecordAsync(Package).ConfigureAwait(true);
+                        await SQLite.Current.DeleteProgramPickerRecordAsync(Package);
                     }
                 }
                 catch (Exception ex)
@@ -163,7 +163,7 @@ namespace RX_Explorer.Dialog
             }
 
 
-            string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(OpenFile.Type).ConfigureAwait(true);
+            string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(OpenFile.Type);
 
             if (!string.IsNullOrEmpty(AdminExecutablePath))
             {
@@ -322,7 +322,7 @@ namespace RX_Explorer.Dialog
                     ExtraAppName = Convert.ToString(Description);
                 }
 
-                if (await ExecuteFile.GetThumbnailRawStreamAsync().ConfigureAwait(true) is IRandomAccessStream ThumbnailStream)
+                if (await ExecuteFile.GetThumbnailRawStreamAsync() is IRandomAccessStream ThumbnailStream)
                 {
                     BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(ThumbnailStream);
                     using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
@@ -366,7 +366,7 @@ namespace RX_Explorer.Dialog
 
                     if (UseAsAdmin.IsChecked.GetValueOrDefault() || OpenFromPropertiesWindow)
                     {
-                        await SQLite.Current.SetDefaultProgramPickerRecordAsync(OpenFile.Type, OtherItem.Path).ConfigureAwait(true);
+                        await SQLite.Current.SetDefaultProgramPickerRecordAsync(OpenFile.Type, OtherItem.Path);
                     }
                 }
                 else

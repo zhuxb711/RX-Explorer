@@ -174,7 +174,7 @@ namespace RX_Explorer.Class
                         {
                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
-                                List<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(SelectedPathArray, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down)).ConfigureAwait(true);
+                                List<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(SelectedPathArray, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
 
                                 foreach (AppBarButton ExtraButton in Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Btn) => Btn.Name == "ExtraButton").ToArray())
                                 {
@@ -196,7 +196,7 @@ namespace RX_Explorer.Class
                                             {
                                                 Flyout.Hide();
                                                 
-                                                if(!await MenuItem.InvokeAsync().ConfigureAwait(true))
+                                                if(!await MenuItem.InvokeAsync())
                                                 {
                                                     QueueContentDialog Dialog = new QueueContentDialog
                                                     {
@@ -205,7 +205,7 @@ namespace RX_Explorer.Class
                                                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                                     };
 
-                                                    await Dialog.ShowAsync().ConfigureAwait(true);
+                                                    await Dialog.ShowAsync();
                                                 }
                                             }
                                         }
@@ -221,7 +221,7 @@ namespace RX_Explorer.Class
 
                                         foreach (ContextMenuItem AddItem in ExtraMenuItems.Take(ShowExtNum))
                                         {
-                                            Flyout.SecondaryCommands.Insert(Index, await AddItem.GenerateUIButtonAsync(ClickHandler).ConfigureAwait(true));
+                                            Flyout.SecondaryCommands.Insert(Index, await AddItem.GenerateUIButtonAsync(ClickHandler));
                                         }
 
                                         AppBarButton MoreItem = new AppBarButton
@@ -234,7 +234,7 @@ namespace RX_Explorer.Class
 
                                         MenuFlyout MoreFlyout = new MenuFlyout();
 
-                                        await ContextMenuItem.GenerateSubMenuItemsAsync(MoreFlyout.Items, ExtraMenuItems.Skip(ShowExtNum).ToArray(), ClickHandler).ConfigureAwait(true);
+                                        await ContextMenuItem.GenerateSubMenuItemsAsync(MoreFlyout.Items, ExtraMenuItems.Skip(ShowExtNum).ToArray(), ClickHandler);
 
                                         MoreItem.Flyout = MoreFlyout;
 
@@ -244,7 +244,7 @@ namespace RX_Explorer.Class
                                     {
                                         foreach (ContextMenuItem AddItem in ExtraMenuItems)
                                         {
-                                            Flyout.SecondaryCommands.Insert(Index, await AddItem.GenerateUIButtonAsync(ClickHandler).ConfigureAwait(true));
+                                            Flyout.SecondaryCommands.Insert(Index, await AddItem.GenerateUIButtonAsync(ClickHandler));
                                         }
 
                                         Flyout.SecondaryCommands.Insert(Index + ExtraMenuItems.Count, new AppBarSeparator { Name = "CustomSep" });
@@ -368,11 +368,11 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Node), "Node could not be null");
             }
 
-            if (await FileSystemStorageItemBase.OpenAsync((Node.Content as TreeViewNodeContent).Path).ConfigureAwait(true) is FileSystemStorageFolder ParentFolder)
+            if (await FileSystemStorageItemBase.OpenAsync((Node.Content as TreeViewNodeContent).Path) is FileSystemStorageFolder ParentFolder)
             {
                 if (Node.Children.Count > 0)
                 {
-                    List<string> FolderList = (await ParentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, ItemFilters.Folder).ConfigureAwait(true)).Select((Item) => Item.Path).ToList();
+                    List<string> FolderList = (await ParentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, ItemFilters.Folder)).Select((Item) => Item.Path).ToList();
                     List<string> PathList = Node.Children.Select((Item) => (Item.Content as TreeViewNodeContent).Path).ToList();
                     List<string> AddList = FolderList.Except(PathList).ToList();
                     List<string> RemoveList = PathList.Except(FolderList).ToList();
@@ -381,12 +381,12 @@ namespace RX_Explorer.Class
                     {
                         foreach (string AddPath in AddList)
                         {
-                            if (await FileSystemStorageItemBase.OpenAsync(AddPath).ConfigureAwait(true) is FileSystemStorageFolder Folder)
+                            if (await FileSystemStorageItemBase.OpenAsync(AddPath) is FileSystemStorageFolder Folder)
                             {
                                 Node.Children.Add(new TreeViewNode
                                 {
                                     Content = new TreeViewNodeContent(AddPath),
-                                    HasUnrealizedChildren = await Folder.CheckContainsAnyItemAsync(ItemFilters.Folder).ConfigureAwait(true),
+                                    HasUnrealizedChildren = await Folder.CheckContainsAnyItemAsync(ItemFilters.Folder),
                                     IsExpanded = false
                                 });
                             }
@@ -403,12 +403,12 @@ namespace RX_Explorer.Class
 
                     foreach (TreeViewNode SubNode in Node.Children)
                     {
-                        await SubNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                        await SubNode.UpdateAllSubNodeAsync();
                     }
                 }
                 else
                 {
-                    Node.HasUnrealizedChildren = await ParentFolder.CheckContainsAnyItemAsync(ItemFilters.Folder).ConfigureAwait(true);
+                    Node.HasUnrealizedChildren = await ParentFolder.CheckContainsAnyItemAsync(ItemFilters.Folder);
                 }
             }
         }
@@ -461,7 +461,7 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                await Task.Delay(200).ConfigureAwait(true);
+                                await Task.Delay(200);
                             }
                         }
 
@@ -473,7 +473,7 @@ namespace RX_Explorer.Class
             {
                 if ((Node.Content as TreeViewNodeContent).Path.Equals(NextPathLevel, StringComparison.OrdinalIgnoreCase))
                 {
-                    return await GetNodeAsync(Node, Analysis, DoNotExpandNodeWhenSearching).ConfigureAwait(true);
+                    return await GetNodeAsync(Node, Analysis, DoNotExpandNodeWhenSearching);
                 }
                 else
                 {
@@ -481,7 +481,7 @@ namespace RX_Explorer.Class
                     {
                         if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path.Equals(NextPathLevel, StringComparison.OrdinalIgnoreCase)) is TreeViewNode TargetNode)
                         {
-                            return await GetNodeAsync(TargetNode, Analysis, DoNotExpandNodeWhenSearching).ConfigureAwait(true);
+                            return await GetNodeAsync(TargetNode, Analysis, DoNotExpandNodeWhenSearching);
                         }
                         else
                         {
@@ -494,11 +494,11 @@ namespace RX_Explorer.Class
                         {
                             if (Node.Children.FirstOrDefault((SubNode) => (SubNode.Content as TreeViewNodeContent).Path.Equals(NextPathLevel, StringComparison.OrdinalIgnoreCase)) is TreeViewNode TargetNode)
                             {
-                                return await GetNodeAsync(TargetNode, Analysis, DoNotExpandNodeWhenSearching).ConfigureAwait(true);
+                                return await GetNodeAsync(TargetNode, Analysis, DoNotExpandNodeWhenSearching);
                             }
                             else
                             {
-                                await Task.Delay(200).ConfigureAwait(true);
+                                await Task.Delay(200);
                             }
                         }
 
@@ -858,7 +858,7 @@ namespace RX_Explorer.Class
                             }
                     }
 
-                    bool IsSuccess = await Task.Run(() => SpinWait.SpinUntil(() => GetThumbnailTask.IsCompleted, 3000)).ConfigureAwait(true);
+                    bool IsSuccess = await Task.Run(() => SpinWait.SpinUntil(() => GetThumbnailTask.IsCompleted, 3000));
 
                     if (IsSuccess)
                     {
@@ -948,7 +948,7 @@ namespace RX_Explorer.Class
                             }
                     }
 
-                    bool IsSuccess = await Task.Run(() => SpinWait.SpinUntil(() => GetThumbnailTask.IsCompleted, 2000)).ConfigureAwait(true);
+                    bool IsSuccess = await Task.Run(() => SpinWait.SpinUntil(() => GetThumbnailTask.IsCompleted, 2000));
 
                     if (IsSuccess)
                     {

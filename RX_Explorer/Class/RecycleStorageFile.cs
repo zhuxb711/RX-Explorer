@@ -54,11 +54,11 @@ namespace RX_Explorer.Class
 
         protected override async Task LoadMorePropertyCore(bool ForceUpdate)
         {
-            if ((StorageItem == null || ForceUpdate) && (await GetStorageItemAsync().ConfigureAwait(true) is StorageFile File))
+            if ((StorageItem == null || ForceUpdate) && (await GetStorageItemAsync() is StorageFile File))
             {
                 StorageItem = File;
-                SizeRaw = await File.GetSizeRawDataAsync().ConfigureAwait(true);
-                Thumbnail = await File.GetThumbnailBitmapAsync().ConfigureAwait(true);
+                SizeRaw = await File.GetSizeRawDataAsync();
+                Thumbnail = await File.GetThumbnailBitmapAsync();
             }
         }
 
@@ -66,7 +66,7 @@ namespace RX_Explorer.Class
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                return await Exclusive.Controller.DeleteItemInRecycleBinAsync(Path).ConfigureAwait(true);
+                return await Exclusive.Controller.DeleteItemInRecycleBinAsync(Path);
             }
         }
 
@@ -74,7 +74,7 @@ namespace RX_Explorer.Class
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                return await Exclusive.Controller.RestoreItemInRecycleBinAsync(OriginPath).ConfigureAwait(true);
+                return await Exclusive.Controller.RestoreItemInRecycleBinAsync(OriginPath);
             }
         }
     }

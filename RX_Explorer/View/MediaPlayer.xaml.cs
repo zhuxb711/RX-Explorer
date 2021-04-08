@@ -41,7 +41,7 @@ namespace RX_Explorer
 
         private async Task Initialize()
         {
-            using (IRandomAccessStream Stream = await MediaFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read).ConfigureAwait(true))
+            using (IRandomAccessStream Stream = await MediaFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
             {
                 Source = MediaSource.CreateFromStream(Stream, MIMEDictionary[MediaFile.Type.ToLower()]);
                 MediaPlaybackItem Item = new MediaPlaybackItem(Source);
@@ -58,11 +58,11 @@ namespace RX_Explorer
                             MediaItemDisplayProperties Props = Item.GetDisplayProperties();
                             Props.Type = Windows.Media.MediaPlaybackType.Music;
                             Props.MusicProperties.Title = MediaFile.DisplayName;
-                            Props.MusicProperties.AlbumArtist = await GetArtistAsync().ConfigureAwait(true);
+                            Props.MusicProperties.AlbumArtist = await GetArtistAsync();
 
                             Item.ApplyDisplayProperties(Props);
 
-                            if (await GetMusicCoverAsync().ConfigureAwait(true) is BitmapImage Thumbnail)
+                            if (await GetMusicCoverAsync() is BitmapImage Thumbnail)
                             {
                                 Cover.Source = Thumbnail;
                                 Cover.Visibility = Visibility.Visible;
@@ -100,7 +100,7 @@ namespace RX_Explorer
         {
             try
             {
-                using (FileStream FileStream = await MediaFile.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(true))
+                using (FileStream FileStream = await MediaFile.GetFileStreamFromFileAsync(AccessMode.Read))
                 using (var TagFile = TagLib.File.Create(new StreamFileAbstraction(MediaFile.Name, FileStream, FileStream)))
                 {
                     if (TagFile.Tag.Pictures != null && TagFile.Tag.Pictures.Length != 0)

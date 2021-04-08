@@ -1430,9 +1430,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="Operate_Text_Compression" xml:space="preserve">
     <value>Compresión</value>
   </data>
-  <data name="Operate_Text_Copy" xml:space="preserve">
-    <value>Copiar</value>
-  </data>
   <data name="Operate_Text_Create" xml:space="preserve">
     <value>Crear</value>
   </data>
@@ -1671,9 +1668,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="Progress_Tip_Compressing" xml:space="preserve">
     <value>Comprimiendo</value>
   </data>
-  <data name="Progress_Tip_Copying" xml:space="preserve">
-    <value>Copiando</value>
-  </data>
   <data name="Progress_Tip_Deleting" xml:space="preserve">
     <value>Eliminando</value>
   </data>
@@ -1689,14 +1683,8 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="Progress_Tip_Loading" xml:space="preserve">
     <value>Cargando...</value>
   </data>
-  <data name="Progress_Tip_Moving" xml:space="preserve">
-    <value>Moviendo</value>
-  </data>
   <data name="Progress_Tip_Transcoding" xml:space="preserve">
     <value>Transcodificando</value>
-  </data>
-  <data name="Progress_Tip_Undoing" xml:space="preserve">
-    <value>Deshaciendo</value>
   </data>
   <data name="QueueDialog_CopyFailForNotExist_Content" xml:space="preserve">
     <value>Algunos archivos no existen o no se pueden copiar a la ubicación especificada.</value>
@@ -3029,5 +3017,60 @@ Las denominaciones no válidas son:
   </data>
   <data name="Properties_Details_PeopleNames" xml:space="preserve">
     <value>Nombres de personas</value>
+  </data>
+  <data name="TaskListCancelTaskButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Cancelar esta tarea</value>
+  </data>
+  <data name="TaskListEmptyTip.Text" xml:space="preserve">
+    <value>Vacío</value>
+  </data>
+  <data name="TaskListPanelTitle.Text" xml:space="preserve">
+    <value>Lista de tareas</value>
+  </data>
+  <data name="TaskListRemoveTaskButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Eliminar este registro</value>
+  </data>
+  <data name="TaskList_From_Label" xml:space="preserve">
+    <value>Desde</value>
+  </data>
+  <data name="TaskList_More_Items" xml:space="preserve">
+    <value>mas cosas</value>
+    <comment>for example: 5 more items</comment>
+  </data>
+  <data name="TaskList_OperationKind_Copy" xml:space="preserve">
+    <value>Copiar tarea</value>
+  </data>
+  <data name="TaskList_OperationKind_Delete" xml:space="preserve">
+    <value>Eliminar tarea</value>
+  </data>
+  <data name="TaskList_OperationKind_Move" xml:space="preserve">
+    <value>Mover tarea</value>
+  </data>
+  <data name="TaskList_OperationKind_Undo" xml:space="preserve">
+    <value>Deshacer tarea</value>
+  </data>
+  <data name="TaskList_Task_Status_Cancelled" xml:space="preserve">
+    <value>Cancelado</value>
+  </data>
+  <data name="TaskList_Task_Status_Completed" xml:space="preserve">
+    <value>Terminado</value>
+  </data>
+  <data name="TaskList_Task_Status_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="TaskList_Task_Status_Processing" xml:space="preserve">
+    <value>Procesando</value>
+  </data>
+  <data name="TaskList_Task_Status_Waiting" xml:space="preserve">
+    <value>Espera</value>
+  </data>
+  <data name="TaskList_To_Label" xml:space="preserve">
+    <value>Para</value>
+  </data>
+  <data name="TaskListAllowParalledTask.Content" xml:space="preserve">
+    <value>Permitir la ejecución paralela de tareas</value>
+  </data>
+  <data name="TaskListAlwaysOpenPanel.Text" xml:space="preserve">
+    <value>Siempre aparece el panel después de crear una nueva tarea</value>
   </data>
 </root>

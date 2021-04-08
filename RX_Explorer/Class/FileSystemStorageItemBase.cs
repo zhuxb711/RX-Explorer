@@ -103,7 +103,7 @@ namespace RX_Explorer.Class
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                await Exclusive.Controller.MoveAsync(SourcePath, DirectoryPath, ProgressHandler, IsUndoOperation).ConfigureAwait(false);
+                await Exclusive.Controller.MoveAsync(SourcePath, DirectoryPath, IsUndoOperation, ProgressHandler).ConfigureAwait(false);
             }
         }
 
@@ -111,7 +111,7 @@ namespace RX_Explorer.Class
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                await Exclusive.Controller.MoveAsync(SourcePathList, DirectoryPath, ProgressHandler, IsUndoOperation).ConfigureAwait(false);
+                await Exclusive.Controller.MoveAsync(SourcePathList, DirectoryPath, IsUndoOperation, ProgressHandler).ConfigureAwait(false);
             }
         }
 
@@ -119,7 +119,7 @@ namespace RX_Explorer.Class
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                await Exclusive.Controller.CopyAsync(SourcePath, DirectoryPath, ProgressHandler, IsUndoOperation).ConfigureAwait(false);
+                await Exclusive.Controller.CopyAsync(SourcePath, DirectoryPath, IsUndoOperation, ProgressHandler).ConfigureAwait(false);
             }
         }
 
@@ -127,7 +127,7 @@ namespace RX_Explorer.Class
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                await Exclusive.Controller.CopyAsync(SourcePathList, DirectoryPath, ProgressHandler, IsUndoOperation).ConfigureAwait(false);
+                await Exclusive.Controller.CopyAsync(SourcePathList, DirectoryPath, IsUndoOperation, ProgressHandler).ConfigureAwait(false);
             }
         }
 
@@ -143,7 +143,7 @@ namespace RX_Explorer.Class
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                await Exclusive.Controller.DeleteAsync(SourcePath, PermanentDelete, ProgressHandler, IsUndoOperation).ConfigureAwait(false);
+                await Exclusive.Controller.DeleteAsync(SourcePath, PermanentDelete, IsUndoOperation, ProgressHandler).ConfigureAwait(false);
             }
         }
 
@@ -151,7 +151,7 @@ namespace RX_Explorer.Class
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                await Exclusive.Controller.DeleteAsync(SourcePathList, PermanentDelete, ProgressHandler, IsUndoOperation).ConfigureAwait(false);
+                await Exclusive.Controller.DeleteAsync(SourcePathList, PermanentDelete, IsUndoOperation, ProgressHandler).ConfigureAwait(false);
             }
         }
 
@@ -218,7 +218,7 @@ namespace RX_Explorer.Class
                     if (string.IsNullOrEmpty(DirectoryPath))
                     {
                         StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
-                        return new FileSystemStorageFolder(Folder, await Folder.GetThumbnailBitmapAsync().ConfigureAwait(true), await Folder.GetModifiedTimeAsync().ConfigureAwait(true));
+                        return new FileSystemStorageFolder(Folder, await Folder.GetThumbnailBitmapAsync(), await Folder.GetModifiedTimeAsync());
                     }
                     else
                     {
@@ -228,11 +228,11 @@ namespace RX_Explorer.Class
                         {
                             case StorageFolder Folder:
                                 {
-                                    return new FileSystemStorageFolder(Folder, await Folder.GetThumbnailBitmapAsync().ConfigureAwait(true), await Folder.GetModifiedTimeAsync().ConfigureAwait(true));
+                                    return new FileSystemStorageFolder(Folder, await Folder.GetThumbnailBitmapAsync(), await Folder.GetModifiedTimeAsync());
                                 }
                             case StorageFile File:
                                 {
-                                    return new FileSystemStorageFile(File, await File.GetThumbnailBitmapAsync().ConfigureAwait(true), await File.GetSizeRawDataAsync().ConfigureAwait(true), await File.GetModifiedTimeAsync().ConfigureAwait(true));
+                                    return new FileSystemStorageFile(File, await File.GetThumbnailBitmapAsync(), await File.GetSizeRawDataAsync(), await File.GetModifiedTimeAsync());
                                 }
                             default:
                                 {
@@ -258,7 +258,7 @@ namespace RX_Explorer.Class
                     {
                         if (WIN_Native_API.CreateFileFromPath(Path, Option, out string NewPath))
                         {
-                            return await OpenAsync(NewPath).ConfigureAwait(true);
+                            return await OpenAsync(NewPath);
                         }
                         else
                         {
@@ -273,17 +273,17 @@ namespace RX_Explorer.Class
                                     case CreateOption.GenerateUniqueName:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
-                                            return new FileSystemStorageFile(NewFile, await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true));
+                                            return new FileSystemStorageFile(NewFile, await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetSizeRawDataAsync(), await NewFile.GetModifiedTimeAsync());
                                         }
                                     case CreateOption.OpenIfExist:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
-                                            return new FileSystemStorageFile(NewFile, await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true));
+                                            return new FileSystemStorageFile(NewFile, await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetSizeRawDataAsync(), await NewFile.GetModifiedTimeAsync());
                                         }
                                     case CreateOption.ReplaceExisting:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
-                                            return new FileSystemStorageFile(NewFile, await NewFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFile.GetSizeRawDataAsync().ConfigureAwait(true), await NewFile.GetModifiedTimeAsync().ConfigureAwait(true));
+                                            return new FileSystemStorageFile(NewFile, await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetSizeRawDataAsync(), await NewFile.GetModifiedTimeAsync());
                                         }
                                     default:
                                         {
@@ -302,7 +302,7 @@ namespace RX_Explorer.Class
                     {
                         if (WIN_Native_API.CreateDirectoryFromPath(Path, Option, out string NewPath))
                         {
-                            return await OpenAsync(NewPath).ConfigureAwait(true);
+                            return await OpenAsync(NewPath);
                         }
                         else
                         {
@@ -317,17 +317,17 @@ namespace RX_Explorer.Class
                                     case CreateOption.GenerateUniqueName:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
-                                            return new FileSystemStorageFolder(NewFolder, await NewFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true));
+                                            return new FileSystemStorageFolder(NewFolder, await NewFolder.GetThumbnailBitmapAsync(), await NewFolder.GetModifiedTimeAsync());
                                         }
                                     case CreateOption.OpenIfExist:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
-                                            return new FileSystemStorageFolder(NewFolder, await NewFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true));
+                                            return new FileSystemStorageFolder(NewFolder, await NewFolder.GetThumbnailBitmapAsync(), await NewFolder.GetModifiedTimeAsync());
                                         }
                                     case CreateOption.ReplaceExisting:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
-                                            return new FileSystemStorageFolder(NewFolder, await NewFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), await NewFolder.GetModifiedTimeAsync().ConfigureAwait(true));
+                                            return new FileSystemStorageFolder(NewFolder, await NewFolder.GetThumbnailBitmapAsync(), await NewFolder.GetModifiedTimeAsync());
                                         }
                                     default:
                                         {
@@ -407,7 +407,7 @@ namespace RX_Explorer.Class
                     {
                         try
                         {
-                            await LoadMorePropertyCore().ConfigureAwait(true);
+                            await LoadMorePropertyCore();
 
                             OnPropertyChanged(nameof(Size));
                             OnPropertyChanged(nameof(Name));
@@ -430,22 +430,13 @@ namespace RX_Explorer.Class
 
         public abstract Task<IStorageItem> GetStorageItemAsync();
 
-        public async Task ReplaceAsync(string NewPath)
-        {
-            if (NewPath != Path)
-            {
-                Path = NewPath;
-                await RefreshAsync().ConfigureAwait(false);
-            }
-        }
-
         public async Task RefreshAsync()
         {
             try
             {
-                if (await CheckExistAsync(Path).ConfigureAwait(true))
+                if (await CheckExistAsync(Path))
                 {
-                    await LoadMorePropertyCore(true).ConfigureAwait(true);
+                    await LoadMorePropertyCore(true);
 
                     OnPropertyChanged(nameof(Size));
                     OnPropertyChanged(nameof(Name));
@@ -487,9 +478,7 @@ namespace RX_Explorer.Class
         public async virtual Task<string> RenameAsync(string DesireName)
         {
             string NewName = await RenameAsync(Path, DesireName);
-
-            await ReplaceAsync(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), NewName)).ConfigureAwait(false);
-
+            Path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), NewName);
             return NewName;
         }
 

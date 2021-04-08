@@ -673,7 +673,7 @@ namespace RX_Explorer.Class
             List<KeyValuePair<QuickStartType, QuickStartItem>> Result = new List<KeyValuePair<QuickStartType, QuickStartItem>>();
 
             using (SqliteCommand Command = new SqliteCommand("Select * From QuickStart", Connection))
-            using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(true))
+            using (SqliteDataReader Reader = await Command.ExecuteReaderAsync())
             {
                 while (Reader.Read())
                 {
@@ -722,7 +722,7 @@ namespace RX_Explorer.Class
                     Command.Parameters.AddWithValue("@Name", ErrorItem.Item1);
                     Command.Parameters.AddWithValue("@FullPath", ErrorItem.Item2);
                     Command.Parameters.AddWithValue("@Type", ErrorItem.Item3);
-                    await Command.ExecuteNonQueryAsync().ConfigureAwait(true);
+                    await Command.ExecuteNonQueryAsync();
                 }
             }
 

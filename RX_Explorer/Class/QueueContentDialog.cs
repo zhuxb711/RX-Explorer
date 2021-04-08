@@ -31,7 +31,7 @@ namespace RX_Explorer.Class
             {
                 _ = Interlocked.Increment(ref WaitCount);
 
-                await Locker.WaitAsync().ConfigureAwait(true);
+                await Locker.WaitAsync();
 
                 return await base.ShowAsync();
             }

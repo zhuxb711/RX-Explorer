@@ -1829,10 +1829,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Compression</source>
           <target state="translated">Compression</target>
         </trans-unit>
-        <trans-unit id="Operate_Text_Copy" translate="yes" xml:space="preserve">
-          <source>Copy</source>
-          <target state="translated">Copier</target>
-        </trans-unit>
         <trans-unit id="Operate_Text_Create" translate="yes" xml:space="preserve">
           <source>Create</source>
           <target state="translated">Nouveau</target>
@@ -2119,10 +2115,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Compressing</source>
           <target state="translated">Compression en cours</target>
         </trans-unit>
-        <trans-unit id="Progress_Tip_Copying" translate="yes" xml:space="preserve">
-          <source>Copying</source>
-          <target state="translated">Copie en cours</target>
-        </trans-unit>
         <trans-unit id="Progress_Tip_Deleting" translate="yes" xml:space="preserve">
           <source>Deleting</source>
           <target state="translated">Suppression en cours</target>
@@ -2143,17 +2135,9 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Loading...</source>
           <target state="translated">Chargement...</target>
         </trans-unit>
-        <trans-unit id="Progress_Tip_Moving" translate="yes" xml:space="preserve">
-          <source>Moving</source>
-          <target state="translated">Déplacement en cours</target>
-        </trans-unit>
         <trans-unit id="Progress_Tip_Transcoding" translate="yes" xml:space="preserve">
           <source>Transcoding</source>
           <target state="translated">Transcodage en cours</target>
-        </trans-unit>
-        <trans-unit id="Progress_Tip_Undoing" translate="yes" xml:space="preserve">
-          <source>Undoing</source>
-          <target state="translated">Annulation en cours</target>
         </trans-unit>
         <trans-unit id="QueueDialog_CopyFailForNotExist_Content" translate="yes" xml:space="preserve">
           <source>Some files do not exist and cannot be copyed to the specified location</source>
@@ -4020,6 +4004,79 @@ Les noms non valides incluent
         <trans-unit id="Properties_Details_PeopleNames" translate="yes" xml:space="preserve">
           <source>People names</source>
           <target state="translated">Noms de personnes</target>
+        </trans-unit>
+        <trans-unit id="TaskListCancelTaskButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Cancel this task</source>
+          <target state="translated">Annuler cette tâche</target>
+        </trans-unit>
+        <trans-unit id="TaskListEmptyTip.Text" translate="yes" xml:space="preserve">
+          <source>Empty</source>
+          <target state="translated">Vider</target>
+        </trans-unit>
+        <trans-unit id="TaskListPanelTitle.Text" translate="yes" xml:space="preserve">
+          <source>Task list</source>
+          <target state="translated">Liste de tâches</target>
+        </trans-unit>
+        <trans-unit id="TaskListRemoveTaskButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Remove this record</source>
+          <target state="translated">Supprimer cet enregistrement</target>
+        </trans-unit>
+        <trans-unit id="TaskList_From_Label" translate="yes" xml:space="preserve">
+          <source>From</source>
+          <target state="translated">De</target>
+        </trans-unit>
+        <trans-unit id="TaskList_More_Items" translate="yes" xml:space="preserve">
+          <source>more items</source>
+          <target state="translated">Plus d'articles</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">for example: 5 more items</note>
+        </trans-unit>
+        <trans-unit id="TaskList_OperationKind_Copy" translate="yes" xml:space="preserve">
+          <source>Copy task</source>
+          <target state="translated">Copier la tâche</target>
+        </trans-unit>
+        <trans-unit id="TaskList_OperationKind_Delete" translate="yes" xml:space="preserve">
+          <source>Delete task</source>
+          <target state="translated">Supprimer la tâche</target>
+        </trans-unit>
+        <trans-unit id="TaskList_OperationKind_Move" translate="yes" xml:space="preserve">
+          <source>Move task</source>
+          <target state="translated">Déplacer la tâche</target>
+        </trans-unit>
+        <trans-unit id="TaskList_OperationKind_Undo" translate="yes" xml:space="preserve">
+          <source>Undo task</source>
+          <target state="translated">Annuler la tâche</target>
+        </trans-unit>
+        <trans-unit id="TaskList_Task_Status_Cancelled" translate="yes" xml:space="preserve">
+          <source>Cancelled</source>
+          <target state="translated">Annulé</target>
+        </trans-unit>
+        <trans-unit id="TaskList_Task_Status_Completed" translate="yes" xml:space="preserve">
+          <source>Completed</source>
+          <target state="translated">Terminé</target>
+        </trans-unit>
+        <trans-unit id="TaskList_Task_Status_Error" translate="yes" xml:space="preserve">
+          <source>Error</source>
+          <target state="translated">Erreur</target>
+        </trans-unit>
+        <trans-unit id="TaskList_Task_Status_Processing" translate="yes" xml:space="preserve">
+          <source>Processing</source>
+          <target state="translated">Traitement</target>
+        </trans-unit>
+        <trans-unit id="TaskList_Task_Status_Waiting" translate="yes" xml:space="preserve">
+          <source>Waiting</source>
+          <target state="translated">En attendant</target>
+        </trans-unit>
+        <trans-unit id="TaskList_To_Label" translate="yes" xml:space="preserve">
+          <source>To</source>
+          <target state="translated">À</target>
+        </trans-unit>
+        <trans-unit id="TaskListAllowParalledTask.Content" translate="yes" xml:space="preserve">
+          <source>Allow parallel execution of tasks</source>
+          <target state="translated">Autoriser l'exécution parallèle des tâches</target>
+        </trans-unit>
+        <trans-unit id="TaskListAlwaysOpenPanel.Text" translate="yes" xml:space="preserve">
+          <source>Always pops up the panel after a new task was created</source>
+          <target state="translated">Affiche toujours le panneau après la création d'une nouvelle tâche</target>
         </trans-unit>
       </group>
     </body>

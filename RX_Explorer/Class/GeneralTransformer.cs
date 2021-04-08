@@ -249,7 +249,7 @@ namespace RX_Explorer.Class
                 }
                 catch (Exception)
                 {
-                    await DestinationFile.DeleteAsync(true).ConfigureAwait(true);
+                    await DestinationFile.DeleteAsync(true);
 
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                     {
@@ -260,7 +260,7 @@ namespace RX_Explorer.Class
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                        _ = await dialog.ShowAsync();
                     });
                 }
             }

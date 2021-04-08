@@ -88,11 +88,11 @@ namespace RX_Explorer.Class
                 {
                     if (LinkType == ShellLinkType.Normal)
                     {
-                        await Exclusive.Controller.RunAsync(LinkTargetPath, WorkDirectory, WindowState, NeedRunAsAdmin, false, false, Arguments).ConfigureAwait(true);
+                        await Exclusive.Controller.RunAsync(LinkTargetPath, WorkDirectory, WindowState, NeedRunAsAdmin, false, false, Arguments);
                     }
                     else
                     {
-                        if (!await Exclusive.Controller.LaunchUWPLnkAsync(LinkTargetPath).ConfigureAwait(true))
+                        if (!await Exclusive.Controller.LaunchUWPLnkAsync(LinkTargetPath))
                         {
                             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                             {
@@ -103,7 +103,7 @@ namespace RX_Explorer.Class
                                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                 };
 
-                                await Dialog.ShowAsync().ConfigureAwait(true);
+                                await Dialog.ShowAsync();
                             });
                         }
                     }
@@ -122,7 +122,7 @@ namespace RX_Explorer.Class
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    await Dialog.ShowAsync().ConfigureAwait(true);
+                    await Dialog.ShowAsync();
                 });
             }
         }
@@ -131,7 +131,7 @@ namespace RX_Explorer.Class
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                return await Exclusive.Controller.GetLnkDataAsync(Path).ConfigureAwait(true);
+                return await Exclusive.Controller.GetLnkDataAsync(Path);
             }
         }
 
@@ -144,7 +144,7 @@ namespace RX_Explorer.Class
         {
             if (ForceUpdate || LinkData == null)
             {
-                LinkData = await GetLinkDataAsync().ConfigureAwait(true);
+                LinkData = await GetLinkDataAsync();
 
                 if (!string.IsNullOrEmpty(LinkData.LinkTargetPath))
                 {
@@ -157,7 +157,7 @@ namespace RX_Explorer.Class
                         }
                     }
 
-                    if (await CheckExistAsync(LinkData.LinkTargetPath).ConfigureAwait(true))
+                    if (await CheckExistAsync(LinkData.LinkTargetPath))
                     {
                         LinkType = ShellLinkType.Normal;
                     }

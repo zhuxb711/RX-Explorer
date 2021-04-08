@@ -72,7 +72,7 @@ namespace RX_Explorer.Class
 
                 try
                 {
-                    using (IRandomAccessStream Stream = await PhotoFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read).ConfigureAwait(true))
+                    using (IRandomAccessStream Stream = await PhotoFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
                     {
                         if (BitmapSource == null)
                         {
@@ -103,7 +103,7 @@ namespace RX_Explorer.Class
 
             try
             {
-                if ((await PhotoFile.GetStorageItemAsync().ConfigureAwait(true)) is StorageFile File)
+                if ((await PhotoFile.GetStorageItemAsync()) is StorageFile File)
                 {
                     BitmapSource = new BitmapImage();
 
@@ -127,7 +127,7 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public async Task UpdateImage()
         {
-            using (IRandomAccessStream Stream = await PhotoFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read).ConfigureAwait(true))
+            using (IRandomAccessStream Stream = await PhotoFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
             {
                 await BitmapSource.SetSourceAsync(Stream);
             }
@@ -143,7 +143,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                using (IRandomAccessStream Stream = await PhotoFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read).ConfigureAwait(true))
+                using (IRandomAccessStream Stream = await PhotoFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
                 {
                     BitmapDecoder decoder = await BitmapDecoder.CreateAsync(Stream);
 

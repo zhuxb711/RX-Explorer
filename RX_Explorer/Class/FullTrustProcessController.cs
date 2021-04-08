@@ -106,7 +106,7 @@ namespace RX_Explorer.Class
 
         private static readonly AutoResetEvent DispatcherSleepLocker = new AutoResetEvent(false);
 
-        private const ushort DynamicBackupProcessNum = 2;
+        public const ushort DynamicBackupProcessNum = 2;
 
         private readonly int CurrentProcessId;
 
@@ -131,6 +131,14 @@ namespace RX_Explorer.Class
         private static readonly ConcurrentQueue<FullTrustProcessController> AvailableControllerQueue = new ConcurrentQueue<FullTrustProcessController>();
 
         private static readonly ConcurrentQueue<TaskCompletionSource<ExclusiveUsage>> WaitingTaskQueue = new ConcurrentQueue<TaskCompletionSource<ExclusiveUsage>>();
+
+        public static int AvailableControllerNum
+        {
+            get
+            {
+                return AvailableControllerQueue.Count;
+            }
+        }
 
         private static volatile int CurrentRunningControllerNum;
 
@@ -168,7 +176,7 @@ namespace RX_Explorer.Class
         {
             if (e.IsDisposed)
             {
-                FullTrustProcessController Controller = await CreateAsync().ConfigureAwait(true);
+                FullTrustProcessController Controller = await CreateAsync();
                 AvailableControllerQueue.Enqueue(Controller);
             }
             else
@@ -240,7 +248,7 @@ namespace RX_Explorer.Class
             {
                 RequestedTarget += DynamicBackupProcessNum;
 
-                while (CurrentRunningControllerNum > RequestedTarget)
+                while (CurrentRunningControllerNum > RequestedTarget && AvailableControllerNum > DynamicBackupProcessNum)
                 {
                     if (AvailableControllerQueue.TryDequeue(out FullTrustProcessController Controller))
                     {
@@ -404,7 +412,7 @@ namespace RX_Explorer.Class
             {
                 IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectRemoteAsync().ConfigureAwait(true))
+                if (await ConnectRemoteAsync())
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -459,7 +467,7 @@ namespace RX_Explorer.Class
             {
                 IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectRemoteAsync().ConfigureAwait(true))
+                if (await ConnectRemoteAsync())
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -514,7 +522,7 @@ namespace RX_Explorer.Class
             {
                 IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectRemoteAsync().ConfigureAwait(true))
+                if (await ConnectRemoteAsync())
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -558,7 +566,7 @@ namespace RX_Explorer.Class
             {
                 IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectRemoteAsync().ConfigureAwait(true))
+                if (await ConnectRemoteAsync())
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -612,7 +620,7 @@ namespace RX_Explorer.Class
             {
                 IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectRemoteAsync().ConfigureAwait(true))
+                if (await ConnectRemoteAsync())
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -680,7 +688,7 @@ namespace RX_Explorer.Class
             {
                 IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectRemoteAsync().ConfigureAwait(true))
+                if (await ConnectRemoteAsync())
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -735,7 +743,7 @@ namespace RX_Explorer.Class
             {
                 IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectRemoteAsync().ConfigureAwait(true))
+                if (await ConnectRemoteAsync())
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -790,7 +798,7 @@ namespace RX_Explorer.Class
             {
                 IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectRemoteAsync().ConfigureAwait(true))
+                if (await ConnectRemoteAsync())
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -806,7 +814,7 @@ namespace RX_Explorer.Class
                         {
                             InstalledApplicationPackage Pack = JsonSerializer.Deserialize<InstalledApplicationPackage>(Convert.ToString(Result));
 
-                            return await InstalledApplication.CreateAsync(Pack).ConfigureAwait(true);
+                            return await InstalledApplication.CreateAsync(Pack);
                         }
                         else
                         {
@@ -848,7 +856,7 @@ namespace RX_Explorer.Class
             {
                 IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectRemoteAsync().ConfigureAwait(true))
+                if (await ConnectRemoteAsync())
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -865,7 +873,7 @@ namespace RX_Explorer.Class
 
                             foreach (InstalledApplicationPackage Pack in JsonSerializer.Deserialize<InstalledApplicationPackage[]>(Convert.ToString(Result)))
                             {
-                                PackageList.Add(await InstalledApplication.CreateAsync(Pack).ConfigureAwait(true));
+                                PackageList.Add(await InstalledApplication.CreateAsync(Pack));
                             }
 
                             return PackageList.ToArray();
@@ -912,7 +920,7 @@ namespace RX_Explorer.Class
 
                 if (Path.Any())
                 {
-                    if (await ConnectRemoteAsync().ConfigureAwait(true))
+                    if (await ConnectRemoteAsync())
                     {
                         ValueSet Value = new ValueSet
                         {
@@ -974,7 +982,7 @@ namespace RX_Explorer.Class
 
                 if (PathArray.All((Path) => !string.IsNullOrWhiteSpace(Path)))
                 {
-                    if (await ConnectRemoteAsync().ConfigureAwait(true))
+                    if (await ConnectRemoteAsync())
                     {
                         ValueSet Value = new ValueSet
                         {
@@ -1040,7 +1048,7 @@ namespace RX_Explorer.Class
             {
                 IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectRemoteAsync().ConfigureAwait(true))
+                if (await ConnectRemoteAsync())
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -1761,7 +1769,7 @@ namespace RX_Explorer.Class
             {
                 IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectRemoteAsync().ConfigureAwait(true))
+                if (await ConnectRemoteAsync())
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -1891,7 +1899,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task DeleteAsync(IEnumerable<string> Source, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
+        public async Task DeleteAsync(IEnumerable<string> Source, bool PermanentDelete, bool IsUndoOperation = false, ProgressChangedEventHandler ProgressHandler = null)
         {
             try
             {
@@ -1901,7 +1909,7 @@ namespace RX_Explorer.Class
                 {
                     Task ProgressTask;
 
-                    if (await PipeController.CreateNewNamedPipeAsync().ConfigureAwait(true))
+                    if (await PipeController.CreateNewNamedPipeAsync())
                     {
                         ProgressTask = PipeController.ListenPipeMessageAsync(ProgressHandler);
                     }
@@ -1915,19 +1923,18 @@ namespace RX_Explorer.Class
                         {"ExecuteType", ExecuteType_Delete},
                         {"ExecutePath", JsonSerializer.Serialize(Source)},
                         {"PermanentDelete", PermanentDelete},
-                        {"Guid", PipeController.GUID.ToString() },
-                        {"Undo", IsUndoOperation }
+                        {"Guid", PipeController.GUID.ToString() }
                     };
 
                     Task<AppServiceResponse> MessageTask = Connection.SendMessageAsync(Value).AsTask();
 
-                    await Task.WhenAll(MessageTask, ProgressTask).ConfigureAwait(true);
+                    await Task.WhenAll(MessageTask, ProgressTask);
 
                     if (MessageTask.Result.Status == AppServiceResponseStatus.Success)
                     {
                         if (MessageTask.Result.Message.ContainsKey("Success"))
                         {
-                            if (MessageTask.Result.Message.TryGetValue("OperationRecord", out object value))
+                            if (!IsUndoOperation && MessageTask.Result.Message.TryGetValue("OperationRecord", out object value))
                             {
                                 OperationRecorder.Current.Push(JsonSerializer.Deserialize<List<string>>(Convert.ToString(value)));
                             }
@@ -1976,17 +1983,17 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task DeleteAsync(string Source, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
+        public Task DeleteAsync(string Source, bool PermanentDelete, bool IsUndoOperation = false, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Source == null)
             {
                 throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
             }
 
-            return DeleteAsync(new string[1] { Source }, PermanentDelete, ProgressHandler, IsUndoOperation);
+            return DeleteAsync(new string[1] { Source }, PermanentDelete, IsUndoOperation, ProgressHandler);
         }
 
-        public async Task MoveAsync(IEnumerable<string> Source, string DestinationPath, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
+        public async Task MoveAsync(IEnumerable<string> Source, string DestinationPath, bool IsUndoOperation = false, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Source == null)
             {
@@ -1997,13 +2004,13 @@ namespace RX_Explorer.Class
             {
                 IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectRemoteAsync().ConfigureAwait(true))
+                if (await ConnectRemoteAsync())
                 {
                     List<KeyValuePair<string, string>> MessageList = new List<KeyValuePair<string, string>>();
 
                     foreach (string SourcePath in Source)
                     {
-                        if (await FileSystemStorageItemBase.OpenAsync(SourcePath).ConfigureAwait(true) is FileSystemStorageItemBase Item)
+                        if (await FileSystemStorageItemBase.OpenAsync(SourcePath) is FileSystemStorageItemBase Item)
                         {
                             switch (Item)
                             {
@@ -2017,7 +2024,7 @@ namespace RX_Explorer.Class
                                     {
                                         string TargetPath = Path.Combine(DestinationPath, Path.GetFileName(SourcePath));
 
-                                        if (await FileSystemStorageItemBase.CheckExistAsync(TargetPath).ConfigureAwait(true))
+                                        if (await FileSystemStorageItemBase.CheckExistAsync(TargetPath))
                                         {
                                             QueueContentDialog Dialog = new QueueContentDialog
                                             {
@@ -2029,7 +2036,7 @@ namespace RX_Explorer.Class
 
                                             if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
                                             {
-                                                if (await FileSystemStorageItemBase.CreateAsync(TargetPath, StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase NewFolder)
+                                                if (await FileSystemStorageItemBase.CreateAsync(TargetPath, StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFolder)
                                                 {
                                                     MessageList.Add(new KeyValuePair<string, string>(SourcePath, Path.GetFileName(NewFolder.Path)));
                                                 }
@@ -2064,7 +2071,7 @@ namespace RX_Explorer.Class
 
                     Task ProgressTask;
 
-                    if (await PipeController.CreateNewNamedPipeAsync().ConfigureAwait(true))
+                    if (await PipeController.CreateNewNamedPipeAsync())
                     {
                         ProgressTask = PipeController.ListenPipeMessageAsync(ProgressHandler);
                     }
@@ -2078,19 +2085,18 @@ namespace RX_Explorer.Class
                         {"ExecuteType", ExecuteType_Move},
                         {"SourcePath", JsonSerializer.Serialize(MessageList)},
                         {"DestinationPath", DestinationPath},
-                        {"Guid", PipeController.GUID.ToString() },
-                        {"Undo", IsUndoOperation }
+                        {"Guid", PipeController.GUID.ToString() }
                     };
 
                     Task<AppServiceResponse> MessageTask = Connection.SendMessageAsync(Value).AsTask();
 
-                    await Task.WhenAll(MessageTask, ProgressTask).ConfigureAwait(true);
+                    await Task.WhenAll(MessageTask, ProgressTask);
 
                     if (MessageTask.Result.Status == AppServiceResponseStatus.Success)
                     {
                         if (MessageTask.Result.Message.ContainsKey("Success"))
                         {
-                            if (MessageTask.Result.Message.TryGetValue("OperationRecord", out object value))
+                            if (!IsUndoOperation && MessageTask.Result.Message.TryGetValue("OperationRecord", out object value))
                             {
                                 OperationRecorder.Current.Push(JsonSerializer.Deserialize<List<string>>(Convert.ToString(value)));
                             }
@@ -2139,7 +2145,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task MoveAsync(string SourcePath, string Destination, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
+        public Task MoveAsync(string SourcePath, string Destination, bool IsUndoOperation = false, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (string.IsNullOrEmpty(SourcePath))
             {
@@ -2151,7 +2157,7 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
             }
 
-            return MoveAsync(new string[1] { SourcePath }, Destination, ProgressHandler, IsUndoOperation);
+            return MoveAsync(new string[1] { SourcePath }, Destination, IsUndoOperation, ProgressHandler);
         }
 
         public async Task<bool> PasteRemoteFile(string DestinationPath)
@@ -2160,7 +2166,7 @@ namespace RX_Explorer.Class
             {
                 IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectRemoteAsync().ConfigureAwait(true))
+                if (await ConnectRemoteAsync())
                 {
                     ValueSet Value = new ValueSet
                     {
@@ -2204,7 +2210,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task CopyAsync(IEnumerable<string> Source, string DestinationPath, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
+        public async Task CopyAsync(IEnumerable<string> Source, string DestinationPath, bool IsUndoOperation = false, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Source == null)
             {
@@ -2215,13 +2221,13 @@ namespace RX_Explorer.Class
             {
                 IsAnyActionExcutingInCurrentController = true;
 
-                if (await ConnectRemoteAsync().ConfigureAwait(true))
+                if (await ConnectRemoteAsync())
                 {
                     List<KeyValuePair<string, string>> MessageList = new List<KeyValuePair<string, string>>();
 
                     foreach (string SourcePath in Source)
                     {
-                        if (await FileSystemStorageItemBase.OpenAsync(SourcePath).ConfigureAwait(true) is FileSystemStorageItemBase Item)
+                        if (await FileSystemStorageItemBase.OpenAsync(SourcePath) is FileSystemStorageItemBase Item)
                         {
                             switch (Item)
                             {
@@ -2237,7 +2243,7 @@ namespace RX_Explorer.Class
                                         {
                                             string TargetPath = Path.Combine(DestinationPath, Path.GetFileName(SourcePath));
 
-                                            if (await FileSystemStorageItemBase.CheckExistAsync(TargetPath).ConfigureAwait(true))
+                                            if (await FileSystemStorageItemBase.CheckExistAsync(TargetPath))
                                             {
                                                 QueueContentDialog Dialog = new QueueContentDialog
                                                 {
@@ -2249,7 +2255,7 @@ namespace RX_Explorer.Class
 
                                                 if (await Dialog.ShowAsync().ConfigureAwait(false) != ContentDialogResult.Primary)
                                                 {
-                                                    if (await FileSystemStorageItemBase.CreateAsync(TargetPath, StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase NewFolder)
+                                                    if (await FileSystemStorageItemBase.CreateAsync(TargetPath, StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFolder)
                                                     {
                                                         MessageList.Add(new KeyValuePair<string, string>(SourcePath, Path.GetFileName(NewFolder.Path)));
                                                     }
@@ -2289,7 +2295,7 @@ namespace RX_Explorer.Class
 
                     Task ProgressTask;
 
-                    if (await PipeController.CreateNewNamedPipeAsync().ConfigureAwait(true))
+                    if (await PipeController.CreateNewNamedPipeAsync())
                     {
                         ProgressTask = PipeController.ListenPipeMessageAsync(ProgressHandler);
                     }
@@ -2303,19 +2309,18 @@ namespace RX_Explorer.Class
                         {"ExecuteType", ExecuteType_Copy},
                         {"SourcePath", JsonSerializer.Serialize(MessageList)},
                         {"DestinationPath", DestinationPath},
-                        {"Guid", PipeController.GUID.ToString() },
-                        {"Undo", IsUndoOperation }
+                        {"Guid", PipeController.GUID.ToString() }
                     };
 
                     Task<AppServiceResponse> MessageTask = Connection.SendMessageAsync(Value).AsTask();
 
-                    await Task.WhenAll(MessageTask, ProgressTask).ConfigureAwait(true);
+                    await Task.WhenAll(MessageTask, ProgressTask);
 
                     if (MessageTask.Result.Status == AppServiceResponseStatus.Success)
                     {
                         if (MessageTask.Result.Message.ContainsKey("Success"))
                         {
-                            if (MessageTask.Result.Message.TryGetValue("OperationRecord", out object value))
+                            if (!IsUndoOperation && MessageTask.Result.Message.TryGetValue("OperationRecord", out object value))
                             {
                                 OperationRecorder.Current.Push(JsonSerializer.Deserialize<List<string>>(Convert.ToString(value)));
                             }
@@ -2359,7 +2364,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task CopyAsync(string SourcePath, string Destination, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
+        public Task CopyAsync(string SourcePath, string Destination, bool IsUndoOperation = false, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (string.IsNullOrEmpty(SourcePath))
             {
@@ -2371,14 +2376,14 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Destination), "Parameter could not be null");
             }
 
-            return CopyAsync(new string[1] { SourcePath }, Destination, ProgressHandler, IsUndoOperation);
+            return CopyAsync(new string[1] { SourcePath }, Destination, IsUndoOperation, ProgressHandler);
         }
 
-        public async Task<bool> RestoreItemInRecycleBinAsync(string OriginPath)
+        public async Task<bool> RestoreItemInRecycleBinAsync(params string[] OriginPathList)
         {
-            if (string.IsNullOrWhiteSpace(OriginPath))
+            if (OriginPathList.Any((Item) => string.IsNullOrWhiteSpace(Item)))
             {
-                throw new ArgumentNullException(nameof(OriginPath), "Parameter could not be null or empty");
+                throw new ArgumentNullException(nameof(OriginPathList), "Parameter could not be null or empty");
             }
 
             try
@@ -2390,7 +2395,7 @@ namespace RX_Explorer.Class
                     ValueSet Value = new ValueSet
                     {
                         {"ExecuteType", ExecuteType_Restore_RecycleItem},
-                        {"ExecutePath", OriginPath}
+                        {"ExecutePath", JsonSerializer.Serialize(OriginPathList)}
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -2599,8 +2604,14 @@ namespace RX_Explorer.Class
 
             public void Dispose()
             {
+                GC.SuppressFinalize(this);
                 ExclusiveDisposed?.Invoke(this, Controller);
                 Controller = null;
+            }
+
+            ~ExclusiveUsage()
+            {
+                Dispose();
             }
         }
     }

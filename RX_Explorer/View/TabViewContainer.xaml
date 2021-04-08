@@ -6,11 +6,15 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    mc:Ignorable="d"
+      xmlns:Cls="using:RX_Explorer.Class"
+      xmlns:sys="using:System"
+      mc:Ignorable="d"
     Background="Transparent"
     NavigationCacheMode="Required">
 
     <Page.Resources>
+        <Cls:StringToVisibilityConverter x:Key="VisibilityConverter"/>
+        
         <muxc:CommandBarFlyout x:Name="TabCommandFlyout">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="ClosePane"
@@ -30,6 +34,7 @@
     <SplitView DisplayMode="Overlay"
                PanePlacement="Right"
                Name="TaskListPanel"
+               x:FieldModifier="public"
                PaneBackground="{ThemeResource ElementAcrylicBrush}">
         <Grid>
             <muxc:TabView TabWidthMode="Equal"
@@ -68,9 +73,10 @@
                         <StackPanel Orientation="Horizontal">
                             <Viewbox>
                                 <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                          Glyph="&#xF0E3;" />
+                                          Glyph="&#xEE92;" />
                             </Viewbox>
                             <TextBlock Text="任务列表"
+                                       x:Uid="TaskListPanelTitle"
                                        Margin="5,0,0,0" />
                         </StackPanel>
                     </Button>
@@ -90,32 +96,138 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30"/>
                     <RowDefinition />
+                    <RowDefinition Height="80"/>
                 </Grid.RowDefinitions>
-                <TextBlock Text="正在进行中的任务"
-                           FontSize="16"
-                           VerticalAlignment="Center"/>
+                <RelativePanel>
+                    <TextBlock Text="任务列表"
+                               FontSize="16"
+                               x:Uid="TaskListPanelTitle"
+                               RelativePanel.AlignVerticalCenterWithPanel="True"
+                               RelativePanel.AlignLeftWithPanel="True"/>
+                    <Button RelativePanel.AlignRightWithPanel="True"
+                            RelativePanel.AlignVerticalCenterWithPanel="True"
+                            Width="24"
+                            Height="24"
+                            Padding="2"
+                            Name="PinTaskListPanel"
+                            Click="PinTaskListPanel_Click"
+                            Style="{ThemeResource ButtonRevealStyle}"
+                            Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}" />
+                </RelativePanel>
                 <ListView Grid.Row="1"
-                          Margin="0,5,0,0">
+                          Margin="0,5,0,0"
+                          SelectionMode="None"
+                          ItemsSource="{x:Bind Cls:QueueFileOperationController.ListItemSource}"
+                          ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions, Mode=OneWay}">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment"
+                                    Value="Stretch" />
+                            <Setter Property="Padding"
+                                    Value="10"/>
+                        </Style>
+                    </ListView.ItemContainerStyle>
                     <ListView.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="Cls:OperationListBaseModel">
                             <StackPanel>
-                                <TextBlock />
-                                <TextBlock Margin="0,5,0,0"/>
-                                <TextBlock Margin="0,5,0,0"/>
-                                <RelativePanel Margin="0,5,0,0">
+                                <RelativePanel>
+                                    <TextBlock Text="{x:Bind OperationKindText}"
+                                               FontWeight="Bold"
+                                               RelativePanel.AlignLeftWithPanel="True"
+                                               RelativePanel.AlignVerticalCenterWithPanel="True"
+                                               RelativePanel.LeftOf="CancelTaskButton" />
+                                    <Button RelativePanel.LeftOf="RemoveTaskButton"
+                                            RelativePanel.AlignVerticalCenterWithPanel="True"
+                                            ToolTipService.ToolTip="取消此任务"
+                                            x:Uid="TaskListCancelTaskButton"
+                                            Width="20"
+                                            Height="20"
+                                            Padding="2"
+                                            Name="CancelTaskButton"
+                                            Click="CancelTaskButton_Click"
+                                            Visibility="{x:Bind CancelButtonVisibility, Mode=OneWay}"
+                                            Style="{ThemeResource ButtonRevealStyle}"
+                                            Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
+                                        <Button.Content>
+                                            <Viewbox>
+                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                          Glyph="&#xECC9;" />
+                                            </Viewbox>
+                                        </Button.Content>
+                                    </Button>
+                                    <Button RelativePanel.AlignRightWithPanel="True"
+                                            RelativePanel.AlignVerticalCenterWithPanel="True"
+                                            ToolTipService.ToolTip="移除此记录"
+                                            x:Uid="TaskListRemoveTaskButton"
+                                            Width="20"
+                                            Height="20"
+                                            Padding="2"
+                                            Name="RemoveTaskButton"
+                                            Click="RemoveTaskButton_Click"
+                                            Visibility="{x:Bind RemoveButtonVisibility,Mode=OneWay}"
+                                            Style="{ThemeResource ButtonRevealStyle}"
+                                            Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
+                                        <Button.Content>
+                                            <Viewbox>
+                                                <SymbolIcon Symbol="Cancel" />
+                                            </Viewbox>
+                                        </Button.Content>
+                                    </Button>
+                                </RelativePanel>
+                                <TextBlock Margin="0,5,0,0"
+                                           FontSize="12"
+                                           TextTrimming="CharacterEllipsis"
+                                           ToolTipService.ToolTip="{x:Bind FromPathText}"
+                                           Text="{x:Bind FromPathText}" />
+                                <TextBlock Margin="0,5,0,0"
+                                           FontSize="12"
+                                           TextTrimming="CharacterEllipsis"
+                                           Visibility="{x:Bind ToPathText, Converter={StaticResource VisibilityConverter}}"
+                                           ToolTipService.ToolTip="{x:Bind ToPathText}"
+                                           Text="{x:Bind ToPathText}" />
+                                <RelativePanel>
                                     <muxc:ProgressBar RelativePanel.AlignLeftWithPanel="True"
-                                                      RelativePanel.RightOf="ProgressText"
-                                                      RelativePanel.AlignVerticalCenterWithPanel="True"/>
+                                                      RelativePanel.LeftOf="ProgressText"
+                                                      RelativePanel.AlignVerticalCenterWithPanel="True"
+                                                      Minimum="0"
+                                                      Maximum="100"
+                                                      ShowPaused="{x:Bind ProgressCancel, Mode=OneWay}"
+                                                      ShowError="{x:Bind ProgressError, Mode=OneWay}"
+                                                      IsIndeterminate="{x:Bind ProgressIndeterminate, Mode=OneWay}"
+                                                      Value="{x:Bind Progress, Mode=OneWay}" />
                                     <TextBlock x:Name="ProgressText"
+                                               FontSize="12"
+                                               Text="{x:Bind sys:String.Format('{0}%', Progress), Mode=OneWay}"
                                                Margin="5,0,0,0"
                                                RelativePanel.AlignVerticalCenterWithPanel="True"
-                                               RelativePanel.AlignRightWithPanel="True"/>
+                                               RelativePanel.AlignRightWithPanel="True" />
                                 </RelativePanel>
-                                <TextBlock Margin="0,5,0,0"/>
+                                <TextBlock Text="{x:Bind StatusText, Mode=OneWay}"
+                                           TextWrapping="Wrap"
+                                           FontSize="12"
+                                           HorizontalAlignment="Left" />
                             </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
+                <StackPanel Grid.Row="2"
+                            Margin="10,0,0,0">
+                    <CheckBox Content="允许并行执行任务"
+                              x:Uid="TaskListAllowParalledTask"
+                              IsChecked="{x:Bind Cls:QueueFileOperationController.AllowParalledExecution, Mode=TwoWay}" />
+                    <CheckBox IsChecked="{x:Bind Cls:QueueFileOperationController.OpenPanelWhenTaskIsCreated, Mode=TwoWay}">
+                        <TextBlock TextWrapping="WrapWholeWords"
+                                   VerticalAlignment="Center"
+                                   x:Uid="TaskListAlwaysOpenPanel" />
+                    </CheckBox>
+                </StackPanel>
+                <TextBlock Grid.RowSpan="3"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center"
+                           Text="无内容"
+                           x:Uid="TaskListEmptyTip"
+                           Name="EmptyTip"
+                           FontSize="16"/>
             </Grid>
         </SplitView.Pane>
     </SplitView>

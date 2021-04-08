@@ -1535,9 +1535,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="Operate_Text_Compression" xml:space="preserve">
     <value>Compression</value>
   </data>
-  <data name="Operate_Text_Copy" xml:space="preserve">
-    <value>Copy</value>
-  </data>
   <data name="Operate_Text_Create" xml:space="preserve">
     <value>Create</value>
   </data>
@@ -1776,9 +1773,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="Progress_Tip_Compressing" xml:space="preserve">
     <value>Compressing</value>
   </data>
-  <data name="Progress_Tip_Copying" xml:space="preserve">
-    <value>Copying</value>
-  </data>
   <data name="Progress_Tip_Deleting" xml:space="preserve">
     <value>Deleting</value>
   </data>
@@ -1794,14 +1788,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="Progress_Tip_Loading" xml:space="preserve">
     <value>Loading...</value>
   </data>
-  <data name="Progress_Tip_Moving" xml:space="preserve">
-    <value>Moving</value>
-  </data>
   <data name="Progress_Tip_Transcoding" xml:space="preserve">
     <value>Transcoding</value>
-  </data>
-  <data name="Progress_Tip_Undoing" xml:space="preserve">
-    <value>Undoing</value>
   </data>
   <data name="QueueDialog_CopyFailForNotExist_Content" xml:space="preserve">
     <value>Some files do not exist and cannot be copyed to the specified location</value>
@@ -3134,5 +3122,60 @@ Invalid names include
   </data>
   <data name="Properties_Details_PeopleNames" xml:space="preserve">
     <value>People names</value>
+  </data>
+  <data name="TaskListAllowParalledTask.Content" xml:space="preserve">
+    <value>Allow parallel execution of tasks</value>
+  </data>
+  <data name="TaskListAlwaysOpenPanel.Text" xml:space="preserve">
+    <value>Always pops up the panel after a new task was created</value>
+  </data>
+  <data name="TaskListCancelTaskButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Cancel this task</value>
+  </data>
+  <data name="TaskListEmptyTip.Text" xml:space="preserve">
+    <value>Empty</value>
+  </data>
+  <data name="TaskListPanelTitle.Text" xml:space="preserve">
+    <value>Task list</value>
+  </data>
+  <data name="TaskListRemoveTaskButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Remove this record</value>
+  </data>
+  <data name="TaskList_From_Label" xml:space="preserve">
+    <value>From</value>
+  </data>
+  <data name="TaskList_More_Items" xml:space="preserve">
+    <value>more items</value>
+    <comment>for example: 5 more items</comment>
+  </data>
+  <data name="TaskList_OperationKind_Copy" xml:space="preserve">
+    <value>Copy task</value>
+  </data>
+  <data name="TaskList_OperationKind_Delete" xml:space="preserve">
+    <value>Delete task</value>
+  </data>
+  <data name="TaskList_OperationKind_Move" xml:space="preserve">
+    <value>Move task</value>
+  </data>
+  <data name="TaskList_OperationKind_Undo" xml:space="preserve">
+    <value>Undo task</value>
+  </data>
+  <data name="TaskList_Task_Status_Cancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
+  <data name="TaskList_Task_Status_Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="TaskList_Task_Status_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="TaskList_Task_Status_Processing" xml:space="preserve">
+    <value>Processing</value>
+  </data>
+  <data name="TaskList_Task_Status_Waiting" xml:space="preserve">
+    <value>Waiting</value>
+  </data>
+  <data name="TaskList_To_Label" xml:space="preserve">
+    <value>To</value>
   </data>
 </root>

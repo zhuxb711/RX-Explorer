@@ -103,17 +103,17 @@ namespace RX_Explorer
                             {
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                 {
-                                    SearchItems = await Exclusive.Controller.SearchByEverythingAsync(GlobleSearch ? string.Empty : CurrentFolder.Path, SearchTarget, IncludeRegex, IngoreCase, MaxCount).ConfigureAwait(true);
+                                    SearchItems = await Exclusive.Controller.SearchByEverythingAsync(GlobleSearch ? string.Empty : CurrentFolder.Path, SearchTarget, IncludeRegex, IngoreCase, MaxCount);
                                 }
                                 break;
                             }
                     }
 
-                    await Task.Delay(500).ConfigureAwait(true);
+                    await Task.Delay(500);
 
                     LoadingControl.IsLoading = false;
 
-                    await Task.Delay(300).ConfigureAwait(true);
+                    await Task.Delay(300);
 
                     if (Cancellation.IsCancellationRequested)
                     {
@@ -165,9 +165,9 @@ namespace RX_Explorer
                     {
                         Frame.GoBack();
 
-                        await Control.CurrentPresenter.DisplayItemsInFolder(ParentFolderPath).ConfigureAwait(true);
+                        await Control.CurrentPresenter.DisplayItemsInFolder(ParentFolderPath);
 
-                        await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, ParentFolderPath).ConfigureAwait(true);
+                        await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, ParentFolderPath);
 
                         if (Control.CurrentPresenter.FileCollection.FirstOrDefault((SItem) => SItem == Item) is FileSystemStorageItemBase Target)
                         {
@@ -187,7 +187,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await dialog.ShowAsync();
                 }
             }
         }
@@ -471,9 +471,9 @@ namespace RX_Explorer
                     {
                         Frame.GoBack();
 
-                        await Control.CurrentPresenter.DisplayItemsInFolder(ParentFolderPath).ConfigureAwait(true);
+                        await Control.CurrentPresenter.DisplayItemsInFolder(ParentFolderPath);
 
-                        await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, ParentFolderPath).ConfigureAwait(true);
+                        await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, ParentFolderPath);
 
                         if (Control.CurrentPresenter.FileCollection.FirstOrDefault((SItem) => SItem == Item) is FileSystemStorageItemBase Target)
                         {
@@ -493,7 +493,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await dialog.ShowAsync();
                 }
             }
         }

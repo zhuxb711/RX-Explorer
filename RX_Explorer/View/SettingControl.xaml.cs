@@ -284,12 +284,12 @@ namespace RX_Explorer
                 SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfi_UseBuildInAsDefault"));
                 SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfi_UseEverythingAsDefault"));
 
-                foreach (TerminalProfile Profile in await SQLite.Current.GetAllTerminalProfile().ConfigureAwait(true))
+                foreach (TerminalProfile Profile in await SQLite.Current.GetAllTerminalProfile())
                 {
                     DefaultTerminal.Items.Add(Profile.Name);
                 }
 
-                await ApplyLocalSetting(false).ConfigureAwait(true);
+                await ApplyLocalSetting(false);
 
                 ApplicationData.Current.DataChanged += Current_DataChanged;
             }
@@ -303,7 +303,7 @@ namespace RX_Explorer
                 {
                     try
                     {
-                        IEnumerable<string> DataBase = (await SQLite.Current.GetAllTerminalProfile().ConfigureAwait(true)).Select((Profile) => Profile.Name);
+                        IEnumerable<string> DataBase = (await SQLite.Current.GetAllTerminalProfile()).Select((Profile) => Profile.Name);
 
                         foreach (string NewProfile in DataBase.Except(DefaultTerminal.Items).ToList())
                         {
@@ -315,7 +315,7 @@ namespace RX_Explorer
                             DefaultTerminal.Items.Remove(RemoveProfile);
                         }
 
-                        await ApplyLocalSetting(true).ConfigureAwait(true);
+                        await ApplyLocalSetting(true);
 
                         if (ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] is int Index && Index == UIMode.SelectedIndex)
                         {
@@ -475,7 +475,7 @@ namespace RX_Explorer
 
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                     {
-                        EnableQuicklook.IsEnabled = await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync().ConfigureAwait(true);
+                        EnableQuicklook.IsEnabled = await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync();
                     }
 
                     if (AnimationController.Current.IsEnableAnimation)
@@ -792,7 +792,7 @@ namespace RX_Explorer
                 {
                     if ((Tab.Content as Frame)?.Content is FileControl Control && Control.CurrentPresenter.CurrentFolder != null)
                     {
-                        await Control.CurrentPresenter.DisplayItemsInFolder(Control.CurrentPresenter.CurrentFolder, true).ConfigureAwait(true);
+                        await Control.CurrentPresenter.DisplayItemsInFolder(Control.CurrentPresenter.CurrentFolder, true);
                     }
                 }
             }
@@ -862,14 +862,14 @@ namespace RX_Explorer
 
         private async void Like_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            await SystemInformation.LaunchStoreForReviewAsync().ConfigureAwait(true);
+            await SystemInformation.LaunchStoreForReviewAsync();
         }
 
         private async void ClearUp_Click(object sender, RoutedEventArgs e)
         {
             ResetDialog Dialog = new ResetDialog();
 
-            if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+            if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
             {
                 if (Dialog.IsClearSecureFolder)
                 {
@@ -900,7 +900,7 @@ namespace RX_Explorer
                                     Content = Globalization.GetString("QueueDialog_RestartFail_Content"),
                                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                 };
-                                _ = await Dialog1.ShowAsync().ConfigureAwait(true);
+                                _ = await Dialog1.ShowAsync();
                                 break;
                             }
                     }
@@ -910,17 +910,17 @@ namespace RX_Explorer
                     LoadingText.Text = Globalization.GetString("Progress_Tip_Exporting");
                     LoadingControl.IsLoading = true;
 
-                    if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder"), StorageItemTypes.Folder, CreateOption.OpenIfExist).ConfigureAwait(true) is FileSystemStorageFolder SecureFolder)
+                    if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder"), StorageItemTypes.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder SecureFolder)
                     {
                         string FileEncryptionAesKey = KeyGenerator.GetMD5WithLength(CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword"), 16);
 
                         try
                         {
-                            foreach (FileSystemStorageFile Item in await SecureFolder.GetChildItemsAsync(false, ItemFilters.File).ConfigureAwait(true))
+                            foreach (FileSystemStorageFile Item in await SecureFolder.GetChildItemsAsync(false, ItemFilters.File))
                             {
-                                if (await Item.DecryptAsync(Dialog.ExportFolder.Path, FileEncryptionAesKey).ConfigureAwait(true) is FileSystemStorageItemBase)
+                                if (await Item.DecryptAsync(Dialog.ExportFolder.Path, FileEncryptionAesKey) is FileSystemStorageItemBase)
                                 {
-                                    await Item.DeleteAsync(true).ConfigureAwait(true);
+                                    await Item.DeleteAsync(true);
                                 }
                             }
 
@@ -939,11 +939,11 @@ namespace RX_Explorer
                                 LogTracer.Log(ex, $"{nameof(ClearUp_Click)} threw an exception");
                             }
 
-                            await Task.Delay(1000).ConfigureAwait(true);
+                            await Task.Delay(1000);
 
                             LoadingControl.IsLoading = false;
 
-                            await Task.Delay(1000).ConfigureAwait(true);
+                            await Task.Delay(1000);
 
                             Window.Current.Activate();
 
@@ -960,7 +960,7 @@ namespace RX_Explorer
                                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                         };
 
-                                        _ = await Dialog1.ShowAsync().ConfigureAwait(true);
+                                        _ = await Dialog1.ShowAsync();
 
                                         break;
                                     }
@@ -975,7 +975,7 @@ namespace RX_Explorer
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
 
-                            _ = await Dialog1.ShowAsync().ConfigureAwait(true);
+                            _ = await Dialog1.ShowAsync();
                         }
                         catch (FileDamagedException)
                         {
@@ -986,7 +986,7 @@ namespace RX_Explorer
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
 
-                            _ = await Dialog1.ShowAsync().ConfigureAwait(true);
+                            _ = await Dialog1.ShowAsync();
                         }
                         catch (Exception)
                         {
@@ -997,7 +997,7 @@ namespace RX_Explorer
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
 
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                            _ = await Dialog.ShowAsync();
                         }
                     }
                 }
@@ -1159,7 +1159,7 @@ namespace RX_Explorer
 
         private async void Purchase_Click(object sender, RoutedEventArgs e)
         {
-            switch (await MSStoreHelper.Current.PurchaseAsync().ConfigureAwait(true))
+            switch (await MSStoreHelper.Current.PurchaseAsync())
             {
                 case StorePurchaseStatus.Succeeded:
                     {
@@ -1169,7 +1169,7 @@ namespace RX_Explorer
                             Content = Globalization.GetString("QueueDialog_Store_PurchaseSuccess_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
-                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                        _ = await QueueContenDialog.ShowAsync();
                         break;
                     }
                 case StorePurchaseStatus.AlreadyPurchased:
@@ -1180,7 +1180,7 @@ namespace RX_Explorer
                             Content = Globalization.GetString("QueueDialog_Store_AlreadyPurchase_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
-                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                        _ = await QueueContenDialog.ShowAsync();
                         break;
                     }
                 case StorePurchaseStatus.NotPurchased:
@@ -1191,7 +1191,7 @@ namespace RX_Explorer
                             Content = Globalization.GetString("QueueDialog_Store_NotPurchase_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
-                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                        _ = await QueueContenDialog.ShowAsync();
                         break;
                     }
                 default:
@@ -1202,7 +1202,7 @@ namespace RX_Explorer
                             Content = Globalization.GetString("QueueDialog_Store_NetworkError_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
-                        _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                        _ = await QueueContenDialog.ShowAsync();
                         break;
                     }
             }
@@ -1211,7 +1211,7 @@ namespace RX_Explorer
         private async void UpdateLogLink_Click(object sender, RoutedEventArgs e)
         {
             WhatIsNew Dialog = new WhatIsNew();
-            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+            _ = await Dialog.ShowAsync();
         }
 
         private async void SystemInfoButton_Click(object sender, RoutedEventArgs e)
@@ -1219,7 +1219,7 @@ namespace RX_Explorer
             if (Package.Current.Id.Architecture == ProcessorArchitecture.X64 || Package.Current.Id.Architecture == ProcessorArchitecture.X86)
             {
                 SystemInfoDialog dialog = new SystemInfoDialog();
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                _ = await dialog.ShowAsync();
             }
             else
             {
@@ -1229,7 +1229,7 @@ namespace RX_Explorer
                     Content = Globalization.GetString("QueueDialog_NotSupportARM_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                _ = await dialog.ShowAsync();
             }
 
         }
@@ -1237,17 +1237,17 @@ namespace RX_Explorer
         private async void AddFeedBack_Click(object sender, RoutedEventArgs e)
         {
             FeedBackDialog Dialog = new FeedBackDialog();
-            if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+            if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
             {
                 if (FeedBackCollection.Count != 0)
                 {
                     if (FeedBackCollection.FirstOrDefault((It) => It.UserName == UserName && It.Suggestion == Dialog.FeedBack && It.Title == Dialog.TitleName) == null)
                     {
                         FeedBackItem Item = new FeedBackItem(UserName, Dialog.TitleName, Dialog.FeedBack, "0", "0", UserID, Guid.NewGuid().ToString("D"));
-                        if (await MySQL.Current.SetFeedBackAsync(Item).ConfigureAwait(true))
+                        if (await MySQL.Current.SetFeedBackAsync(Item))
                         {
                             FeedBackCollection.Add(Item);
-                            await Task.Delay(1000).ConfigureAwait(true);
+                            await Task.Delay(1000);
                             FeedBackList.ScrollIntoViewSmoothly(FeedBackCollection.Last());
                         }
                         else
@@ -1258,7 +1258,7 @@ namespace RX_Explorer
                                 Content = Globalization.GetString("QueueDialog_FeedBackNetworkError_Content"),
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
-                            _ = await dialog.ShowAsync().ConfigureAwait(true);
+                            _ = await dialog.ShowAsync();
                         }
                     }
                     else
@@ -1269,13 +1269,13 @@ namespace RX_Explorer
                             Content = Globalization.GetString("QueueDialog_FeedBackRepeatError_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
-                        _ = await TipsDialog.ShowAsync().ConfigureAwait(true);
+                        _ = await TipsDialog.ShowAsync();
                     }
                 }
                 else
                 {
                     FeedBackItem Item = new FeedBackItem(UserName, Dialog.TitleName, Dialog.FeedBack, "0", "0", UserID, Guid.NewGuid().ToString("D"));
-                    if (!await MySQL.Current.SetFeedBackAsync(Item).ConfigureAwait(true))
+                    if (!await MySQL.Current.SetFeedBackAsync(Item))
                     {
                         QueueContentDialog dialog = new QueueContentDialog
                         {
@@ -1283,12 +1283,12 @@ namespace RX_Explorer
                             Content = Globalization.GetString("QueueDialog_FeedBackNetworkError_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                        _ = await dialog.ShowAsync();
                     }
                     else
                     {
                         FeedBackCollection.Add(Item);
-                        await Task.Delay(1000).ConfigureAwait(true);
+                        await Task.Delay(1000);
                         FeedBackList.ScrollIntoViewSmoothly(FeedBackCollection.Last());
                     }
                 }
@@ -1309,9 +1309,9 @@ namespace RX_Explorer
             if (FeedBackList.SelectedItem is FeedBackItem SelectItem)
             {
                 FeedBackDialog Dialog = new FeedBackDialog(SelectItem.Title, SelectItem.Suggestion);
-                if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
-                    if (!await MySQL.Current.UpdateFeedBackAsync(Dialog.TitleName, Dialog.FeedBack, SelectItem.GUID).ConfigureAwait(true))
+                    if (!await MySQL.Current.UpdateFeedBackAsync(Dialog.TitleName, Dialog.FeedBack, SelectItem.GUID))
                     {
                         QueueContentDialog dialog = new QueueContentDialog
                         {
@@ -1319,7 +1319,7 @@ namespace RX_Explorer
                             Content = Globalization.GetString("QueueDialog_FeedBackNetworkError_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                        _ = await dialog.ShowAsync();
                     }
                     else
                     {
@@ -1333,7 +1333,7 @@ namespace RX_Explorer
         {
             if (FeedBackList.SelectedItem is FeedBackItem SelectItem)
             {
-                if (!await MySQL.Current.DeleteFeedBackAsync(SelectItem).ConfigureAwait(true))
+                if (!await MySQL.Current.DeleteFeedBackAsync(SelectItem))
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -1341,7 +1341,7 @@ namespace RX_Explorer
                         Content = Globalization.GetString("QueueDialog_FeedBackNetworkError_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await dialog.ShowAsync();
                 }
                 else
                 {
@@ -1466,7 +1466,7 @@ namespace RX_Explorer
 
                 if (PictureList.Count == 0)
                 {
-                    foreach (Uri ImageUri in await SQLite.Current.GetBackgroundPictureAsync().ConfigureAwait(true))
+                    foreach (Uri ImageUri in await SQLite.Current.GetBackgroundPictureAsync())
                     {
                         BitmapImage Bitmap = new BitmapImage
                         {
@@ -1488,7 +1488,7 @@ namespace RX_Explorer
                         catch (Exception ex)
                         {
                             LogTracer.Log(ex, "Error when loading background pictures, the file might lost");
-                            await SQLite.Current.DeleteBackgroundPictureAsync(ImageUri).ConfigureAwait(true);
+                            await SQLite.Current.DeleteBackgroundPictureAsync(ImageUri);
                         }
                     }
                 }
@@ -1499,7 +1499,7 @@ namespace RX_Explorer
                 {
                     if (PictureList.FirstOrDefault((Picture) => Picture.PictureUri.ToString() == Uri) is BackgroundPicture PictureItem)
                     {
-                        if (await PictureItem.GetFullSizeBitmapImageAsync().ConfigureAwait(true) is BitmapImage Bitmap)
+                        if (await PictureItem.GetFullSizeBitmapImageAsync() is BitmapImage Bitmap)
                         {
                             BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureItem.PictureUri);
                             PictureGirdView.SelectedItem = PictureItem;
@@ -1511,7 +1511,7 @@ namespace RX_Explorer
                     }
                     else if (PictureList.Count > 0)
                     {
-                        if (await PictureList[0].GetFullSizeBitmapImageAsync().ConfigureAwait(true) is BitmapImage Bitmap)
+                        if (await PictureList[0].GetFullSizeBitmapImageAsync() is BitmapImage Bitmap)
                         {
                             BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureList[0].PictureUri);
                             PictureGirdView.SelectedIndex = 0;
@@ -1524,7 +1524,7 @@ namespace RX_Explorer
                 }
                 else if (PictureList.Count > 0)
                 {
-                    if (await PictureList[0].GetFullSizeBitmapImageAsync().ConfigureAwait(true) is BitmapImage Bitmap)
+                    if (await PictureList[0].GetFullSizeBitmapImageAsync() is BitmapImage Bitmap)
                     {
                         BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureList[0].PictureUri);
                         PictureGirdView.SelectedIndex = 0;
@@ -1562,9 +1562,9 @@ namespace RX_Explorer
 
                 BackgroundController.Current.IsCompositionAcrylicEnabled = false;
 
-                bool DetectBrightnessNeeded = await BingPictureDownloader.CheckIfNeedToUpdate().ConfigureAwait(true);
+                bool DetectBrightnessNeeded = await BingPictureDownloader.CheckIfNeedToUpdate();
 
-                if (await BingPictureDownloader.GetBingPictureAsync().ConfigureAwait(true) is StorageFile File)
+                if (await BingPictureDownloader.GetBingPictureAsync() is StorageFile File)
                 {
                     ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.BingPicture);
 
@@ -1594,7 +1594,7 @@ namespace RX_Explorer
                                         CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                                     };
 
-                                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                                     {
                                         CustomFontColor.SelectedIndex = 0;
                                     }
@@ -1609,7 +1609,7 @@ namespace RX_Explorer
                                         CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                                     };
 
-                                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                                     {
                                         CustomFontColor.SelectedIndex = 1;
                                     }
@@ -1627,7 +1627,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await Dialog.ShowAsync();
                 }
             }
             catch (Exception ex)
@@ -1641,7 +1641,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                _ = await Dialog.ShowAsync();
             }
             finally
             {
@@ -1657,7 +1657,7 @@ namespace RX_Explorer
             {
                 try
                 {
-                    if (await PictureItem.GetFullSizeBitmapImageAsync().ConfigureAwait(true) is BitmapImage Bitmap)
+                    if (await PictureItem.GetFullSizeBitmapImageAsync() is BitmapImage Bitmap)
                     {
                         BackgroundController.Current.SwitchTo(BackgroundBrushType.Picture, Bitmap, PictureItem.PictureUri);
                         PictureGirdView.ScrollIntoViewSmoothly(PictureItem, ScrollIntoViewAlignment.Leading);
@@ -1682,7 +1682,7 @@ namespace RX_Explorer
                                         CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                                     };
 
-                                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                                     {
                                         CustomFontColor.SelectedIndex = 0;
                                     }
@@ -1697,7 +1697,7 @@ namespace RX_Explorer
                                         CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                                     };
 
-                                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                                     {
                                         CustomFontColor.SelectedIndex = 1;
                                     }
@@ -1776,7 +1776,7 @@ namespace RX_Explorer
                         await ImageFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
                     }
 
-                    await SQLite.Current.DeleteBackgroundPictureAsync(Picture.PictureUri).ConfigureAwait(true);
+                    await SQLite.Current.DeleteBackgroundPictureAsync(Picture.PictureUri);
 
                     PictureList.Remove(Picture);
                     PictureGirdView.UpdateLayout();
@@ -1828,7 +1828,7 @@ namespace RX_Explorer
                                     CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
                                 };
 
-                                if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                                if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                                 {
                                     await Launcher.LaunchUriAsync(new Uri("ms-settings:appsfeatures-app"));
                                 }
@@ -1909,7 +1909,7 @@ namespace RX_Explorer
             {
                 FeedBackDialog Dialog = new FeedBackDialog($"@{SelectItem.UserName}");
 
-                if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
                     if (Regex.IsMatch(SelectItem.UserID, "^\\s*([A-Za-z0-9_-]+(\\.\\w+)*@(\\w+\\.)+\\w{2,5})\\s*$"))
                     {
@@ -1953,9 +1953,9 @@ namespace RX_Explorer
 
                             foreach (StorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.Folder))
                             {
-                                FileSystemStorageFolder Folder = new FileSystemStorageFolder(DriveFolder, await DriveFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), await DriveFolder.GetModifiedTimeAsync().ConfigureAwait(true));
+                                FileSystemStorageFolder Folder = new FileSystemStorageFolder(DriveFolder, await DriveFolder.GetThumbnailBitmapAsync(), await DriveFolder.GetModifiedTimeAsync());
 
-                                bool HasAnyFolder = await Folder.CheckContainsAnyItemAsync(ItemFilters.Folder).ConfigureAwait(true);
+                                bool HasAnyFolder = await Folder.CheckContainsAnyItemAsync(ItemFilters.Folder);
 
                                 TreeViewNode RootNode = new TreeViewNode
                                 {
@@ -1974,7 +1974,7 @@ namespace RX_Explorer
                                     {
                                         RootNode.IsExpanded = true;
 
-                                        await Control.FillTreeNodeAsync(RootNode).ConfigureAwait(true);
+                                        await Control.FillTreeNodeAsync(RootNode);
                                     }
                                 }
                             }
@@ -2096,11 +2096,11 @@ namespace RX_Explorer
                 {
                     if (Item.Title.StartsWith("@"))
                     {
-                        Item.UpdateTitleAndSuggestion(Item.Title, await Item.Suggestion.TranslateAsync().ConfigureAwait(true));
+                        Item.UpdateTitleAndSuggestion(Item.Title, await Item.Suggestion.TranslateAsync());
                     }
                     else
                     {
-                        Item.UpdateTitleAndSuggestion(await Item.Title.TranslateAsync().ConfigureAwait(true), await Item.Suggestion.TranslateAsync().ConfigureAwait(true));
+                        Item.UpdateTitleAndSuggestion(await Item.Title.TranslateAsync(), await Item.Suggestion.TranslateAsync());
                     }
 
                     Item.IsTranslated = true;
@@ -2118,13 +2118,13 @@ namespace RX_Explorer
                 {
                     if (Control.CurrentPresenter.CurrentFolder != null)
                     {
-                        await Control.CurrentPresenter.DisplayItemsInFolder(Control.CurrentPresenter.CurrentFolder, true).ConfigureAwait(true);
+                        await Control.CurrentPresenter.DisplayItemsInFolder(Control.CurrentPresenter.CurrentFolder, true);
 
                         if (!IsDetachTreeViewAndPresenter)
                         {
                             foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes)
                             {
-                                await RootNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                await RootNode.UpdateAllSubNodeAsync();
                             }
                         }
                     }
@@ -2178,11 +2178,11 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                     };
 
-                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         {
-                            if (await Exclusive.Controller.InterceptWindowsPlusEAsync().ConfigureAwait(true))
+                            if (await Exclusive.Controller.InterceptWindowsPlusEAsync())
                             {
                                 ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] = true;
                             }
@@ -2195,7 +2195,7 @@ namespace RX_Explorer
                                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                 };
 
-                                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                                _ = await dialog.ShowAsync();
 
                                 UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
                                 UseWinAndEActivate.IsOn = false;
@@ -2218,7 +2218,7 @@ namespace RX_Explorer
 
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                     {
-                        if (await Exclusive.Controller.RestoreWindowsPlusEAsync().ConfigureAwait(true))
+                        if (await Exclusive.Controller.RestoreWindowsPlusEAsync())
                         {
                             ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] = false;
                         }
@@ -2231,7 +2231,7 @@ namespace RX_Explorer
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
 
-                            _ = await dialog.ShowAsync().ConfigureAwait(true);
+                            _ = await dialog.ShowAsync();
 
                             UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
                             UseWinAndEActivate.IsOn = true;
@@ -2256,9 +2256,9 @@ namespace RX_Explorer
         {
             ModifyDefaultTerminalDialog Dialog = new ModifyDefaultTerminalDialog();
 
-            if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
             {
-                IEnumerable<string> DataBase = (await SQLite.Current.GetAllTerminalProfile().ConfigureAwait(true)).Select((Profile) => Profile.Name);
+                IEnumerable<string> DataBase = (await SQLite.Current.GetAllTerminalProfile()).Select((Profile) => Profile.Name);
 
                 foreach (string NewProfile in DataBase.Except(DefaultTerminal.Items).ToList())
                 {
@@ -2316,7 +2316,7 @@ namespace RX_Explorer
 
         private async void ExportLog_Click(object sender, RoutedEventArgs e)
         {
-            if (await LogTracer.CheckHasAnyLogAvailableAsync().ConfigureAwait(true))
+            if (await LogTracer.CheckHasAnyLogAvailableAsync())
             {
                 FileSavePicker Picker = new FileSavePicker
                 {
@@ -2339,7 +2339,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                _ = await Dialog.ShowAsync();
             }
         }
 

@@ -89,7 +89,7 @@ namespace RX_Explorer.Class
                         }
                     };
 
-                    await GenerateSubMenuItemsAsync(Item.Items, SubItem.SubMenus, ClickHandler).ConfigureAwait(true);
+                    await GenerateSubMenuItemsAsync(Item.Items, SubItem.SubMenus, ClickHandler);
 
                     Items.Add(Item);
                 }
@@ -165,7 +165,7 @@ namespace RX_Explorer.Class
             {
                 MenuFlyout Flyout = new MenuFlyout();
 
-                await GenerateSubMenuItemsAsync(Flyout.Items, SubMenus, ClickHandler).ConfigureAwait(true);
+                await GenerateSubMenuItemsAsync(Flyout.Items, SubMenus, ClickHandler);
 
                 Button.Flyout = Flyout;
             }

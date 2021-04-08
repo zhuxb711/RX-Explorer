@@ -222,11 +222,11 @@ namespace RX_Explorer.Class
             await Task.Run(() =>
             {
                 Locker.WaitOne();
-            }).ConfigureAwait(true);
+            });
 
             try
             {
-                if (!await MySQL.Current.UpdateFeedBackVoteAsync(this).ConfigureAwait(true))
+                if (!await MySQL.Current.UpdateFeedBackVoteAsync(this))
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -234,7 +234,7 @@ namespace RX_Explorer.Class
                         Content = Globalization.GetString("Network_Error_Dialog_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await dialog.ShowAsync();
                 }
             }
             finally

@@ -107,7 +107,7 @@ namespace RX_Explorer.Class
 
                 try
                 {
-                    if (await GetStorageItemAsync().ConfigureAwait(true) is StorageFolder Folder)
+                    if (await GetStorageItemAsync() is StorageFolder Folder)
                     {
                         if (Filter.HasFlag(ItemFilters.File))
                         {
@@ -203,7 +203,7 @@ namespace RX_Explorer.Class
                 {
                     LogTracer.Log($"Native API could not found the path: \"{Path}\", fall back to UWP storage API");
 
-                    if (await GetStorageItemAsync().ConfigureAwait(true) is StorageFolder Folder)
+                    if (await GetStorageItemAsync() is StorageFolder Folder)
                     {
                         QueryOptions Options = new QueryOptions
                         {
@@ -274,7 +274,7 @@ namespace RX_Explorer.Class
             }
             else
             {
-                if (await GetStorageItemAsync().ConfigureAwait(true) is StorageFolder Folder)
+                if (await GetStorageItemAsync() is StorageFolder Folder)
                 {
                     QueryOptions Options = new QueryOptions
                     {
@@ -305,12 +305,12 @@ namespace RX_Explorer.Class
                             {
                                 case StorageFolder SubFolder:
                                     {
-                                        yield return new FileSystemStorageFolder(SubFolder, await SubFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), await SubFolder.GetModifiedTimeAsync().ConfigureAwait(true));
+                                        yield return new FileSystemStorageFolder(SubFolder, await SubFolder.GetThumbnailBitmapAsync(), await SubFolder.GetModifiedTimeAsync());
                                         break;
                                     }
                                 case StorageFile SubFile:
                                     {
-                                        yield return new FileSystemStorageFile(SubFile, await SubFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await SubFile.GetSizeRawDataAsync().ConfigureAwait(true), await SubFile.GetModifiedTimeAsync().ConfigureAwait(true));
+                                        yield return new FileSystemStorageFile(SubFile, await SubFile.GetThumbnailBitmapAsync(), await SubFile.GetSizeRawDataAsync(), await SubFile.GetModifiedTimeAsync());
                                         break;
                                     }
                             }
@@ -337,7 +337,7 @@ namespace RX_Explorer.Class
 
                 try
                 {
-                    if (await GetStorageItemAsync().ConfigureAwait(true) is StorageFolder Folder)
+                    if (await GetStorageItemAsync() is StorageFolder Folder)
                     {
                         QueryOptions Options = new QueryOptions
                         {
@@ -361,11 +361,11 @@ namespace RX_Explorer.Class
                             {
                                 if (Item is StorageFolder SubFolder)
                                 {
-                                    Result.Add(new FileSystemStorageFolder(SubFolder, await SubFolder.GetThumbnailBitmapAsync().ConfigureAwait(true), await SubFolder.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                    Result.Add(new FileSystemStorageFolder(SubFolder, await SubFolder.GetThumbnailBitmapAsync(), await SubFolder.GetModifiedTimeAsync()));
                                 }
                                 else if (Item is StorageFile SubFile)
                                 {
-                                    Result.Add(new FileSystemStorageFile(SubFile, await SubFile.GetThumbnailBitmapAsync().ConfigureAwait(true), await SubFile.GetSizeRawDataAsync().ConfigureAwait(true), await SubFile.GetModifiedTimeAsync().ConfigureAwait(true)));
+                                    Result.Add(new FileSystemStorageFile(SubFile, await SubFile.GetThumbnailBitmapAsync(), await SubFile.GetSizeRawDataAsync(), await SubFile.GetModifiedTimeAsync()));
                                 }
                             }
                         }
@@ -387,15 +387,15 @@ namespace RX_Explorer.Class
 
         protected override async Task LoadMorePropertyCore(bool ForceUpdate)
         {
-            if ((StorageItem == null || ForceUpdate) && await GetStorageItemAsync().ConfigureAwait(true) is StorageFolder Folder)
+            if ((StorageItem == null || ForceUpdate) && await GetStorageItemAsync() is StorageFolder Folder)
             {
                 StorageItem = Folder;
-                Thumbnail = await Folder.GetThumbnailBitmapAsync().ConfigureAwait(true);
+                Thumbnail = await Folder.GetThumbnailBitmapAsync();
 
                 if (ForceUpdate)
                 {
-                    ModifiedTimeRaw = await Folder.GetModifiedTimeAsync().ConfigureAwait(true);
-                    SizeRaw = await Folder.GetSizeRawDataAsync().ConfigureAwait(true);
+                    ModifiedTimeRaw = await Folder.GetModifiedTimeAsync();
+                    SizeRaw = await Folder.GetSizeRawDataAsync();
                 }
             }
         }

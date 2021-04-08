@@ -274,7 +274,7 @@ namespace RX_Explorer
                                 {
                                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                     {
-                                        if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync().ConfigureAwait(true))
+                                        if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                                         {
                                             string ViewPathWithQuicklook;
 
@@ -398,12 +398,12 @@ namespace RX_Explorer
                                     {
                                         if (SelectedItem is FileSystemStorageFolder)
                                         {
-                                            await TabViewContainer.ThisPage.CreateNewTabAsync(SelectedItem.Path).ConfigureAwait(true);
+                                            await TabViewContainer.ThisPage.CreateNewTabAsync(SelectedItem.Path);
                                         }
                                     }
                                     else
                                     {
-                                        await TabViewContainer.ThisPage.CreateNewTabAsync().ConfigureAwait(true);
+                                        await TabViewContainer.ThisPage.CreateNewTabAsync();
                                     }
 
                                     break;
@@ -425,7 +425,7 @@ namespace RX_Explorer
                                 }
                             case VirtualKey.B when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItem != null:
                                 {
-                                    await Container.CreateNewBlade(SelectedItem.Path).ConfigureAwait(true);
+                                    await Container.CreateNewBlade(SelectedItem.Path);
                                     break;
                                 }
                             default:
@@ -464,7 +464,7 @@ namespace RX_Explorer
                                 }
                                 else
                                 {
-                                    await Task.Delay(200).ConfigureAwait(true);
+                                    await Task.Delay(200);
                                 }
                             }
 
@@ -494,7 +494,7 @@ namespace RX_Explorer
                                 }
                                 else
                                 {
-                                    await Task.Delay(200).ConfigureAwait(true);
+                                    await Task.Delay(200);
                                 }
                             }
 
@@ -519,7 +519,7 @@ namespace RX_Explorer
                                 }
                                 else
                                 {
-                                    await Task.Delay(200).ConfigureAwait(true);
+                                    await Task.Delay(200);
                                 }
                             }
 
@@ -544,7 +544,7 @@ namespace RX_Explorer
                                 }
                                 else
                                 {
-                                    await Task.Delay(200).ConfigureAwait(true);
+                                    await Task.Delay(200);
                                 }
                             }
 
@@ -569,7 +569,7 @@ namespace RX_Explorer
                                 }
                                 else
                                 {
-                                    await Task.Delay(200).ConfigureAwait(true);
+                                    await Task.Delay(200);
                                 }
                             }
 
@@ -602,7 +602,7 @@ namespace RX_Explorer
 
         private async Task DisplayItemsInFolderCore(string FolderPath, bool ForceRefresh = false, bool SkipNavigationRecord = false)
         {
-            await EnterLock.WaitAsync().ConfigureAwait(true);
+            await EnterLock.WaitAsync();
 
             if (string.IsNullOrWhiteSpace(FolderPath))
             {
@@ -645,7 +645,7 @@ namespace RX_Explorer
                     RecordIndex = GoAndBackRecord.Count - 1;
                 }
 
-                if (await FileSystemStorageItemBase.OpenAsync(FolderPath).ConfigureAwait(true) is FileSystemStorageFolder Folder)
+                if (await FileSystemStorageItemBase.OpenAsync(FolderPath) is FileSystemStorageFolder Folder)
                 {
                     CurrentFolder = Folder;
                 }
@@ -658,7 +658,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                     };
 
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await dialog.ShowAsync();
 
                     return;
                 }
@@ -670,11 +670,11 @@ namespace RX_Explorer
 
                 FileCollection.Clear();
 
-                await Container.ViewModeControl.SetCurrentPathAsync(FolderPath).ConfigureAwait(true);
+                await Container.ViewModeControl.SetCurrentPathAsync(FolderPath);
 
-                PathConfiguration Config = await SQLite.Current.GetPathConfiguration(FolderPath).ConfigureAwait(true);
+                PathConfiguration Config = await SQLite.Current.GetPathConfiguration(FolderPath);
 
-                List<FileSystemStorageItemBase> ChildItems = await CurrentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem).ConfigureAwait(true);
+                List<FileSystemStorageItemBase> ChildItems = await CurrentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem);
 
                 if (ChildItems.Count > 0)
                 {
@@ -704,7 +704,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                _ = await Dialog.ShowAsync();
             }
             finally
             {
@@ -865,329 +865,88 @@ namespace RX_Explorer
         {
             if (OperationRecorder.Current.Count > 0)
             {
-                await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Undoing")).ConfigureAwait(true);
-
                 try
                 {
-                    foreach (string Action in OperationRecorder.Current.Pop())
+                    List<string> RecordList = OperationRecorder.Current.Pop();
+
+                    if (RecordList.Count > 0)
                     {
-                        string[] SplitGroup = Action.Split("||", StringSplitOptions.RemoveEmptyEntries);
+                        IEnumerable<string[]> SplitGroup = RecordList.Select((Item) => Item.Split("||", StringSplitOptions.RemoveEmptyEntries));
 
-                        switch (SplitGroup[1])
+                        IEnumerable<string> OriginFolderPathList = SplitGroup.Select((Item) => Path.GetDirectoryName(Item[0]));
+
+                        string OriginFolderPath = OriginFolderPathList.FirstOrDefault();
+
+                        if (OriginFolderPathList.All((Item) => Item.Equals(OriginFolderPath, StringComparison.OrdinalIgnoreCase)))
                         {
-                            case "Move":
+                            IEnumerable<string> UndoModeList = SplitGroup.Select((Item) => Item[1]);
+
+                            string UndoMode = UndoModeList.FirstOrDefault();
+
+                            if (UndoModeList.All((Mode) => Mode.Equals(UndoMode, StringComparison.OrdinalIgnoreCase)))
+                            {
+                                switch (UndoMode)
                                 {
-                                    if (CurrentFolder.Path.Equals(Path.GetDirectoryName(SplitGroup[3]), StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(SplitGroup[0])).ConfigureAwait(true) is FileSystemStorageFolder OriginFolder)
+                                    case "Delete":
                                         {
-                                            switch (SplitGroup[2])
+                                            QueueFileOperationController.EnqueueUndoOpeartion(OperationKind.Delete, SplitGroup.Select((Item) => Item[0]).ToArray(), OnCompleted: async (s, e) =>
                                             {
-                                                case "File":
-                                                    {
-                                                        if (Path.GetExtension(SplitGroup[3]) == ".lnk")
-                                                        {
-                                                            await FileSystemStorageItemBase.MoveAsync(SplitGroup[3], OriginFolder.Path, (s, arg) =>
-                                                            {
-                                                                if (Container.ProBar.Value < arg.ProgressPercentage)
-                                                                {
-                                                                    Container.ProBar.IsIndeterminate = false;
-                                                                    Container.ProBar.Value = arg.ProgressPercentage;
-                                                                }
-                                                            }, true).ConfigureAwait(true);
-                                                        }
-                                                        else if (await FileSystemStorageItemBase.OpenAsync(Path.Combine(CurrentFolder.Path, Path.GetFileName(SplitGroup[3]))).ConfigureAwait(true) is FileSystemStorageFile File)
-                                                        {
-                                                            await File.MoveAsync(OriginFolder, (s, arg) =>
-                                                            {
-                                                                if (Container.ProBar.Value < arg.ProgressPercentage)
-                                                                {
-                                                                    Container.ProBar.IsIndeterminate = false;
-                                                                    Container.ProBar.Value = arg.ProgressPercentage;
-                                                                }
-                                                            }, true).ConfigureAwait(true);
-                                                        }
-                                                        else
-                                                        {
-                                                            throw new FileNotFoundException();
-                                                        }
-
-                                                        break;
-                                                    }
-                                                case "Folder":
-                                                    {
-                                                        if (await FileSystemStorageItemBase.OpenAsync(Path.Combine(CurrentFolder.Path, Path.GetFileName(SplitGroup[3]))).ConfigureAwait(true) is FileSystemStorageFolder Folder)
-                                                        {
-                                                            await Folder.MoveAsync(OriginFolder, (s, arg) =>
-                                                            {
-                                                                if (Container.ProBar.Value < arg.ProgressPercentage)
-                                                                {
-                                                                    Container.ProBar.IsIndeterminate = false;
-                                                                    Container.ProBar.Value = arg.ProgressPercentage;
-                                                                }
-                                                            }, true).ConfigureAwait(true);
-                                                        }
-                                                        else
-                                                        {
-                                                            throw new FileNotFoundException();
-                                                        }
-
-                                                        break;
-                                                    }
-                                            }
-                                        }
-                                        else
-                                        {
-                                            throw new DirectoryNotFoundException();
-                                        }
-                                    }
-                                    else if (CurrentFolder.Path.Equals(Path.GetDirectoryName(SplitGroup[0]), StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        switch (SplitGroup[2])
-                                        {
-                                            case "File":
+                                                if (!SettingControl.IsDetachTreeViewAndPresenter)
                                                 {
-                                                    if (Path.GetExtension(SplitGroup[3]) == ".lnk")
+                                                    foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes)
                                                     {
-                                                        await FileSystemStorageItemBase.MoveAsync(SplitGroup[3], CurrentFolder.Path, (s, arg) =>
-                                                        {
-                                                            if (Container.ProBar.Value < arg.ProgressPercentage)
-                                                            {
-                                                                Container.ProBar.IsIndeterminate = false;
-                                                                Container.ProBar.Value = arg.ProgressPercentage;
-                                                            }
-                                                        }, true).ConfigureAwait(true);
+                                                        await RootNode.UpdateAllSubNodeAsync();
                                                     }
-                                                    else
-                                                    {
-                                                        string TargetFolderPath = Path.GetDirectoryName(SplitGroup[3]);
-
-                                                        if (await FileSystemStorageItemBase.CheckExistAsync(TargetFolderPath).ConfigureAwait(true))
-                                                        {
-                                                            if (await FileSystemStorageItemBase.OpenAsync(Path.Combine(TargetFolderPath, Path.GetFileName(SplitGroup[3]))).ConfigureAwait(true) is FileSystemStorageFile File)
-                                                            {
-                                                                await File.MoveAsync(CurrentFolder, (s, arg) =>
-                                                                {
-                                                                    if (Container.ProBar.Value < arg.ProgressPercentage)
-                                                                    {
-                                                                        Container.ProBar.IsIndeterminate = false;
-                                                                        Container.ProBar.Value = arg.ProgressPercentage;
-                                                                    }
-                                                                }, true).ConfigureAwait(true);
-                                                            }
-                                                            else
-                                                            {
-                                                                throw new FileNotFoundException();
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            throw new DirectoryNotFoundException();
-                                                        }
-                                                    }
-
-                                                    break;
                                                 }
-                                            case "Folder":
-                                                {
-                                                    if (await FileSystemStorageItemBase.OpenAsync(SplitGroup[3]).ConfigureAwait(true) is FileSystemStorageFolder Folder)
-                                                    {
-                                                        await Folder.MoveAsync(CurrentFolder, (s, arg) =>
-                                                        {
-                                                            if (Container.ProBar.Value < arg.ProgressPercentage)
-                                                            {
-                                                                Container.ProBar.IsIndeterminate = false;
-                                                                Container.ProBar.Value = arg.ProgressPercentage;
-                                                            }
-                                                        }, true).ConfigureAwait(true);
-                                                    }
-                                                    else
-                                                    {
-                                                        throw new DirectoryNotFoundException();
-                                                    }
+                                            });
 
-                                                    break;
-                                                }
+                                            break;
                                         }
-                                    }
-                                    else
-                                    {
-                                        if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(SplitGroup[0])).ConfigureAwait(true) is FileSystemStorageFolder OriginFolder)
+                                    case "Move":
                                         {
-                                            switch (SplitGroup[2])
+                                            QueueFileOperationController.EnqueueUndoOpeartion(OperationKind.Move, SplitGroup.Select((Item) => Item[2]).ToArray(), OriginFolderPath, OnCompleted: async (s, e) =>
                                             {
-                                                case "File":
+                                                if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                                {
+                                                    foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes)
                                                     {
-                                                        if (Path.GetExtension(SplitGroup[3]) == ".lnk")
-                                                        {
-                                                            await FileSystemStorageItemBase.MoveAsync(SplitGroup[3], OriginFolder.Path, (s, arg) =>
-                                                            {
-                                                                if (Container.ProBar.Value < arg.ProgressPercentage)
-                                                                {
-                                                                    Container.ProBar.IsIndeterminate = false;
-                                                                    Container.ProBar.Value = arg.ProgressPercentage;
-                                                                }
-                                                            }, true).ConfigureAwait(true);
-                                                        }
-                                                        else
-                                                        {
-                                                            if (await FileSystemStorageItemBase.OpenAsync(SplitGroup[3]).ConfigureAwait(true) is FileSystemStorageFile File)
-                                                            {
-                                                                await File.MoveAsync(OriginFolder, (s, arg) =>
-                                                                {
-                                                                    if (Container.ProBar.Value < arg.ProgressPercentage)
-                                                                    {
-                                                                        Container.ProBar.IsIndeterminate = false;
-                                                                        Container.ProBar.Value = arg.ProgressPercentage;
-                                                                    }
-                                                                }, true).ConfigureAwait(true);
-                                                            }
-                                                            else
-                                                            {
-                                                                throw new FileNotFoundException();
-                                                            }
-                                                        }
-
-                                                        break;
+                                                        await RootNode.UpdateAllSubNodeAsync();
                                                     }
-                                                case "Folder":
-                                                    {
-                                                        if (await FileSystemStorageItemBase.OpenAsync(SplitGroup[3]).ConfigureAwait(true) is FileSystemStorageFolder Folder)
-                                                        {
-                                                            await Folder.MoveAsync(OriginFolder, (s, arg) =>
-                                                            {
-                                                                if (Container.ProBar.Value < arg.ProgressPercentage)
-                                                                {
-                                                                    Container.ProBar.IsIndeterminate = false;
-                                                                    Container.ProBar.Value = arg.ProgressPercentage;
-                                                                }
-                                                            }, true).ConfigureAwait(true);
-                                                        }
-                                                        else
-                                                        {
-                                                            throw new DirectoryNotFoundException();
-                                                        }
+                                                }
+                                            });
 
-                                                        if (!SettingControl.IsDetachTreeViewAndPresenter)
-                                                        {
-                                                            foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes)
-                                                            {
-                                                                await RootNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
-                                                            }
-                                                        }
-
-                                                        break;
-                                                    }
-                                            }
+                                            break;
                                         }
-                                        else
+                                    case "Copy":
                                         {
-                                            throw new DirectoryNotFoundException();
-                                        }
-                                    }
+                                            QueueFileOperationController.EnqueueUndoOpeartion(OperationKind.Copy, SplitGroup.Select((Item) => Item[2]).ToArray(), OnCompleted: async (s, e) =>
+                                            {
+                                                if (!SettingControl.IsDetachTreeViewAndPresenter)
+                                                {
+                                                    foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes)
+                                                    {
+                                                        await RootNode.UpdateAllSubNodeAsync();
+                                                    }
+                                                }
+                                            });
 
-                                    break;
+                                            break;
+                                        }
                                 }
-                            case "Copy":
-                                {
-                                    if (CurrentFolder.Path.Equals(Path.GetDirectoryName(SplitGroup[3]), StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        switch (SplitGroup[2])
-                                        {
-                                            case "File":
-                                                {
-                                                    if (Path.GetExtension(SplitGroup[3]) == ".lnk")
-                                                    {
-                                                        await FileSystemStorageItemBase.DeleteAsync(SplitGroup[3], true, (s, arg) =>
-                                                        {
-                                                            if (Container.ProBar.Value < arg.ProgressPercentage)
-                                                            {
-                                                                Container.ProBar.IsIndeterminate = false;
-                                                                Container.ProBar.Value = arg.ProgressPercentage;
-                                                            }
-                                                        }, true).ConfigureAwait(true);
-                                                    }
-                                                    else if (await FileSystemStorageItemBase.OpenAsync(Path.Combine(CurrentFolder.Path, Path.GetFileName(SplitGroup[3]))).ConfigureAwait(true) is FileSystemStorageFile File)
-                                                    {
-                                                        await File.DeleteAsync(true, (s, arg) =>
-                                                        {
-                                                            if (Container.ProBar.Value < arg.ProgressPercentage)
-                                                            {
-                                                                Container.ProBar.IsIndeterminate = false;
-                                                                Container.ProBar.Value = arg.ProgressPercentage;
-                                                            }
-                                                        }, true).ConfigureAwait(true);
-                                                    }
-                                                    else
-                                                    {
-                                                        throw new FileNotFoundException();
-                                                    }
-
-                                                    break;
-                                                }
-                                            case "Folder":
-                                                {
-                                                    if (await FileSystemStorageItemBase.OpenAsync(Path.Combine(CurrentFolder.Path, Path.GetFileName(SplitGroup[3]))).ConfigureAwait(true) is FileSystemStorageFolder Folder)
-                                                    {
-                                                        await Folder.DeleteAsync(true, (s, arg) =>
-                                                        {
-                                                            if (Container.ProBar.Value < arg.ProgressPercentage)
-                                                            {
-                                                                Container.ProBar.IsIndeterminate = false;
-                                                                Container.ProBar.Value = arg.ProgressPercentage;
-                                                            }
-                                                        }, true).ConfigureAwait(true);
-                                                    }
-                                                    else
-                                                    {
-                                                        throw new DirectoryNotFoundException();
-                                                    }
-
-                                                    break;
-                                                }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        await FileSystemStorageItemBase.DeleteAsync(SplitGroup[3], true, (s, arg) =>
-                                        {
-                                            if (Container.ProBar.Value < arg.ProgressPercentage)
-                                            {
-                                                Container.ProBar.IsIndeterminate = false;
-                                                Container.ProBar.Value = arg.ProgressPercentage;
-                                            }
-                                        }, true).ConfigureAwait(true);
-
-                                        if (!SettingControl.IsDetachTreeViewAndPresenter)
-                                        {
-                                            foreach (TreeViewNode RootNode in Container.FolderTree.RootNodes)
-                                            {
-                                                await RootNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
-                                            }
-                                        }
-                                    }
-                                    break;
-                                }
-                            case "Delete":
-                                {
-                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                                    {
-                                        if (!await Exclusive.Controller.RestoreItemInRecycleBinAsync(SplitGroup[0]).ConfigureAwait(true))
-                                        {
-                                            QueueContentDialog Dialog = new QueueContentDialog
-                                            {
-                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                Content = $"{Globalization.GetString("QueueDialog_RecycleBinRestoreError_Content")} {Environment.NewLine}{Path.GetFileName(SplitGroup[0])}",
-                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                            };
-
-                                            _ = Dialog.ShowAsync().ConfigureAwait(true);
-                                        }
-                                    }
-
-                                    break;
-                                }
+                            }
+                            else
+                            {
+                                throw new Exception("Undo data format is invalid");
+                            }
                         }
+                        else
+                        {
+                            throw new Exception("Undo data format is invalid");
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception("Undo data format is invalid");
                     }
                 }
                 catch
@@ -1199,7 +958,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await Dialog.ShowAsync();
                 }
 
                 await Container.LoadingActivation(false).ConfigureAwait(false);
@@ -1233,7 +992,7 @@ namespace RX_Explorer
 
                         foreach (FileSystemStorageItemBase Item in StorageItems)
                         {
-                            if (await Item.GetStorageItemAsync().ConfigureAwait(true) is IStorageItem It)
+                            if (await Item.GetStorageItemAsync() is IStorageItem It)
                             {
                                 TempItemList.Add(It);
                             }
@@ -1325,148 +1084,18 @@ namespace RX_Explorer
                     {
                         if (PathList.All((Path) => System.IO.Path.GetDirectoryName(Path) != CurrentFolder.Path))
                         {
-                            await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
-
-                            try
-                            {
-                                await FileSystemStorageItemBase.MoveAsync(PathList, CurrentFolder.Path, (s, arg) =>
-                                {
-                                    if (Container.ProBar.Value < arg.ProgressPercentage)
-                                    {
-                                        Container.ProBar.IsIndeterminate = false;
-                                        Container.ProBar.Value = arg.ProgressPercentage;
-                                    }
-                                }).ConfigureAwait(true);
-                            }
-                            catch (FileNotFoundException)
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_MoveFailForNotExist_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                _ = await dialog.ShowAsync().ConfigureAwait(true);
-                            }
-                            catch (FileCaputureException)
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                _ = await dialog.ShowAsync().ConfigureAwait(true);
-                            }
-                            catch (InvalidOperationException)
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                };
-
-                                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                {
-                                    await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                                }
-                            }
-                            catch (Exception)
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_MoveFailUnexpectError_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                _ = await dialog.ShowAsync().ConfigureAwait(true);
-                            }
+                            QueueFileOperationController.EnqueueMoveOpeartion(PathList, CurrentFolder.Path);
                         }
                     }
                     else if (Package.RequestedOperation.HasFlag(DataPackageOperation.Copy))
                     {
-                        await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
-
-                        try
-                        {
-                            await FileSystemStorageItemBase.CopyAsync(PathList, CurrentFolder.Path, (s, arg) =>
-                            {
-                                if (Container.ProBar.Value < arg.ProgressPercentage)
-                                {
-                                    Container.ProBar.IsIndeterminate = false;
-                                    Container.ProBar.Value = arg.ProgressPercentage;
-                                }
-                            }).ConfigureAwait(true);
-                        }
-                        catch (FileNotFoundException)
-                        {
-                            QueueContentDialog Dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                        }
-                        catch (InvalidOperationException)
-                        {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                                PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                            };
-
-                            if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                            {
-                                await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            _ = await dialog.ShowAsync().ConfigureAwait(true);
-                        }
+                        QueueFileOperationController.EnqueueCopyOpeartion(PathList, CurrentFolder.Path);
                     }
                 }
             }
             catch (Exception ex) when (ex.HResult is unchecked((int)0x80040064) or unchecked((int)0x8004006A))
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                {
-                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
-
-                    if (await Exclusive.Controller.PasteRemoteFile(CurrentFolder.Path).ConfigureAwait(true))
-                    {
-                        await Container.LoadingActivation(false).ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        await Container.LoadingActivation(false).ConfigureAwait(true);
-
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                }
+                QueueFileOperationController.EnqueueRemoteCopyOpeartion(CurrentFolder.Path);
             }
             catch
             {
@@ -1477,11 +1106,10 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                _ = await dialog.ShowAsync();
             }
             finally
             {
-                await Container.LoadingActivation(false).ConfigureAwait(true);
                 FileCollection.Where((Item) => Item.ThumbnailOpacity != 1d).ToList().ForEach((Item) => Item.SetThumbnailOpacity(ThumbnailStatus.Normal));
             }
         }
@@ -1513,7 +1141,7 @@ namespace RX_Explorer
 
                         foreach (FileSystemStorageItemBase Item in StorageItems)
                         {
-                            if (await Item.GetStorageItemAsync().ConfigureAwait(true) is IStorageItem It)
+                            if (await Item.GetStorageItemAsync() is IStorageItem It)
                             {
                                 TempItemList.Add(It);
                             }
@@ -1584,7 +1212,7 @@ namespace RX_Explorer
                     {
                         DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFiles_Content"));
 
-                        if (await QueueContenDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                        if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
                         {
                             ExecuteDelete = true;
                         }
@@ -1598,7 +1226,7 @@ namespace RX_Explorer
                 {
                     DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFiles_Content"));
 
-                    if (await QueueContenDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
                     {
                         ExecuteDelete = true;
                     }
@@ -1613,69 +1241,7 @@ namespace RX_Explorer
 
                 if (ExecuteDelete)
                 {
-                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Deleting")).ConfigureAwait(true);
-
-                    try
-                    {
-                        await FileSystemStorageItemBase.DeleteAsync(PathList, PermanentDelete, (s, arg) =>
-                        {
-                            if (Container.ProBar.Value < arg.ProgressPercentage)
-                            {
-                                Container.ProBar.IsIndeterminate = false;
-                                Container.ProBar.Value = arg.ProgressPercentage;
-                            }
-                        }).ConfigureAwait(true);
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        QueueContentDialog Dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    catch (FileCaputureException)
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_UnauthorizedDelete_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                        };
-
-                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                        {
-                            await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_DeleteFailUnexpectError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                    }
-
-                    await Container.LoadingActivation(false).ConfigureAwait(false);
+                    QueueFileOperationController.EnqueueDeleteOpeartion(PathList, PermanentDelete);
                 }
             }
         }
@@ -1695,7 +1261,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await Dialog.ShowAsync();
                 }
                 else
                 {
@@ -1703,9 +1269,9 @@ namespace RX_Explorer
 
                     RenameDialog dialog = new RenameDialog(RenameItem);
 
-                    if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                    if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                     {
-                        if (await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(CurrentFolder.Path, dialog.DesireName)).ConfigureAwait(true))
+                        if (await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(CurrentFolder.Path, dialog.DesireName)))
                         {
                             QueueContentDialog Dialog = new QueueContentDialog
                             {
@@ -1715,7 +1281,7 @@ namespace RX_Explorer
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                             };
 
-                            if (await Dialog.ShowAsync().ConfigureAwait(true) != ContentDialogResult.Primary)
+                            if (await Dialog.ShowAsync() != ContentDialogResult.Primary)
                             {
                                 return;
                             }
@@ -1723,7 +1289,7 @@ namespace RX_Explorer
 
                         try
                         {
-                            await RenameItem.RenameAsync(dialog.DesireName).ConfigureAwait(true);
+                            await RenameItem.RenameAsync(dialog.DesireName);
                         }
                         catch (FileLoadException)
                         {
@@ -1734,7 +1300,7 @@ namespace RX_Explorer
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                             };
 
-                            _ = await LoadExceptionDialog.ShowAsync().ConfigureAwait(true);
+                            _ = await LoadExceptionDialog.ShowAsync();
                         }
                         catch (InvalidOperationException)
                         {
@@ -1746,7 +1312,7 @@ namespace RX_Explorer
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                             };
 
-                            if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                            if (await UnauthorizeDialog.ShowAsync() == ContentDialogResult.Primary)
                             {
                                 await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
                             }
@@ -1761,7 +1327,7 @@ namespace RX_Explorer
                                 CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
                             };
 
-                            if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                             {
                                 _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
                             }
@@ -1775,9 +1341,9 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (await SelectedItem.GetStorageItemAsync().ConfigureAwait(true) is StorageFile ShareFile)
+            if (await SelectedItem.GetStorageItemAsync() is StorageFile ShareFile)
             {
-                if (!await FileSystemStorageItemBase.CheckExistAsync(ShareFile.Path).ConfigureAwait(true))
+                if (!await FileSystemStorageItemBase.CheckExistAsync(ShareFile.Path))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -1786,7 +1352,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await Dialog.ShowAsync();
 
                     return;
                 }
@@ -1796,11 +1362,11 @@ namespace RX_Explorer
                 if (RadioDevice.Any((Device) => Device.Kind == RadioKind.Bluetooth && Device.State == RadioState.On))
                 {
                     BluetoothUI Bluetooth = new BluetoothUI();
-                    if ((await Bluetooth.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                    if ((await Bluetooth.ShowAsync()) == ContentDialogResult.Primary)
                     {
                         BluetoothFileTransfer FileTransfer = new BluetoothFileTransfer(ShareFile);
 
-                        _ = await FileTransfer.ShowAsync().ConfigureAwait(true);
+                        _ = await FileTransfer.ShowAsync();
                     }
                 }
                 else
@@ -1811,7 +1377,7 @@ namespace RX_Explorer
                         Content = Globalization.GetString("QueueDialog_OpenBluetooth_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await dialog.ShowAsync();
                 }
             }
             else
@@ -1823,7 +1389,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                _ = await Dialog.ShowAsync();
             }
         }
 
@@ -2007,7 +1573,7 @@ namespace RX_Explorer
                     {
                         if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
                         {
-                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(MixedFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(MixedFlyout, e.GetPosition((FrameworkElement)sender));
                         }
                         else
                         {
@@ -2017,17 +1583,17 @@ namespace RX_Explorer
                             {
                                 case LinkStorageFile:
                                     {
-                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                         break;
                                     }
                                 case FileSystemStorageFolder:
                                     {
-                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FolderFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FolderFlyout, e.GetPosition((FrameworkElement)sender));
                                         break;
                                     }
                                 case FileSystemStorageFile:
                                     {
-                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender));
                                         break;
                                     }
                             }
@@ -2036,7 +1602,7 @@ namespace RX_Explorer
                     else
                     {
                         SelectedItem = null;
-                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender));
                     }
                 }
                 else
@@ -2046,7 +1612,7 @@ namespace RX_Explorer
                         if (Element.Name == "EmptyTextblock")
                         {
                             SelectedItem = null;
-                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender));
                         }
                         else
                         {
@@ -2054,7 +1620,7 @@ namespace RX_Explorer
                             {
                                 if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
                                 {
-                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(MixedFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(MixedFlyout, e.GetPosition((FrameworkElement)sender));
                                 }
                                 else
                                 {
@@ -2064,17 +1630,17 @@ namespace RX_Explorer
                                         {
                                             case LinkStorageFile:
                                                 {
-                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                                     break;
                                                 }
                                             case FileSystemStorageFolder:
                                                 {
-                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FolderFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FolderFlyout, e.GetPosition((FrameworkElement)sender));
                                                     break;
                                                 }
                                             case FileSystemStorageFile:
                                                 {
-                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender));
                                                     break;
                                                 }
                                         }
@@ -2089,17 +1655,17 @@ namespace RX_Explorer
                                             {
                                                 case LinkStorageFile:
                                                     {
-                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                                         break;
                                                     }
                                                 case FileSystemStorageFolder:
                                                     {
-                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FolderFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FolderFlyout, e.GetPosition((FrameworkElement)sender));
                                                         break;
                                                     }
                                                 case FileSystemStorageFile:
                                                     {
-                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender));
                                                         break;
                                                     }
                                             }
@@ -2107,7 +1673,7 @@ namespace RX_Explorer
                                         else
                                         {
                                             SelectedItem = null;
-                                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender));
                                         }
                                     }
                                 }
@@ -2115,7 +1681,7 @@ namespace RX_Explorer
                             else
                             {
                                 SelectedItem = null;
-                                await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender));
                             }
                         }
                     }
@@ -2150,7 +1716,7 @@ namespace RX_Explorer
 
             if (SelectedItem is FileSystemStorageFile File)
             {
-                if (!await FileSystemStorageItemBase.CheckExistAsync(File.Path).ConfigureAwait(true))
+                if (!await FileSystemStorageItemBase.CheckExistAsync(File.Path))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -2159,16 +1725,16 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await Dialog.ShowAsync();
 
                     return;
                 }
 
                 CompressDialog dialog = new CompressDialog(true, Path.GetFileName(File.Path));
 
-                if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
-                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
+                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing"));
 
                     try
                     {
@@ -2186,7 +1752,7 @@ namespace RX_Explorer
                                                 Container.ProBar.Value = e.ProgressPercentage;
                                             }
                                         });
-                                    }).ConfigureAwait(true);
+                                    });
 
                                     break;
                                 }
@@ -2202,7 +1768,7 @@ namespace RX_Explorer
                                                 Container.ProBar.Value = e.ProgressPercentage;
                                             }
                                         });
-                                    }).ConfigureAwait(true);
+                                    });
 
                                     break;
                                 }
@@ -2218,7 +1784,7 @@ namespace RX_Explorer
                                                 Container.ProBar.Value = e.ProgressPercentage;
                                             }
                                         });
-                                    }).ConfigureAwait(true);
+                                    });
 
                                     break;
                                 }
@@ -2234,7 +1800,7 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
                         };
 
-                        if (await dialog1.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                        if (await dialog1.ShowAsync() == ContentDialogResult.Primary)
                         {
                             _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
                         }
@@ -2248,7 +1814,7 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
-                        _ = await dialog2.ShowAsync().ConfigureAwait(true);
+                        _ = await dialog2.ShowAsync();
                     }
 
                     await Container.LoadingActivation(false).ConfigureAwait(false);
@@ -2262,7 +1828,7 @@ namespace RX_Explorer
 
             if (SelectedItem is FileSystemStorageFile File)
             {
-                if (!await FileSystemStorageItemBase.CheckExistAsync(File.Path).ConfigureAwait(true))
+                if (!await FileSystemStorageItemBase.CheckExistAsync(File.Path))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -2271,7 +1837,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await Dialog.ShowAsync();
 
                     return;
                 }
@@ -2293,18 +1859,18 @@ namespace RX_Explorer
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
 
-                            await dialog.ShowAsync().ConfigureAwait(true);
+                            await dialog.ShowAsync();
 
                             return;
                         }
                 }
 
-                await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
+                await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting"));
 
                 try
                 {
                     FileSystemStorageFolder TargetFolder = ((sender as FrameworkElement)?.Name == "DecompressionOption2")
-                                                            ? await FileSystemStorageItemBase.CreateAsync(Path.Combine(Path.GetDirectoryName(File.Path), Path.GetFileNameWithoutExtension(File.Name)), StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) as FileSystemStorageFolder
+                                                            ? await FileSystemStorageItemBase.CreateAsync(Path.Combine(Path.GetDirectoryName(File.Path), Path.GetFileNameWithoutExtension(File.Name)), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) as FileSystemStorageFolder
                                                             : CurrentFolder;
 
                     if (TargetFolder == null)
@@ -2326,7 +1892,7 @@ namespace RX_Explorer
                                             Container.ProBar.Value = e.ProgressPercentage;
                                         }
                                     });
-                                }).ConfigureAwait(true);
+                                });
 
                                 break;
                             }
@@ -2342,7 +1908,7 @@ namespace RX_Explorer
                                             Container.ProBar.Value = e.ProgressPercentage;
                                         }
                                     });
-                                }).ConfigureAwait(true);
+                                });
 
                                 break;
                             }
@@ -2358,7 +1924,7 @@ namespace RX_Explorer
                                             Container.ProBar.Value = e.ProgressPercentage;
                                         }
                                     });
-                                }).ConfigureAwait(true);
+                                });
 
                                 break;
                             }
@@ -2374,7 +1940,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
                     };
 
-                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
                         _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
                     }
@@ -2388,7 +1954,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await Dialog.ShowAsync();
                 }
                 catch (Exception ex)
                 {
@@ -2399,11 +1965,11 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await dialog.ShowAsync();
                 }
                 finally
                 {
-                    await Container.LoadingActivation(false).ConfigureAwait(true);
+                    await Container.LoadingActivation(false);
                 }
             }
         }
@@ -2435,7 +2001,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (!await FileSystemStorageItemBase.CheckExistAsync(SelectedItem.Path).ConfigureAwait(true))
+            if (!await FileSystemStorageItemBase.CheckExistAsync(SelectedItem.Path))
             {
                 QueueContentDialog Dialog = new QueueContentDialog
                 {
@@ -2444,7 +2010,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                _ = await Dialog.ShowAsync();
 
                 return;
             }
@@ -2457,7 +2023,7 @@ namespace RX_Explorer
                     Content = Globalization.GetString("QueueDialog_TaskWorking_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                _ = await Dialog.ShowAsync();
 
                 return;
             }
@@ -2474,21 +2040,21 @@ namespace RX_Explorer
                 case ".mov":
                 case ".alac":
                     {
-                        if ((await SelectedItem.GetStorageItemAsync().ConfigureAwait(true)) is StorageFile Source)
+                        if ((await SelectedItem.GetStorageItemAsync()) is StorageFile Source)
                         {
                             TranscodeDialog dialog = new TranscodeDialog(Source);
 
-                            if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                            if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                             {
                                 try
                                 {
                                     string DestFilePath = Path.Combine(CurrentFolder.Path, $"{Source.Path}.{dialog.MediaTranscodeEncodingProfile.ToLower()}");
 
-                                    if (await FileSystemStorageItemBase.CreateAsync(DestFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase Item)
+                                    if (await FileSystemStorageItemBase.CreateAsync(DestFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
                                     {
-                                        if (await Item.GetStorageItemAsync().ConfigureAwait(true) is StorageFile DestinationFile)
+                                        if (await Item.GetStorageItemAsync() is StorageFile DestinationFile)
                                         {
-                                            await GeneralTransformer.TranscodeFromAudioOrVideoAsync(Source, DestinationFile, dialog.MediaTranscodeEncodingProfile, dialog.MediaTranscodeQuality, dialog.SpeedUp).ConfigureAwait(true);
+                                            await GeneralTransformer.TranscodeFromAudioOrVideoAsync(Source, DestinationFile, dialog.MediaTranscodeEncodingProfile, dialog.MediaTranscodeQuality, dialog.SpeedUp);
                                         }
                                         else
                                         {
@@ -2510,7 +2076,7 @@ namespace RX_Explorer
                                         CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
                                     };
 
-                                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                                     {
                                         _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
                                     }
@@ -2526,7 +2092,7 @@ namespace RX_Explorer
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
 
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                            _ = await Dialog.ShowAsync();
                         }
 
                         break;
@@ -2541,19 +2107,19 @@ namespace RX_Explorer
                         {
                             TranscodeImageDialog Dialog = null;
 
-                            using (IRandomAccessStream OriginStream = await File.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read).ConfigureAwait(true))
+                            using (IRandomAccessStream OriginStream = await File.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
                             {
                                 BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
                                 Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
                             }
 
-                            if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                             {
-                                await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Transcoding")).ConfigureAwait(true);
+                                await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Transcoding"));
 
-                                await GeneralTransformer.TranscodeFromImageAsync(File, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode).ConfigureAwait(true);
+                                await GeneralTransformer.TranscodeFromImageAsync(File, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode);
 
-                                await Container.LoadingActivation(false).ConfigureAwait(true);
+                                await Container.LoadingActivation(false);
                             }
                         }
 
@@ -2595,7 +2161,7 @@ namespace RX_Explorer
                 await Task.Run(() =>
                 {
                     SpinWait.SpinUntil(() => WiFiProvider == null);
-                }).ConfigureAwait(true);
+                });
 
                 WiFiProvider = new WiFiShareProvider();
                 WiFiProvider.ThreadExitedUnexpectly += WiFiProvider_ThreadExitedUnexpectly;
@@ -2631,7 +2197,7 @@ namespace RX_Explorer
                     await Source.SetBitmapAsync(TransferImage);
                 }
 
-                await Task.Delay(500).ConfigureAwait(true);
+                await Task.Delay(500);
 
                 QRTeachTip.Target = ItemPresenter.ContainerFromItem(SelectedItem) as FrameworkElement;
                 QRTeachTip.IsOpen = true;
@@ -2652,7 +2218,7 @@ namespace RX_Explorer
                     Content = Globalization.GetString("QueueDialog_WiFiError_Content") + e.Message,
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                _ = await dialog.ShowAsync();
             });
         }
 
@@ -2674,7 +2240,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (await FileSystemStorageItemBase.CheckExistAsync(CurrentFolder.Path).ConfigureAwait(true))
+            if (await FileSystemStorageItemBase.CheckExistAsync(CurrentFolder.Path))
             {
                 AppWindow NewWindow = await AppWindow.TryCreateAsync();
                 NewWindow.RequestSize(new Size(420, 600));
@@ -2699,7 +2265,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                _ = await Dialog.ShowAsync();
             }
         }
 
@@ -2722,9 +2288,9 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (await FileSystemStorageItemBase.CheckExistAsync(CurrentFolder.Path).ConfigureAwait(true))
+            if (await FileSystemStorageItemBase.CheckExistAsync(CurrentFolder.Path))
             {
-                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(CurrentFolder.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageItemBase NewFolder)
+                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(CurrentFolder.Path, Globalization.GetString("Create_NewFolder_Admin_Name")), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase NewFolder)
                 {
                     while (true)
                     {
@@ -2759,7 +2325,7 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            await Task.Delay(500).ConfigureAwait(true);
+                            await Task.Delay(500);
                         }
                     }
                 }
@@ -2773,7 +2339,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
                     };
 
-                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
                         _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
                     }
@@ -2788,7 +2354,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                _ = await Dialog.ShowAsync();
             }
         }
 
@@ -2852,7 +2418,7 @@ namespace RX_Explorer
 
             if (SelectedItem != null)
             {
-                if (!await FileSystemStorageItemBase.CheckExistAsync(SelectedItem.Path).ConfigureAwait(true))
+                if (!await FileSystemStorageItemBase.CheckExistAsync(SelectedItem.Path))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -2861,11 +2427,11 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await Dialog.ShowAsync();
                 }
                 else
                 {
-                    if ((await SelectedItem.GetStorageItemAsync().ConfigureAwait(true)) is StorageFile ShareItem)
+                    if ((await SelectedItem.GetStorageItemAsync()) is StorageFile ShareItem)
                     {
                         DataTransferManager.GetForCurrentView().DataRequested += (s, args) =>
                         {
@@ -2887,7 +2453,7 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                        _ = await Dialog.ShowAsync();
                     }
                 }
             }
@@ -2899,9 +2465,9 @@ namespace RX_Explorer
 
             try
             {
-                if (await FileSystemStorageItemBase.CheckExistAsync(CurrentFolder.Path).ConfigureAwait(true))
+                if (await FileSystemStorageItemBase.CheckExistAsync(CurrentFolder.Path))
                 {
-                    await DisplayItemsInFolder(CurrentFolder, true).ConfigureAwait(true);
+                    await DisplayItemsInFolder(CurrentFolder, true);
                 }
                 else
                 {
@@ -2912,7 +2478,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await Dialog.ShowAsync();
                 }
             }
             catch (Exception ex)
@@ -2937,7 +2503,7 @@ namespace RX_Explorer
 
         public async Task EnterSelectedItem(string Path, bool RunAsAdministrator = false)
         {
-            FileSystemStorageItemBase Item = await FileSystemStorageItemBase.OpenAsync(Path).ConfigureAwait(true);
+            FileSystemStorageItemBase Item = await FileSystemStorageItemBase.OpenAsync(Path);
 
             await EnterSelectedItem(Item, RunAsAdministrator).ConfigureAwait(false);
         }
@@ -2952,7 +2518,7 @@ namespace RX_Explorer
                     {
                         case FileSystemStorageFile File:
                             {
-                                if (!await FileSystemStorageItemBase.CheckExistAsync(File.Path).ConfigureAwait(true))
+                                if (!await FileSystemStorageItemBase.CheckExistAsync(File.Path))
                                 {
                                     QueueContentDialog Dialog = new QueueContentDialog
                                     {
@@ -2961,12 +2527,12 @@ namespace RX_Explorer
                                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                     };
 
-                                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                                    _ = await Dialog.ShowAsync();
 
                                     return;
                                 }
 
-                                string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(File.Type).ConfigureAwait(true);
+                                string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(File.Type);
 
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                 {
@@ -2974,19 +2540,19 @@ namespace RX_Explorer
                                     {
                                         if (Path.IsPathRooted(AdminExecutablePath))
                                         {
-                                            await Exclusive.Controller.RunAsync(AdminExecutablePath, Path.GetDirectoryName(AdminExecutablePath), WindowState.Normal, false, false, false, File.Path).ConfigureAwait(true);
+                                            await Exclusive.Controller.RunAsync(AdminExecutablePath, Path.GetDirectoryName(AdminExecutablePath), WindowState.Normal, false, false, false, File.Path);
                                         }
                                         else
                                         {
                                             if ((await Launcher.FindFileHandlersAsync(File.Type)).FirstOrDefault((Item) => Item.PackageFamilyName == AdminExecutablePath) is AppInfo Info)
                                             {
-                                                if (await File.GetStorageItemAsync().ConfigureAwait(true) is StorageFile InnerFile)
+                                                if (await File.GetStorageItemAsync() is StorageFile InnerFile)
                                                 {
                                                     if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { TargetApplicationPackageFamilyName = Info.PackageFamilyName, DisplayApplicationPicker = false }))
                                                     {
                                                         ProgramPickerDialog Dialog = new ProgramPickerDialog(File);
 
-                                                        if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                                                         {
                                                             if (Dialog.SelectedProgram.Path == Package.Current.Id.FamilyName)
                                                             {
@@ -3056,7 +2622,7 @@ namespace RX_Explorer
                                                             {
                                                                 if (Path.IsPathRooted(Dialog.SelectedProgram.Path))
                                                                 {
-                                                                    await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), WindowState.Normal, false, false, false, File.Path).ConfigureAwait(true);
+                                                                    await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), WindowState.Normal, false, false, false, File.Path);
                                                                 }
                                                                 else
                                                                 {
@@ -3075,7 +2641,7 @@ namespace RX_Explorer
                                                                             CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                                                                         };
 
-                                                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                                                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                                                                         {
                                                                             if (!await Launcher.LaunchFileAsync(InnerFile))
                                                                             {
@@ -3101,14 +2667,14 @@ namespace RX_Explorer
                                                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                                     };
 
-                                                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                                                    _ = await Dialog.ShowAsync();
                                                 }
                                             }
                                             else
                                             {
                                                 ProgramPickerDialog Dialog = new ProgramPickerDialog(File);
 
-                                                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                                                 {
                                                     if (Dialog.SelectedProgram.Path == Package.Current.Id.FamilyName)
                                                     {
@@ -3177,11 +2743,11 @@ namespace RX_Explorer
                                                     {
                                                         if (Path.IsPathRooted(Dialog.SelectedProgram.Path))
                                                         {
-                                                            await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), WindowState.Normal, false, false, false, File.Path).ConfigureAwait(true);
+                                                            await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), WindowState.Normal, false, false, false, File.Path);
                                                         }
                                                         else
                                                         {
-                                                            if (await File.GetStorageItemAsync().ConfigureAwait(true) is StorageFile InnerFile)
+                                                            if (await File.GetStorageItemAsync() is StorageFile InnerFile)
                                                             {
                                                                 if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.Path, DisplayApplicationPicker = false }))
                                                                 {
@@ -3198,7 +2764,7 @@ namespace RX_Explorer
                                                                         CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                                                                     };
 
-                                                                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                                                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                                                                     {
                                                                         if (!await Launcher.LaunchFileAsync(InnerFile))
                                                                         {
@@ -3220,7 +2786,7 @@ namespace RX_Explorer
                                                                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                                                 };
 
-                                                                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                                                                _ = await dialog.ShowAsync();
                                                             }
                                                         }
                                                     }
@@ -3295,23 +2861,23 @@ namespace RX_Explorer
                                                     {
                                                         if (Item.LinkType == ShellLinkType.Normal)
                                                         {
-                                                            switch (await FileSystemStorageItemBase.OpenAsync(Item.LinkTargetPath).ConfigureAwait(true))
+                                                            switch (await FileSystemStorageItemBase.OpenAsync(Item.LinkTargetPath))
                                                             {
                                                                 case FileSystemStorageFolder:
                                                                     {
-                                                                        await DisplayItemsInFolder(Item.LinkTargetPath).ConfigureAwait(true);
+                                                                        await DisplayItemsInFolder(Item.LinkTargetPath);
                                                                         break;
                                                                     }
                                                                 case FileSystemStorageFile:
                                                                     {
-                                                                        await Item.LaunchAsync().ConfigureAwait(true);
+                                                                        await Item.LaunchAsync();
                                                                         break;
                                                                     }
                                                             }
                                                         }
                                                         else
                                                         {
-                                                            await Item.LaunchAsync().ConfigureAwait(true);
+                                                            await Item.LaunchAsync();
                                                         }
                                                     }
 
@@ -3321,13 +2887,13 @@ namespace RX_Explorer
                                             case ".bat":
                                             case ".msi":
                                                 {
-                                                    await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path), WindowState.Normal, RunAsAdministrator).ConfigureAwait(true);
+                                                    await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path), WindowState.Normal, RunAsAdministrator);
 
                                                     break;
                                                 }
                                             case ".msc":
                                                 {
-                                                    await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", File.Path).ConfigureAwait(true);
+                                                    await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", File.Path);
 
                                                     break;
                                                 }
@@ -3335,7 +2901,7 @@ namespace RX_Explorer
                                                 {
                                                     ProgramPickerDialog Dialog = new ProgramPickerDialog(File);
 
-                                                    if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                                                     {
                                                         if (Dialog.SelectedProgram.Path == Package.Current.Id.FamilyName)
                                                         {
@@ -3404,11 +2970,11 @@ namespace RX_Explorer
                                                         {
                                                             if (Path.IsPathRooted(Dialog.SelectedProgram.Path))
                                                             {
-                                                                await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), WindowState.Normal, false, false, false, File.Path).ConfigureAwait(true);
+                                                                await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), WindowState.Normal, false, false, false, File.Path);
                                                             }
                                                             else
                                                             {
-                                                                if (await File.GetStorageItemAsync().ConfigureAwait(true) is StorageFile InnerFile)
+                                                                if (await File.GetStorageItemAsync() is StorageFile InnerFile)
                                                                 {
                                                                     if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.Path, DisplayApplicationPicker = false }))
                                                                     {
@@ -3425,7 +2991,7 @@ namespace RX_Explorer
                                                                             CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                                                                         };
 
-                                                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                                                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                                                                         {
                                                                             if (!await Launcher.LaunchFileAsync(InnerFile))
                                                                             {
@@ -3447,7 +3013,7 @@ namespace RX_Explorer
                                                                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                                                     };
 
-                                                                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                                                                    _ = await dialog.ShowAsync();
                                                                 }
                                                             }
                                                         }
@@ -3462,9 +3028,9 @@ namespace RX_Explorer
                             }
                         case FileSystemStorageFolder Folder:
                             {
-                                if (await FileSystemStorageItemBase.CheckExistAsync(Folder.Path).ConfigureAwait(true))
+                                if (await FileSystemStorageItemBase.CheckExistAsync(Folder.Path))
                                 {
-                                    await DisplayItemsInFolder(Folder).ConfigureAwait(true);
+                                    await DisplayItemsInFolder(Folder);
                                 }
                                 else
                                 {
@@ -3475,7 +3041,7 @@ namespace RX_Explorer
                                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                     };
 
-                                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                                    _ = await Dialog.ShowAsync();
                                 }
 
                                 break;
@@ -3491,7 +3057,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    await Dialog.ShowAsync().ConfigureAwait(true);
+                    await Dialog.ShowAsync();
                 }
                 catch (Exception ex)
                 {
@@ -3517,20 +3083,20 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                _ = await Dialog.ShowAsync();
             }
             else
             {
-                if ((await SelectedItem.GetStorageItemAsync().ConfigureAwait(true)) is StorageFile File)
+                if ((await SelectedItem.GetStorageItemAsync()) is StorageFile File)
                 {
                     VideoEditDialog Dialog = new VideoEditDialog(File);
 
-                    if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                    if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                     {
-                        if (await CurrentFolder.GetStorageItemAsync().ConfigureAwait(true) is StorageFolder Folder)
+                        if (await CurrentFolder.GetStorageItemAsync() is StorageFolder Folder)
                         {
                             StorageFile ExportFile = await Folder.CreateFileAsync($"{File.DisplayName} - {Globalization.GetString("Crop_Image_Name_Tail")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
-                            await GeneralTransformer.GenerateCroppedVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding, Dialog.TrimmingPreference).ConfigureAwait(true);
+                            await GeneralTransformer.GenerateCroppedVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding, Dialog.TrimmingPreference);
                         }
                     }
                 }
@@ -3543,7 +3109,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await Dialog.ShowAsync();
                 }
             }
         }
@@ -3561,22 +3127,22 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                _ = await Dialog.ShowAsync();
 
                 return;
             }
 
-            if ((await SelectedItem.GetStorageItemAsync().ConfigureAwait(true)) is StorageFile Item)
+            if ((await SelectedItem.GetStorageItemAsync()) is StorageFile Item)
             {
                 VideoMergeDialog Dialog = new VideoMergeDialog(Item);
 
-                if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
-                    if (await CurrentFolder.GetStorageItemAsync().ConfigureAwait(true) is StorageFolder Folder)
+                    if (await CurrentFolder.GetStorageItemAsync() is StorageFolder Folder)
                     {
                         StorageFile ExportFile = await Folder.CreateFileAsync($"{Item.DisplayName} - {Globalization.GetString("Merge_Image_Name_Tail")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
 
-                        await GeneralTransformer.GenerateMergeVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding).ConfigureAwait(true);
+                        await GeneralTransformer.GenerateMergeVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding);
                     }
                 }
             }
@@ -3590,7 +3156,7 @@ namespace RX_Explorer
             {
                 ProgramPickerDialog Dialog = new ProgramPickerDialog(File);
 
-                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
                     if (Dialog.SelectedProgram.Path == Package.Current.Id.FamilyName)
                     {
@@ -3663,7 +3229,7 @@ namespace RX_Explorer
                             {
                                 try
                                 {
-                                    await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), WindowState.Normal, false, false, false, File.Path).ConfigureAwait(true);
+                                    await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), WindowState.Normal, false, false, false, File.Path);
                                 }
                                 catch (Exception)
                                 {
@@ -3674,13 +3240,13 @@ namespace RX_Explorer
                                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                     };
 
-                                    await dialog.ShowAsync().ConfigureAwait(true);
+                                    await dialog.ShowAsync();
                                 }
                             }
                         }
                         else
                         {
-                            if ((await File.GetStorageItemAsync().ConfigureAwait(true)) is StorageFile InnerFile)
+                            if ((await File.GetStorageItemAsync()) is StorageFile InnerFile)
                             {
                                 if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.Path, DisplayApplicationPicker = false }))
                                 {
@@ -3697,7 +3263,7 @@ namespace RX_Explorer
                                         CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                                     };
 
-                                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                                     {
                                         if (!await Launcher.LaunchFileAsync(InnerFile))
                                         {
@@ -3720,7 +3286,7 @@ namespace RX_Explorer
                                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                 };
 
-                                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                                _ = await dialog.ShowAsync();
                             }
                         }
                     }
@@ -3742,11 +3308,11 @@ namespace RX_Explorer
         {
             if (SortCollectionGenerator.Current.SortDirection == SortDirection.Ascending)
             {
-                await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.Name, SortDirection.Descending).ConfigureAwait(true);
+                await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.Name, SortDirection.Descending);
             }
             else
             {
-                await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.Name, SortDirection.Ascending).ConfigureAwait(true);
+                await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.Name, SortDirection.Ascending);
             }
         }
 
@@ -3754,11 +3320,11 @@ namespace RX_Explorer
         {
             if (SortCollectionGenerator.Current.SortDirection == SortDirection.Ascending)
             {
-                await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.ModifiedTime, SortDirection.Descending).ConfigureAwait(true);
+                await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.ModifiedTime, SortDirection.Descending);
             }
             else
             {
-                await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.ModifiedTime, SortDirection.Ascending).ConfigureAwait(true);
+                await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.ModifiedTime, SortDirection.Ascending);
             }
         }
 
@@ -3766,11 +3332,11 @@ namespace RX_Explorer
         {
             if (SortCollectionGenerator.Current.SortDirection == SortDirection.Ascending)
             {
-                await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.Type, SortDirection.Descending).ConfigureAwait(true);
+                await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.Type, SortDirection.Descending);
             }
             else
             {
-                await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.Type, SortDirection.Ascending).ConfigureAwait(true);
+                await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.Type, SortDirection.Ascending);
             }
         }
 
@@ -3778,11 +3344,11 @@ namespace RX_Explorer
         {
             if (SortCollectionGenerator.Current.SortDirection == SortDirection.Ascending)
             {
-                await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.Size, SortDirection.Descending).ConfigureAwait(true);
+                await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.Size, SortDirection.Descending);
             }
             else
             {
-                await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.Size, SortDirection.Ascending).ConfigureAwait(true);
+                await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.Size, SortDirection.Ascending);
             }
         }
 
@@ -3799,7 +3365,7 @@ namespace RX_Explorer
 
             NewFileDialog Dialog = new NewFileDialog();
 
-            if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+            if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
             {
                 try
                 {
@@ -3807,28 +3373,28 @@ namespace RX_Explorer
                     {
                         case ".zip":
                             {
-                                await SpecialTypeGenerator.Current.CreateZipFile(CurrentFolder.Path, Dialog.NewFileName).ConfigureAwait(true);
+                                await SpecialTypeGenerator.Current.CreateZipFile(CurrentFolder.Path, Dialog.NewFileName);
                                 break;
                             }
                         case ".rtf":
                             {
-                                await SpecialTypeGenerator.Current.CreateRtfFile(CurrentFolder.Path, Dialog.NewFileName).ConfigureAwait(true);
+                                await SpecialTypeGenerator.Current.CreateRtfFile(CurrentFolder.Path, Dialog.NewFileName);
                                 break;
                             }
                         case ".xlsx":
                             {
-                                await SpecialTypeGenerator.Current.CreateExcelFile(CurrentFolder.Path, Dialog.NewFileName).ConfigureAwait(true);
+                                await SpecialTypeGenerator.Current.CreateExcelFile(CurrentFolder.Path, Dialog.NewFileName);
                                 break;
                             }
                         case ".lnk":
                             {
                                 LinkOptionsDialog dialog = new LinkOptionsDialog();
 
-                                if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                                 {
                                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                     {
-                                        if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(CurrentFolder.Path, Dialog.NewFileName), dialog.Path, dialog.WorkDirectory, dialog.WindowState, dialog.HotKey, dialog.Comment, dialog.Arguments).ConfigureAwait(true))
+                                        if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(CurrentFolder.Path, Dialog.NewFileName), dialog.Path, dialog.WorkDirectory, dialog.WindowState, dialog.HotKey, dialog.Comment, dialog.Arguments))
                                         {
                                             throw new UnauthorizedAccessException();
                                         }
@@ -3839,7 +3405,7 @@ namespace RX_Explorer
                             }
                         default:
                             {
-                                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(CurrentFolder.Path, Dialog.NewFileName), StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(true) == null)
+                                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(CurrentFolder.Path, Dialog.NewFileName), StorageItemTypes.File, CreateOption.GenerateUniqueName) == null)
                                 {
                                     throw new UnauthorizedAccessException();
                                 }
@@ -3858,7 +3424,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
                     };
 
-                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
                         _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
                     }
@@ -3872,7 +3438,7 @@ namespace RX_Explorer
 
             if (SelectedItem is FileSystemStorageFolder Folder)
             {
-                if (!await FileSystemStorageItemBase.CheckExistAsync(Folder.Path).ConfigureAwait(true))
+                if (!await FileSystemStorageItemBase.CheckExistAsync(Folder.Path))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -3881,16 +3447,16 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await Dialog.ShowAsync();
 
                     return;
                 }
 
                 CompressDialog dialog = new CompressDialog(false, Path.GetFileName(Folder.Path));
 
-                if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
-                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
+                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing"));
 
                     try
                     {
@@ -3908,7 +3474,7 @@ namespace RX_Explorer
                                                 Container.ProBar.Value = e.ProgressPercentage;
                                             }
                                         });
-                                    }).ConfigureAwait(true);
+                                    });
 
                                     break;
                                 }
@@ -3924,7 +3490,7 @@ namespace RX_Explorer
                                                 Container.ProBar.Value = e.ProgressPercentage;
                                             }
                                         });
-                                    }).ConfigureAwait(true);
+                                    });
 
                                     break;
                                 }
@@ -3940,7 +3506,7 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
                         };
 
-                        if (await dialog1.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                        if (await dialog1.ShowAsync() == ContentDialogResult.Primary)
                         {
                             _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
                         }
@@ -3954,10 +3520,10 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
-                        _ = await dialog2.ShowAsync().ConfigureAwait(true);
+                        _ = await dialog2.ShowAsync();
                     }
 
-                    await Container.LoadingActivation(false).ConfigureAwait(true);
+                    await Container.LoadingActivation(false);
                 }
             }
         }
@@ -4075,122 +3641,13 @@ namespace RX_Explorer
                         {
                             case DataPackageOperation.Copy:
                                 {
-                                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
-
-                                    try
-                                    {
-                                        await FileSystemStorageItemBase.CopyAsync(PathList, Item.Path, (s, arg) =>
-                                        {
-                                            if (Container.ProBar.Value < arg.ProgressPercentage)
-                                            {
-                                                Container.ProBar.IsIndeterminate = false;
-                                                Container.ProBar.Value = arg.ProgressPercentage;
-                                            }
-                                        }).ConfigureAwait(true);
-                                    }
-                                    catch (FileNotFoundException)
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                                    }
-                                    catch (InvalidOperationException)
-                                    {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                        };
-
-                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                        {
-                                            await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                                        }
-                                    }
-                                    catch (Exception)
-                                    {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                                    }
+                                    QueueFileOperationController.EnqueueCopyOpeartion(PathList, Item.Path);
 
                                     break;
                                 }
                             case DataPackageOperation.Move:
                                 {
-                                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
-
-                                    try
-                                    {
-                                        await FileSystemStorageItemBase.MoveAsync(PathList, Item.Path, (s, arg) =>
-                                        {
-                                            if (Container.ProBar.Value < arg.ProgressPercentage)
-                                            {
-                                                Container.ProBar.IsIndeterminate = false;
-                                                Container.ProBar.Value = arg.ProgressPercentage;
-                                            }
-                                        }).ConfigureAwait(true);
-                                    }
-                                    catch (FileNotFoundException)
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_MoveFailForNotExist_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                                    }
-                                    catch (FileCaputureException)
-                                    {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                                    }
-                                    catch (InvalidOperationException)
-                                    {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                        };
-
-                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                        {
-                                            await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                                        }
-                                    }
-                                    catch (Exception)
-                                    {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_MoveFailUnexpectError_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                                    }
+                                    QueueFileOperationController.EnqueueMoveOpeartion(PathList, Item.Path);
 
                                     break;
                                 }
@@ -4198,16 +3655,12 @@ namespace RX_Explorer
                     }
                 }
             }
-            catch (Exception ex) when (ex.HResult == unchecked((int)0x80040064))
+            catch (Exception ex) when (ex.HResult is unchecked((int)0x80040064) or unchecked((int)0x8004006A))
             {
-                QueueContentDialog dialog = new QueueContentDialog
+                if ((sender as SelectorItem).Content is FileSystemStorageItemBase Item)
                 {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_CopyFromUnsupportedArea_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    QueueFileOperationController.EnqueueRemoteCopyOpeartion(Item.Path);
+                }
             }
             catch
             {
@@ -4218,11 +3671,10 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                _ = await dialog.ShowAsync();
             }
             finally
             {
-                await Container.LoadingActivation(false).ConfigureAwait(true);
                 e.Handled = true;
                 Deferral.Complete();
             }
@@ -4239,7 +3691,6 @@ namespace RX_Explorer
                 args.ItemContainer.PointerExited -= ItemContainer_PointerExited;
                 args.ItemContainer.DragEnter -= ItemContainer_DragEnter;
                 args.ItemContainer.PointerCanceled -= ItemContainer_PointerCanceled;
-                args.ItemContainer.PointerCaptureLost -= ItemContainer_PointerCaptureLost;
             }
             else
             {
@@ -4258,7 +3709,6 @@ namespace RX_Explorer
                 args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
                 args.ItemContainer.PointerExited += ItemContainer_PointerExited;
                 args.ItemContainer.PointerCanceled += ItemContainer_PointerCanceled;
-                args.ItemContainer.PointerCaptureLost += ItemContainer_PointerCaptureLost;
 
                 args.RegisterUpdateCallback(async (s, e) =>
                 {
@@ -4326,7 +3776,7 @@ namespace RX_Explorer
 
                     foreach (FileSystemStorageItemBase StorageItem in StorageItems)
                     {
-                        if (await StorageItem.GetStorageItemAsync().ConfigureAwait(true) is IStorageItem Item)
+                        if (await StorageItem.GetStorageItemAsync() is IStorageItem Item)
                         {
                             TempList.Add(Item);
                         }
@@ -4481,13 +3931,6 @@ namespace RX_Explorer
             DelaySelectionCancel?.Cancel();
         }
 
-        private void ItemContainer_PointerCaptureLost(object sender, PointerRoutedEventArgs e)
-        {
-            DelayEnterCancel?.Cancel();
-            DelayRenameCancel?.Cancel();
-            DelaySelectionCancel?.Cancel();
-        }
-
         private void ItemContainer_PointerCanceled(object sender, PointerRoutedEventArgs e)
         {
             DelayEnterCancel?.Cancel();
@@ -4533,56 +3976,7 @@ namespace RX_Explorer
                     {
                         case DataPackageOperation.Copy:
                             {
-                                await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Copying")).ConfigureAwait(true);
-
-                                try
-                                {
-                                    await FileSystemStorageItemBase.CopyAsync(PathList, CurrentFolder.Path, (s, arg) =>
-                                    {
-                                        if (Container.ProBar.Value < arg.ProgressPercentage)
-                                        {
-                                            Container.ProBar.IsIndeterminate = false;
-                                            Container.ProBar.Value = arg.ProgressPercentage;
-                                        }
-                                    }).ConfigureAwait(true);
-                                }
-                                catch (FileNotFoundException)
-                                {
-                                    QueueContentDialog Dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-
-                                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                                }
-                                catch (InvalidOperationException)
-                                {
-                                    QueueContentDialog dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                    };
-
-                                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                    {
-                                        await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                                    }
-                                }
-                                catch (Exception)
-                                {
-                                    QueueContentDialog dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-
-                                    _ = await dialog.ShowAsync().ConfigureAwait(true);
-                                }
+                                QueueFileOperationController.EnqueueCopyOpeartion(PathList, CurrentFolder.Path);
 
                                 break;
                             }
@@ -4590,67 +3984,7 @@ namespace RX_Explorer
                             {
                                 if (PathList.All((Item) => Path.GetDirectoryName(Item) != CurrentFolder.Path))
                                 {
-                                    await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Moving")).ConfigureAwait(true);
-
-                                    try
-                                    {
-                                        await FileSystemStorageItemBase.MoveAsync(PathList, CurrentFolder.Path, (s, arg) =>
-                                        {
-                                            if (Container.ProBar.Value < arg.ProgressPercentage)
-                                            {
-                                                Container.ProBar.IsIndeterminate = false;
-                                                Container.ProBar.Value = arg.ProgressPercentage;
-                                            }
-                                        }).ConfigureAwait(true);
-                                    }
-                                    catch (FileNotFoundException)
-                                    {
-                                        QueueContentDialog Dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_MoveFailForNotExist_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
-                                    }
-                                    catch (FileCaputureException)
-                                    {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_Item_Captured_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                                    }
-                                    catch (InvalidOperationException)
-                                    {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"),
-                                            PrimaryButtonText = Globalization.GetString("Common_Dialog_ConfirmButton"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                        };
-
-                                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
-                                        {
-                                            await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                                        }
-                                    }
-                                    catch (Exception)
-                                    {
-                                        QueueContentDialog dialog = new QueueContentDialog
-                                        {
-                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_MoveFailUnexpectError_Content"),
-                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                        };
-
-                                        _ = await dialog.ShowAsync().ConfigureAwait(true);
-                                    }
+                                    QueueFileOperationController.EnqueueMoveOpeartion(PathList, CurrentFolder.Path);
                                 }
 
                                 break;
@@ -4658,16 +3992,9 @@ namespace RX_Explorer
                     }
                 }
             }
-            catch (Exception ex) when (ex.HResult == unchecked((int)0x80040064))
+            catch (Exception ex) when (ex.HResult is unchecked((int)0x80040064) or unchecked((int)0x8004006A))
             {
-                QueueContentDialog dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = Globalization.GetString("QueueDialog_CopyFromUnsupportedArea_Content"),
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                QueueFileOperationController.EnqueueRemoteCopyOpeartion(CurrentFolder.Path);
             }
             catch
             {
@@ -4678,11 +4005,11 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                _ = await dialog.ShowAsync();
             }
             finally
             {
-                await Container.LoadingActivation(false).ConfigureAwait(true);
+                await Container.LoadingActivation(false);
                 e.Handled = true;
                 Deferral.Complete();
             }
@@ -4700,7 +4027,7 @@ namespace RX_Explorer
                     {
                         if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
                         {
-                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(MixedFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(MixedFlyout, e.GetPosition((FrameworkElement)sender));
                         }
                         else
                         {
@@ -4710,17 +4037,17 @@ namespace RX_Explorer
                             {
                                 case LinkStorageFile:
                                     {
-                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                         break;
                                     }
                                 case FileSystemStorageFile:
                                     {
-                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender));
                                         break;
                                     }
                                 case FileSystemStorageFolder:
                                     {
-                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FolderFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FolderFlyout, e.GetPosition((FrameworkElement)sender));
                                         break;
                                     }
                             }
@@ -4729,7 +4056,7 @@ namespace RX_Explorer
                     else
                     {
                         SelectedItem = null;
-                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender));
                     }
                 }
                 else
@@ -4739,7 +4066,7 @@ namespace RX_Explorer
                         if (Element.Name == "EmptyTextblock")
                         {
                             SelectedItem = null;
-                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender));
                         }
                         else
                         {
@@ -4747,7 +4074,7 @@ namespace RX_Explorer
                             {
                                 if (SelectedItems.Count > 1 && SelectedItems.Contains(Context))
                                 {
-                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(MixedFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(MixedFlyout, e.GetPosition((FrameworkElement)sender));
                                 }
                                 else
                                 {
@@ -4757,17 +4084,17 @@ namespace RX_Explorer
                                         {
                                             case LinkStorageFile:
                                                 {
-                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                                     break;
                                                 }
                                             case FileSystemStorageFile:
                                                 {
-                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender));
                                                     break;
                                                 }
                                             case FileSystemStorageFolder:
                                                 {
-                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FolderFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FolderFlyout, e.GetPosition((FrameworkElement)sender));
                                                     break;
                                                 }
                                         }
@@ -4782,17 +4109,17 @@ namespace RX_Explorer
                                             {
                                                 case LinkStorageFile:
                                                     {
-                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                                         break;
                                                     }
                                                 case FileSystemStorageFile:
                                                     {
-                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FileFlyout, e.GetPosition((FrameworkElement)sender));
                                                         break;
                                                     }
                                                 case FileSystemStorageFolder:
                                                     {
-                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FolderFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(FolderFlyout, e.GetPosition((FrameworkElement)sender));
                                                         break;
                                                     }
                                             }
@@ -4800,7 +4127,7 @@ namespace RX_Explorer
                                         else
                                         {
                                             SelectedItem = null;
-                                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                            await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender));
                                         }
                                     }
                                 }
@@ -4808,7 +4135,7 @@ namespace RX_Explorer
                             else
                             {
                                 SelectedItem = null;
-                                await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender)).ConfigureAwait(true);
+                                await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(EmptyFlyout, e.GetPosition((FrameworkElement)sender));
                             }
                         }
                     }
@@ -4829,7 +4156,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                _ = await Dialog.ShowAsync();
 
                 return;
             }
@@ -4838,7 +4165,7 @@ namespace RX_Explorer
             {
                 foreach (FileSystemStorageFolder Item in SelectedItems.OfType<FileSystemStorageFolder>())
                 {
-                    if (!await FileSystemStorageItemBase.CheckExistAsync(Item.Path).ConfigureAwait(true))
+                    if (!await FileSystemStorageItemBase.CheckExistAsync(Item.Path))
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
@@ -4847,7 +4174,7 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                        _ = await Dialog.ShowAsync();
 
                         return;
                     }
@@ -4855,7 +4182,7 @@ namespace RX_Explorer
 
                 foreach (FileSystemStorageFile Item in SelectedItems.OfType<FileSystemStorageFile>())
                 {
-                    if (!await FileSystemStorageItemBase.CheckExistAsync(Item.Path).ConfigureAwait(true))
+                    if (!await FileSystemStorageItemBase.CheckExistAsync(Item.Path))
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
@@ -4864,13 +4191,13 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                        _ = await Dialog.ShowAsync();
 
                         return;
                     }
                 }
 
-                await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
+                await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting"));
 
                 try
                 {
@@ -4886,7 +4213,7 @@ namespace RX_Explorer
                                     Container.ProBar.Value = e.ProgressPercentage;
                                 }
                             });
-                        }).ConfigureAwait(true);
+                        });
                     }
                     else if (SelectedItems.All((Item) => Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase)))
                     {
@@ -4900,7 +4227,7 @@ namespace RX_Explorer
                                     Container.ProBar.Value = e.ProgressPercentage;
                                 }
                             });
-                        }).ConfigureAwait(true);
+                        });
                     }
                     else if (SelectedItems.All((Item) => Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)))
                     {
@@ -4914,7 +4241,7 @@ namespace RX_Explorer
                                     Container.ProBar.Value = e.ProgressPercentage;
                                 }
                             });
-                        }).ConfigureAwait(true);
+                        });
                     }
                 }
                 catch (UnauthorizedAccessException)
@@ -4927,7 +4254,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
                     };
 
-                    if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                     {
                         _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
                     }
@@ -4941,7 +4268,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await Dialog.ShowAsync();
                 }
                 catch (Exception ex)
                 {
@@ -4952,10 +4279,10 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await dialog.ShowAsync();
                 }
 
-                await Container.LoadingActivation(false).ConfigureAwait(true);
+                await Container.LoadingActivation(false);
             }
             else
             {
@@ -4966,7 +4293,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                await Dialog.ShowAsync().ConfigureAwait(true);
+                await Dialog.ShowAsync();
             }
         }
 
@@ -4983,14 +4310,14 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                _ = await Dialog.ShowAsync();
 
                 return;
             }
 
             foreach (FileSystemStorageFolder Folder in SelectedItems.OfType<FileSystemStorageFolder>())
             {
-                if (!await FileSystemStorageItemBase.CheckExistAsync(Folder.Path).ConfigureAwait(true))
+                if (!await FileSystemStorageItemBase.CheckExistAsync(Folder.Path))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -4999,7 +4326,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await Dialog.ShowAsync();
 
                     return;
                 }
@@ -5007,7 +4334,7 @@ namespace RX_Explorer
 
             foreach (FileSystemStorageFolder File in SelectedItems.OfType<FileSystemStorageFolder>())
             {
-                if (!await FileSystemStorageItemBase.CheckExistAsync(File.Path).ConfigureAwait(true))
+                if (!await FileSystemStorageItemBase.CheckExistAsync(File.Path))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -5016,7 +4343,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await Dialog.ShowAsync();
 
                     return;
                 }
@@ -5024,9 +4351,9 @@ namespace RX_Explorer
 
             CompressDialog dialog = new CompressDialog(false);
 
-            if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+            if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
             {
-                await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing")).ConfigureAwait(true);
+                await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Compressing"));
 
                 try
                 {
@@ -5044,7 +4371,7 @@ namespace RX_Explorer
                                             Container.ProBar.Value = e.ProgressPercentage;
                                         }
                                     });
-                                }).ConfigureAwait(true);
+                                });
 
                                 break;
                             }
@@ -5060,7 +4387,7 @@ namespace RX_Explorer
                                             Container.ProBar.Value = e.ProgressPercentage;
                                         }
                                     });
-                                }).ConfigureAwait(true);
+                                });
 
                                 break;
                             }
@@ -5076,7 +4403,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
                     };
 
-                    if (await dialog1.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    if (await dialog1.ShowAsync() == ContentDialogResult.Primary)
                     {
                         _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
                     }
@@ -5090,10 +4417,10 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await dialog2.ShowAsync().ConfigureAwait(true);
+                    _ = await dialog2.ShowAsync();
                 }
 
-                await Container.LoadingActivation(false).ConfigureAwait(true);
+                await Container.LoadingActivation(false);
             }
         }
 
@@ -5101,13 +4428,13 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (await SQLite.Current.GetTerminalProfileByName(Convert.ToString(ApplicationData.Current.LocalSettings.Values["DefaultTerminal"])).ConfigureAwait(true) is TerminalProfile Profile)
+            if (await SQLite.Current.GetTerminalProfileByName(Convert.ToString(ApplicationData.Current.LocalSettings.Values["DefaultTerminal"])) is TerminalProfile Profile)
             {
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {
                     try
                     {
-                        await Exclusive.Controller.RunAsync(Profile.Path, string.Empty, WindowState.Normal, Profile.RunAsAdmin, false, false, Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value.Contains("[CurrentLocation]") ? Mat.Value.Replace("[CurrentLocation]", CurrentFolder.Path) : Mat.Value).ToArray()).ConfigureAwait(true);
+                        await Exclusive.Controller.RunAsync(Profile.Path, string.Empty, WindowState.Normal, Profile.RunAsAdmin, false, false, Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value.Contains("[CurrentLocation]") ? Mat.Value.Replace("[CurrentLocation]", CurrentFolder.Path) : Mat.Value).ToArray());
                     }
                     catch (Exception ex)
                     {
@@ -5120,7 +4447,7 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
-                        await Dialog.ShowAsync().ConfigureAwait(true);
+                        await Dialog.ShowAsync();
                     }
                 }
             }
@@ -5132,7 +4459,7 @@ namespace RX_Explorer
 
             if (SelectedItem is FileSystemStorageFolder Folder)
             {
-                await TabViewContainer.ThisPage.CreateNewTabAsync(null, Folder.Path).ConfigureAwait(true);
+                await TabViewContainer.ThisPage.CreateNewTabAsync(null, Folder.Path);
             }
         }
 
@@ -5191,7 +4518,7 @@ namespace RX_Explorer
                         return;
                     }
 
-                    if (await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(CurrentFolder.Path, NameEditBox.Text)).ConfigureAwait(true))
+                    if (await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(CurrentFolder.Path, NameEditBox.Text)))
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
@@ -5201,7 +4528,7 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                         };
 
-                        if (await Dialog.ShowAsync().ConfigureAwait(true) != ContentDialogResult.Primary)
+                        if (await Dialog.ShowAsync() != ContentDialogResult.Primary)
                         {
                             return;
                         }
@@ -5209,7 +4536,7 @@ namespace RX_Explorer
 
                     try
                     {
-                        await CurrentEditItem.RenameAsync(NameEditBox.Text).ConfigureAwait(true);
+                        await CurrentEditItem.RenameAsync(NameEditBox.Text);
                     }
                     catch (FileLoadException)
                     {
@@ -5220,7 +4547,7 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                         };
 
-                        _ = await LoadExceptionDialog.ShowAsync().ConfigureAwait(true);
+                        _ = await LoadExceptionDialog.ShowAsync();
                     }
                     catch (InvalidOperationException)
                     {
@@ -5232,7 +4559,7 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                         };
 
-                        if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                        if (await UnauthorizeDialog.ShowAsync() == ContentDialogResult.Primary)
                         {
                             await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
                         }
@@ -5248,7 +4575,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
                     };
 
-                    if (await UnauthorizeDialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                    if (await UnauthorizeDialog.ShowAsync() == ContentDialogResult.Primary)
                     {
                         _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
                     }
@@ -5304,42 +4631,42 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.Name, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending).ConfigureAwait(true);
+            await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.Name, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
         }
 
         private async void OrderByTime_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.ModifiedTime, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending).ConfigureAwait(true);
+            await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.ModifiedTime, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
         }
 
         private async void OrderByType_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.Type, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending).ConfigureAwait(true);
+            await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.Type, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
         }
 
         private async void OrderBySize_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.Size, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending).ConfigureAwait(true);
+            await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortTarget.Size, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
         }
 
         private async void Desc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortDirection: SortDirection.Descending).ConfigureAwait(true);
+            await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortDirection: SortDirection.Descending);
         }
 
         private async void Asc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortDirection: SortDirection.Ascending).ConfigureAwait(true);
+            await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentFolder.Path, SortDirection: SortDirection.Ascending);
         }
 
         private void SortMenuFlyout_Opening(object sender, object e)
@@ -6012,13 +5339,13 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await Dialog.ShowAsync();
                 }
                 else
                 {
-                    if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(Item.LinkTargetPath)).ConfigureAwait(true) is FileSystemStorageFolder ParentFolder)
+                    if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(Item.LinkTargetPath)) is FileSystemStorageFolder ParentFolder)
                     {
-                        await DisplayItemsInFolder(ParentFolder).ConfigureAwait(true);
+                        await DisplayItemsInFolder(ParentFolder);
 
                         if (FileCollection.FirstOrDefault((SItem) => SItem.Path.Equals(Item.LinkTargetPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Target)
                         {
@@ -6035,7 +5362,7 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                        _ = await Dialog.ShowAsync();
                     }
                 }
             }
@@ -6153,15 +5480,6 @@ namespace RX_Explorer
             }
         }
 
-        private void NameEditBox_KeyDown(object sender, KeyRoutedEventArgs e)
-        {
-            if (e.Key == VirtualKey.Enter)
-            {
-                e.Handled = true;
-                ItemPresenter.Focus(FocusState.Programmatic);
-            }
-        }
-
         private void DecompressionOptionFlyout_Opening(object sender, object e)
         {
             DecompressionOption2.Text = $"{Globalization.GetString("DecompressTo")} \"{Path.GetFileNameWithoutExtension(SelectedItem.Path)}\\\"";
@@ -6173,7 +5491,7 @@ namespace RX_Explorer
             {
                 CloseAllFlyout();
 
-                if (!await FileSystemStorageItemBase.CheckExistAsync(File.Path).ConfigureAwait(true))
+                if (!await FileSystemStorageItemBase.CheckExistAsync(File.Path))
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -6182,7 +5500,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await dialog.ShowAsync();
 
                     return;
                 }
@@ -6204,7 +5522,7 @@ namespace RX_Explorer
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
 
-                            await dialog.ShowAsync().ConfigureAwait(true);
+                            await dialog.ShowAsync();
 
                             return;
                         }
@@ -6212,13 +5530,13 @@ namespace RX_Explorer
 
                 DecompressDialog Dialog = new DecompressDialog(Path.GetDirectoryName(File.Path));
 
-                if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                 {
                     try
                     {
-                        await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting")).ConfigureAwait(true);
+                        await Container.LoadingActivation(true, Globalization.GetString("Progress_Tip_Extracting"));
 
-                        FileSystemStorageFolder TargetFolder = await FileSystemStorageItemBase.CreateAsync(Path.Combine(Dialog.ExtractLocation, Path.GetFileNameWithoutExtension(File.Name)), StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) as FileSystemStorageFolder;
+                        FileSystemStorageFolder TargetFolder = await FileSystemStorageItemBase.CreateAsync(Path.Combine(Dialog.ExtractLocation, Path.GetFileNameWithoutExtension(File.Name)), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) as FileSystemStorageFolder;
 
                         if (TargetFolder == null)
                         {
@@ -6241,7 +5559,7 @@ namespace RX_Explorer
                                                 Container.ProBar.Value = e.ProgressPercentage;
                                             }
                                         });
-                                    }).ConfigureAwait(true);
+                                    });
 
                                     break;
                                 }
@@ -6257,7 +5575,7 @@ namespace RX_Explorer
                                                 Container.ProBar.Value = e.ProgressPercentage;
                                             }
                                         });
-                                    }).ConfigureAwait(true);
+                                    });
 
                                     break;
                                 }
@@ -6273,7 +5591,7 @@ namespace RX_Explorer
                                                 Container.ProBar.Value = e.ProgressPercentage;
                                             }
                                         });
-                                    }).ConfigureAwait(true);
+                                    });
 
                                     break;
                                 }
@@ -6289,7 +5607,7 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
                         };
 
-                        if (await dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                        if (await dialog.ShowAsync() == ContentDialogResult.Primary)
                         {
                             _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
                         }
@@ -6303,7 +5621,7 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                        _ = await dialog.ShowAsync();
                     }
                     catch (Exception ex)
                     {
@@ -6314,11 +5632,11 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
-                        _ = await dialog.ShowAsync().ConfigureAwait(true);
+                        _ = await dialog.ShowAsync();
                     }
                     finally
                     {
-                        await Container.LoadingActivation(false).ConfigureAwait(true);
+                        await Container.LoadingActivation(false);
                     }
                 }
             }

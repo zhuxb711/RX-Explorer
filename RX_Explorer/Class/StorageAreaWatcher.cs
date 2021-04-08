@@ -4,7 +4,6 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Core;
 
@@ -53,19 +52,19 @@ namespace RX_Explorer.Class
         {
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
             {
-                await Locker.WaitAsync().ConfigureAwait(true);
+                await Locker.WaitAsync();
 
                 if (CurrentLocation == System.IO.Path.GetDirectoryName(Path))
                 {
                     try
                     {
-                        if (await FileSystemStorageItemBase.OpenAsync(Path).ConfigureAwait(true) is FileSystemStorageItemBase ModifiedItem)
+                        if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageItemBase ModifiedItem)
                         {
                             if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase OldItem)
                             {
                                 if (ModifiedItem.GetType() == OldItem.GetType())
                                 {
-                                    await OldItem.RefreshAsync().ConfigureAwait(true);
+                                    await OldItem.RefreshAsync();
                                 }
                                 else
                                 {
@@ -135,46 +134,38 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        await Locker.WaitAsync().ConfigureAwait(true);
+                        await Locker.WaitAsync();
 
                         if (CurrentLocation == System.IO.Path.GetDirectoryName(NewPath))
                         {
                             if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(OldPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase OlderItem)
                             {
-                                if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(NewPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase ExistItem)
-                                {
-                                    await ExistItem.ReplaceAsync(NewPath).ConfigureAwait(true);
-
-                                    await Task.Delay(700).ConfigureAwait(true);
-
-                                    CurrentCollection.Remove(OlderItem);
-                                }
-                                else
-                                {
-                                    await OlderItem.ReplaceAsync(NewPath).ConfigureAwait(true);
-                                }
+                                CurrentCollection.Remove(OlderItem);
                             }
-                            else if (CurrentCollection.All((Item) => Item.Path != NewPath))
-                            {
-                                if (await FileSystemStorageItemBase.OpenAsync(NewPath).ConfigureAwait(true) is FileSystemStorageItemBase Item)
-                                {
-                                    if (CurrentCollection.Any())
-                                    {
-                                        int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, Item);
 
-                                        if (Index >= 0)
-                                        {
-                                            CurrentCollection.Insert(Index, Item);
-                                        }
-                                        else
-                                        {
-                                            CurrentCollection.Add(Item);
-                                        }
+                            if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(NewPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase ExistItem)
+                            {
+                                CurrentCollection.Remove(ExistItem);
+                            }
+
+                            if (await FileSystemStorageItemBase.OpenAsync(NewPath) is FileSystemStorageItemBase Item)
+                            {
+                                if (CurrentCollection.Any())
+                                {
+                                    int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, Item);
+
+                                    if (Index >= 0)
+                                    {
+                                        CurrentCollection.Insert(Index, Item);
                                     }
                                     else
                                     {
                                         CurrentCollection.Add(Item);
                                     }
+                                }
+                                else
+                                {
+                                    CurrentCollection.Add(Item);
                                 }
                             }
 
@@ -184,7 +175,7 @@ namespace RX_Explorer.Class
                                 {
                                     if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentLocation, string.Empty), true) is TreeViewNode CurrentNode)
                                     {
-                                        await CurrentNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                        await CurrentNode.UpdateAllSubNodeAsync();
                                     }
                                 }
                             }
@@ -210,7 +201,7 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        await Locker.WaitAsync().ConfigureAwait(true);
+                        await Locker.WaitAsync();
 
                         if (CurrentLocation == System.IO.Path.GetDirectoryName(Path))
                         {
@@ -225,7 +216,7 @@ namespace RX_Explorer.Class
                                 {
                                     if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentLocation, string.Empty), true) is TreeViewNode CurrentNode)
                                     {
-                                        await CurrentNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                        await CurrentNode.UpdateAllSubNodeAsync();
                                     }
                                 }
                             }
@@ -251,13 +242,13 @@ namespace RX_Explorer.Class
                 {
                     try
                     {
-                        await Locker.WaitAsync().ConfigureAwait(true);
+                        await Locker.WaitAsync();
 
                         if (CurrentLocation == System.IO.Path.GetDirectoryName(Path))
                         {
-                            if (CurrentCollection.All((Item) => Item.Path != Path) && await FileSystemStorageItemBase.OpenAsync(Path).ConfigureAwait(true) is FileSystemStorageItemBase NewItem)
+                            if (CurrentCollection.All((Item) => Item.Path != Path) && await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageItemBase NewItem)
                             {
-                                await NewItem.LoadMorePropertyAsync().ConfigureAwait(true);
+                                await NewItem.LoadMorePropertyAsync();
 
                                 if (CurrentCollection.Any())
                                 {
@@ -283,7 +274,7 @@ namespace RX_Explorer.Class
                                     {
                                         if (await RootNode.GetNodeAsync(new PathAnalysis(CurrentLocation, string.Empty), true) is TreeViewNode CurrentNode)
                                         {
-                                            await CurrentNode.UpdateAllSubNodeAsync().ConfigureAwait(true);
+                                            await CurrentNode.UpdateAllSubNodeAsync();
                                         }
                                     }
                                 }

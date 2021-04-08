@@ -137,13 +137,13 @@ namespace RX_Explorer.Dialog
 
                                 CommonAccessCollection.QuickStartList.Add(new QuickStartItem(Icon.Source as BitmapImage, Protocol.Text, QuickStartType.Application, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text));
 
-                                await SQLite.Current.SetQuickStartItemAsync(DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application).ConfigureAwait(true);
+                                await SQLite.Current.SetQuickStartItemAsync(DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application);
                             }
                             else
                             {
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                 {
-                                    if (await Exclusive.Controller.CheckIfPackageFamilyNameExist(Protocol.Text).ConfigureAwait(true))
+                                    if (await Exclusive.Controller.CheckIfPackageFamilyNameExist(Protocol.Text))
                                     {
                                         string ImageName = DisplayName.Text + Path.GetExtension(ImageFile.Path);
 
@@ -151,7 +151,7 @@ namespace RX_Explorer.Dialog
 
                                         CommonAccessCollection.QuickStartList.Add(new QuickStartItem(Icon.Source as BitmapImage, Protocol.Text, QuickStartType.Application, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text));
 
-                                        await SQLite.Current.SetQuickStartItemAsync(DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application).ConfigureAwait(true);
+                                        await SQLite.Current.SetQuickStartItemAsync(DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application);
                                     }
                                     else
                                     {
@@ -181,7 +181,7 @@ namespace RX_Explorer.Dialog
 
                                 CommonAccessCollection.HotWebList.Add(new QuickStartItem(Icon.Source as BitmapImage, Protocol.Text, QuickStartType.WebSite, $"HotWebImage\\{NewFile.Name}", DisplayName.Text));
 
-                                await SQLite.Current.SetQuickStartItemAsync(DisplayName.Text, $"HotWebImage\\{NewFile.Name}", Protocol.Text, QuickStartType.WebSite).ConfigureAwait(true);
+                                await SQLite.Current.SetQuickStartItemAsync(DisplayName.Text, $"HotWebImage\\{NewFile.Name}", Protocol.Text, QuickStartType.WebSite);
                             }
                             else
                             {
@@ -209,13 +209,13 @@ namespace RX_Explorer.Dialog
 
                                     StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
 
-                                    await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application).ConfigureAwait(true);
+                                    await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application);
 
                                     QuickItem.Update(Icon.Source as BitmapImage, Protocol.Text, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text);
                                 }
                                 else
                                 {
-                                    await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, null, Protocol.Text, QuickStartType.Application).ConfigureAwait(true);
+                                    await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, null, Protocol.Text, QuickStartType.Application);
 
                                     QuickItem.Update(Icon.Source as BitmapImage, Protocol.Text, null, DisplayName.Text);
                                 }
@@ -224,7 +224,7 @@ namespace RX_Explorer.Dialog
                             {
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                 {
-                                    if (await Exclusive.Controller.CheckIfPackageFamilyNameExist(Protocol.Text).ConfigureAwait(true))
+                                    if (await Exclusive.Controller.CheckIfPackageFamilyNameExist(Protocol.Text))
                                     {
                                         if (ImageFile != null)
                                         {
@@ -232,13 +232,13 @@ namespace RX_Explorer.Dialog
 
                                             StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
 
-                                            await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application).ConfigureAwait(true);
+                                            await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application);
 
                                             QuickItem.Update(Icon.Source as BitmapImage, Protocol.Text, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text);
                                         }
                                         else
                                         {
-                                            await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, null, Protocol.Text, QuickStartType.Application).ConfigureAwait(true);
+                                            await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, null, Protocol.Text, QuickStartType.Application);
 
                                             QuickItem.Update(Icon.Source as BitmapImage, Protocol.Text, null, DisplayName.Text);
                                         }
@@ -271,13 +271,13 @@ namespace RX_Explorer.Dialog
 
                                     StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("HotWebImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
 
-                                    await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, $"HotWebImage\\{NewFile.Name}", Protocol.Text, QuickStartType.WebSite).ConfigureAwait(true);
+                                    await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, $"HotWebImage\\{NewFile.Name}", Protocol.Text, QuickStartType.WebSite);
 
                                     QuickItem.Update(Icon.Source as BitmapImage, Protocol.Text, $"HotWebImage\\{NewFile.Name}", DisplayName.Text);
                                 }
                                 else
                                 {
-                                    await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, null, Protocol.Text, QuickStartType.WebSite).ConfigureAwait(true);
+                                    await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, null, Protocol.Text, QuickStartType.WebSite);
 
                                     QuickItem.Update(Icon.Source as BitmapImage, Protocol.Text, null, DisplayName.Text);
                                 }
@@ -318,7 +318,7 @@ namespace RX_Explorer.Dialog
                         {
                             if (Result.IsFile)
                             {
-                                if (await FileSystemStorageItemBase.CheckExistAsync(Protocol.Text).ConfigureAwait(true))
+                                if (await FileSystemStorageItemBase.CheckExistAsync(Protocol.Text))
                                 {
                                     try
                                     {
@@ -337,7 +337,7 @@ namespace RX_Explorer.Dialog
 
                                         StorageFile FileThumbnail = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("FileThumbnail.png", CreationCollisionOption.ReplaceExisting);
 
-                                        if (await ExecuteFile.GetThumbnailRawStreamAsync().ConfigureAwait(true) is IRandomAccessStream ThumbnailStream)
+                                        if (await ExecuteFile.GetThumbnailRawStreamAsync() is IRandomAccessStream ThumbnailStream)
                                         {
                                             BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(ThumbnailStream);
                                             using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
@@ -355,9 +355,9 @@ namespace RX_Explorer.Dialog
                                                 ResizeBitmapStream.Seek(0);
 
                                                 using (Stream TransformStream = ResizeBitmapStream.AsStreamForRead())
-                                                using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
+                                                using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync())
                                                 {
-                                                    await TransformStream.CopyToAsync(FileStream).ConfigureAwait(true);
+                                                    await TransformStream.CopyToAsync(FileStream);
                                                 }
                                             }
                                         }
@@ -376,9 +376,9 @@ namespace RX_Explorer.Dialog
                                                 PageStream.Seek(0);
 
                                                 using (Stream TransformStream = PageStream.AsStreamForRead())
-                                                using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
+                                                using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync())
                                                 {
-                                                    await TransformStream.CopyToAsync(FileStream).ConfigureAwait(true);
+                                                    await TransformStream.CopyToAsync(FileStream);
                                                 }
                                             }
                                         }
@@ -420,9 +420,9 @@ namespace RX_Explorer.Dialog
 
                                             ResizeBitmapStream.Seek(0);
 
-                                            using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
+                                            using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync())
                                             {
-                                                await ResizeBitmapStream.AsStreamForRead().CopyToAsync(FileStream).ConfigureAwait(true);
+                                                await ResizeBitmapStream.AsStreamForRead().CopyToAsync(FileStream);
                                             }
                                         }
                                     }
@@ -439,7 +439,7 @@ namespace RX_Explorer.Dialog
                         {
                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
-                                if (await Exclusive.Controller.GetInstalledApplicationAsync(Protocol.Text).ConfigureAwait(true) is InstalledApplication Pack)
+                                if (await Exclusive.Controller.GetInstalledApplicationAsync(Protocol.Text) is InstalledApplication Pack)
                                 {
                                     StorageFile FileThumbnail = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("FileThumbnail.png", CreationCollisionOption.ReplaceExisting);
 
@@ -462,9 +462,9 @@ namespace RX_Explorer.Dialog
 
                                                 ResizeBitmapStream.Seek(0);
 
-                                                using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
+                                                using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync())
                                                 {
-                                                    await ResizeBitmapStream.AsStreamForRead().CopyToAsync(FileStream).ConfigureAwait(true);
+                                                    await ResizeBitmapStream.AsStreamForRead().CopyToAsync(FileStream);
                                                 }
                                             }
                                         }
@@ -488,9 +488,9 @@ namespace RX_Explorer.Dialog
                                             PageStream.Seek(0);
 
                                             using (Stream TransformStream = PageStream.AsStreamForRead())
-                                            using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
+                                            using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync())
                                             {
-                                                await TransformStream.CopyToAsync(FileStream).ConfigureAwait(true);
+                                                await TransformStream.CopyToAsync(FileStream);
                                             }
                                         }
                                     }
@@ -516,11 +516,11 @@ namespace RX_Explorer.Dialog
                                 Uri ImageUri = new Uri($"{Result.Scheme}://{Result.Host}/favicon.ico");
 
                                 HttpWebRequest Request = WebRequest.CreateHttp(ImageUri);
-                                using (WebResponse Response = await Request.GetResponseAsync().ConfigureAwait(true))
+                                using (WebResponse Response = await Request.GetResponseAsync())
                                 using (Stream WebImageStream = Response.GetResponseStream())
                                 using (MemoryStream TemplateStream = new MemoryStream())
                                 {
-                                    await WebImageStream.CopyToAsync(TemplateStream).ConfigureAwait(true);
+                                    await WebImageStream.CopyToAsync(TemplateStream);
 
                                     TemplateStream.Seek(0, SeekOrigin.Begin);
 
@@ -533,9 +533,9 @@ namespace RX_Explorer.Dialog
                                         TemplateStream.Seek(0, SeekOrigin.Begin);
 
                                         StorageFile DownloadImage = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("DownloadFile.ico", CreationCollisionOption.ReplaceExisting);
-                                        using (Stream LocalFileStream = await DownloadImage.OpenStreamForWriteAsync().ConfigureAwait(true))
+                                        using (Stream LocalFileStream = await DownloadImage.OpenStreamForWriteAsync())
                                         {
-                                            await TemplateStream.CopyToAsync(LocalFileStream).ConfigureAwait(true);
+                                            await TemplateStream.CopyToAsync(LocalFileStream);
                                         }
 
                                         ImageFile = DownloadImage;
@@ -560,11 +560,11 @@ namespace RX_Explorer.Dialog
                                     : new Uri($"http://www.google.com/s2/favicons?domain={new Uri(Protocol.Text).Host}");
 
                                 HttpWebRequest Request = WebRequest.CreateHttp(QueryUrl);
-                                using (WebResponse Response = await Request.GetResponseAsync().ConfigureAwait(true))
+                                using (WebResponse Response = await Request.GetResponseAsync())
                                 using (Stream WebImageStream = Response.GetResponseStream())
                                 using (MemoryStream TemplateStream = new MemoryStream())
                                 {
-                                    await WebImageStream.CopyToAsync(TemplateStream).ConfigureAwait(true);
+                                    await WebImageStream.CopyToAsync(TemplateStream);
 
                                     TemplateStream.Seek(0, SeekOrigin.Begin);
 
@@ -577,9 +577,9 @@ namespace RX_Explorer.Dialog
                                         TemplateStream.Seek(0, SeekOrigin.Begin);
 
                                         StorageFile DownloadImage = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("DownloadFile.ico", CreationCollisionOption.ReplaceExisting);
-                                        using (Stream LocalFileStream = await DownloadImage.OpenStreamForWriteAsync().ConfigureAwait(true))
+                                        using (Stream LocalFileStream = await DownloadImage.OpenStreamForWriteAsync())
                                         {
-                                            await TemplateStream.CopyToAsync(LocalFileStream).ConfigureAwait(true);
+                                            await TemplateStream.CopyToAsync(LocalFileStream);
                                         }
 
                                         ImageFile = DownloadImage;
@@ -629,9 +629,9 @@ namespace RX_Explorer.Dialog
 
                             LogoStream.Seek(0);
 
-                            using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
+                            using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync())
                             {
-                                await LogoStream.AsStreamForRead().CopyToAsync(FileStream).ConfigureAwait(true);
+                                await LogoStream.AsStreamForRead().CopyToAsync(FileStream);
                             }
                         }
                         finally
@@ -654,9 +654,9 @@ namespace RX_Explorer.Dialog
                             PageStream.Seek(0);
 
                             using (Stream TransformStream = PageStream.AsStreamForRead())
-                            using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
+                            using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync())
                             {
-                                await TransformStream.CopyToAsync(FileStream).ConfigureAwait(true);
+                                await TransformStream.CopyToAsync(FileStream);
                             }
                         }
                     }
@@ -702,7 +702,7 @@ namespace RX_Explorer.Dialog
 
                     StorageFile FileThumbnail = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("FileThumbnail.png", CreationCollisionOption.ReplaceExisting);
 
-                    if (await ExecuteFile.GetThumbnailRawStreamAsync().ConfigureAwait(true) is IRandomAccessStream ThumbnailStream)
+                    if (await ExecuteFile.GetThumbnailRawStreamAsync() is IRandomAccessStream ThumbnailStream)
                     {
                         try
                         {
@@ -721,9 +721,9 @@ namespace RX_Explorer.Dialog
 
                                 ResizeBitmapStream.Seek(0);
                                 using (Stream TransformStream = ResizeBitmapStream.AsStreamForRead())
-                                using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
+                                using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync())
                                 {
-                                    await TransformStream.CopyToAsync(FileStream).ConfigureAwait(true);
+                                    await TransformStream.CopyToAsync(FileStream);
                                 }
                             }
                         }
@@ -747,9 +747,9 @@ namespace RX_Explorer.Dialog
                             PageStream.Seek(0);
 
                             using (Stream TransformStream = PageStream.AsStreamForRead())
-                            using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
+                            using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync())
                             {
-                                await TransformStream.CopyToAsync(FileStream).ConfigureAwait(true);
+                                await TransformStream.CopyToAsync(FileStream);
                             }
                         }
                     }
@@ -772,7 +772,7 @@ namespace RX_Explorer.Dialog
 
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                foreach (InstalledApplication Pack in await Exclusive.Controller.GetAllInstalledApplicationAsync().ConfigureAwait(true))
+                foreach (InstalledApplication Pack in await Exclusive.Controller.GetAllInstalledApplicationAsync())
                 {
                     if (!UWPPickerTip.IsOpen)
                     {
@@ -785,7 +785,7 @@ namespace RX_Explorer.Dialog
 
             if (UWPPickerTip.IsOpen)
             {
-                await Task.Delay(500).ConfigureAwait(true);
+                await Task.Delay(500);
 
                 UWPLoadingTip.Visibility = Visibility.Collapsed;
                 PackageListView.Visibility = Visibility.Visible;
@@ -835,9 +835,9 @@ namespace RX_Explorer.Dialog
 
                                 ResizeBitmapStream.Seek(0);
 
-                                using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
+                                using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync())
                                 {
-                                    await ResizeBitmapStream.AsStreamForRead().CopyToAsync(FileStream).ConfigureAwait(true);
+                                    await ResizeBitmapStream.AsStreamForRead().CopyToAsync(FileStream);
                                 }
                             }
                         }
@@ -861,9 +861,9 @@ namespace RX_Explorer.Dialog
                             PageStream.Seek(0);
 
                             using (Stream TransformStream = PageStream.AsStreamForRead())
-                            using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync().ConfigureAwait(true))
+                            using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync())
                             {
-                                await TransformStream.CopyToAsync(FileStream).ConfigureAwait(true);
+                                await TransformStream.CopyToAsync(FileStream);
                             }
                         }
                     }

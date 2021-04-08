@@ -55,7 +55,7 @@ namespace RX_Explorer.Class
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                return await Exclusive.Controller.DeleteItemInRecycleBinAsync(Path).ConfigureAwait(true);
+                return await Exclusive.Controller.DeleteItemInRecycleBinAsync(Path);
             }
         }
 
@@ -63,7 +63,7 @@ namespace RX_Explorer.Class
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                return await Exclusive.Controller.RestoreItemInRecycleBinAsync(OriginPath).ConfigureAwait(true);
+                return await Exclusive.Controller.RestoreItemInRecycleBinAsync(OriginPath);
             }
         }
     }

@@ -338,7 +338,7 @@ namespace RX_Explorer.Class
                                     await InputZipStream.CopyToAsync(NewFileStream, (s, e) =>
                                     {
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * Entry.CompressedSize)) * 100d / BaseStream.Length), null));
-                                    }).ConfigureAwait(true);
+                                    });
                                 }
                                 else
                                 {
@@ -374,12 +374,12 @@ namespace RX_Explorer.Class
 
             foreach (FileSystemStorageFile File in FileList)
             {
-                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(Path.GetDirectoryName(File.Path), Path.GetFileNameWithoutExtension(File.Name)), StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(true) is FileSystemStorageFolder NewFolder)
+                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(Path.GetDirectoryName(File.Path), Path.GetFileNameWithoutExtension(File.Name)), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageFolder NewFolder)
                 {
                     await ExtractZipAsync(NewFolder, File, (s, e) =>
                     {
                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((e.ProgressPercentage * Convert.ToDouble(File.SizeRaw) + CurrentPosition * 100) / TotalSize), null));
-                    }).ConfigureAwait(true);
+                    });
 
                     CurrentPosition += File.SizeRaw;
                 }
@@ -441,14 +441,14 @@ namespace RX_Explorer.Class
                 return;
             }
 
-            if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(FileList.First().Path)).ConfigureAwait(true) is FileSystemStorageFolder NewFolder)
+            if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(FileList.First().Path)) is FileSystemStorageFolder NewFolder)
             {
                 foreach (FileSystemStorageFile File in FileList)
                 {
                     await ExtractGZipAsync(NewFolder, File, (s, e) =>
                     {
                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((e.ProgressPercentage * Convert.ToDouble(File.SizeRaw) + CurrentPosition * 100) / TotalSize), null));
-                    }).ConfigureAwait(true);
+                    });
 
                     CurrentPosition += File.SizeRaw;
                 }
@@ -708,7 +708,7 @@ namespace RX_Explorer.Class
                     await ExtractTarAsync(NewFolder, File, (s, e) =>
                     {
                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((e.ProgressPercentage * Convert.ToDouble(File.SizeRaw) + Step * 100) / TotalSize), null));
-                    }).ConfigureAwait(true);
+                    });
 
                     Step += Convert.ToInt64(File.SizeRaw);
                 }

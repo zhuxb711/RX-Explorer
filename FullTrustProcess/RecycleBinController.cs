@@ -88,36 +88,73 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool Restore(string OriginPath)
+        public static bool Restore(params string[] OriginPathList)
         {
+            Dictionary<string, ShellItem> PathDic = new Dictionary<string, ShellItem>();
+
             try
             {
-                using (ShellItem SourceItem = RecycleBin.GetItemFromOriginalPath(OriginPath))
+                foreach (ShellItem Item in RecycleBin.GetItems())
                 {
-                    Directory.CreateDirectory(Path.GetDirectoryName(SourceItem.Name));
-
-                    if (File.Exists(SourceItem.FileSystemPath))
+                    if (File.Exists(Item.FileSystemPath))
                     {
-                        File.Move(SourceItem.FileSystemPath, StorageController.GenerateUniquePath(SourceItem.Name));
+                        if (Path.HasExtension(Item.Name))
+                        {
+                            PathDic.TryAdd(Item.Name, Item);
+                        }
+                        else
+                        {
+                            PathDic.TryAdd(Item.Name + Item.FileInfo.Extension, Item);
+                        }
                     }
-                    else if (Directory.Exists(SourceItem.FileSystemPath))
+                    else if (Directory.Exists(Item.FileSystemPath))
                     {
-                        Directory.Move(SourceItem.FileSystemPath, StorageController.GenerateUniquePath(SourceItem.Name));
-                    }
-
-                    string ExtraInfoPath = Path.Combine(Path.GetDirectoryName(SourceItem.FileSystemPath), Path.GetFileName(SourceItem.FileSystemPath).Replace("$R", "$I"));
-
-                    if (File.Exists(ExtraInfoPath))
-                    {
-                        File.Delete(ExtraInfoPath);
+                        PathDic.TryAdd(Item.Name, Item);
                     }
                 }
 
-                return true;
+                bool HasError = false;
+
+                foreach (string OriginPath in OriginPathList)
+                {
+                    if (PathDic.TryGetValue(OriginPath, out ShellItem SourceItem))
+                    {
+                        Directory.CreateDirectory(Path.GetDirectoryName(SourceItem.Name));
+
+                        if (File.Exists(SourceItem.FileSystemPath))
+                        {
+                            File.Move(SourceItem.FileSystemPath, StorageController.GenerateUniquePath(OriginPath));
+                        }
+                        else if (Directory.Exists(SourceItem.FileSystemPath))
+                        {
+                            Directory.Move(SourceItem.FileSystemPath, StorageController.GenerateUniquePath(OriginPath));
+                        }
+
+                        string ExtraInfoPath = Path.Combine(Path.GetDirectoryName(SourceItem.FileSystemPath), Path.GetFileName(SourceItem.FileSystemPath).Replace("$R", "$I"));
+
+                        if (File.Exists(ExtraInfoPath))
+                        {
+                            File.Delete(ExtraInfoPath);
+                        }
+                    }
+                    else
+                    {
+                        HasError = true;
+                    }
+                }
+
+                return !HasError;
             }
             catch
             {
                 return false;
+            }
+            finally
+            {
+                foreach (ShellItem Item in PathDic.Values)
+                {
+                    Item.Dispose();
+                }
             }
         }
 

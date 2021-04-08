@@ -59,7 +59,7 @@ namespace RX_Explorer
 
             try
             {
-                using (IRandomAccessStream PdfStream = await PdfFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read).ConfigureAwait(true))
+                using (IRandomAccessStream PdfStream = await PdfFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
                 {
                     try
                     {
@@ -69,7 +69,7 @@ namespace RX_Explorer
                     {
                         PdfPasswordDialog Dialog = new PdfPasswordDialog();
                         
-                        if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                        if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                         {
                             Pdf = await PdfDocument.LoadFromStreamAsync(PdfStream, Dialog.Password);
                         }
@@ -101,7 +101,7 @@ namespace RX_Explorer
                     Content = Globalization.GetString("QueueDialog_PDFOpenFailure"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
                 };
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                _ = await Dialog.ShowAsync();
 
                 Frame.GoBack();
             }
@@ -115,7 +115,7 @@ namespace RX_Explorer
                     Flip.SelectionChanged += Flip_SelectionChanged1;
                 }
 
-                await Task.Delay(1000).ConfigureAwait(true);
+                await Task.Delay(1000);
 
                 LoadingControl.IsLoading = false;
             }
@@ -130,7 +130,7 @@ namespace RX_Explorer
             {
                 Cancellation.Cancel();
                 ExitLocker.WaitOne();
-            }).ConfigureAwait(true);
+            });
 
             LoadQueue.Clear();
             LoadQueue = null;

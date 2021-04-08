@@ -1384,9 +1384,6 @@
   <data name="Operate_Text_Compression" xml:space="preserve">
     <value>Compression</value>
   </data>
-  <data name="Operate_Text_Copy" xml:space="preserve">
-    <value>Copier</value>
-  </data>
   <data name="Operate_Text_Create" xml:space="preserve">
     <value>Nouveau</value>
   </data>
@@ -1603,9 +1600,6 @@
   <data name="Progress_Tip_Compressing" xml:space="preserve">
     <value>Compression en cours</value>
   </data>
-  <data name="Progress_Tip_Copying" xml:space="preserve">
-    <value>Copie en cours</value>
-  </data>
   <data name="Progress_Tip_Deleting" xml:space="preserve">
     <value>Suppression en cours</value>
   </data>
@@ -1621,14 +1615,8 @@
   <data name="Progress_Tip_Loading" xml:space="preserve">
     <value>Chargement...</value>
   </data>
-  <data name="Progress_Tip_Moving" xml:space="preserve">
-    <value>Déplacement en cours</value>
-  </data>
   <data name="Progress_Tip_Transcoding" xml:space="preserve">
     <value>Transcodage en cours</value>
-  </data>
-  <data name="Progress_Tip_Undoing" xml:space="preserve">
-    <value>Annulation en cours</value>
   </data>
   <data name="QueueDialog_CopyFailForNotExist_Content" xml:space="preserve">
     <value>Certains fichiers n'existent pas et ne peuvent pas être copiés à l'emplacement spécifié</value>
@@ -3029,5 +3017,60 @@ Les noms non valides incluent
   </data>
   <data name="Properties_Details_PeopleNames" xml:space="preserve">
     <value>Noms de personnes</value>
+  </data>
+  <data name="TaskListCancelTaskButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Annuler cette tâche</value>
+  </data>
+  <data name="TaskListEmptyTip.Text" xml:space="preserve">
+    <value>Vider</value>
+  </data>
+  <data name="TaskListPanelTitle.Text" xml:space="preserve">
+    <value>Liste de tâches</value>
+  </data>
+  <data name="TaskListRemoveTaskButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Supprimer cet enregistrement</value>
+  </data>
+  <data name="TaskList_From_Label" xml:space="preserve">
+    <value>De</value>
+  </data>
+  <data name="TaskList_More_Items" xml:space="preserve">
+    <value>Plus d'articles</value>
+    <comment>for example: 5 more items</comment>
+  </data>
+  <data name="TaskList_OperationKind_Copy" xml:space="preserve">
+    <value>Copier la tâche</value>
+  </data>
+  <data name="TaskList_OperationKind_Delete" xml:space="preserve">
+    <value>Supprimer la tâche</value>
+  </data>
+  <data name="TaskList_OperationKind_Move" xml:space="preserve">
+    <value>Déplacer la tâche</value>
+  </data>
+  <data name="TaskList_OperationKind_Undo" xml:space="preserve">
+    <value>Annuler la tâche</value>
+  </data>
+  <data name="TaskList_Task_Status_Cancelled" xml:space="preserve">
+    <value>Annulé</value>
+  </data>
+  <data name="TaskList_Task_Status_Completed" xml:space="preserve">
+    <value>Terminé</value>
+  </data>
+  <data name="TaskList_Task_Status_Error" xml:space="preserve">
+    <value>Erreur</value>
+  </data>
+  <data name="TaskList_Task_Status_Processing" xml:space="preserve">
+    <value>Traitement</value>
+  </data>
+  <data name="TaskList_Task_Status_Waiting" xml:space="preserve">
+    <value>En attendant</value>
+  </data>
+  <data name="TaskList_To_Label" xml:space="preserve">
+    <value>À</value>
+  </data>
+  <data name="TaskListAllowParalledTask.Content" xml:space="preserve">
+    <value>Autoriser l'exécution parallèle des tâches</value>
+  </data>
+  <data name="TaskListAlwaysOpenPanel.Text" xml:space="preserve">
+    <value>Affiche toujours le panneau après la création d'une nouvelle tâche</value>
   </data>
 </root>

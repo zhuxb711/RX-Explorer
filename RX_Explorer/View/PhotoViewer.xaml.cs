@@ -62,7 +62,7 @@ namespace RX_Explorer
 
                 Behavior.Attach(Flip);
 
-                if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(SelectedPhotoFile.Path)).ConfigureAwait(true) is FileSystemStorageFolder Item)
+                if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(SelectedPhotoFile.Path)) is FileSystemStorageFolder Item)
                 {
                     FileSystemStorageFile[] PictureFileList = (await Item.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, ItemFilters.File)).OfType<FileSystemStorageFile>().Where((Item) => Item.Type.Equals(".png", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".bmp", StringComparison.OrdinalIgnoreCase)).ToArray();
 
@@ -74,7 +74,7 @@ namespace RX_Explorer
                             Content = Globalization.GetString("Queue_Dialog_ImageReadError_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
                         };
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                        _ = await Dialog.ShowAsync();
 
                         Frame.GoBack();
                     }
@@ -90,14 +90,14 @@ namespace RX_Explorer
                         PhotoCollection = new ObservableCollection<PhotoDisplaySupport>(PictureFileList.Select((Item) => new PhotoDisplaySupport(Item)));
                         Flip.ItemsSource = PhotoCollection;
 
-                        if (!await PhotoCollection[LastSelectIndex].ReplaceThumbnailBitmapAsync().ConfigureAwait(true))
+                        if (!await PhotoCollection[LastSelectIndex].ReplaceThumbnailBitmapAsync())
                         {
                             CouldnotLoadTip.Visibility = Visibility.Visible;
                         }
 
                         for (int i = LastSelectIndex - 5 > 0 ? LastSelectIndex - 5 : 0; i <= (LastSelectIndex + 5 < PhotoCollection.Count - 1 ? LastSelectIndex + 5 : PhotoCollection.Count - 1) && !Cancellation.IsCancellationRequested; i++)
                         {
-                            await PhotoCollection[i].GenerateThumbnailAsync().ConfigureAwait(true);
+                            await PhotoCollection[i].GenerateThumbnailAsync();
                         }
 
                         if (!Cancellation.IsCancellationRequested)
@@ -159,7 +159,7 @@ namespace RX_Explorer
                 await Task.Run(() =>
                 {
                     ExitLocker.WaitOne();
-                }).ConfigureAwait(true);
+                });
 
                 ExitLocker.Dispose();
                 ExitLocker = null;
@@ -196,14 +196,14 @@ namespace RX_Explorer
                     {
                         int CurrentIndex = LoadQueue.Dequeue();
 
-                        if (!await PhotoCollection[CurrentIndex].ReplaceThumbnailBitmapAsync().ConfigureAwait(true) && CurrentIndex == Flip.SelectedIndex)
+                        if (!await PhotoCollection[CurrentIndex].ReplaceThumbnailBitmapAsync() && CurrentIndex == Flip.SelectedIndex)
                         {
                             CouldnotLoadTip.Visibility = Visibility.Visible;
                         }
 
                         for (int i = CurrentIndex - 5 > 0 ? CurrentIndex - 5 : 0; i <= (CurrentIndex + 5 < PhotoCollection.Count - 1 ? CurrentIndex + 5 : PhotoCollection.Count - 1) && !Cancellation.IsCancellationRequested; i++)
                         {
-                            await PhotoCollection[i].GenerateThumbnailAsync().ConfigureAwait(true);
+                            await PhotoCollection[i].GenerateThumbnailAsync();
                         }
                     }
                 }
@@ -301,7 +301,7 @@ namespace RX_Explorer
                                                   .CenterPoint(EndRotationCenter, StartRotationCenter, duration: TimeSpan.FromMilliseconds(500), easingType: EasingType.Cubic, easingMode: EasingMode.EaseOut)
                                                   .ExternalAnimation(WidthAnimation)
                                                   .RotationInDegrees(Item.RotateAngle += 90, duration: TimeSpan.FromMilliseconds(500), easingType: EasingType.Cubic, easingMode: EasingMode.EaseOut)
-                                                  .StartAsync(Viewer).ConfigureAwait(true);
+                                                  .StartAsync(Viewer);
 
                             break;
                         }
@@ -327,7 +327,7 @@ namespace RX_Explorer
                                                   .CenterPoint(EndRotationCenter, StartRotationCenter, duration: TimeSpan.FromMilliseconds(500), easingType: EasingType.Cubic, easingMode: EasingMode.EaseOut)
                                                   .ExternalAnimation(HeightAnimation)
                                                   .RotationInDegrees(Item.RotateAngle += 90, duration: TimeSpan.FromMilliseconds(500), easingType: EasingType.Cubic, easingMode: EasingMode.EaseOut)
-                                                  .StartAsync(Viewer).ConfigureAwait(true);
+                                                  .StartAsync(Viewer);
 
                             break;
                         }
@@ -340,19 +340,19 @@ namespace RX_Explorer
             FileSystemStorageFile Item = PhotoCollection[Flip.SelectedIndex].PhotoFile;
 
             TranscodeImageDialog Dialog = null;
-            using (IRandomAccessStream OriginStream = await Item.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read).ConfigureAwait(true))
+            using (IRandomAccessStream OriginStream = await Item.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
             {
                 BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
                 Dialog = new TranscodeImageDialog(Decoder.PixelWidth, Decoder.PixelHeight);
             }
 
-            if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
             {
                 TranscodeLoadingControl.IsLoading = true;
 
-                await GeneralTransformer.TranscodeFromImageAsync(Item, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode).ConfigureAwait(true);
+                await GeneralTransformer.TranscodeFromImageAsync(Item, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode);
 
-                await Task.Delay(1000).ConfigureAwait(true);
+                await Task.Delay(1000);
 
                 TranscodeLoadingControl.IsLoading = false;
             }
@@ -363,7 +363,7 @@ namespace RX_Explorer
             try
             {
                 PhotoDisplaySupport Item = PhotoCollection[Flip.SelectedIndex];
-                await Item.PhotoFile.DeleteAsync(true).ConfigureAwait(true);
+                await Item.PhotoFile.DeleteAsync(true);
                 PhotoCollection.Remove(Item);
                 Behavior.InitAnimation(InitOption.Full);
             }
@@ -376,7 +376,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                _ = await Dialog.ShowAsync();
             }
         }
 
@@ -418,7 +418,7 @@ namespace RX_Explorer
                 {
                     if (Flip.SelectedItem is PhotoDisplaySupport Photo)
                     {
-                        if (await Photo.PhotoFile.GetStorageItemAsync().ConfigureAwait(true) is StorageFile File)
+                        if (await Photo.PhotoFile.GetStorageItemAsync() is StorageFile File)
                         {
                             StorageFile TempFile = await File.CopyAsync(ApplicationData.Current.LocalFolder, Photo.PhotoFile.Name, NameCollisionOption.GenerateUniqueName);
 

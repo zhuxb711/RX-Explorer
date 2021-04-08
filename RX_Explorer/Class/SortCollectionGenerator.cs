@@ -52,7 +52,7 @@ namespace RX_Explorer.Class
 
             if (IsModified && !BypassSaveAndNotification)
             {
-                await SQLite.Current.SetPathConfiguration(new PathConfiguration(Path, this.SortTarget, this.SortDirection)).ConfigureAwait(true);
+                await SQLite.Current.SetPathConfiguration(new PathConfiguration(Path, this.SortTarget, this.SortDirection));
 
                 SortWayChanged?.Invoke(this, Path);
             }

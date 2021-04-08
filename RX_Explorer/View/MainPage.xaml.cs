@@ -89,7 +89,7 @@ namespace RX_Explorer
             {
                 if (FindName(nameof(SettingControl)) is SettingControl Control)
                 {
-                    await Control.Initialize().ConfigureAwait(true);
+                    await Control.Initialize();
                 }
             });
         }
@@ -134,7 +134,7 @@ namespace RX_Explorer
                     case LaunchQuerySupportStatus.Available:
                     case LaunchQuerySupportStatus.NotSupported:
                         {
-                            await SQLite.Current.SetOrModifyTerminalProfile(new TerminalProfile("Windows Terminal", "wt.exe", "/d [CurrentLocation]", true)).ConfigureAwait(true);
+                            await SQLite.Current.SetOrModifyTerminalProfile(new TerminalProfile("Windows Terminal", "wt.exe", "/d [CurrentLocation]", true));
                             break;
                         }
                 }
@@ -209,7 +209,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("QueueDialog_WaitUntilFinish_CloseButton")
                     };
 
-                    if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                    if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                     {
                         ToastNotificationManager.History.Clear();
                         Application.Current.EnteredBackground -= Current_EnteredBackground;
@@ -297,7 +297,7 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                         };
 
-                        ContentDialogResult Result = await Dialog.ShowAsync().ConfigureAwait(true);
+                        ContentDialogResult Result = await Dialog.ShowAsync();
 
                         if (Result == ContentDialogResult.Primary)
                         {
@@ -352,23 +352,23 @@ namespace RX_Explorer
 
                 ApplicationData.Current.DataChanged += Current_DataChanged;
 
-                await GetUserInfoAsync().ConfigureAwait(true);
+                await GetUserInfoAsync();
 
-                await ShowReleaseLogDialogAsync().ConfigureAwait(true);
+                await ShowReleaseLogDialogAsync();
 
-                await RegisterBackgroundTaskAsync().ConfigureAwait(true);
+                await RegisterBackgroundTaskAsync();
 
                 switch (Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.LaunchCount)
                 {
                     case 5:
                     case 20:
                         {
-                            await PurchaseApplicationAsync().ConfigureAwait(true);
+                            await PurchaseApplicationAsync();
                             break;
                         }
                     case 10:
                         {
-                            await PinApplicationToTaskBarAsync().ConfigureAwait(true);
+                            await PinApplicationToTaskBarAsync();
                             break;
                         }
                     case 15:
@@ -389,7 +389,7 @@ namespace RX_Explorer
             if (Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.IsAppUpdated || Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.IsFirstRun)
             {
                 WhatIsNew Dialog = new WhatIsNew();
-                await Dialog.ShowAsync().ConfigureAwait(true);
+                await Dialog.ShowAsync();
             }
         }
 
@@ -469,7 +469,7 @@ namespace RX_Explorer
                                     CloseButtonText = Globalization.GetString("QueueDialog_BackgroundTaskDisable_CloseButton")
                                 };
 
-                                switch (await Dialog.ShowAsync().ConfigureAwait(true))
+                                switch (await Dialog.ShowAsync())
                                 {
                                     case ContentDialogResult.Primary:
                                         {
@@ -567,7 +567,7 @@ namespace RX_Explorer
             RateTip.ActionButtonClick += async (s, e) =>
             {
                 s.IsOpen = false;
-                await Microsoft.Toolkit.Uwp.Helpers.SystemInformation.LaunchStoreForReviewAsync().ConfigureAwait(true);
+                await Microsoft.Toolkit.Uwp.Helpers.SystemInformation.LaunchStoreForReviewAsync();
             };
 
             RateTip.CloseButtonClick += (s, e) =>
@@ -580,13 +580,13 @@ namespace RX_Explorer
 
         private async Task PurchaseApplicationAsync()
         {
-            if (!await MSStoreHelper.Current.CheckPurchaseStatusAsync().ConfigureAwait(true))
+            if (!await MSStoreHelper.Current.CheckPurchaseStatusAsync())
             {
                 PurchaseTip.ActionButtonClick += async (s, e) =>
                 {
                     s.IsOpen = false;
 
-                    switch (await MSStoreHelper.Current.PurchaseAsync().ConfigureAwait(true))
+                    switch (await MSStoreHelper.Current.PurchaseAsync())
                     {
                         case StorePurchaseStatus.Succeeded:
                             {
@@ -597,7 +597,7 @@ namespace RX_Explorer
                                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                 };
 
-                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                                _ = await QueueContenDialog.ShowAsync();
                                 break;
                             }
                         case StorePurchaseStatus.AlreadyPurchased:
@@ -608,7 +608,7 @@ namespace RX_Explorer
                                     Content = Globalization.GetString("QueueDialog_Store_AlreadyPurchase_Content"),
                                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                 };
-                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                                _ = await QueueContenDialog.ShowAsync();
                                 break;
                             }
                         case StorePurchaseStatus.NotPurchased:
@@ -619,7 +619,7 @@ namespace RX_Explorer
                                     Content = Globalization.GetString("QueueDialog_Store_NotPurchase_Content"),
                                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                 };
-                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                                _ = await QueueContenDialog.ShowAsync();
                                 break;
                             }
                         default:
@@ -630,7 +630,7 @@ namespace RX_Explorer
                                     Content = Globalization.GetString("QueueDialog_Store_NetworkError_Content"),
                                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                 };
-                                _ = await QueueContenDialog.ShowAsync().ConfigureAwait(true);
+                                _ = await QueueContenDialog.ShowAsync();
                                 break;
                             }
                     }
@@ -652,14 +652,14 @@ namespace RX_Explorer
 
                     if (FindName(nameof(SettingControl)) is SettingControl Control)
                     {
-                        await Control.Show().ConfigureAwait(true);
+                        await Control.Show();
                     }
                 }
                 else
                 {
                     if (SettingControl != null)
                     {
-                        await SettingControl.Hide().ConfigureAwait(true);
+                        await SettingControl.Hide();
                     }
 
                     if (args.InvokedItem.ToString() == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
@@ -794,7 +794,7 @@ namespace RX_Explorer
 
         private async void Watcher_EnumerationCompleted(DeviceWatcher sender, object args)
         {
-            await Task.Delay(1000).ConfigureAwait(true);
+            await Task.Delay(1000);
 
             await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
             {

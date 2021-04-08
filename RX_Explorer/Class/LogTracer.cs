@@ -326,7 +326,7 @@ namespace RX_Explorer.Class
 
                     if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(ApplicationData.Current.TemporaryFolder.Path, UniqueName), StorageItemTypes.File, CreateOption.OpenIfExist) is FileSystemStorageFile File)
                     {
-                        using (FileStream LogFileStream = await File.GetFileStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(true))
+                        using (FileStream LogFileStream = await File.GetFileStreamFromFileAsync(AccessMode.Exclusive))
                         {
                             LogFileStream.Seek(0, SeekOrigin.End);
 

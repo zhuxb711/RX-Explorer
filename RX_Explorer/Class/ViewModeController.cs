@@ -51,7 +51,7 @@ namespace RX_Explorer.Class
         {
             this.CurrentPath = CurrentPath;
 
-            PathConfiguration Config = await SQLite.Current.GetPathConfiguration(CurrentPath).ConfigureAwait(true);
+            PathConfiguration Config = await SQLite.Current.GetPathConfiguration(CurrentPath);
             ViewModeIndex = Config.DisplayModeIndex.GetValueOrDefault();
         }
 

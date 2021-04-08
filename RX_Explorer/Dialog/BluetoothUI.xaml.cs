@@ -62,7 +62,7 @@ namespace RX_Explorer.Dialog
                 else
                 {
                     //首先连接到RFComm服务，获取到设备的规范名称
-                    string CanonicalName = await ConnectToRfcommServiceAsync(BluetoothDeviceCollection[BluetoothControl.SelectedIndex]).ConfigureAwait(true);
+                    string CanonicalName = await ConnectToRfcommServiceAsync(BluetoothDeviceCollection[BluetoothControl.SelectedIndex]);
 
                     BluetoothService BTService = BluetoothService.GetDefault();
                     BTService.SearchForPairedDevicesSucceeded += BTService_SearchForPairedDevicesSucceeded;
@@ -87,7 +87,7 @@ namespace RX_Explorer.Dialog
                     }
 
                     //能到这里说明该设备已经配对，启动搜索，完成后PairedBluetoothDeviceCollection被填充
-                    await BTService.SearchForPairedDevicesAsync().ConfigureAwait(true);
+                    await BTService.SearchForPairedDevicesAsync();
                 }
             }
             catch (Exception e)

@@ -24,7 +24,7 @@ namespace RX_Explorer.Dialog
 
         private async void ModifyDefaultTerminalDialog_Loading(FrameworkElement sender, object args)
         {
-            TerminalList = new ObservableCollection<TerminalProfile>(await SQLite.Current.GetAllTerminalProfile().ConfigureAwait(true));
+            TerminalList = new ObservableCollection<TerminalProfile>(await SQLite.Current.GetAllTerminalProfile());
 
             ProfileSelector.ItemsSource = TerminalList;
         }
@@ -93,12 +93,12 @@ namespace RX_Explorer.Dialog
             {
                 foreach (TerminalProfile Profile in DeletedProfile)
                 {
-                    await SQLite.Current.DeleteTerminalProfile(Profile).ConfigureAwait(true);
+                    await SQLite.Current.DeleteTerminalProfile(Profile);
                 }
 
                 foreach (TerminalProfile Profile in TerminalList)
                 {
-                    await SQLite.Current.SetOrModifyTerminalProfile(Profile).ConfigureAwait(true);
+                    await SQLite.Current.SetOrModifyTerminalProfile(Profile);
                 }
             }
 

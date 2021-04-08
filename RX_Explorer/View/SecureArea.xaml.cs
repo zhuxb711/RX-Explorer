@@ -98,7 +98,7 @@ namespace RX_Explorer
                         if (Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"]))
                         {
                         RETRY:
-                            switch (await WindowsHelloAuthenticator.VerifyUserAsync().ConfigureAwait(true))
+                            switch (await WindowsHelloAuthenticator.VerifyUserAsync())
                             {
                                 case AuthenticatorState.VerifyPassed:
                                     {
@@ -116,7 +116,7 @@ namespace RX_Explorer
                                             CloseButtonText = Globalization.GetString("Common_Dialog_GoBack")
                                         };
 
-                                        ContentDialogResult Result = await Dialog.ShowAsync().ConfigureAwait(true);
+                                        ContentDialogResult Result = await Dialog.ShowAsync();
 
                                         if (Result == ContentDialogResult.Primary)
                                         {
@@ -124,7 +124,7 @@ namespace RX_Explorer
                                         }
                                         else if (Result == ContentDialogResult.Secondary)
                                         {
-                                            if (!await EnterByPassword().ConfigureAwait(true))
+                                            if (!await EnterByPassword())
                                             {
                                                 return;
                                             }
@@ -146,11 +146,11 @@ namespace RX_Explorer
                                             Content = Globalization.GetString("QueueDialog_WinHelloCredentialLost_Content"),
                                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                         };
-                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                                        _ = await Dialog.ShowAsync();
 
                                         ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = false;
 
-                                        if (!await EnterByPassword().ConfigureAwait(true))
+                                        if (!await EnterByPassword())
                                         {
                                             return;
                                         }
@@ -169,9 +169,9 @@ namespace RX_Explorer
 
                                         ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"] = false;
 
-                                        if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                                        if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                                         {
-                                            if (!await EnterByPassword().ConfigureAwait(true))
+                                            if (!await EnterByPassword())
                                             {
                                                 return;
                                             }
@@ -188,7 +188,7 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            if (!await EnterByPassword().ConfigureAwait(true))
+                            if (!await EnterByPassword())
                             {
                                 return;
                             }
@@ -203,17 +203,17 @@ namespace RX_Explorer
                         CancelButton.Visibility = Visibility.Collapsed;
                         LoadingControl.IsLoading = true;
 
-                        if (await MSStoreHelper.Current.CheckPurchaseStatusAsync().ConfigureAwait(true))
+                        if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                         {
-                            await Task.Delay(500).ConfigureAwait(true);
+                            await Task.Delay(500);
                         }
                         else
                         {
                             SecureAreaIntroDialog IntroDialog = new SecureAreaIntroDialog();
 
-                            if ((await IntroDialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                            if ((await IntroDialog.ShowAsync()) == ContentDialogResult.Primary)
                             {
-                                StorePurchaseStatus Status = await MSStoreHelper.Current.PurchaseAsync().ConfigureAwait(true);
+                                StorePurchaseStatus Status = await MSStoreHelper.Current.PurchaseAsync();
 
                                 if (Status == StorePurchaseStatus.AlreadyPurchased || Status == StorePurchaseStatus.Succeeded)
                                 {
@@ -224,7 +224,7 @@ namespace RX_Explorer
                                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                     };
 
-                                    _ = await SuccessDialog.ShowAsync().ConfigureAwait(true);
+                                    _ = await SuccessDialog.ShowAsync();
                                 }
                                 else
                                 {
@@ -241,13 +241,13 @@ namespace RX_Explorer
                     }
                     finally
                     {
-                        await Task.Delay(500).ConfigureAwait(true);
+                        await Task.Delay(500);
                         LoadingControl.IsLoading = false;
                     }
 
                     SecureAreaWelcomeDialog Dialog = new SecureAreaWelcomeDialog();
 
-                    if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                    if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                     {
                         AESKeySize = Dialog.AESKeySize;
                         UnlockPassword = Dialog.Password;
@@ -260,7 +260,7 @@ namespace RX_Explorer
                     {
                         if (Dialog.IsEnableWindowsHello)
                         {
-                            await WindowsHelloAuthenticator.DeleteUserAsync().ConfigureAwait(true);
+                            await WindowsHelloAuthenticator.DeleteUserAsync();
                         }
 
                         GoBack();
@@ -274,7 +274,7 @@ namespace RX_Explorer
 
                 SelectionExtention = new ListViewBaseSelectionExtention(SecureGridView, DrawRectangle);
 
-                await LoadSecureFile().ConfigureAwait(true);
+                await LoadSecureFile();
             }
             catch (Exception ex)
             {
@@ -305,7 +305,7 @@ namespace RX_Explorer
         private async Task<bool> EnterByPassword()
         {
             SecureAreaVerifyDialog Dialog = new SecureAreaVerifyDialog(UnlockPassword);
-            if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+            if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
             {
                 return true;
             }
@@ -325,9 +325,9 @@ namespace RX_Explorer
         {
             IsNewStart = false;
 
-            SecureFolder = await FileSystemStorageItemBase.CreateAsync(Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder"), StorageItemTypes.Folder, CreateOption.OpenIfExist).ConfigureAwait(true) as FileSystemStorageFolder;
+            SecureFolder = await FileSystemStorageItemBase.CreateAsync(Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder"), StorageItemTypes.Folder, CreateOption.OpenIfExist) as FileSystemStorageFolder;
 
-            foreach (FileSystemStorageFile Item in await SecureFolder.GetChildItemsAsync(false, ItemFilters.File).ConfigureAwait(true))
+            foreach (FileSystemStorageFile Item in await SecureFolder.GetChildItemsAsync(false, ItemFilters.File))
             {
                 SecureCollection.Add(Item);
             }
@@ -374,13 +374,13 @@ namespace RX_Explorer
                 {
                     foreach (string OriginFilePath in FileList.Select((Item) => Item.Path))
                     {
-                        if (await FileSystemStorageItemBase.OpenAsync(OriginFilePath).ConfigureAwait(true) is FileSystemStorageFile File)
+                        if (await FileSystemStorageItemBase.OpenAsync(OriginFilePath) is FileSystemStorageFile File)
                         {
-                            if (await File.EncryptAsync(SecureFolder.Path, EncryptionAESKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is FileSystemStorageFile EncryptedFile)
+                            if (await File.EncryptAsync(SecureFolder.Path, EncryptionAESKey, AESKeySize, Cancellation.Token) is FileSystemStorageFile EncryptedFile)
                             {
                                 SecureCollection.Add(EncryptedFile);
 
-                                await File.DeleteAsync(false).ConfigureAwait(true);
+                                await File.DeleteAsync(false);
                             }
                             else
                             {
@@ -391,7 +391,7 @@ namespace RX_Explorer
                                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                 };
 
-                                _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                                _ = await Dialog.ShowAsync();
                             }
                         }
                     }
@@ -411,14 +411,14 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await Dialog.ShowAsync();
                 }
                 finally
                 {
                     Cancellation.Dispose();
                     Cancellation = null;
 
-                    await Task.Delay(1500).ConfigureAwait(true);
+                    await Task.Delay(1500);
                     ActivateLoading(false);
                 }
             }
@@ -441,7 +441,7 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
-                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                        _ = await Dialog.ShowAsync();
                     }
 
                     if (Items.Any((Item) => Item.IsOfType(StorageItemTypes.File)))
@@ -454,13 +454,13 @@ namespace RX_Explorer
                         {
                             foreach (string OriginFilePath in Items.Select((Item) => Item.Path))
                             {
-                                if (await FileSystemStorageItemBase.OpenAsync(OriginFilePath).ConfigureAwait(true) is FileSystemStorageFile File)
+                                if (await FileSystemStorageItemBase.OpenAsync(OriginFilePath) is FileSystemStorageFile File)
                                 {
-                                    if (await File.EncryptAsync(SecureFolder.Path, EncryptionAESKey, AESKeySize, Cancellation.Token).ConfigureAwait(true) is FileSystemStorageFile EncryptedFile)
+                                    if (await File.EncryptAsync(SecureFolder.Path, EncryptionAESKey, AESKeySize, Cancellation.Token) is FileSystemStorageFile EncryptedFile)
                                     {
                                         SecureCollection.Add(EncryptedFile);
 
-                                        await File.DeleteAsync(false).ConfigureAwait(true);
+                                        await File.DeleteAsync(false);
                                     }
                                     else
                                     {
@@ -471,7 +471,7 @@ namespace RX_Explorer
                                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                         };
 
-                                        _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                                        _ = await Dialog.ShowAsync();
                                     }
                                 }
                             }
@@ -491,20 +491,20 @@ namespace RX_Explorer
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
 
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                            _ = await Dialog.ShowAsync();
                         }
                         finally
                         {
                             Cancellation.Dispose();
                             Cancellation = null;
 
-                            await Task.Delay(1000).ConfigureAwait(true);
+                            await Task.Delay(1000);
                             ActivateLoading(false);
                         }
                     }
                 }
             }
-            catch (Exception ex) when (ex.HResult == unchecked((int)0x80040064))
+            catch (Exception ex) when (ex.HResult is unchecked((int)0x80040064) or unchecked((int)0x8004006A))
             {
                 QueueContentDialog dialog = new QueueContentDialog
                 {
@@ -513,7 +513,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                _ = await dialog.ShowAsync();
             }
             catch
             {
@@ -524,7 +524,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await dialog.ShowAsync().ConfigureAwait(true);
+                _ = await dialog.ShowAsync();
             }
         }
 
@@ -598,13 +598,13 @@ namespace RX_Explorer
                 CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
             };
 
-            if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+            if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
             {
                 foreach (FileSystemStorageFile File in SecureGridView.SelectedItems.ToArray())
                 {
                     SecureCollection.Remove(File);
 
-                    await File.DeleteAsync(true).ConfigureAwait(true);
+                    await File.DeleteAsync(true);
                 }
             }
         }
@@ -634,11 +634,11 @@ namespace RX_Explorer
 
                     foreach (FileSystemStorageFile File in SecureGridView.SelectedItems.ToArray())
                     {
-                        if (await File.DecryptAsync(Folder.Path, EncryptionAESKey, Cancellation.Token).ConfigureAwait(true) is FileSystemStorageItemBase)
+                        if (await File.DecryptAsync(Folder.Path, EncryptionAESKey, Cancellation.Token) is FileSystemStorageItemBase)
                         {
                             SecureCollection.Remove(File);
 
-                            await File.DeleteAsync(true).ConfigureAwait(true);
+                            await File.DeleteAsync(true);
                         }
                         else
                         {
@@ -649,7 +649,7 @@ namespace RX_Explorer
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
 
-                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                            _ = await Dialog.ShowAsync();
                         }
                     }
 
@@ -664,7 +664,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await Dialog.ShowAsync();
                 }
                 catch (FileDamagedException)
                 {
@@ -675,7 +675,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await Dialog.ShowAsync();
                 }
                 catch (TaskCanceledException cancelException)
                 {
@@ -692,14 +692,14 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                    _ = await Dialog.ShowAsync();
                 }
                 finally
                 {
                     Cancellation.Dispose();
                     Cancellation = null;
 
-                    await Task.Delay(1000).ConfigureAwait(true);
+                    await Task.Delay(1000);
                     ActivateLoading(false);
                 }
             }
@@ -734,7 +734,7 @@ namespace RX_Explorer
             if (SecureGridView.SelectedItem is FileSystemStorageFile File)
             {
                 SecureFilePropertyDialog Dialog = new SecureFilePropertyDialog(File);
-                await Dialog.ShowAsync().ConfigureAwait(true);
+                await Dialog.ShowAsync();
             }
         }
 
@@ -744,9 +744,9 @@ namespace RX_Explorer
             {
                 RenameDialog dialog = new RenameDialog(RenameItem);
 
-                if ((await dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
-                    if (await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(SecureFolder.Path, dialog.DesireName)).ConfigureAwait(true))
+                    if (await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(SecureFolder.Path, dialog.DesireName)))
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
@@ -756,13 +756,13 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                         };
 
-                        if (await Dialog.ShowAsync().ConfigureAwait(true) != ContentDialogResult.Primary)
+                        if (await Dialog.ShowAsync() != ContentDialogResult.Primary)
                         {
                             return;
                         }
                     }
 
-                    await RenameItem.RenameAsync(dialog.DesireName).ConfigureAwait(true);
+                    await RenameItem.RenameAsync(dialog.DesireName);
                 }
             }
         }
@@ -791,7 +791,7 @@ namespace RX_Explorer
 
         private async void SettingPane_PaneOpening(SplitView sender, object args)
         {
-            if (await WindowsHelloAuthenticator.CheckSupportAsync().ConfigureAwait(true))
+            if (await WindowsHelloAuthenticator.CheckSupportAsync())
             {
                 UseWindowsHello.IsEnabled = true;
                 UseWindowsHello.IsOn = Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["SecureAreaEnableWindowsHello"]);
@@ -852,7 +852,7 @@ namespace RX_Explorer
             if (UseWindowsHello.IsOn)
             {
             RETRY:
-                if ((await WindowsHelloAuthenticator.RegisterUserAsync().ConfigureAwait(true)) != AuthenticatorState.RegisterSuccess)
+                if ((await WindowsHelloAuthenticator.RegisterUserAsync()) != AuthenticatorState.RegisterSuccess)
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -861,7 +861,7 @@ namespace RX_Explorer
                         PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                     };
-                    if ((await Dialog.ShowAsync().ConfigureAwait(true)) == ContentDialogResult.Primary)
+                    if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                     {
                         goto RETRY;
                     }

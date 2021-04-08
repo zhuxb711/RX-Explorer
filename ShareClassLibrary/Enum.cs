@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ShareClassLibrary
+﻿namespace ShareClassLibrary
 {
     public enum ModifyAttributeAction
     {

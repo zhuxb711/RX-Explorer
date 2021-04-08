@@ -1829,10 +1829,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Compression</source>
           <target state="translated">压缩</target>
         </trans-unit>
-        <trans-unit id="Operate_Text_Copy" translate="yes" xml:space="preserve">
-          <source>Copy</source>
-          <target state="translated">复制</target>
-        </trans-unit>
         <trans-unit id="Operate_Text_Create" translate="yes" xml:space="preserve">
           <source>Create</source>
           <target state="translated">新建</target>
@@ -2119,10 +2115,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Compressing</source>
           <target state="translated">正在压缩</target>
         </trans-unit>
-        <trans-unit id="Progress_Tip_Copying" translate="yes" xml:space="preserve">
-          <source>Copying</source>
-          <target state="translated">正在复制</target>
-        </trans-unit>
         <trans-unit id="Progress_Tip_Deleting" translate="yes" xml:space="preserve">
           <source>Deleting</source>
           <target state="translated">正在删除</target>
@@ -2143,17 +2135,9 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Loading...</source>
           <target state="translated">正在加载...</target>
         </trans-unit>
-        <trans-unit id="Progress_Tip_Moving" translate="yes" xml:space="preserve">
-          <source>Moving</source>
-          <target state="translated">正在移动</target>
-        </trans-unit>
         <trans-unit id="Progress_Tip_Transcoding" translate="yes" xml:space="preserve">
           <source>Transcoding</source>
           <target state="translated">正在转码</target>
-        </trans-unit>
-        <trans-unit id="Progress_Tip_Undoing" translate="yes" xml:space="preserve">
-          <source>Undoing</source>
-          <target state="translated">正在撤销</target>
         </trans-unit>
         <trans-unit id="QueueDialog_CopyFailForNotExist_Content" translate="yes" xml:space="preserve">
           <source>Some files do not exist and cannot be copyed to the specified location</source>
@@ -4020,6 +4004,79 @@ Invalid names include
         <trans-unit id="Properties_Details_PeopleNames" translate="yes" xml:space="preserve">
           <source>People names</source>
           <target state="translated">人名</target>
+        </trans-unit>
+        <trans-unit id="TaskListCancelTaskButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Cancel this task</source>
+          <target state="translated">取消此任务</target>
+        </trans-unit>
+        <trans-unit id="TaskListEmptyTip.Text" translate="yes" xml:space="preserve">
+          <source>Empty</source>
+          <target state="translated">无内容</target>
+        </trans-unit>
+        <trans-unit id="TaskListPanelTitle.Text" translate="yes" xml:space="preserve">
+          <source>Task list</source>
+          <target state="translated">任务列表</target>
+        </trans-unit>
+        <trans-unit id="TaskListRemoveTaskButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Remove this record</source>
+          <target state="translated">移除此记录</target>
+        </trans-unit>
+        <trans-unit id="TaskList_From_Label" translate="yes" xml:space="preserve">
+          <source>From</source>
+          <target state="translated">自</target>
+        </trans-unit>
+        <trans-unit id="TaskList_More_Items" translate="yes" xml:space="preserve">
+          <source>more items</source>
+          <target state="translated">更多项</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">for example: 5 more items</note>
+        </trans-unit>
+        <trans-unit id="TaskList_OperationKind_Copy" translate="yes" xml:space="preserve">
+          <source>Copy task</source>
+          <target state="translated">复制任务</target>
+        </trans-unit>
+        <trans-unit id="TaskList_OperationKind_Delete" translate="yes" xml:space="preserve">
+          <source>Delete task</source>
+          <target state="translated">删除任务</target>
+        </trans-unit>
+        <trans-unit id="TaskList_OperationKind_Move" translate="yes" xml:space="preserve">
+          <source>Move task</source>
+          <target state="translated">移动任务</target>
+        </trans-unit>
+        <trans-unit id="TaskList_OperationKind_Undo" translate="yes" xml:space="preserve">
+          <source>Undo task</source>
+          <target state="translated">撤销任务</target>
+        </trans-unit>
+        <trans-unit id="TaskList_Task_Status_Cancelled" translate="yes" xml:space="preserve">
+          <source>Cancelled</source>
+          <target state="translated">已取消</target>
+        </trans-unit>
+        <trans-unit id="TaskList_Task_Status_Completed" translate="yes" xml:space="preserve">
+          <source>Completed</source>
+          <target state="translated">已完成</target>
+        </trans-unit>
+        <trans-unit id="TaskList_Task_Status_Error" translate="yes" xml:space="preserve">
+          <source>Error</source>
+          <target state="translated">错误</target>
+        </trans-unit>
+        <trans-unit id="TaskList_Task_Status_Processing" translate="yes" xml:space="preserve">
+          <source>Processing</source>
+          <target state="translated">正在处理</target>
+        </trans-unit>
+        <trans-unit id="TaskList_Task_Status_Waiting" translate="yes" xml:space="preserve">
+          <source>Waiting</source>
+          <target state="translated">正在等待</target>
+        </trans-unit>
+        <trans-unit id="TaskList_To_Label" translate="yes" xml:space="preserve">
+          <source>To</source>
+          <target state="translated">至</target>
+        </trans-unit>
+        <trans-unit id="TaskListAllowParalledTask.Content" translate="yes" xml:space="preserve">
+          <source>Allow parallel execution of tasks</source>
+          <target state="translated">允许并行执行任务</target>
+        </trans-unit>
+        <trans-unit id="TaskListAlwaysOpenPanel.Text" translate="yes" xml:space="preserve">
+          <source>Always pops up the panel after a new task was created</source>
+          <target state="translated">创建新任务后总是弹出此面板</target>
         </trans-unit>
       </group>
     </body>

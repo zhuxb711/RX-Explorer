@@ -168,7 +168,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                await Exclusive.Controller.SetFileAttribute(StorageItem.Path, AttributeDic.ToArray()).ConfigureAwait(true);
+                await Exclusive.Controller.SetFileAttribute(StorageItem.Path, AttributeDic.ToArray());
 
                 if (StorageItem is LinkStorageFile)
                 {
@@ -177,7 +177,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                                                (WindowState)ShortcutWindowsStateContent.SelectedIndex,
                                                                (int)Enum.Parse<VirtualKey>(ShortcutKeyContent.Text.Replace("Ctrl + Alt + ", string.Empty)),
                                                                ShortcutCommentContent.Text,
-                                                               RunAsAdmin.IsChecked.GetValueOrDefault()).ConfigureAwait(true);
+                                                               RunAsAdmin.IsChecked.GetValueOrDefault());
                 }
             }
 
@@ -198,17 +198,17 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             {
                 case FileSystemStorageFolder:
                     {
-                        await LoadDataForGeneralPage().ConfigureAwait(true);
+                        await LoadDataForGeneralPage();
                         break;
                     }
                 case FileSystemStorageFile:
                     {
-                        await LoadDataForGeneralPage().ConfigureAwait(true);
-                        await LoadDataForDetailPage().ConfigureAwait(true);
+                        await LoadDataForGeneralPage();
+                        await LoadDataForDetailPage();
 
                         if (StorageItem is LinkStorageFile)
                         {
-                            await LoadDataForShortCutPage().ConfigureAwait(true);
+                            await LoadDataForShortCutPage();
                         }
 
                         break;
@@ -243,9 +243,9 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                 if (LinkFile.LinkType == ShellLinkType.Normal)
                 {
-                    FileSystemStorageItemBase TargetItem = await FileSystemStorageItemBase.OpenAsync(LinkFile.LinkTargetPath).ConfigureAwait(true);
+                    FileSystemStorageItemBase TargetItem = await FileSystemStorageItemBase.OpenAsync(LinkFile.LinkTargetPath);
 
-                    switch (await TargetItem.GetStorageItemAsync().ConfigureAwait(true))
+                    switch (await TargetItem.GetStorageItemAsync())
                     {
                         case StorageFile File:
                             {
@@ -294,7 +294,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 { Globalization.GetString("Properties_Details_DateModified"), StorageItem.ModifiedTime }
             };
 
-            if (await StorageItem.GetStorageItemAsync().ConfigureAwait(true) is StorageFile File)
+            if (await StorageItem.GetStorageItemAsync() is StorageFile File)
             {
                 IDictionary<string, object> BasicResult = await File.Properties.RetrievePropertiesAsync(new string[] { "System.OfflineAvailability", "System.FileOfflineAvailabilityStatus", "System.FileOwner", "System.ComputerName" });
 
@@ -342,7 +342,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 {
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                     {
-                        ContentType = await Exclusive.Controller.GetMIMEContentType(File.Path).ConfigureAwait(true);
+                        ContentType = await Exclusive.Controller.GetMIMEContentType(File.Path);
                     }
                 }
 
@@ -617,7 +617,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                     {
-                        Dictionary<string, string> DocExtraProperties = await Exclusive.Controller.GetDocumentProperties(StorageItem.Path).ConfigureAwait(true);
+                        Dictionary<string, string> DocExtraProperties = await Exclusive.Controller.GetDocumentProperties(StorageItem.Path);
 
                         string TotalEditingTime = DocExtraProperties["TotalEditingTime"];
 
@@ -703,7 +703,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         SizeContent.Text = task.Result;
                     }, CancellationToken.None, TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
 
-                    await Task.WhenAll(CountTask, SizeTask).ConfigureAwait(true);
+                    await Task.WhenAll(CountTask, SizeTask);
                 }
                 catch (TaskCanceledException)
                 {
@@ -723,7 +723,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             {
                 ReadonlyAttribute.IsChecked = File.IsReadOnly;
 
-                string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(StorageItem.Type).ConfigureAwait(true);
+                string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(StorageItem.Type);
 
                 if (string.IsNullOrEmpty(AdminExecutablePath))
                 {
@@ -781,7 +781,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                     try
                     {
                         StorageFile OpenProgramFile = await StorageFile.GetFileFromPathAsync(AdminExecutablePath);
-                        OpenWithImage.Source = await OpenProgramFile.GetThumbnailBitmapAsync().ConfigureAwait(true);
+                        OpenWithImage.Source = await OpenProgramFile.GetThumbnailBitmapAsync();
 
                         IDictionary<string, object> PropertiesDictionary = await OpenProgramFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" });
 
@@ -870,7 +870,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             {
                 try
                 {
-                    await SaveConfiguration().ConfigureAwait(true);
+                    await SaveConfiguration();
                 }
                 catch (Exception ex)
                 {
@@ -964,13 +964,13 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         {
             if (StorageItem is LinkStorageFile Link)
             {
-                await TabViewContainer.ThisPage.CreateNewTabAsync(new string[] { Path.GetDirectoryName(Link.LinkTargetPath) }).ConfigureAwait(true);
+                await TabViewContainer.ThisPage.CreateNewTabAsync(new string[] { Path.GetDirectoryName(Link.LinkTargetPath) });
 
                 if (TabViewContainer.ThisPage.TabCollection.LastOrDefault()?.Tag is FileControl Control)
                 {
                     while (Control.CurrentPresenter == null)
                     {
-                        await Task.Delay(500).ConfigureAwait(true);
+                        await Task.Delay(500);
                     }
 
                     if (Control.CurrentPresenter.FileCollection.FirstOrDefault((SItem) => SItem.Path == Link.LinkTargetPath) is FileSystemStorageItemBase Target)
@@ -984,7 +984,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async void CalculateMd5_Click(object sender, RoutedEventArgs e)
         {
-            if (await FileSystemStorageItemBase.CheckExistAsync(StorageItem.Path).ConfigureAwait(true))
+            if (await FileSystemStorageItemBase.CheckExistAsync(StorageItem.Path))
             {
                 if (StorageItem is FileSystemStorageFile File)
                 {
@@ -993,7 +993,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                     try
                     {
-                        using (FileStream Stream = await File.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(true))
+                        using (FileStream Stream = await File.GetFileStreamFromFileAsync(AccessMode.Read))
                         using (MD5 MD5Alg = MD5.Create())
                         {
                             await MD5Alg.GetHashAsync(Stream, Md5Cancellation.Token).ContinueWith((beforeTask) =>
@@ -1025,7 +1025,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                 try
                 {
-                    using (FileStream Stream = await File.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(true))
+                    using (FileStream Stream = await File.GetFileStreamFromFileAsync(AccessMode.Read))
                     using (SHA1 SHA1Alg = SHA1.Create())
                     {
                         await SHA1Alg.GetHashAsync(Stream, SHA1Cancellation.Token).ContinueWith((beforeTask) =>
@@ -1056,7 +1056,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                 try
                 {
-                    using (FileStream Stream = await File.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(true))
+                    using (FileStream Stream = await File.GetFileStreamFromFileAsync(AccessMode.Read))
                     using (SHA256 SHA256Alg = SHA256.Create())
                     {
                         await SHA256Alg.GetHashAsync(Stream, SHA256Cancellation.Token).ContinueWith((beforeTask) =>
@@ -1085,7 +1085,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 await CoreApplication.MainView.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
                 {
                     ProgramPickerDialog Dialog = new ProgramPickerDialog(File, true);
-                    await Dialog.ShowAsync().ConfigureAwait(true);
+                    await Dialog.ShowAsync();
                 });
 
                 await Window.CloseAsync();
@@ -1105,7 +1105,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                     {
-                        if (await Exclusive.Controller.TryUnlockFileOccupy(File.Path, ((Button)sender).Name == "CloseForce").ConfigureAwait(true))
+                        if (await Exclusive.Controller.TryUnlockFileOccupy(File.Path, ((Button)sender).Name == "CloseForce"))
                         {
                             UnlockText.Text = Globalization.GetString("QueueDialog_Unlock_Success_Content");
                         }

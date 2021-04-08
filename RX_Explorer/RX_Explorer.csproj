@@ -171,11 +171,18 @@
     <Compile Include="Class\FileSystemStorageFolder.cs" />
     <Compile Include="Class\FilterController.cs" />
     <Compile Include="Class\GroupItemBase.cs" />
+    <Compile Include="Class\OperationListBaseModel.cs" />
+    <Compile Include="Class\OperationListCopyModel.cs" />
+    <Compile Include="Class\OperationListDeleteModel.cs" />
+    <Compile Include="Class\OperationListMoveModel.cs" />
+    <Compile Include="Class\OperationListRemoteModel.cs" />
+    <Compile Include="Class\OperationListUndoModel.cs" />
     <Compile Include="Class\PropertiesGroupItem.cs" />
     <Compile Include="Class\HiddenStorageFile.cs" />
     <Compile Include="Class\HiddenStorageFolder.cs" />
     <Compile Include="Class\LinkStorageFile.cs" />
     <Compile Include="Class\InstalledApplication.cs" />
+    <Compile Include="Class\QueueFileOperationController.cs" />
     <Compile Include="Class\RecycleStorageFolder.cs" />
     <Compile Include="Class\SystemFontFamilyController.cs" />
     <Compile Include="CustomControl\AppBarButtonWithImage.xaml.cs">
@@ -703,7 +710,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Data.Sqlite.Core">
-      <Version>5.0.4</Version>
+      <Version>5.0.5</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Net.Compilers.Toolset">
       <Version>3.9.0</Version>
@@ -756,7 +763,7 @@
       <Version>4.3.1</Version>
     </PackageReference>
     <PackageReference Include="System.Text.Json">
-      <Version>5.0.1</Version>
+      <Version>5.0.2</Version>
     </PackageReference>
     <PackageReference Include="TagLib.Portable">
       <Version>1.0.4</Version>

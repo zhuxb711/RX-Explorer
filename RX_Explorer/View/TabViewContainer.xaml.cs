@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Data.Xml.Dom;
+using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
@@ -42,6 +43,56 @@ namespace RX_Explorer
             CoreWindow.GetForCurrentThread().PointerPressed += TabViewContainer_PointerPressed;
             CoreWindow.GetForCurrentThread().KeyDown += TabViewContainer_KeyDown;
             CommonAccessCollection.LibraryNotFound += CommonAccessCollection_LibraryNotFound;
+            QueueFileOperationController.ListItemSource.CollectionChanged += ListItemSource_CollectionChanged;
+            
+            if (ApplicationData.Current.LocalSettings.Values["ShouldPinTaskList"] is bool ShouldPin)
+            {
+                if (ShouldPin)
+                {
+                    TaskListPanel.DisplayMode = SplitViewDisplayMode.Inline;
+                    TaskListPanel.IsPaneOpen = true;
+
+                    PinTaskListPanel.Content = new Viewbox
+                    {
+                        Child = new FontIcon
+                        {
+                            Glyph = "\uE77A"
+                        }
+                    };
+                }
+                else
+                {
+                    TaskListPanel.DisplayMode = SplitViewDisplayMode.Overlay;
+                    TaskListPanel.IsPaneOpen = false;
+
+                    PinTaskListPanel.Content = new Viewbox
+                    {
+                        Child = new FontIcon
+                        {
+                            Glyph = "\uE840"
+                        }
+                    };
+                }
+            }
+            else
+            {
+                TaskListPanel.DisplayMode = SplitViewDisplayMode.Overlay;
+
+                ApplicationData.Current.LocalSettings.Values["ShouldPinTaskList"] = false;
+
+                PinTaskListPanel.Content = new Viewbox
+                {
+                    Child = new FontIcon
+                    {
+                        Glyph = "\uE840"
+                    }
+                };
+            }
+        }
+
+        private void ListItemSource_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            EmptyTip.Visibility = QueueFileOperationController.ListItemSource.Any() ? Visibility.Collapsed : Visibility.Visible;
         }
 
         private void TabCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -74,7 +125,7 @@ namespace RX_Explorer
                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
             };
 
-            await dialog.ShowAsync().ConfigureAwait(true);
+            await dialog.ShowAsync();
         }
 
         private async void TabViewContainer_KeyDown(CoreWindow sender, KeyEventArgs args)
@@ -91,7 +142,7 @@ namespace RX_Explorer
                             {
                                 args.Handled = true;
 
-                                await CleanUpAndRemoveTabItem(Tab).ConfigureAwait(true);
+                                await CleanUpAndRemoveTabItem(Tab);
                             }
 
                             return;
@@ -104,7 +155,7 @@ namespace RX_Explorer
                     {
                         case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
                             {
-                                await CreateNewTabAsync().ConfigureAwait(true);
+                                await CreateNewTabAsync();
                                 args.Handled = true;
 
                                 break;
@@ -113,15 +164,15 @@ namespace RX_Explorer
                             {
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                 {
-                                    if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync().ConfigureAwait(true))
+                                    if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                                     {
                                         if (PC.DeviceGrid.SelectedItem is DriveRelatedData Device && !string.IsNullOrEmpty(Device.Folder.Path))
                                         {
-                                            await Exclusive.Controller.ViewWithQuicklookAsync(Device.Folder.Path).ConfigureAwait(true);
+                                            await Exclusive.Controller.ViewWithQuicklookAsync(Device.Folder.Path);
                                         }
                                         else if (PC.LibraryGrid.SelectedItem is LibraryFolder Library && !string.IsNullOrEmpty(Library.Folder.Path))
                                         {
-                                            await Exclusive.Controller.ViewWithQuicklookAsync(Library.Folder.Path).ConfigureAwait(true);
+                                            await Exclusive.Controller.ViewWithQuicklookAsync(Library.Folder.Path);
                                         }
                                     }
                                 }
@@ -143,18 +194,18 @@ namespace RX_Explorer
                                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                         };
 
-                                        await Dialog.ShowAsync().ConfigureAwait(true);
+                                        await Dialog.ShowAsync();
                                     }
                                     else
                                     {
-                                        await PC.OpenTargetFolder(Device.Folder).ConfigureAwait(true);
+                                        await PC.OpenTargetFolder(Device.Folder);
                                     }
 
                                     args.Handled = true;
                                 }
                                 else if (PC.LibraryGrid.SelectedItem is LibraryFolder Library)
                                 {
-                                    await PC.OpenTargetFolder(Library.Folder).ConfigureAwait(true);
+                                    await PC.OpenTargetFolder(Library.Folder);
 
                                     args.Handled = true;
                                 }
@@ -228,13 +279,13 @@ namespace RX_Explorer
             {
                 foreach (string[] PathArray in BulkTabWithPath)
                 {
-                    TabCollection.Add(await CreateNewTabCoreAsync(PathArray).ConfigureAwait(true));
+                    TabCollection.Add(await CreateNewTabCoreAsync(PathArray));
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Error happened when try to create a new tab");
-                TabCollection.Add(await CreateNewTabCoreAsync().ConfigureAwait(true));
+                TabCollection.Add(await CreateNewTabCoreAsync());
             }
         }
 
@@ -242,12 +293,12 @@ namespace RX_Explorer
         {
             try
             {
-                TabCollection.Add(await CreateNewTabCoreAsync(PathArray).ConfigureAwait(true));
+                TabCollection.Add(await CreateNewTabCoreAsync(PathArray));
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Error happened when try to create a new tab");
-                TabCollection.Add(await CreateNewTabCoreAsync().ConfigureAwait(true));
+                TabCollection.Add(await CreateNewTabCoreAsync());
             }
         }
 
@@ -257,12 +308,12 @@ namespace RX_Explorer
 
             try
             {
-                TabCollection.Insert(Index, await CreateNewTabCoreAsync(PathArray).ConfigureAwait(true));
+                TabCollection.Insert(Index, await CreateNewTabCoreAsync(PathArray));
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Error happened when try to create a new tab");
-                TabCollection.Insert(Index, await CreateNewTabCoreAsync().ConfigureAwait(true));
+                TabCollection.Insert(Index, await CreateNewTabCoreAsync());
             }
         }
 
@@ -296,11 +347,11 @@ namespace RX_Explorer
             {
                 if ((MainPage.ThisPage.ActivatePathArray?.Count).GetValueOrDefault() == 0)
                 {
-                    await CreateNewTabAsync().ConfigureAwait(true);
+                    await CreateNewTabAsync();
                 }
                 else
                 {
-                    await CreateNewTabAsync(MainPage.ThisPage.ActivatePathArray).ConfigureAwait(true);
+                    await CreateNewTabAsync(MainPage.ThisPage.ActivatePathArray);
                 }
 
                 await Task.WhenAll(CommonAccessCollection.LoadQuickStartItemsAsync(), CommonAccessCollection.LoadDeviceAsync(), CommonAccessCollection.LoadLibraryFoldersAsync()).ConfigureAwait(false);
@@ -313,12 +364,12 @@ namespace RX_Explorer
 
         private async void TabViewControl_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
         {
-            await CleanUpAndRemoveTabItem(args.Tab).ConfigureAwait(true);
+            await CleanUpAndRemoveTabItem(args.Tab);
         }
 
         private async void TabViewControl_AddTabButtonClick(TabView sender, object args)
         {
-            await CreateNewTabAsync().ConfigureAwait(true);
+            await CreateNewTabAsync();
         }
 
         private async Task<TabViewItem> CreateNewTabCoreAsync(params string[] PathForNewTab)
@@ -342,7 +393,7 @@ namespace RX_Explorer
 
             foreach (string Path in PathForNewTab)
             {
-                if (!string.IsNullOrWhiteSpace(Path) && await FileSystemStorageItemBase.CheckExistAsync(Path).ConfigureAwait(true))
+                if (!string.IsNullOrWhiteSpace(Path) && await FileSystemStorageItemBase.CheckExistAsync(Path))
                 {
                     ValidPathArray.Add(Path);
                 }
@@ -520,14 +571,14 @@ namespace RX_Explorer
                 {
                     if (frame.Content is ThisPC)
                     {
-                        await CleanUpAndRemoveTabItem(args.Tab).ConfigureAwait(true);
+                        await CleanUpAndRemoveTabItem(args.Tab);
                         await Launcher.LaunchUriAsync(new Uri($"rx-explorer:"));
                     }
                     else if (args.Tab.Tag is FileControl Control)
                     {
                         Uri NewWindowActivationUri = new Uri($"rx-explorer:{Uri.EscapeDataString(string.Join("||", Control.BladeViewer.Items.OfType<Microsoft.Toolkit.Uwp.UI.Controls.BladeItem>().Select((Item) => ((Item.Content as FilePresenter)?.CurrentFolder?.Path))))}");
 
-                        await CleanUpAndRemoveTabItem(args.Tab).ConfigureAwait(true);
+                        await CleanUpAndRemoveTabItem(args.Tab);
                         await Launcher.LaunchUriAsync(NewWindowActivationUri);
                     }
                 }
@@ -621,12 +672,12 @@ namespace RX_Explorer
                             {
                                 case "ThisPC":
                                     {
-                                        await CreateNewTabAsync(InsertIndex).ConfigureAwait(true);
+                                        await CreateNewTabAsync(InsertIndex);
                                         break;
                                     }
                                 case "FileControl":
                                     {
-                                        await CreateNewTabAsync(InsertIndex, Split.Skip(1).ToArray()).ConfigureAwait(true);
+                                        await CreateNewTabAsync(InsertIndex, Split.Skip(1).ToArray());
                                         break;
                                     }
                             }
@@ -718,7 +769,7 @@ namespace RX_Explorer
         {
             if (TabViewControl.SelectedItem is TabViewItem Item)
             {
-                await CleanUpAndRemoveTabItem(Item).ConfigureAwait(true);
+                await CleanUpAndRemoveTabItem(Item);
             }
         }
 
@@ -732,7 +783,7 @@ namespace RX_Explorer
 
                 foreach (TabViewItem RemoveItem in ToBeRemoveList)
                 {
-                    await CleanUpAndRemoveTabItem(RemoveItem).ConfigureAwait(true);
+                    await CleanUpAndRemoveTabItem(RemoveItem);
                 }
             }
         }
@@ -740,6 +791,55 @@ namespace RX_Explorer
         private void TaskListPanelButton_Click(object sender, RoutedEventArgs e)
         {
             TaskListPanel.IsPaneOpen = true;
+        }
+
+        private void PinTaskListPanel_Click(object sender, RoutedEventArgs e)
+        {
+            if (TaskListPanel.DisplayMode == SplitViewDisplayMode.Overlay)
+            {
+                TaskListPanel.DisplayMode = SplitViewDisplayMode.Inline;
+
+                PinTaskListPanel.Content = new Viewbox
+                {
+                    Child = new FontIcon
+                    {
+                        Glyph = "\uE77A"
+                    }
+                };
+
+                ApplicationData.Current.LocalSettings.Values["ShouldPinTaskList"] = true;
+            }
+            else
+            {
+                TaskListPanel.DisplayMode = SplitViewDisplayMode.Overlay;
+
+                PinTaskListPanel.Content = new Viewbox
+                {
+                    Child = new FontIcon
+                    {
+                        Glyph = "\uE840"
+                    }
+                };
+
+                ApplicationData.Current.LocalSettings.Values["ShouldPinTaskList"] = false;
+            }
+        }
+
+        private void CancelTaskButton_Click(object sender, RoutedEventArgs e)
+        {
+            if(((Button)sender).DataContext is OperationListBaseModel Model)
+            {
+                Model.UpdateStatus(OperationStatus.Cancel);
+            }
+        }
+
+        private void RemoveTaskButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (((Button)sender).DataContext is OperationListBaseModel Model)
+            {
+                Model.UpdateStatus(OperationStatus.Cancel);
+                QueueFileOperationController.ListItemSource.Remove(Model);
+            }
         }
     }
 }

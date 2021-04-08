@@ -25,7 +25,7 @@ namespace RX_Explorer.Dialog
 
         private async void SecureAreaWelcomeDialog_Loading(Windows.UI.Xaml.FrameworkElement sender, object args)
         {
-            if (await WindowsHelloAuthenticator.CheckSupportAsync().ConfigureAwait(true))
+            if (await WindowsHelloAuthenticator.CheckSupportAsync())
             {
                 UseWinHel.IsEnabled = true;
             }
@@ -63,7 +63,7 @@ namespace RX_Explorer.Dialog
 
         private async void UseWinHel_Checked(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
-            switch (await WindowsHelloAuthenticator.RegisterUserAsync().ConfigureAwait(true))
+            switch (await WindowsHelloAuthenticator.RegisterUserAsync())
             {
                 case AuthenticatorState.RegisterSuccess:
                     {
