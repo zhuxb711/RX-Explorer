@@ -33,6 +33,8 @@
 
 >#####Se solucionó el problema de que el archivo no se descomprime en el formato de codificación predeterminado
 
+>#####Se solucionó un problema por el cual "Modo de visualización" podía no indicar correctamente el modo actual
+
 >#####Se corrigieron algunos problemas de traducción
 
 *****

@@ -33,6 +33,8 @@
 
 >#####Correction du problème selon lequel le fichier ne peut pas être décompressé dans le format d'encodage par défaut
 
+>#####Correction d'un problème où le "Mode d'affichage" pouvait ne pas indiquer correctement le mode actuel
+
 >#####Correction de quelques problèmes de traduction
 
 *****

@@ -27,6 +27,7 @@ using Windows.UI.WindowManagement.Preview;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
@@ -344,6 +345,14 @@ namespace RX_Explorer
                         }
 
                         ViewModeControl = new ViewModeController();
+
+                        Binding SelectedIndexBinding = new Binding
+                        {
+                            Source = ViewModeControl,
+                            Path = new PropertyPath(nameof(ViewModeController.ViewModeIndex)),
+                            Mode = BindingMode.TwoWay
+                        };
+                        ViewModeComboBox.SetBinding(Selector.SelectedIndexProperty, SelectedIndexBinding);
 
                         await Initialize(Parameters.Item2).ConfigureAwait(false);
                     }

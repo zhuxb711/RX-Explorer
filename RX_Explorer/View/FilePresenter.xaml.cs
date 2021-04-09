@@ -2508,7 +2508,7 @@ namespace RX_Explorer
         {
             Type InternalType = File.Type.ToLower() switch
             {
-                ".jdg" or ".png" or ".bmp" => typeof(PhotoViewer),
+                ".jpg" or ".png" or ".bmp" => typeof(PhotoViewer),
                 ".mkv" or ".mp4" or ".mp3" or
                 ".flac" or ".wma" or ".wmv" or
                 ".m4a" or ".mov" or ".alac" => typeof(MediaPlayer),

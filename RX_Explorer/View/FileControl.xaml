@@ -316,8 +316,8 @@
                       Margin="5,0,5,0"
                       HorizontalAlignment="Stretch"
                       CornerRadius="0"
+                      x:Name="ViewModeComboBox"
                       ItemsSource="{x:Bind Cls:ViewModeController.SelectionSource}"
-                      SelectedIndex="{x:Bind ViewModeControl.ViewModeIndex, Mode=TwoWay}"
                       VerticalAlignment="Stretch"/>
             
             <AutoSuggestBox QueryIcon="Find"

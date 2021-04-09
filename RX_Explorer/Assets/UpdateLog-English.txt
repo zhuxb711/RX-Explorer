@@ -33,6 +33,8 @@
 
 >#####Fixed the problem that the file may not be decompressed in the default encoding format
 
+>#####Fixed an issue where "Display Mode" might not correctly indicate the current mode
+
 >#####Fixed some translation problems
 
 *****

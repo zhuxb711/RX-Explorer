@@ -33,4 +33,6 @@
 
 >#####Es wurde das Problem behoben, dass die Datei möglicherweise nicht im Standardcodierungsformat dekomprimiert wurde
 
+>#####Es wurde ein Problem behoben, bei dem "Anzeigemodus" den aktuellen Modus möglicherweise nicht korrekt anzeigt
+
 >#####Einige Übersetzungsprobleme wurden behoben
