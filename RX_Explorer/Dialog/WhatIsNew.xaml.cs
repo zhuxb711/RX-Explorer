@@ -47,6 +47,12 @@ namespace RX_Explorer.Dialog
                         MarkDown.Text = FileIO.ReadTextAsync(UpdateFile).AsTask().Result;
                         break;
                     }
+                case LanguageEnum.German:
+                    {
+                        StorageFile UpdateFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-German.txt")).AsTask().Result;
+                        MarkDown.Text = FileIO.ReadTextAsync(UpdateFile).AsTask().Result;
+                        break;
+                    }
             }
         }
 

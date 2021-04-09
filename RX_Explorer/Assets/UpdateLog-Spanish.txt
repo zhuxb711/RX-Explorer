@@ -1,4 +1,41 @@
 ﻿*****
+###Novedades de la versión 6.2.7.0
+
+#####Actualización de funciones
+
+>#####Agregada "Lista de tareas", ahora las operaciones relacionadas con archivos no se mostrarán en modo de pantalla completa
+
+>#####Refactorizó la lógica del módulo de gestión de dispositivos USB
+
+#####actualización de la interfaz de usuario
+
+>#####Ahora, para todos los tipos de archivos, no es necesario especificar el programa predeterminado por adelantado [PR # 148] (https://github.com/zhuxb711/RX-Explorer/pull/148)
+
+>#####Ahora el archivo seleccionado se retrasará 800ms en el modo "Singel Click"
+
+>#####Se agregó soporte para "alemán"
+
+#####Mejora del rendimiento
+
+>#####Retrasa el tiempo de carga de cada elemento de la interfaz principal, y el área contraída no se cargará al inicio
+
+>#####Mejora la velocidad de búsqueda del motor de búsqueda integrado y reduce las operaciones innecesarias
+
+#####Arreglo del fallo
+
+>#####Se corrigieron algunos problemas al comprimir y descomprimir archivos Tar
+
+>#####Se solucionó el problema de que la barra de direcciones podía causar un bloqueo
+
+>#####Se solucionó el problema de que los dispositivos USB no se expulsaran
+
+>#####Se solucionó el problema de que la animación de inicio puede fallar en algunos casos después de usar "Abrir última pestaña"
+
+>#####Se solucionó el problema de que el archivo no se descomprime en el formato de codificación predeterminado
+
+>#####Se corrigieron algunos problemas de traducción
+
+*****
 ###Novedades de la versión 6.2.3.0
 
 #####Actualización de funciones

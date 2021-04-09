@@ -61,6 +61,13 @@ namespace RX_Explorer.Class
                         ApplicationLanguages.PrimaryLanguageOverride = "es";
                         break;
                     }
+                case LanguageEnum.German:
+                    {
+                        ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 5;
+                        ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Öffnen Sie im RX-Explorer";
+                        ApplicationLanguages.PrimaryLanguageOverride = "de-DE";
+                        break;
+                    }
             }
 
             if (Language != CurrentLanguage)
@@ -150,6 +157,11 @@ namespace RX_Explorer.Class
                             CurrentLanguage = LanguageEnum.Spanish;
                             break;
                         }
+                    case 5:
+                        {
+                            CurrentLanguage = LanguageEnum.German;
+                            break;
+                        }
                 }
             }
             else
@@ -193,6 +205,13 @@ namespace RX_Explorer.Class
                     ApplicationLanguages.PrimaryLanguageOverride = "es";
                     ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 4;
                     ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Abrir con RX-Explorer";
+                }
+                else if(PrimaryLanguage.StartsWith("es", StringComparison.OrdinalIgnoreCase))
+                {
+                    CurrentLanguage = LanguageEnum.German;
+                    ApplicationData.Current.LocalSettings.Values["LanguageOverride"] = 5;
+                    ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Öffnen Sie im RX-Explorer";
+                    ApplicationLanguages.PrimaryLanguageOverride = "de-DE";
                 }
                 else
                 {

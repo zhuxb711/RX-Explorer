@@ -50,16 +50,17 @@ namespace RX_Explorer
 
         private void ThisPC_Loaded(object sender, RoutedEventArgs e)
         {
-            if (ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] is bool Enable)
+            if (SettingControl.IsQuickStartExpanded)
             {
-                LeftSideCol.Width = Enable ? new GridLength(2.5, GridUnitType.Star) : new GridLength(0);
+                LeftSideCol.Width = new GridLength(2.5, GridUnitType.Star);
             }
             else
             {
-                ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = true;
-
-                LeftSideCol.Width = new GridLength(2.5, GridUnitType.Star);
+                LeftSideCol.Width = new GridLength(0);
             }
+
+            LibraryExpander.IsExpanded = SettingControl.LibraryExpanderIsExpand;
+            DeviceExpander.IsExpanded = SettingControl.DeviceExpanderIsExpand;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -969,14 +970,16 @@ namespace RX_Explorer
             }
         }
 
-        private void LibraryExpander_Expanded(object sender, EventArgs e)
+        private async void LibraryExpander_Expanded(object sender, EventArgs e)
         {
             SettingControl.LibraryExpanderIsExpand = true;
+            await CommonAccessCollection.LoadLibraryFoldersAsync();
         }
 
-        private void DeviceExpander_Expanded(object sender, EventArgs e)
+        private async void DeviceExpander_Expanded(object sender, EventArgs e)
         {
             SettingControl.DeviceExpanderIsExpand = true;
+            await CommonAccessCollection.LoadDeviceAsync();
         }
     }
 }

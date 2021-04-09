@@ -819,51 +819,58 @@ namespace FullTrustProcess
                                 StorageFile InterceptFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Intercept_WIN_E.reg"));
                                 StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("Intercept_WIN_E_Temp.reg", CreationCollisionOption.ReplaceExisting);
 
-                                using (Stream FileStream = await InterceptFile.OpenStreamForReadAsync().ConfigureAwait(true))
-                                using (StreamReader Reader = new StreamReader(FileStream))
+                                try
                                 {
-                                    string Content = await Reader.ReadToEndAsync().ConfigureAwait(true);
-
-                                    using (Stream TempStream = await TempFile.OpenStreamForWriteAsync())
-                                    using (StreamWriter Writer = new StreamWriter(TempStream, Encoding.Unicode))
+                                    using (Stream FileStream = await InterceptFile.OpenStreamForReadAsync().ConfigureAwait(true))
+                                    using (StreamReader Reader = new StreamReader(FileStream))
                                     {
-                                        await Writer.WriteAsync(Content.Replace("<FillActualAliasPathInHere>", $"{AliasLocation.Replace(@"\", @"\\")} %1"));
-                                    }
-                                }
+                                        string Content = await Reader.ReadToEndAsync().ConfigureAwait(true);
 
-                                using (Process RegisterProcess = new Process())
-                                {
-                                    RegisterProcess.StartInfo.FileName = TempFile.Path;
-                                    RegisterProcess.StartInfo.UseShellExecute = true;
-                                    RegisterProcess.Start();
-
-                                    SetWindowsZPosition(RegisterProcess);
-                                    RegisterProcess.WaitForExit();
-                                }
-
-                                RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("shell", false)?.OpenSubKey("opennewwindow", false)?.OpenSubKey("command", false);
-
-                                if (Key != null)
-                                {
-                                    try
-                                    {
-                                        if (Convert.ToString(Key.GetValue(string.Empty)) == $"{AliasLocation} %1" && Key.GetValue("DelegateExecute") == null)
+                                        using (Stream TempStream = await TempFile.OpenStreamForWriteAsync())
+                                        using (StreamWriter Writer = new StreamWriter(TempStream, Encoding.Unicode))
                                         {
-                                            Value.Add("Success", string.Empty);
-                                        }
-                                        else
-                                        {
-                                            Value.Add("Error", "Registry verification failed");
+                                            await Writer.WriteAsync(Content.Replace("<FillActualAliasPathInHere>", $"{AliasLocation.Replace(@"\", @"\\")} %1"));
                                         }
                                     }
-                                    finally
+
+                                    using (Process RegisterProcess = new Process())
                                     {
-                                        Key.Dispose();
+                                        RegisterProcess.StartInfo.FileName = TempFile.Path;
+                                        RegisterProcess.StartInfo.UseShellExecute = true;
+                                        RegisterProcess.Start();
+
+                                        SetWindowsZPosition(RegisterProcess);
+                                        RegisterProcess.WaitForExit();
+                                    }
+
+                                    RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("shell", false)?.OpenSubKey("opennewwindow", false)?.OpenSubKey("command", false);
+
+                                    if (Key != null)
+                                    {
+                                        try
+                                        {
+                                            if (Convert.ToString(Key.GetValue(string.Empty)) == $"{AliasLocation} %1" && Key.GetValue("DelegateExecute") == null)
+                                            {
+                                                Value.Add("Success", string.Empty);
+                                            }
+                                            else
+                                            {
+                                                Value.Add("Error", "Registry verification failed");
+                                            }
+                                        }
+                                        finally
+                                        {
+                                            Key.Dispose();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Value.Add("Success", string.Empty);
                                     }
                                 }
-                                else
+                                finally
                                 {
-                                    Value.Add("Success", string.Empty);
+                                    await TempFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
                                 }
                             }
                             else

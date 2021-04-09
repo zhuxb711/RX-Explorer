@@ -1,0 +1,36 @@
+﻿*****
+###Was ist neu in Ver.6.2.7.0
+
+#####Funktionsaktualisierung
+
+>#####"Aufgabenliste" hinzugefügt, jetzt werden die dateibezogenen Vorgänge nicht mehr im Vollbildmodus angezeigt
+
+>#####Die Logik des USB-Geräteverwaltungsmoduls wurde überarbeitet
+
+#####UI-Update
+
+>#####Für alle Dateitypen muss das Standardprogramm nicht mehr im Voraus angegeben werden [PR # 148] (https://github.com/zhuxb711/RX-Explorer/pull/148).
+
+>#####Jetzt wird die ausgewählte Datei im "Singel Click" -Modus um 800 ms verzögert
+
+>#####Unterstützung für "Deutsch" hinzugefügt
+
+#####Leistungsverbesserung
+
+>#####Verzögert den Ladezeitpunkt jedes Elements der Hauptschnittstelle, und der reduzierte Bereich wird beim Start nicht geladen
+
+>#####Verbessert die Suchgeschwindigkeit der integrierten Suchmaschine und reduziert unnötige Vorgänge
+
+#####Fehlerbehebung
+
+>#####Einige Probleme beim Komprimieren und Dekomprimieren von Tar-Dateien wurden behoben
+
+>#####Das Problem, dass die Adressleiste einen Absturz verursachen kann, wurde behoben
+
+>#####Das Problem, dass USB-Geräte möglicherweise nicht ausgeworfen werden, wurde behoben
+
+>#####Es wurde das Problem behoben, dass die Startanimation in einigen Fällen nach Verwendung von "Letzte Registerkarte öffnen" fehlschlägt.
+
+>#####Es wurde das Problem behoben, dass die Datei möglicherweise nicht im Standardcodierungsformat dekomprimiert wurde
+
+>#####Einige Übersetzungsprobleme wurden behoben

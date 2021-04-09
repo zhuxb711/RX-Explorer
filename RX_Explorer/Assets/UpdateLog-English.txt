@@ -1,4 +1,41 @@
 ﻿*****
+###What's new in Ver.6.2.7.0
+
+#####Feature update
+
+>#####Added "Task List", now the file-related operations will not be displayed in full screen mode
+
+>#####Refactored the logic of the USB device management module
+
+#####UI update
+
+>#####Now for all types of files, there is no need to specify the default program in advance [PR #148](https://github.com/zhuxb711/RX-Explorer/pull/148)
+
+>#####Now the selected file will be delayed 800ms in "Singel Click" mode
+
+>#####Added support for "German"
+
+#####Performance improvement
+
+>#####Delays the loading timing of each element of the main interface, and the collapsed area will not be loaded at startup
+
+>#####Improves the search speed of the built-in search engine and reduces unnecessary operations
+
+#####Bug fix
+
+>#####Fixed some problems when compressing and decompressing Tar files
+
+>#####Fixed the problem that the address bar may cause a crash
+
+>#####Fixed the problem that USB devices may not be ejected
+
+>#####Fixed the problem that the startup animation may fail in some cases after using "Open last tab"
+
+>#####Fixed the problem that the file may not be decompressed in the default encoding format
+
+>#####Fixed some translation problems
+
+*****
 ###What's new in Ver.6.2.3.0
 
 #####Feature update

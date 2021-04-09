@@ -44,7 +44,7 @@ namespace RX_Explorer
             CoreWindow.GetForCurrentThread().KeyDown += TabViewContainer_KeyDown;
             CommonAccessCollection.LibraryNotFound += CommonAccessCollection_LibraryNotFound;
             QueueFileOperationController.ListItemSource.CollectionChanged += ListItemSource_CollectionChanged;
-            
+
             if (ApplicationData.Current.LocalSettings.Values["ShouldPinTaskList"] is bool ShouldPin)
             {
                 if (ShouldPin)
@@ -354,7 +354,24 @@ namespace RX_Explorer
                     await CreateNewTabAsync(MainPage.ThisPage.ActivatePathArray);
                 }
 
-                await Task.WhenAll(CommonAccessCollection.LoadQuickStartItemsAsync(), CommonAccessCollection.LoadDeviceAsync(), CommonAccessCollection.LoadLibraryFoldersAsync()).ConfigureAwait(false);
+                List<Task> LoadTaskList = new List<Task>(3);
+
+                if (SettingControl.LibraryExpanderIsExpand)
+                {
+                    LoadTaskList.Add(CommonAccessCollection.LoadLibraryFoldersAsync());
+                }
+                
+                if (SettingControl.DeviceExpanderIsExpand)
+                {
+                    LoadTaskList.Add(CommonAccessCollection.LoadDeviceAsync());
+                }
+                
+                if (SettingControl.IsQuickStartExpanded)
+                {
+                    LoadTaskList.Add(CommonAccessCollection.LoadQuickStartItemsAsync());
+                }
+
+                await Task.WhenAll(LoadTaskList).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -827,7 +844,7 @@ namespace RX_Explorer
 
         private void CancelTaskButton_Click(object sender, RoutedEventArgs e)
         {
-            if(((Button)sender).DataContext is OperationListBaseModel Model)
+            if (((Button)sender).DataContext is OperationListBaseModel Model)
             {
                 Model.UpdateStatus(OperationStatus.Cancel);
             }

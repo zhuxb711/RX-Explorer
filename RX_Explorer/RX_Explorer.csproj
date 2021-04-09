@@ -12,7 +12,7 @@
     <AssemblyName>RX_Explorer</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <AppxBundleAutoResourcePackageQualifiers>Scale|DXFeatureLevel</AppxBundleAutoResourcePackageQualifiers>
-    <AppxDefaultResourceQualifiers>Language=en-US;fr-FR;zh-Hans;zh-Hant;es</AppxDefaultResourceQualifiers>
+    <AppxDefaultResourceQualifiers>Language=en-US;fr-FR;zh-Hans;zh-Hant;es;de-DE</AppxDefaultResourceQualifiers>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.19041.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>10.0.18362.0</TargetPlatformMinVersion>
@@ -398,12 +398,14 @@
     <Content Include="Assets\IntroFile-Chinese_T.txt" />
     <Content Include="Assets\IntroFile-English.txt" />
     <Content Include="Assets\IntroFile-French.txt" />
+    <Content Include="Assets\IntroFile-German.txt" />
     <Content Include="Assets\IntroFile-Spanish.txt" />
     <Content Include="Assets\Lock.png" />
     <Content Include="Assets\LockFile.png" />
     <Content Include="Assets\Page_Solid_Black.png" />
     <Content Include="Assets\Page_Solid_White.png" />
     <Content Include="Assets\RX-icon.png" />
+    <Content Include="Assets\SAIntro_de.png" />
     <Content Include="Assets\SAIntro_es.png" />
     <Content Include="Assets\SAIntro_cn_s.png" />
     <Content Include="Assets\SAIntro_cn_t.png" />
@@ -413,6 +415,7 @@
     <Content Include="Assets\UpdateLog-Chinese_T.txt" />
     <Content Include="Assets\UpdateLog-English.txt" />
     <Content Include="Assets\UpdateLog-French.txt" />
+    <Content Include="Assets\UpdateLog-German.txt" />
     <Content Include="Assets\UpdateLog-Spanish.txt" />
     <Content Include="CustomImage\Picture10.jpg" />
     <Content Include="CustomImage\Picture15.jpg" />
@@ -498,6 +501,7 @@
     <Content Include="Assets\Square44x44Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+    <PRIResource Include="Strings\de-DE\Resources.resw" />
     <PRIResource Include="Strings\es\Resources.resw" />
     <PRIResource Include="Strings\zh-Hant\Resources.resw" />
     <PRIResource Include="Strings\en-US\Resources.resw">
@@ -815,6 +819,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <XliffResource Include="MultilingualResources\RX_Explorer.de-DE.xlf" />
     <XliffResource Include="MultilingualResources\RX_Explorer.es.xlf" />
     <XliffResource Include="MultilingualResources\RX_Explorer.fr-FR.xlf" />
     <XliffResource Include="MultilingualResources\RX_Explorer.zh-Hans.xlf" />

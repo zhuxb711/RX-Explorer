@@ -96,7 +96,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30"/>
                     <RowDefinition />
-                    <RowDefinition Height="80"/>
+                    <RowDefinition MaxHeight="100"/>
                 </Grid.RowDefinitions>
                 <RelativePanel>
                     <TextBlock Text="任务列表"

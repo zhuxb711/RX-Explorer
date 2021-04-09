@@ -11,6 +11,7 @@ namespace RX_Explorer.Dialog
             InitializeComponent();
 
             StorageFile IntroFile = null;
+
             switch (Globalization.CurrentLanguage)
             {
                 case LanguageEnum.Chinese_Simplified:
@@ -36,6 +37,11 @@ namespace RX_Explorer.Dialog
                 case LanguageEnum.Spanish:
                     {
                         IntroFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/IntroFile-Spanish.txt")).AsTask().Result;
+                        break;
+                    }
+                case LanguageEnum.German:
+                    {
+                        IntroFile = StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/IntroFile-German.txt")).AsTask().Result;
                         break;
                     }
             }

@@ -1,0 +1,24 @@
+﻿###Sicherer Bereich
+
+*****
+####Die Sicherheitsdomäne bietet einen auf dem AES-Verschlüsselungsmechanismus basierenden Dateisicher und unterstützt Windows Hello vollständig für die Identitätsauthentifizierung
+
+![Lokales Image](/Assets/SAIntro_de.png)
+
+###Sicherheitsfunktionen
+
+*****
+####Bietet einstellbare Optionen für die Sicherheitsstufe, um die Dateisicherheit zu gewährleisten
+
++ Kostenlose einstellbare Sicherheitsverschlüsselungsstufe
+
++ Unterstützt die Windows Hello-Authentifizierung
+
++ Beschleunigen Sie die Ver- und Entschlüsselung mit Hardware-AES-NI-Anweisungen
+
++ Blockieren Sie den Zugriff und das Extrahieren anderer Software
+
+*****
+###Diese Funktion ist eine zusätzliche Funktion, die nach einer Spende an den Entwickler freigeschaltet werden kann
+###Diese Funktion ist nach dem Entsperren permanent aktiv
+###Klicken Sie auf ↓↓↓ Entsperren

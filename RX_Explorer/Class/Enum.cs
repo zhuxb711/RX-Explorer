@@ -293,7 +293,9 @@ namespace RX_Explorer.Class
         /// </summary>
         Chinese_Traditional = 8,
 
-        Spanish = 16
+        Spanish = 16,
+
+        German = 32
     }
 
     /// <summary>

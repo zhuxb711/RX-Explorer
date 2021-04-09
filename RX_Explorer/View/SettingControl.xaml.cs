@@ -67,7 +67,7 @@ namespace RX_Explorer
 
         public static bool IsDetachTreeViewAndPresenter
         {
-            get 
+            get
             {
                 if (ApplicationData.Current.LocalSettings.Values["DetachTreeViewAndPresenter"] is bool IsDetach)
                 {
@@ -122,6 +122,25 @@ namespace RX_Explorer
             private set
             {
                 ApplicationData.Current.LocalSettings.Values["DisplayHiddenItem"] = value;
+            }
+        }
+
+        public static bool IsQuickStartExpanded
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] is bool Enable)
+                {
+                    return Enable;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = value;
             }
         }
 
@@ -269,6 +288,7 @@ namespace RX_Explorer
                 LanguageComboBox.Items.Add("Français");
                 LanguageComboBox.Items.Add("中文(繁體)");
                 LanguageComboBox.Items.Add("Español");
+                LanguageComboBox.Items.Add("Deutsche");
 
                 FolderOpenMethod.Items.Add(Globalization.GetString("Folder_Open_Method_2"));
                 FolderOpenMethod.Items.Add(Globalization.GetString("Folder_Open_Method_1"));
@@ -1355,16 +1375,18 @@ namespace RX_Explorer
             FeedBackTip.IsOpen = true;
         }
 
-        private void OpenLeftArea_Toggled(object sender, RoutedEventArgs e)
+        private async void OpenLeftArea_Toggled(object sender, RoutedEventArgs e)
         {
-            ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = OpenLeftArea.IsOn;
+            IsQuickStartExpanded = OpenLeftArea.IsOn;
 
-            foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabCollection)
+            if (TabViewContainer.CurrentNavigationControl?.Content is ThisPC PC)
             {
-                if ((Tab.Content as Frame)?.Content is ThisPC PC)
-                {
-                    PC.LeftSideCol.Width = OpenLeftArea.IsOn ? new GridLength(2.5, GridUnitType.Star) : new GridLength(0);
-                }
+                PC.LeftSideCol.Width = OpenLeftArea.IsOn ? new GridLength(2.5, GridUnitType.Star) : new GridLength(0);
+            }
+
+            if (OpenLeftArea.IsOn)
+            {
+                await CommonAccessCollection.LoadQuickStartItemsAsync();
             }
 
             ApplicationData.Current.SignalDataChanged();
@@ -2066,6 +2088,19 @@ namespace RX_Explorer
                     case 4:
                         {
                             if (Globalization.SwitchTo(LanguageEnum.Spanish))
+                            {
+                                LanguageRestartTip.Visibility = Visibility.Visible;
+                            }
+                            else
+                            {
+                                LanguageRestartTip.Visibility = Visibility.Collapsed;
+                            }
+
+                            break;
+                        }
+                    case 5:
+                        {
+                            if (Globalization.SwitchTo(LanguageEnum.German))
                             {
                                 LanguageRestartTip.Visibility = Visibility.Visible;
                             }
