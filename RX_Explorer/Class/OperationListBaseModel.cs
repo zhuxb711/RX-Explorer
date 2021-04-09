@@ -9,9 +9,9 @@ namespace RX_Explorer.Class
     {
         public abstract string OperationKindText { get; }
 
-        public abstract string[] FromPath { get; }
+        public string[] FromPath { get; }
 
-        public abstract string ToPath { get; }
+        public string ToPath { get; }
 
         public virtual string FromPathText
         {
@@ -162,10 +162,13 @@ namespace RX_Explorer.Class
             this.Status = Status;
         }
 
-        public OperationListBaseModel(EventHandler OnCompleted)
+        public OperationListBaseModel(string[] FromPath, string ToPath, EventHandler OnCompleted)
         {
             Status = OperationStatus.Waiting;
             ProgressIndeterminate = true;
+
+            this.FromPath = FromPath;
+            this.ToPath = ToPath;
             this.OnCompleted = OnCompleted;
         }
     }

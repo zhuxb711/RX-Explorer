@@ -2111,10 +2111,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Checking license...</source>
           <target state="translated">正在检测许可证...</target>
         </trans-unit>
-        <trans-unit id="Progress_Tip_Compressing" translate="yes" xml:space="preserve">
-          <source>Compressing</source>
-          <target state="translated">正在压缩</target>
-        </trans-unit>
         <trans-unit id="Progress_Tip_Deleting" translate="yes" xml:space="preserve">
           <source>Deleting</source>
           <target state="translated">正在删除</target>
@@ -2122,10 +2118,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
         <trans-unit id="Progress_Tip_Exporting" translate="yes" xml:space="preserve">
           <source>Exporting</source>
           <target state="translated">正在导出</target>
-        </trans-unit>
-        <trans-unit id="Progress_Tip_Extracting" translate="yes" xml:space="preserve">
-          <source>Extracting</source>
-          <target state="translated">正在解压</target>
         </trans-unit>
         <trans-unit id="Progress_Tip_Importing" translate="yes" xml:space="preserve">
           <source>Importing</source>
@@ -2228,14 +2220,12 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_CompressionError_Content" translate="yes" xml:space="preserve">
-          <source>An exception occurred while compressing the file\r\rError Message：\r\r</source>
-          <target state="translated">压缩文件时发生异常\r\r错误信息：\r\r</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>An exception occurred while compressing the file</source>
+          <target state="translated">压缩文件时发生异常</target>
         </trans-unit>
         <trans-unit id="QueueDialog_DecompressionError_Content" translate="yes" xml:space="preserve">
-          <source>An exception occurred while extracting the file\r\rError Message：\r\r</source>
-          <target state="translated">解压文件时发生异常\r\r错误信息：\r\r</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>An exception occurred while extracting the file</source>
+          <target state="translated">解压文件时发生异常</target>
         </trans-unit>
         <trans-unit id="QueueDialog_DecryptError_Content" translate="yes" xml:space="preserve">
           <source>An unexpected error occurred while decrypting the file, the export process has ended</source>
@@ -4077,6 +4067,14 @@ Invalid names include
         <trans-unit id="TaskListAlwaysOpenPanel.Text" translate="yes" xml:space="preserve">
           <source>Always pops up the panel after a new task was created</source>
           <target state="translated">创建新任务后总是弹出此面板</target>
+        </trans-unit>
+        <trans-unit id="TaskList_OperationKind_Compression" translate="yes" xml:space="preserve">
+          <source>Compression task</source>
+          <target state="translated">压缩任务</target>
+        </trans-unit>
+        <trans-unit id="TaskList_OperationKind_Decompression" translate="yes" xml:space="preserve">
+          <source>Decompression task</source>
+          <target state="translated">解压任务</target>
         </trans-unit>
       </group>
     </body>

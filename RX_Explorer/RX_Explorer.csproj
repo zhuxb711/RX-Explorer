@@ -172,7 +172,9 @@
     <Compile Include="Class\FilterController.cs" />
     <Compile Include="Class\GroupItemBase.cs" />
     <Compile Include="Class\OperationListBaseModel.cs" />
+    <Compile Include="Class\OperationListCompressionModel.cs" />
     <Compile Include="Class\OperationListCopyModel.cs" />
+    <Compile Include="Class\OperationListDecompressionModel.cs" />
     <Compile Include="Class\OperationListDeleteModel.cs" />
     <Compile Include="Class\OperationListMoveModel.cs" />
     <Compile Include="Class\OperationListRemoteModel.cs" />

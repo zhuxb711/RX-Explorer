@@ -148,6 +148,8 @@ namespace RX_Explorer.Class
     /// </summary>
     public enum CompressionLevel
     {
+        Undefine = -1,
+
         /// <summary>
         /// 最大
         /// </summary>

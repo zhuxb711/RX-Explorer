@@ -14,10 +14,6 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override string[] FromPath { get; }
-
-        public override string ToPath { get; }
-
         public override string ToPathText
         {
             get
@@ -26,9 +22,8 @@ namespace RX_Explorer.Class
             }
         }
 
-        public OperationListDeleteModel(string[] DeleteFrom, bool IsPermanentDelete, EventHandler OnCompleted = null) : base(OnCompleted)
+        public OperationListDeleteModel(string[] DeleteFrom, bool IsPermanentDelete, EventHandler OnCompleted = null) : base(DeleteFrom, null, OnCompleted)
         {
-            FromPath = DeleteFrom;
             this.IsPermanentDelete = IsPermanentDelete;
         }
     }

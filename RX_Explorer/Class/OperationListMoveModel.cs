@@ -12,14 +12,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override string[] FromPath { get; }
-
-        public override string ToPath { get; }
-
-        public OperationListMoveModel(string[] FromPath, string ToPath, EventHandler OnCompleted = null) : base(OnCompleted)
+        public OperationListMoveModel(string[] FromPath, string ToPath, EventHandler OnCompleted = null) : base(FromPath, ToPath, OnCompleted)
         {
-            this.FromPath = FromPath;
-            this.ToPath = ToPath;
+
         }
     }
 }

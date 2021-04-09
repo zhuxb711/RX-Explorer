@@ -1665,17 +1665,11 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="Progress_Tip_CheckingLicense" xml:space="preserve">
     <value>Comprobando licencia...</value>
   </data>
-  <data name="Progress_Tip_Compressing" xml:space="preserve">
-    <value>Comprimiendo</value>
-  </data>
   <data name="Progress_Tip_Deleting" xml:space="preserve">
     <value>Eliminando</value>
   </data>
   <data name="Progress_Tip_Exporting" xml:space="preserve">
     <value>Exportando</value>
-  </data>
-  <data name="Progress_Tip_Extracting" xml:space="preserve">
-    <value>Extrayendo</value>
   </data>
   <data name="Progress_Tip_Importing" xml:space="preserve">
     <value>Importando</value>
@@ -1754,12 +1748,10 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_CompressionError_Content" xml:space="preserve">
-    <value>Se ha producido una excepción al comprimir el archivo.\r\rMensaje de error: \r\r</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>Se ha producido una excepción al comprimir el archivo</value>
   </data>
   <data name="QueueDialog_DecompressionError_Content" xml:space="preserve">
-    <value>Se ha producido una excepción al descomprimir el archivo.\r\rMensaje de error: \r\r</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>Se ha producido una excepción al descomprimir el archivo</value>
   </data>
   <data name="QueueDialog_DecryptError_Content" xml:space="preserve">
     <value>Se ha producido un error inesperado al descifrar el archivo; el proceso de exportación ha finalizado.</value>
@@ -3072,5 +3064,11 @@ Las denominaciones no válidas son:
   </data>
   <data name="TaskListAlwaysOpenPanel.Text" xml:space="preserve">
     <value>Siempre aparece el panel después de crear una nueva tarea</value>
+  </data>
+  <data name="TaskList_OperationKind_Compression" xml:space="preserve">
+    <value>Tarea de compresión</value>
+  </data>
+  <data name="TaskList_OperationKind_Decompression" xml:space="preserve">
+    <value>Tarea de descompresión</value>
   </data>
 </root>

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
@@ -89,20 +90,7 @@ namespace RX_Explorer.Class
 
         public static void EnqueueCopyOpeartion(IEnumerable<string> FromPath, string ToPath, EventHandler OnCompleted = null)
         {
-            OperationListCopyModel CopyModel = new OperationListCopyModel(FromPath.ToArray(), ToPath, OnCompleted);
-
-            ListItemSource.Insert(0, CopyModel);
-            OpeartionQueue.Enqueue(CopyModel);
-
-            if (OpenPanelWhenTaskIsCreated)
-            {
-                TabViewContainer.ThisPage.TaskListPanel.IsPaneOpen = true;
-            }
-
-            if (QueueProcessThread.ThreadState.HasFlag(ThreadState.WaitSleepJoin))
-            {
-                QueueProcessSleepLocker.Set();
-            }
+            EnqueueModelCore(new OperationListCopyModel(FromPath.ToArray(), ToPath, OnCompleted));
         }
 
         public static void EnqueueMoveOpeartion(string FromPath, string ToPath, EventHandler OnCompleted = null)
@@ -112,20 +100,7 @@ namespace RX_Explorer.Class
 
         public static void EnqueueMoveOpeartion(IEnumerable<string> FromPath, string ToPath, EventHandler OnCompleted = null)
         {
-            OperationListMoveModel MoveModel = new OperationListMoveModel(FromPath.ToArray(), ToPath, OnCompleted);
-
-            ListItemSource.Insert(0, MoveModel);
-            OpeartionQueue.Enqueue(MoveModel);
-
-            if (OpenPanelWhenTaskIsCreated)
-            {
-                TabViewContainer.ThisPage.TaskListPanel.IsPaneOpen = true;
-            }
-
-            if (QueueProcessThread.ThreadState.HasFlag(ThreadState.WaitSleepJoin))
-            {
-                QueueProcessSleepLocker.Set();
-            }
+            EnqueueModelCore(new OperationListMoveModel(FromPath.ToArray(), ToPath, OnCompleted));
         }
 
         public static void EnqueueDeleteOpeartion(string DeleteFrom, bool IsPermanentDelete, EventHandler OnCompleted = null)
@@ -135,20 +110,27 @@ namespace RX_Explorer.Class
 
         public static void EnqueueDeleteOpeartion(IEnumerable<string> DeleteFrom, bool IsPermanentDelete, EventHandler OnCompleted = null)
         {
-            OperationListDeleteModel DeleteModel = new OperationListDeleteModel(DeleteFrom.ToArray(), IsPermanentDelete, OnCompleted);
+            EnqueueModelCore(new OperationListDeleteModel(DeleteFrom.ToArray(), IsPermanentDelete, OnCompleted));
+        }
 
-            ListItemSource.Insert(0, DeleteModel);
-            OpeartionQueue.Enqueue(DeleteModel);
+        public static void EnqueueCompressionOpeartion(CompressionType Type, CompressionLevel Level, string FromPath, string ToPath = null, EventHandler OnCompleted = null)
+        {
+            EnqueueCompressionOpeartion(Type, Level, new string[] { FromPath }, ToPath, OnCompleted);
+        }
 
-            if (OpenPanelWhenTaskIsCreated)
-            {
-                TabViewContainer.ThisPage.TaskListPanel.IsPaneOpen = true;
-            }
+        public static void EnqueueCompressionOpeartion(CompressionType Type, CompressionLevel Level, IEnumerable<string> FromPath, string ToPath = null, EventHandler OnCompleted = null)
+        {
+            EnqueueModelCore(new OperationListCompressionModel(Type, Level, FromPath.ToArray(), ToPath, OnCompleted));
+        }
 
-            if (QueueProcessThread.ThreadState.HasFlag(ThreadState.WaitSleepJoin))
-            {
-                QueueProcessSleepLocker.Set();
-            }
+        public static void EnqueueDecompressionOpeartion(string FromPath, string ToPath = null, Encoding Encoding = null, EventHandler OnCompleted = null)
+        {
+            EnqueueDecompressionOpeartion(new string[] { FromPath }, ToPath, Encoding, OnCompleted);
+        }
+
+        public static void EnqueueDecompressionOpeartion(IEnumerable<string> FromPath, string ToPath = null, Encoding Encoding = null, EventHandler OnCompleted = null)
+        {
+            EnqueueModelCore(new OperationListDecompressionModel(FromPath.ToArray(), ToPath, Encoding, OnCompleted));
         }
 
         public static void EnqueueUndoOpeartion(OperationKind UndoKind, string FromPath, string ToPath = null, EventHandler OnCompleted = null)
@@ -158,10 +140,13 @@ namespace RX_Explorer.Class
 
         public static void EnqueueUndoOpeartion(OperationKind UndoKind, IEnumerable<string> FromPath, string ToPath = null, EventHandler OnCompleted = null)
         {
-            OperationListUndoModel UndoModel = new OperationListUndoModel(UndoKind, FromPath.ToArray(), ToPath, OnCompleted);
+            EnqueueModelCore(new OperationListUndoModel(UndoKind, FromPath.ToArray(), ToPath, OnCompleted));
+        }
 
-            ListItemSource.Insert(0, UndoModel);
-            OpeartionQueue.Enqueue(UndoModel);
+        private static void EnqueueModelCore(OperationListBaseModel Model)
+        {
+            ListItemSource.Insert(0, Model);
+            OpeartionQueue.Enqueue(Model);
 
             if (OpenPanelWhenTaskIsCreated)
             {
@@ -193,66 +178,96 @@ namespace RX_Explorer.Class
                             continue;
                         }
 
-                        if (FullTrustProcessController.AvailableControllerNum > FullTrustProcessController.DynamicBackupProcessNum)
+                        switch (Model)
                         {
-                            FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableController().Result;
-
-                            if (FullTrustProcessController.AvailableControllerNum >= FullTrustProcessController.DynamicBackupProcessNum)
-                            {
-                                if (AllowParalledExecution)
+                            case OperationListCompressionModel:
+                            case OperationListDecompressionModel:
                                 {
-                                    Thread SubThread = new Thread((input) =>
+                                    if (AllowParalledExecution)
                                     {
-                                        if (input is (FullTrustProcessController.ExclusiveUsage Exclusive, OperationListBaseModel Model))
+                                        Thread SubThread = new Thread((input) =>
                                         {
-                                            try
+                                            if (input is OperationListBaseModel Model)
                                             {
-                                                ExecuteTaskCore(Exclusive, Model);
+                                                ExecuteTaskCore(Model);
                                             }
-                                            catch (Exception ex)
+                                        });
+
+                                        SubThread.Start(Model);
+                                    }
+                                    else
+                                    {
+                                        ExecuteTaskCore(Model);
+                                    }
+
+                                    break;
+                                }
+                            default:
+                                {
+                                    if (FullTrustProcessController.AvailableControllerNum > FullTrustProcessController.DynamicBackupProcessNum)
+                                    {
+                                        FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableController().Result;
+
+                                        if (FullTrustProcessController.AvailableControllerNum >= FullTrustProcessController.DynamicBackupProcessNum)
+                                        {
+                                            if (AllowParalledExecution)
                                             {
-                                                LogTracer.Log(ex, "A subthread in Task List threw an exception");
+                                                Thread SubThread = new Thread((input) =>
+                                                {
+                                                    if (input is (FullTrustProcessController.ExclusiveUsage Exclusive, OperationListBaseModel Model))
+                                                    {
+                                                        try
+                                                        {
+                                                            ExecuteTaskCore(Exclusive, Model);
+                                                        }
+                                                        catch (Exception ex)
+                                                        {
+                                                            LogTracer.Log(ex, "A subthread in Task List threw an exception");
+                                                        }
+                                                        finally
+                                                        {
+                                                            Exclusive.Dispose();
+                                                        }
+                                                    }
+                                                })
+                                                {
+                                                    IsBackground = true,
+                                                    Priority = ThreadPriority.Normal
+                                                };
+
+                                                SubThread.Start((Exclusive, Model));
                                             }
-                                            finally
+                                            else
                                             {
-                                                Exclusive.Dispose();
+                                                try
+                                                {
+                                                    ExecuteTaskCore(Exclusive, Model);
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    LogTracer.Log(ex, "A subthread in Task List threw an exception");
+                                                }
+                                                finally
+                                                {
+                                                    Exclusive.Dispose();
+                                                }
                                             }
                                         }
-                                    })
+                                        else
+                                        {
+                                            Exclusive.Dispose();
+                                            //Give up execute, make sure the operation will not use DynamicBackupProcess
+                                            goto Retry;
+                                        }
+                                    }
+                                    else
                                     {
-                                        IsBackground = true,
-                                        Priority = ThreadPriority.Normal
-                                    };
+                                        Thread.Sleep(1000);
+                                        goto Retry;
+                                    }
 
-                                    SubThread.Start((Exclusive, Model));
+                                    break;
                                 }
-                                else
-                                {
-                                    try
-                                    {
-                                        ExecuteTaskCore(Exclusive, Model);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        LogTracer.Log(ex, "A subthread in Task List threw an exception");
-                                    }
-                                    finally
-                                    {
-                                        Exclusive.Dispose();
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                Exclusive.Dispose();
-                                //Give up execute, make sure the operation will not use DynamicBackupProcess
-                                goto Retry;
-                            }
-                        }
-                        else
-                        {
-                            Thread.Sleep(1000);
-                            goto Retry;
                         }
                     }
                 }
@@ -263,9 +278,220 @@ namespace RX_Explorer.Class
             }
         }
 
+        private static void ExecuteTaskCore(OperationListBaseModel Model)
+        {
+            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+            {
+                Model.UpdateStatus(OperationStatus.Processing);
+            }).AsTask().Wait();
+
+            switch (Model)
+            {
+                case OperationListCompressionModel CModel:
+                    {
+                        try
+                        {
+                            switch (CModel.Type)
+                            {
+                                case CompressionType.Zip:
+                                    {
+                                        CompressionUtil.CreateZipAsync(CModel.FromPath, CModel.ToPath, (int)CModel.Level, (s, e) =>
+                                        {
+                                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                            {
+                                                Model.UpdateProgress(e.ProgressPercentage);
+                                            }).AsTask().Wait();
+                                        }).Wait();
+
+                                        break;
+                                    }
+                                case CompressionType.Tar:
+                                    {
+                                        CompressionUtil.CreateTarAsync(CModel.FromPath, CModel.ToPath, (s, e) =>
+                                        {
+                                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                            {
+                                                Model.UpdateProgress(e.ProgressPercentage);
+                                            }).AsTask().Wait();
+                                        }).Wait();
+
+                                        break;
+                                    }
+                                case CompressionType.Gzip:
+                                    {
+                                        if (CModel.FromPath.Length == 1)
+                                        {
+                                            CompressionUtil.CreateGzipAsync(CModel.FromPath.First(), CModel.ToPath, (int)CModel.Level, (s, e) =>
+                                            {
+                                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                {
+                                                    Model.UpdateProgress(e.ProgressPercentage);
+                                                }).AsTask().Wait();
+                                            }).Wait();
+                                        }
+                                        else
+                                        {
+                                            throw new ArgumentException("Gzip could not contains more than one item");
+                                        }
+
+                                        break;
+                                    }
+                            }
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            {
+                                Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UnauthorizedCompression_Content"));
+                            }).AsTask().Wait();
+                        }
+                        catch (FileNotFoundException)
+                        {
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            {
+                                Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_LocateFileFailure_Content"));
+                            }).AsTask().Wait();
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, "Compression error");
+
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            {
+                                Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_CompressionError_Content"));
+                            }).AsTask().Wait();
+                        }
+
+                        break;
+                    }
+                case OperationListDecompressionModel DModel:
+                    {
+                        try
+                        {
+                            CompressionUtil.SetEncoding(DModel.Encoding);
+
+                            if (Model.FromPath.All((Item) => Path.GetExtension(Item).Equals(".zip", StringComparison.OrdinalIgnoreCase)))
+                            {
+                                if (string.IsNullOrEmpty(Model.ToPath))
+                                {
+                                    CompressionUtil.ExtractZipAsync(Model.FromPath, (s, e) =>
+                                    {
+                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            Model.UpdateProgress(e.ProgressPercentage);
+                                        }).AsTask().Wait();
+                                    }).Wait();
+                                }
+                                else
+                                {
+                                    CompressionUtil.ExtractZipAsync(Model.FromPath, Model.ToPath, (s, e) =>
+                                    {
+                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            Model.UpdateProgress(e.ProgressPercentage);
+                                        }).AsTask().Wait();
+                                    }).Wait();
+                                }
+                            }
+                            else if (Model.FromPath.All((Item) => Path.GetExtension(Item).Equals(".tar", StringComparison.OrdinalIgnoreCase)))
+                            {
+                                if (string.IsNullOrEmpty(Model.ToPath))
+                                {
+                                    CompressionUtil.ExtractTarAsync(Model.FromPath, (s, e) =>
+                                    {
+                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            Model.UpdateProgress(e.ProgressPercentage);
+                                        }).AsTask().Wait();
+                                    }).Wait();
+                                }
+                                else
+                                {
+                                    CompressionUtil.ExtractTarAsync(Model.FromPath, Model.ToPath, (s, e) =>
+                                    {
+                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            Model.UpdateProgress(e.ProgressPercentage);
+                                        }).AsTask().Wait();
+                                    }).Wait();
+                                }
+                            }
+                            else if (Model.FromPath.All((Item) => Path.GetExtension(Item).Equals(".gz", StringComparison.OrdinalIgnoreCase)))
+                            {
+                                if (string.IsNullOrEmpty(Model.ToPath))
+                                {
+                                    CompressionUtil.ExtractGZipAsync(Model.FromPath, (s, e) =>
+                                    {
+                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            Model.UpdateProgress(e.ProgressPercentage);
+                                        }).AsTask().Wait();
+                                    }).Wait();
+                                }
+                                else
+                                {
+                                    CompressionUtil.ExtractGZipAsync(Model.FromPath, Model.ToPath, (s, e) =>
+                                    {
+                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            Model.UpdateProgress(e.ProgressPercentage);
+                                        }).AsTask().Wait();
+                                    }).Wait();
+                                }
+                            }
+                            else
+                            {
+                                throw new Exception(Globalization.GetString("QueueDialog_FileTypeIncorrect_Content"));
+                            }
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            {
+                                Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"));
+                            }).AsTask().Wait();
+                        }
+                        catch (NotImplementedException)
+                        {
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            {
+                                Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_CanNotDecompressEncrypted_Content"));
+                            }).AsTask().Wait();
+                        }
+                        catch (FileNotFoundException)
+                        {
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            {
+                                Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_LocateFileFailure_Content"));
+                            }).AsTask().Wait();
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, "Decompression error");
+
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            {
+                                Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_DecompressionError_Content"));
+                            }).AsTask().Wait();
+                        }
+
+                        break;
+                    }
+            }
+
+            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+            {
+                if (Model.Status != OperationStatus.Error)
+                {
+                    Model.UpdateProgress(100);
+                    Model.UpdateStatus(OperationStatus.Complete);
+                }
+            }).AsTask().Wait();
+        }
+
         private static void ExecuteTaskCore(FullTrustProcessController.ExclusiveUsage Exclusive, OperationListBaseModel Model)
         {
-            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
             {
                 Model.UpdateStatus(OperationStatus.Processing);
             }).AsTask().Wait();
@@ -276,7 +502,7 @@ namespace RX_Explorer.Class
                     {
                         if (!Exclusive.Controller.PasteRemoteFile(Model.ToPath).Result)
                         {
-                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                             {
                                 Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"));
                             }).AsTask().Wait();
@@ -295,21 +521,23 @@ namespace RX_Explorer.Class
                         }
                         catch (FileNotFoundException)
                         {
-                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                             {
                                 Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"));
                             }).AsTask().Wait();
                         }
                         catch (InvalidOperationException)
                         {
-                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                             {
                                 Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"));
                             }).AsTask().Wait();
                         }
-                        catch
+                        catch (Exception ex)
                         {
-                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            LogTracer.Log(ex, "Copy failed for unexpected error");
+
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                             {
                                 Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"));
                             }).AsTask().Wait();
@@ -328,28 +556,30 @@ namespace RX_Explorer.Class
                         }
                         catch (FileNotFoundException)
                         {
-                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                             {
                                 Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_MoveFailForNotExist_Content"));
                             }).AsTask().Wait();
                         }
                         catch (FileCaputureException)
                         {
-                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                             {
                                 Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_Item_Captured_Content"));
                             }).AsTask().Wait();
                         }
                         catch (InvalidOperationException)
                         {
-                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                             {
                                 Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"));
                             }).AsTask().Wait();
                         }
-                        catch
+                        catch (Exception ex)
                         {
-                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            LogTracer.Log(ex, "Move failed for unexpected error");
+
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                             {
                                 Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_MoveFailUnexpectError_Content"));
                             }).AsTask().Wait();
@@ -368,28 +598,30 @@ namespace RX_Explorer.Class
                         }
                         catch (FileNotFoundException)
                         {
-                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                             {
                                 Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_DeleteItemError_Content"));
                             }).AsTask().Wait();
                         }
                         catch (FileCaputureException)
                         {
-                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                             {
                                 Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_Item_Captured_Content"));
                             }).AsTask().Wait();
                         }
                         catch (InvalidOperationException)
                         {
-                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                             {
                                 Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UnauthorizedDelete_Content"));
                             }).AsTask().Wait();
                         }
-                        catch
+                        catch (Exception ex)
                         {
-                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            LogTracer.Log(ex, "Delete failed for unexpected error");
+
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                             {
                                 Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_DeleteFailUnexpectError_Content"));
                             }).AsTask().Wait();
@@ -432,9 +664,11 @@ namespace RX_Explorer.Class
                                     }
                             }
                         }
-                        catch
+                        catch (Exception ex)
                         {
-                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            LogTracer.Log(ex, "Undo failed for unexpected error");
+
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                             {
                                 Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UndoFailure_Content"));
                             }).AsTask().Wait();
@@ -444,7 +678,7 @@ namespace RX_Explorer.Class
                     }
             }
 
-            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
             {
                 if (Model.Status != OperationStatus.Error)
                 {

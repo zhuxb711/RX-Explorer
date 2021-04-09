@@ -1597,17 +1597,11 @@
   <data name="Progress_Tip_CheckingLicense" xml:space="preserve">
     <value>正在检测许可证...</value>
   </data>
-  <data name="Progress_Tip_Compressing" xml:space="preserve">
-    <value>正在压缩</value>
-  </data>
   <data name="Progress_Tip_Deleting" xml:space="preserve">
     <value>正在删除</value>
   </data>
   <data name="Progress_Tip_Exporting" xml:space="preserve">
     <value>正在导出</value>
-  </data>
-  <data name="Progress_Tip_Extracting" xml:space="preserve">
-    <value>正在解压</value>
   </data>
   <data name="Progress_Tip_Importing" xml:space="preserve">
     <value>正在导入</value>
@@ -1686,12 +1680,10 @@
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_CompressionError_Content" xml:space="preserve">
-    <value>压缩文件时发生异常\r\r错误信息：\r\r</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>压缩文件时发生异常</value>
   </data>
   <data name="QueueDialog_DecompressionError_Content" xml:space="preserve">
-    <value>解压文件时发生异常\r\r错误信息：\r\r</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>解压文件时发生异常</value>
   </data>
   <data name="QueueDialog_DecryptError_Content" xml:space="preserve">
     <value>解密文件时出现意外错误，导出过程已经终止</value>
@@ -3072,5 +3064,11 @@
   </data>
   <data name="TaskListAlwaysOpenPanel.Text" xml:space="preserve">
     <value>创建新任务后总是弹出此面板</value>
+  </data>
+  <data name="TaskList_OperationKind_Compression" xml:space="preserve">
+    <value>压缩任务</value>
+  </data>
+  <data name="TaskList_OperationKind_Decompression" xml:space="preserve">
+    <value>解压任务</value>
   </data>
 </root>

@@ -14,11 +14,7 @@ namespace RX_Explorer.Class
 
         public OperationKind UndoOperationKind { get; }
 
-        public override string[] FromPath { get; }
-
-        public override string ToPath { get; }
-
-        public OperationListUndoModel(OperationKind UndoOperationKind, string[] FromPath, string ToPath = null, EventHandler OnCompleted = null) : base(OnCompleted)
+        public OperationListUndoModel(OperationKind UndoOperationKind, string[] FromPath, string ToPath = null, EventHandler OnCompleted = null) : base(FromPath, ToPath, OnCompleted)
         {
             if (UndoOperationKind == OperationKind.Move && string.IsNullOrWhiteSpace(ToPath))
             {
@@ -26,8 +22,6 @@ namespace RX_Explorer.Class
             }
 
             this.UndoOperationKind = UndoOperationKind;
-            this.FromPath = FromPath;
-            this.ToPath = ToPath;
         }
     }
 }

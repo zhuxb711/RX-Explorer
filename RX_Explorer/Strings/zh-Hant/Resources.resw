@@ -1616,17 +1616,11 @@
   <data name="Progress_Tip_CheckingLicense" xml:space="preserve">
     <value>檢查許可...</value>
   </data>
-  <data name="Progress_Tip_Compressing" xml:space="preserve">
-    <value>正在壓縮...</value>
-  </data>
   <data name="Progress_Tip_Deleting" xml:space="preserve">
     <value>正在刪除...</value>
   </data>
   <data name="Progress_Tip_Exporting" xml:space="preserve">
     <value>正在輸出...</value>
-  </data>
-  <data name="Progress_Tip_Extracting" xml:space="preserve">
-    <value>正在解壓縮...</value>
   </data>
   <data name="Progress_Tip_Importing" xml:space="preserve">
     <value>正在導入...</value>
@@ -1708,12 +1702,10 @@
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_CompressionError_Content" xml:space="preserve">
-    <value>壓縮檔案時時發生異常\r\r錯誤訊息：\r\r</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>壓縮檔案時時發生異常</value>
   </data>
   <data name="QueueDialog_DecompressionError_Content" xml:space="preserve">
-    <value>解壓縮檔案時時發生異常\r\r錯誤訊息：\r\r</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>解壓縮檔案時時發生異常</value>
   </data>
   <data name="QueueDialog_DecryptError_Content" xml:space="preserve">
     <value>解密檔案時發生意外錯誤</value>
@@ -3072,5 +3064,11 @@
   </data>
   <data name="TaskListAlwaysOpenPanel.Text" xml:space="preserve">
     <value>創建新任務後始終彈出面板</value>
+  </data>
+  <data name="TaskList_OperationKind_Compression" xml:space="preserve">
+    <value>壓縮任務</value>
+  </data>
+  <data name="TaskList_OperationKind_Decompression" xml:space="preserve">
+    <value>解壓任務</value>
   </data>
 </root>

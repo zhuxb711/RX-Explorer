@@ -1770,17 +1770,11 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="Progress_Tip_CheckingLicense" xml:space="preserve">
     <value>Checking license...</value>
   </data>
-  <data name="Progress_Tip_Compressing" xml:space="preserve">
-    <value>Compressing</value>
-  </data>
   <data name="Progress_Tip_Deleting" xml:space="preserve">
     <value>Deleting</value>
   </data>
   <data name="Progress_Tip_Exporting" xml:space="preserve">
     <value>Exporting</value>
-  </data>
-  <data name="Progress_Tip_Extracting" xml:space="preserve">
-    <value>Extracting</value>
   </data>
   <data name="Progress_Tip_Importing" xml:space="preserve">
     <value>Importing</value>
@@ -1859,12 +1853,10 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_CompressionError_Content" xml:space="preserve">
-    <value>An exception occurred while compressing the file\r\rError Message：\r\r</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>An exception occurred while compressing the file</value>
   </data>
   <data name="QueueDialog_DecompressionError_Content" xml:space="preserve">
-    <value>An exception occurred while extracting the file\r\rError Message：\r\r</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>An exception occurred while extracting the file</value>
   </data>
   <data name="QueueDialog_DecryptError_Content" xml:space="preserve">
     <value>An unexpected error occurred while decrypting the file, the export process has ended</value>
@@ -3177,5 +3169,11 @@ Invalid names include
   </data>
   <data name="TaskList_To_Label" xml:space="preserve">
     <value>To</value>
+  </data>
+  <data name="TaskList_OperationKind_Compression" xml:space="preserve">
+    <value>Compression task</value>
+  </data>
+  <data name="TaskList_OperationKind_Decompression" xml:space="preserve">
+    <value>Decompression task</value>
   </data>
 </root>

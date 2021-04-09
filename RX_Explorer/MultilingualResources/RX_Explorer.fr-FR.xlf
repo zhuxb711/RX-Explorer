@@ -2111,10 +2111,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Checking license...</source>
           <target state="translated">Vérification de la license...</target>
         </trans-unit>
-        <trans-unit id="Progress_Tip_Compressing" translate="yes" xml:space="preserve">
-          <source>Compressing</source>
-          <target state="translated">Compression en cours</target>
-        </trans-unit>
         <trans-unit id="Progress_Tip_Deleting" translate="yes" xml:space="preserve">
           <source>Deleting</source>
           <target state="translated">Suppression en cours</target>
@@ -2122,10 +2118,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="Progress_Tip_Exporting" translate="yes" xml:space="preserve">
           <source>Exporting</source>
           <target state="translated">Export en cours</target>
-        </trans-unit>
-        <trans-unit id="Progress_Tip_Extracting" translate="yes" xml:space="preserve">
-          <source>Extracting</source>
-          <target state="translated">Extraction en cours</target>
         </trans-unit>
         <trans-unit id="Progress_Tip_Importing" translate="yes" xml:space="preserve">
           <source>Importing</source>
@@ -2228,14 +2220,12 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
         </trans-unit>
         <trans-unit id="QueueDialog_CompressionError_Content" translate="yes" xml:space="preserve">
-          <source>An exception occurred while compressing the file\r\rError Message：\r\r</source>
-          <target state="translated">Une exception a été rencontré lors de la compression du fichier\r\rMessage d'Erreur：\r\r</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>An exception occurred while compressing the file</source>
+          <target state="translated">Une exception a été rencontré lors de la compression du fichier</target>
         </trans-unit>
         <trans-unit id="QueueDialog_DecompressionError_Content" translate="yes" xml:space="preserve">
-          <source>An exception occurred while extracting the file\r\rError Message：\r\r</source>
-          <target state="translated">Une exception a été rencontré lors de l'extraction du fichier\r\rMessage d'Erreur：\r\r</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Please keep all \r in this sentence after translate</note>
+          <source>An exception occurred while extracting the file</source>
+          <target state="translated">Une exception a été rencontré lors de l'extraction du fichier</target>
         </trans-unit>
         <trans-unit id="QueueDialog_DecryptError_Content" translate="yes" xml:space="preserve">
           <source>An unexpected error occurred while decrypting the file, the export process has ended</source>
@@ -4077,6 +4067,14 @@ Les noms non valides incluent
         <trans-unit id="TaskListAlwaysOpenPanel.Text" translate="yes" xml:space="preserve">
           <source>Always pops up the panel after a new task was created</source>
           <target state="translated">Affiche toujours le panneau après la création d'une nouvelle tâche</target>
+        </trans-unit>
+        <trans-unit id="TaskList_OperationKind_Compression" translate="yes" xml:space="preserve">
+          <source>Compression task</source>
+          <target state="translated">Tâche de compression</target>
+        </trans-unit>
+        <trans-unit id="TaskList_OperationKind_Decompression" translate="yes" xml:space="preserve">
+          <source>Decompression task</source>
+          <target state="translated">Tâche de décompression</target>
         </trans-unit>
       </group>
     </body>

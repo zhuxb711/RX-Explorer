@@ -14,7 +14,8 @@ namespace RX_Explorer.Dialog
 {
     public sealed partial class DecompressDialog : QueueContentDialog, INotifyPropertyChanged
     {
-        public Encoding CurrentEncoding { get; private set; }
+        public Encoding CurrentEncoding { get; private set; } = Encoding.Default;
+
         private readonly ObservableCollection<Encoding> AvailableEncoding;
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -1597,17 +1597,11 @@
   <data name="Progress_Tip_CheckingLicense" xml:space="preserve">
     <value>Vérification de la license...</value>
   </data>
-  <data name="Progress_Tip_Compressing" xml:space="preserve">
-    <value>Compression en cours</value>
-  </data>
   <data name="Progress_Tip_Deleting" xml:space="preserve">
     <value>Suppression en cours</value>
   </data>
   <data name="Progress_Tip_Exporting" xml:space="preserve">
     <value>Export en cours</value>
-  </data>
-  <data name="Progress_Tip_Extracting" xml:space="preserve">
-    <value>Extraction en cours</value>
   </data>
   <data name="Progress_Tip_Importing" xml:space="preserve">
     <value>Import en cours</value>
@@ -1686,12 +1680,10 @@
     <comment>Please keep all \r in this sentence after translate</comment>
   </data>
   <data name="QueueDialog_CompressionError_Content" xml:space="preserve">
-    <value>Une exception a été rencontré lors de la compression du fichier\r\rMessage d'Erreur：\r\r</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>Une exception a été rencontré lors de la compression du fichier</value>
   </data>
   <data name="QueueDialog_DecompressionError_Content" xml:space="preserve">
-    <value>Une exception a été rencontré lors de l'extraction du fichier\r\rMessage d'Erreur：\r\r</value>
-    <comment>Please keep all \r in this sentence after translate</comment>
+    <value>Une exception a été rencontré lors de l'extraction du fichier</value>
   </data>
   <data name="QueueDialog_DecryptError_Content" xml:space="preserve">
     <value>Une erreur inattendue s'est produite lors du déchiffrement du fichier, le processus d'exportation est terminé</value>
@@ -3072,5 +3064,11 @@ Les noms non valides incluent
   </data>
   <data name="TaskListAlwaysOpenPanel.Text" xml:space="preserve">
     <value>Affiche toujours le panneau après la création d'une nouvelle tâche</value>
+  </data>
+  <data name="TaskList_OperationKind_Compression" xml:space="preserve">
+    <value>Tâche de compression</value>
+  </data>
+  <data name="TaskList_OperationKind_Decompression" xml:space="preserve">
+    <value>Tâche de décompression</value>
   </data>
 </root>
