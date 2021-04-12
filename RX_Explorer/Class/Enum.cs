@@ -222,14 +222,6 @@ namespace RX_Explorer.Class
         /// 网站区域的快速启动项
         /// </summary>
         WebSite = 2,
-        /// <summary>
-        /// 指示此项用于更新应用区域
-        /// </summary>
-        UpdateApp = 4,
-        /// <summary>
-        /// 指示此向用于更新网站区域
-        /// </summary>
-        UpdateWeb = 8
     }
 
     /// <summary>

@@ -210,7 +210,7 @@ namespace RX_Explorer
                         break;
                     }
 
-                case FileActivatedEventArgs _:
+                case FileActivatedEventArgs:
                     {
                         if (!string.IsNullOrWhiteSpace(AppInstanceIdContainer.LastActiveId))
                         {

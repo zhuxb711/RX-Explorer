@@ -1990,14 +1990,12 @@ namespace RX_Explorer
 
                                 if (Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder.Path) == DriveFolder.Path)
                                 {
-                                    Control.FolderTree.SelectNodeAndScrollToVertical(RootNode);
-
                                     if (HasAnyFolder)
                                     {
                                         RootNode.IsExpanded = true;
-
-                                        await Control.FillTreeNodeAsync(RootNode);
                                     }
+
+                                    Control.FolderTree.SelectNodeAndScrollToVertical(RootNode);
                                 }
                             }
                         }

@@ -1103,36 +1103,6 @@
   <data name="EnDecode_Dialog_Content" xml:space="preserve">
     <value>Impossible de convertir le format de l'image en raison d'un codeur manquant ou d'une opération non prise en charge</value>
   </data>
-  <data name="GeneralTransformer_Crop_Cancel" xml:space="preserve">
-    <value>Le recadrage de la vidéo a été annulé</value>
-  </data>
-  <data name="GeneralTransformer_Crop_Error" xml:space="preserve">
-    <value>Erreur inconnue rencontrée lors du recadrage</value>
-  </data>
-  <data name="GeneralTransformer_Crop_Success" xml:space="preserve">
-    <value>Vidéo recadrée avec succès</value>
-  </data>
-  <data name="GeneralTransformer_Merge_Cancel" xml:space="preserve">
-    <value>La fusion de vidéos a été annulé</value>
-  </data>
-  <data name="GeneralTransformer_Merge_Error" xml:space="preserve">
-    <value>Erreur inconnue rencontrée lors de la fusion de vidéos</value>
-  </data>
-  <data name="GeneralTransformer_Merge_Success" xml:space="preserve">
-    <value>Vidéos fusionnées avec succès</value>
-  </data>
-  <data name="GeneralTransformer_Transcode_Cancel" xml:space="preserve">
-    <value>Opération de trancodage annulée</value>
-  </data>
-  <data name="GeneralTransformer_Transcode_Failure" xml:space="preserve">
-    <value>Le trancodage a échoué</value>
-  </data>
-  <data name="GeneralTransformer_Transcode_NotSupport" xml:space="preserve">
-    <value>Le format du transcodage n'est pas supporté</value>
-  </data>
-  <data name="GeneralTransformer_Transcode_Success" xml:space="preserve">
-    <value>Transcodage terminé avec succès</value>
-  </data>
   <data name="Merge_Toast_Cancel_Text_1" xml:space="preserve">
     <value>Opération de fusion a été annulée</value>
   </data>
@@ -1543,13 +1513,10 @@
     <value>Plus tard</value>
   </data>
   <data name="Toast_EnterBackground_Text_1" xml:space="preserve">
-    <value>Veuillez ne pas minimiser la fenêtre de RX Explorateur</value>
+    <value>RX-Explorer est minimisé</value>
   </data>
   <data name="Toast_EnterBackground_Text_2" xml:space="preserve">
-    <value>La politique de Windows peut terminer RX Explorateur</value>
-  </data>
-  <data name="Toast_EnterBackground_Text_3" xml:space="preserve">
-    <value>Cliquez pour activer</value>
+    <value>RX-Explorer essaiera de continuer l'exécution jusqu'à ce qu'il soit terminé par la politique Windows</value>
   </data>
   <data name="Transcode_Dialog_Format_Text" xml:space="preserve">
     <value>format</value>
@@ -3070,5 +3037,14 @@ Les noms non valides incluent
   </data>
   <data name="TaskList_OperationKind_Decompression" xml:space="preserve">
     <value>Tâche de décompression</value>
+  </data>
+  <data name="Toast_EnterBackground_Text_4" xml:space="preserve">
+    <value>Si vous êtes connecté, vous pouvez ignorer cette notification</value>
+  </data>
+  <data name="Toast_EnterBackground_ActionButton" xml:space="preserve">
+    <value>Activer</value>
+  </data>
+  <data name="Toast_EnterBackground_Dismiss" xml:space="preserve">
+    <value>Rejeter</value>
   </data>
 </root>

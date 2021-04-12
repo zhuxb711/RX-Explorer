@@ -1570,7 +1570,7 @@ namespace RX_Explorer
                         {
                             case DataPackageOperation.Copy:
                                 {
-                                    QueueFileOperationController.EnqueueCopyOpeartion(PathList, TargetFolder.Path);
+                                    QueueTaskController.EnqueueCopyOpeartion(PathList, TargetFolder.Path);
 
                                     break;
                                 }
@@ -1578,7 +1578,7 @@ namespace RX_Explorer
                                 {
                                     if (PathList.All((Item) => Path.GetDirectoryName(Item) != Block.Path))
                                     {
-                                        QueueFileOperationController.EnqueueMoveOpeartion(PathList, TargetFolder.Path);
+                                        QueueTaskController.EnqueueMoveOpeartion(PathList, TargetFolder.Path);
                                     }
 
                                     break;
@@ -1588,7 +1588,7 @@ namespace RX_Explorer
                 }
                 catch (Exception ex) when (ex.HResult is unchecked((int)0x80040064) or unchecked((int)0x8004006A))
                 {
-                    QueueFileOperationController.EnqueueRemoteCopyOpeartion(Block.Path);
+                    QueueTaskController.EnqueueRemoteCopyOpeartion(Block.Path);
                 }
                 catch
                 {

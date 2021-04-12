@@ -1254,36 +1254,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="EnDecode_Dialog_Content" xml:space="preserve">
     <value>Cannot convert image format due to missing encoder or unsupported operation</value>
   </data>
-  <data name="GeneralTransformer_Crop_Cancel" xml:space="preserve">
-    <value>Video crop task was canceled</value>
-  </data>
-  <data name="GeneralTransformer_Crop_Error" xml:space="preserve">
-    <value>Encountered unknown error while cropping video</value>
-  </data>
-  <data name="GeneralTransformer_Crop_Success" xml:space="preserve">
-    <value>Video successfully cropped</value>
-  </data>
-  <data name="GeneralTransformer_Merge_Cancel" xml:space="preserve">
-    <value>Video merge task was canceled</value>
-  </data>
-  <data name="GeneralTransformer_Merge_Error" xml:space="preserve">
-    <value>Encountered unknown error while merging video</value>
-  </data>
-  <data name="GeneralTransformer_Merge_Success" xml:space="preserve">
-    <value>Video successfully merged</value>
-  </data>
-  <data name="GeneralTransformer_Transcode_Cancel" xml:space="preserve">
-    <value>Transcoding task is cancelled</value>
-  </data>
-  <data name="GeneralTransformer_Transcode_Failure" xml:space="preserve">
-    <value>Transcoding failed:</value>
-  </data>
-  <data name="GeneralTransformer_Transcode_NotSupport" xml:space="preserve">
-    <value>Transcoding format is not supported</value>
-  </data>
-  <data name="GeneralTransformer_Transcode_Success" xml:space="preserve">
-    <value>Transcoding has been successfully completed</value>
-  </data>
   <data name="Merge_Toast_Cancel_Text_1" xml:space="preserve">
     <value>Merging task has been cancelled</value>
   </data>
@@ -1707,13 +1677,10 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Later</value>
   </data>
   <data name="Toast_EnterBackground_Text_1" xml:space="preserve">
-    <value>Please do not minimize RX-Explorer</value>
+    <value>RX-Explorer is minimized</value>
   </data>
   <data name="Toast_EnterBackground_Text_2" xml:space="preserve">
-    <value>Windows policy may terminate RX-Explorer</value>
-  </data>
-  <data name="Toast_EnterBackground_Text_3" xml:space="preserve">
-    <value>Click to activate</value>
+    <value>RX-Explorer will try to continue execution until terminated by Windows policy</value>
   </data>
   <data name="Transcode_Dialog_Format_Text" xml:space="preserve">
     <value>format</value>
@@ -3175,5 +3142,14 @@ Invalid names include
   </data>
   <data name="TaskList_OperationKind_Decompression" xml:space="preserve">
     <value>Decompression task</value>
+  </data>
+  <data name="Toast_EnterBackground_Text_4" xml:space="preserve">
+    <value>If you are plugged in, you can ignore this notification</value>
+  </data>
+  <data name="Toast_EnterBackground_ActionButton" xml:space="preserve">
+    <value>Activate</value>
+  </data>
+  <data name="Toast_EnterBackground_Dismiss" xml:space="preserve">
+    <value>Dismiss</value>
   </data>
 </root>

@@ -1149,36 +1149,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="EnDecode_Dialog_Content" xml:space="preserve">
     <value>Bildformat kann aufgrund fehlender Encoder oder nicht unterstützter Operation nicht konvertiert werden</value>
   </data>
-  <data name="GeneralTransformer_Crop_Cancel" xml:space="preserve">
-    <value>Video-Zuschneidungsaufgabe wurde abgebrochen</value>
-  </data>
-  <data name="GeneralTransformer_Crop_Error" xml:space="preserve">
-    <value>Unbekannter Fehler beim Zuschneiden des Videos</value>
-  </data>
-  <data name="GeneralTransformer_Crop_Success" xml:space="preserve">
-    <value>Video erfolgreich zugeschnitten</value>
-  </data>
-  <data name="GeneralTransformer_Merge_Cancel" xml:space="preserve">
-    <value>Zusammenführung von Videos wurde abgebrochen</value>
-  </data>
-  <data name="GeneralTransformer_Merge_Error" xml:space="preserve">
-    <value>Unbekannter Fehler beim Zusammenführen der Videos</value>
-  </data>
-  <data name="GeneralTransformer_Merge_Success" xml:space="preserve">
-    <value>Video erfolgreich zusammengeführt</value>
-  </data>
-  <data name="GeneralTransformer_Transcode_Cancel" xml:space="preserve">
-    <value>Transkodierung wurde abgebrochen</value>
-  </data>
-  <data name="GeneralTransformer_Transcode_Failure" xml:space="preserve">
-    <value>Transkodierung fehlgeschlagen:</value>
-  </data>
-  <data name="GeneralTransformer_Transcode_NotSupport" xml:space="preserve">
-    <value>Transkodierungsformat wird nicht unterstützt</value>
-  </data>
-  <data name="GeneralTransformer_Transcode_Success" xml:space="preserve">
-    <value>Transkodierung wurde erfolgreich abgeschlossen</value>
-  </data>
   <data name="Merge_Toast_Cancel_Text_1" xml:space="preserve">
     <value>Zusammenführung wurde abgebrochen</value>
   </data>
@@ -1602,13 +1572,10 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>Später</value>
   </data>
   <data name="Toast_EnterBackground_Text_1" xml:space="preserve">
-    <value>Bitte minimiere EX-Explorer nicht.</value>
+    <value>RX-Explorer wird minimiert</value>
   </data>
   <data name="Toast_EnterBackground_Text_2" xml:space="preserve">
-    <value>Windows-Richtlinie kann RX-Explorer beenden</value>
-  </data>
-  <data name="Toast_EnterBackground_Text_3" xml:space="preserve">
-    <value>Zum aktivieren klicken</value>
+    <value>RX-Explorer versucht, die Ausführung fortzusetzen, bis sie von der Windows-Richtlinie beendet wird</value>
   </data>
   <data name="Transcode_Dialog_Format_Text" xml:space="preserve">
     <value>Format</value>
@@ -3070,5 +3037,14 @@ Inkorrekte Namen sind
   </data>
   <data name="TaskList_OperationKind_Decompression" xml:space="preserve">
     <value>Dekomprimierungsaufgabe</value>
+  </data>
+  <data name="Toast_EnterBackground_Text_4" xml:space="preserve">
+    <value>Wenn Sie angeschlossen sind, können Sie diese Benachrichtigung ignorieren</value>
+  </data>
+  <data name="Toast_EnterBackground_ActionButton" xml:space="preserve">
+    <value>Aktivieren</value>
+  </data>
+  <data name="Toast_EnterBackground_Dismiss" xml:space="preserve">
+    <value>Entlassen</value>
   </data>
 </root>

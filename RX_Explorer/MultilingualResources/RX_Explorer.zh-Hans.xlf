@@ -1460,46 +1460,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Cannot convert image format due to missing encoder or unsupported operation</source>
           <target state="translated">由于缺失编码器或操作不受支持，无法进行图像格式转换</target>
         </trans-unit>
-        <trans-unit id="GeneralTransformer_Crop_Cancel" translate="yes" xml:space="preserve">
-          <source>Video crop task was canceled</source>
-          <target state="translated">视频裁剪任务被取消</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Crop_Error" translate="yes" xml:space="preserve">
-          <source>Encountered unknown error while cropping video</source>
-          <target state="translated">裁剪视频时遇到未知错误</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Crop_Success" translate="yes" xml:space="preserve">
-          <source>Video successfully cropped</source>
-          <target state="translated">视频已成功完成裁剪</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Merge_Cancel" translate="yes" xml:space="preserve">
-          <source>Video merge task was canceled</source>
-          <target state="translated">视频合并任务被取消</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Merge_Error" translate="yes" xml:space="preserve">
-          <source>Encountered unknown error while merging video</source>
-          <target state="translated">合并视频时遇到未知错误</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Merge_Success" translate="yes" xml:space="preserve">
-          <source>Video successfully merged</source>
-          <target state="translated">视频已成功完成合并</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Transcode_Cancel" translate="yes" xml:space="preserve">
-          <source>Transcoding task is cancelled</source>
-          <target state="translated">转码任务被取消</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Transcode_Failure" translate="yes" xml:space="preserve">
-          <source>Transcoding failed:</source>
-          <target state="translated">转码失败:</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Transcode_NotSupport" translate="yes" xml:space="preserve">
-          <source>Transcoding format is not supported</source>
-          <target state="translated">转码格式不支持</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Transcode_Success" translate="yes" xml:space="preserve">
-          <source>Transcoding has been successfully completed</source>
-          <target state="translated">转码已成功完成</target>
-        </trans-unit>
         <trans-unit id="Merge_Toast_Cancel_Text_1" translate="yes" xml:space="preserve">
           <source>Merging task has been cancelled</source>
           <target state="translated">合并已完成</target>
@@ -2039,16 +1999,12 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">稍后</target>
         </trans-unit>
         <trans-unit id="Toast_EnterBackground_Text_1" translate="yes" xml:space="preserve">
-          <source>Please do not minimize RX-Explorer</source>
-          <target state="translated">请不要最小化RX文件管理器</target>
+          <source>RX-Explorer is minimized</source>
+          <target state="translated">RX文件管理器已被最小化</target>
         </trans-unit>
         <trans-unit id="Toast_EnterBackground_Text_2" translate="yes" xml:space="preserve">
-          <source>Windows policy may terminate RX-Explorer</source>
-          <target state="translated">"Windows策略可能会终止RX的运行</target>
-        </trans-unit>
-        <trans-unit id="Toast_EnterBackground_Text_3" translate="yes" xml:space="preserve">
-          <source>Click to activate</source>
-          <target state="translated">点击以重新激活</target>
+          <source>RX-Explorer will try to continue execution until terminated by Windows policy</source>
+          <target state="translated">RX文件管理器将尝试继续执行直至被Windows策略终止</target>
         </trans-unit>
         <trans-unit id="Transcode_Dialog_Format_Text" translate="yes" xml:space="preserve">
           <source>format</source>
@@ -4075,6 +4031,18 @@ Invalid names include
         <trans-unit id="TaskList_OperationKind_Decompression" translate="yes" xml:space="preserve">
           <source>Decompression task</source>
           <target state="translated">解压任务</target>
+        </trans-unit>
+        <trans-unit id="Toast_EnterBackground_Text_4" translate="yes" xml:space="preserve">
+          <source>If you are plugged in, you can ignore this notification</source>
+          <target state="translated">如果您已接通电源，则可以忽略此通知</target>
+        </trans-unit>
+        <trans-unit id="Toast_EnterBackground_ActionButton" translate="yes" xml:space="preserve">
+          <source>Activate</source>
+          <target state="translated">激活</target>
+        </trans-unit>
+        <trans-unit id="Toast_EnterBackground_Dismiss" translate="yes" xml:space="preserve">
+          <source>Dismiss</source>
+          <target state="translated">消除</target>
         </trans-unit>
       </group>
     </body>

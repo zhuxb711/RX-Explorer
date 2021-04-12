@@ -323,7 +323,7 @@ namespace RX_Explorer
         {
             if (CurrentSelectedItem != null)
             {
-                QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(QuickStartType.UpdateApp, CurrentSelectedItem);
+                QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(CurrentSelectedItem);
                 _ = await dialog.ShowAsync();
             }
         }
@@ -332,7 +332,7 @@ namespace RX_Explorer
         {
             if (CurrentSelectedItem != null)
             {
-                QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(QuickStartType.UpdateWeb, CurrentSelectedItem);
+                QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(CurrentSelectedItem);
                 _ = await dialog.ShowAsync();
             }
         }

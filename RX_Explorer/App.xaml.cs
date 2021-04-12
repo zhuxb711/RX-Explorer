@@ -197,74 +197,84 @@ namespace RX_Explorer
 
             CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
 
-            if (args is CommandLineActivatedEventArgs CmdArgs)
+            switch (args)
             {
-                string[] Arguments = CmdArgs.Operation.Arguments.Split(" ", StringSplitOptions.RemoveEmptyEntries);
-
-                if (Window.Current.Content is Frame frame)
-                {
-                    if (frame.Content is MainPage Main && Main.Nav.Content is TabViewContainer TabContainer)
+                case CommandLineActivatedEventArgs CmdArgs:
                     {
-                        if (Arguments.Length > 1)
+                        string[] Arguments = CmdArgs.Operation.Arguments.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+
+                        if (Window.Current.Content is Frame frame)
+                        {
+                            if (frame.Content is MainPage Main && Main.Nav.Content is TabViewContainer TabContainer)
+                            {
+                                if (Arguments.Length > 1)
+                                {
+                                    string Path = string.Join(" ", Arguments.Skip(1));
+
+                                    if (string.IsNullOrWhiteSpace(Path) || Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase))
+                                    {
+                                        await TabContainer.CreateNewTabAsync();
+                                    }
+                                    else
+                                    {
+                                        await TabContainer.CreateNewTabAsync(Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path);
+                                    }
+                                }
+                                else
+                                {
+                                    await TabContainer.CreateNewTabAsync();
+                                }
+                            }
+                        }
+                        else
                         {
                             string Path = string.Join(" ", Arguments.Skip(1));
 
-                            if (string.IsNullOrWhiteSpace(Path) || Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase))
+                            if (Arguments.Length > 1)
                             {
-                                await TabContainer.CreateNewTabAsync();
+                                if (string.IsNullOrWhiteSpace(Path) || Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase))
+                                {
+                                    ExtendedSplash extendedSplash = new ExtendedSplash(CmdArgs.SplashScreen);
+                                    Window.Current.Content = extendedSplash;
+                                }
+                                else
+                                {
+                                    ExtendedSplash extendedSplash = new ExtendedSplash(CmdArgs.SplashScreen, new List<string[]> { new string[] { Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path } });
+                                    Window.Current.Content = extendedSplash;
+                                }
                             }
                             else
                             {
-                                await TabContainer.CreateNewTabAsync(Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path);
+                                ExtendedSplash extendedSplash = new ExtendedSplash(CmdArgs.SplashScreen);
+                                Window.Current.Content = extendedSplash;
                             }
                         }
-                        else
-                        {
-                            await TabContainer.CreateNewTabAsync();
-                        }
-                    }
-                }
-                else
-                {
-                    string Path = string.Join(" ", Arguments.Skip(1));
 
-                    if (Arguments.Length > 1)
+                        break;
+                    }
+
+                case ProtocolActivatedEventArgs ProtocalArgs:
                     {
-                        if (string.IsNullOrWhiteSpace(Path) || Regex.IsMatch(Path, @"::\{[0-9A-F\-]+\}", RegexOptions.IgnoreCase))
+                        if (!string.IsNullOrWhiteSpace(ProtocalArgs.Uri.AbsolutePath))
                         {
-                            ExtendedSplash extendedSplash = new ExtendedSplash(CmdArgs.SplashScreen);
+                            ExtendedSplash extendedSplash = new ExtendedSplash(ProtocalArgs.SplashScreen, new List<string[]> { Uri.UnescapeDataString(ProtocalArgs.Uri.AbsolutePath).Split("||", StringSplitOptions.RemoveEmptyEntries) });
                             Window.Current.Content = extendedSplash;
                         }
                         else
                         {
-                            ExtendedSplash extendedSplash = new ExtendedSplash(CmdArgs.SplashScreen, new List<string[]> { new string[] { Path == "." ? CmdArgs.Operation.CurrentDirectoryPath : Path } });
+                            ExtendedSplash extendedSplash = new ExtendedSplash(ProtocalArgs.SplashScreen);
                             Window.Current.Content = extendedSplash;
                         }
+
+                        break;
                     }
-                    else
+
+                case not ToastNotificationActivatedEventArgs:
                     {
-                        ExtendedSplash extendedSplash = new ExtendedSplash(CmdArgs.SplashScreen);
+                        ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
                         Window.Current.Content = extendedSplash;
+                        break;
                     }
-                }
-            }
-            else if (args is ProtocolActivatedEventArgs ProtocalArgs)
-            {
-                if (!string.IsNullOrWhiteSpace(ProtocalArgs.Uri.AbsolutePath))
-                {
-                    ExtendedSplash extendedSplash = new ExtendedSplash(ProtocalArgs.SplashScreen, new List<string[]> { Uri.UnescapeDataString(ProtocalArgs.Uri.AbsolutePath).Split("||", StringSplitOptions.RemoveEmptyEntries) });
-                    Window.Current.Content = extendedSplash;
-                }
-                else
-                {
-                    ExtendedSplash extendedSplash = new ExtendedSplash(ProtocalArgs.SplashScreen);
-                    Window.Current.Content = extendedSplash;
-                }
-            }
-            else
-            {
-                ExtendedSplash extendedSplash = new ExtendedSplash(args.SplashScreen);
-                Window.Current.Content = extendedSplash;
             }
 
             Window.Current.Activate();

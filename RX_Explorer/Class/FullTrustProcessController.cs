@@ -118,11 +118,11 @@ namespace RX_Explorer.Class
 
         public bool IsAnyActionExcutingInCurrentController { get; private set; }
 
-        public static bool IsAnyActionExcutingInAllController
+        public static bool IsAnyActionExcutingInAllControllers
         {
             get
             {
-                return AvailableControllerQueue.Count < CurrentRunningControllerNum;
+                return AvailableControllerNum < CurrentRunningControllerNum;
             }
         }
 
@@ -142,6 +142,8 @@ namespace RX_Explorer.Class
 
         private static volatile int CurrentRunningControllerNum;
 
+        private static volatile int LastRequestedControllerNum;
+
         private static event EventHandler<FullTrustProcessController> ExclusiveDisposed;
 
         public static event EventHandler<bool> CurrentBusyStatus;
@@ -150,6 +152,7 @@ namespace RX_Explorer.Class
         {
             DispatcherThread.Start();
             ExclusiveDisposed += FullTrustProcessController_ExclusiveDisposed;
+            Application.Current.Resuming += Current_Resuming;
         }
 
         private FullTrustProcessController()
@@ -166,9 +169,16 @@ namespace RX_Explorer.Class
             }
         }
 
+        private static void Current_Resuming(object sender, object e)
+        {
+            LogTracer.Log("RX-Explorer is resuming, recover all instance");
+            AvailableControllerQueue.Clear();
+            RequestResizeController(LastRequestedControllerNum);
+        }
+
         private void Current_Suspending(object sender, SuspendingEventArgs e)
         {
-            LogTracer.Log("RX-Explorer enter suspend state, dispose this instance");
+            LogTracer.Log("RX-Explorer is suspending, dispose this instance");
             Dispose();
         }
 
@@ -246,6 +256,8 @@ namespace RX_Explorer.Class
         {
             try
             {
+                LastRequestedControllerNum = RequestedTarget;
+
                 RequestedTarget += DynamicBackupProcessNum;
 
                 while (CurrentRunningControllerNum > RequestedTarget && AvailableControllerNum > DynamicBackupProcessNum)

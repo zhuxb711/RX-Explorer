@@ -35,81 +35,73 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public static Task GenerateMergeVideoFromOriginAsync(StorageFile DestinationFile, MediaComposition Composition, MediaEncodingProfile EncodingProfile)
         {
-            return Task.Factory.StartNew((ob) =>
+            return Task.Factory.StartNew((obj) =>
             {
-                IsAnyTransformTaskRunning = true;
-
-                AVTranscodeCancellation = new CancellationTokenSource();
-
-                var Para = (ValueTuple<StorageFile, MediaComposition, MediaEncodingProfile>)ob;
-
-                SendUpdatableToastWithProgressForMergeVideo();
-                Progress<double> CropVideoProgress = new Progress<double>((CurrentValue) =>
+                if (obj is ValueTuple<StorageFile, MediaComposition, MediaEncodingProfile> Para)
                 {
-                    try
-                    {
-                        string Tag = "MergeVideoNotification";
+                    IsAnyTransformTaskRunning = true;
 
-                        NotificationData data = new NotificationData
+                    using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.TryCreateExtendedExecution().Result)
+                    {
+                        AVTranscodeCancellation = new CancellationTokenSource();
+
+                        SendUpdatableToastWithProgressForMergeVideo();
+
+                        Progress<double> CropVideoProgress = new Progress<double>((CurrentValue) =>
                         {
-                            SequenceNumber = 0
-                        };
-                        data.Values["ProgressValue"] = Math.Round(CurrentValue / 100, 2, MidpointRounding.AwayFromZero).ToString();
-                        data.Values["ProgressValueString"] = Convert.ToInt32(CurrentValue) + "%";
+                            try
+                            {
+                                string Tag = "MergeVideoNotification";
 
-                        ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
+                                NotificationData data = new NotificationData
+                                {
+                                    SequenceNumber = 0
+                                };
+                                data.Values["ProgressValue"] = Math.Round(CurrentValue / 100, 2, MidpointRounding.AwayFromZero).ToString();
+                                data.Values["ProgressValueString"] = Convert.ToInt32(CurrentValue) + "%";
+
+                                ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
+                            }
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex, "Toast notification could not be sent");
+                            }
+                        });
+
+                        try
+                        {
+                            Para.Item2.RenderToFileAsync(Para.Item1, MediaTrimmingPreference.Precise, Para.Item3).AsTask(AVTranscodeCancellation.Token, CropVideoProgress).Wait();
+
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            {
+                                ShowMergeCompleteNotification();
+                            }).AsTask().Wait();
+                        }
+                        catch (AggregateException)
+                        {
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            {
+                                ShowMergeCancelNotification();
+                            }).AsTask().Wait();
+
+                            Para.Item1.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
+                        }
+                        catch (Exception)
+                        {
+                            Para.Item1.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
+                            LogTracer.Log("Merge video failed");
+                        }
+                        finally
+                        {
+                            AVTranscodeCancellation?.Dispose();
+                            AVTranscodeCancellation = null;
+
+                            IsAnyTransformTaskRunning = false;
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "Toast notification could not be sent");
-                    }
-                });
-
-                try
-                {
-                    Para.Item2.RenderToFileAsync(Para.Item1, MediaTrimmingPreference.Precise, Para.Item3).AsTask(AVTranscodeCancellation.Token, CropVideoProgress).Wait();
-                    ApplicationData.Current.LocalSettings.Values["MediaMergeStatus"] = "Success";
-                }
-                catch (AggregateException)
-                {
-                    ApplicationData.Current.LocalSettings.Values["MediaMergeStatus"] = "Cancel";
-                    Para.Item1.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
-                }
-                catch (Exception e)
-                {
-                    ApplicationData.Current.LocalSettings.Values["MediaMergeStatus"] = e.Message;
-                    Para.Item1.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
                 }
 
-            }, (DestinationFile, Composition, EncodingProfile), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Current).ContinueWith((task) =>
-              {
-                  CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                  {
-                      switch (ApplicationData.Current.LocalSettings.Values["MediaMergeStatus"].ToString())
-                      {
-                          case "Success":
-                              {
-                                  TabViewContainer.ThisPage.Notification.Show(Globalization.GetString("GeneralTransformer_Merge_Success"), 5000);
-                                  ShowMergeCompleteNotification();
-                                  break;
-                              }
-                          case "Cancel":
-                              {
-                                  TabViewContainer.ThisPage.Notification.Show(Globalization.GetString("GeneralTransformer_Merge_Cancel"), 5000);
-                                  ShowMergeCancelNotification();
-                                  break;
-                              }
-                          default:
-                              {
-                                  TabViewContainer.ThisPage.Notification.Show(Globalization.GetString("GeneralTransformer_Merge_Error"), 5000);
-                                  break;
-                              }
-                      }
-                  }).AsTask().Wait();
-
-                  IsAnyTransformTaskRunning = false;
-
-              }, TaskScheduler.Current);
+            }, (DestinationFile, Composition, EncodingProfile), TaskCreationOptions.LongRunning);
         }
 
         /// <summary>
@@ -124,81 +116,70 @@ namespace RX_Explorer.Class
         {
             return Task.Factory.StartNew((obj) =>
             {
-                IsAnyTransformTaskRunning = true;
-
-                AVTranscodeCancellation = new CancellationTokenSource();
-
-                var Para = (ValueTuple<StorageFile, MediaComposition, MediaEncodingProfile, MediaTrimmingPreference>)obj;
-
-                SendUpdatableToastWithProgressForCropVideo(Para.Item1);
-
-                Progress<double> CropVideoProgress = new Progress<double>((CurrentValue) =>
+                if (obj is ValueTuple<StorageFile, MediaComposition, MediaEncodingProfile, MediaTrimmingPreference> Para)
                 {
-                    try
+                    using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.TryCreateExtendedExecution().Result)
                     {
-                        string Tag = "CropVideoNotification";
+                        IsAnyTransformTaskRunning = true;
 
-                        NotificationData data = new NotificationData
+                        AVTranscodeCancellation = new CancellationTokenSource();
+
+                        SendUpdatableToastWithProgressForCropVideo(Para.Item1);
+
+                        Progress<double> CropVideoProgress = new Progress<double>((CurrentValue) =>
                         {
-                            SequenceNumber = 0
-                        };
-                        data.Values["ProgressValue"] = Math.Round(CurrentValue / 100, 2, MidpointRounding.AwayFromZero).ToString();
-                        data.Values["ProgressValueString"] = Convert.ToInt32(CurrentValue) + "%";
+                            try
+                            {
+                                string Tag = "CropVideoNotification";
 
-                        ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
+                                NotificationData data = new NotificationData
+                                {
+                                    SequenceNumber = 0
+                                };
+                                data.Values["ProgressValue"] = Math.Round(CurrentValue / 100, 2, MidpointRounding.AwayFromZero).ToString();
+                                data.Values["ProgressValueString"] = Convert.ToInt32(CurrentValue) + "%";
+
+                                ToastNotificationManager.CreateToastNotifier().Update(data, Tag);
+                            }
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex, "Toast notification could not be sent");
+                            }
+                        });
+
+                        try
+                        {
+                            Para.Item2.RenderToFileAsync(Para.Item1, Para.Item4, Para.Item3).AsTask(AVTranscodeCancellation.Token, CropVideoProgress).Wait();
+
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            {
+                                ShowCropCompleteNotification();
+                            }).AsTask().Wait();
+                        }
+                        catch (AggregateException)
+                        {
+                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                            {
+                                ShowCropCancelNotification();
+                            }).AsTask().Wait();
+
+                            Para.Item1.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
+                        }
+                        catch (Exception)
+                        {
+                            Para.Item1.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
+                            LogTracer.Log("Crop video failed");
+                        }
+                        finally
+                        {
+                            AVTranscodeCancellation?.Dispose();
+                            AVTranscodeCancellation = null;
+
+                            IsAnyTransformTaskRunning = false;
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "Toast notification could not be sent");
-                    }
-                });
-
-                try
-                {
-                    Para.Item2.RenderToFileAsync(Para.Item1, Para.Item4, Para.Item3).AsTask(AVTranscodeCancellation.Token, CropVideoProgress).Wait();
-                    ApplicationData.Current.LocalSettings.Values["MediaCropStatus"] = "Success";
                 }
-                catch (AggregateException)
-                {
-                    ApplicationData.Current.LocalSettings.Values["MediaCropStatus"] = "Cancel";
-                    Para.Item1.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
-                }
-                catch (Exception e)
-                {
-                    ApplicationData.Current.LocalSettings.Values["MediaCropStatus"] = e.Message;
-                    Para.Item1.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
-                }
-
-            }, (DestinationFile, Composition, EncodingProfile, TrimmingPreference), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Current).ContinueWith((task) =>
-               {
-                   CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                   {
-
-                       switch (ApplicationData.Current.LocalSettings.Values["MediaCropStatus"].ToString())
-                       {
-                           case "Success":
-                               {
-                                   TabViewContainer.ThisPage.Notification.Show(Globalization.GetString("GeneralTransformer_Crop_Success"), 5000);
-                                   ShowCropCompleteNotification();
-                                   break;
-                               }
-                           case "Cancel":
-                               {
-                                   TabViewContainer.ThisPage.Notification.Show(Globalization.GetString("GeneralTransformer_Crop_Cancel"), 5000);
-                                   ShowCropCancelNotification();
-                                   break;
-                               }
-                           default:
-                               {
-                                   TabViewContainer.ThisPage.Notification.Show(Globalization.GetString("GeneralTransformer_Crop_Error"), 5000);
-                                   break;
-                               }
-                       }
-                   }).AsTask().Wait();
-
-                   IsAnyTransformTaskRunning = false;
-
-               }, TaskScheduler.Current);
+            }, (DestinationFile, Composition, EncodingProfile, TrimmingPreference), TaskCreationOptions.LongRunning);
         }
 
         /// <summary>
@@ -213,59 +194,68 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public static async Task TranscodeFromImageAsync(FileSystemStorageFile SourceFile, FileSystemStorageFile DestinationFile, bool IsEnableScale = false, uint ScaleWidth = default, uint ScaleHeight = default, BitmapInterpolationMode InterpolationMode = default)
         {
-            IsAnyTransformTaskRunning = true;
-
-            using (IRandomAccessStream OriginStream = await SourceFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read).ConfigureAwait(false))
+            try
             {
+                IsAnyTransformTaskRunning = true;
 
-                try
+                using (ExtendedExecutionController ExtExecution = await ExtendedExecutionController.TryCreateExtendedExecution())
+                using (IRandomAccessStream OriginStream = await SourceFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read).ConfigureAwait(false))
                 {
-                    BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
-
-                    using (SoftwareBitmap TranscodeImage = await Decoder.GetSoftwareBitmapAsync())
-                    using (IRandomAccessStream TargetStream = await DestinationFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.ReadWrite).ConfigureAwait(false))
+                    try
                     {
-                        BitmapEncoder Encoder = DestinationFile.Type.ToLower() switch
-                        {
-                            ".png" => await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, TargetStream),
-                            ".jpg" => await BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, TargetStream),
-                            ".bmp" => await BitmapEncoder.CreateAsync(BitmapEncoder.BmpEncoderId, TargetStream),
-                            ".heic" => await BitmapEncoder.CreateAsync(BitmapEncoder.HeifEncoderId, TargetStream),
-                            ".tiff" => await BitmapEncoder.CreateAsync(BitmapEncoder.TiffEncoderId, TargetStream),
-                            _ => throw new InvalidOperationException("Unsupport image format"),
-                        };
+                        BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(OriginStream);
 
-                        if (IsEnableScale)
+                        using (SoftwareBitmap TranscodeImage = await Decoder.GetSoftwareBitmapAsync())
+                        using (IRandomAccessStream TargetStream = await DestinationFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.ReadWrite).ConfigureAwait(false))
                         {
-                            Encoder.BitmapTransform.ScaledWidth = ScaleWidth;
-                            Encoder.BitmapTransform.ScaledHeight = ScaleHeight;
-                            Encoder.BitmapTransform.InterpolationMode = InterpolationMode;
+                            BitmapEncoder Encoder = DestinationFile.Type.ToLower() switch
+                            {
+                                ".png" => await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, TargetStream),
+                                ".jpg" => await BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, TargetStream),
+                                ".bmp" => await BitmapEncoder.CreateAsync(BitmapEncoder.BmpEncoderId, TargetStream),
+                                ".heic" => await BitmapEncoder.CreateAsync(BitmapEncoder.HeifEncoderId, TargetStream),
+                                ".tiff" => await BitmapEncoder.CreateAsync(BitmapEncoder.TiffEncoderId, TargetStream),
+                                _ => throw new InvalidOperationException("Unsupport image format"),
+                            };
+
+                            if (IsEnableScale)
+                            {
+                                Encoder.BitmapTransform.ScaledWidth = ScaleWidth;
+                                Encoder.BitmapTransform.ScaledHeight = ScaleHeight;
+                                Encoder.BitmapTransform.InterpolationMode = InterpolationMode;
+                            }
+
+                            Encoder.SetSoftwareBitmap(TranscodeImage);
+
+                            await Encoder.FlushAsync();
                         }
+                    }
+                    catch (Exception)
+                    {
+                        await DestinationFile.DeleteAsync(true);
 
-                        Encoder.SetSoftwareBitmap(TranscodeImage);
+                        await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                        {
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("EnDecode_Dialog_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
 
-                        await Encoder.FlushAsync();
+                            _ = await dialog.ShowAsync();
+                        });
                     }
                 }
-                catch (Exception)
-                {
-                    await DestinationFile.DeleteAsync(true);
-
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                    {
-                        QueueContentDialog dialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("EnDecode_Dialog_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-
-                        _ = await dialog.ShowAsync();
-                    });
-                }
             }
-
-            IsAnyTransformTaskRunning = false;
+            catch(Exception ex)
+            {
+                LogTracer.Log(ex);
+            }
+            finally
+            {
+                IsAnyTransformTaskRunning = false;
+            }
         }
 
         /// <summary>
@@ -279,160 +269,143 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public static Task TranscodeFromAudioOrVideoAsync(StorageFile SourceFile, StorageFile DestinationFile, string MediaTranscodeEncodingProfile, string MediaTranscodeQuality, bool SpeedUp)
         {
-            return Task.Factory.StartNew((ob) =>
+            return Task.Factory.StartNew((obj) =>
             {
-                IsAnyTransformTaskRunning = true;
-
-                AVTranscodeCancellation = new CancellationTokenSource();
-
-                var Para = (ValueTuple<StorageFile, StorageFile, string, string, bool>)ob;
-
-                MediaTranscoder Transcoder = new MediaTranscoder
+                if (obj is ValueTuple<StorageFile, StorageFile, string, string, bool> Para)
                 {
-                    HardwareAccelerationEnabled = true,
-                    VideoProcessingAlgorithm = Para.Item5 ? MediaVideoProcessingAlgorithm.Default : MediaVideoProcessingAlgorithm.MrfCrf444
-                };
-
-                try
-                {
-                    MediaEncodingProfile Profile = null;
-                    VideoEncodingQuality VideoQuality = default;
-                    AudioEncodingQuality AudioQuality = default;
-
-                    switch (Para.Item4)
+                    using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.TryCreateExtendedExecution().Result)
                     {
-                        case "UHD2160p":
-                            VideoQuality = VideoEncodingQuality.Uhd2160p;
-                            break;
-                        case "QVGA":
-                            VideoQuality = VideoEncodingQuality.Qvga;
-                            break;
-                        case "HD1080p":
-                            VideoQuality = VideoEncodingQuality.HD1080p;
-                            break;
-                        case "HD720p":
-                            VideoQuality = VideoEncodingQuality.HD720p;
-                            break;
-                        case "WVGA":
-                            VideoQuality = VideoEncodingQuality.Wvga;
-                            break;
-                        case "VGA":
-                            VideoQuality = VideoEncodingQuality.Vga;
-                            break;
-                        case "High":
-                            AudioQuality = AudioEncodingQuality.High;
-                            break;
-                        case "Medium":
-                            AudioQuality = AudioEncodingQuality.Medium;
-                            break;
-                        case "Low":
-                            AudioQuality = AudioEncodingQuality.Low;
-                            break;
-                    }
+                        IsAnyTransformTaskRunning = true;
 
-                    switch (Para.Item3)
-                    {
-                        case "MKV":
-                            Profile = MediaEncodingProfile.CreateHevc(VideoQuality);
-                            break;
-                        case "MP4":
-                            Profile = MediaEncodingProfile.CreateMp4(VideoQuality);
-                            break;
-                        case "WMV":
-                            Profile = MediaEncodingProfile.CreateWmv(VideoQuality);
-                            break;
-                        case "AVI":
-                            Profile = MediaEncodingProfile.CreateAvi(VideoQuality);
-                            break;
-                        case "MP3":
-                            Profile = MediaEncodingProfile.CreateMp3(AudioQuality);
-                            break;
-                        case "ALAC":
-                            Profile = MediaEncodingProfile.CreateAlac(AudioQuality);
-                            break;
-                        case "WMA":
-                            Profile = MediaEncodingProfile.CreateWma(AudioQuality);
-                            break;
-                        case "M4A":
-                            Profile = MediaEncodingProfile.CreateM4a(AudioQuality);
-                            break;
-                    }
+                        AVTranscodeCancellation = new CancellationTokenSource();
 
-                    PrepareTranscodeResult Result = Transcoder.PrepareFileTranscodeAsync(Para.Item1, Para.Item2, Profile).AsTask().Result;
-                    if (Result.CanTranscode)
-                    {
-                        SendUpdatableToastWithProgressForTranscode(Para.Item1, Para.Item2);
-                        Progress<double> TranscodeProgress = new Progress<double>((CurrentValue) =>
+                        MediaTranscoder Transcoder = new MediaTranscoder
                         {
-                            try
+                            HardwareAccelerationEnabled = true,
+                            VideoProcessingAlgorithm = Para.Item5 ? MediaVideoProcessingAlgorithm.Default : MediaVideoProcessingAlgorithm.MrfCrf444
+                        };
+
+                        try
+                        {
+                            MediaEncodingProfile Profile = null;
+                            VideoEncodingQuality VideoQuality = default;
+                            AudioEncodingQuality AudioQuality = default;
+
+                            switch (Para.Item4)
                             {
-                                NotificationData Data = new NotificationData();
-                                Data.SequenceNumber = 0;
-                                Data.Values["ProgressValue"] = (Math.Ceiling(CurrentValue) / 100).ToString();
-                                Data.Values["ProgressValueString"] = Convert.ToInt32(CurrentValue) + "%";
-
-                                ToastNotificationManager.CreateToastNotifier().Update(Data, "TranscodeNotification");
+                                case "UHD2160p":
+                                    VideoQuality = VideoEncodingQuality.Uhd2160p;
+                                    break;
+                                case "QVGA":
+                                    VideoQuality = VideoEncodingQuality.Qvga;
+                                    break;
+                                case "HD1080p":
+                                    VideoQuality = VideoEncodingQuality.HD1080p;
+                                    break;
+                                case "HD720p":
+                                    VideoQuality = VideoEncodingQuality.HD720p;
+                                    break;
+                                case "WVGA":
+                                    VideoQuality = VideoEncodingQuality.Wvga;
+                                    break;
+                                case "VGA":
+                                    VideoQuality = VideoEncodingQuality.Vga;
+                                    break;
+                                case "High":
+                                    AudioQuality = AudioEncodingQuality.High;
+                                    break;
+                                case "Medium":
+                                    AudioQuality = AudioEncodingQuality.Medium;
+                                    break;
+                                case "Low":
+                                    AudioQuality = AudioEncodingQuality.Low;
+                                    break;
                             }
-                            catch (Exception ex)
+
+                            switch (Para.Item3)
                             {
-                                LogTracer.Log(ex, "Toast notification could not be sent");
+                                case "MKV":
+                                    Profile = MediaEncodingProfile.CreateHevc(VideoQuality);
+                                    break;
+                                case "MP4":
+                                    Profile = MediaEncodingProfile.CreateMp4(VideoQuality);
+                                    break;
+                                case "WMV":
+                                    Profile = MediaEncodingProfile.CreateWmv(VideoQuality);
+                                    break;
+                                case "AVI":
+                                    Profile = MediaEncodingProfile.CreateAvi(VideoQuality);
+                                    break;
+                                case "MP3":
+                                    Profile = MediaEncodingProfile.CreateMp3(AudioQuality);
+                                    break;
+                                case "ALAC":
+                                    Profile = MediaEncodingProfile.CreateAlac(AudioQuality);
+                                    break;
+                                case "WMA":
+                                    Profile = MediaEncodingProfile.CreateWma(AudioQuality);
+                                    break;
+                                case "M4A":
+                                    Profile = MediaEncodingProfile.CreateM4a(AudioQuality);
+                                    break;
                             }
-                        });
 
-                        Result.TranscodeAsync().AsTask(AVTranscodeCancellation.Token, TranscodeProgress).Wait();
+                            PrepareTranscodeResult Result = Transcoder.PrepareFileTranscodeAsync(Para.Item1, Para.Item2, Profile).AsTask().Result;
 
-                        ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] = "Success";
+                            if (Result.CanTranscode)
+                            {
+                                SendUpdatableToastWithProgressForTranscode(Para.Item1, Para.Item2);
+                                Progress<double> TranscodeProgress = new Progress<double>((CurrentValue) =>
+                                {
+                                    try
+                                    {
+                                        NotificationData Data = new NotificationData
+                                        {
+                                            SequenceNumber = 0
+                                        };
+                                        Data.Values["ProgressValue"] = (Math.Ceiling(CurrentValue) / 100).ToString();
+                                        Data.Values["ProgressValueString"] = Convert.ToInt32(CurrentValue) + "%";
+
+                                        ToastNotificationManager.CreateToastNotifier().Update(Data, "TranscodeNotification");
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogTracer.Log(ex, "Toast notification could not be sent");
+                                    }
+                                });
+
+                                Result.TranscodeAsync().AsTask(AVTranscodeCancellation.Token, TranscodeProgress).Wait();
+
+                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                                {
+                                    ShowTranscodeCompleteNotification(Para.Item1, Para.Item2);
+                                }).AsTask().Wait();
+                            }
+                            else
+                            {
+                                LogTracer.Log("Transcode format is not supported");
+                                Para.Item2.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
+                            }
+                        }
+                        catch (AggregateException)
+                        {
+                            Para.Item2.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, "Transcode failed");
+                            Para.Item2.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
+                        }
+                        finally
+                        {
+                            AVTranscodeCancellation.Dispose();
+                            AVTranscodeCancellation = null;
+
+                            IsAnyTransformTaskRunning = false;
+                        }
                     }
-                    else
-                    {
-                        ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] = "NotSupport";
-                        Para.Item2.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
-                    }
                 }
-                catch (AggregateException)
-                {
-                    ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] = "Cancel";
-                    Para.Item2.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
-                }
-                catch (Exception e)
-                {
-                    ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] = e.Message;
-                    Para.Item2.DeleteAsync(StorageDeleteOption.PermanentDelete).AsTask().Wait();
-                }
-            }, (SourceFile, DestinationFile, MediaTranscodeEncodingProfile, MediaTranscodeQuality, SpeedUp), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Current).ContinueWith((task, ob) =>
-               {
-                   AVTranscodeCancellation.Dispose();
-                   AVTranscodeCancellation = null;
-
-                   var Para = (ValueTuple<StorageFile, StorageFile>)ob;
-
-                   if (ApplicationData.Current.LocalSettings.Values["MediaTranscodeStatus"] is string ExcuteStatus)
-                   {
-                       CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                       {
-                           switch (ExcuteStatus)
-                           {
-                               case "Success":
-                                   TabViewContainer.ThisPage.Notification.Show(Globalization.GetString("GeneralTransformer_Transcode_Success"), 5000);
-                                   ShowTranscodeCompleteNotification(Para.Item1, Para.Item2);
-                                   break;
-                               case "Cancel":
-                                   TabViewContainer.ThisPage.Notification.Show(Globalization.GetString("GeneralTransformer_Transcode_Cancel"), 5000);
-                                   ShowTranscodeCancelNotification();
-                                   break;
-                               case "NotSupport":
-                                   TabViewContainer.ThisPage.Notification.Show(Globalization.GetString("GeneralTransformer_Transcode_NotSupport"), 5000);
-                                   break;
-                               default:
-                                   TabViewContainer.ThisPage.Notification.Show(Globalization.GetString("GeneralTransformer_Transcode_Failure") + ExcuteStatus, 5000);
-                                   break;
-                           }
-                       }).AsTask().Wait();
-                   }
-
-                   IsAnyTransformTaskRunning = false;
-
-               }, (SourceFile, DestinationFile), TaskScheduler.Current);
+            }, (SourceFile, DestinationFile, MediaTranscodeEncodingProfile, MediaTranscodeQuality, SpeedUp), TaskCreationOptions.LongRunning);
         }
 
         private static void SendUpdatableToastWithProgressForCropVideo(StorageFile SourceFile)
@@ -448,20 +421,20 @@ namespace RX_Explorer.Class
                         BindingGeneric = new ToastBindingGeneric()
                         {
                             Children =
-                        {
-                            new AdaptiveText()
                             {
-                                Text = $"{Globalization.GetString("Crop_Toast_Title")} {SourceFile.Name}"
-                            },
+                                new AdaptiveText()
+                                {
+                                    Text = $"{Globalization.GetString("Crop_Toast_Title")} {SourceFile.Name}"
+                                },
 
-                            new AdaptiveProgressBar()
-                            {
-                                Title = Globalization.GetString("Crop_Toast_ProbarTitle"),
-                                Value = new BindableProgressBarValue("ProgressValue"),
-                                ValueStringOverride = new BindableString("ProgressValueString"),
-                                Status = new BindableString("ProgressStatus")
+                                new AdaptiveProgressBar()
+                                {
+                                    Title = Globalization.GetString("Crop_Toast_ProbarTitle"),
+                                    Value = new BindableProgressBarValue("ProgressValue"),
+                                    ValueStringOverride = new BindableString("ProgressValueString"),
+                                    Status = new BindableString("ProgressStatus")
+                                }
                             }
-                        }
                         }
                     }
                 };
@@ -484,7 +457,7 @@ namespace RX_Explorer.Class
                 {
                     if (s.Tag == "CropVideoNotification")
                     {
-                        AVTranscodeCancellation.Cancel();
+                        AVTranscodeCancellation?.Cancel();
                     }
                 };
 
@@ -545,7 +518,7 @@ namespace RX_Explorer.Class
                 {
                     if (s.Tag == "MergeVideoNotification")
                     {
-                        AVTranscodeCancellation.Cancel();
+                        AVTranscodeCancellation?.Cancel();
                     }
                 };
 
@@ -608,7 +581,7 @@ namespace RX_Explorer.Class
                 {
                     if (s.Tag == "TranscodeNotification")
                     {
-                        AVTranscodeCancellation.Cancel();
+                        AVTranscodeCancellation?.Cancel();
                     }
                 };
 

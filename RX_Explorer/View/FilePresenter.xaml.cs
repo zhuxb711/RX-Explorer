@@ -889,7 +889,7 @@ namespace RX_Explorer
                                 {
                                     case "Delete":
                                         {
-                                            QueueFileOperationController.EnqueueUndoOpeartion(OperationKind.Delete, SplitGroup.Select((Item) => Item[0]).ToArray(), OnCompleted: async (s, e) =>
+                                            QueueTaskController.EnqueueUndoOpeartion(OperationKind.Delete, SplitGroup.Select((Item) => Item[0]).ToArray(), OnCompleted: async (s, e) =>
                                             {
                                                 if (!SettingControl.IsDetachTreeViewAndPresenter)
                                                 {
@@ -904,7 +904,7 @@ namespace RX_Explorer
                                         }
                                     case "Move":
                                         {
-                                            QueueFileOperationController.EnqueueUndoOpeartion(OperationKind.Move, SplitGroup.Select((Item) => Item[2]).ToArray(), OriginFolderPath, OnCompleted: async (s, e) =>
+                                            QueueTaskController.EnqueueUndoOpeartion(OperationKind.Move, SplitGroup.Select((Item) => Item[2]).ToArray(), OriginFolderPath, OnCompleted: async (s, e) =>
                                             {
                                                 if (!SettingControl.IsDetachTreeViewAndPresenter)
                                                 {
@@ -919,7 +919,7 @@ namespace RX_Explorer
                                         }
                                     case "Copy":
                                         {
-                                            QueueFileOperationController.EnqueueUndoOpeartion(OperationKind.Copy, SplitGroup.Select((Item) => Item[2]).ToArray(), OnCompleted: async (s, e) =>
+                                            QueueTaskController.EnqueueUndoOpeartion(OperationKind.Copy, SplitGroup.Select((Item) => Item[2]).ToArray(), OnCompleted: async (s, e) =>
                                             {
                                                 if (!SettingControl.IsDetachTreeViewAndPresenter)
                                                 {
@@ -1084,18 +1084,18 @@ namespace RX_Explorer
                     {
                         if (PathList.All((Path) => System.IO.Path.GetDirectoryName(Path) != CurrentFolder.Path))
                         {
-                            QueueFileOperationController.EnqueueMoveOpeartion(PathList, CurrentFolder.Path);
+                            QueueTaskController.EnqueueMoveOpeartion(PathList, CurrentFolder.Path);
                         }
                     }
                     else if (Package.RequestedOperation.HasFlag(DataPackageOperation.Copy))
                     {
-                        QueueFileOperationController.EnqueueCopyOpeartion(PathList, CurrentFolder.Path);
+                        QueueTaskController.EnqueueCopyOpeartion(PathList, CurrentFolder.Path);
                     }
                 }
             }
             catch (Exception ex) when (ex.HResult is unchecked((int)0x80040064) or unchecked((int)0x8004006A))
             {
-                QueueFileOperationController.EnqueueRemoteCopyOpeartion(CurrentFolder.Path);
+                QueueTaskController.EnqueueRemoteCopyOpeartion(CurrentFolder.Path);
             }
             catch
             {
@@ -1241,7 +1241,7 @@ namespace RX_Explorer
 
                 if (ExecuteDelete)
                 {
-                    QueueFileOperationController.EnqueueDeleteOpeartion(PathList, PermanentDelete);
+                    QueueTaskController.EnqueueDeleteOpeartion(PathList, PermanentDelete);
                 }
             }
         }
@@ -1720,7 +1720,7 @@ namespace RX_Explorer
 
                 if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
-                    QueueFileOperationController.EnqueueCompressionOpeartion(Dialog.Type, Dialog.Level, File.Path, Path.Combine(CurrentFolder.Path, Dialog.FileName));
+                    QueueTaskController.EnqueueCompressionOpeartion(Dialog.Type, Dialog.Level, File.Path, Path.Combine(CurrentFolder.Path, Dialog.FileName));
                 }
             }
         }
@@ -1758,7 +1758,7 @@ namespace RX_Explorer
                             }
                             else
                             {
-                                QueueFileOperationController.EnqueueDecompressionOpeartion(File.Path, TargetFolder.Path);
+                                QueueTaskController.EnqueueDecompressionOpeartion(File.Path, TargetFolder.Path);
                             }
 
                             break;
@@ -1854,7 +1854,7 @@ namespace RX_Explorer
                             {
                                 try
                                 {
-                                    string DestFilePath = Path.Combine(CurrentFolder.Path, $"{Source.Path}.{dialog.MediaTranscodeEncodingProfile.ToLower()}");
+                                    string DestFilePath = Path.Combine(CurrentFolder.Path, $"{Path.GetFileNameWithoutExtension(Source.Path)}.{dialog.MediaTranscodeEncodingProfile.ToLower()}");
 
                                     if (await FileSystemStorageItemBase.CreateAsync(DestFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageItemBase Item)
                                     {
@@ -2604,6 +2604,7 @@ namespace RX_Explorer
                         if (await CurrentFolder.GetStorageItemAsync() is StorageFolder Folder)
                         {
                             StorageFile ExportFile = await Folder.CreateFileAsync($"{File.DisplayName} - {Globalization.GetString("Crop_Image_Name_Tail")}{Dialog.ExportFileType}", CreationCollisionOption.GenerateUniqueName);
+
                             await GeneralTransformer.GenerateCroppedVideoFromOriginAsync(ExportFile, Dialog.Composition, Dialog.MediaEncoding, Dialog.TrimmingPreference);
                         }
                     }
@@ -2828,7 +2829,7 @@ namespace RX_Explorer
 
                 if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
-                    QueueFileOperationController.EnqueueCompressionOpeartion(dialog.Type, dialog.Level, Folder.Path, Path.Combine(CurrentFolder.Path, dialog.FileName));
+                    QueueTaskController.EnqueueCompressionOpeartion(dialog.Type, dialog.Level, Folder.Path, Path.Combine(CurrentFolder.Path, dialog.FileName));
                 }
             }
         }
@@ -2946,13 +2947,13 @@ namespace RX_Explorer
                         {
                             case DataPackageOperation.Copy:
                                 {
-                                    QueueFileOperationController.EnqueueCopyOpeartion(PathList, Item.Path);
+                                    QueueTaskController.EnqueueCopyOpeartion(PathList, Item.Path);
 
                                     break;
                                 }
                             case DataPackageOperation.Move:
                                 {
-                                    QueueFileOperationController.EnqueueMoveOpeartion(PathList, Item.Path);
+                                    QueueTaskController.EnqueueMoveOpeartion(PathList, Item.Path);
 
                                     break;
                                 }
@@ -2964,7 +2965,7 @@ namespace RX_Explorer
             {
                 if ((sender as SelectorItem).Content is FileSystemStorageItemBase Item)
                 {
-                    QueueFileOperationController.EnqueueRemoteCopyOpeartion(Item.Path);
+                    QueueTaskController.EnqueueRemoteCopyOpeartion(Item.Path);
                 }
             }
             catch
@@ -3281,7 +3282,7 @@ namespace RX_Explorer
                     {
                         case DataPackageOperation.Copy:
                             {
-                                QueueFileOperationController.EnqueueCopyOpeartion(PathList, CurrentFolder.Path);
+                                QueueTaskController.EnqueueCopyOpeartion(PathList, CurrentFolder.Path);
 
                                 break;
                             }
@@ -3289,7 +3290,7 @@ namespace RX_Explorer
                             {
                                 if (PathList.All((Item) => Path.GetDirectoryName(Item) != CurrentFolder.Path))
                                 {
-                                    QueueFileOperationController.EnqueueMoveOpeartion(PathList, CurrentFolder.Path);
+                                    QueueTaskController.EnqueueMoveOpeartion(PathList, CurrentFolder.Path);
                                 }
 
                                 break;
@@ -3299,7 +3300,7 @@ namespace RX_Explorer
             }
             catch (Exception ex) when (ex.HResult is unchecked((int)0x80040064) or unchecked((int)0x8004006A))
             {
-                QueueFileOperationController.EnqueueRemoteCopyOpeartion(CurrentFolder.Path);
+                QueueTaskController.EnqueueRemoteCopyOpeartion(CurrentFolder.Path);
             }
             catch
             {
@@ -3470,7 +3471,7 @@ namespace RX_Explorer
                 || SelectedItems.All((Item) => Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase))
                 || SelectedItems.All((Item) => Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)))
             {
-                QueueFileOperationController.EnqueueDecompressionOpeartion(SelectedItems.Select((Item) => Item.Path));
+                QueueTaskController.EnqueueDecompressionOpeartion(SelectedItems.Select((Item) => Item.Path));
             }
             else
             {
@@ -3507,7 +3508,7 @@ namespace RX_Explorer
 
             if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
             {
-                QueueFileOperationController.EnqueueCompressionOpeartion(Dialog.Type, Dialog.Level, SelectedItems.Select((Item) => Item.Path), Path.Combine(CurrentFolder.Path, Dialog.FileName));
+                QueueTaskController.EnqueueCompressionOpeartion(Dialog.Type, Dialog.Level, SelectedItems.Select((Item) => Item.Path), Path.Combine(CurrentFolder.Path, Dialog.FileName));
             }
         }
 
@@ -4621,7 +4622,7 @@ namespace RX_Explorer
                                 }
                                 else
                                 {
-                                    QueueFileOperationController.EnqueueDecompressionOpeartion(File.Path, TargetFolder.Path, Dialog.CurrentEncoding);
+                                    QueueTaskController.EnqueueDecompressionOpeartion(File.Path, TargetFolder.Path, Dialog.CurrentEncoding);
                                 }
                             }
 

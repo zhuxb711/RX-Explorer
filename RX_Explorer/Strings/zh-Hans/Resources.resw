@@ -1103,36 +1103,6 @@
   <data name="EnDecode_Dialog_Content" xml:space="preserve">
     <value>由于缺失编码器或操作不受支持，无法进行图像格式转换</value>
   </data>
-  <data name="GeneralTransformer_Crop_Cancel" xml:space="preserve">
-    <value>视频裁剪任务被取消</value>
-  </data>
-  <data name="GeneralTransformer_Crop_Error" xml:space="preserve">
-    <value>裁剪视频时遇到未知错误</value>
-  </data>
-  <data name="GeneralTransformer_Crop_Success" xml:space="preserve">
-    <value>视频已成功完成裁剪</value>
-  </data>
-  <data name="GeneralTransformer_Merge_Cancel" xml:space="preserve">
-    <value>视频合并任务被取消</value>
-  </data>
-  <data name="GeneralTransformer_Merge_Error" xml:space="preserve">
-    <value>合并视频时遇到未知错误</value>
-  </data>
-  <data name="GeneralTransformer_Merge_Success" xml:space="preserve">
-    <value>视频已成功完成合并</value>
-  </data>
-  <data name="GeneralTransformer_Transcode_Cancel" xml:space="preserve">
-    <value>转码任务被取消</value>
-  </data>
-  <data name="GeneralTransformer_Transcode_Failure" xml:space="preserve">
-    <value>转码失败:</value>
-  </data>
-  <data name="GeneralTransformer_Transcode_NotSupport" xml:space="preserve">
-    <value>转码格式不支持</value>
-  </data>
-  <data name="GeneralTransformer_Transcode_Success" xml:space="preserve">
-    <value>转码已成功完成</value>
-  </data>
   <data name="Merge_Toast_Cancel_Text_1" xml:space="preserve">
     <value>合并已完成</value>
   </data>
@@ -1543,13 +1513,10 @@
     <value>稍后</value>
   </data>
   <data name="Toast_EnterBackground_Text_1" xml:space="preserve">
-    <value>请不要最小化RX文件管理器</value>
+    <value>RX文件管理器已被最小化</value>
   </data>
   <data name="Toast_EnterBackground_Text_2" xml:space="preserve">
-    <value>"Windows策略可能会终止RX的运行</value>
-  </data>
-  <data name="Toast_EnterBackground_Text_3" xml:space="preserve">
-    <value>点击以重新激活</value>
+    <value>RX文件管理器将尝试继续执行直至被Windows策略终止</value>
   </data>
   <data name="Transcode_Dialog_Format_Text" xml:space="preserve">
     <value>格式</value>
@@ -3070,5 +3037,14 @@
   </data>
   <data name="TaskList_OperationKind_Decompression" xml:space="preserve">
     <value>解压任务</value>
+  </data>
+  <data name="Toast_EnterBackground_Text_4" xml:space="preserve">
+    <value>如果您已接通电源，则可以忽略此通知</value>
+  </data>
+  <data name="Toast_EnterBackground_ActionButton" xml:space="preserve">
+    <value>激活</value>
+  </data>
+  <data name="Toast_EnterBackground_Dismiss" xml:space="preserve">
+    <value>消除</value>
   </data>
 </root>

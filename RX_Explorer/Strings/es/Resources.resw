@@ -1149,36 +1149,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="EnDecode_Dialog_Content" xml:space="preserve">
     <value>No se puede convertir el formato de imagen debido a un codificador faltante o a una operación no compatible.</value>
   </data>
-  <data name="GeneralTransformer_Crop_Cancel" xml:space="preserve">
-    <value>Se ha cancelado la tarea de recorte de vídeo.</value>
-  </data>
-  <data name="GeneralTransformer_Crop_Error" xml:space="preserve">
-    <value>Se ha producir un error al recortar el vídeo.</value>
-  </data>
-  <data name="GeneralTransformer_Crop_Success" xml:space="preserve">
-    <value>Vídeo recortado correctamente</value>
-  </data>
-  <data name="GeneralTransformer_Merge_Cancel" xml:space="preserve">
-    <value>Se ha cancelado la tarea de fusión de vídeo.</value>
-  </data>
-  <data name="GeneralTransformer_Merge_Error" xml:space="preserve">
-    <value>Se ha producir un error al fusionar el vídeo.</value>
-  </data>
-  <data name="GeneralTransformer_Merge_Success" xml:space="preserve">
-    <value>Vídeo fusionado correctamente</value>
-  </data>
-  <data name="GeneralTransformer_Transcode_Cancel" xml:space="preserve">
-    <value>Tarea de transcodificación cancelada</value>
-  </data>
-  <data name="GeneralTransformer_Transcode_Failure" xml:space="preserve">
-    <value>Error en la transcodificación:</value>
-  </data>
-  <data name="GeneralTransformer_Transcode_NotSupport" xml:space="preserve">
-    <value>El formato de transcodificación no es compatible.</value>
-  </data>
-  <data name="GeneralTransformer_Transcode_Success" xml:space="preserve">
-    <value>La transcodificación se ha completado correctamente.</value>
-  </data>
   <data name="Merge_Toast_Cancel_Text_1" xml:space="preserve">
     <value>Se ha cancelado la tarea de fusión.</value>
   </data>
@@ -1602,13 +1572,10 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>Más tarde</value>
   </data>
   <data name="Toast_EnterBackground_Text_1" xml:space="preserve">
-    <value>Por favor, no minimices RX Explorer.</value>
+    <value>RX-Explorer está minimizado</value>
   </data>
   <data name="Toast_EnterBackground_Text_2" xml:space="preserve">
-    <value>La política de Windows podría cancelar RX Explorer.</value>
-  </data>
-  <data name="Toast_EnterBackground_Text_3" xml:space="preserve">
-    <value>Pulsa para activar</value>
+    <value>RX-Explorer intentará continuar con la ejecución hasta que lo cancele la política de Windows</value>
   </data>
   <data name="Transcode_Dialog_Format_Text" xml:space="preserve">
     <value>formato</value>
@@ -3070,5 +3037,14 @@ Las denominaciones no válidas son:
   </data>
   <data name="TaskList_OperationKind_Decompression" xml:space="preserve">
     <value>Tarea de descompresión</value>
+  </data>
+  <data name="Toast_EnterBackground_Text_4" xml:space="preserve">
+    <value>Si está conectado, puede ignorar esta notificación</value>
+  </data>
+  <data name="Toast_EnterBackground_ActionButton" xml:space="preserve">
+    <value>Activar</value>
+  </data>
+  <data name="Toast_EnterBackground_Dismiss" xml:space="preserve">
+    <value>Despedir</value>
   </data>
 </root>

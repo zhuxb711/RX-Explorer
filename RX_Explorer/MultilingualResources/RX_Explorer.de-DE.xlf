@@ -1521,46 +1521,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <source>Cannot convert image format due to missing encoder or unsupported operation</source>
           <target state="translated">Bildformat kann aufgrund fehlender Encoder oder nicht unterstützter Operation nicht konvertiert werden</target>
         </trans-unit>
-        <trans-unit id="GeneralTransformer_Crop_Cancel" translate="yes" xml:space="preserve">
-          <source>Video crop task was canceled</source>
-          <target state="translated">Video-Zuschneidungsaufgabe wurde abgebrochen</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Crop_Error" translate="yes" xml:space="preserve">
-          <source>Encountered unknown error while cropping video</source>
-          <target state="translated">Unbekannter Fehler beim Zuschneiden des Videos</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Crop_Success" translate="yes" xml:space="preserve">
-          <source>Video successfully cropped</source>
-          <target state="translated">Video erfolgreich zugeschnitten</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Merge_Cancel" translate="yes" xml:space="preserve">
-          <source>Video merge task was canceled</source>
-          <target state="translated">Zusammenführung von Videos wurde abgebrochen</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Merge_Error" translate="yes" xml:space="preserve">
-          <source>Encountered unknown error while merging video</source>
-          <target state="translated">Unbekannter Fehler beim Zusammenführen der Videos</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Merge_Success" translate="yes" xml:space="preserve">
-          <source>Video successfully merged</source>
-          <target state="translated">Video erfolgreich zusammengeführt</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Transcode_Cancel" translate="yes" xml:space="preserve">
-          <source>Transcoding task is cancelled</source>
-          <target state="translated">Transkodierung wurde abgebrochen</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Transcode_Failure" translate="yes" xml:space="preserve">
-          <source>Transcoding failed:</source>
-          <target state="translated">Transkodierung fehlgeschlagen:</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Transcode_NotSupport" translate="yes" xml:space="preserve">
-          <source>Transcoding format is not supported</source>
-          <target state="translated">Transkodierungsformat wird nicht unterstützt</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Transcode_Success" translate="yes" xml:space="preserve">
-          <source>Transcoding has been successfully completed</source>
-          <target state="translated">Transkodierung wurde erfolgreich abgeschlossen</target>
-        </trans-unit>
         <trans-unit id="Merge_Toast_Cancel_Text_1" translate="yes" xml:space="preserve">
           <source>Merging task has been cancelled</source>
           <target state="translated">Zusammenführung wurde abgebrochen</target>
@@ -2117,16 +2077,12 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <target state="translated">Später</target>
         </trans-unit>
         <trans-unit id="Toast_EnterBackground_Text_1" translate="yes" xml:space="preserve">
-          <source>Please do not minimize RX-Explorer</source>
-          <target state="translated">Bitte minimiere EX-Explorer nicht.</target>
+          <source>RX-Explorer is minimized</source>
+          <target state="translated">RX-Explorer wird minimiert</target>
         </trans-unit>
         <trans-unit id="Toast_EnterBackground_Text_2" translate="yes" xml:space="preserve">
-          <source>Windows policy may terminate RX-Explorer</source>
-          <target state="translated">Windows-Richtlinie kann RX-Explorer beenden</target>
-        </trans-unit>
-        <trans-unit id="Toast_EnterBackground_Text_3" translate="yes" xml:space="preserve">
-          <source>Click to activate</source>
-          <target state="translated">Zum aktivieren klicken</target>
+          <source>RX-Explorer will try to continue execution until terminated by Windows policy</source>
+          <target state="translated">RX-Explorer versucht, die Ausführung fortzusetzen, bis sie von der Windows-Richtlinie beendet wird</target>
         </trans-unit>
         <trans-unit id="Transcode_Dialog_Format_Text" translate="yes" xml:space="preserve">
           <source>format</source>
@@ -4073,6 +4029,18 @@ Inkorrekte Namen sind
         <trans-unit id="TaskList_OperationKind_Decompression" translate="yes" xml:space="preserve">
           <source>Decompression task</source>
           <target state="translated">Dekomprimierungsaufgabe</target>
+        </trans-unit>
+        <trans-unit id="Toast_EnterBackground_Text_4" translate="yes" xml:space="preserve">
+          <source>If you are plugged in, you can ignore this notification</source>
+          <target state="translated">Wenn Sie angeschlossen sind, können Sie diese Benachrichtigung ignorieren</target>
+        </trans-unit>
+        <trans-unit id="Toast_EnterBackground_ActionButton" translate="yes" xml:space="preserve">
+          <source>Activate</source>
+          <target state="translated">Aktivieren</target>
+        </trans-unit>
+        <trans-unit id="Toast_EnterBackground_Dismiss" translate="yes" xml:space="preserve">
+          <source>Dismiss</source>
+          <target state="translated">Entlassen</target>
         </trans-unit>
       </group>
     </body>

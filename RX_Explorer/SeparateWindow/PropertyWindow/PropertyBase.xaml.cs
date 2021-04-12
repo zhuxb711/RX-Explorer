@@ -1,5 +1,4 @@
 ﻿using ComputerVision;
-using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
@@ -175,15 +174,15 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                     await Exclusive.Controller.UpdateLinkAsync(StorageItem.Path, ShortcutTargetContent.Text,
                                                                ShortcutStartInContent.Text,
                                                                (WindowState)ShortcutWindowsStateContent.SelectedIndex,
-                                                               (int)Enum.Parse<VirtualKey>(ShortcutKeyContent.Text.Replace("Ctrl + Alt + ", string.Empty)),
+                                                               ShortcutKeyContent.Text == Globalization.GetString("ShortcutHotKey_None") ? (int)VirtualKey.None : (int)Enum.Parse<VirtualKey>(ShortcutKeyContent.Text.Replace("Ctrl + Alt + ", string.Empty)),
                                                                ShortcutCommentContent.Text,
                                                                RunAsAdmin.IsChecked.GetValueOrDefault());
                 }
             }
 
-            if (StorageItemName.Text != Path.GetFileNameWithoutExtension(StorageItem.Name))
+            if (StorageItemName.Text != StorageItem.DisplayName)
             {
-                await StorageItem.RenameAsync(StorageItemName.Text + StorageItem.Type).ConfigureAwait(false);
+                await StorageItem.RenameAsync(StorageItemName.Text).ConfigureAwait(false);
             }
         }
 
@@ -725,7 +724,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                 string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(StorageItem.Type);
 
-                if (string.IsNullOrEmpty(AdminExecutablePath))
+                if (string.IsNullOrEmpty(AdminExecutablePath) || AdminExecutablePath == Package.Current.Id.FamilyName)
                 {
                     switch (StorageItem.Type.ToLower())
                     {
@@ -745,25 +744,32 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                             {
                                 OpenWithContent.Text = Globalization.GetString("AppDisplayName");
 
-                                RandomAccessStreamReference Reference = Package.Current.GetLogoAsRandomAccessStreamReference(new Size(50, 50));
-
-                                using (IRandomAccessStreamWithContentType LogoStream = await Reference.OpenReadAsync())
+                                try
                                 {
-                                    BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(LogoStream);
+                                    RandomAccessStreamReference Reference = Package.Current.GetLogoAsRandomAccessStreamReference(new Size(50, 50));
 
-                                    using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
-                                    using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
-                                    using (InMemoryRandomAccessStream Stream = new InMemoryRandomAccessStream())
+                                    using (IRandomAccessStreamWithContentType LogoStream = await Reference.OpenReadAsync())
                                     {
-                                        BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, Stream);
+                                        BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(LogoStream);
 
-                                        Encoder.SetSoftwareBitmap(ResizeBitmap);
-                                        await Encoder.FlushAsync();
+                                        using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                                        using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
+                                        using (InMemoryRandomAccessStream Stream = new InMemoryRandomAccessStream())
+                                        {
+                                            BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, Stream);
 
-                                        BitmapImage Image = new BitmapImage();
-                                        OpenWithImage.Source = Image;
-                                        await Image.SetSourceAsync(Stream);
+                                            Encoder.SetSoftwareBitmap(ResizeBitmap);
+                                            await Encoder.FlushAsync();
+
+                                            BitmapImage Image = new BitmapImage();
+                                            OpenWithImage.Source = Image;
+                                            await Image.SetSourceAsync(Stream);
+                                        }
                                     }
+                                }
+                                catch
+                                {
+                                    OpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
                                 }
 
                                 break;
@@ -802,37 +808,12 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 }
                 else
                 {
-                    if (AdminExecutablePath == Package.Current.Id.FamilyName)
+                    if ((await Launcher.FindFileHandlersAsync(StorageItem.Type)).FirstOrDefault((Item) => Item.PackageFamilyName == AdminExecutablePath) is AppInfo Info)
                     {
-                        OpenWithContent.Text = Globalization.GetString("AppDisplayName");
+                        OpenWithContent.Text = Info.Package.DisplayName;
 
-                        RandomAccessStreamReference Reference = Package.Current.GetLogoAsRandomAccessStreamReference(new Size(50, 50));
-
-                        using (IRandomAccessStreamWithContentType LogoStream = await Reference.OpenReadAsync())
+                        try
                         {
-                            BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(LogoStream);
-
-                            using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
-                            using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
-                            using (InMemoryRandomAccessStream Stream = new InMemoryRandomAccessStream())
-                            {
-                                BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, Stream);
-
-                                Encoder.SetSoftwareBitmap(ResizeBitmap);
-                                await Encoder.FlushAsync();
-
-                                BitmapImage Image = new BitmapImage();
-                                OpenWithImage.Source = Image;
-                                await Image.SetSourceAsync(Stream);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if ((await Launcher.FindFileHandlersAsync(StorageItem.Type)).FirstOrDefault((Item) => Item.PackageFamilyName == AdminExecutablePath) is AppInfo Info)
-                        {
-                            OpenWithContent.Text = Info.Package.DisplayName;
-
                             RandomAccessStreamReference Reference = Info.Package.GetLogoAsRandomAccessStreamReference(new Size(50, 50));
 
                             using (IRandomAccessStreamWithContentType LogoStream = await Reference.OpenReadAsync())
@@ -854,11 +835,15 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                 }
                             }
                         }
-                        else
+                        catch
                         {
-                            OpenWithContent.Text = Globalization.GetString("OpenWithEmptyText");
                             OpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
                         }
+                    }
+                    else
+                    {
+                        OpenWithContent.Text = Globalization.GetString("OpenWithEmptyText");
+                        OpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
                     }
                 }
             }

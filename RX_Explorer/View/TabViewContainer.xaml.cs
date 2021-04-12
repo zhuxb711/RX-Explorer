@@ -43,7 +43,7 @@ namespace RX_Explorer
             CoreWindow.GetForCurrentThread().PointerPressed += TabViewContainer_PointerPressed;
             CoreWindow.GetForCurrentThread().KeyDown += TabViewContainer_KeyDown;
             CommonAccessCollection.LibraryNotFound += CommonAccessCollection_LibraryNotFound;
-            QueueFileOperationController.ListItemSource.CollectionChanged += ListItemSource_CollectionChanged;
+            QueueTaskController.ListItemSource.CollectionChanged += ListItemSource_CollectionChanged;
 
             if (ApplicationData.Current.LocalSettings.Values["ShouldPinTaskList"] is bool ShouldPin)
             {
@@ -92,7 +92,7 @@ namespace RX_Explorer
 
         private void ListItemSource_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            EmptyTip.Visibility = QueueFileOperationController.ListItemSource.Any() ? Visibility.Collapsed : Visibility.Visible;
+            EmptyTip.Visibility = QueueTaskController.ListItemSource.Any() ? Visibility.Collapsed : Visibility.Visible;
         }
 
         private void TabCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -855,7 +855,7 @@ namespace RX_Explorer
             if (((Button)sender).DataContext is OperationListBaseModel Model)
             {
                 Model.UpdateStatus(OperationStatus.Cancel);
-                QueueFileOperationController.ListItemSource.Remove(Model);
+                QueueTaskController.ListItemSource.Remove(Model);
             }
         }
     }

@@ -23,10 +23,47 @@ namespace RX_Explorer.Dialog
     {
         private readonly QuickStartItem QuickItem;
         private readonly QuickStartType Type;
+        private readonly bool IsUpdate;
         private StorageFile ImageFile;
         private readonly ObservableCollection<InstalledApplication> PackageListViewSource = new ObservableCollection<InstalledApplication>();
 
-        public QuickStartModifiedDialog(QuickStartType Type, QuickStartItem Item = null)
+        public QuickStartModifiedDialog(QuickStartItem Item)
+        {
+            InitializeComponent();
+
+            Type = Item.Type;
+            IsUpdate = true;
+
+            switch (Item.Type)
+            {
+                case QuickStartType.Application:
+                    {
+                        Protocol.PlaceholderText = Globalization.GetString("QuickStart_Protocol_Application_PlaceholderText");
+                        GetImageAutomatic.Visibility = Visibility.Visible;
+                        PickLogo.Visibility = Visibility.Collapsed;
+                        PickApp.Visibility = Visibility.Visible;
+                        Icon.Source = Item.Image;
+                        DisplayName.Text = Item.DisplayName;
+                        Protocol.Text = Item.Protocol.ToString();
+                        QuickItem = Item;
+                        break;
+                    }
+                case QuickStartType.WebSite:
+                    {
+                        Protocol.PlaceholderText = Globalization.GetString("QuickStart_Protocol_Web_PlaceholderText");
+                        GetImageAutomatic.Visibility = Visibility.Visible;
+                        PickLogo.Visibility = Visibility.Visible;
+                        PickApp.Visibility = Visibility.Collapsed;
+                        Icon.Source = Item.Image;
+                        DisplayName.Text = Item.DisplayName;
+                        Protocol.Text = Item.Protocol.ToString();
+                        QuickItem = Item;
+                        break;
+                    }
+            }
+        }
+
+        public QuickStartModifiedDialog(QuickStartType Type)
         {
             InitializeComponent();
 
@@ -48,40 +85,6 @@ namespace RX_Explorer.Dialog
                         GetImageAutomatic.Visibility = Visibility.Visible;
                         PickLogo.Visibility = Visibility.Visible;
                         PickApp.Visibility = Visibility.Collapsed;
-                        break;
-                    }
-                case QuickStartType.UpdateApp:
-                    {
-                        if (Item == null)
-                        {
-                            throw new ArgumentNullException(nameof(Item), "Parameter could not be null");
-                        }
-
-                        Protocol.PlaceholderText = Globalization.GetString("QuickStart_Protocol_Application_PlaceholderText");
-                        GetImageAutomatic.Visibility = Visibility.Visible;
-                        PickLogo.Visibility = Visibility.Collapsed;
-                        PickApp.Visibility = Visibility.Visible;
-                        Icon.Source = Item.Image;
-                        DisplayName.Text = Item.DisplayName;
-                        Protocol.Text = Item.Protocol.ToString();
-                        QuickItem = Item;
-                        break;
-                    }
-                case QuickStartType.UpdateWeb:
-                    {
-                        if (Item == null)
-                        {
-                            throw new ArgumentNullException(nameof(Item), "Parameter could not be null");
-                        }
-
-                        Protocol.PlaceholderText = Globalization.GetString("QuickStart_Protocol_Web_PlaceholderText");
-                        GetImageAutomatic.Visibility = Visibility.Visible;
-                        PickLogo.Visibility = Visibility.Visible;
-                        PickApp.Visibility = Visibility.Collapsed;
-                        Icon.Source = Item.Image;
-                        DisplayName.Text = Item.DisplayName;
-                        Protocol.Text = Item.Protocol.ToString();
-                        QuickItem = Item;
                         break;
                     }
             }
@@ -121,7 +124,7 @@ namespace RX_Explorer.Dialog
                 {
                     case QuickStartType.Application:
                         {
-                            if (Uri.TryCreate(Protocol.Text, UriKind.Absolute, out Uri _))
+                            if (Uri.TryCreate(Protocol.Text, UriKind.Absolute, out _))
                             {
                                 if (!FileSystemItemNameChecker.IsValid(DisplayName.Text))
                                 {
@@ -131,13 +134,31 @@ namespace RX_Explorer.Dialog
                                     return;
                                 }
 
-                                string ImageName = DisplayName.Text + Path.GetExtension(ImageFile.Path);
+                                if (IsUpdate)
+                                {
+                                    if (ImageFile == null)
+                                    {
+                                        await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, null, Protocol.Text, QuickStartType.Application);
 
-                                StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
+                                        QuickItem.Update(Icon.Source as BitmapImage, Protocol.Text, null, DisplayName.Text);
+                                    }
+                                    else
+                                    {
+                                        StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.OpenIfExists), DisplayName.Text + Path.GetExtension(ImageFile.Path), NameCollisionOption.GenerateUniqueName);
 
-                                CommonAccessCollection.QuickStartList.Add(new QuickStartItem(Icon.Source as BitmapImage, Protocol.Text, QuickStartType.Application, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text));
+                                        await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application);
 
-                                await SQLite.Current.SetQuickStartItemAsync(DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application);
+                                        QuickItem.Update(Icon.Source as BitmapImage, Protocol.Text, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text);
+                                    }
+                                }
+                                else
+                                {
+                                    StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.OpenIfExists), DisplayName.Text + Path.GetExtension(ImageFile.Path), NameCollisionOption.GenerateUniqueName);
+
+                                    CommonAccessCollection.QuickStartList.Add(new QuickStartItem(Icon.Source as BitmapImage, Protocol.Text, QuickStartType.Application, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text));
+
+                                    await SQLite.Current.SetQuickStartItemAsync(DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application);
+                                }
                             }
                             else
                             {
@@ -145,13 +166,31 @@ namespace RX_Explorer.Dialog
                                 {
                                     if (await Exclusive.Controller.CheckIfPackageFamilyNameExist(Protocol.Text))
                                     {
-                                        string ImageName = DisplayName.Text + Path.GetExtension(ImageFile.Path);
+                                        if (IsUpdate)
+                                        {
+                                            if (ImageFile == null)
+                                            {
+                                                await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, null, Protocol.Text, QuickStartType.Application);
 
-                                        StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
+                                                QuickItem.Update(Icon.Source as BitmapImage, Protocol.Text, null, DisplayName.Text);
+                                            }
+                                            else
+                                            {
+                                                StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.OpenIfExists), DisplayName.Text + Path.GetExtension(ImageFile.Path), NameCollisionOption.GenerateUniqueName);
 
-                                        CommonAccessCollection.QuickStartList.Add(new QuickStartItem(Icon.Source as BitmapImage, Protocol.Text, QuickStartType.Application, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text));
+                                                await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application);
 
-                                        await SQLite.Current.SetQuickStartItemAsync(DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application);
+                                                QuickItem.Update(Icon.Source as BitmapImage, Protocol.Text, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.OpenIfExists), DisplayName.Text + Path.GetExtension(ImageFile.Path), NameCollisionOption.GenerateUniqueName);
+
+                                            CommonAccessCollection.QuickStartList.Add(new QuickStartItem(Icon.Source as BitmapImage, Protocol.Text, QuickStartType.Application, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text));
+
+                                            await SQLite.Current.SetQuickStartItemAsync(DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application);
+                                        }
                                     }
                                     else
                                     {
@@ -165,7 +204,7 @@ namespace RX_Explorer.Dialog
                         }
                     case QuickStartType.WebSite:
                         {
-                            if (Uri.TryCreate(Protocol.Text, UriKind.Absolute, out Uri _))
+                            if (Uri.TryCreate(Protocol.Text, UriKind.Absolute, out _))
                             {
                                 if (!FileSystemItemNameChecker.IsValid(DisplayName.Text))
                                 {
@@ -175,111 +214,30 @@ namespace RX_Explorer.Dialog
                                     return;
                                 }
 
-                                string ImageName = DisplayName.Text + Path.GetExtension(ImageFile.Path);
-
-                                StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("HotWebImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
-
-                                CommonAccessCollection.HotWebList.Add(new QuickStartItem(Icon.Source as BitmapImage, Protocol.Text, QuickStartType.WebSite, $"HotWebImage\\{NewFile.Name}", DisplayName.Text));
-
-                                await SQLite.Current.SetQuickStartItemAsync(DisplayName.Text, $"HotWebImage\\{NewFile.Name}", Protocol.Text, QuickStartType.WebSite);
-                            }
-                            else
-                            {
-                                FormatErrorTip.IsOpen = true;
-                                args.Cancel = true;
-                            }
-
-                            break;
-                        }
-                    case QuickStartType.UpdateApp:
-                        {
-                            if (Uri.TryCreate(Protocol.Text, UriKind.Absolute, out Uri _))
-                            {
-                                if (!FileSystemItemNameChecker.IsValid(DisplayName.Text))
+                                if (IsUpdate)
                                 {
-                                    args.Cancel = true;
-                                    InvalidCharTip.IsOpen = true;
-                                    Deferral.Complete();
-                                    return;
-                                }
-
-                                if (ImageFile != null)
-                                {
-                                    string ImageName = DisplayName.Text + Path.GetExtension(ImageFile.Path);
-
-                                    StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
-
-                                    await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application);
-
-                                    QuickItem.Update(Icon.Source as BitmapImage, Protocol.Text, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text);
-                                }
-                                else
-                                {
-                                    await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, null, Protocol.Text, QuickStartType.Application);
-
-                                    QuickItem.Update(Icon.Source as BitmapImage, Protocol.Text, null, DisplayName.Text);
-                                }
-                            }
-                            else
-                            {
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                                {
-                                    if (await Exclusive.Controller.CheckIfPackageFamilyNameExist(Protocol.Text))
+                                    if (ImageFile == null)
                                     {
-                                        if (ImageFile != null)
-                                        {
-                                            string ImageName = DisplayName.Text + Path.GetExtension(ImageFile.Path);
+                                        await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, null, Protocol.Text, QuickStartType.WebSite);
 
-                                            StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
-
-                                            await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application);
-
-                                            QuickItem.Update(Icon.Source as BitmapImage, Protocol.Text, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text);
-                                        }
-                                        else
-                                        {
-                                            await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, null, Protocol.Text, QuickStartType.Application);
-
-                                            QuickItem.Update(Icon.Source as BitmapImage, Protocol.Text, null, DisplayName.Text);
-                                        }
+                                        QuickItem.Update(Icon.Source as BitmapImage, Protocol.Text, null, DisplayName.Text);
                                     }
                                     else
                                     {
-                                        FormatErrorTip.IsOpen = true;
-                                        args.Cancel = true;
+                                        StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("HotWebImage", CreationCollisionOption.OpenIfExists), DisplayName.Text + Path.GetExtension(ImageFile.Path), NameCollisionOption.GenerateUniqueName);
+
+                                        await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, $"HotWebImage\\{NewFile.Name}", Protocol.Text, QuickStartType.WebSite);
+
+                                        QuickItem.Update(Icon.Source as BitmapImage, Protocol.Text, $"HotWebImage\\{NewFile.Name}", DisplayName.Text);
                                     }
-                                }
-                            }
-
-                            break;
-                        }
-                    case QuickStartType.UpdateWeb:
-                        {
-                            if (Uri.TryCreate(Protocol.Text, UriKind.Absolute, out Uri _))
-                            {
-                                if (!FileSystemItemNameChecker.IsValid(DisplayName.Text))
-                                {
-                                    args.Cancel = true;
-                                    InvalidCharTip.IsOpen = true;
-                                    Deferral.Complete();
-                                    return;
-                                }
-
-                                if (ImageFile != null)
-                                {
-                                    string ImageName = DisplayName.Text + Path.GetExtension(ImageFile.Path);
-
-                                    StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("HotWebImage", CreationCollisionOption.OpenIfExists), ImageName, NameCollisionOption.GenerateUniqueName);
-
-                                    await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, $"HotWebImage\\{NewFile.Name}", Protocol.Text, QuickStartType.WebSite);
-
-                                    QuickItem.Update(Icon.Source as BitmapImage, Protocol.Text, $"HotWebImage\\{NewFile.Name}", DisplayName.Text);
                                 }
                                 else
                                 {
-                                    await SQLite.Current.UpdateQuickStartItemAsync(QuickItem.DisplayName, DisplayName.Text, null, Protocol.Text, QuickStartType.WebSite);
+                                    StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("HotWebImage", CreationCollisionOption.OpenIfExists), DisplayName.Text + Path.GetExtension(ImageFile.Path), NameCollisionOption.GenerateUniqueName);
 
-                                    QuickItem.Update(Icon.Source as BitmapImage, Protocol.Text, null, DisplayName.Text);
+                                    CommonAccessCollection.HotWebList.Add(new QuickStartItem(Icon.Source as BitmapImage, Protocol.Text, QuickStartType.WebSite, $"HotWebImage\\{NewFile.Name}", DisplayName.Text));
+
+                                    await SQLite.Current.SetQuickStartItemAsync(DisplayName.Text, $"HotWebImage\\{NewFile.Name}", Protocol.Text, QuickStartType.WebSite);
                                 }
                             }
                             else
@@ -288,10 +246,6 @@ namespace RX_Explorer.Dialog
                                 args.Cancel = true;
                             }
 
-                            break;
-                        }
-                    default:
-                        {
                             break;
                         }
                 }
@@ -312,7 +266,6 @@ namespace RX_Explorer.Dialog
             switch (Type)
             {
                 case QuickStartType.Application:
-                case QuickStartType.UpdateApp:
                     {
                         if (Uri.TryCreate(Protocol.Text, UriKind.Absolute, out Uri Result))
                         {
@@ -507,7 +460,6 @@ namespace RX_Explorer.Dialog
                         break;
                     }
                 case QuickStartType.WebSite:
-                case QuickStartType.UpdateWeb:
                     {
                         try
                         {

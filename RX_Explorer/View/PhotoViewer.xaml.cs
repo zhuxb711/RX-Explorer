@@ -351,8 +351,7 @@ namespace RX_Explorer
                 TranscodeLoadingControl.IsLoading = true;
 
                 await GeneralTransformer.TranscodeFromImageAsync(Item, Dialog.TargetFile, Dialog.IsEnableScale, Dialog.ScaleWidth, Dialog.ScaleHeight, Dialog.InterpolationMode);
-
-                await Task.Delay(1000);
+                await Task.Delay(500);
 
                 TranscodeLoadingControl.IsLoading = false;
             }

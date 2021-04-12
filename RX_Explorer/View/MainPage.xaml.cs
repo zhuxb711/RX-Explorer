@@ -167,18 +167,20 @@ namespace RX_Explorer
 
         private void Current_EnteredBackground(object sender, EnteredBackgroundEventArgs e)
         {
-            if (FullTrustProcessController.IsAnyActionExcutingInAllController || GeneralTransformer.IsAnyTransformTaskRunning)
+            if (FullTrustProcessController.IsAnyActionExcutingInAllControllers || GeneralTransformer.IsAnyTransformTaskRunning)
             {
                 try
                 {
                     ToastNotificationManager.History.Remove("EnterBackgroundTips");
 
                     ToastContentBuilder Builder = new ToastContentBuilder()
-                                                  .SetToastScenario(ToastScenario.Alarm)
+                                                  .SetToastScenario(ToastScenario.Reminder)
                                                   .AddToastActivationInfo("EnterBackgroundTips", ToastActivationType.Foreground)
                                                   .AddText(Globalization.GetString("Toast_EnterBackground_Text_1"))
                                                   .AddText(Globalization.GetString("Toast_EnterBackground_Text_2"))
-                                                  .AddText(Globalization.GetString("Toast_EnterBackground_Text_3"));
+                                                  .AddText(Globalization.GetString("Toast_EnterBackground_Text_4"))
+                                                  .AddButton(new ToastButton(Globalization.GetString("Toast_EnterBackground_ActionButton"), "EnterBackgroundTips"))
+                                                  .AddButton(new ToastButtonDismiss(Globalization.GetString("Toast_EnterBackground_Dismiss")));
 
                     ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Builder.GetToastContent().GetXml())
                     {
@@ -199,7 +201,7 @@ namespace RX_Explorer
 
             try
             {
-                if (GeneralTransformer.IsAnyTransformTaskRunning || FullTrustProcessController.IsAnyActionExcutingInAllController)
+                if (GeneralTransformer.IsAnyTransformTaskRunning || FullTrustProcessController.IsAnyActionExcutingInAllControllers)
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {

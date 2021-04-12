@@ -1521,46 +1521,6 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <source>Cannot convert image format due to missing encoder or unsupported operation</source>
           <target state="translated">No se puede convertir el formato de imagen debido a un codificador faltante o a una operación no compatible.</target>
         </trans-unit>
-        <trans-unit id="GeneralTransformer_Crop_Cancel" translate="yes" xml:space="preserve">
-          <source>Video crop task was canceled</source>
-          <target state="translated">Se ha cancelado la tarea de recorte de vídeo.</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Crop_Error" translate="yes" xml:space="preserve">
-          <source>Encountered unknown error while cropping video</source>
-          <target state="translated">Se ha producir un error al recortar el vídeo.</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Crop_Success" translate="yes" xml:space="preserve">
-          <source>Video successfully cropped</source>
-          <target state="translated">Vídeo recortado correctamente</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Merge_Cancel" translate="yes" xml:space="preserve">
-          <source>Video merge task was canceled</source>
-          <target state="translated">Se ha cancelado la tarea de fusión de vídeo.</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Merge_Error" translate="yes" xml:space="preserve">
-          <source>Encountered unknown error while merging video</source>
-          <target state="translated">Se ha producir un error al fusionar el vídeo.</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Merge_Success" translate="yes" xml:space="preserve">
-          <source>Video successfully merged</source>
-          <target state="translated">Vídeo fusionado correctamente</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Transcode_Cancel" translate="yes" xml:space="preserve">
-          <source>Transcoding task is cancelled</source>
-          <target state="translated">Tarea de transcodificación cancelada</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Transcode_Failure" translate="yes" xml:space="preserve">
-          <source>Transcoding failed:</source>
-          <target state="translated">Error en la transcodificación:</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Transcode_NotSupport" translate="yes" xml:space="preserve">
-          <source>Transcoding format is not supported</source>
-          <target state="translated">El formato de transcodificación no es compatible.</target>
-        </trans-unit>
-        <trans-unit id="GeneralTransformer_Transcode_Success" translate="yes" xml:space="preserve">
-          <source>Transcoding has been successfully completed</source>
-          <target state="translated">La transcodificación se ha completado correctamente.</target>
-        </trans-unit>
         <trans-unit id="Merge_Toast_Cancel_Text_1" translate="yes" xml:space="preserve">
           <source>Merging task has been cancelled</source>
           <target state="translated">Se ha cancelado la tarea de fusión.</target>
@@ -2117,16 +2077,12 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <target state="translated">Más tarde</target>
         </trans-unit>
         <trans-unit id="Toast_EnterBackground_Text_1" translate="yes" xml:space="preserve">
-          <source>Please do not minimize RX-Explorer</source>
-          <target state="translated">Por favor, no minimices RX Explorer.</target>
+          <source>RX-Explorer is minimized</source>
+          <target state="translated">RX-Explorer está minimizado</target>
         </trans-unit>
         <trans-unit id="Toast_EnterBackground_Text_2" translate="yes" xml:space="preserve">
-          <source>Windows policy may terminate RX-Explorer</source>
-          <target state="translated">La política de Windows podría cancelar RX Explorer.</target>
-        </trans-unit>
-        <trans-unit id="Toast_EnterBackground_Text_3" translate="yes" xml:space="preserve">
-          <source>Click to activate</source>
-          <target state="translated">Pulsa para activar</target>
+          <source>RX-Explorer will try to continue execution until terminated by Windows policy</source>
+          <target state="translated">RX-Explorer intentará continuar con la ejecución hasta que lo cancele la política de Windows</target>
         </trans-unit>
         <trans-unit id="Transcode_Dialog_Format_Text" translate="yes" xml:space="preserve">
           <source>format</source>
@@ -4073,6 +4029,18 @@ Las denominaciones no válidas son:
         <trans-unit id="TaskList_OperationKind_Decompression" translate="yes" xml:space="preserve">
           <source>Decompression task</source>
           <target state="translated">Tarea de descompresión</target>
+        </trans-unit>
+        <trans-unit id="Toast_EnterBackground_Text_4" translate="yes" xml:space="preserve">
+          <source>If you are plugged in, you can ignore this notification</source>
+          <target state="translated">Si está conectado, puede ignorar esta notificación</target>
+        </trans-unit>
+        <trans-unit id="Toast_EnterBackground_ActionButton" translate="yes" xml:space="preserve">
+          <source>Activate</source>
+          <target state="translated">Activar</target>
+        </trans-unit>
+        <trans-unit id="Toast_EnterBackground_Dismiss" translate="yes" xml:space="preserve">
+          <source>Dismiss</source>
+          <target state="translated">Despedir</target>
         </trans-unit>
       </group>
     </body>
