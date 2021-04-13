@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Text;
 using Vanara.PInvoke;
 
 namespace FullTrustProcess
@@ -65,6 +66,29 @@ namespace FullTrustProcess
             finally
             {
                 Association.TrimExcess();
+            }
+        }
+
+        public static string GetDefaultProgramPathRelated(string Path)
+        {
+            for (uint BufferSize = 512; ; BufferSize += 512)
+            {
+                StringBuilder Builder = new StringBuilder(Convert.ToInt32(BufferSize));
+
+                HRESULT Result = ShlwApi.AssocQueryString(ShlwApi.ASSOCF.ASSOCF_NOFIXUPS | ShlwApi.ASSOCF.ASSOCF_VERIFY | ShlwApi.ASSOCF.ASSOCF_NOTRUNCATE | ShlwApi.ASSOCF.ASSOCF_INIT_DEFAULTTOSTAR | ShlwApi.ASSOCF.ASSOCF_REMAPRUNDLL, ShlwApi.ASSOCSTR.ASSOCSTR_EXECUTABLE | ShlwApi.ASSOCSTR.ASSOCSTR_APPID, System.IO.Path.GetExtension(Path).ToLower(), null, Builder, ref BufferSize);
+
+                if (Result == HRESULT.S_OK)
+                {
+                    return Builder.ToString();
+                }
+                else if (Result == HRESULT.E_POINTER)
+                {
+                    continue;
+                }
+                else
+                {
+                    return string.Empty;
+                }
             }
         }
     }
