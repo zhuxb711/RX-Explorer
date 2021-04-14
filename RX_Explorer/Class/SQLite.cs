@@ -59,33 +59,35 @@ namespace RX_Explorer.Class
         /// </summary>
         private void InitializeDatabase()
         {
-            string Command = "Create Table If Not Exists SearchHistory (SearchText Text Not Null, Primary Key (SearchText));"
-                           + "Create Table If Not Exists QuickStart (Name Text Not Null, FullPath Text Not Null Collate NoCase, Protocal Text Not Null, Type Text Not Null, Primary Key (Name,FullPath,Protocal,Type));"
-                           + "Create Table If Not Exists Library (Path Text Not Null Collate NoCase, Type Text Not Null, Primary Key (Path));"
-                           + "Create Table If Not Exists PathHistory (Path Text Not Null Collate NoCase, Primary Key (Path));"
-                           + "Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));"
-                           + "Create Table If Not Exists ProgramPicker (FileType Text Not Null, Path Text Not Null Collate NoCase, IsDefault Text Default 'False' Check(IsDefault In ('True','False')), IsRecommanded Text Default 'False' Check(IsRecommanded In ('True','False')), Primary Key(FileType, Path));"
-                           + "Create Table If Not Exists TerminalProfile (Name Text Not Null, Path Text Not Null Collate NoCase, Argument Text Not Null, RunAsAdmin Text Not Null, Primary Key(Name));"
-                           + "Create Table If Not Exists PathConfiguration (Path Text Not Null Collate NoCase, DisplayMode Integer Default 1 Check(DisplayMode In (0,1,2,3,4,5)), SortColumn Text Default 'Name' Check(SortColumn In ('Name','ModifiedTime','Type','Size')), SortDirection Text Default 'Ascending' Check(SortDirection In ('Ascending','Descending')), Primary Key(Path));"
-                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture1.jpg');"
-                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture2.jpg');"
-                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture3.jpg');"
-                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture4.jpg');"
-                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture5.jpg');"
-                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture6.jpg');"
-                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture7.jpg');"
-                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture8.jpg');"
-                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture9.jpg');"
-                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture10.jpg');"
-                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture11.jpg');"
-                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture12.jpg');"
-                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture13.jpg');"
-                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture14.jpg');"
-                           + "Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture15.jpg');"
-                           + $"Insert Or Ignore Into TerminalProfile Values ('Powershell', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe")}', '-NoExit -Command \"Set-Location ''[CurrentLocation]''\"', 'True');"
-                           + $"Insert Or Ignore Into TerminalProfile Values ('CMD', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe")}', '/k cd /d [CurrentLocation]', 'True');";
+            StringBuilder Builder = new StringBuilder();
 
-            using (SqliteCommand CreateTable = new SqliteCommand(Command, Connection))
+            Builder.Append("Create Table If Not Exists SearchHistory (SearchText Text Not Null, Primary Key (SearchText));")
+                   .Append("Create Table If Not Exists QuickStart (Name Text Not Null, FullPath Text Not Null Collate NoCase, Protocal Text Not Null, Type Text Not Null, Primary Key (Name,FullPath,Protocal,Type));")
+                   .Append("Create Table If Not Exists Library (Path Text Not Null Collate NoCase, Type Text Not Null, Primary Key (Path));")
+                   .Append("Create Table If Not Exists PathHistory (Path Text Not Null Collate NoCase, Primary Key (Path));")
+                   .Append("Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));")
+                   .Append("Create Table If Not Exists ProgramPicker (FileType Text Not Null, Path Text Not Null Collate NoCase, IsDefault Text Default 'False' Check(IsDefault In ('True','False')), IsRecommanded Text Default 'False' Check(IsRecommanded In ('True','False')), Primary Key(FileType, Path));")
+                   .Append("Create Table If Not Exists TerminalProfile (Name Text Not Null, Path Text Not Null Collate NoCase, Argument Text Not Null, RunAsAdmin Text Not Null, Primary Key(Name));")
+                   .Append("Create Table If Not Exists PathConfiguration (Path Text Not Null Collate NoCase, DisplayMode Integer Default 1 Check(DisplayMode In (0,1,2,3,4,5)), SortColumn Text Default 'Name' Check(SortColumn In ('Name','ModifiedTime','Type','Size')), SortDirection Text Default 'Ascending' Check(SortDirection In ('Ascending','Descending')), Primary Key(Path));")
+                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture1.jpg');")
+                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture2.jpg');")
+                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture3.jpg');")
+                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture4.jpg');")
+                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture5.jpg');")
+                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture6.jpg');")
+                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture7.jpg');")
+                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture8.jpg');")
+                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture9.jpg');")
+                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture10.jpg');")
+                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture11.jpg');")
+                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture12.jpg');")
+                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture13.jpg');")
+                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture14.jpg');")
+                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture15.jpg');")
+                   .Append($"Insert Or Ignore Into TerminalProfile Values ('Powershell', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe")}', '-NoExit -Command \"Set-Location ''[CurrentLocation]''\"', 'True');")
+                   .Append($"Insert Or Ignore Into TerminalProfile Values ('CMD', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe")}', '/k cd /d [CurrentLocation]', 'True');");
+
+            using (SqliteCommand CreateTable = new SqliteCommand(Builder.ToString(), Connection))
             {
                 CreateTable.ExecuteNonQuery();
             }
@@ -95,44 +97,40 @@ namespace RX_Explorer.Class
 
         public async Task SetPathConfiguration(PathConfiguration Configuration)
         {
-            bool ShouldCreateNew = true;
-
-            using (SqliteCommand Command = new SqliteCommand("Select Count(*) From PathConfiguration Where Path = @Path", Connection))
+            using (SqliteCommand Command = new SqliteCommand
             {
+                Connection = Connection
+            })
+            {
+                StringBuilder Builder = new StringBuilder();
+
                 Command.Parameters.AddWithValue("@Path", Configuration.Path);
 
-                if (Convert.ToInt32(await Command.ExecuteScalarAsync().ConfigureAwait(false)) > 0)
+                if (Configuration.DisplayModeIndex.HasValue)
                 {
-                    ShouldCreateNew = false;
+                    Builder.Append($"DisplayMode = @DisplayModeIndex ");
+                    Command.Parameters.AddWithValue("@DisplayModeIndex", Configuration.DisplayModeIndex);
                 }
-            }
 
-            StringBuilder Builder = new StringBuilder();
-
-            if (ShouldCreateNew)
-            {
-                Builder.Append($"Insert Into PathConfiguration (Path) Values ('{Configuration.Path}');");
-            }
-
-            if (Configuration.DisplayModeIndex.HasValue)
-            {
-                Builder.Append($"Update PathConfiguration Set DisplayMode = {Configuration.DisplayModeIndex.Value} Where Path = '{Configuration.Path}';");
-            }
-
-            if (Configuration.SortColumn.HasValue)
-            {
-                Builder.Append($"Update PathConfiguration Set SortColumn = '{Enum.GetName(typeof(SortTarget), Configuration.SortColumn)}' Where Path = '{Configuration.Path}';");
-            }
-
-            if (Configuration.SortDirection.HasValue)
-            {
-                Builder.Append($"Update PathConfiguration Set SortDirection = '{Enum.GetName(typeof(SortDirection), Configuration.SortDirection)}' Where Path = '{Configuration.Path}';");
-            }
-
-            if (!string.IsNullOrEmpty(Builder.ToString()))
-            {
-                using (SqliteCommand Command = new SqliteCommand(Builder.ToString(), Connection))
+                if (Configuration.SortColumn.HasValue)
                 {
+                    Builder.Append($"SortColumn = @SortColumn ");
+                    Command.Parameters.AddWithValue("@SortColumn", Enum.GetName(typeof(SortTarget), Configuration.SortColumn));
+                }
+
+                if (Configuration.SortDirection.HasValue)
+                {
+                    Builder.Append($"SortDirection = @SortDirection ");
+                    Command.Parameters.AddWithValue("@SortDirection", Enum.GetName(typeof(SortDirection), Configuration.SortDirection));
+                }
+
+                if (!string.IsNullOrEmpty(Builder.ToString()))
+                {
+                    Builder.Insert(0, "Insert Into PathConfiguration (Path) Values (@Path) On Conflict (Path) Do Update Set ")
+                           .Append("Where Path = @Path Collate NoCase");
+
+                    Command.CommandText = Builder.ToString();
+
                     await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
             }
@@ -250,36 +248,52 @@ namespace RX_Explorer.Class
 
         public async Task SetProgramPickerRecordAsync(params AssociationPackage[] Packages)
         {
-            StringBuilder AddPathBuilder = new StringBuilder();
-
-            foreach (AssociationPackage Package in Packages)
+            using (SqliteCommand Command = new SqliteCommand
             {
-                AddPathBuilder.Append($"Insert Or Ignore Into ProgramPicker Values ('{Package.Extension}', '{Package.ExecutablePath}', 'False', '{Package.IsRecommanded}');");
-            }
-
-            using (SqliteCommand Command = new SqliteCommand(AddPathBuilder.ToString(), Connection))
+                Connection = Connection
+            })
             {
+                StringBuilder AddPathBuilder = new StringBuilder();
+
+                for (int i = 0; i < Packages.Length; i++)
+                {
+                    AddPathBuilder.Append($"Insert Or Ignore Into ProgramPicker Values (@Extension_{i}, @ExecutablePath_{i}, 'False', @IsRecommanded_{i});");
+
+                    Command.Parameters.AddWithValue($"@Extension_{i}", Packages[i].Extension);
+                    Command.Parameters.AddWithValue($"@ExecutablePath_{i}", Packages[i].ExecutablePath);
+                    Command.Parameters.AddWithValue($"@IsRecommanded_{i}", Convert.ToString(Packages[i].IsRecommanded));
+                }
+
+                Command.CommandText = AddPathBuilder.ToString();
+
                 await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
-        public async Task UpdateProgramPickerRecordAsync(string FileType, IEnumerable<AssociationPackage> AssociationList)
+        public async Task UpdateProgramPickerRecordAsync(string FileType, params AssociationPackage[] AssociationList)
         {
-            List<AssociationPackage> ExistedPackage = await GetProgramPickerRecordAsync(FileType, true).ConfigureAwait(false);
-
-            StringBuilder PathBuilder = new StringBuilder();
-            
-            foreach (AssociationPackage Package in AssociationList.Except(ExistedPackage))
+            using (SqliteCommand Command = new SqliteCommand
             {
-                PathBuilder.Append($"Insert Into ProgramPicker(Path, FileType, IsDefault, IsRecommanded) Values ('{Package.ExecutablePath}', '{FileType}', 'False', '{Package.IsRecommanded}') On Conflict (Path, FileType) Do Update Set IsDefault = 'False', IsRecommanded = '{Package.IsRecommanded}' Where FileType = '{FileType}' And Path = '{Package.ExecutablePath}' Collate NoCase;");
-            }
-
-            string SQLQuery = PathBuilder.ToString();
-
-            if (!string.IsNullOrWhiteSpace(SQLQuery))
+                Connection = Connection
+            })
             {
-                using (SqliteCommand Command = new SqliteCommand(SQLQuery, Connection))
+                StringBuilder PathBuilder = new StringBuilder();
+                
+                for (int i = 0; i < AssociationList.Length; i++)
                 {
+                    PathBuilder.Append($"Insert Into ProgramPicker(Path, FileType, IsDefault, IsRecommanded) Values (@ExecutablePath_{i}, @FileType, 'False', @IsRecommanded_{i}) On Conflict (Path, FileType) Do Update Set IsDefault = 'False', IsRecommanded = @IsRecommanded_{i} Where FileType = @FileType And Path = @ExecutablePath_{i} Collate NoCase;");
+
+                    Command.Parameters.AddWithValue($"@ExecutablePath_{i}", AssociationList[i].ExecutablePath);
+                    Command.Parameters.AddWithValue($"@IsRecommanded_{i}", Convert.ToString(AssociationList[i].IsRecommanded));
+                }
+
+                Command.Parameters.AddWithValue($"@FileType", FileType);
+
+                string SQLQuery = PathBuilder.ToString();
+
+                if (!string.IsNullOrEmpty(SQLQuery))
+                {
+                    Command.CommandText = SQLQuery;
                     await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
             }

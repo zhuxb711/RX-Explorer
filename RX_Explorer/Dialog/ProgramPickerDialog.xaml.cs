@@ -57,7 +57,7 @@ namespace RX_Explorer.Dialog
                     List<AssociationPackage> AssocList = await Exclusive.Controller.GetAssociateFromPathAsync(OpenFile.Path);
                     List<AppInfo> AppInfoList = (await Launcher.FindFileHandlersAsync(OpenFile.Type)).ToList();
 
-                    await SQLite.Current.UpdateProgramPickerRecordAsync(OpenFile.Type, AssocList.Concat(AppInfoList.Select((Info) => new AssociationPackage(OpenFile.Type, Info.PackageFamilyName, true))));
+                    await SQLite.Current.UpdateProgramPickerRecordAsync(OpenFile.Type, AssocList.Concat(AppInfoList.Select((Info) => new AssociationPackage(OpenFile.Type, Info.PackageFamilyName, true))).ToArray());
 
                     foreach (AppInfo Info in AppInfoList)
                     {
