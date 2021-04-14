@@ -506,6 +506,15 @@ namespace RX_Explorer
             {
                 Item.IsSelected = true;
             }
+
+            if (PageDictionary[e.SourcePageType] == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
+            {
+                NavView.IsBackEnabled = (TabViewContainer.CurrentNavigationControl?.CanGoBack).GetValueOrDefault();
+            }
+            else
+            {
+                NavView.IsBackEnabled = false;
+            }
         }
 
         private async Task PinApplicationToTaskBarAsync()
@@ -664,30 +673,29 @@ namespace RX_Explorer
                         await SettingControl.Hide();
                     }
 
-                    if (args.InvokedItem.ToString() == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
-                    {
-                        NavView.IsBackEnabled = (TabViewContainer.CurrentNavigationControl?.CanGoBack).GetValueOrDefault();
+                    string InvokeString = args.InvokedItem.ToString();
 
+                    if (InvokeString == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
+                    {
                         Nav.Navigate(typeof(TabViewContainer), null, new DrillInNavigationTransitionInfo());
                     }
-                    else if (args.InvokedItem is StackPanel)
+                    else if (InvokeString == Globalization.GetString("MainPage_PageDictionary_SecureArea_Label"))
                     {
-                        if (!BluetoothAudioQuestionTip.IsOpen)
-                        {
-                            BluetoothAudioSelectionTip.IsOpen = true;
-                        }
+                        Nav.Navigate(typeof(SecureArea), null, new DrillInNavigationTransitionInfo());
+                    }
+                    else if (InvokeString == Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label"))
+                    {
+                        Nav.Navigate(typeof(RecycleBin), null, new DrillInNavigationTransitionInfo());
                     }
                     else
                     {
-                        NavView.IsBackEnabled = false;
+                        if (args.InvokedItem is StackPanel)
+                        {
+                            if (!BluetoothAudioQuestionTip.IsOpen)
+                            {
+                                BluetoothAudioSelectionTip.IsOpen = true;
 
-                        if (args.InvokedItem.ToString() == Globalization.GetString("MainPage_PageDictionary_SecureArea_Label"))
-                        {
-                            Nav.Navigate(typeof(SecureArea), null, new DrillInNavigationTransitionInfo());
-                        }
-                        else if (args.InvokedItem.ToString() == Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label"))
-                        {
-                            Nav.Navigate(typeof(RecycleBin), null, new DrillInNavigationTransitionInfo());
+                            }
                         }
                     }
                 }

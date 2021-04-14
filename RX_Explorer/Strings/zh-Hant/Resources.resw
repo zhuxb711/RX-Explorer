@@ -589,9 +589,6 @@
   <data name="SearchHasItem.Text" xml:space="preserve">
     <value>沒有結果</value>
   </data>
-  <data name="SearchingText.Text" xml:space="preserve">
-    <value>搜尋中...</value>
-  </data>
   <data name="SearchLocation.Label" xml:space="preserve">
     <value>開啟檔案位置</value>
   </data>
@@ -606,9 +603,6 @@
   </data>
   <data name="SearchProperties.Label" xml:space="preserve">
     <value>內容</value>
-  </data>
-  <data name="SearchResult.Text" xml:space="preserve">
-    <value>搜尋結果</value>
   </data>
   <data name="SearchSize.Text" xml:space="preserve">
     <value>大小</value>
@@ -3046,5 +3040,14 @@
   </data>
   <data name="Toast_EnterBackground_Dismiss" xml:space="preserve">
     <value>屏除</value>
+  </data>
+  <data name="Url_Admin_DisplayType" xml:space="preserve">
+    <value>Internet快捷方式</value>
+  </data>
+  <data name="SearchCompletedText" xml:space="preserve">
+    <value>搜索完成</value>
+  </data>
+  <data name="SearchProcessingText" xml:space="preserve">
+    <value>正在搜尋...</value>
   </data>
 </root>

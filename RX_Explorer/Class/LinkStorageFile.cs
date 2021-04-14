@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI.Core;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
@@ -18,7 +17,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return LinkData?.LinkTargetPath ?? Globalization.GetString("UnknownText");
+                return (RawData?.LinkTargetPath) ?? Globalization.GetString("UnknownText");
             }
         }
 
@@ -26,7 +25,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return LinkData?.Argument ?? Array.Empty<string>();
+                return (RawData?.Argument) ?? Array.Empty<string>();
             }
         }
 
@@ -34,7 +33,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return (LinkData?.NeedRunAsAdmin).GetValueOrDefault();
+                return (RawData?.NeedRunAsAdmin).GetValueOrDefault();
             }
         }
 
@@ -46,29 +45,29 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected LinkDataPackage LinkData { get; set; }
+        protected LinkDataPackage RawData { get; set; }
 
         public string WorkDirectory
         {
             get
             {
-                return (LinkData?.WorkDirectory) ?? string.Empty;
+                return (RawData?.WorkDirectory) ?? string.Empty;
             }
         }
 
-        public string Comment 
-        { 
+        public string Comment
+        {
             get
             {
-                return (LinkData?.Comment) ?? string.Empty;
-            } 
+                return (RawData?.Comment) ?? string.Empty;
+            }
         }
 
         public WindowState WindowState
         {
             get
             {
-                return (LinkData?.WindowState).GetValueOrDefault();
+                return (RawData?.WindowState).GetValueOrDefault();
             }
         }
 
@@ -76,7 +75,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return (LinkData?.HotKey).GetValueOrDefault();
+                return (RawData?.HotKey).GetValueOrDefault();
             }
         }
 
@@ -127,7 +126,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<LinkDataPackage> GetLinkDataAsync()
+        public async Task<LinkDataPackage> GetRawDataAsync()
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
@@ -140,33 +139,34 @@ namespace RX_Explorer.Class
             return Task.FromResult<IStorageItem>(null);
         }
 
-        protected override async Task LoadMorePropertyCore(bool ForceUpdate)
+        protected override async Task LoadMorePropertyCore()
         {
-            if (ForceUpdate || LinkData == null)
+            RawData = await GetRawDataAsync();
+
+            if (!string.IsNullOrEmpty(RawData.LinkTargetPath))
             {
-                LinkData = await GetLinkDataAsync();
-
-                if (!string.IsNullOrEmpty(LinkData.LinkTargetPath))
+                if (RawData.IconData.Length != 0)
                 {
-                    if (LinkData.IconData.Length != 0)
+                    using (MemoryStream IconStream = new MemoryStream(RawData.IconData))
                     {
-                        using (MemoryStream IconStream = new MemoryStream(LinkData.IconData))
-                        {
-                            Thumbnail = new BitmapImage();
-                            await Thumbnail.SetSourceAsync(IconStream.AsRandomAccessStream());
-                        }
-                    }
-
-                    if (await CheckExistAsync(LinkData.LinkTargetPath))
-                    {
-                        LinkType = ShellLinkType.Normal;
-                    }
-                    else
-                    {
-                        LinkType = ShellLinkType.UWP;
+                        await Thumbnail.SetSourceAsync(IconStream.AsRandomAccessStream());
                     }
                 }
+
+                if (System.IO.Path.IsPathRooted(RawData.LinkTargetPath))
+                {
+                    LinkType = ShellLinkType.Normal;
+                }
+                else
+                {
+                    LinkType = ShellLinkType.UWP;
+                }
             }
+        }
+
+        protected override bool CheckIfPropertiesLoaded()
+        {
+            return RawData != null;
         }
 
         public LinkStorageFile(string Path, WIN_Native_API.WIN32_FIND_DATA Data) : base(Path, Data)

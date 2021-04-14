@@ -3,7 +3,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Interface
 {
-    public interface IStorageItemPropertyBase
+    public interface IStorageItemPropertiesBase
     {
         public string Name { get; }
 

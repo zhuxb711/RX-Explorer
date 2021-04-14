@@ -1,5 +1,4 @@
 ﻿using RX_Explorer.Class;
-using RX_Explorer.Dialog;
 using RX_Explorer.SeparateWindow.PropertyWindow;
 using System;
 using System.Collections.Generic;
@@ -74,8 +73,6 @@ namespace RX_Explorer
         {
             HasItem.Visibility = Visibility.Collapsed;
 
-            LoadingControl.IsLoading = true;
-
             try
             {
                 Cancellation = new CancellationTokenSource();
@@ -85,54 +82,59 @@ namespace RX_Explorer
                     string SearchTarget = Control.GlobeSearch.Text;
                     FileSystemStorageFolder CurrentFolder = Control.CurrentPresenter.CurrentFolder;
 
-                    List<FileSystemStorageItemBase> SearchItems = null;
+                    SearchStatus.Text = Globalization.GetString("SearchProcessingText");
+                    SearchStatusBar.Visibility = Visibility.Visible;
 
                     switch (Category)
                     {
                         case SearchCategory.BuiltInEngine_Deep:
-                            {
-                                SearchItems = await CurrentFolder.SearchAsync(SearchTarget, true, SettingControl.IsDisplayHiddenItem, IncludeRegex, IngoreCase, Cancellation.Token).ToListAsync();
-                                break;
-                            }
                         case SearchCategory.BuiltInEngine_Shallow:
                             {
-                                SearchItems = await CurrentFolder.SearchAsync(SearchTarget, false, SettingControl.IsDisplayHiddenItem, IncludeRegex, IngoreCase, Cancellation.Token).ToListAsync();
+                                await foreach (FileSystemStorageItemBase Item in CurrentFolder.SearchAsync(SearchTarget, Category == SearchCategory.BuiltInEngine_Deep, SettingControl.IsDisplayHiddenItem, IncludeRegex, IngoreCase, Cancellation.Token))
+                                {
+                                    if (Cancellation.IsCancellationRequested)
+                                    {
+                                        HasItem.Visibility = Visibility.Visible;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        SearchResult.Insert(SortCollectionGenerator.Current.SearchInsertLocation(SearchResult, Item), Item);
+                                    }
+                                }
+
+                                if (SearchResult.Count == 0)
+                                {
+                                    HasItem.Visibility = Visibility.Visible;
+                                }
+
                                 break;
                             }
                         case SearchCategory.EverythingEngine:
                             {
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                 {
-                                    SearchItems = await Exclusive.Controller.SearchByEverythingAsync(GlobleSearch ? string.Empty : CurrentFolder.Path, SearchTarget, IncludeRegex, IngoreCase, MaxCount);
+                                    IReadOnlyList<FileSystemStorageItemBase> SearchItems = await Exclusive.Controller.SearchByEverythingAsync(GlobleSearch ? string.Empty : CurrentFolder.Path, SearchTarget, IncludeRegex, IngoreCase, MaxCount);
+
+                                    if (SearchItems.Count == 0)
+                                    {
+                                        HasItem.Visibility = Visibility.Visible;
+                                    }
+                                    else
+                                    {
+                                        foreach (FileSystemStorageItemBase Item in SortCollectionGenerator.Current.GetSortedCollection(SearchItems))
+                                        {
+                                            SearchResult.Add(Item);
+                                        }
+                                    }
                                 }
+
                                 break;
                             }
                     }
 
-                    await Task.Delay(500);
-
-                    LoadingControl.IsLoading = false;
-
-                    await Task.Delay(300);
-
-                    if (Cancellation.IsCancellationRequested)
-                    {
-                        HasItem.Visibility = Visibility.Visible;
-                    }
-                    else
-                    {
-                        if (SearchItems.Count == 0)
-                        {
-                            HasItem.Visibility = Visibility.Visible;
-                        }
-                        else
-                        {
-                            foreach (FileSystemStorageItemBase Item in SortCollectionGenerator.Current.GetSortedCollection(SearchItems))
-                            {
-                                SearchResult.Add(Item);
-                            }
-                        }
-                    }
+                    SearchStatus.Text = Globalization.GetString("SearchCompletedText");
+                    SearchStatusBar.Visibility = Visibility.Collapsed;
                 }
             }
             catch (Exception ex)

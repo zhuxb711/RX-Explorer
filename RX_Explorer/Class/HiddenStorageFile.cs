@@ -4,40 +4,37 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
     public class HiddenStorageFile : FileSystemStorageFile, IHiddenStorageItem
     {
-        protected HiddenDataPackage HiddenData { get; set; }
+        protected HiddenDataPackage RawData { get; set; }
 
         public override string DisplayType
         {
             get
             {
-                return HiddenData?.DisplayType ?? Type;
+                return (RawData?.DisplayType) ?? Type;
             }
         }
 
-        protected override async Task LoadMorePropertyCore(bool ForceUpdate)
+        protected override async Task LoadMorePropertyCore()
         {
-            if (HiddenData == null || ForceUpdate)
+            RawData = await GetRawDataAsync();
+
+            if ((RawData?.IconData.Length).GetValueOrDefault() > 0)
             {
-                HiddenData = await GetHiddenDataAsync();
-
-                if ((HiddenData?.IconData.Length).GetValueOrDefault() > 0)
+                using (MemoryStream Stream = new MemoryStream(RawData.IconData))
                 {
-                    BitmapImage Icon = new BitmapImage();
-
-                    using (MemoryStream Stream = new MemoryStream(HiddenData.IconData))
-                    {
-                        await Icon.SetSourceAsync(Stream.AsRandomAccessStream());
-                    }
-
-                    Thumbnail = Icon;
+                    await Thumbnail.SetSourceAsync(Stream.AsRandomAccessStream());
                 }
             }
+        }
+
+        protected override bool CheckIfPropertiesLoaded()
+        {
+            return RawData != null;
         }
 
         public override Task<IStorageItem> GetStorageItemAsync()
@@ -51,7 +48,7 @@ namespace RX_Explorer.Class
             OnPropertyChanged(nameof(ThumbnailOpacity));
         }
 
-        public async Task<HiddenDataPackage> GetHiddenDataAsync()
+        public async Task<HiddenDataPackage> GetRawDataAsync()
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {

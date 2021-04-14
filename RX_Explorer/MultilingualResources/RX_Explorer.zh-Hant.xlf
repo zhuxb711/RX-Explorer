@@ -776,10 +776,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>No Result</source>
           <target state="translated" state-qualifier="tm-suggestion">沒有結果</target>
         </trans-unit>
-        <trans-unit id="SearchingText.Text" translate="yes" xml:space="preserve">
-          <source>Searching</source>
-          <target state="translated">搜尋中...</target>
-        </trans-unit>
         <trans-unit id="SearchLocation.Label" translate="yes" xml:space="preserve">
           <source>Open location</source>
           <target state="translated">開啟檔案位置</target>
@@ -799,10 +795,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="SearchProperties.Label" translate="yes" xml:space="preserve">
           <source>Properties</source>
           <target state="translated" state-qualifier="tm-suggestion">內容</target>
-        </trans-unit>
-        <trans-unit id="SearchResult.Text" translate="yes" xml:space="preserve">
-          <source>Search Result</source>
-          <target state="translated" state-qualifier="tm-suggestion">搜尋結果</target>
         </trans-unit>
         <trans-unit id="SearchSize.Text" translate="yes" xml:space="preserve">
           <source>Size</source>
@@ -4043,6 +4035,18 @@ Invalid names include
         <trans-unit id="Toast_EnterBackground_Dismiss" translate="yes" xml:space="preserve">
           <source>Dismiss</source>
           <target state="translated">屏除</target>
+        </trans-unit>
+        <trans-unit id="Url_Admin_DisplayType" translate="yes" xml:space="preserve">
+          <source>Internet Shortcut</source>
+          <target state="translated">Internet快捷方式</target>
+        </trans-unit>
+        <trans-unit id="SearchCompletedText" translate="yes" xml:space="preserve">
+          <source>Search completed</source>
+          <target state="translated">搜索完成</target>
+        </trans-unit>
+        <trans-unit id="SearchProcessingText" translate="yes" xml:space="preserve">
+          <source>Searching...</source>
+          <target state="translated">正在搜尋...</target>
         </trans-unit>
       </group>
     </body>

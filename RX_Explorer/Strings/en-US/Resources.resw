@@ -700,9 +700,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="SearchHasItem.Text" xml:space="preserve">
     <value>No Result</value>
   </data>
-  <data name="SearchingText.Text" xml:space="preserve">
-    <value>Searching</value>
-  </data>
   <data name="SearchLocation.Label" xml:space="preserve">
     <value>Open location</value>
   </data>
@@ -717,9 +714,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="SearchProperties.Label" xml:space="preserve">
     <value>Properties</value>
-  </data>
-  <data name="SearchResult.Text" xml:space="preserve">
-    <value>Search Result</value>
   </data>
   <data name="SearchSize.Text" xml:space="preserve">
     <value>Size</value>
@@ -3151,5 +3145,14 @@ Invalid names include
   </data>
   <data name="Toast_EnterBackground_Dismiss" xml:space="preserve">
     <value>Dismiss</value>
+  </data>
+  <data name="Url_Admin_DisplayType" xml:space="preserve">
+    <value>Internet Shortcut</value>
+  </data>
+  <data name="SearchCompletedText" xml:space="preserve">
+    <value>Search completed</value>
+  </data>
+  <data name="SearchProcessingText" xml:space="preserve">
+    <value>Searching...</value>
   </data>
 </root>

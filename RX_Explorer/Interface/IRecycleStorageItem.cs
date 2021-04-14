@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace RX_Explorer.Interface
 {
-    public interface IRecycleStorageItem : IStorageItemPropertyBase, INotifyPropertyChanged
+    public interface IRecycleStorageItem : IStorageItemPropertiesBase, INotifyPropertyChanged
     {
         public string OriginPath { get; }
         public string Size { get; }

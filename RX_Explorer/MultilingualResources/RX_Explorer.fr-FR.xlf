@@ -764,10 +764,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>No Result</source>
           <target state="translated">Aucun résultat</target>
         </trans-unit>
-        <trans-unit id="SearchingText.Text" translate="yes" xml:space="preserve">
-          <source>Searching</source>
-          <target state="translated">Recherche en cours</target>
-        </trans-unit>
         <trans-unit id="SearchLocation.Label" translate="yes" xml:space="preserve">
           <source>Open location</source>
           <target state="translated">Ouvrir dossier</target>
@@ -787,10 +783,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="SearchProperties.Label" translate="yes" xml:space="preserve">
           <source>Properties</source>
           <target state="translated">Propriétés</target>
-        </trans-unit>
-        <trans-unit id="SearchResult.Text" translate="yes" xml:space="preserve">
-          <source>Search Result</source>
-          <target state="translated">Résultat de la recherche</target>
         </trans-unit>
         <trans-unit id="SearchSize.Text" translate="yes" xml:space="preserve">
           <source>Size</source>
@@ -4043,6 +4035,18 @@ Les noms non valides incluent
         <trans-unit id="Toast_EnterBackground_Dismiss" translate="yes" xml:space="preserve">
           <source>Dismiss</source>
           <target state="translated">Rejeter</target>
+        </trans-unit>
+        <trans-unit id="Url_Admin_DisplayType" translate="yes" xml:space="preserve">
+          <source>Internet Shortcut</source>
+          <target state="translated">Raccourci Internet</target>
+        </trans-unit>
+        <trans-unit id="SearchCompletedText" translate="yes" xml:space="preserve">
+          <source>Search completed</source>
+          <target state="translated">Recherche terminée</target>
+        </trans-unit>
+        <trans-unit id="SearchProcessingText" translate="yes" xml:space="preserve">
+          <source>Searching...</source>
+          <target state="translated">Recherche...</target>
         </trans-unit>
       </group>
     </body>

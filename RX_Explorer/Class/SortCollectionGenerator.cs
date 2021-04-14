@@ -58,12 +58,12 @@ namespace RX_Explorer.Class
             }
         }
 
-        public IEnumerable<T> GetSortedCollection<T>(IEnumerable<T> InputCollection) where T : IStorageItemPropertyBase
+        public IEnumerable<T> GetSortedCollection<T>(IEnumerable<T> InputCollection) where T : IStorageItemPropertiesBase
         {
             return GetSortedCollection(InputCollection, null, null);
         }
 
-        public IEnumerable<T> GetSortedCollection<T>(IEnumerable<T> InputCollection, SortTarget? Target, SortDirection? Direction) where T : IStorageItemPropertyBase
+        public IEnumerable<T> GetSortedCollection<T>(IEnumerable<T> InputCollection, SortTarget? Target, SortDirection? Direction) where T : IStorageItemPropertiesBase
         {
             SortTarget TempTarget = Target ?? SortTarget;
             SortDirection TempDirection = Direction ?? SortDirection;
@@ -119,7 +119,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public int SearchInsertLocation<T>(ICollection<T> InputCollection, T SearchTarget) where T : IStorageItemPropertyBase
+        public int SearchInsertLocation<T>(ICollection<T> InputCollection, T SearchTarget) where T : IStorageItemPropertiesBase
         {
             if (InputCollection == null)
             {

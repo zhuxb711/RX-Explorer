@@ -98,20 +98,16 @@ namespace RX_Explorer.Class
         }
 
         protected StorageFile StorageItem { get; set; }
+        private StorageFile TempStorageItem;
 
         protected FileSystemStorageFile(string Path) : base(Path)
         {
 
         }
 
-        public FileSystemStorageFile(StorageFile Item, BitmapImage Thumbnail, ulong SizeRaw, DateTimeOffset ModifiedTimeRaw) : base(Item.Path)
+        public FileSystemStorageFile(StorageFile Item) : base(Item.Path)
         {
-            StorageItem = Item;
-
-            this.Thumbnail = Thumbnail;
-            this.ModifiedTimeRaw = ModifiedTimeRaw;
-            this.SizeRaw = SizeRaw;
-
+            TempStorageItem = Item;
             CreationTimeRaw = Item.DateCreated;
         }
 
@@ -154,22 +150,17 @@ namespace RX_Explorer.Class
             return await FileRandomAccessStream.OpenAsync(Path, Mode, StorageOpenOptions.AllowReadersAndWriters, FileOpenDisposition.OpenExisting);
         }
 
-        protected override async Task LoadMorePropertyCore(bool ForceUpdate)
+        protected override async Task LoadMorePropertyCore()
         {
-            if ((StorageItem == null || ForceUpdate) && (await GetStorageItemAsync() is StorageFile File))
+            if (await GetStorageItemAsync() is StorageFile File)
             {
-                StorageItem = File;
                 Thumbnail = await File.GetThumbnailBitmapAsync();
-
-                if (ForceUpdate)
-                {
-                    ModifiedTimeRaw = await File.GetModifiedTimeAsync();
-                    SizeRaw = await File.GetSizeRawDataAsync();
-                }
+                ModifiedTimeRaw = await File.GetModifiedTimeAsync();
+                SizeRaw = await File.GetSizeRawDataAsync();
             }
         }
 
-        protected override bool CheckIfPropertyLoaded()
+        protected override bool CheckIfPropertiesLoaded()
         {
             return StorageItem != null;
         }
@@ -178,7 +169,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                return await StorageFile.GetFileFromPathAsync(Path);
+                return StorageItem ??= (TempStorageItem ?? await StorageFile.GetFileFromPathAsync(Path));
             }
             catch (Exception ex)
             {

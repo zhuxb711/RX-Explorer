@@ -1,6 +1,7 @@
 ﻿using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -20,11 +21,11 @@ namespace RX_Explorer
 {
     public sealed partial class PdfReader : Page
     {
-        private ObservableCollection<BitmapImage> PdfCollection;
+        private readonly ObservableCollection<BitmapImage> PdfCollection = new ObservableCollection<BitmapImage>();
+        private readonly ConcurrentQueue<int> LoadQueue = new ConcurrentQueue<int>();
+
         private PdfDocument Pdf;
         private int LastPageIndex;
-        private Queue<int> LoadQueue;
-        private ManualResetEvent ExitLocker;
         private CancellationTokenSource Cancellation;
         private uint MaxLoad;
         private double OriginHorizonOffset;
@@ -49,11 +50,10 @@ namespace RX_Explorer
         {
             LoadingControl.IsLoading = true;
 
-            PdfCollection = new ObservableCollection<BitmapImage>();
-            LoadQueue = new Queue<int>();
-            ExitLocker = new ManualResetEvent(false);
+            PdfCollection.Clear();
+            LoadQueue.Clear();
+
             Cancellation = new CancellationTokenSource();
-            Flip.ItemsSource = PdfCollection;
             MaxLoad = 0;
             LastPageIndex = 0;
 
@@ -86,7 +86,12 @@ namespace RX_Explorer
                     using (PdfPage Page = Pdf.GetPage(i))
                     using (InMemoryRandomAccessStream PageStream = new InMemoryRandomAccessStream())
                     {
-                        await Page.RenderToStreamAsync(PageStream);
+                        await Page.RenderToStreamAsync(PageStream, new PdfPageRenderOptions
+                        {
+                            DestinationHeight = Convert.ToUInt32(Page.Size.Height * 1.5),
+                            DestinationWidth = Convert.ToUInt32(Page.Size.Width * 1.5)
+                        });
+
                         BitmapImage DisplayImage = new BitmapImage();
                         PdfCollection.Add(DisplayImage);
                         await DisplayImage.SetSourceAsync(PageStream);
@@ -107,8 +112,6 @@ namespace RX_Explorer
             }
             finally
             {
-                ExitLocker.Set();
-
                 if (!Cancellation.IsCancellationRequested)
                 {
                     Flip.SelectionChanged += Flip_SelectionChanged;
@@ -121,29 +124,16 @@ namespace RX_Explorer
             }
         }
 
-        protected override async void OnNavigatedFrom(NavigationEventArgs e)
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             Flip.SelectionChanged -= Flip_SelectionChanged;
             Flip.SelectionChanged -= Flip_SelectionChanged1;
 
-            await Task.Run(() =>
-            {
-                Cancellation.Cancel();
-                ExitLocker.WaitOne();
-            });
+            Cancellation.Cancel();
+            Cancellation.Dispose();
 
             LoadQueue.Clear();
-            LoadQueue = null;
-
-            ExitLocker.Dispose();
-            ExitLocker = null;
-
-            Cancellation.Dispose();
-            Cancellation = null;
-
             PdfCollection.Clear();
-            PdfCollection = null;
-            Pdf = null;
         }
 
         private void Flip_SelectionChanged1(object sender, SelectionChangedEventArgs e)
@@ -157,15 +147,10 @@ namespace RX_Explorer
 
             if (Interlocked.Exchange(ref LockResource, 1) == 0)
             {
-                ExitLocker.Reset();
-
                 try
                 {
-                    while (LoadQueue.Count != 0 && !Cancellation.IsCancellationRequested)
+                    while (LoadQueue.TryDequeue(out int CurrentIndex) && !Cancellation.IsCancellationRequested)
                     {
-                        //获取待处理的页码
-                        int CurrentIndex = LoadQueue.Dequeue();
-
                         //如果LastPageIndex < CurrentIndex，说明是向右翻页
                         if (LastPageIndex < CurrentIndex)
                         {
@@ -200,7 +185,11 @@ namespace RX_Explorer
                                 using (PdfPage Page = Pdf.GetPage(Index))
                                 using (InMemoryRandomAccessStream PageStream = new InMemoryRandomAccessStream())
                                 {
-                                    await Page.RenderToStreamAsync(PageStream);
+                                    await Page.RenderToStreamAsync(PageStream, new PdfPageRenderOptions
+                                    {
+                                        DestinationHeight = Convert.ToUInt32(Page.Size.Height * 1.5),
+                                        DestinationWidth = Convert.ToUInt32(Page.Size.Width * 1.5)
+                                    });
 
                                     BitmapImage DisplayImage = new BitmapImage();
                                     PdfCollection.Add(DisplayImage);
@@ -208,12 +197,12 @@ namespace RX_Explorer
                                 }
                             }
                         }
+
                         LastPageIndex = CurrentIndex;
                     }
                 }
                 finally
                 {
-                    ExitLocker.Set();
                     _ = Interlocked.Exchange(ref LockResource, 0);
                 }
             }

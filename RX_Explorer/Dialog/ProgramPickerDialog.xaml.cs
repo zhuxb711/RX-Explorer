@@ -54,8 +54,8 @@ namespace RX_Explorer.Dialog
             {
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {
-                    List<AssociationPackage> AssocList = await Exclusive.Controller.GetAssociateFromPathAsync(OpenFile.Path);
-                    List<AppInfo> AppInfoList = (await Launcher.FindFileHandlersAsync(OpenFile.Type)).ToList();
+                    IReadOnlyList<AssociationPackage> AssocList = await Exclusive.Controller.GetAssociationFromPathAsync(OpenFile.Path);
+                    IReadOnlyList<AppInfo> AppInfoList = await Launcher.FindFileHandlersAsync(OpenFile.Type);
 
                     await SQLite.Current.UpdateProgramPickerRecordAsync(OpenFile.Type, AssocList.Concat(AppInfoList.Select((Info) => new AssociationPackage(OpenFile.Type, Info.PackageFamilyName, true))));
 
@@ -165,7 +165,15 @@ namespace RX_Explorer.Dialog
 
             string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(OpenFile.Type);
 
-            if (!string.IsNullOrEmpty(AdminExecutablePath))
+            if (string.IsNullOrEmpty(AdminExecutablePath))
+            {
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                {
+                    AdminExecutablePath = await Exclusive.Controller.GetDefaultAssociationFromPathAsync(OpenFile.Path);
+                }
+            }
+
+            if(!string.IsNullOrEmpty(AdminExecutablePath))
             {
                 if (RecommandList.FirstOrDefault((Item) => Item.Path.Equals(AdminExecutablePath, StringComparison.OrdinalIgnoreCase)) is ProgramPickerItem RecommandItem)
                 {

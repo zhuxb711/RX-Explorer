@@ -574,6 +574,43 @@ namespace FullTrustProcess
 
                             break;
                         }
+                    case "Execute_UpdateUrl":
+                        {
+                            UrlDataPackage Package = JsonSerializer.Deserialize<UrlDataPackage>(Convert.ToString(args.Request.Message["DataPackage"]));
+
+                            ValueSet Value = new ValueSet();
+
+                            if (File.Exists(Package.UrlPath))
+                            {
+                                List<string> SplitList;
+
+                                using (StreamReader Reader = new StreamReader(Package.UrlPath, true))
+                                {
+                                    SplitList = Reader.ReadToEnd().Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+                                    string UrlLine = SplitList.FirstOrDefault((Line) => Line.StartsWith("URL=", StringComparison.OrdinalIgnoreCase));
+
+                                    if (!string.IsNullOrEmpty(UrlLine))
+                                    {
+                                        SplitList.Remove(UrlLine);
+                                        SplitList.Add($"URL={Package.UrlTargetPath}");
+                                    }
+                                }
+
+                                using (StreamWriter Writer = new StreamWriter(Package.UrlPath, false))
+                                {
+                                    Writer.Write(string.Join(Environment.NewLine, SplitList));
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "File not found");
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
+
+                            break;
+                        }
                     case "Execute_UpdateLink":
                         {
                             LinkDataPackage Package = JsonSerializer.Deserialize<LinkDataPackage>(Convert.ToString(args.Request.Message["DataPackage"]));
@@ -705,6 +742,38 @@ namespace FullTrustProcess
 
                             break;
                         }
+                    case "Execute_GetUrlData":
+                        {
+                            string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);
+
+                            ValueSet Value = new ValueSet();
+
+                            if (File.Exists(ExecutePath))
+                            {
+                                using (ShellItem Item = ShellItem.Open(ExecutePath))
+                                {
+                                    string UrlPath = Item.Properties.GetPropertyString(Ole32.PROPERTYKEY.System.Link.TargetUrl);
+
+                                    using (Image IconImage = Item.GetImage(new Size(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit | ShellItemGetImageOptions.ScaleUp))
+                                    using (MemoryStream IconStream = new MemoryStream())
+                                    using (Bitmap TempBitmap = new Bitmap(IconImage))
+                                    {
+                                        TempBitmap.MakeTransparent();
+                                        TempBitmap.Save(IconStream, ImageFormat.Png);
+
+                                        Value.Add("Success", JsonSerializer.Serialize(new UrlDataPackage(ExecutePath, UrlPath, IconStream.ToArray())));
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                Value.Add("Error", "File not found");
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
+
+                            break;
+                        }
                     case "Execute_GetLnkData":
                         {
                             string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);
@@ -734,7 +803,7 @@ namespace FullTrustProcess
                                         }
 
                                         using (ShellItem Item = new ShellItem(ActualPath))
-                                        using (Image IconImage = Item.GetImage(new Size(150, 150), ShellItemGetImageOptions.BiggerSizeOk))
+                                        using (Image IconImage = Item.GetImage(new Size(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit | ShellItemGetImageOptions.ScaleUp))
                                         using (MemoryStream IconStream = new MemoryStream())
                                         {
                                             Bitmap TempBitmap = new Bitmap(IconImage);
@@ -843,27 +912,34 @@ namespace FullTrustProcess
                                         RegisterProcess.WaitForExit();
                                     }
 
-                                    RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("shell", false)?.OpenSubKey("opennewwindow", false)?.OpenSubKey("command", false);
-
-                                    if (Key != null)
+                                    try
                                     {
-                                        try
+                                        RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("shell", false)?.OpenSubKey("opennewwindow", false)?.OpenSubKey("command", false);
+
+                                        if (Key != null)
                                         {
-                                            if (Convert.ToString(Key.GetValue(string.Empty)) == $"{AliasLocation} %1" && Key.GetValue("DelegateExecute") == null)
+                                            try
                                             {
-                                                Value.Add("Success", string.Empty);
+                                                if (Convert.ToString(Key.GetValue(string.Empty)) == $"{AliasLocation} %1" && Key.GetValue("DelegateExecute") == null)
+                                                {
+                                                    Value.Add("Success", string.Empty);
+                                                }
+                                                else
+                                                {
+                                                    Value.Add("Error", "Registry verification failed");
+                                                }
                                             }
-                                            else
+                                            finally
                                             {
-                                                Value.Add("Error", "Registry verification failed");
+                                                Key.Dispose();
                                             }
                                         }
-                                        finally
+                                        else
                                         {
-                                            Key.Dispose();
+                                            Value.Add("Success", string.Empty);
                                         }
                                     }
-                                    else
+                                    catch
                                     {
                                         Value.Add("Success", string.Empty);
                                     }
@@ -894,27 +970,34 @@ namespace FullTrustProcess
                                 Process.WaitForExit();
                             }
 
-                            RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("shell", false)?.OpenSubKey("opennewwindow", false)?.OpenSubKey("command", false);
-
-                            if (Key != null)
+                            try
                             {
-                                try
+                                RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("shell", false)?.OpenSubKey("opennewwindow", false)?.OpenSubKey("command", false);
+
+                                if (Key != null)
                                 {
-                                    if (Convert.ToString(Key.GetValue("DelegateExecute")) == "{11dbb47c-a525-400b-9e80-a54615a090c0}" && string.IsNullOrEmpty(Convert.ToString(Key.GetValue(string.Empty))))
+                                    try
                                     {
-                                        Value.Add("Success", string.Empty);
+                                        if (Convert.ToString(Key.GetValue("DelegateExecute")) == "{11dbb47c-a525-400b-9e80-a54615a090c0}" && string.IsNullOrEmpty(Convert.ToString(Key.GetValue(string.Empty))))
+                                        {
+                                            Value.Add("Success", string.Empty);
+                                        }
+                                        else
+                                        {
+                                            Value.Add("Error", "Registry verification failed");
+                                        }
                                     }
-                                    else
+                                    finally
                                     {
-                                        Value.Add("Error", "Registry verification failed");
+                                        Key.Dispose();
                                     }
                                 }
-                                finally
+                                else
                                 {
-                                    Key.Dispose();
+                                    Value.Add("Success", string.Empty);
                                 }
                             }
-                            else
+                            catch
                             {
                                 Value.Add("Success", string.Empty);
                             }
@@ -987,13 +1070,26 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case "Execute_Get_Associate":
+                    case "Execute_Get_Association":
                         {
                             string Path = Convert.ToString(args.Request.Message["ExecutePath"]);
 
                             ValueSet Result = new ValueSet
                             {
                                 {"Associate_Result", JsonSerializer.Serialize(ExtensionAssociate.GetAllAssociation(Path)) }
+                            };
+
+                            await args.Request.SendResponseAsync(Result);
+
+                            break;
+                        }
+                    case "Execute_Default_Association":
+                        {
+                            string Path = Convert.ToString(args.Request.Message["ExecutePath"]);
+
+                            ValueSet Result = new ValueSet
+                            {
+                                {"Success", ExtensionAssociate.GetDefaultProgramPathRelated(Path)}
                             };
 
                             await args.Request.SendResponseAsync(Result);
@@ -1679,7 +1775,7 @@ namespace FullTrustProcess
 
                     if (OtherProcess.MainWindowHandle != IntPtr.Zero)
                     {
-                        User32.SwitchToThisWindow(OtherProcess.MainWindowHandle, false);
+                        User32.SwitchToThisWindow(OtherProcess.MainWindowHandle, true);
                     }
                     else
                     {

@@ -71,19 +71,16 @@ namespace RX_Explorer.Class
         }
 
         protected StorageFolder StorageItem { get; set; }
+        private StorageFolder TempStorageItem;
 
         protected FileSystemStorageFolder(string Path) : base(Path)
         {
 
         }
 
-        public FileSystemStorageFolder(StorageFolder Item, BitmapImage Thumbnail, DateTimeOffset ModifiedTimeRaw) : base(Item.Path)
+        public FileSystemStorageFolder(StorageFolder Item) : base(Item.Path)
         {
-            StorageItem = Item;
-
-            this.ModifiedTimeRaw = ModifiedTimeRaw;
-            this.Thumbnail = Thumbnail;
-
+            TempStorageItem = Item;
             CreationTimeRaw = Item.DateCreated;
         }
 
@@ -305,12 +302,12 @@ namespace RX_Explorer.Class
                             {
                                 case StorageFolder SubFolder:
                                     {
-                                        yield return new FileSystemStorageFolder(SubFolder, await SubFolder.GetThumbnailBitmapAsync(), await SubFolder.GetModifiedTimeAsync());
+                                        yield return new FileSystemStorageFolder(SubFolder);
                                         break;
                                     }
                                 case StorageFile SubFile:
                                     {
-                                        yield return new FileSystemStorageFile(SubFile, await SubFile.GetThumbnailBitmapAsync(), await SubFile.GetSizeRawDataAsync(), await SubFile.GetModifiedTimeAsync());
+                                        yield return new FileSystemStorageFile(SubFile);
                                         break;
                                     }
                             }
@@ -361,11 +358,11 @@ namespace RX_Explorer.Class
                             {
                                 if (Item is StorageFolder SubFolder)
                                 {
-                                    Result.Add(new FileSystemStorageFolder(SubFolder, await SubFolder.GetThumbnailBitmapAsync(), await SubFolder.GetModifiedTimeAsync()));
+                                    Result.Add(new FileSystemStorageFolder(SubFolder));
                                 }
                                 else if (Item is StorageFile SubFile)
                                 {
-                                    Result.Add(new FileSystemStorageFile(SubFile, await SubFile.GetThumbnailBitmapAsync(), await SubFile.GetSizeRawDataAsync(), await SubFile.GetModifiedTimeAsync()));
+                                    Result.Add(new FileSystemStorageFile(SubFile));
                                 }
                             }
                         }
@@ -385,22 +382,16 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override async Task LoadMorePropertyCore(bool ForceUpdate)
+        protected override async Task LoadMorePropertyCore()
         {
-            if ((StorageItem == null || ForceUpdate) && await GetStorageItemAsync() is StorageFolder Folder)
+            if (await GetStorageItemAsync() is StorageFolder Folder)
             {
-                StorageItem = Folder;
                 Thumbnail = await Folder.GetThumbnailBitmapAsync();
-
-                if (ForceUpdate)
-                {
-                    ModifiedTimeRaw = await Folder.GetModifiedTimeAsync();
-                    SizeRaw = await Folder.GetSizeRawDataAsync();
-                }
+                ModifiedTimeRaw = await Folder.GetModifiedTimeAsync();
             }
         }
 
-        protected override bool CheckIfPropertyLoaded()
+        protected override bool CheckIfPropertiesLoaded()
         {
             return StorageItem != null;
         }
@@ -409,7 +400,7 @@ namespace RX_Explorer.Class
         {
             try
             {
-                return await StorageFolder.GetFolderFromPathAsync(Path);
+                return StorageItem ??= (TempStorageItem ?? await StorageFolder.GetFolderFromPathAsync(Path));
             }
             catch (Exception ex)
             {
