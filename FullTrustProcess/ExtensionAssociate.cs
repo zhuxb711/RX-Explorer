@@ -1,6 +1,7 @@
 ﻿using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using Vanara.PInvoke;
@@ -79,7 +80,16 @@ namespace FullTrustProcess
 
                 if (Result == HRESULT.S_OK)
                 {
-                    return Builder.ToString();
+                    string ExePath = Builder.ToString();
+                    
+                    if (System.IO.Path.IsPathRooted(ExePath))
+                    {
+                        return ExePath;
+                    }
+                    else
+                    {
+                        return ExePath.Replace("@", string.Empty).Replace("{", string.Empty).Replace("}", string.Empty).Split('?').FirstOrDefault();
+                    }
                 }
                 else if (Result == HRESULT.E_POINTER)
                 {

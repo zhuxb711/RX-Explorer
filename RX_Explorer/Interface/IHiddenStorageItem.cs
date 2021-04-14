@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 
 namespace RX_Explorer.Interface
 {
-    public interface IHiddenStorageItem: IUnsupportedStorageItem
+    public interface IHiddenStorageItem: IUnsupportedStorageItem<HiddenDataPackage>
     {
-        public Task<HiddenDataPackage> GetHiddenDataAsync();
+
     }
 }

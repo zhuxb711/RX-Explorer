@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
@@ -13,7 +14,7 @@ namespace RX_Explorer.Class
     /// <summary>
     /// 提供对设备中的存储对象的描述
     /// </summary>
-    public abstract class FileSystemStorageItemBase : IStorageItemPropertyBase, INotifyPropertyChanged, IStorageItemOperation, IEquatable<FileSystemStorageItemBase>
+    public abstract class FileSystemStorageItemBase : IStorageItemPropertiesBase, INotifyPropertyChanged, IStorageItemOperation, IEquatable<FileSystemStorageItemBase>
     {
         public string Path { get; protected set; }
 
@@ -218,7 +219,7 @@ namespace RX_Explorer.Class
                     if (string.IsNullOrEmpty(DirectoryPath))
                     {
                         StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
-                        return new FileSystemStorageFolder(Folder, await Folder.GetThumbnailBitmapAsync(), await Folder.GetModifiedTimeAsync());
+                        return new FileSystemStorageFolder(Folder);
                     }
                     else
                     {
@@ -228,11 +229,11 @@ namespace RX_Explorer.Class
                         {
                             case StorageFolder Folder:
                                 {
-                                    return new FileSystemStorageFolder(Folder, await Folder.GetThumbnailBitmapAsync(), await Folder.GetModifiedTimeAsync());
+                                    return new FileSystemStorageFolder(Folder);
                                 }
                             case StorageFile File:
                                 {
-                                    return new FileSystemStorageFile(File, await File.GetThumbnailBitmapAsync(), await File.GetSizeRawDataAsync(), await File.GetModifiedTimeAsync());
+                                    return new FileSystemStorageFile(File);
                                 }
                             default:
                                 {
@@ -273,17 +274,17 @@ namespace RX_Explorer.Class
                                     case CreateOption.GenerateUniqueName:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
-                                            return new FileSystemStorageFile(NewFile, await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetSizeRawDataAsync(), await NewFile.GetModifiedTimeAsync());
+                                            return new FileSystemStorageFile(NewFile);
                                         }
                                     case CreateOption.OpenIfExist:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
-                                            return new FileSystemStorageFile(NewFile, await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetSizeRawDataAsync(), await NewFile.GetModifiedTimeAsync());
+                                            return new FileSystemStorageFile(NewFile);
                                         }
                                     case CreateOption.ReplaceExisting:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
-                                            return new FileSystemStorageFile(NewFile, await NewFile.GetThumbnailBitmapAsync(), await NewFile.GetSizeRawDataAsync(), await NewFile.GetModifiedTimeAsync());
+                                            return new FileSystemStorageFile(NewFile);
                                         }
                                     default:
                                         {
@@ -317,17 +318,17 @@ namespace RX_Explorer.Class
                                     case CreateOption.GenerateUniqueName:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
-                                            return new FileSystemStorageFolder(NewFolder, await NewFolder.GetThumbnailBitmapAsync(), await NewFolder.GetModifiedTimeAsync());
+                                            return new FileSystemStorageFolder(NewFolder);
                                         }
                                     case CreateOption.OpenIfExist:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
-                                            return new FileSystemStorageFolder(NewFolder, await NewFolder.GetThumbnailBitmapAsync(), await NewFolder.GetModifiedTimeAsync());
+                                            return new FileSystemStorageFolder(NewFolder);
                                         }
                                     case CreateOption.ReplaceExisting:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
-                                            return new FileSystemStorageFolder(NewFolder, await NewFolder.GetThumbnailBitmapAsync(), await NewFolder.GetModifiedTimeAsync());
+                                            return new FileSystemStorageFolder(NewFolder);
                                         }
                                     default:
                                         {
@@ -401,7 +402,7 @@ namespace RX_Explorer.Class
         {
             if ((this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.FileAndFolder)
             {
-                if (!CheckIfPropertyLoaded())
+                if (!CheckIfPropertiesLoaded())
                 {
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                     {
@@ -424,9 +425,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected abstract bool CheckIfPropertyLoaded();
+        protected abstract bool CheckIfPropertiesLoaded();
 
-        protected abstract Task LoadMorePropertyCore(bool ForceUpdate = false);
+        protected abstract Task LoadMorePropertyCore();
 
         public abstract Task<IStorageItem> GetStorageItemAsync();
 
@@ -436,7 +437,7 @@ namespace RX_Explorer.Class
             {
                 if (await CheckExistAsync(Path))
                 {
-                    await LoadMorePropertyCore(true);
+                    await LoadMorePropertyCore();
 
                     OnPropertyChanged(nameof(Size));
                     OnPropertyChanged(nameof(Name));

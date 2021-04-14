@@ -10,26 +10,28 @@ namespace RX_Explorer.Class
 {
     public class HiddenStorageFolder : FileSystemStorageFolder, IHiddenStorageItem
     {
-        protected HiddenDataPackage HiddenData { get; set; }
+        protected HiddenDataPackage RawData { get; set; }
 
-        protected override async Task LoadMorePropertyCore(bool ForceUpdate)
+        protected override async Task LoadMorePropertyCore()
         {
-            if (HiddenData == null || ForceUpdate)
+            RawData = await GetRawDataAsync();
+
+            if ((RawData?.IconData.Length).GetValueOrDefault() > 0)
             {
-                HiddenData = await GetHiddenDataAsync();
+                BitmapImage Icon = new BitmapImage();
 
-                if ((HiddenData?.IconData.Length).GetValueOrDefault() > 0)
+                using (MemoryStream Stream = new MemoryStream(RawData.IconData))
                 {
-                    BitmapImage Icon = new BitmapImage();
-
-                    using (MemoryStream Stream = new MemoryStream(HiddenData.IconData))
-                    {
-                        await Icon.SetSourceAsync(Stream.AsRandomAccessStream());
-                    }
-
-                    Thumbnail = Icon;
+                    await Icon.SetSourceAsync(Stream.AsRandomAccessStream());
                 }
+
+                Thumbnail = Icon;
             }
+        }
+
+        protected override bool CheckIfPropertiesLoaded()
+        {
+            return RawData != null;
         }
 
         public override Task<IStorageItem> GetStorageItemAsync()
@@ -37,7 +39,7 @@ namespace RX_Explorer.Class
             return Task.FromResult<IStorageItem>(null);
         }
 
-        public async Task<HiddenDataPackage> GetHiddenDataAsync()
+        public async Task<HiddenDataPackage> GetRawDataAsync()
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {

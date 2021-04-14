@@ -30,7 +30,9 @@ namespace RX_Explorer.Class
 
         private const string ExecuteType_Check_Quicklook = "Execute_Check_QuicklookIsAvaliable";
 
-        private const string ExecuteType_Get_Associate = "Execute_Get_Associate";
+        private const string ExecuteType_Get_Association = "Execute_Get_Association";
+
+        private const string ExecuteType_Default_Association = "Execute_Default_Association";
 
         private const string ExecuteType_Get_RecycleBinItems = "Execute_Get_RecycleBinItems";
 
@@ -41,6 +43,8 @@ namespace RX_Explorer.Class
         private const string ExecuteType_RestoreWinE = "Execute_Restore_Win_E";
 
         private const string ExecuteType_GetLnkData = "Execute_GetLnkData";
+
+        private const string ExecuteType_GetUrlData = "Execute_GetUrlData";
 
         private const string ExecuteType_Rename = "Execute_Rename";
 
@@ -69,6 +73,8 @@ namespace RX_Explorer.Class
         private const string ExecuteType_CreateLink = "Execute_CreateLink";
 
         private const string ExecuteType_UpdateLink = "Execute_UpdateLink";
+
+        private const string ExecuteType_UpdateUrl = "Execute_UpdateUrl";
 
         private const string ExecuteType_PasteRemoteFile = "Paste_Remote_File";
 
@@ -626,7 +632,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<List<FileSystemStorageItemBase>> SearchByEverythingAsync(string BaseLocation, string SearchWord, bool SearchAsRegex = false, bool IgnoreCase = true, uint MaxCount = 500)
+        public async Task<IReadOnlyList<FileSystemStorageItemBase>> SearchByEverythingAsync(string BaseLocation, string SearchWord, bool SearchAsRegex = false, bool IgnoreCase = true, uint MaxCount = 500)
         {
             try
             {
@@ -862,7 +868,7 @@ namespace RX_Explorer.Class
         }
 
 
-        public async Task<InstalledApplication[]> GetAllInstalledApplicationAsync()
+        public async Task<IReadOnlyList<InstalledApplication>> GetAllInstalledApplicationAsync()
         {
             try
             {
@@ -986,7 +992,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<List<ContextMenuItem>> GetContextMenuItemsAsync(string[] PathArray, bool IncludeExtensionItem = false)
+        public async Task<IReadOnlyList<ContextMenuItem>> GetContextMenuItemsAsync(string[] PathArray, bool IncludeExtensionItem = false)
         {
             try
             {
@@ -1206,6 +1212,49 @@ namespace RX_Explorer.Class
             }
         }
 
+        public async Task UpdateUrlAsync(string UrlPath, string UrlTargetPath)
+        {
+            try
+            {
+                IsAnyActionExcutingInCurrentController = true;
+
+                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExecuteType", ExecuteType_UpdateUrl},
+                        {"DataPackage", JsonSerializer.Serialize(new UrlDataPackage(UrlPath, UrlTargetPath, Array.Empty<byte>())) }
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                        {
+                            LogTracer.Log($"An unexpected error was threw in {nameof(UpdateUrlAsync)}, message: {ErrorMessage}");
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"AppServiceResponse in {nameof(UpdateUrlAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                    }
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(UpdateUrlAsync)}: Failed to connect AppService ");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{ nameof(UpdateUrlAsync)} throw an error");
+            }
+            finally
+            {
+                IsAnyActionExcutingInCurrentController = false;
+            }
+        }
+
         public async Task<string> GetVariablePathAsync(string Variable)
         {
             try
@@ -1367,6 +1416,57 @@ namespace RX_Explorer.Class
                 else
                 {
                     LogTracer.Log($"{nameof(GetLnkDataAsync)}: Failed to connect AppService");
+                    throw new NoResponseException();
+                }
+            }
+            finally
+            {
+                IsAnyActionExcutingInCurrentController = false;
+            }
+        }
+
+        public async Task<UrlDataPackage> GetUrlDataAsync(string Path)
+        {
+            try
+            {
+                IsAnyActionExcutingInCurrentController = true;
+
+                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExecuteType", ExecuteType_GetUrlData},
+                        {"ExecutePath", Path}
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Success", out object Result))
+                        {
+                            return JsonSerializer.Deserialize<UrlDataPackage>(Convert.ToString(Result));
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(GetUrlDataAsync)}, message: {ErrorMessage}");
+                            }
+
+                            throw new InvalidOperationException();
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"AppServiceResponse in {nameof(GetUrlDataAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+
+                        throw new NoResponseException();
+                    }
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(GetUrlDataAsync)}: Failed to connect AppService");
                     throw new NoResponseException();
                 }
             }
@@ -1666,7 +1766,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<List<AssociationPackage>> GetAssociateFromPathAsync(string Path)
+        public async Task<string> GetDefaultAssociationFromPathAsync(string Path)
         {
             try
             {
@@ -1676,7 +1776,62 @@ namespace RX_Explorer.Class
                 {
                     ValueSet Value = new ValueSet
                     {
-                        {"ExecuteType", ExecuteType_Get_Associate},
+                        {"ExecuteType", ExecuteType_Default_Association},
+                        {"ExecutePath", Path}
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Success", out object Result))
+                        {
+                            return Convert.ToString(Result);
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(GetDefaultAssociationFromPathAsync)}, message: {ErrorMessage}");
+                            }
+
+                            return string.Empty;
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"AppServiceResponse in {nameof(GetDefaultAssociationFromPathAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        return string.Empty;
+                    }
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(GetDefaultAssociationFromPathAsync)}: Failed to connect AppService");
+                    return string.Empty;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{nameof(GetDefaultAssociationFromPathAsync)} throw an error");
+                return string.Empty;
+            }
+            finally
+            {
+                IsAnyActionExcutingInCurrentController = false;
+            }
+        }
+
+        public async Task<IReadOnlyList<AssociationPackage>> GetAssociationFromPathAsync(string Path)
+        {
+            try
+            {
+                IsAnyActionExcutingInCurrentController = true;
+
+                if (await ConnectRemoteAsync().ConfigureAwait(false))
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExecuteType", ExecuteType_Get_Association},
                         {"ExecutePath", Path}
                     };
 
@@ -1692,7 +1847,7 @@ namespace RX_Explorer.Class
                         {
                             if (Response.Message.TryGetValue("Error", out object ErrorMessage))
                             {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(GetAssociateFromPathAsync)}, message: {ErrorMessage}");
+                                LogTracer.Log($"An unexpected error was threw in {nameof(GetAssociationFromPathAsync)}, message: {ErrorMessage}");
                             }
 
                             return new List<AssociationPackage>(0);
@@ -1700,19 +1855,19 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        LogTracer.Log($"AppServiceResponse in {nameof(GetAssociateFromPathAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        LogTracer.Log($"AppServiceResponse in {nameof(GetAssociationFromPathAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         return new List<AssociationPackage>(0);
                     }
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(GetAssociateFromPathAsync)}: Failed to connect AppService");
+                    LogTracer.Log($"{nameof(GetAssociationFromPathAsync)}: Failed to connect AppService");
                     return new List<AssociationPackage>(0);
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{nameof(GetAssociateFromPathAsync)} throw an error");
+                LogTracer.Log(ex, $"{nameof(GetAssociationFromPathAsync)} throw an error");
                 return new List<AssociationPackage>(0);
             }
             finally
@@ -1775,7 +1930,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<List<IRecycleStorageItem>> GetRecycleBinItemsAsync()
+        public async Task<IReadOnlyList<IRecycleStorageItem>> GetRecycleBinItemsAsync()
         {
             try
             {

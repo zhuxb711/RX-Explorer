@@ -93,6 +93,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                     case ".exe":
                     case ".bat":
                     case ".lnk":
+                    case ".url":
                         {
                             GeneralSubGrid.RowDefinitions[2].Height = new GridLength(0);
                             break;
@@ -115,7 +116,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                     PivotControl.Items.Remove(PivotControl.Items.OfType<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Tools_Tab")));
                 }
 
-                if (StorageItem is not LinkStorageFile)
+                if (StorageItem is not (LinkStorageFile or UrlStorageFile))
                 {
                     PivotControl.Items.Remove(PivotControl.Items.OfType<PivotItem>().FirstOrDefault((Item) => (Item.Header as TextBlock).Text == Globalization.GetString("Properties_Shortcut_Tab")));
                 }
@@ -140,22 +141,29 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         {
             List<KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>> AttributeDic = new List<KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>>(2);
 
-            if (StorageItem is FileSystemStorageFolder)
+            switch (StorageItem)
             {
-                if (ReadonlyAttribute.IsChecked != null)
-                {
-                    AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(ReadonlyAttribute.IsChecked.Value ? ModifyAttributeAction.Add : ModifyAttributeAction.Remove, System.IO.FileAttributes.ReadOnly));
-                }
-            }
-            else if (StorageItem is FileSystemStorageFile File)
-            {
-                if (ReadonlyAttribute.IsChecked.GetValueOrDefault() != File.IsReadOnly)
-                {
-                    AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(File.IsReadOnly ? ModifyAttributeAction.Remove : ModifyAttributeAction.Add, System.IO.FileAttributes.ReadOnly));
-                }
+                case FileSystemStorageFolder:
+                    {
+                        if (ReadonlyAttribute.IsChecked != null)
+                        {
+                            AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(ReadonlyAttribute.IsChecked.Value ? ModifyAttributeAction.Add : ModifyAttributeAction.Remove, System.IO.FileAttributes.ReadOnly));
+                        }
+
+                        break;
+                    }
+                case FileSystemStorageFile File:
+                    {
+                        if (ReadonlyAttribute.IsChecked.GetValueOrDefault() != File.IsReadOnly)
+                        {
+                            AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(File.IsReadOnly ? ModifyAttributeAction.Remove : ModifyAttributeAction.Add, System.IO.FileAttributes.ReadOnly));
+                        }
+
+                        break;
+                    }
             }
 
-            if (HiddenAttribute.IsChecked.GetValueOrDefault() != StorageItem is IHiddenStorageItem)
+            if (HiddenAttribute.IsChecked.GetValueOrDefault() != (StorageItem is IHiddenStorageItem))
             {
                 AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(StorageItem is IHiddenStorageItem ? ModifyAttributeAction.Remove : ModifyAttributeAction.Add, System.IO.FileAttributes.Hidden));
             }
@@ -169,14 +177,23 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             {
                 await Exclusive.Controller.SetFileAttribute(StorageItem.Path, AttributeDic.ToArray());
 
-                if (StorageItem is LinkStorageFile)
+                switch (StorageItem)
                 {
-                    await Exclusive.Controller.UpdateLinkAsync(StorageItem.Path, ShortcutTargetContent.Text,
-                                                               ShortcutStartInContent.Text,
-                                                               (WindowState)ShortcutWindowsStateContent.SelectedIndex,
-                                                               ShortcutKeyContent.Text == Globalization.GetString("ShortcutHotKey_None") ? (int)VirtualKey.None : (int)Enum.Parse<VirtualKey>(ShortcutKeyContent.Text.Replace("Ctrl + Alt + ", string.Empty)),
-                                                               ShortcutCommentContent.Text,
-                                                               RunAsAdmin.IsChecked.GetValueOrDefault());
+                    case LinkStorageFile:
+                        {
+                            await Exclusive.Controller.UpdateLinkAsync(StorageItem.Path, ShortcutTargetContent.Text,
+                                                                       ShortcutStartInContent.Text,
+                                                                       (WindowState)ShortcutWindowsStateContent.SelectedIndex,
+                                                                       ShortcutKeyContent.Text == Globalization.GetString("ShortcutHotKey_None") ? (int)VirtualKey.None : (int)Enum.Parse<VirtualKey>(ShortcutKeyContent.Text.Replace("Ctrl + Alt + ", string.Empty)),
+                                                                       ShortcutCommentContent.Text,
+                                                                       RunAsAdmin.IsChecked.GetValueOrDefault());
+                            break;
+                        }
+                    case UrlStorageFile:
+                        {
+                            await Exclusive.Controller.UpdateUrlAsync(StorageItem.Path, ShortcutUrlContent.Text);
+                            break;
+                        }
                 }
             }
 
@@ -205,7 +222,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                         await LoadDataForGeneralPage();
                         await LoadDataForDetailPage();
 
-                        if (StorageItem is LinkStorageFile)
+                        if (StorageItem is LinkStorageFile or UrlStorageFile)
                         {
                             await LoadDataForShortCutPage();
                         }
@@ -217,67 +234,86 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
         private async Task LoadDataForShortCutPage()
         {
-            if (StorageItem is LinkStorageFile LinkFile)
+            switch (StorageItem)
             {
-                ShortcutThumbnail.Source = LinkFile.Thumbnail;
-                ShortcutItemName.Text = Path.GetFileNameWithoutExtension(LinkFile.Name);
-                ShortcutCommentContent.Text = LinkFile.Comment;
-                ShortcutWindowsStateContent.SelectedIndex = (int)LinkFile.WindowState;
-
-                if (LinkFile.HotKey > 0)
-                {
-                    if (LinkFile.HotKey >= 112 && LinkFile.HotKey <= 135)
+                case LinkStorageFile LinkFile:
                     {
-                        ShortcutKeyContent.Text = Enum.GetName(typeof(VirtualKey), (VirtualKey)LinkFile.HotKey) ?? Globalization.GetString("ShortcutHotKey_None");
+                        UrlArea.Visibility = Visibility.Collapsed;
+                        LinkArea.Visibility = Visibility.Visible;
+
+                        ShortcutThumbnail.Source = LinkFile.Thumbnail;
+                        ShortcutItemName.Text = Path.GetFileNameWithoutExtension(LinkFile.Name);
+                        ShortcutCommentContent.Text = LinkFile.Comment;
+                        ShortcutWindowsStateContent.SelectedIndex = (int)LinkFile.WindowState;
+
+                        if (LinkFile.HotKey > 0)
+                        {
+                            if (LinkFile.HotKey >= 112 && LinkFile.HotKey <= 135)
+                            {
+                                ShortcutKeyContent.Text = Enum.GetName(typeof(VirtualKey), (VirtualKey)LinkFile.HotKey) ?? Globalization.GetString("ShortcutHotKey_None");
+                            }
+                            else
+                            {
+                                ShortcutKeyContent.Text = "Ctrl + Alt + " + Enum.GetName(typeof(VirtualKey), (VirtualKey)(LinkFile.HotKey - 393216)) ?? Globalization.GetString("ShortcutHotKey_None");
+                            }
+                        }
+                        else
+                        {
+                            ShortcutKeyContent.Text = Globalization.GetString("ShortcutHotKey_None");
+                        }
+
+                        if (LinkFile.LinkType == ShellLinkType.Normal)
+                        {
+                            FileSystemStorageItemBase TargetItem = await FileSystemStorageItemBase.OpenAsync(LinkFile.LinkTargetPath);
+
+                            switch (await TargetItem.GetStorageItemAsync())
+                            {
+                                case StorageFile File:
+                                    {
+                                        ShortcutTargetTypeContent.Text = File.DisplayType;
+                                        break;
+                                    }
+                                case StorageFolder Folder:
+                                    {
+                                        ShortcutTargetTypeContent.Text = Folder.DisplayType;
+                                        break;
+                                    }
+                                default:
+                                    {
+                                        ShortcutTargetTypeContent.Text = TargetItem.DisplayType;
+                                        break;
+                                    }
+                            }
+
+                            ShortcutTargetLocationContent.Text = Path.GetDirectoryName(TargetItem.Path).Split('\\', StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
+                            ShortcutTargetContent.Text = TargetItem.Path;
+                            ShortcutStartInContent.Text = LinkFile.WorkDirectory;
+                            RunAsAdmin.IsChecked = LinkFile.NeedRunAsAdmin;
+                        }
+                        else
+                        {
+                            ShortcutTargetTypeContent.Text = LinkFile.LinkTargetPath;
+                            ShortcutTargetLocationContent.Text = Globalization.GetString("ShortcutTargetApplicationType");
+                            ShortcutTargetContent.Text = LinkFile.LinkTargetPath;
+                            ShortcutTargetContent.IsEnabled = false;
+                            ShortcutStartInContent.IsEnabled = false;
+                            OpenLocation.IsEnabled = false;
+                            RunAsAdmin.IsEnabled = false;
+                        }
+
+                        break;
                     }
-                    else
+
+                case UrlStorageFile UrlFile:
                     {
-                        ShortcutKeyContent.Text = "Ctrl + Alt + " + Enum.GetName(typeof(VirtualKey), (VirtualKey)(LinkFile.HotKey - 393216)) ?? Globalization.GetString("ShortcutHotKey_None");
+                        UrlArea.Visibility = Visibility.Visible;
+                        LinkArea.Visibility = Visibility.Collapsed;
+
+                        ShortcutThumbnail.Source = UrlFile.Thumbnail;
+                        ShortcutItemName.Text = Path.GetFileNameWithoutExtension(UrlFile.Name);
+                        ShortcutUrlContent.Text = UrlFile.UrlTargetPath;
+                        break;
                     }
-                }
-                else
-                {
-                    ShortcutKeyContent.Text = Globalization.GetString("ShortcutHotKey_None");
-                }
-
-                if (LinkFile.LinkType == ShellLinkType.Normal)
-                {
-                    FileSystemStorageItemBase TargetItem = await FileSystemStorageItemBase.OpenAsync(LinkFile.LinkTargetPath);
-
-                    switch (await TargetItem.GetStorageItemAsync())
-                    {
-                        case StorageFile File:
-                            {
-                                ShortcutTargetTypeContent.Text = File.DisplayType;
-                                break;
-                            }
-                        case StorageFolder Folder:
-                            {
-                                ShortcutTargetTypeContent.Text = Folder.DisplayType;
-                                break;
-                            }
-                        default:
-                            {
-                                ShortcutTargetTypeContent.Text = TargetItem.DisplayType;
-                                break;
-                            }
-                    }
-
-                    ShortcutTargetLocationContent.Text = Path.GetDirectoryName(TargetItem.Path).Split('\\', StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
-                    ShortcutTargetContent.Text = TargetItem.Path;
-                    ShortcutStartInContent.Text = LinkFile.WorkDirectory;
-                    RunAsAdmin.IsChecked = LinkFile.NeedRunAsAdmin;
-                }
-                else
-                {
-                    ShortcutTargetTypeContent.Text = LinkFile.LinkTargetPath;
-                    ShortcutTargetLocationContent.Text = Globalization.GetString("ShortcutTargetApplicationType");
-                    ShortcutTargetContent.Text = LinkFile.LinkTargetPath;
-                    ShortcutTargetContent.IsEnabled = false;
-                    ShortcutStartInContent.IsEnabled = false;
-                    OpenLocation.IsEnabled = false;
-                    RunAsAdmin.IsEnabled = false;
-                }
             }
         }
 
@@ -674,7 +710,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         {
             Thumbnail.Source = StorageItem.Thumbnail;
             StorageItemName.Text = StorageItem.DisplayName;
-            TypeContent.Text = StorageItem.DisplayType;
+            TypeContent.Text = $"{StorageItem.DisplayType} ({StorageItem.Type})";
             LocationContent.Text = StorageItem.Path;
             SizeContent.Text = $"{StorageItem.Size} ({StorageItem.SizeRaw:N0} {Globalization.GetString("Device_Capacity_Unit")})";
             CreatedContent.Text = StorageItem.CreationTimeRaw.ToString("F");

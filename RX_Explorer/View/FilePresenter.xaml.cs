@@ -2388,6 +2388,15 @@ namespace RX_Explorer
 
                                             break;
                                         }
+                                    case ".url":
+                                        {
+                                            if (File is UrlStorageFile Item)
+                                            {
+                                                await Item.LaunchAsync().ConfigureAwait(true);
+                                            }
+
+                                            break;
+                                        }
                                     default:
                                         {
                                             string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(File.Type).ConfigureAwait(true);
@@ -3039,11 +3048,11 @@ namespace RX_Explorer
                 DelayEnterCancel?.Dispose();
                 DelayEnterCancel = new CancellationTokenSource();
 
-                Task.Delay(1500).ContinueWith((task, input) =>
+                Task.Delay(1500).ContinueWith((task) =>
                 {
                     try
                     {
-                        if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                        if (DelayEnterCancel != null && !DelayEnterCancel.IsCancellationRequested)
                         {
                             _ = EnterSelectedItem(Item);
                         }
@@ -3052,7 +3061,7 @@ namespace RX_Explorer
                     {
                         LogTracer.Log(ex, "An exception was thew in DelayEnterProcess");
                     }
-                }, DelayEnterCancel, TaskScheduler.FromCurrentSynchronizationContext());
+                }, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 
@@ -3221,13 +3230,13 @@ namespace RX_Explorer
                     DelaySelectionCancel?.Dispose();
                     DelaySelectionCancel = new CancellationTokenSource();
 
-                    Task.Delay(800).ContinueWith((task, input) =>
+                    Task.Delay(800).ContinueWith((task) =>
                     {
-                        if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                        if (DelaySelectionCancel != null && !DelaySelectionCancel.IsCancellationRequested)
                         {
                             SelectedItem = Item;
                         }
-                    }, DelaySelectionCancel, TaskScheduler.FromCurrentSynchronizationContext());
+                    }, TaskScheduler.FromCurrentSynchronizationContext());
                 }
             }
         }
@@ -3561,16 +3570,17 @@ namespace RX_Explorer
                 {
                     if (SelectedItem == Item)
                     {
+                        DelayRenameCancel?.Cancel();
                         DelayRenameCancel?.Dispose();
                         DelayRenameCancel = new CancellationTokenSource();
 
-                        Task.Delay(1200).ContinueWith((task, input) =>
+                        Task.Delay(1200).ContinueWith((task) =>
                         {
-                            if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
+                            if (DelayRenameCancel != null && !DelayRenameCancel.IsCancellationRequested)
                             {
                                 NameLabel.Visibility = Visibility.Collapsed;
 
-                                if ((NameLabel.Parent as FrameworkElement).FindName("NameEditBox") is TextBox EditBox)
+                                if ((NameLabel.Parent as FrameworkElement)?.FindName("NameEditBox") is TextBox EditBox)
                                 {
                                     EditBox.Tag = SelectedItem;
                                     EditBox.Text = NameLabel.Text;
@@ -3580,7 +3590,7 @@ namespace RX_Explorer
 
                                 Container.BlockKeyboardShortCutInput = true;
                             }
-                        }, DelayRenameCancel, TaskScheduler.FromCurrentSynchronizationContext());
+                        }, TaskScheduler.FromCurrentSynchronizationContext());
                     }
                 }
             }

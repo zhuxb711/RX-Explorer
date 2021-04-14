@@ -608,14 +608,7 @@ namespace RX_Explorer.Class
                                 }
                                 else if (Filter.HasFlag(ItemFilters.File))
                                 {
-                                    if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        return false;
-                                    }
-                                    else
-                                    {
-                                        return true;
-                                    }
+                                    return true;
                                 }
                             }
                         }
@@ -943,16 +936,17 @@ namespace RX_Explorer.Class
                                             {
                                                 SearchResult.Add(new HiddenStorageFile(CurrentDataPath, Data));
                                             }
-                                            else if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                            else if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                                             {
-                                                if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
-                                                {
-                                                    SearchResult.Add(new LinkStorageFile(CurrentDataPath, Data));
-                                                }
-                                                else
-                                                {
-                                                    SearchResult.Add(new FileSystemStorageFile(CurrentDataPath, Data));
-                                                }
+                                                SearchResult.Add(new UrlStorageFile(CurrentDataPath, Data));
+                                            }
+                                            else if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                SearchResult.Add(new LinkStorageFile(CurrentDataPath, Data));
+                                            }
+                                            else
+                                            {
+                                                SearchResult.Add(new FileSystemStorageFile(CurrentDataPath, Data));
                                             }
                                         }
                                     }
@@ -1015,16 +1009,17 @@ namespace RX_Explorer.Class
                                         {
                                             SearchResult.Add(new HiddenStorageFile(CurrentDataPath, Data));
                                         }
-                                        else if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                        else if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                                         {
-                                            if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                SearchResult.Add(new LinkStorageFile(CurrentDataPath, Data));
-                                            }
-                                            else
-                                            {
-                                                SearchResult.Add(new FileSystemStorageFile(CurrentDataPath, Data));
-                                            }
+                                            SearchResult.Add(new UrlStorageFile(CurrentDataPath, Data));
+                                        }
+                                        else if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            SearchResult.Add(new LinkStorageFile(CurrentDataPath, Data));
+                                        }
+                                        else
+                                        {
+                                            SearchResult.Add(new FileSystemStorageFile(CurrentDataPath, Data));
                                         }
                                     }
                                 }
@@ -1119,16 +1114,17 @@ namespace RX_Explorer.Class
                                         {
                                             Result.Add(new HiddenStorageFile(CurrentDataPath, Data));
                                         }
-                                        else if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                        else if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                                         {
-                                            if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                Result.Add(new LinkStorageFile(CurrentDataPath, Data));
-                                            }
-                                            else
-                                            {
-                                                Result.Add(new FileSystemStorageFile(CurrentDataPath, Data));
-                                            }
+                                            Result.Add(new UrlStorageFile(CurrentDataPath, Data));
+                                        }
+                                        else if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            Result.Add(new LinkStorageFile(CurrentDataPath, Data));
+                                        }
+                                        else
+                                        {
+                                            Result.Add(new FileSystemStorageFile(CurrentDataPath, Data));
                                         }
                                     }
                                 }
@@ -1192,16 +1188,17 @@ namespace RX_Explorer.Class
                                 {
                                     return new HiddenStorageFile(ItemPath, Data);
                                 }
-                                else if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                else if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        return new LinkStorageFile(ItemPath, Data);
-                                    }
-                                    else
-                                    {
-                                        return new FileSystemStorageFile(ItemPath, Data);
-                                    }
+                                    return new UrlStorageFile(ItemPath, Data);
+                                }
+                                else if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    return new LinkStorageFile(ItemPath, Data);
+                                }
+                                else
+                                {
+                                    return new FileSystemStorageFile(ItemPath, Data);
                                 }
                             }
                         }
@@ -1267,16 +1264,17 @@ namespace RX_Explorer.Class
                                     {
                                         Result.Add(new HiddenStorageFile(Path, Data));
                                     }
-                                    else if (!Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
+                                    else if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
-                                        {
-                                            Result.Add(new LinkStorageFile(Path, Data));
-                                        }
-                                        else
-                                        {
-                                            Result.Add(new FileSystemStorageFile(Path, Data));
-                                        }
+                                        Result.Add(new UrlStorageFile(Path, Data));
+                                    }
+                                    else if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        Result.Add(new LinkStorageFile(Path, Data));
+                                    }
+                                    else
+                                    {
+                                        Result.Add(new FileSystemStorageFile(Path, Data));
                                     }
                                 }
                             }

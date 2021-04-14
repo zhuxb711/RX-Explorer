@@ -49,14 +49,19 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="40" />
+            <RowDefinition Height="35" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <TextBlock Text="搜索结果"
-                   x:Uid="SearchResult"
-                   FontSize="16" 
-                   VerticalAlignment="Center"
-                   Padding="10,0,10,0"/>
+        <StackPanel VerticalAlignment="Center"
+                    Padding="5,0">
+            <TextBlock Text="搜索结果"
+                       FontSize="16"
+                       Name="SearchStatus"/>
+            <muxc:ProgressBar IsIndeterminate="True"
+                              Name="SearchStatusBar"
+                              Height="5"
+                              Margin="0,2,0,0"/>
+        </StackPanel>
         <ListView Grid.Row="1"
                   Name="SearchResultList"
                   x:FieldModifier="public"
@@ -201,16 +206,16 @@
                                    FontSize="14"
                                    x:Phase="0"
                                    Padding="10,0,0,0"
-                                   Text="{x:Bind ModifiedTime}"
-                                   ToolTipService.ToolTip="{x:Bind ModifiedTime}"
+                                   Text="{x:Bind ModifiedTime, Mode=OneWay}"
+                                   ToolTipService.ToolTip="{x:Bind ModifiedTime, Mode=OneWay}"
                                    Grid.Column="2"
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"
                                    FontSize="14"
                                    Padding="10,0,0,0"
                                    x:Phase="1"
-                                   Text="{x:Bind DisplayType,Mode=OneWay}"
-                                   ToolTipService.ToolTip="{x:Bind DisplayType,Mode=OneWay}"
+                                   Text="{x:Bind DisplayType, Mode=OneWay}"
+                                   ToolTipService.ToolTip="{x:Bind DisplayType, Mode=OneWay}"
                                    Grid.Column="3"
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock VerticalAlignment="Center"
@@ -233,25 +238,5 @@
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
                    FontSize="15" />
-
-        <controls:Loading x:Name="LoadingControl"
-                          IsLoading="False"
-                          Grid.RowSpan="2">
-            <controls:Loading.Background>
-                <Brush:AcrylicBrush TintColor="Black"
-                                    TintOpacity="0.65"
-                                    BlurAmount="4" />
-            </controls:Loading.Background>
-            <StackPanel>
-                <TextBlock FontSize="15"
-                           x:Uid="SearchingText"
-                           Text="正在搜索..."
-                           VerticalAlignment="Center"
-                           TextAlignment="Center" />
-                <muxc:ProgressBar IsIndeterminate="True"
-                                  Width="180"
-                                  Margin="0,10,0,0" />
-            </StackPanel>
-        </controls:Loading>
     </Grid>
 </Page>

@@ -174,7 +174,7 @@ namespace RX_Explorer.Class
                         {
                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
-                                List<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(SelectedPathArray, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
+                                IReadOnlyList<ContextMenuItem> ExtraMenuItems = await Exclusive.Controller.GetContextMenuItemsAsync(SelectedPathArray, Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down));
 
                                 foreach (AppBarButton ExtraButton in Flyout.SecondaryCommands.OfType<AppBarButton>().Where((Btn) => Btn.Name == "ExtraButton").ToArray())
                                 {
@@ -784,7 +784,7 @@ namespace RX_Explorer.Class
             return null;
         }
 
-        public static async Task<ulong> GetSizeRawDataAsync(this IStorageItem Item)
+        public static async Task<ulong> GetSizeRawDataAsync(this StorageFile Item)
         {
             if (Item == null)
             {
@@ -794,7 +794,6 @@ namespace RX_Explorer.Class
             try
             {
                 BasicProperties Properties = await Item.GetBasicPropertiesAsync();
-
                 return Convert.ToUInt64(Properties.Size);
             }
             catch

@@ -52,11 +52,10 @@ namespace RX_Explorer.Class
             ModifiedTimeRaw = CreateTime.ToLocalTime();
         }
 
-        protected override async Task LoadMorePropertyCore(bool ForceUpdate)
+        protected override async Task LoadMorePropertyCore()
         {
-            if ((StorageItem == null || ForceUpdate) && (await GetStorageItemAsync() is StorageFile File))
+            if (await GetStorageItemAsync() is StorageFile File)
             {
-                StorageItem = File;
                 SizeRaw = await File.GetSizeRawDataAsync();
                 Thumbnail = await File.GetThumbnailBitmapAsync();
             }

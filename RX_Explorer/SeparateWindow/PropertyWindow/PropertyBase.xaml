@@ -119,8 +119,7 @@
                                 <RowDefinition Height="35" />
                                 <RowDefinition Height="35" />
                                 <RowDefinition Height="10" />
-                                <RowDefinition MaxHeight="80"
-                                               MinHeight="35" />
+                                <RowDefinition Height="50" />
                                 <RowDefinition Height="35" />
                                 <RowDefinition Height="35" />
                                 <RowDefinition Height="10" />
@@ -228,7 +227,6 @@
                                        Grid.Column="1"
                                        Padding="2,0,0,0"
                                        TextWrapping="Wrap"
-                                       MaxLines="5"
                                        TextTrimming="CharacterEllipsis"
                                        ToolTipService.ToolTip="{x:Bind LocationContent.Text, Mode=OneWay}"
                                        IsTextSelectionEnabled="True" />
@@ -310,7 +308,35 @@
                                        Grid.Column="2"
                                        Name="ShortcutItemName" />
                         </Grid>
-                        <Grid Grid.Row="1">
+                        <Grid Grid.Row="1"
+                              Visibility="Collapsed"
+                              x:Name="UrlArea"
+                              Padding="5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="5*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="10" />
+                                <RowDefinition Height="35" />
+                            </Grid.RowDefinitions>
+                            <Border Height="2"
+                                    Grid.ColumnSpan="2"
+                                    HorizontalAlignment="Stretch"
+                                    Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
+                            <TextBlock Text="URL:"
+                                       FontSize="14"
+                                       TextTrimming="CharacterEllipsis"
+                                       Grid.Row="1"
+                                       VerticalAlignment="Center"/>
+                            <TextBox VerticalAlignment="Center"
+                                     Grid.Row="1"
+                                     Grid.Column="1"
+                                     Name="ShortcutUrlContent"/>
+                        </Grid>
+                        <Grid Grid.Row="1"
+                              Name="LinkArea"
+                              Padding="5">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="2*" />

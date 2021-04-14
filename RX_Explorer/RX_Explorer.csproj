@@ -187,6 +187,7 @@
     <Compile Include="Class\InstalledApplication.cs" />
     <Compile Include="Class\QueueTaskController.cs" />
     <Compile Include="Class\RecycleStorageFolder.cs" />
+    <Compile Include="Class\UrlStorageFile.cs" />
     <Compile Include="CustomControl\AppBarButtonWithImage.xaml.cs">
       <DependentUpon>AppBarButtonWithImage.xaml</DependentUpon>
     </Compile>
@@ -198,6 +199,7 @@
     </Compile>
     <Compile Include="Interface\ICryptable.cs" />
     <Compile Include="Interface\IHiddenStorageItem.cs" />
+    <Compile Include="Interface\IIndirectLaunchStorageItem.cs" />
     <Compile Include="Interface\ILinkStorageFile.cs" />
     <Compile Include="Interface\IRecycleStorageItem.cs" />
     <Compile Include="Interface\IStorageItemOperation.cs" />
@@ -296,8 +298,9 @@
     <Compile Include="Class\QueueContentDialog.cs" />
     <Compile Include="Class\QuickStartItem.cs" />
     <Compile Include="Class\SQLite.cs" />
-    <Compile Include="Interface\IStorageItemPropertyBase.cs" />
+    <Compile Include="Interface\IStorageItemPropertiesBase.cs" />
     <Compile Include="Interface\IUnsupportedStorageItem.cs" />
+    <Compile Include="Interface\IUrlStorageFile.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="View\BlueScreen.xaml.cs">
       <DependentUpon>BlueScreen.xaml</DependentUpon>

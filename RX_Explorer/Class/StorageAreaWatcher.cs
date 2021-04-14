@@ -259,8 +259,6 @@ namespace RX_Explorer.Class
                             {
                                 if (CurrentCollection.All((Item) => Item.Path != Path) && await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageItemBase NewItem)
                                 {
-                                    await NewItem.LoadMorePropertyAsync();
-
                                     if (CurrentCollection.Any())
                                     {
                                         int Index = SortCollectionGenerator.Current.SearchInsertLocation(CurrentCollection, NewItem);

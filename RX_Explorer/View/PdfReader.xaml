@@ -17,6 +17,7 @@
         </Grid.RowDefinitions>
         <FlipView Name="Flip"
                   Grid.RowSpan="2"
+                  ItemsSource="{x:Bind PdfCollection}"
                   Background="Transparent">
             <FlipView.ItemTemplate>
                 <DataTemplate>
@@ -40,12 +41,11 @@
                 </DataTemplate>
             </FlipView.ItemTemplate>
         </FlipView>
-        <controls:InAppNotification HorizontalContentAlignment="Center"
-                                    ShowDismissButton="False"
+        <controls:InAppNotification ShowDismissButton="False"
                                     Name="PageNotification"
                                     StackMode="Replace"
-                                    Width="300"
                                     HorizontalAlignment="Center"
+                                    HorizontalContentAlignment="Center"
                                     Grid.Row="1" />
         <controls:Loading x:Name="LoadingControl"
                           IsLoading="False"

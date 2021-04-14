@@ -595,9 +595,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="SearchHasItem.Text" xml:space="preserve">
     <value>Kein Ergebnis</value>
   </data>
-  <data name="SearchingText.Text" xml:space="preserve">
-    <value>Suchen</value>
-  </data>
   <data name="SearchLocation.Label" xml:space="preserve">
     <value>Ort öffnen</value>
   </data>
@@ -612,9 +609,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="SearchProperties.Label" xml:space="preserve">
     <value>Eigenschaften</value>
-  </data>
-  <data name="SearchResult.Text" xml:space="preserve">
-    <value>Suchergebnis</value>
   </data>
   <data name="SearchSize.Text" xml:space="preserve">
     <value>Größe</value>
@@ -3046,5 +3040,14 @@ Inkorrekte Namen sind
   </data>
   <data name="Toast_EnterBackground_Dismiss" xml:space="preserve">
     <value>Entlassen</value>
+  </data>
+  <data name="Url_Admin_DisplayType" xml:space="preserve">
+    <value>Internet-Verknüpfung</value>
+  </data>
+  <data name="SearchCompletedText" xml:space="preserve">
+    <value>Suche abgeschlossen</value>
+  </data>
+  <data name="SearchProcessingText" xml:space="preserve">
+    <value>Suchen...</value>
   </data>
 </root>
