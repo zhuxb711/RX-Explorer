@@ -100,15 +100,22 @@ namespace RX_Explorer.Class
         protected StorageFile StorageItem { get; set; }
         private StorageFile TempStorageItem;
 
+        public async static Task<FileSystemStorageFile> CreateFromExistingStorageItem(StorageFile Item)
+        {
+            return new FileSystemStorageFile(Item, await Item.GetModifiedTimeAsync(), await Item.GetSizeRawDataAsync());
+        }
+
         protected FileSystemStorageFile(string Path) : base(Path)
         {
 
         }
 
-        public FileSystemStorageFile(StorageFile Item) : base(Item.Path)
+        protected FileSystemStorageFile(StorageFile Item, DateTimeOffset ModifiedTime, ulong Size) : base(Item.Path)
         {
             TempStorageItem = Item;
             CreationTimeRaw = Item.DateCreated;
+            ModifiedTimeRaw = ModifiedTime;
+            SizeRaw = Size;
         }
 
         public FileSystemStorageFile(string Path, WIN_Native_API.WIN32_FIND_DATA Data) : base(Path, Data)
@@ -150,13 +157,17 @@ namespace RX_Explorer.Class
             return await FileRandomAccessStream.OpenAsync(Path, Mode, StorageOpenOptions.AllowReadersAndWriters, FileOpenDisposition.OpenExisting);
         }
 
-        protected override async Task LoadMorePropertyCore()
+        protected override async Task LoadMorePropertyCore(bool ForceUpdate)
         {
             if (await GetStorageItemAsync() is StorageFile File)
             {
                 Thumbnail = await File.GetThumbnailBitmapAsync();
-                ModifiedTimeRaw = await File.GetModifiedTimeAsync();
-                SizeRaw = await File.GetSizeRawDataAsync();
+
+                if (ForceUpdate)
+                {
+                    ModifiedTimeRaw = await File.GetModifiedTimeAsync();
+                    SizeRaw = await File.GetSizeRawDataAsync();
+                }
             }
         }
 

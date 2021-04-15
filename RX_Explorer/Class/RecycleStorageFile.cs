@@ -52,15 +52,6 @@ namespace RX_Explorer.Class
             ModifiedTimeRaw = CreateTime.ToLocalTime();
         }
 
-        protected override async Task LoadMorePropertyCore()
-        {
-            if (await GetStorageItemAsync() is StorageFile File)
-            {
-                SizeRaw = await File.GetSizeRawDataAsync();
-                Thumbnail = await File.GetThumbnailBitmapAsync();
-            }
-        }
-
         public async Task<bool> DeleteAsync()
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())

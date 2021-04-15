@@ -150,7 +150,7 @@ namespace RX_Explorer
             {
                 if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => Content.Path != Device.Folder?.Path))
                 {
-                    FileSystemStorageFolder DeviceFolder = new FileSystemStorageFolder(Device.Folder);
+                    FileSystemStorageFolder DeviceFolder = await FileSystemStorageFolder.CreateFromExistingStorageItem(Device.Folder);
 
                     if (Device.DriveType == DriveType.Network)
                     {
@@ -427,7 +427,7 @@ namespace RX_Explorer
                 {
                     if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => Path != DriveData.Folder.Path))
                     {
-                        FileSystemStorageFolder DeviceFolder = new FileSystemStorageFolder(DriveData.Folder);
+                        FileSystemStorageFolder DeviceFolder = await FileSystemStorageFolder.CreateFromExistingStorageItem(DriveData.Folder);
 
                         bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(ItemFilters.Folder);
 
@@ -452,7 +452,7 @@ namespace RX_Explorer
                 {
                     if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => Path != DriveData.Folder.Path))
                     {
-                        FileSystemStorageFolder DeviceFolder = new FileSystemStorageFolder(DriveData.Folder);
+                        FileSystemStorageFolder DeviceFolder = await FileSystemStorageFolder.CreateFromExistingStorageItem(DriveData.Folder);
 
                         await Task.Run(()=> DeviceFolder.CheckContainsAnyItemAsync(ItemFilters.Folder)).ContinueWith((task) =>
                         {

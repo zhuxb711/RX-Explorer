@@ -1,4 +1,51 @@
 ﻿*****
+###What's new in Ver.6.3.0.0
+
+#####Feature update
+
+>#####Added support for extended execution
+
+>>#####If the PC is plugged into the power, minimizing RX will not affect any tasks
+
+>>#####If the PC is on battery, it will continue to run for up to 10 minutes after minimizing RX (the specific time is determined by Windows)
+
+#####UI update
+
+>#####It is now possible to detect the system default program and display it in the "Open with" dialog
+
+>#####Added support for .url files
+
+>#####Improved the resolution of the built-in PDF viewer when rendering PDF pages
+
+>#####The search page now has a new progress bar design
+
+#####Performance improvement
+
+>#####Improved the performance of the search page rendering file items
+
+>#####Improved the speed of calculating the folder size and the number of sub-files in the folder
+
+#####Bug fix
+
+>#####Fixed the problem that may cause tracking failure when tracking file system changes
+
+>#####Fixed the problem that the file may be renamed after closing the properties window
+
+>#####Fixed the problem that opening the properties window may cause a crash
+
+>#####Fixed the problem of duplicate items when expanding/collapsing the file folder tree
+
+>#####Fixed the problem of getting stuck when activating the app via Toast notification
+
+>#####Fixed some database security issues and prevent files with special symbols from causing crashes
+
+>#####Fixed the problem that the navigation back button was wrongly disabled in some cases
+
+>#####Fixed the problem that the search function will cause memory overflow in some cases
+
+>#####Fixed the problem that the search function may not be able to search correctly
+
+*****
 ###What's new in Ver.6.2.7.0
 
 #####Feature update

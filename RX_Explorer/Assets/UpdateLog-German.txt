@@ -1,4 +1,51 @@
 ﻿*****
+###Was ist neu in Ver.6.3.0.0
+
+#####Funktionsaktualisierung
+
+>#####Unterstützung für erweiterte Ausführung hinzugefügt
+
+>>#####Wenn der PC an die Stromversorgung angeschlossen ist, wirkt sich die Minimierung des Empfangs auf keine Aufgaben aus
+
+>>#####Wenn der PC im Akkubetrieb ist, läuft er nach Minimierung des Empfangs bis zu 10 Minuten lang weiter (die spezifische Zeit wird von Windows festgelegt).
+
+#####UI-Update
+
+>#####Es ist jetzt möglich, das Systemstandardprogramm zu erkennen und im Dialogfeld "Öffnen mit" anzuzeigen
+
+>#####Unterstützung für URL-Dateien hinzugefügt
+
+>#####Die Auflösung des integrierten PDF-Viewers beim Rendern von PDF-Seiten wurde verbessert
+
+>#####Die Suchseite hat jetzt ein neues Fortschrittsbalken-Design
+
+#####Leistungsverbesserung
+
+>#####Die Leistung der Rendering-Dateielemente auf der Suchseite wurde verbessert
+
+>#####Die Berechnungsgeschwindigkeit für die Ordnergröße und die Anzahl der Unterdateien im Ordner wurde verbessert
+
+#####Fehlerbehebung
+
+>#####Das Problem wurde behoben, das zu Tracking-Fehlern beim Tracking von Dateisystemänderungen führen kann
+
+>#####Es wurde das Problem behoben, dass die Datei nach dem Schließen des Eigenschaftenfensters möglicherweise umbenannt wurde
+
+>#####Das Problem, dass das Öffnen des Eigenschaftenfensters zu einem Absturz führen kann, wurde behoben
+
+>#####Das Problem der doppelten Elemente beim Erweitern / Reduzieren des Dateiordnerbaums wurde behoben
+
+>#####Das Problem, dass Sie beim Aktivieren der App über die Toast-Benachrichtigung nicht weiterkommen, wurde behoben
+
+>#####Einige Datenbanksicherheitsprobleme wurden behoben und es wurde verhindert, dass Dateien mit speziellen Symbolen Abstürze verursachen
+
+>#####Das Problem wurde behoben, dass die Navigationstaste in einigen Fällen fälschlicherweise deaktiviert wurde
+
+>#####Es wurde das Problem behoben, dass die Suchfunktion in einigen Fällen einen Speicherüberlauf verursacht
+
+>#####Es wurde das Problem behoben, dass die Suchfunktion möglicherweise nicht richtig suchen kann
+
+*****
 ###Was ist neu in Ver.6.2.7.0
 
 #####Funktionsaktualisierung

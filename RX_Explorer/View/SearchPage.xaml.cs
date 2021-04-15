@@ -45,9 +45,9 @@ namespace RX_Explorer
         {
             if (e?.Parameter is Tuple<WeakReference<FileControl>, SearchCategory, bool?, bool?, bool?, uint?> Parameters)
             {
-                WeakToFileControl = Parameters.Item1;
-
                 CoreWindow.GetForCurrentThread().KeyDown += SearchPage_KeyDown;
+
+                WeakToFileControl = Parameters.Item1;
 
                 await Initialize(Parameters.Item2, Parameters.Item3.GetValueOrDefault(), Parameters.Item4.GetValueOrDefault(), Parameters.Item5.GetValueOrDefault(), Parameters.Item6.GetValueOrDefault()).ConfigureAwait(false);
             }

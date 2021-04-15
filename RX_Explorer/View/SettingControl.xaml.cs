@@ -1975,7 +1975,7 @@ namespace RX_Explorer
 
                             foreach (StorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.Folder))
                             {
-                                FileSystemStorageFolder Folder = new FileSystemStorageFolder(DriveFolder);
+                                FileSystemStorageFolder Folder = await FileSystemStorageFolder.CreateFromExistingStorageItem(DriveFolder);
 
                                 bool HasAnyFolder = await Folder.CheckContainsAnyItemAsync(ItemFilters.Folder);
 

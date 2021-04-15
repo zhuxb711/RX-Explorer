@@ -106,7 +106,6 @@ namespace RX_Explorer.Class
                                                             FINDEX_SEARCH_OPS fSearchOp,
                                                             IntPtr lpSearchFilter,
                                                             FINDEX_ADDITIONAL_FLAGS dwAdditionalFlags);
-
         private enum FINDEX_ADDITIONAL_FLAGS
         {
             NONE = 0,
@@ -885,18 +884,16 @@ namespace RX_Explorer.Class
                 throw new ArgumentException("Argument could not be empty", nameof(SearchWord));
             }
 
-            IntPtr Ptr = IntPtr.Zero;
-
             try
             {
-                if (IsRegexExpresstion)
+                List<FileSystemStorageItemBase> SearchResult = new List<FileSystemStorageItemBase>();
+
+                IntPtr SearchPtr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.FIND_FIRST_EX_LARGE_FETCH);
+
+                try
                 {
-                    Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.FIND_FIRST_EX_LARGE_FETCH);
-
-                    if (Ptr != IntPtr.Zero && Ptr != INVALID_HANDLE)
+                    if (SearchPtr != IntPtr.Zero && SearchPtr != INVALID_HANDLE)
                     {
-                        List<FileSystemStorageItemBase> SearchResult = new List<FileSystemStorageItemBase>();
-
                         do
                         {
                             if (Data.cFileName != "." && Data.cFileName != "..")
@@ -905,11 +902,12 @@ namespace RX_Explorer.Class
 
                                 if (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden))
                                 {
-                                    if (Attribute.HasFlag(FileAttributes.Directory))
+                                    if (IsRegexExpresstion ? Regex.IsMatch(Data.cFileName, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None)
+                                                           : Data.cFileName.Contains(SearchWord, IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
                                     {
                                         string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
 
-                                        if (Regex.IsMatch(Data.cFileName, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
+                                        if (Attribute.HasFlag(FileAttributes.Directory))
                                         {
                                             if (Attribute.HasFlag(FileAttributes.Hidden))
                                             {
@@ -920,18 +918,8 @@ namespace RX_Explorer.Class
                                                 SearchResult.Add(new FileSystemStorageFolder(CurrentDataPath, Data));
                                             }
                                         }
-
-                                        if (SearchInSubFolders)
+                                        else
                                         {
-                                            SearchResult.AddRange(Search(CurrentDataPath, SearchWord, true, IncludeHiddenItem, IsRegexExpresstion, IgnoreCase, CancelToken));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (Regex.IsMatch(Data.cFileName, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None))
-                                        {
-                                            string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
-
                                             if (Attribute.HasFlag(FileAttributes.Hidden))
                                             {
                                                 SearchResult.Add(new HiddenStorageFile(CurrentDataPath, Data));
@@ -950,99 +938,28 @@ namespace RX_Explorer.Class
                                             }
                                         }
                                     }
+
+                                    if (Attribute.HasFlag(FileAttributes.Directory) && SearchInSubFolders)
+                                    {
+                                        SearchResult.AddRange(Search(Path.Combine(FolderPath, Data.cFileName), SearchWord, true, IncludeHiddenItem, false, IgnoreCase, CancelToken));
+                                    }
                                 }
                             }
                         }
-                        while (FindNextFile(Ptr, out Data) && !CancelToken.IsCancellationRequested);
+                        while (FindNextFile(SearchPtr, out Data) && !CancelToken.IsCancellationRequested);
+                    }
 
-                        return SearchResult;
-                    }
-                    else
-                    {
-                        return new List<FileSystemStorageItemBase>(0);
-                    }
+                    return SearchResult;
                 }
-                else
+                finally
                 {
-                    Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, $"*{SearchWord}*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.FIND_FIRST_EX_LARGE_FETCH);
-
-                    if (Ptr != IntPtr.Zero && Ptr != INVALID_HANDLE)
-                    {
-                        List<FileSystemStorageItemBase> SearchResult = new List<FileSystemStorageItemBase>();
-
-                        do
-                        {
-                            if (Data.cFileName != "." && Data.cFileName != "..")
-                            {
-                                if(!IgnoreCase && !Data.cFileName.Contains(SearchWord,StringComparison.Ordinal))
-                                {
-                                    continue;
-                                }
-
-                                FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
-
-                                if (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden))
-                                {
-                                    if (Attribute.HasFlag(FileAttributes.Directory))
-                                    {
-                                        string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
-
-                                        if (Attribute.HasFlag(FileAttributes.Hidden))
-                                        {
-                                            SearchResult.Add(new HiddenStorageFolder(CurrentDataPath, Data));
-                                        }
-                                        else
-                                        {
-                                            SearchResult.Add(new FileSystemStorageFolder(CurrentDataPath, Data));
-                                        }
-
-                                        if (SearchInSubFolders)
-                                        {
-                                            SearchResult.AddRange(Search(CurrentDataPath, SearchWord, true, IncludeHiddenItem, IsRegexExpresstion, IgnoreCase, CancelToken));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        string CurrentDataPath = Path.Combine(FolderPath, Data.cFileName);
-
-                                        if (Attribute.HasFlag(FileAttributes.Hidden))
-                                        {
-                                            SearchResult.Add(new HiddenStorageFile(CurrentDataPath, Data));
-                                        }
-                                        else if (Data.cFileName.EndsWith(".url", StringComparison.OrdinalIgnoreCase))
-                                        {
-                                            SearchResult.Add(new UrlStorageFile(CurrentDataPath, Data));
-                                        }
-                                        else if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
-                                        {
-                                            SearchResult.Add(new LinkStorageFile(CurrentDataPath, Data));
-                                        }
-                                        else
-                                        {
-                                            SearchResult.Add(new FileSystemStorageFile(CurrentDataPath, Data));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        while (FindNextFile(Ptr, out Data) && !CancelToken.IsCancellationRequested);
-
-                        return SearchResult;
-                    }
-                    else
-                    {
-                        return new List<FileSystemStorageItemBase>(0);
-                    }
+                    FindClose(SearchPtr);
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex);
                 return new List<FileSystemStorageItemBase>(0);
-            }
-            finally
-            {
-                FindClose(Ptr);
             }
         }
 

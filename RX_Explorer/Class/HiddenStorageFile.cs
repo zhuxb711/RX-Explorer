@@ -19,7 +19,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override async Task LoadMorePropertyCore()
+        protected override async Task LoadMorePropertyCore(bool ForceUpdate)
         {
             RawData = await GetRawDataAsync();
 

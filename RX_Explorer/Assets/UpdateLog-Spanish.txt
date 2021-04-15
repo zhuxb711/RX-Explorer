@@ -1,4 +1,51 @@
 ﻿*****
+###Novedades de la versión 6.3.0.0
+
+#####Actualización de funciones
+
+>#####Soporte agregado para ejecución extendida
+
+>>#####Si la PC está conectada a la corriente, la minimización de RX no afectará ninguna tarea
+
+>>#####Si la PC tiene batería, seguirá funcionando hasta 10 minutos después de minimizar la RX (el tiempo específico lo determina Windows)
+
+#####actualización de la interfaz de usuario
+
+>#####Ahora es posible detectar el programa predeterminado del sistema y mostrarlo en el cuadro de diálogo "Abrir con"
+
+>#####Soporte agregado para archivos .url
+
+>#####Se mejoró la resolución del visor de PDF incorporado al renderizar páginas PDF
+
+>#####La página de búsqueda ahora tiene un nuevo diseño de barra de progreso
+
+#####Mejora del rendimiento
+
+>#####Se mejoró el rendimiento de los elementos del archivo de representación de la página de búsqueda
+
+>#####Se mejoró la velocidad de cálculo del tamaño de la carpeta y el número de subarchivos en la carpeta
+
+#####Arreglo del fallo
+
+>#####Se corrigió el problema que puede causar fallas en el rastreo al rastrear cambios en el sistema de archivos
+
+>#####Se solucionó el problema de que el archivo puede cambiar de nombre después de cerrar la ventana de propiedades
+
+>#####Se solucionó el problema de que abrir la ventana de propiedades podía causar un bloqueo
+
+>#####Se solucionó el problema de los elementos duplicados al expandir / contraer el árbol de carpetas de archivos
+
+>#####Se solucionó el problema de quedarse atascado al activar la aplicación a través de la notificación Toast
+
+>#####Se corrigieron algunos problemas de seguridad de la base de datos y se evitó que los archivos con símbolos especiales causaran bloqueos
+
+>#####Se solucionó el problema de que el botón de navegación hacia atrás estaba deshabilitado por error en algunos casos
+
+>#####Se solucionó el problema de que la función de búsqueda causaba un desbordamiento de la memoria en algunos casos
+
+>#####Se solucionó el problema de que la función de búsqueda no pudiera buscar correctamente
+
+*****
 ###Novedades de la versión 6.2.7.0
 
 #####Actualización de funciones

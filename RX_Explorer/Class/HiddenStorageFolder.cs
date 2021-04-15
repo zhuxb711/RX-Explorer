@@ -4,7 +4,6 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
@@ -12,20 +11,16 @@ namespace RX_Explorer.Class
     {
         protected HiddenDataPackage RawData { get; set; }
 
-        protected override async Task LoadMorePropertyCore()
+        protected override async Task LoadMorePropertyCore(bool ForceUpdate)
         {
             RawData = await GetRawDataAsync();
 
             if ((RawData?.IconData.Length).GetValueOrDefault() > 0)
             {
-                BitmapImage Icon = new BitmapImage();
-
                 using (MemoryStream Stream = new MemoryStream(RawData.IconData))
                 {
-                    await Icon.SetSourceAsync(Stream.AsRandomAccessStream());
+                    await Thumbnail.SetSourceAsync(Stream.AsRandomAccessStream());
                 }
-
-                Thumbnail = Icon;
             }
         }
 

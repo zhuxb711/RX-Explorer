@@ -1,4 +1,51 @@
 ﻿*****
+###Quoi de neuf dans la version 6.3.0.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Ajout de la prise en charge de l'exécution étendue
+
+>>#####Si le PC est branché sur l'alimentation, la réduction du RX n'affectera aucune tâche
+
+>>#####Si le PC est sur batterie, il continuera à fonctionner jusqu'à 10 minutes après avoir minimisé RX (l'heure spécifique est déterminée par Windows)
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Il est maintenant possible de détecter le programme par défaut du système et de l'afficher dans la boîte de dialogue "Ouvrir avec"
+
+>#####Ajout de la prise en charge des fichiers .url
+
+>#####Amélioration de la résolution de la visionneuse PDF intégrée lors du rendu des pages PDF
+
+>#####La page de recherche a maintenant un nouveau design de barre de progression
+
+#####Amélioration des performances
+
+>#####Amélioration des performances des éléments de fichier de rendu de la page de recherche
+
+>#####Amélioration de la vitesse de calcul de la taille du dossier et du nombre de sous-fichiers dans le dossier
+
+#####Correction d'un bug
+
+>#####Correction du problème pouvant entraîner un échec du suivi lors du suivi des modifications du système de fichiers
+
+>#####Correction du problème que le fichier peut être renommé après la fermeture de la fenêtre des propriétés
+
+>#####Correction du problème selon lequel l'ouverture de la fenêtre des propriétés pouvait provoquer un plantage
+
+>#####Correction du problème des éléments en double lors du développement / réduction de l'arborescence des dossiers de fichiers
+
+>#####Correction du problème de blocage lors de l'activation de l'application via la notification Toast
+
+>#####Correction de certains problèmes de sécurité de la base de données et empêchant les fichiers avec des symboles spéciaux de provoquer des plantages
+
+>#####Correction du problème de désactivation incorrecte du bouton de navigation de retour dans certains cas
+
+>#####Correction du problème que la fonction de recherche provoquait un débordement de mémoire dans certains cas
+
+>#####Correction du problème qui empêchait la fonction de recherche de rechercher correctement
+
+*****
 ###Quoi de neuf dans la version 6.2.7.0
 
 #####Mise à jour des fonctionnalités
