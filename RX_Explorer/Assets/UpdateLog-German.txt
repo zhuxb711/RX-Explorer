@@ -1,4 +1,15 @@
 ﻿*****
+###Was ist neu in Ver.6.3.1.0
+
+#####Fehlerbehebung
+
+>#####Es wurde das Problem behoben, dass der erweiterte Ausführungsmechanismus möglicherweise Dateivorgänge verhindert
+
+>#####Es wurde das Problem behoben, dass der erweiterte Ausführungsmechanismus in einigen Fällen nicht normal gestartet werden kann
+
+>#####Einige Planungsprobleme des Tasklisten-Controllers wurden behoben
+
+*****
 ###Was ist neu in Ver.6.3.0.0
 
 #####Funktionsaktualisierung

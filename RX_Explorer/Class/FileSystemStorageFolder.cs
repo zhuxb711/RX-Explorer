@@ -404,7 +404,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override async Task LoadMorePropertyCore(bool ForceUpdate)
+        protected override async Task LoadMorePropertiesCore(bool ForceUpdate)
         {
             if (await GetStorageItemAsync() is StorageFolder Folder)
             {

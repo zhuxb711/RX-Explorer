@@ -167,7 +167,7 @@ namespace RX_Explorer
 
         private void Current_EnteredBackground(object sender, EnteredBackgroundEventArgs e)
         {
-            if (FullTrustProcessController.IsAnyActionExcutingInAllControllers || GeneralTransformer.IsAnyTransformTaskRunning)
+            if (FullTrustProcessController.IsAnyActionExcutingInAllControllers || GeneralTransformer.IsAnyTransformTaskRunning || QueueTaskController.IsAnyTaskRunningInController)
             {
                 try
                 {
@@ -201,7 +201,7 @@ namespace RX_Explorer
 
             try
             {
-                if (GeneralTransformer.IsAnyTransformTaskRunning || FullTrustProcessController.IsAnyActionExcutingInAllControllers)
+                if (GeneralTransformer.IsAnyTransformTaskRunning || FullTrustProcessController.IsAnyActionExcutingInAllControllers || QueueTaskController.IsAnyTaskRunningInController)
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {

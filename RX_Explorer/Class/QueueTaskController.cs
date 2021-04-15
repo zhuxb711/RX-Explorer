@@ -24,6 +24,16 @@ namespace RX_Explorer.Class
 
         public static ObservableCollection<OperationListBaseModel> ListItemSource { get; } = new ObservableCollection<OperationListBaseModel>();
 
+        private static volatile int RunningTaskCounter = 0;
+
+        public static bool IsAnyTaskRunningInController
+        {
+            get
+            {
+                return RunningTaskCounter > 0;
+            }
+        }
+
         public static bool AllowParalledExecution
         {
             get
@@ -173,101 +183,34 @@ namespace RX_Explorer.Class
                     while (OpeartionQueue.TryDequeue(out OperationListBaseModel Model))
                     {
                     Retry:
-                        if (Model.Status == OperationStatus.Cancel)
+                        if (Model.Status != OperationStatus.Cancel)
                         {
-                            continue;
-                        }
-
-                        switch (Model)
-                        {
-                            case OperationListCompressionModel:
-                            case OperationListDecompressionModel:
+                            if (Model is not (OperationListCompressionModel or OperationListDecompressionModel))
+                            {
+                                if (FullTrustProcessController.AvailableControllerNum < FullTrustProcessController.DynamicBackupProcessNum)
                                 {
-                                    if (AllowParalledExecution)
-                                    {
-                                        Thread SubThread = new Thread((input) =>
-                                        {
-                                            if (input is OperationListBaseModel Model)
-                                            {
-                                                ExecuteTaskCore(Model);
-                                            }
-                                        });
-
-                                        SubThread.Start(Model);
-                                    }
-                                    else
-                                    {
-                                        ExecuteTaskCore(Model);
-                                    }
-
-                                    break;
+                                    Thread.Sleep(1000);
+                                    goto Retry;
                                 }
-                            default:
+                            }
+
+                            if (AllowParalledExecution)
+                            {
+                                Thread SubThread = new Thread(() =>
                                 {
-                                    if (FullTrustProcessController.AvailableControllerNum > FullTrustProcessController.DynamicBackupProcessNum)
-                                    {
-                                        FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableController().Result;
+                                    ExecuteSubTaskCore(Model);
+                                })
+                                {
+                                    IsBackground = true,
+                                    Priority = ThreadPriority.Normal
+                                };
 
-                                        if (FullTrustProcessController.AvailableControllerNum >= FullTrustProcessController.DynamicBackupProcessNum)
-                                        {
-                                            if (AllowParalledExecution)
-                                            {
-                                                Thread SubThread = new Thread((input) =>
-                                                {
-                                                    if (input is (FullTrustProcessController.ExclusiveUsage Exclusive, OperationListBaseModel Model))
-                                                    {
-                                                        try
-                                                        {
-                                                            ExecuteTaskCore(Exclusive, Model);
-                                                        }
-                                                        catch (Exception ex)
-                                                        {
-                                                            LogTracer.Log(ex, "A subthread in Task List threw an exception");
-                                                        }
-                                                        finally
-                                                        {
-                                                            Exclusive.Dispose();
-                                                        }
-                                                    }
-                                                })
-                                                {
-                                                    IsBackground = true,
-                                                    Priority = ThreadPriority.Normal
-                                                };
-
-                                                SubThread.Start((Exclusive, Model));
-                                            }
-                                            else
-                                            {
-                                                try
-                                                {
-                                                    ExecuteTaskCore(Exclusive, Model);
-                                                }
-                                                catch (Exception ex)
-                                                {
-                                                    LogTracer.Log(ex, "A subthread in Task List threw an exception");
-                                                }
-                                                finally
-                                                {
-                                                    Exclusive.Dispose();
-                                                }
-                                            }
-                                        }
-                                        else
-                                        {
-                                            Exclusive.Dispose();
-                                            //Give up execute, make sure the operation will not use DynamicBackupProcess
-                                            goto Retry;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        Thread.Sleep(1000);
-                                        goto Retry;
-                                    }
-
-                                    break;
-                                }
+                                SubThread.Start();
+                            }
+                            else
+                            {
+                                ExecuteSubTaskCore(Model);
+                            }
                         }
                     }
                 }
@@ -278,9 +221,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        private static void ExecuteTaskCore(OperationListBaseModel Model)
+        private static void ExecuteSubTaskCore(OperationListBaseModel Model)
         {
-            using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.TryCreateExtendedExecution().Result)
+            Interlocked.Increment(ref RunningTaskCounter);
+
+            try
             {
                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                 {
@@ -289,6 +234,199 @@ namespace RX_Explorer.Class
 
                 switch (Model)
                 {
+                    case OperationListRemoteModel:
+                        {
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableController().Result)
+                            {
+                                if (!Exclusive.Controller.PasteRemoteFile(Model.ToPath).Result)
+                                {
+                                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                    {
+                                        Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"));
+                                    }).AsTask().Wait();
+                                }
+                            }
+
+                            break;
+                        }
+                    case OperationListCopyModel:
+                        {
+                            try
+                            {
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableController().Result)
+                                {
+                                    Exclusive.Controller.CopyAsync(Model.FromPath, Model.ToPath, ProgressHandler: (s, e) =>
+                                    {
+                                        Model.UpdateProgress(e.ProgressPercentage);
+                                    }).Wait();
+                                }
+                            }
+                            catch (FileNotFoundException)
+                            {
+                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                {
+                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"));
+                                }).AsTask().Wait();
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                {
+                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"));
+                                }).AsTask().Wait();
+                            }
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex, "Copy failed for unexpected error");
+
+                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                {
+                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"));
+                                }).AsTask().Wait();
+                            }
+
+                            break;
+                        }
+                    case OperationListMoveModel:
+                        {
+                            try
+                            {
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableController().Result)
+                                {
+                                    Exclusive.Controller.MoveAsync(Model.FromPath, Model.ToPath, ProgressHandler: (s, e) =>
+                                    {
+                                        Model.UpdateProgress(e.ProgressPercentage);
+                                    }).Wait();
+                                }
+                            }
+                            catch (FileNotFoundException)
+                            {
+                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                {
+                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_MoveFailForNotExist_Content"));
+                                }).AsTask().Wait();
+                            }
+                            catch (FileCaputureException)
+                            {
+                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                {
+                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_Item_Captured_Content"));
+                                }).AsTask().Wait();
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                {
+                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"));
+                                }).AsTask().Wait();
+                            }
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex, "Move failed for unexpected error");
+
+                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                {
+                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_MoveFailUnexpectError_Content"));
+                                }).AsTask().Wait();
+                            }
+
+                            break;
+                        }
+                    case OperationListDeleteModel DeleteModel:
+                        {
+                            try
+                            {
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableController().Result)
+                                {
+                                    Exclusive.Controller.DeleteAsync(DeleteModel.FromPath, DeleteModel.IsPermanentDelete, ProgressHandler: (s, e) =>
+                                    {
+                                        Model.UpdateProgress(e.ProgressPercentage);
+                                    }).Wait();
+                                }
+                            }
+                            catch (FileNotFoundException)
+                            {
+                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                {
+                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_DeleteItemError_Content"));
+                                }).AsTask().Wait();
+                            }
+                            catch (FileCaputureException)
+                            {
+                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                {
+                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_Item_Captured_Content"));
+                                }).AsTask().Wait();
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                {
+                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UnauthorizedDelete_Content"));
+                                }).AsTask().Wait();
+                            }
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex, "Delete failed for unexpected error");
+
+                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                {
+                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_DeleteFailUnexpectError_Content"));
+                                }).AsTask().Wait();
+                            }
+
+                            break;
+                        }
+                    case OperationListUndoModel UndoModel:
+                        {
+                            try
+                            {
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableController().Result)
+                                {
+                                    switch (UndoModel.UndoOperationKind)
+                                    {
+                                        case OperationKind.Copy:
+                                            {
+                                                Exclusive.Controller.DeleteAsync(Model.FromPath, true, true, (s, e) =>
+                                                {
+                                                    Model.UpdateProgress(e.ProgressPercentage);
+                                                }).Wait();
+
+                                                break;
+                                            }
+                                        case OperationKind.Move:
+                                            {
+                                                Exclusive.Controller.MoveAsync(Model.FromPath, Model.ToPath, true, (s, e) =>
+                                                {
+                                                    Model.UpdateProgress(e.ProgressPercentage);
+                                                }).Wait();
+
+                                                break;
+                                            }
+                                        case OperationKind.Delete:
+                                            {
+                                                if (!Exclusive.Controller.RestoreItemInRecycleBinAsync(Model.FromPath).Result)
+                                                {
+                                                    throw new Exception();
+                                                }
+
+                                                break;
+                                            }
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex, "Undo failed for unexpected error");
+
+                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                {
+                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UndoFailure_Content"));
+                                }).AsTask().Wait();
+                            }
+
+                            break;
+                        }
                     case OperationListCompressionModel CModel:
                         {
                             try
@@ -490,207 +628,13 @@ namespace RX_Explorer.Class
                     }
                 }).AsTask().Wait();
             }
-        }
-
-        private static void ExecuteTaskCore(FullTrustProcessController.ExclusiveUsage Exclusive, OperationListBaseModel Model)
-        {
-            using (ExtendedExecutionController ExtExecution = ExtendedExecutionController.TryCreateExtendedExecution().Result)
+            catch (Exception ex)
             {
-                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                {
-                    Model.UpdateStatus(OperationStatus.Processing);
-                }).AsTask().Wait();
-
-                switch (Model)
-                {
-                    case OperationListRemoteModel:
-                        {
-                            if (!Exclusive.Controller.PasteRemoteFile(Model.ToPath).Result)
-                            {
-                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                {
-                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"));
-                                }).AsTask().Wait();
-                            }
-
-                            break;
-                        }
-                    case OperationListCopyModel:
-                        {
-                            try
-                            {
-                                Exclusive.Controller.CopyAsync(Model.FromPath, Model.ToPath, ProgressHandler: (s, e) =>
-                                {
-                                    Model.UpdateProgress(e.ProgressPercentage);
-                                }).Wait();
-                            }
-                            catch (FileNotFoundException)
-                            {
-                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                {
-                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_CopyFailForNotExist_Content"));
-                                }).AsTask().Wait();
-                            }
-                            catch (InvalidOperationException)
-                            {
-                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                {
-                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"));
-                                }).AsTask().Wait();
-                            }
-                            catch (Exception ex)
-                            {
-                                LogTracer.Log(ex, "Copy failed for unexpected error");
-
-                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                {
-                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_CopyFailUnexpectError_Content"));
-                                }).AsTask().Wait();
-                            }
-
-                            break;
-                        }
-                    case OperationListMoveModel:
-                        {
-                            try
-                            {
-                                Exclusive.Controller.MoveAsync(Model.FromPath, Model.ToPath, ProgressHandler: (s, e) =>
-                                {
-                                    Model.UpdateProgress(e.ProgressPercentage);
-                                }).Wait();
-                            }
-                            catch (FileNotFoundException)
-                            {
-                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                {
-                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_MoveFailForNotExist_Content"));
-                                }).AsTask().Wait();
-                            }
-                            catch (FileCaputureException)
-                            {
-                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                {
-                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_Item_Captured_Content"));
-                                }).AsTask().Wait();
-                            }
-                            catch (InvalidOperationException)
-                            {
-                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                {
-                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UnauthorizedPaste_Content"));
-                                }).AsTask().Wait();
-                            }
-                            catch (Exception ex)
-                            {
-                                LogTracer.Log(ex, "Move failed for unexpected error");
-
-                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                {
-                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_MoveFailUnexpectError_Content"));
-                                }).AsTask().Wait();
-                            }
-
-                            break;
-                        }
-                    case OperationListDeleteModel DeleteModel:
-                        {
-                            try
-                            {
-                                Exclusive.Controller.DeleteAsync(DeleteModel.FromPath, DeleteModel.IsPermanentDelete, ProgressHandler: (s, e) =>
-                                {
-                                    Model.UpdateProgress(e.ProgressPercentage);
-                                }).Wait();
-                            }
-                            catch (FileNotFoundException)
-                            {
-                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                {
-                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_DeleteItemError_Content"));
-                                }).AsTask().Wait();
-                            }
-                            catch (FileCaputureException)
-                            {
-                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                {
-                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_Item_Captured_Content"));
-                                }).AsTask().Wait();
-                            }
-                            catch (InvalidOperationException)
-                            {
-                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                {
-                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UnauthorizedDelete_Content"));
-                                }).AsTask().Wait();
-                            }
-                            catch (Exception ex)
-                            {
-                                LogTracer.Log(ex, "Delete failed for unexpected error");
-
-                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                {
-                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_DeleteFailUnexpectError_Content"));
-                                }).AsTask().Wait();
-                            }
-
-                            break;
-                        }
-                    case OperationListUndoModel UndoModel:
-                        {
-                            try
-                            {
-                                switch (UndoModel.UndoOperationKind)
-                                {
-                                    case OperationKind.Copy:
-                                        {
-                                            Exclusive.Controller.DeleteAsync(Model.FromPath, true, true, (s, e) =>
-                                            {
-                                                Model.UpdateProgress(e.ProgressPercentage);
-                                            }).Wait();
-
-                                            break;
-                                        }
-                                    case OperationKind.Move:
-                                        {
-                                            Exclusive.Controller.MoveAsync(Model.FromPath, Model.ToPath, true, (s, e) =>
-                                            {
-                                                Model.UpdateProgress(e.ProgressPercentage);
-                                            }).Wait();
-
-                                            break;
-                                        }
-                                    case OperationKind.Delete:
-                                        {
-                                            if (!Exclusive.Controller.RestoreItemInRecycleBinAsync(Model.FromPath).Result)
-                                            {
-                                                throw new Exception();
-                                            }
-
-                                            break;
-                                        }
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                LogTracer.Log(ex, "Undo failed for unexpected error");
-
-                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                {
-                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UndoFailure_Content"));
-                                }).AsTask().Wait();
-                            }
-
-                            break;
-                        }
-                }
-
-                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                {
-                    if (Model.Status != OperationStatus.Error)
-                    {
-                        Model.UpdateProgress(100);
-                        Model.UpdateStatus(OperationStatus.Complete);
-                    }
-                }).AsTask().Wait();
+                LogTracer.Log(ex, "A subthread in Task List threw an exception");
+            }
+            finally
+            {
+                Interlocked.Decrement(ref RunningTaskCounter);
             }
         }
 

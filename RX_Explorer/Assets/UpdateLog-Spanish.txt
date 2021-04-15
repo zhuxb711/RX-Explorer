@@ -1,4 +1,15 @@
 ﻿*****
+###Novedades de la versión 6.3.1.0
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que el mecanismo de ejecución extendido podía evitar las operaciones de archivos
+
+>#####Se solucionó el problema de que el mecanismo de ejecución extendido no se puede iniciar normalmente en algunos casos
+
+>#####Se corrigieron algunos problemas de programación del controlador de la lista de tareas
+
+*****
 ###Novedades de la versión 6.3.0.0
 
 #####Actualización de funciones

@@ -218,11 +218,11 @@ namespace RX_Explorer.Class
                         {
                             if (Controller.IsDisposed)
                             {
-                                CompletionSource.SetResult(new ExclusiveUsage(CreateAsync().GetAwaiter().GetResult()));
+                                CompletionSource.SetResult(new ExclusiveUsage(CreateAsync().GetAwaiter().GetResult(), ExtendedExecutionController.TryCreateExtendedExecution().Result));
                             }
                             else
                             {
-                                CompletionSource.SetResult(new ExclusiveUsage(Controller));
+                                CompletionSource.SetResult(new ExclusiveUsage(Controller, ExtendedExecutionController.TryCreateExtendedExecution().Result));
                             }
 
                             break;
@@ -2764,16 +2764,23 @@ namespace RX_Explorer.Class
         {
             public FullTrustProcessController Controller { get; private set; }
 
-            public ExclusiveUsage(FullTrustProcessController Controller)
+            private ExtendedExecutionController ExtExecution;
+
+            public ExclusiveUsage(FullTrustProcessController Controller, ExtendedExecutionController ExtExecution)
             {
                 this.Controller = Controller;
+                this.ExtExecution = ExtExecution;
             }
 
             public void Dispose()
             {
                 GC.SuppressFinalize(this);
+
                 ExclusiveDisposed?.Invoke(this, Controller);
                 Controller = null;
+
+                ExtExecution?.Dispose();
+                ExtExecution = null;
             }
 
             ~ExclusiveUsage()

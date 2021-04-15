@@ -408,7 +408,7 @@ namespace RX_Explorer.Class
                     {
                         try
                         {
-                            await LoadMorePropertyCore(false);
+                            await LoadMorePropertiesCore(false);
 
                             OnPropertyChanged(nameof(Size));
                             OnPropertyChanged(nameof(Name));
@@ -427,7 +427,7 @@ namespace RX_Explorer.Class
 
         protected abstract bool CheckIfPropertiesLoaded();
 
-        protected abstract Task LoadMorePropertyCore(bool ForceUpdate);
+        protected abstract Task LoadMorePropertiesCore(bool ForceUpdate);
 
         public abstract Task<IStorageItem> GetStorageItemAsync();
 
@@ -437,7 +437,7 @@ namespace RX_Explorer.Class
             {
                 if (await CheckExistAsync(Path))
                 {
-                    await LoadMorePropertyCore(true);
+                    await LoadMorePropertiesCore(true);
 
                     OnPropertyChanged(nameof(Size));
                     OnPropertyChanged(nameof(Name));

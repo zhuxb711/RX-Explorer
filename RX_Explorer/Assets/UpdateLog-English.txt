@@ -1,4 +1,15 @@
 ﻿*****
+###What's new in Ver.6.3.1.0
+
+#####Bug fix
+
+>#####Fixed the problem that the extended execution mechanism may prevent file operations
+
+>#####Fixed the problem that the extended execution mechanism cannot start normally in some cases
+
+>#####Fixed some scheduling problems of the task list controller
+
+*****
 ###What's new in Ver.6.3.0.0
 
 #####Feature update

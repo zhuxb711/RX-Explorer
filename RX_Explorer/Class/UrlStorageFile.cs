@@ -56,7 +56,7 @@ namespace RX_Explorer.Class
             return Task.FromResult<IStorageItem>(null);
         }
 
-        protected override async Task LoadMorePropertyCore(bool ForceUpdate)
+        protected override async Task LoadMorePropertiesCore(bool ForceUpdate)
         {
             RawData = await GetRawDataAsync();
 

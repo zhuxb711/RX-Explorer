@@ -17,13 +17,13 @@ namespace RX_Explorer.Class
         {
             await SlimLocker.WaitAsync();
 
-            if (IsRequestExtensionSent)
+            try
             {
-                return new ExtendedExecutionController();
-            }
-            else
-            {
-                try
+                if (IsRequestExtensionSent)
+                {
+                    return new ExtendedExecutionController();
+                }
+                else
                 {
                     if (Session == null)
                     {
@@ -45,21 +45,21 @@ namespace RX_Explorer.Class
                         default:
                             {
                                 IsRequestExtensionSent = false;
+                                LogTracer.Log("Extension execution was rejected by system");
                                 return null;
                             }
                     }
                 }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, "An exception was threw when creating the extended execution");
-                    IsRequestExtensionSent = false;
-                    new ExtendedExecutionController().Dispose();
-                    return null;
-                }
-                finally
-                {
-                    SlimLocker.Release();
-                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "An exception was threw when creating the extended execution");
+                IsRequestExtensionSent = false;
+                return null;
+            }
+            finally
+            {
+                SlimLocker.Release();
             }
         }
 
