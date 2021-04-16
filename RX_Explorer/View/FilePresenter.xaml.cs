@@ -2346,7 +2346,17 @@ namespace RX_Explorer
                                         {
                                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                             {
-                                                await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path), WindowState.Normal, RunAsAdministrator).ConfigureAwait(true);
+                                                if (!await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path), WindowState.Normal, RunAsAdministrator))
+                                                {
+                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                    };
+
+                                                    await Dialog.ShowAsync();
+                                                }
                                             }
 
                                             break;
@@ -2355,7 +2365,17 @@ namespace RX_Explorer
                                         {
                                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                             {
-                                                await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", File.Path).ConfigureAwait(true);
+                                                if (!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", File.Path))
+                                                {
+                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                    {
+                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                    };
+
+                                                    await Dialog.ShowAsync();
+                                                }
                                             }
 
                                             break;
@@ -2366,23 +2386,23 @@ namespace RX_Explorer
                                             {
                                                 if (Item.LinkType == ShellLinkType.Normal)
                                                 {
-                                                    switch (await FileSystemStorageItemBase.OpenAsync(Item.LinkTargetPath).ConfigureAwait(true))
+                                                    switch (await FileSystemStorageItemBase.OpenAsync(Item.LinkTargetPath))
                                                     {
                                                         case FileSystemStorageFolder:
                                                             {
-                                                                await DisplayItemsInFolder(Item.LinkTargetPath).ConfigureAwait(true);
+                                                                await DisplayItemsInFolder(Item.LinkTargetPath);
                                                                 break;
                                                             }
                                                         case FileSystemStorageFile:
                                                             {
-                                                                await Item.LaunchAsync().ConfigureAwait(true);
+                                                                await Item.LaunchAsync();
                                                                 break;
                                                             }
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    await Item.LaunchAsync().ConfigureAwait(true);
+                                                    await Item.LaunchAsync();
                                                 }
                                             }
 
@@ -2392,14 +2412,14 @@ namespace RX_Explorer
                                         {
                                             if (File is UrlStorageFile Item)
                                             {
-                                                await Item.LaunchAsync().ConfigureAwait(true);
+                                                await Item.LaunchAsync();
                                             }
 
                                             break;
                                         }
                                     default:
                                         {
-                                            string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(File.Type).ConfigureAwait(true);
+                                            string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(File.Type);
 
                                             if (string.IsNullOrEmpty(AdminExecutablePath) || AdminExecutablePath == Package.Current.Id.FamilyName)
                                             {
@@ -2411,7 +2431,17 @@ namespace RX_Explorer
                                                         {
                                                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                                             {
-                                                                await Exclusive.Controller.RunAsync(File.Path, string.Empty);
+                                                                if (!await Exclusive.Controller.RunAsync(File.Path))
+                                                                {
+                                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                                    {
+                                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                                    };
+
+                                                                    await Dialog.ShowAsync();
+                                                                }
                                                             }
                                                         }
                                                     }
@@ -2419,7 +2449,17 @@ namespace RX_Explorer
                                                     {
                                                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                                         {
-                                                            await Exclusive.Controller.RunAsync(File.Path, string.Empty);
+                                                            if (!await Exclusive.Controller.RunAsync(File.Path))
+                                                            {
+                                                                QueueContentDialog Dialog = new QueueContentDialog
+                                                                {
+                                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                                };
+
+                                                                await Dialog.ShowAsync();
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -2430,7 +2470,17 @@ namespace RX_Explorer
                                                 {
                                                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                                     {
-                                                        await Exclusive.Controller.RunAsync(AdminExecutablePath, Path.GetDirectoryName(AdminExecutablePath), Parameters: File.Path).ConfigureAwait(true);
+                                                        if (!await Exclusive.Controller.RunAsync(AdminExecutablePath, Path.GetDirectoryName(AdminExecutablePath), Parameters: File.Path))
+                                                        {
+                                                            QueueContentDialog Dialog = new QueueContentDialog
+                                                            {
+                                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                                Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                            };
+
+                                                            await Dialog.ShowAsync().ConfigureAwait(true);
+                                                        }
                                                     }
                                                 }
                                                 else
@@ -2491,17 +2541,6 @@ namespace RX_Explorer
                             }
                     }
                 }
-                catch (InvalidOperationException)
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await Dialog.ShowAsync().ConfigureAwait(true);
-                }
                 catch (Exception ex)
                 {
                     LogTracer.Log(ex, $"{nameof(EnterSelectedItem)} throw an exception");
@@ -2559,7 +2598,17 @@ namespace RX_Explorer
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         {
-                            await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), Parameters: File.Path).ConfigureAwait(true);
+                            if (!await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), Parameters: File.Path).ConfigureAwait(true))
+                            {
+                                QueueContentDialog Dialog1 = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+
+                                await Dialog1.ShowAsync();
+                            }
                         }
                     }
                     else if (await File.GetStorageItemAsync() is StorageFile InnerFile)
@@ -3529,14 +3578,8 @@ namespace RX_Explorer
             {
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {
-                    try
+                    if (!await Exclusive.Controller.RunAsync(Profile.Path, string.Empty, WindowState.Normal, Profile.RunAsAdmin, false, false, Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value.Contains("[CurrentLocation]") ? Mat.Value.Replace("[CurrentLocation]", CurrentFolder.Path) : Mat.Value).ToArray()))
                     {
-                        await Exclusive.Controller.RunAsync(Profile.Path, string.Empty, WindowState.Normal, Profile.RunAsAdmin, false, false, Regex.Matches(Profile.Argument, "[^ \"]+|\"[^\"]*\"").Select((Mat) => Mat.Value.Contains("[CurrentLocation]") ? Mat.Value.Replace("[CurrentLocation]", CurrentFolder.Path) : Mat.Value).ToArray());
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, "An exception was threw when running terminal");
-
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),

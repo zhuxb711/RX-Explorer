@@ -3,7 +3,6 @@ using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -108,26 +107,36 @@ namespace RX_Explorer.Class
 
                 if (Configuration.DisplayModeIndex.HasValue)
                 {
-                    Builder.Append($"DisplayMode = @DisplayModeIndex ");
+                    Builder.Append($"DisplayMode = @DisplayModeIndex");
                     Command.Parameters.AddWithValue("@DisplayModeIndex", Configuration.DisplayModeIndex);
                 }
 
                 if (Configuration.SortColumn.HasValue)
                 {
-                    Builder.Append($"SortColumn = @SortColumn ");
+                    if (Builder.Length > 0)
+                    {
+                        Builder.Append(", ");
+                    }
+
+                    Builder.Append($"SortColumn = @SortColumn");
                     Command.Parameters.AddWithValue("@SortColumn", Enum.GetName(typeof(SortTarget), Configuration.SortColumn));
                 }
 
                 if (Configuration.SortDirection.HasValue)
                 {
-                    Builder.Append($"SortDirection = @SortDirection ");
+                    if (Builder.Length > 0)
+                    {
+                        Builder.Append(", ");
+                    }
+
+                    Builder.Append($"SortDirection = @SortDirection");
                     Command.Parameters.AddWithValue("@SortDirection", Enum.GetName(typeof(SortDirection), Configuration.SortDirection));
                 }
 
                 if (!string.IsNullOrEmpty(Builder.ToString()))
                 {
                     Builder.Insert(0, "Insert Into PathConfiguration (Path) Values (@Path) On Conflict (Path) Do Update Set ")
-                           .Append("Where Path = @Path Collate NoCase");
+                           .Append(" Where Path = @Path Collate NoCase");
 
                     Command.CommandText = Builder.ToString();
 
@@ -278,7 +287,7 @@ namespace RX_Explorer.Class
             })
             {
                 StringBuilder PathBuilder = new StringBuilder();
-                
+
                 for (int i = 0; i < AssociationList.Length; i++)
                 {
                     PathBuilder.Append($"Insert Into ProgramPicker(Path, FileType, IsDefault, IsRecommanded) Values (@ExecutablePath_{i}, @FileType, 'False', @IsRecommanded_{i}) On Conflict (Path, FileType) Do Update Set IsDefault = 'False', IsRecommanded = @IsRecommanded_{i} Where FileType = @FileType And Path = @ExecutablePath_{i} Collate NoCase;");

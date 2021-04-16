@@ -9,6 +9,10 @@
 
 >#####Se corrigieron algunos problemas de programación del controlador de la lista de tareas
 
+>#####Se solucionó un problema por el cual cambiar la clasificación en la vista "Lista detallada" causaba un bloqueo
+
+>#####Problemas resueltos relacionados con el inicio de otras aplicaciones
+
 *****
 ###Novedades de la versión 6.3.0.0
 

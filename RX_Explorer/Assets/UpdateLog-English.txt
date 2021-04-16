@@ -9,6 +9,10 @@
 
 >#####Fixed some scheduling problems of the task list controller
 
+>#####Fixed an issue where changing the sorting in the "Detailed List" view would cause a crash
+
+>#####Fixed issues related to launching other apps
+
 *****
 ###What's new in Ver.6.3.0.0
 

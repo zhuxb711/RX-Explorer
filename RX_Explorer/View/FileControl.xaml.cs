@@ -454,18 +454,18 @@ namespace RX_Explorer
                     {
                         FileSystemStorageFolder DeviceFolder = await FileSystemStorageFolder.CreateFromExistingStorageItem(DriveData.Folder);
 
-                        await Task.Run(()=> DeviceFolder.CheckContainsAnyItemAsync(ItemFilters.Folder)).ContinueWith((task) =>
-                        {
-                            TreeViewNode RootNode = new TreeViewNode
-                            {
-                                Content = new TreeViewNodeContent(DriveData.Folder),
-                                IsExpanded = false,
-                                HasUnrealizedChildren = task.Result
-                            };
+                        await Task.Run(() => DeviceFolder.CheckContainsAnyItemAsync(ItemFilters.Folder)).ContinueWith((task) =>
+                         {
+                             TreeViewNode RootNode = new TreeViewNode
+                             {
+                                 Content = new TreeViewNodeContent(DriveData.Folder),
+                                 IsExpanded = false,
+                                 HasUnrealizedChildren = task.Result
+                             };
 
-                            FolderTree.RootNodes.Add(RootNode);
-                            FolderTree.UpdateLayout();
-                        }, TaskScheduler.FromCurrentSynchronizationContext());
+                             FolderTree.RootNodes.Add(RootNode);
+                             FolderTree.UpdateLayout();
+                         }, TaskScheduler.FromCurrentSynchronizationContext());
                     }
                 }
             }
@@ -1008,7 +1008,17 @@ namespace RX_Explorer
                     {
                         string ExecutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe");
 
-                        await Exclusive.Controller.RunAsync(ExecutePath, Path.GetDirectoryName(ExecutePath), WindowState.Normal, true, false, false, "-NoExit", "-Command", "Set-Location", CurrentPresenter.CurrentFolder.Path);
+                        if (!await Exclusive.Controller.RunAsync(ExecutePath, Path.GetDirectoryName(ExecutePath), WindowState.Normal, true, false, false, "-NoExit", "-Command", "Set-Location", CurrentPresenter.CurrentFolder.Path))
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            await Dialog.ShowAsync();
+                        }
 
                         return;
                     }
@@ -1017,7 +1027,17 @@ namespace RX_Explorer
                     {
                         string ExecutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe");
 
-                        await Exclusive.Controller.RunAsync(ExecutePath, Path.GetDirectoryName(ExecutePath), WindowState.Normal, true, false, false, "/k", "cd", "/d", CurrentPresenter.CurrentFolder.Path);
+                        if(!await Exclusive.Controller.RunAsync(ExecutePath, Path.GetDirectoryName(ExecutePath), WindowState.Normal, true, false, false, "/k", "cd", "/d", CurrentPresenter.CurrentFolder.Path))
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            await Dialog.ShowAsync();
+                        }
 
                         return;
                     }
@@ -1029,7 +1049,17 @@ namespace RX_Explorer
                             case LaunchQuerySupportStatus.Available:
                             case LaunchQuerySupportStatus.NotSupported:
                                 {
-                                    await Exclusive.Controller.RunAsync("wt.exe", string.Empty, WindowState.Normal, false, false, false, "/d", CurrentPresenter.CurrentFolder.Path);
+                                    if(!await Exclusive.Controller.RunAsync("wt.exe", string.Empty, WindowState.Normal, false, false, false, "/d", CurrentPresenter.CurrentFolder.Path))
+                                    {
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                        };
+
+                                        await Dialog.ShowAsync();
+                                    }
 
                                     break;
                                 }
@@ -1096,7 +1126,25 @@ namespace RX_Explorer
 
                             if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                             {
-                                await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString");
+                                if(!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString"))
+                                {
+                                    QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                    };
+
+                                    if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
+                                    {
+                                        goto Retry;
+                                    }
+                                    else
+                                    {
+                                        return;
+                                    }
+                                }
 
                                 StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
 
@@ -1184,17 +1232,6 @@ namespace RX_Explorer
 
                         _ = await dialog.ShowAsync();
                     }
-                }
-                catch (InvalidOperationException)
-                {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-
-                    await Dialog.ShowAsync();
                 }
                 catch (Exception)
                 {

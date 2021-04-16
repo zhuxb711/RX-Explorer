@@ -87,7 +87,20 @@ namespace RX_Explorer.Class
                 {
                     if (LinkType == ShellLinkType.Normal)
                     {
-                        await Exclusive.Controller.RunAsync(LinkTargetPath, WorkDirectory, WindowState, NeedRunAsAdmin, false, false, Arguments);
+                        if(!await Exclusive.Controller.RunAsync(LinkTargetPath, WorkDirectory, WindowState, NeedRunAsAdmin, false, false, Arguments))
+                        {
+                            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+
+                                await Dialog.ShowAsync();
+                            });
+                        }
                     }
                     else
                     {

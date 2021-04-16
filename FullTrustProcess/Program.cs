@@ -1554,75 +1554,58 @@ namespace FullTrustProcess
 
                             if (!string.IsNullOrEmpty(ExecutePath))
                             {
-                                if (StorageController.CheckPermission(FileSystemRights.ReadAndExecute, ExecutePath))
+                                if (StorageController.CheckPermission(FileSystemRights.ExecuteFile, ExecutePath))
                                 {
                                     try
                                     {
-                                        if (string.IsNullOrEmpty(ExecuteParameter))
+                                        ProcessStartInfo StartInfo = new ProcessStartInfo
                                         {
-                                            using (Process Process = new Process())
-                                            {
-                                                Process.StartInfo.FileName = ExecutePath;
-                                                Process.StartInfo.UseShellExecute = true;
-                                                Process.StartInfo.WorkingDirectory = ExecuteWorkDirectory;
+                                            FileName = ExecutePath,
+                                            UseShellExecute = true,
+                                            WorkingDirectory = ExecuteWorkDirectory
+                                        };
 
-                                                if (ExecuteCreateNoWindow)
-                                                {
-                                                    Process.StartInfo.CreateNoWindow = true;
-                                                    Process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                                                }
-                                                else
-                                                {
-                                                    Process.StartInfo.WindowStyle = (ProcessWindowStyle)Enum.Parse(typeof(ProcessWindowStyle), ExecuteWindowStyle);
-                                                }
+                                        if (!string.IsNullOrWhiteSpace(ExecuteParameter))
+                                        {
+                                            StartInfo.Arguments = ExecuteParameter;
+                                        }
 
-                                                if (ExecuteAuthority == "Administrator")
-                                                {
-                                                    Process.StartInfo.Verb = "runAs";
-                                                }
-
-                                                Process.Start();
-
-                                                SetWindowsZPosition(Process);
-
-                                                if (ShouldWaitForExit)
-                                                {
-                                                    Process.WaitForExit();
-                                                }
-                                            }
+                                        if (ExecuteCreateNoWindow)
+                                        {
+                                            StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
                                         }
                                         else
                                         {
-                                            using (Process Process = new Process())
+                                            StartInfo.WindowStyle = (ProcessWindowStyle)Enum.Parse(typeof(ProcessWindowStyle), ExecuteWindowStyle);
+                                        }
+
+                                        if (ExecuteAuthority == "Administrator")
+                                        {
+                                            StartInfo.Verb = "runAs";
+                                        }
+
+                                        using (Process Process = new Process())
+                                        {
+                                            try
                                             {
-                                                Process.StartInfo.FileName = ExecutePath;
-                                                Process.StartInfo.Arguments = ExecuteParameter;
-                                                Process.StartInfo.UseShellExecute = true;
-                                                Process.StartInfo.WorkingDirectory = ExecuteWorkDirectory;
-
-                                                if (ExecuteCreateNoWindow)
-                                                {
-                                                    Process.StartInfo.CreateNoWindow = true;
-                                                    Process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                                                }
-                                                else
-                                                {
-                                                    Process.StartInfo.WindowStyle = (ProcessWindowStyle)Enum.Parse(typeof(ProcessWindowStyle), ExecuteWindowStyle);
-                                                }
-
-                                                if (ExecuteAuthority == "Administrator")
-                                                {
-                                                    Process.StartInfo.Verb = "runAs";
-                                                }
-
+                                                Process.StartInfo = StartInfo;
                                                 Process.Start();
-
-                                                SetWindowsZPosition(Process);
-
-                                                if (ShouldWaitForExit)
+                                            }
+                                            catch
+                                            {
+                                                if (Path.GetExtension(ExecutePath).Equals(".exe", StringComparison.OrdinalIgnoreCase))
                                                 {
-                                                    Process.WaitForExit();
+                                                    StartInfo.UseShellExecute = false;
+                                                    Process.StartInfo = StartInfo;
+                                                    Process.Start();
                                                 }
+                                            }
+
+                                            SetWindowsZPosition(Process);
+
+                                            if (ShouldWaitForExit)
+                                            {
+                                                Process.WaitForExit();
                                             }
                                         }
 
@@ -1635,12 +1618,12 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    Value.Add("Error_Failure", "The specified file could not be executed");
+                                    Value.Add("Error", "The specified file could not be executed for lack of permission");
                                 }
                             }
                             else
                             {
-                                Value.Add("Success", string.Empty);
+                                Value.Add("Error", "ExecutePath could not be null or empty");
                             }
 
                             await args.Request.SendResponseAsync(Value);

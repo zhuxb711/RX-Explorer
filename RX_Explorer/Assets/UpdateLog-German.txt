@@ -9,6 +9,10 @@
 
 >#####Einige Planungsprobleme des Tasklisten-Controllers wurden behoben
 
+>#####Es wurde ein Problem behoben, durch das das Ändern der Sortierung in der Ansicht "Detaillierte Liste" zu einem Absturz führte
+
+>#####Probleme beim Starten anderer Apps behoben
+
 *****
 ###Was ist neu in Ver.6.3.0.0
 

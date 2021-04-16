@@ -191,7 +191,25 @@ namespace RX_Explorer
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         {
-                            await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString");
+                            if(!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString"))
+                            {
+                                QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
+
+                                if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
+                                {
+                                    goto Retry;
+                                }
+                                else
+                                {
+                                    return;
+                                }
+                            }
 
                             StorageFolder DriveFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
 
@@ -256,11 +274,31 @@ namespace RX_Explorer
                                     {
                                         if (Path.GetExtension(Item.Protocol).ToLower() == ".msc")
                                         {
-                                            await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", Item.Protocol);
+                                            if(!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", Item.Protocol))
+                                            {
+                                                QueueContentDialog Dialog = new QueueContentDialog
+                                                {
+                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                };
+
+                                                await Dialog.ShowAsync();
+                                            }
                                         }
                                         else
                                         {
-                                            await Exclusive.Controller.RunAsync(Item.Protocol, Path.GetDirectoryName(Item.Protocol));
+                                            if(!await Exclusive.Controller.RunAsync(Item.Protocol, Path.GetDirectoryName(Item.Protocol)))
+                                            {
+                                                QueueContentDialog Dialog = new QueueContentDialog
+                                                {
+                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                };
+
+                                                await Dialog.ShowAsync();
+                                            }
                                         }
                                     }
                                     catch (Exception ex)
@@ -425,7 +463,25 @@ namespace RX_Explorer
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         {
-                            await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString");
+                            if(!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString"))
+                            {
+                                QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
+
+                                if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
+                                {
+                                    goto Retry;
+                                }
+                                else
+                                {
+                                    return;
+                                }
+                            }
                         }
 
                         StorageFolder DriveFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
@@ -613,7 +669,25 @@ namespace RX_Explorer
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         {
-                            await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString");
+                            if(!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString"))
+                            {
+                                QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
+
+                                if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
+                                {
+                                    goto Retry;
+                                }
+                                else
+                                {
+                                    return;
+                                }
+                            }
                         }
 
                         StorageFolder DriveFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
@@ -928,7 +1002,25 @@ namespace RX_Explorer
                 {
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                     {
-                        await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString");
+                        if(!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString"))
+                        {
+                            QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                                PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                            };
+
+                            if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
+                            {
+                                goto Retry;
+                            }
+                            else
+                            {
+                                return;
+                            }
+                        }
                     }
 
                     StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);

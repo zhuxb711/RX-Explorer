@@ -1622,7 +1622,7 @@ namespace RX_Explorer.Class
         /// <param name="Path">程序路径</param>
         /// <param name="Parameters">传递的参数</param>
         /// <returns></returns>
-        public async Task RunAsync(string Path, string WorkDirectory, WindowState WindowStyle = WindowState.Normal, bool RunAsAdmin = false, bool CreateNoWindow = false, bool ShouldWaitForExit = false, params string[] Parameters)
+        public async Task<bool> RunAsync(string Path, string WorkDirectory = null, WindowState WindowStyle = WindowState.Normal, bool RunAsAdmin = false, bool CreateNoWindow = false, bool ShouldWaitForExit = false, params string[] Parameters)
         {
             try
             {
@@ -1637,43 +1637,41 @@ namespace RX_Explorer.Class
                         {"ExecuteParameter", string.Join(' ', Parameters.Select((Para) => (Para.Contains(" ") && !Para.StartsWith("\"") && !Para.EndsWith("\"")) ? $"\"{Para}\"" : Para))},
                         {"ExecuteAuthority", RunAsAdmin ? ExecuteAuthority_Administrator : ExecuteAuthority_Normal},
                         {"ExecuteCreateNoWindow", CreateNoWindow },
-                        {"ExecuteShouldWaitForExit", ShouldWaitForExit},
-                        {"ExecuteWorkDirectory", WorkDirectory},
-                        {"ExecuteWindowStyle", Enum.GetName(typeof(WindowState), WindowStyle)}
+                        {"ExecuteShouldWaitForExit", ShouldWaitForExit },
+                        {"ExecuteWorkDirectory", WorkDirectory??string.Empty },
+                        {"ExecuteWindowStyle", Enum.GetName(typeof(WindowState), WindowStyle) }
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
 
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        if (Response.Message.TryGetValue("Error_Failure", out object ErrorMessage1))
-                        {
-                            LogTracer.Log($"An unexpected error was threw in {nameof(RunAsync)}, message: {ErrorMessage1}");
-                            throw new InvalidOperationException();
-                        }
-                        else if (Response.Message.TryGetValue("Error", out object ErrorMessage2))
+                        if (Response.Message.TryGetValue("Error", out object ErrorMessage2))
                         {
                             LogTracer.Log($"An unexpected error was threw in {nameof(RunAsync)}, message: {ErrorMessage2}");
-                            throw new InvalidOperationException();
+                            return false;
+                        }
+                        else
+                        {
+                            return true;
                         }
                     }
                     else
                     {
                         LogTracer.Log($"AppServiceResponse in {nameof(RunAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        return false;
                     }
                 }
                 else
                 {
                     LogTracer.Log($"{nameof(RunAsync)}: Failed to connect AppService");
+                    return false;
                 }
-            }
-            catch (InvalidOperationException)
-            {
-                throw;
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"{nameof(RunAsync)} throw an error");
+                return false;
             }
             finally
             {

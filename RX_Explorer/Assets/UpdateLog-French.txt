@@ -9,6 +9,10 @@
 
 >#####Correction de certains problèmes de planification du contrôleur de liste de tâches
 
+>#####Correction d'un problème où la modification du tri dans la vue "Liste détaillée" provoquait un plantage
+
+>#####Correction de problèmes liés au lancement d'autres applications
+
 *****
 ###Quoi de neuf dans la version 6.3.0.0
 
