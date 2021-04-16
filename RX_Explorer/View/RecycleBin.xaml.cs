@@ -91,7 +91,7 @@ namespace RX_Explorer.View
             {
                 IReadOnlyList<IRecycleStorageItem> Result = await Exclusive.Controller.GetRecycleBinItemsAsync();
 
-                foreach (IRecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(Result, SortTarget.Name, SortDirection.Ascending))
+                foreach (IRecycleStorageItem Item in SortCollectionGenerator.GetSortedCollection(Result, SortTarget.Name, SortDirection.Ascending))
                 {
                     FileCollection.Add(Item);
                 }
@@ -290,7 +290,7 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
-                IRecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Name, SortDirection.Descending).ToArray();
+                IRecycleStorageItem[] SortResult = SortCollectionGenerator.GetSortedCollection(FileCollection, SortTarget.Name, SortDirection.Descending).ToArray();
 
                 FileCollection.Clear();
 
@@ -307,7 +307,7 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
-                IRecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Name, SortDirection.Ascending).ToArray();
+                IRecycleStorageItem[] SortResult = SortCollectionGenerator.GetSortedCollection(FileCollection, SortTarget.Name, SortDirection.Ascending).ToArray();
 
                 FileCollection.Clear();
 
@@ -328,7 +328,7 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
-                IRecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.ModifiedTime, SortDirection.Descending).ToArray();
+                IRecycleStorageItem[] SortResult = SortCollectionGenerator.GetSortedCollection(FileCollection, SortTarget.ModifiedTime, SortDirection.Descending).ToArray();
 
                 FileCollection.Clear();
 
@@ -345,7 +345,7 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
-                IRecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.ModifiedTime, SortDirection.Ascending).ToArray();
+                IRecycleStorageItem[] SortResult = SortCollectionGenerator.GetSortedCollection(FileCollection, SortTarget.ModifiedTime, SortDirection.Ascending).ToArray();
 
                 FileCollection.Clear();
 
@@ -366,7 +366,7 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
-                IRecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Type, SortDirection.Descending).ToArray();
+                IRecycleStorageItem[] SortResult = SortCollectionGenerator.GetSortedCollection(FileCollection, SortTarget.Type, SortDirection.Descending).ToArray();
 
                 FileCollection.Clear();
 
@@ -383,7 +383,7 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
-                IRecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Type, SortDirection.Ascending).ToArray();
+                IRecycleStorageItem[] SortResult = SortCollectionGenerator.GetSortedCollection(FileCollection, SortTarget.Type, SortDirection.Ascending).ToArray();
 
                 FileCollection.Clear();
 
@@ -404,7 +404,7 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.Name] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
-                IRecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Size, SortDirection.Descending).ToArray();
+                IRecycleStorageItem[] SortResult = SortCollectionGenerator.GetSortedCollection(FileCollection, SortTarget.Size, SortDirection.Descending).ToArray();
 
                 FileCollection.Clear();
 
@@ -421,7 +421,7 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.Name] = SortDirection.Ascending;
                 SortMap[SortTarget.OriginPath] = SortDirection.Ascending;
 
-                IRecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.Size, SortDirection.Ascending).ToArray();
+                IRecycleStorageItem[] SortResult = SortCollectionGenerator.GetSortedCollection(FileCollection, SortTarget.Size, SortDirection.Ascending).ToArray();
 
                 FileCollection.Clear();
 
@@ -442,7 +442,7 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
                 SortMap[SortTarget.Name] = SortDirection.Ascending;
 
-                IRecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.OriginPath, SortDirection.Descending).ToArray();
+                IRecycleStorageItem[] SortResult = SortCollectionGenerator.GetSortedCollection(FileCollection, SortTarget.OriginPath, SortDirection.Descending).ToArray();
 
                 FileCollection.Clear();
 
@@ -460,7 +460,7 @@ namespace RX_Explorer.View
                 SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
                 SortMap[SortTarget.Name] = SortDirection.Ascending;
 
-                IRecycleStorageItem[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(FileCollection, SortTarget.OriginPath, SortDirection.Ascending).ToArray();
+                IRecycleStorageItem[] SortResult = SortCollectionGenerator.GetSortedCollection(FileCollection, SortTarget.OriginPath, SortDirection.Ascending).ToArray();
 
                 FileCollection.Clear();
 
@@ -646,7 +646,7 @@ namespace RX_Explorer.View
 
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                foreach (IRecycleStorageItem Item in SortCollectionGenerator.Current.GetSortedCollection(await Exclusive.Controller.GetRecycleBinItemsAsync(), SortTarget.Name, SortDirection.Ascending))
+                foreach (IRecycleStorageItem Item in SortCollectionGenerator.GetSortedCollection(await Exclusive.Controller.GetRecycleBinItemsAsync(), SortTarget.Name, SortDirection.Ascending))
                 {
                     FileCollection.Add(Item);
                 }

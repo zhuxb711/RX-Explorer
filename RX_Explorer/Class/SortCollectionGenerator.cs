@@ -6,100 +6,60 @@ using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
 {
-    public sealed class SortCollectionGenerator
+    public static class SortCollectionGenerator
     {
-        private static readonly object Locker = new object();
+        public static event EventHandler<SortWayChangedEventArgs> SortWayChanged;
 
-        private static SortCollectionGenerator Instance;
-
-        public event EventHandler<string> SortWayChanged;
-
-        public static SortCollectionGenerator Current
+        public static async Task SavePathSortWayAsync(string Path, SortTarget Target, SortDirection Direction)
         {
-            get
+            if (Target == SortTarget.OriginPath || Target == SortTarget.Path)
             {
-                lock (Locker)
-                {
-                    return Instance ??= new SortCollectionGenerator();
-                }
+                throw new NotSupportedException("SortTarget.Path and SortTarget.OriginPath is not allowed in this method");
+            }
+
+            PathConfiguration CurrentConfiguration = await SQLite.Current.GetPathConfigurationAsync(Path);
+
+            if (CurrentConfiguration.Target != Target || CurrentConfiguration.Direction != Direction)
+            {
+                await SQLite.Current.SetPathConfigurationAsync(new PathConfiguration(Path, Target, Direction));
+                SortWayChanged?.Invoke(null, new SortWayChangedEventArgs(Path, Target, Direction));
             }
         }
 
-        public SortTarget SortTarget { get; private set; }
-
-        public SortDirection SortDirection { get; private set; }
-
-        public async Task ModifySortWayAsync(string Path, SortTarget? SortTarget = null, SortDirection? SortDirection = null, bool BypassSaveAndNotification = false)
+        public static IEnumerable<T> GetSortedCollection<T>(IEnumerable<T> InputCollection, SortTarget Target, SortDirection Direction) where T : IStorageItemPropertiesBase
         {
-            if (SortTarget == Class.SortTarget.OriginPath || SortTarget == Class.SortTarget.Path)
-            {
-                throw new NotSupportedException("SortTarget.Path and SortTarget.OriginPath is not allow in this method");
-            }
-
-            bool IsModified = false;
-
-            if (SortTarget.HasValue && this.SortTarget != SortTarget)
-            {
-                this.SortTarget = SortTarget.Value;
-                IsModified = true;
-            }
-
-            if (SortDirection.HasValue && this.SortDirection != SortDirection)
-            {
-                this.SortDirection = SortDirection.Value;
-                IsModified = true;
-            }
-
-            if (IsModified && !BypassSaveAndNotification)
-            {
-                await SQLite.Current.SetPathConfiguration(new PathConfiguration(Path, this.SortTarget, this.SortDirection));
-
-                SortWayChanged?.Invoke(this, Path);
-            }
-        }
-
-        public IEnumerable<T> GetSortedCollection<T>(IEnumerable<T> InputCollection) where T : IStorageItemPropertiesBase
-        {
-            return GetSortedCollection(InputCollection, null, null);
-        }
-
-        public IEnumerable<T> GetSortedCollection<T>(IEnumerable<T> InputCollection, SortTarget? Target, SortDirection? Direction) where T : IStorageItemPropertiesBase
-        {
-            SortTarget TempTarget = Target ?? SortTarget;
-            SortDirection TempDirection = Direction ?? SortDirection;
-
             IEnumerable<T> FolderList = InputCollection.Where((It) => It is FileSystemStorageFolder);
             IEnumerable<T> FileList = InputCollection.Where((It) => It is FileSystemStorageFile);
 
-            switch (TempTarget)
+            switch (Target)
             {
                 case SortTarget.Name:
                     {
-                        return TempDirection == SortDirection.Ascending
-                            ? FolderList.OrderByLikeFileSystem((Item) => Item.Name, TempDirection).Concat(FileList.OrderByLikeFileSystem((Item) => Item.Name, TempDirection))
-                            : FileList.OrderByLikeFileSystem((Item) => Item.Name, TempDirection).Concat(FolderList.OrderByLikeFileSystem((Item) => Item.Name, TempDirection));
+                        return Direction == SortDirection.Ascending
+                            ? FolderList.OrderByLikeFileSystem((Item) => Item.Name, Direction).Concat(FileList.OrderByLikeFileSystem((Item) => Item.Name, Direction))
+                            : FileList.OrderByLikeFileSystem((Item) => Item.Name, Direction).Concat(FolderList.OrderByLikeFileSystem((Item) => Item.Name, Direction));
                     }
                 case SortTarget.Type:
                     {
-                        return TempDirection == SortDirection.Ascending
-                            ? FolderList.OrderByLikeFileSystem((Item) => Item.Type, TempDirection).Concat(FileList.OrderByLikeFileSystem((Item) => Item.Type, TempDirection))
-                            : FileList.OrderByLikeFileSystem((Item) => Item.Type, TempDirection).Concat(FolderList.OrderByLikeFileSystem((Item) => Item.Type, TempDirection));
+                        return Direction == SortDirection.Ascending
+                            ? FolderList.OrderByLikeFileSystem((Item) => Item.Type, Direction).Concat(FileList.OrderByLikeFileSystem((Item) => Item.Type, Direction))
+                            : FileList.OrderByLikeFileSystem((Item) => Item.Type, Direction).Concat(FolderList.OrderByLikeFileSystem((Item) => Item.Type, Direction));
                     }
                 case SortTarget.ModifiedTime:
                     {
-                        return TempDirection == SortDirection.Ascending
+                        return Direction == SortDirection.Ascending
                             ? FolderList.OrderBy((Item) => Item.ModifiedTimeRaw).Concat(FileList.OrderBy((Item) => Item.ModifiedTimeRaw))
                             : FileList.OrderByDescending((Item) => Item.ModifiedTimeRaw).Concat(FolderList.OrderByDescending((Item) => Item.ModifiedTimeRaw));
                     }
                 case SortTarget.Size:
                     {
-                        return TempDirection == SortDirection.Ascending
+                        return Direction == SortDirection.Ascending
                             ? FolderList.OrderBy((Item) => Item.SizeRaw).Concat(FileList.OrderBy((Item) => Item.SizeRaw))
                             : FileList.OrderByDescending((Item) => Item.SizeRaw).Concat(FolderList.OrderByDescending((Item) => Item.SizeRaw));
                     }
                 case SortTarget.Path:
                     {
-                        return TempDirection == SortDirection.Ascending
+                        return Direction == SortDirection.Ascending
                             ? FolderList.OrderBy((Item) => Item.Path).Concat(FileList.OrderBy((Item) => Item.SizeRaw))
                             : FileList.OrderByDescending((Item) => Item.Path).Concat(FolderList.OrderByDescending((Item) => Item.SizeRaw));
                     }
@@ -107,7 +67,7 @@ namespace RX_Explorer.Class
                     {
                         if (typeof(T) == typeof(IRecycleStorageItem))
                         {
-                            return TempDirection == SortDirection.Ascending
+                            return Direction == SortDirection.Ascending
                                 ? FolderList.OfType<IRecycleStorageItem>().OrderBy((Item) => Item.OriginPath).Concat(FileList.OfType<IRecycleStorageItem>().OrderBy((Item) => Item.OriginPath)).OfType<T>()
                                 : FolderList.OfType<IRecycleStorageItem>().OrderByDescending((Item) => Item.OriginPath).Concat(FileList.OfType<IRecycleStorageItem>().OrderByDescending((Item) => Item.OriginPath)).OfType<T>();
                         }
@@ -119,7 +79,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public int SearchInsertLocation<T>(ICollection<T> InputCollection, T SearchTarget) where T : IStorageItemPropertiesBase
+        public static int SearchInsertLocation<T>(ICollection<T> InputCollection, T SearchTarget, SortTarget Target, SortDirection Direction) where T : IStorageItemPropertiesBase
         {
             if (InputCollection == null)
             {
@@ -146,11 +106,11 @@ namespace RX_Explorer.Class
                 return -1;
             }
 
-            switch (SortTarget)
+            switch (Target)
             {
                 case SortTarget.Name:
                     {
-                        if (SortDirection == SortDirection.Ascending)
+                        if (Direction == SortDirection.Ascending)
                         {
                             (int Index, T Item) SearchResult = FilteredCollection.Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Name, SearchTarget.Name, StringComparison.OrdinalIgnoreCase) > 0);
 
@@ -192,7 +152,7 @@ namespace RX_Explorer.Class
                     }
                 case SortTarget.Type:
                     {
-                        if (SortDirection == SortDirection.Ascending)
+                        if (Direction == SortDirection.Ascending)
                         {
                             (int Index, T Item) SearchResult = FilteredCollection.Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Type, SearchTarget.Type, StringComparison.OrdinalIgnoreCase) > 0);
 
@@ -234,7 +194,7 @@ namespace RX_Explorer.Class
                     }
                 case SortTarget.ModifiedTime:
                     {
-                        if (SortDirection == SortDirection.Ascending)
+                        if (Direction == SortDirection.Ascending)
                         {
                             (int Index, T Item) SearchResult = FilteredCollection.Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => DateTimeOffset.Compare(Value.Item.ModifiedTimeRaw, SearchTarget.ModifiedTimeRaw) > 0);
 
@@ -276,7 +236,7 @@ namespace RX_Explorer.Class
                     }
                 case SortTarget.Size:
                     {
-                        if (SortDirection == SortDirection.Ascending)
+                        if (Direction == SortDirection.Ascending)
                         {
                             (int Index, T Item) SearchResult = FilteredCollection.Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.SizeRaw.CompareTo(SearchTarget.SizeRaw) > 0);
 
@@ -322,11 +282,21 @@ namespace RX_Explorer.Class
                     }
             }
         }
+    }
 
-        private SortCollectionGenerator()
+    public sealed class SortWayChangedEventArgs
+    {
+        public SortTarget Target { get; }
+
+        public SortDirection Direction { get; }
+
+        public string Path { get; }
+
+        public SortWayChangedEventArgs(string Path, SortTarget Target, SortDirection Direction)
         {
-            SortTarget = SortTarget.Name;
-            SortDirection = SortDirection.Ascending;
+            this.Path = Path;
+            this.Target = Target;
+            this.Direction = Direction;
         }
     }
 }

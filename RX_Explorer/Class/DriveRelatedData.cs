@@ -95,7 +95,7 @@ namespace RX_Explorer.Class
         public static async Task<DriveRelatedData> CreateAsync(StorageFolder Drive, DriveType DriveType)
         {
             BasicProperties Properties = await Drive.GetBasicPropertiesAsync();
-            return new DriveRelatedData(Drive, await Drive.GetThumbnailBitmapAsync(), await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" }), DriveType);
+            return new DriveRelatedData(Drive, await Drive.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem), await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" }), DriveType);
         }
 
         /// <summary>

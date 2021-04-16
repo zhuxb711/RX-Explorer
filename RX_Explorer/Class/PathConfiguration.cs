@@ -8,9 +8,9 @@ namespace RX_Explorer.Class
 
         public int? DisplayModeIndex { get; }
 
-        public SortTarget? SortColumn { get; }
+        public SortTarget? Target { get; }
 
-        public SortDirection? SortDirection { get; }
+        public SortDirection? Direction { get; }
 
         public PathConfiguration(string Path, int DisplayModeIndex)
         {
@@ -23,7 +23,7 @@ namespace RX_Explorer.Class
             this.DisplayModeIndex = DisplayModeIndex;
         }
 
-        public PathConfiguration(string Path, SortTarget SortColumn, SortDirection SortDirection)
+        public PathConfiguration(string Path, SortTarget Target, SortDirection Direction)
         {
             if (string.IsNullOrWhiteSpace(Path))
             {
@@ -31,11 +31,11 @@ namespace RX_Explorer.Class
             }
 
             this.Path = Path;
-            this.SortDirection = SortDirection;
-            this.SortColumn = SortColumn;
+            this.Direction = Direction;
+            this.Target = Target;
         }
 
-        public PathConfiguration(string Path, int DisplayModeIndex, SortTarget SortColumn, SortDirection SortDirection)
+        public PathConfiguration(string Path, int DisplayModeIndex, SortTarget Target, SortDirection Direction)
         {
             if (string.IsNullOrWhiteSpace(Path))
             {
@@ -44,8 +44,8 @@ namespace RX_Explorer.Class
 
             this.Path = Path;
             this.DisplayModeIndex = DisplayModeIndex;
-            this.SortDirection = SortDirection;
-            this.SortColumn = SortColumn;
+            this.Direction = Direction;
+            this.Target = Target;
         }
     }
 }

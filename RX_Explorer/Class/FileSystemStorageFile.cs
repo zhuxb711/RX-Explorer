@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Imaging;
@@ -161,7 +162,7 @@ namespace RX_Explorer.Class
         {
             if (await GetStorageItemAsync() is StorageFile File)
             {
-                Thumbnail = await File.GetThumbnailBitmapAsync();
+                Thumbnail = await File.GetThumbnailBitmapAsync(ThumbnailMode.ListView);
 
                 if (ForceUpdate)
                 {

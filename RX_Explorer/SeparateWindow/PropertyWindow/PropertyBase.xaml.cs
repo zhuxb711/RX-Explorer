@@ -823,7 +823,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                     try
                     {
                         StorageFile OpenProgramFile = await StorageFile.GetFileFromPathAsync(AdminExecutablePath);
-                        OpenWithImage.Source = await OpenProgramFile.GetThumbnailBitmapAsync();
+                        OpenWithImage.Source = await OpenProgramFile.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem);
 
                         IDictionary<string, object> PropertiesDictionary = await OpenProgramFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" });
 

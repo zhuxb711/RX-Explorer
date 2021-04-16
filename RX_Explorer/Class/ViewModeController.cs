@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
 {
@@ -15,12 +14,8 @@ namespace RX_Explorer.Class
             }
             set
             {
-                if (modeIndex != value)
-                {
-                    modeIndex = value;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ViewModeIndex)));
-                }
-
+                modeIndex = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ViewModeIndex)));
                 ViewModeChanged?.Invoke(this, new ViewModeChangedEventArgs(CurrentPath, value));
             }
         }
@@ -47,12 +42,10 @@ namespace RX_Explorer.Class
 
         private string CurrentPath;
 
-        public async Task SetCurrentPathAsync(string CurrentPath)
+        public void SetCurrentViewMode(string CurrentPath, int ViewModeIndex)
         {
             this.CurrentPath = CurrentPath;
-
-            PathConfiguration Config = await SQLite.Current.GetPathConfiguration(CurrentPath);
-            ViewModeIndex = Config.DisplayModeIndex.GetValueOrDefault();
+            this.ViewModeIndex = ViewModeIndex;
         }
 
         public ViewModeController()
@@ -62,7 +55,7 @@ namespace RX_Explorer.Class
 
         private void ViewModeController_ViewModeChanged(object sender, ViewModeChangedEventArgs e)
         {
-            if(sender is ViewModeController Controller && Controller != this)
+            if (sender is ViewModeController Controller && Controller != this)
             {
                 if (e.Path == CurrentPath && modeIndex != e.Index)
                 {

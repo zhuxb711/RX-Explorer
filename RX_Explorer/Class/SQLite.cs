@@ -94,58 +94,64 @@ namespace RX_Explorer.Class
             ApplicationData.Current.LocalSettings.Values["DatabaseInit"] = true;
         }
 
-        public async Task SetPathConfiguration(PathConfiguration Configuration)
+        public async Task SetPathConfigurationAsync(PathConfiguration Configuration)
         {
             using (SqliteCommand Command = new SqliteCommand
             {
                 Connection = Connection
             })
             {
-                StringBuilder Builder = new StringBuilder();
+                List<string> ValueLeft = new List<string>(4)
+                {
+                    "Path"
+                };
+
+                List<string> ValueRight = new List<string>(4)
+                {
+                    "@Path"
+                };
+
+                List<string> UpdatePart = new List<string>(4)
+                {
+                    "Path = @Path"
+                };
 
                 Command.Parameters.AddWithValue("@Path", Configuration.Path);
 
                 if (Configuration.DisplayModeIndex.HasValue)
                 {
-                    Builder.Append($"DisplayMode = @DisplayModeIndex");
-                    Command.Parameters.AddWithValue("@DisplayModeIndex", Configuration.DisplayModeIndex);
+                    ValueLeft.Add("DisplayMode");
+                    ValueRight.Add("@DisplayMode");
+                    UpdatePart.Add("DisplayMode = @DisplayMode");
+
+                    Command.Parameters.AddWithValue("@DisplayMode", Configuration.DisplayModeIndex);
                 }
 
-                if (Configuration.SortColumn.HasValue)
+                if (Configuration.Target.HasValue)
                 {
-                    if (Builder.Length > 0)
-                    {
-                        Builder.Append(", ");
-                    }
+                    ValueLeft.Add("SortColumn");
+                    ValueRight.Add("@SortColumn");
+                    UpdatePart.Add("SortColumn = @SortColumn");
 
-                    Builder.Append($"SortColumn = @SortColumn");
-                    Command.Parameters.AddWithValue("@SortColumn", Enum.GetName(typeof(SortTarget), Configuration.SortColumn));
+                    Command.Parameters.AddWithValue("@SortColumn", Enum.GetName(typeof(SortTarget), Configuration.Target));
                 }
 
-                if (Configuration.SortDirection.HasValue)
+                if (Configuration.Direction.HasValue)
                 {
-                    if (Builder.Length > 0)
-                    {
-                        Builder.Append(", ");
-                    }
+                    ValueLeft.Add("SortDirection");
+                    ValueRight.Add("@SortDirection");
+                    UpdatePart.Add("SortDirection = @SortDirection");
 
-                    Builder.Append($"SortDirection = @SortDirection");
-                    Command.Parameters.AddWithValue("@SortDirection", Enum.GetName(typeof(SortDirection), Configuration.SortDirection));
+                    Command.Parameters.AddWithValue("@SortDirection", Enum.GetName(typeof(SortDirection), Configuration.Direction));
                 }
 
-                if (!string.IsNullOrEmpty(Builder.ToString()))
-                {
-                    Builder.Insert(0, "Insert Into PathConfiguration (Path) Values (@Path) On Conflict (Path) Do Update Set ")
-                           .Append(" Where Path = @Path Collate NoCase");
+                Command.CommandText = $"Insert Into PathConfiguration ({string.Join(", ", ValueLeft)}) Values ({string.Join(", ", ValueRight)}) On Conflict (Path) Do Update Set {string.Join(", ", UpdatePart)} Where Path = @Path Collate NoCase";
 
-                    Command.CommandText = Builder.ToString();
-
-                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
-                }
+                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
-        public async Task<PathConfiguration> GetPathConfiguration(string Path)
+        public async Task<PathConfiguration> GetPathConfigurationAsync(string Path)
         {
             using (SqliteCommand Command = new SqliteCommand("Select * From PathConfiguration Where Path = @Path", Connection))
             {
@@ -290,7 +296,7 @@ namespace RX_Explorer.Class
 
                 for (int i = 0; i < AssociationList.Length; i++)
                 {
-                    PathBuilder.Append($"Insert Into ProgramPicker(Path, FileType, IsDefault, IsRecommanded) Values (@ExecutablePath_{i}, @FileType, 'False', @IsRecommanded_{i}) On Conflict (Path, FileType) Do Update Set IsDefault = 'False', IsRecommanded = @IsRecommanded_{i} Where FileType = @FileType And Path = @ExecutablePath_{i} Collate NoCase;");
+                    PathBuilder.Append($"Insert Into ProgramPicker(Path, FileType, IsRecommanded) Values (@ExecutablePath_{i}, @FileType, @IsRecommanded_{i}) On Conflict (Path, FileType) Do Update Set IsDefault = 'False', IsRecommanded = @IsRecommanded_{i} Where FileType = @FileType And Path = @ExecutablePath_{i} Collate NoCase;");
 
                     Command.Parameters.AddWithValue($"@ExecutablePath_{i}", AssociationList[i].ExecutablePath);
                     Command.Parameters.AddWithValue($"@IsRecommanded_{i}", Convert.ToString(AssociationList[i].IsRecommanded));

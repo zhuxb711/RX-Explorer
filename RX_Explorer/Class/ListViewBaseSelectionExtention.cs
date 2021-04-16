@@ -216,14 +216,17 @@ namespace RX_Explorer.Class
 
         private void View_Loaded(object sender, RoutedEventArgs e)
         {
-            View.Loaded -= View_Loaded;
-
-            InnerScrollView = View.FindChildOfType<ScrollViewer>();
-            InnerScrollBar = View.FindChildOfType<ScrollBar>();
-
-            if (InnerScrollBar != null)
+            if (View != null)
             {
-                InnerScrollBar.Scroll += InnerScrollBar_Scroll;
+                View.Loaded -= View_Loaded;
+
+                InnerScrollView = View.FindChildOfType<ScrollViewer>();
+                InnerScrollBar = View.FindChildOfType<ScrollBar>();
+
+                if (InnerScrollBar != null)
+                {
+                    InnerScrollBar.Scroll += InnerScrollBar_Scroll;
+                }
             }
         }
 

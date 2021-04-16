@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -408,7 +409,7 @@ namespace RX_Explorer.Class
         {
             if (await GetStorageItemAsync() is StorageFolder Folder)
             {
-                Thumbnail = await Folder.GetThumbnailBitmapAsync();
+                Thumbnail = await Folder.GetThumbnailBitmapAsync(ThumbnailMode.ListView);
 
                 if (ForceUpdate)
                 {

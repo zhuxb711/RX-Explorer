@@ -1027,7 +1027,7 @@ namespace RX_Explorer
                     {
                         string ExecutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe");
 
-                        if(!await Exclusive.Controller.RunAsync(ExecutePath, Path.GetDirectoryName(ExecutePath), WindowState.Normal, true, false, false, "/k", "cd", "/d", CurrentPresenter.CurrentFolder.Path))
+                        if (!await Exclusive.Controller.RunAsync(ExecutePath, Path.GetDirectoryName(ExecutePath), WindowState.Normal, true, false, false, "/k", "cd", "/d", CurrentPresenter.CurrentFolder.Path))
                         {
                             QueueContentDialog Dialog = new QueueContentDialog
                             {
@@ -1049,7 +1049,7 @@ namespace RX_Explorer
                             case LaunchQuerySupportStatus.Available:
                             case LaunchQuerySupportStatus.NotSupported:
                                 {
-                                    if(!await Exclusive.Controller.RunAsync("wt.exe", string.Empty, WindowState.Normal, false, false, false, "/d", CurrentPresenter.CurrentFolder.Path))
+                                    if (!await Exclusive.Controller.RunAsync("wt.exe", string.Empty, WindowState.Normal, false, false, false, "/d", CurrentPresenter.CurrentFolder.Path))
                                     {
                                         QueueContentDialog Dialog = new QueueContentDialog
                                         {
@@ -1126,7 +1126,7 @@ namespace RX_Explorer
 
                             if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                             {
-                                if(!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString"))
+                                if (!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString"))
                                 {
                                     QueueContentDialog UnlockFailedDialog = new QueueContentDialog
                                     {
@@ -2226,17 +2226,16 @@ namespace RX_Explorer
 
         private async void Blade_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            if (sender is BladeItem Blade && Blade.Content is FilePresenter Presenter)
+            if (BladeViewer.Items.Count > 1 
+                && sender is BladeItem Blade && Blade.Content is FilePresenter Presenter 
+                && CurrentPresenter != Presenter)
             {
                 CurrentPresenter = Presenter;
 
                 if (!string.IsNullOrEmpty(CurrentPresenter.CurrentFolder?.Path))
                 {
-                    PathConfiguration Config = await SQLite.Current.GetPathConfiguration(CurrentPresenter.CurrentFolder.Path);
-
-                    await ViewModeControl.SetCurrentPathAsync(CurrentPresenter.CurrentFolder.Path);
-
-                    await SortCollectionGenerator.Current.ModifySortWayAsync(CurrentPresenter.CurrentFolder.Path, Config.SortColumn, Config.SortDirection, true).ConfigureAwait(false);
+                    PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentPresenter.CurrentFolder.Path);
+                    ViewModeControl.SetCurrentViewMode(Config.Path, Config.DisplayModeIndex.GetValueOrDefault());
                 }
             }
         }

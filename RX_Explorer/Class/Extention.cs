@@ -831,7 +831,7 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="Item">存储对象</param>
         /// <returns></returns>
-        public static async Task<BitmapImage> GetThumbnailBitmapAsync(this IStorageItem Item)
+        public static async Task<BitmapImage> GetThumbnailBitmapAsync(this IStorageItem Item, ThumbnailMode Mode)
         {
             try
             {
@@ -843,12 +843,12 @@ namespace RX_Explorer.Class
                     {
                         case StorageFolder Folder:
                             {
-                                GetThumbnailTask = Folder.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale).AsTask(Cancellation.Token);
+                                GetThumbnailTask = Folder.GetScaledImageAsThumbnailAsync(Mode, 150, ThumbnailOptions.UseCurrentScale).AsTask(Cancellation.Token);
                                 break;
                             }
                         case StorageFile File:
                             {
-                                GetThumbnailTask = File.GetScaledImageAsThumbnailAsync(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale).AsTask(Cancellation.Token);
+                                GetThumbnailTask = File.GetScaledImageAsThumbnailAsync(Mode, 150, ThumbnailOptions.UseCurrentScale).AsTask(Cancellation.Token);
                                 break;
                             }
                         default:

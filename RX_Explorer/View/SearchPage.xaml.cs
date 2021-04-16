@@ -99,7 +99,7 @@ namespace RX_Explorer
                                     }
                                     else
                                     {
-                                        SearchResult.Insert(SortCollectionGenerator.Current.SearchInsertLocation(SearchResult, Item), Item);
+                                        SearchResult.Insert(SortCollectionGenerator.SearchInsertLocation(SearchResult, Item, SortTarget.Name, SortDirection.Ascending), Item);
                                     }
                                 }
 
@@ -122,7 +122,7 @@ namespace RX_Explorer
                                     }
                                     else
                                     {
-                                        foreach (FileSystemStorageItemBase Item in SortCollectionGenerator.Current.GetSortedCollection(SearchItems))
+                                        foreach (FileSystemStorageItemBase Item in SortCollectionGenerator.GetSortedCollection(SearchItems, SortTarget.Name, SortDirection.Ascending))
                                         {
                                             SearchResult.Add(Item);
                                         }
@@ -281,7 +281,7 @@ namespace RX_Explorer
                 SortMap[SortTarget.Path] = SortDirection.Ascending;
                 SortMap[SortTarget.Type] = SortDirection.Ascending;
 
-                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(SearchResult, SortTarget.Size, SortDirection.Descending).ToArray();
+                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Size, SortDirection.Descending).ToArray();
 
                 SearchResult.Clear();
 
@@ -298,7 +298,7 @@ namespace RX_Explorer
                 SortMap[SortTarget.Path] = SortDirection.Ascending;
                 SortMap[SortTarget.Type] = SortDirection.Ascending;
 
-                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(SearchResult, SortTarget.Size, SortDirection.Ascending).ToArray();
+                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Size, SortDirection.Ascending).ToArray();
 
                 SearchResult.Clear();
 
@@ -319,7 +319,7 @@ namespace RX_Explorer
                 SortMap[SortTarget.Path] = SortDirection.Ascending;
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
 
-                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(SearchResult, SortTarget.Type, SortDirection.Descending).ToArray();
+                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Type, SortDirection.Descending).ToArray();
 
                 SearchResult.Clear();
 
@@ -336,7 +336,7 @@ namespace RX_Explorer
                 SortMap[SortTarget.Path] = SortDirection.Ascending;
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
 
-                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(SearchResult, SortTarget.Type, SortDirection.Ascending).ToArray();
+                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Type, SortDirection.Ascending).ToArray();
 
                 SearchResult.Clear();
 
@@ -357,7 +357,7 @@ namespace RX_Explorer
                 SortMap[SortTarget.Path] = SortDirection.Ascending;
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
 
-                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(SearchResult, SortTarget.ModifiedTime, SortDirection.Descending).ToArray();
+                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.ModifiedTime, SortDirection.Descending).ToArray();
 
                 SearchResult.Clear();
 
@@ -374,7 +374,7 @@ namespace RX_Explorer
                 SortMap[SortTarget.Path] = SortDirection.Ascending;
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
 
-                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(SearchResult, SortTarget.ModifiedTime, SortDirection.Ascending).ToArray();
+                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.ModifiedTime, SortDirection.Ascending).ToArray();
 
                 SearchResult.Clear();
 
@@ -395,7 +395,7 @@ namespace RX_Explorer
                 SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
 
-                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(SearchResult, SortTarget.Path, SortDirection.Descending).ToArray();
+                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Path, SortDirection.Descending).ToArray();
 
                 SearchResult.Clear();
 
@@ -412,7 +412,7 @@ namespace RX_Explorer
                 SortMap[SortTarget.ModifiedTime] = SortDirection.Ascending;
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
 
-                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(SearchResult, SortTarget.Path, SortDirection.Ascending).ToArray();
+                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Path, SortDirection.Ascending).ToArray();
 
                 SearchResult.Clear();
 
@@ -433,7 +433,7 @@ namespace RX_Explorer
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
                 SortMap[SortTarget.Path] = SortDirection.Ascending;
 
-                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(SearchResult, SortTarget.Name, SortDirection.Descending).ToArray();
+                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Name, SortDirection.Descending).ToArray();
 
                 SearchResult.Clear();
 
@@ -450,7 +450,7 @@ namespace RX_Explorer
                 SortMap[SortTarget.Size] = SortDirection.Ascending;
                 SortMap[SortTarget.Path] = SortDirection.Ascending;
 
-                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.Current.GetSortedCollection(SearchResult, SortTarget.Name, SortDirection.Ascending).ToArray();
+                FileSystemStorageItemBase[] SortResult = SortCollectionGenerator.GetSortedCollection(SearchResult, SortTarget.Name, SortDirection.Ascending).ToArray();
 
                 SearchResult.Clear();
 

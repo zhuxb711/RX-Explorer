@@ -3,6 +3,7 @@ using System;
 using Windows.Media.Editing;
 using Windows.Media.MediaProperties;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -42,7 +43,7 @@ namespace RX_Explorer.Dialog
 
         private async void VideoMergeDialog_Loading(FrameworkElement sender, object args)
         {
-            SourceThumbnail.Source = await SourceFile.GetThumbnailBitmapAsync();
+            SourceThumbnail.Source = await SourceFile.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem);
             SourceFileName.Text = SourceFile.Name;
         }
 
@@ -130,7 +131,7 @@ namespace RX_Explorer.Dialog
                 ClipThumbnail.Visibility = Visibility.Visible;
                 this.MergeFile = MergeFile;
                 ClipName.Text = MergeFile.Name;
-                ClipThumbnail.Source = await MergeFile.GetThumbnailBitmapAsync();
+                ClipThumbnail.Source = await MergeFile.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem);
             }
         }
     }

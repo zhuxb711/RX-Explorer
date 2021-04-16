@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Storage.FileProperties;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
@@ -48,13 +49,13 @@ namespace RX_Explorer.Class
         public static async Task<LibraryFolder> CreateAsync(string Path, LibraryType Type)
         {
             StorageFolder PinFolder = await StorageFolder.GetFolderFromPathAsync(Path);
-            BitmapImage Thumbnail = await PinFolder.GetThumbnailBitmapAsync();
+            BitmapImage Thumbnail = await PinFolder.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem);
             return new LibraryFolder(PinFolder, Thumbnail, Type);
         }
 
         public static async Task<LibraryFolder> CreateAsync(StorageFolder Folder, LibraryType Type)
         {
-            BitmapImage Thumbnail = await Folder.GetThumbnailBitmapAsync();
+            BitmapImage Thumbnail = await Folder.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem);
             return new LibraryFolder(Folder, Thumbnail, Type);
         }
 

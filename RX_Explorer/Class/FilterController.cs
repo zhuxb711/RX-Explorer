@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -39,7 +40,9 @@ namespace RX_Explorer.Class
         private bool sizeFilterCheckBox3;
         private bool sizeFilterCheckBox4;
 
-        public event EventHandler<IEnumerable<FileSystemStorageItemBase>> RefreshListRequested;
+        private string CurrentPath;
+
+        public event EventHandler<Task<IEnumerable<FileSystemStorageItemBase>>> RefreshListRequested;
 
         public bool? NameFilterCheckBox1
         {
@@ -606,11 +609,14 @@ namespace RX_Explorer.Class
             }
         }
 
-        public void SetDataSource(IEnumerable<FileSystemStorageItemBase> DataSource)
+        public void SetDataSource(string CurrentPath, IEnumerable<FileSystemStorageItemBase> DataSource)
         {
+            this.CurrentPath = CurrentPath;
+
             OriginCopy.Clear();
             OriginCopy.AddRange(DataSource);
-            RestoreAllSettings();
+
+            ResetAllSettings();
         }
 
         public List<FileSystemStorageItemBase> GetDataSource()
@@ -626,11 +632,11 @@ namespace RX_Explorer.Class
             }
             else
             {
-                RefreshListRequested?.Invoke(this, OriginCopy);
+                RefreshListRequested?.Invoke(this, Task.FromResult<IEnumerable<FileSystemStorageItemBase>>(OriginCopy));
             }
         }
 
-        private void RestoreAllSettings()
+        private void ResetAllSettings()
         {
             nameFilterCheckBox1 = false;
             nameFilterCheckBox2 = false;
@@ -738,7 +744,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public IEnumerable<FileSystemStorageItemBase> GetFilterCollection()
+        public async Task<IEnumerable<FileSystemStorageItemBase>> GetFilterCollection()
         {
             List<FileSystemStorageItemBase> NameFilterResult = null;
             List<FileSystemStorageItemBase> ModTimeFilterResult = null;
@@ -896,7 +902,8 @@ namespace RX_Explorer.Class
 
             if (FilterIntersct != null && FilterIntersct.Any())
             {
-                return SortCollectionGenerator.Current.GetSortedCollection(FilterIntersct);
+                PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentPath);
+                return SortCollectionGenerator.GetSortedCollection(FilterIntersct, Config.Target.GetValueOrDefault(), Config.Direction.GetValueOrDefault());
             }
             else
             {
