@@ -23,12 +23,12 @@ namespace MaintenanceTask
 
             try
             {
-                await ClearUselessLogTask(Cancellation.Token).ConfigureAwait(true);
+                await ClearUselessLogTask(Cancellation.Token);
 
                 using (SqliteConnection Connection = GetSQLConnection())
                 {
-                    await ClearAddressBarHistory(Connection).ConfigureAwait(true);
-                    await UpdateSQLiteDataBase(Connection).ConfigureAwait(true);
+                    await ClearAddressBarHistory(Connection);
+                    await UpdateSQLiteDataBase(Connection);
                 }
 
                 //The following code is used to update the globalization problem of the ContextMenu in the old version

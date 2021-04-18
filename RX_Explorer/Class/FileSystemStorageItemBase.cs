@@ -94,6 +94,10 @@ namespace RX_Explorer.Class
 
         public virtual BitmapImage Thumbnail { get; protected set; }
 
+        public virtual bool IsReadOnly { get; protected set; }
+
+        public virtual bool IsSystemItem { get; protected set; }
+
         protected static readonly Uri Const_Folder_Image_Uri = new Uri("ms-appx:///Assets/FolderIcon.png");
 
         protected static readonly Uri Const_File_White_Image_Uri = new Uri("ms-appx:///Assets/Page_Solid_White.png");
@@ -350,14 +354,17 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected FileSystemStorageItemBase(string Path)
+        protected FileSystemStorageItemBase(IStorageItem Item)
         {
-            this.Path = Path;
+            Path = Item.Path;
         }
 
         protected FileSystemStorageItemBase(string Path, WIN_Native_API.WIN32_FIND_DATA Data)
         {
             this.Path = Path;
+
+            IsReadOnly = ((System.IO.FileAttributes)Data.dwFileAttributes).HasFlag(System.IO.FileAttributes.ReadOnly);
+            IsSystemItem = IsReadOnly = ((System.IO.FileAttributes)Data.dwFileAttributes).HasFlag(System.IO.FileAttributes.System);
 
             SizeRaw = ((ulong)Data.nFileSizeHigh << 32) + Data.nFileSizeLow;
 

@@ -2077,7 +2077,7 @@ Inkorrekte Namen sind
   <data name="PresentInvalidNameTip.Title" xml:space="preserve">
     <value>Fehler</value>
   </data>
-  <data name="CustomUISubtype3.Content" xml:space="preserve">
+  <data name="CustomUISubtype3.Text" xml:space="preserve">
     <value>Bing Wallpaper</value>
   </data>
   <data name="Progress_Tip_WaitingForAction" xml:space="preserve">
@@ -3049,5 +3049,11 @@ Inkorrekte Namen sind
   </data>
   <data name="SearchProcessingText" xml:space="preserve">
     <value>Suchen...</value>
+  </data>
+  <data name="QueueDialog_DisplayProtectedSystemItemsWarning_Content" xml:space="preserve">
+    <value>Versteckte Systemdateien sollten nicht geändert werden. Es wird empfohlen, diesen Schalter nicht einzuschalten, um fortzufahren.</value>
+  </data>
+  <data name="SettingHideProtectedSystemItems.Content" xml:space="preserve">
+    <value>Geschützte Systemdateien ausblenden (empfohlen)</value>
   </data>
 </root>

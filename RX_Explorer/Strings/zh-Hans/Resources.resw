@@ -2019,7 +2019,7 @@
 "COM0", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9"
 "LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"</value>
   </data>
-  <data name="CustomUISubtype3.Content" xml:space="preserve">
+  <data name="CustomUISubtype3.Text" xml:space="preserve">
     <value>必应图片</value>
   </data>
   <data name="Setting_UIMode_Recommend" xml:space="preserve">
@@ -3049,5 +3049,11 @@
   </data>
   <data name="SearchProcessingText" xml:space="preserve">
     <value>正在搜索...</value>
+  </data>
+  <data name="QueueDialog_DisplayProtectedSystemItemsWarning_Content" xml:space="preserve">
+    <value>隐藏的系统文件不应被修改，建议不要打开此开关，是否继续？</value>
+  </data>
+  <data name="SettingHideProtectedSystemItems.Content" xml:space="preserve">
+    <value>隐藏受保护的系统文件(推荐)</value>
   </data>
 </root>

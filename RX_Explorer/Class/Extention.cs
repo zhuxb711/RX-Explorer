@@ -195,8 +195,8 @@ namespace RX_Explorer.Class
                                             if (Btn.Tag is ContextMenuItem MenuItem)
                                             {
                                                 Flyout.Hide();
-                                                
-                                                if(!await MenuItem.InvokeAsync())
+
+                                                if (!await MenuItem.InvokeAsync())
                                                 {
                                                     QueueContentDialog Dialog = new QueueContentDialog
                                                     {
@@ -372,7 +372,7 @@ namespace RX_Explorer.Class
             {
                 if (Node.Children.Count > 0)
                 {
-                    List<string> FolderList = (await ParentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, ItemFilters.Folder)).Select((Item) => Item.Path).ToList();
+                    List<string> FolderList = (await ParentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder)).Select((Item) => Item.Path).ToList();
                     List<string> PathList = Node.Children.Select((Item) => (Item.Content as TreeViewNodeContent).Path).ToList();
                     List<string> AddList = FolderList.Except(PathList).ToList();
                     List<string> RemoveList = PathList.Except(FolderList).ToList();
@@ -386,7 +386,7 @@ namespace RX_Explorer.Class
                                 Node.Children.Add(new TreeViewNode
                                 {
                                     Content = new TreeViewNodeContent(AddPath),
-                                    HasUnrealizedChildren = await Folder.CheckContainsAnyItemAsync(ItemFilters.Folder),
+                                    HasUnrealizedChildren = await Folder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder),
                                     IsExpanded = false
                                 });
                             }
@@ -408,7 +408,7 @@ namespace RX_Explorer.Class
                 }
                 else
                 {
-                    Node.HasUnrealizedChildren = await ParentFolder.CheckContainsAnyItemAsync(ItemFilters.Folder);
+                    Node.HasUnrealizedChildren = await ParentFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder);
                 }
             }
         }

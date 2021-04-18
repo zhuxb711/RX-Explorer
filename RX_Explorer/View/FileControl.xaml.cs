@@ -154,22 +154,22 @@ namespace RX_Explorer
 
                     if (Device.DriveType == DriveType.Network)
                     {
-                        await Task.Run(() => DeviceFolder.CheckContainsAnyItemAsync(ItemFilters.Folder)).ContinueWith((task) =>
-                        {
-                            TreeViewNode RootNode = new TreeViewNode
-                            {
-                                Content = new TreeViewNodeContent(Device.Folder),
-                                IsExpanded = false,
-                                HasUnrealizedChildren = task.Result
-                            };
+                        await Task.Run(() => DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder)).ContinueWith((task) =>
+                         {
+                             TreeViewNode RootNode = new TreeViewNode
+                             {
+                                 Content = new TreeViewNodeContent(Device.Folder),
+                                 IsExpanded = false,
+                                 HasUnrealizedChildren = task.Result
+                             };
 
-                            FolderTree.RootNodes.Add(RootNode);
-                            FolderTree.UpdateLayout();
-                        }, TaskScheduler.FromCurrentSynchronizationContext());
+                             FolderTree.RootNodes.Add(RootNode);
+                             FolderTree.UpdateLayout();
+                         }, TaskScheduler.FromCurrentSynchronizationContext());
                     }
                     else
                     {
-                        bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(ItemFilters.Folder);
+                        bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder);
 
                         TreeViewNode RootNode = new TreeViewNode
                         {
@@ -429,7 +429,7 @@ namespace RX_Explorer
                     {
                         FileSystemStorageFolder DeviceFolder = await FileSystemStorageFolder.CreateFromExistingStorageItem(DriveData.Folder);
 
-                        bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(ItemFilters.Folder);
+                        bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder);
 
                         TreeViewNode RootNode = new TreeViewNode
                         {
@@ -454,18 +454,18 @@ namespace RX_Explorer
                     {
                         FileSystemStorageFolder DeviceFolder = await FileSystemStorageFolder.CreateFromExistingStorageItem(DriveData.Folder);
 
-                        await Task.Run(() => DeviceFolder.CheckContainsAnyItemAsync(ItemFilters.Folder)).ContinueWith((task) =>
-                         {
-                             TreeViewNode RootNode = new TreeViewNode
-                             {
-                                 Content = new TreeViewNodeContent(DriveData.Folder),
-                                 IsExpanded = false,
-                                 HasUnrealizedChildren = task.Result
-                             };
+                        await Task.Run(() => DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder)).ContinueWith((task) =>
+                          {
+                              TreeViewNode RootNode = new TreeViewNode
+                              {
+                                  Content = new TreeViewNodeContent(DriveData.Folder),
+                                  IsExpanded = false,
+                                  HasUnrealizedChildren = task.Result
+                              };
 
-                             FolderTree.RootNodes.Add(RootNode);
-                             FolderTree.UpdateLayout();
-                         }, TaskScheduler.FromCurrentSynchronizationContext());
+                              FolderTree.RootNodes.Add(RootNode);
+                              FolderTree.UpdateLayout();
+                          }, TaskScheduler.FromCurrentSynchronizationContext());
                     }
                 }
             }
@@ -487,7 +487,7 @@ namespace RX_Explorer
             {
                 try
                 {
-                    List<string> StorageItemPath = WIN_Native_API.GetStorageItems(Content.Path, SettingControl.IsDisplayHiddenItem, ItemFilters.Folder).Select((Item) => Item.Path).ToList();
+                    List<string> StorageItemPath = WIN_Native_API.GetStorageItems(Content.Path, SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder).Select((Item) => Item.Path).ToList();
 
                     await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                     {
@@ -498,7 +498,7 @@ namespace RX_Explorer
                                 TreeViewNode NewNode = new TreeViewNode
                                 {
                                     Content = new TreeViewNodeContent(StorageItemPath[i]),
-                                    HasUnrealizedChildren = await DeviceFolder.CheckContainsAnyItemAsync(ItemFilters.Folder)
+                                    HasUnrealizedChildren = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder)
                                 };
 
                                 Node.Children.Add(NewNode);
@@ -993,7 +993,7 @@ namespace RX_Explorer
                 QueryText = args.ChosenSuggestion.ToString();
             }
 
-            QueryText = QueryText.TrimEnd('\\');
+            QueryText = QueryText.TrimEnd('\\').Trim();
 
             if (QueryText == CurrentPresenter.CurrentFolder.Path)
             {
@@ -1268,11 +1268,11 @@ namespace RX_Explorer
                                 {
                                     if (string.IsNullOrEmpty(FileName))
                                     {
-                                        sender.ItemsSource = (await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem)).Take(20).Select((It) => It.Path).ToArray();
+                                        sender.ItemsSource = (await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems)).Take(20).Select((It) => It.Path).ToArray();
                                     }
                                     else
                                     {
-                                        sender.ItemsSource = (await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem)).Where((Item) => Item.Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase)).Take(20).Select((It) => It.Path).ToArray();
+                                        sender.ItemsSource = (await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems)).Where((Item) => Item.Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase)).Take(20).Select((It) => It.Path).ToArray();
                                     }
                                 }
                                 else
@@ -1521,7 +1521,7 @@ namespace RX_Explorer
 
             if (Btn.DataContext is AddressBlock Block)
             {
-                List<string> ItemList = WIN_Native_API.GetStorageItems(Block.Path, SettingControl.IsDisplayHiddenItem, ItemFilters.Folder).Select((Item) => Item.Path).ToList();
+                List<string> ItemList = WIN_Native_API.GetStorageItems(Block.Path, SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder).Select((Item) => Item.Path).ToList();
 
                 foreach (string Path in ItemList)
                 {
@@ -2226,8 +2226,8 @@ namespace RX_Explorer
 
         private async void Blade_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            if (BladeViewer.Items.Count > 1 
-                && sender is BladeItem Blade && Blade.Content is FilePresenter Presenter 
+            if (BladeViewer.Items.Count > 1
+                && sender is BladeItem Blade && Blade.Content is FilePresenter Presenter
                 && CurrentPresenter != Presenter)
             {
                 CurrentPresenter = Presenter;

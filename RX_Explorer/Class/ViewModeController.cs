@@ -40,11 +40,11 @@ namespace RX_Explorer.Class
 
         public static event EventHandler<ViewModeChangedEventArgs> ViewModeChanged;
 
-        private string CurrentPath;
+        private string CurrentPath = string.Empty;
 
         public void SetCurrentViewMode(string CurrentPath, int ViewModeIndex)
         {
-            this.CurrentPath = CurrentPath;
+            this.CurrentPath = CurrentPath ?? string.Empty;
             this.ViewModeIndex = ViewModeIndex;
         }
 

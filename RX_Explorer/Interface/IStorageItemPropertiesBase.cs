@@ -17,6 +17,10 @@ namespace RX_Explorer.Interface
 
         public ulong SizeRaw { get; }
 
+        public bool IsReadOnly { get; }
+
+        public bool IsSystemItem { get; }
+
         public BitmapImage Thumbnail { get; }
 
         public DateTimeOffset ModifiedTimeRaw { get; }

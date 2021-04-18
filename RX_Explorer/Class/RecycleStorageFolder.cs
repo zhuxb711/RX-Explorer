@@ -45,10 +45,15 @@ namespace RX_Explorer.Class
             return DeleteAsync();
         }
 
-        public RecycleStorageFolder(string ActualPath, string OriginPath, DateTimeOffset CreateTime) : base(ActualPath)
+        public void SetRelatedData(string OriginPath, DateTimeOffset DeleteTime)
         {
             this.OriginPath = OriginPath;
-            ModifiedTimeRaw = CreateTime.ToLocalTime();
+            ModifiedTimeRaw = DeleteTime.ToLocalTime();
+        }
+
+        public RecycleStorageFolder(string Path, WIN_Native_API.WIN32_FIND_DATA Data) : base(Path, Data)
+        {
+
         }
 
         public async Task<bool> DeleteAsync()

@@ -201,6 +201,21 @@
                                   OffContent="禁用"
                                   Name="DisplayHiddenItem" />
 
+                    <StackPanel Orientation="Horizontal"
+                                Name="HideProtectedSystemItemsArea"
+                                Visibility="{x:Bind DisplayHiddenItem.IsOn, Mode=OneWay}">
+                        <Line X1="15"
+                              X2="15"
+                              Y1="3"
+                              Y2="29"
+                              StrokeThickness="3"
+                              Stroke="Gray" />
+                        <CheckBox Content="隐藏受保护的系统文件(推荐)"
+                                  Margin="20,0,0,0"
+                                  x:Uid="SettingHideProtectedSystemItems"
+                                  Name="HideProtectedSystemItems"/>
+                    </StackPanel>
+
                     <ComboBox Margin="0,20,0,0"
                               Header="文件夹打开方式"
                               x:Uid="SettingFolderOpenMethod"
@@ -267,7 +282,8 @@
                                   x:Uid="UseWinAndEActivate" />
 
                     <StackPanel Orientation="Horizontal"
-                                Name="AlwaysLaunchNewArea">
+                                Name="AlwaysLaunchNewArea"
+                                Visibility="{x:Bind UseWinAndEActivate.IsOn, Mode=OneWay}">
                         <Line X1="15"
                               X2="15"
                               Y1="3"
@@ -599,20 +615,21 @@
                                 </StackPanel>
                             </StackPanel>
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal"
-                                    Margin="0,10,0,0">
-                            <RadioButton Content="必应图片"
-                                         Name="BingPictureMode"
-                                         x:Uid="CustomUISubtype3"
-                                         Checked="BingPictureMode_Checked"
-                                         GroupName="CustomSubRadio"/>
-                            <muxc:ProgressRing IsActive="True"
-                                               Margin="10,0,0,0"
-                                               Height="18"
-                                               Width="18"
-                                               Name="GetBingPhotoState"
-                                               Visibility="Collapsed" />
-                        </StackPanel>
+                        <RadioButton Margin="0,10,0,0"
+                                     Name="BingPictureMode"
+                                     Checked="BingPictureMode_Checked"
+                                     GroupName="CustomSubRadio">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="必应图片"
+                                           x:Uid="CustomUISubtype3" />
+                                <muxc:ProgressRing IsActive="True"
+                                                   Margin="10,0,0,0"
+                                                   Height="18"
+                                                   Width="18"
+                                                   Name="GetBingPhotoState"
+                                                   Visibility="Collapsed" />
+                            </StackPanel>
+                        </RadioButton>
                         <StackPanel Orientation="Horizontal"
                                     Name="BackgroundBlurSliderArea1">
                             <Line X1="10"
@@ -833,6 +850,9 @@
                                FontSize="14"
                                Margin="5,5,0,0" />
                     <TextBlock Text="• Manuel Armenteros del Olmo (Spanish)"
+                               FontSize="14"
+                               Margin="5,5,0,0" />
+                    <TextBlock Text="• Jonas Gunkel (German)"
                                FontSize="14"
                                Margin="5,5,0,0" />
                 </StackPanel>

@@ -45,6 +45,26 @@ namespace RX_Explorer
 
         private readonly string UserID = ApplicationData.Current.LocalSettings.Values["SystemUserID"].ToString();
 
+        public static bool IsDisplayProtectedSystemItems
+        {
+            get
+            {
+                if (ApplicationData.Current.LocalSettings.Values["DisplayProtectedSystemItems"] is bool IsDisplaySystemItems)
+                {
+                    return IsDisplaySystemItems;
+                }
+                else
+                {
+                    ApplicationData.Current.LocalSettings.Values["DisplayProtectedSystemItems"] = false;
+                    return false;
+                }
+            }
+            private set
+            {
+                ApplicationData.Current.LocalSettings.Values["DisplayProtectedSystemItems"] = value;
+            }
+        }
+
         public static bool IsDoubleClickEnable
         {
             get
@@ -616,6 +636,8 @@ namespace RX_Explorer
                 DefaultTerminal.SelectionChanged -= DefaultTerminal_SelectionChanged;
                 UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
                 AutoBoot.Toggled -= AutoBoot_Toggled;
+                HideProtectedSystemItems.Checked -= HideProtectedSystemItems_Checked;
+                HideProtectedSystemItems.Unchecked -= HideProtectedSystemItems_Unchecked;
 
                 LanguageComboBox.SelectedIndex = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["LanguageOverride"]);
                 BackgroundBlurSlider1.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
@@ -680,6 +702,7 @@ namespace RX_Explorer
 
                 EnableQuicklook.IsOn = IsQuicklookEnable;
                 DisplayHiddenItem.IsOn = IsDisplayHiddenItem;
+                HideProtectedSystemItems.IsChecked = !IsDisplayProtectedSystemItems;
 
                 if (ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] is bool AlwaysStartNew)
                 {
@@ -689,12 +712,6 @@ namespace RX_Explorer
                 if (ApplicationData.Current.LocalSettings.Values["InterceptWindowsE"] is bool IsIntercepted)
                 {
                     UseWinAndEActivate.IsOn = IsIntercepted;
-
-                    AlwaysLaunchNewArea.Visibility = IsIntercepted ? Visibility.Visible : Visibility.Collapsed;
-                }
-                else
-                {
-                    AlwaysLaunchNewArea.Visibility = Visibility.Collapsed;
                 }
 
                 if (ApplicationData.Current.LocalSettings.Values["FileLoadMode"] is int SelectedIndex)
@@ -797,6 +814,8 @@ namespace RX_Explorer
                 UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
                 DefaultTerminal.SelectionChanged += DefaultTerminal_SelectionChanged;
                 AutoBoot.Toggled += AutoBoot_Toggled;
+                HideProtectedSystemItems.Checked += HideProtectedSystemItems_Checked;
+                HideProtectedSystemItems.Unchecked += HideProtectedSystemItems_Unchecked;
 
                 _ = Interlocked.Exchange(ref LocalSettingLock, 0);
             }
@@ -936,7 +955,7 @@ namespace RX_Explorer
 
                         try
                         {
-                            foreach (FileSystemStorageFile Item in await SecureFolder.GetChildItemsAsync(false, ItemFilters.File))
+                            foreach (FileSystemStorageFile Item in await SecureFolder.GetChildItemsAsync(false, false, ItemFilters.File))
                             {
                                 if (await Item.DecryptAsync(Dialog.ExportFolder.Path, FileEncryptionAesKey) is FileSystemStorageItemBase)
                                 {
@@ -1977,7 +1996,7 @@ namespace RX_Explorer
                             {
                                 FileSystemStorageFolder Folder = await FileSystemStorageFolder.CreateFromExistingStorageItem(DriveFolder);
 
-                                bool HasAnyFolder = await Folder.CheckContainsAnyItemAsync(ItemFilters.Folder);
+                                bool HasAnyFolder = await Folder.CheckContainsAnyItemAsync(IsDisplayHiddenItem, IsDisplayProtectedSystemItems, ItemFilters.Folder);
 
                                 TreeViewNode RootNode = new TreeViewNode
                                 {
@@ -2201,8 +2220,6 @@ namespace RX_Explorer
 
                 if (UseWinAndEActivate.IsOn)
                 {
-                    AlwaysLaunchNewArea.Visibility = Visibility.Visible;
-
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_TipTitle"),
@@ -2232,7 +2249,6 @@ namespace RX_Explorer
 
                                 UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
                                 UseWinAndEActivate.IsOn = false;
-                                AlwaysLaunchNewArea.Visibility = Visibility.Collapsed;
                                 UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
                             }
                         }
@@ -2241,14 +2257,11 @@ namespace RX_Explorer
                     {
                         UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
                         UseWinAndEActivate.IsOn = false;
-                        AlwaysLaunchNewArea.Visibility = Visibility.Collapsed;
                         UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
                     }
                 }
                 else
                 {
-                    AlwaysLaunchNewArea.Visibility = Visibility.Collapsed;
-
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                     {
                         if (await Exclusive.Controller.RestoreWindowsPlusEAsync())
@@ -2268,7 +2281,6 @@ namespace RX_Explorer
 
                             UseWinAndEActivate.Toggled -= UseWinAndEActivate_Toggled;
                             UseWinAndEActivate.IsOn = true;
-                            AlwaysLaunchNewArea.Visibility = Visibility.Visible;
                             UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
                         }
                     }
@@ -2623,6 +2635,87 @@ namespace RX_Explorer
         {
             ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] = false;
             ApplicationData.Current.SignalDataChanged();
+        }
+
+        private async void HideProtectedSystemItems_Unchecked(object sender, RoutedEventArgs e)
+        {
+            QueueContentDialog Dialog = new QueueContentDialog
+            {
+                Title = Globalization.GetString("Common_Dialog_WarningTitle"),
+                Content = Globalization.GetString("QueueDialog_DisplayProtectedSystemItemsWarning_Content"),
+                PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
+                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+            };
+
+            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+            {
+                try
+                {
+                    IsDisplayProtectedSystemItems = true;
+
+                    foreach (FileControl Control in TabViewContainer.ThisPage.TabCollection.Select((Tab) => Tab.Tag).OfType<FileControl>())
+                    {
+                        if (Control.CurrentPresenter.CurrentFolder != null)
+                        {
+                            await Control.CurrentPresenter.DisplayItemsInFolder(Control.CurrentPresenter.CurrentFolder, true);
+
+                            if (!IsDetachTreeViewAndPresenter)
+                            {
+                                foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes)
+                                {
+                                    await RootNode.UpdateAllSubNodeAsync();
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"Error in {nameof(HideProtectedSystemItems_Unchecked)}");
+                }
+                finally
+                {
+                    ApplicationData.Current.SignalDataChanged();
+                }
+            }
+            else
+            {
+                HideProtectedSystemItems.Checked -= HideProtectedSystemItems_Checked;
+                HideProtectedSystemItems.IsChecked = true;
+                HideProtectedSystemItems.Checked += HideProtectedSystemItems_Checked;
+            }
+        }
+
+        private async void HideProtectedSystemItems_Checked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                IsDisplayProtectedSystemItems = false;
+
+                foreach (FileControl Control in TabViewContainer.ThisPage.TabCollection.Select((Tab) => Tab.Tag).OfType<FileControl>())
+                {
+                    if (Control.CurrentPresenter.CurrentFolder != null)
+                    {
+                        await Control.CurrentPresenter.DisplayItemsInFolder(Control.CurrentPresenter.CurrentFolder, true);
+
+                        if (!IsDetachTreeViewAndPresenter)
+                        {
+                            foreach (TreeViewNode RootNode in Control.FolderTree.RootNodes)
+                            {
+                                await RootNode.UpdateAllSubNodeAsync();
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"Error in {nameof(HideProtectedSystemItems_Checked)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
+            }
         }
     }
 }

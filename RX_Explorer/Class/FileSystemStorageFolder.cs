@@ -54,6 +54,29 @@ namespace RX_Explorer.Class
             }
         }
 
+        public override bool IsReadOnly
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public override bool IsSystemItem
+        {
+            get
+            {
+                if (StorageItem == null)
+                {
+                    return base.IsSystemItem;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
         private BitmapImage InnerThumbnail;
 
         public override BitmapImage Thumbnail
@@ -74,21 +97,11 @@ namespace RX_Explorer.Class
         protected StorageFolder StorageItem { get; set; }
         private StorageFolder TempStorageItem;
 
-        protected FileSystemStorageFolder(string Path) : base(Path)
-        {
-
-        }
-
-        protected FileSystemStorageFolder(StorageFolder Item, DateTimeOffset ModifiedTime) : base(Item.Path)
+        protected FileSystemStorageFolder(StorageFolder Item, DateTimeOffset ModifiedTime) : base(Item)
         {
             TempStorageItem = Item;
             CreationTimeRaw = Item.DateCreated;
             ModifiedTimeRaw = ModifiedTime;
-        }
-
-        public async static Task<FileSystemStorageFolder> CreateFromExistingStorageItem(StorageFolder Item)
-        {
-            return new FileSystemStorageFolder(Item, await Item.GetModifiedTimeAsync());
         }
 
         public FileSystemStorageFolder(string Path, WIN_Native_API.WIN32_FIND_DATA Data) : base(Path, Data)
@@ -96,13 +109,18 @@ namespace RX_Explorer.Class
 
         }
 
-        public async Task<bool> CheckContainsAnyItemAsync(ItemFilters Filter = ItemFilters.File | ItemFilters.Folder)
+        public async static Task<FileSystemStorageFolder> CreateFromExistingStorageItem(StorageFolder Item)
+        {
+            return new FileSystemStorageFolder(Item, await Item.GetModifiedTimeAsync());
+        }
+
+        public async Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItem = false, bool IncludeSystemItem = false, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder)
         {
             if (WIN_Native_API.CheckLocationAvailability(Path))
             {
                 return await Task.Run(() =>
                 {
-                    return WIN_Native_API.CheckContainsAnyItem(Path, Filter);
+                    return WIN_Native_API.CheckContainsAnyItem(Path, IncludeHiddenItem, IncludeSystemItem, Filter);
                 });
             }
             else
@@ -154,9 +172,9 @@ namespace RX_Explorer.Class
                         QueryOptions Options = new QueryOptions
                         {
                             FolderDepth = FolderDepth.Deep,
-                            IndexerOption = IndexerOption.UseIndexerWhenAvailable
+                            IndexerOption = IndexerOption.DoNotUseIndexer
                         };
-                        Options.SetPropertyPrefetch(Windows.Storage.FileProperties.PropertyPrefetchOptions.BasicProperties, new string[] { "System.Size" });
+                        Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.Size" });
 
                         StorageFileQueryResult Query = Folder.CreateFileQueryWithOptions(Options);
 
@@ -219,9 +237,9 @@ namespace RX_Explorer.Class
                         QueryOptions Options = new QueryOptions
                         {
                             FolderDepth = FolderDepth.Deep,
-                            IndexerOption = IndexerOption.UseIndexerWhenAvailable
+                            IndexerOption = IndexerOption.DoNotUseIndexer
                         };
-                        Options.SetPropertyPrefetch(Windows.Storage.FileProperties.PropertyPrefetchOptions.BasicProperties, new string[] { "System.Size" });
+                        Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.Size" });
 
                         StorageItemQueryResult Query = Folder.CreateItemQueryWithOptions(Options);
 
@@ -271,11 +289,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async IAsyncEnumerable<FileSystemStorageItemBase> SearchAsync(string SearchWord, bool SearchInSubFolders = false, bool IncludeHiddenItem = false, bool IsRegexExpresstion = false, bool IgnoreCase = true, [EnumeratorCancellation] CancellationToken CancelToken = default)
+        public async IAsyncEnumerable<FileSystemStorageItemBase> SearchAsync(string SearchWord, bool SearchInSubFolders = false, bool IncludeHiddenItem = false, bool IncludeSystemItem = false, bool IsRegexExpresstion = false, bool IgnoreCase = true, [EnumeratorCancellation] CancellationToken CancelToken = default)
         {
             if (WIN_Native_API.CheckLocationAvailability(Path))
             {
-                foreach (FileSystemStorageItemBase Item in await Task.Run(() => WIN_Native_API.Search(Path, SearchWord, SearchInSubFolders, IncludeHiddenItem, IsRegexExpresstion, IgnoreCase, CancelToken)))
+                foreach (FileSystemStorageItemBase Item in await Task.Run(() => WIN_Native_API.Search(Path, SearchWord, SearchInSubFolders, IncludeHiddenItem, IncludeSystemItem, IsRegexExpresstion, IgnoreCase, CancelToken)))
                 {
                     yield return Item;
                 }
@@ -287,10 +305,10 @@ namespace RX_Explorer.Class
                     QueryOptions Options = new QueryOptions
                     {
                         FolderDepth = SearchInSubFolders ? FolderDepth.Deep : FolderDepth.Shallow,
-                        IndexerOption = IndexerOption.UseIndexerWhenAvailable
+                        IndexerOption = IndexerOption.DoNotUseIndexer
                     };
-                    Options.SetThumbnailPrefetch(Windows.Storage.FileProperties.ThumbnailMode.ListView, 150, Windows.Storage.FileProperties.ThumbnailOptions.UseCurrentScale);
-                    Options.SetPropertyPrefetch(Windows.Storage.FileProperties.PropertyPrefetchOptions.BasicProperties, new string[] { "System.FileName", "System.Size", "System.DateModified", "System.DateCreated" });
+                    Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale);
+                    Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.FileName", "System.Size", "System.DateModified", "System.DateCreated" });
 
                     if (!IsRegexExpresstion)
                     {
@@ -340,11 +358,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<List<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder)
+        public async Task<List<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems, bool IncludeSystemItem, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder)
         {
             if (WIN_Native_API.CheckLocationAvailability(Path))
             {
-                return WIN_Native_API.GetStorageItems(Path, IncludeHiddenItems, Filter);
+                return WIN_Native_API.GetStorageItems(Path, IncludeHiddenItems, IncludeSystemItem, Filter);
             }
             else
             {
@@ -357,10 +375,10 @@ namespace RX_Explorer.Class
                         QueryOptions Options = new QueryOptions
                         {
                             FolderDepth = FolderDepth.Shallow,
-                            IndexerOption = IndexerOption.UseIndexerWhenAvailable
+                            IndexerOption = IndexerOption.DoNotUseIndexer
                         };
-                        Options.SetThumbnailPrefetch(Windows.Storage.FileProperties.ThumbnailMode.ListView, 150, Windows.Storage.FileProperties.ThumbnailOptions.UseCurrentScale);
-                        Options.SetPropertyPrefetch(Windows.Storage.FileProperties.PropertyPrefetchOptions.BasicProperties, new string[] { "System.Size", "System.DateModified" });
+                        Options.SetThumbnailPrefetch(ThumbnailMode.ListView, 150, ThumbnailOptions.UseCurrentScale);
+                        Options.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties, new string[] { "System.Size", "System.DateModified" });
 
                         StorageItemQueryResult Query = Folder.CreateItemQueryWithOptions(Options);
 

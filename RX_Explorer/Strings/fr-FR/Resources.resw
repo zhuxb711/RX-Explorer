@@ -2019,7 +2019,7 @@ Les noms non valides incluent
 "COM0", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9"
 "LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"</value>
   </data>
-  <data name="CustomUISubtype3.Content" xml:space="preserve">
+  <data name="CustomUISubtype3.Text" xml:space="preserve">
     <value>Image Bing</value>
   </data>
   <data name="Setting_UIMode_Recommend" xml:space="preserve">
@@ -3049,5 +3049,11 @@ Les noms non valides incluent
   </data>
   <data name="SearchProcessingText" xml:space="preserve">
     <value>Recherche...</value>
+  </data>
+  <data name="QueueDialog_DisplayProtectedSystemItemsWarning_Content" xml:space="preserve">
+    <value>Les fichiers système cachés ne doivent pas être modifiés, il est recommandé de ne pas activer ce commutateur, que vous souhaitiez continuer?</value>
+  </data>
+  <data name="SettingHideProtectedSystemItems.Content" xml:space="preserve">
+    <value>Masquer les fichiers système protégés (Recommandé)</value>
   </data>
 </root>

@@ -573,7 +573,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static bool CheckContainsAnyItem(string FolderPath, ItemFilters Filter)
+        public static bool CheckContainsAnyItem(string FolderPath, bool IncludeHiddenItem, bool IncludeSystemItem, ItemFilters Filter)
         {
             if (string.IsNullOrWhiteSpace(FolderPath))
             {
@@ -592,7 +592,7 @@ namespace RX_Explorer.Class
                         {
                             FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
 
-                            if (!Attribute.HasFlag(FileAttributes.System))
+                            if ((IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden)) && (IncludeSystemItem || !Attribute.HasFlag(FileAttributes.System)))
                             {
                                 if (Attribute.HasFlag(FileAttributes.Directory))
                                 {
@@ -872,7 +872,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static List<FileSystemStorageItemBase> Search(string FolderPath, string SearchWord, bool SearchInSubFolders = false, bool IncludeHiddenItem = false, bool IsRegexExpresstion = false, bool IgnoreCase = true, CancellationToken CancelToken = default)
+        public static List<FileSystemStorageItemBase> Search(string FolderPath, string SearchWord, bool SearchInSubFolders = false, bool IncludeHiddenItem = false, bool IncludeSystemItem = false, bool IsRegexExpresstion = false, bool IgnoreCase = true, CancellationToken CancelToken = default)
         {
             if (string.IsNullOrWhiteSpace(FolderPath))
             {
@@ -900,7 +900,7 @@ namespace RX_Explorer.Class
                             {
                                 FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
 
-                                if (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden))
+                                if ((IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden)) && (IncludeSystemItem || !Attribute.HasFlag(FileAttributes.System)))
                                 {
                                     if (IsRegexExpresstion ? Regex.IsMatch(Data.cFileName, SearchWord, IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None)
                                                            : Data.cFileName.Contains(SearchWord, IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
@@ -941,7 +941,7 @@ namespace RX_Explorer.Class
 
                                     if (Attribute.HasFlag(FileAttributes.Directory) && SearchInSubFolders)
                                     {
-                                        SearchResult.AddRange(Search(Path.Combine(FolderPath, Data.cFileName), SearchWord, true, IncludeHiddenItem, false, IgnoreCase, CancelToken));
+                                        SearchResult.AddRange(Search(Path.Combine(FolderPath, Data.cFileName), SearchWord, true, IncludeHiddenItem, IncludeSystemItem, IsRegexExpresstion, IgnoreCase, CancelToken));
                                     }
                                 }
                             }
@@ -982,7 +982,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static List<FileSystemStorageItemBase> GetStorageItems(string FolderPath, bool IncludeHiddenItem, ItemFilters Filter)
+        public static List<FileSystemStorageItemBase> GetStorageItems(string FolderPath, bool IncludeHiddenItem, bool IncludeSystemItem, ItemFilters Filter)
         {
             if (string.IsNullOrWhiteSpace(FolderPath))
             {
@@ -1003,7 +1003,7 @@ namespace RX_Explorer.Class
                         {
                             FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
 
-                            if (IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden))
+                            if ((IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden)) && (IncludeSystemItem || !Attribute.HasFlag(FileAttributes.System)))
                             {
                                 if (Attribute.HasFlag(FileAttributes.Directory))
                                 {
@@ -1165,7 +1165,6 @@ namespace RX_Explorer.Class
 
                                 if (Attribute.HasFlag(FileAttributes.Directory))
                                 {
-
                                     if (Attribute.HasFlag(FileAttributes.Hidden))
                                     {
                                         Result.Add(new HiddenStorageFolder(Path, Data));
@@ -1213,6 +1212,41 @@ namespace RX_Explorer.Class
             {
                 LogTracer.Log(ex);
                 return new List<FileSystemStorageItemBase>();
+            }
+        }
+
+        public static WIN32_FIND_DATA GetStorageItemRawData(string ItemPath)
+        {
+            if (string.IsNullOrWhiteSpace(ItemPath))
+            {
+                throw new ArgumentNullException(nameof(ItemPath), "Argument could not be null");
+            }
+
+            try
+            {
+                IntPtr Ptr = FindFirstFileExFromApp(ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out WIN32_FIND_DATA Data, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.NONE);
+
+                try
+                {
+                    if (Ptr != INVALID_HANDLE)
+                    {
+                        return Data;
+                    }
+                    else
+                    {
+                        LogTracer.Log(new Win32Exception(Marshal.GetLastWin32Error()));
+                        return default;
+                    }
+                }
+                finally
+                {
+                    FindClose(Ptr);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex);
+                return default;
             }
         }
 

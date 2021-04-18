@@ -515,7 +515,7 @@ namespace FullTrustProcess
                         {
                             string PFN = Convert.ToString(args.Request.Message["PackageFamilyName"]);
 
-                            InstalledApplicationPackage Pack = await Helper.GetInstalledApplicationAsync(PFN).ConfigureAwait(true);
+                            InstalledApplicationPackage Pack = await Helper.GetInstalledApplicationAsync(PFN);
 
                             if (Pack != null)
                             {
@@ -832,7 +832,7 @@ namespace FullTrustProcess
                                             }
                                             else
                                             {
-                                                byte[] IconData = await Helper.GetIconDataFromPackageFamilyName(PackageFamilyName).ConfigureAwait(true);
+                                                byte[] IconData = await Helper.GetIconDataFromPackageFamilyName(PackageFamilyName);
 
                                                 Value.Add("Success", JsonSerializer.Serialize(new LinkDataPackage(ExecutePath, PackageFamilyName, string.Empty, (WindowState)Enum.Parse(typeof(WindowState), Enum.GetName(typeof(FormWindowState), Link.ShowState)), (int)Link.HotKey, Link.Description, false, IconData)));
                                             }
@@ -890,10 +890,10 @@ namespace FullTrustProcess
 
                                 try
                                 {
-                                    using (Stream FileStream = await InterceptFile.OpenStreamForReadAsync().ConfigureAwait(true))
+                                    using (Stream FileStream = await InterceptFile.OpenStreamForReadAsync())
                                     using (StreamReader Reader = new StreamReader(FileStream))
                                     {
-                                        string Content = await Reader.ReadToEndAsync().ConfigureAwait(true);
+                                        string Content = await Reader.ReadToEndAsync();
 
                                         using (Stream TempStream = await TempFile.OpenStreamForWriteAsync())
                                         using (StreamWriter Writer = new StreamWriter(TempStream, Encoding.Unicode))

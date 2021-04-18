@@ -2022,7 +2022,7 @@
   <data name="PresentInvalidNameTip.Title" xml:space="preserve">
     <value>錯誤</value>
   </data>
-  <data name="CustomUISubtype3.Content" xml:space="preserve">
+  <data name="CustomUISubtype3.Text" xml:space="preserve">
     <value>Bing圖片</value>
   </data>
   <data name="Progress_Tip_WaitingForAction" xml:space="preserve">
@@ -3049,5 +3049,11 @@
   </data>
   <data name="SearchProcessingText" xml:space="preserve">
     <value>正在搜尋...</value>
+  </data>
+  <data name="QueueDialog_DisplayProtectedSystemItemsWarning_Content" xml:space="preserve">
+    <value>隱藏的系統文件不應修改，建議不要打開此開關，是否繼續？</value>
+  </data>
+  <data name="SettingHideProtectedSystemItems.Content" xml:space="preserve">
+    <value>隱藏受保護的系統文件(推薦)</value>
   </data>
 </root>

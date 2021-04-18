@@ -2749,7 +2749,7 @@ Inkorrekte Namen sind
           <source>Error</source>
           <target state="translated">Fehler</target>
         </trans-unit>
-        <trans-unit id="CustomUISubtype3.Content" translate="yes" xml:space="preserve">
+        <trans-unit id="CustomUISubtype3.Text" translate="yes" xml:space="preserve">
           <source>Bing Picture</source>
           <target state="translated">Bing Wallpaper</target>
         </trans-unit>
@@ -4045,6 +4045,14 @@ Inkorrekte Namen sind
         <trans-unit id="SearchProcessingText" translate="yes" xml:space="preserve">
           <source>Searching...</source>
           <target state="translated">Suchen...</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DisplayProtectedSystemItemsWarning_Content" translate="yes" xml:space="preserve">
+          <source>Hidden system files should not be modified, it is recommended not to turn on this switch, whether to continue?</source>
+          <target state="translated">Versteckte Systemdateien sollten nicht geändert werden. Es wird empfohlen, diesen Schalter nicht einzuschalten, um fortzufahren.</target>
+        </trans-unit>
+        <trans-unit id="SettingHideProtectedSystemItems.Content" translate="yes" xml:space="preserve">
+          <source>Hide protected system files (Recommended)</source>
+          <target state="translated">Geschützte Systemdateien ausblenden (empfohlen)</target>
         </trans-unit>
       </group>
     </body>

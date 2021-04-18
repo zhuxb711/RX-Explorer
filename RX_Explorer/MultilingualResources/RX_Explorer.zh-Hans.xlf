@@ -2672,7 +2672,7 @@ Invalid names include
 "COM0", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9"
 "LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"</target>
         </trans-unit>
-        <trans-unit id="CustomUISubtype3.Content" translate="yes" xml:space="preserve">
+        <trans-unit id="CustomUISubtype3.Text" translate="yes" xml:space="preserve">
           <source>Bing Picture</source>
           <target state="translated">必应图片</target>
         </trans-unit>
@@ -4047,6 +4047,14 @@ Invalid names include
         <trans-unit id="SearchProcessingText" translate="yes" xml:space="preserve">
           <source>Searching...</source>
           <target state="translated">正在搜索...</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DisplayProtectedSystemItemsWarning_Content" translate="yes" xml:space="preserve">
+          <source>Hidden system files should not be modified, it is recommended not to turn on this switch, whether to continue?</source>
+          <target state="translated">隐藏的系统文件不应被修改，建议不要打开此开关，是否继续？</target>
+        </trans-unit>
+        <trans-unit id="SettingHideProtectedSystemItems.Content" translate="yes" xml:space="preserve">
+          <source>Hide protected system files (Recommended)</source>
+          <target state="translated">隐藏受保护的系统文件(推荐)</target>
         </trans-unit>
       </group>
     </body>

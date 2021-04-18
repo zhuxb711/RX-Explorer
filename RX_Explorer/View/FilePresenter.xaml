@@ -556,25 +556,27 @@
                        Name="QRImage" />
             </muxc:TeachingTip.HeroContent>
             <muxc:TeachingTip.Content>
-                <StackPanel HorizontalAlignment="Center">
-                    <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center">
-                        <TextBox VerticalAlignment="Center"
-                                 Name="QRText"
+                <StackPanel HorizontalAlignment="Stretch">
+                    <RelativePanel HorizontalAlignment="Stretch">
+                        <TextBox Name="QRText"
+                                 RelativePanel.LeftOf="CopyLinkButton"
+                                 RelativePanel.AlignBottomWithPanel="True"
+                                 RelativePanel.AlignLeftWithPanel="True"
                                  x:Uid="QRText"
                                  IsSpellCheckEnabled="False"
                                  IsReadOnly="True"
                                  Header="复制此链接至浏览器即可下载"
-                                 GotFocus="QRText_GotFocus"
-                                 Width="245" />
+                                 GotFocus="QRText_GotFocus"/>
                         <Button VerticalAlignment="Bottom"
+                                RelativePanel.AlignRightWithPanel="True"
+                                RelativePanel.AlignBottomWithPanel="True"
                                 Margin="5,0,0,0"
                                 Name="CopyLinkButton"
                                 Click="CopyLinkButton_Click">
                             <FontIcon FontFamily="Segoe MDL2 Assets"
                                       Glyph="&#xE8C8;" />
                         </Button>
-                    </StackPanel>
+                    </RelativePanel>
                     <TextBlock Margin="0,10,0,0"
                                x:Uid="WIFIShareText"
                                TextWrapping="WrapWholeWords"

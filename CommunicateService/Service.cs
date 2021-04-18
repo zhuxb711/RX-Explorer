@@ -91,7 +91,7 @@ namespace CommunicateService
                 {
                     if (Spin.NextSpinWillYield)
                     {
-                        await Task.Delay(500).ConfigureAwait(true);
+                        await Task.Delay(500);
                     }
                     else
                     {

@@ -2745,7 +2745,7 @@ Las denominaciones no válidas son:
           <source>Error</source>
           <target state="translated">Error</target>
         </trans-unit>
-        <trans-unit id="CustomUISubtype3.Content" translate="yes" xml:space="preserve">
+        <trans-unit id="CustomUISubtype3.Text" translate="yes" xml:space="preserve">
           <source>Bing Picture</source>
           <target state="translated">Imagen de Bing</target>
         </trans-unit>
@@ -4045,6 +4045,14 @@ Las denominaciones no válidas son:
         <trans-unit id="SearchProcessingText" translate="yes" xml:space="preserve">
           <source>Searching...</source>
           <target state="translated">Buscando...</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DisplayProtectedSystemItemsWarning_Content" translate="yes" xml:space="preserve">
+          <source>Hidden system files should not be modified, it is recommended not to turn on this switch, whether to continue?</source>
+          <target state="translated">Los archivos ocultos del sistema no deben modificarse, se recomienda no activar este interruptor, ¿continuar?</target>
+        </trans-unit>
+        <trans-unit id="SettingHideProtectedSystemItems.Content" translate="yes" xml:space="preserve">
+          <source>Hide protected system files (Recommended)</source>
+          <target state="translated">Ocultar archivos de sistema protegidos (Recomendado)</target>
         </trans-unit>
       </group>
     </body>

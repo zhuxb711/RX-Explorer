@@ -2676,7 +2676,7 @@ Invalid names include
           <source>Error</source>
           <target state="translated" state-qualifier="tm-suggestion">錯誤</target>
         </trans-unit>
-        <trans-unit id="CustomUISubtype3.Content" translate="yes" xml:space="preserve">
+        <trans-unit id="CustomUISubtype3.Text" translate="yes" xml:space="preserve">
           <source>Bing Picture</source>
           <target state="translated">Bing圖片</target>
         </trans-unit>
@@ -4047,6 +4047,14 @@ Invalid names include
         <trans-unit id="SearchProcessingText" translate="yes" xml:space="preserve">
           <source>Searching...</source>
           <target state="translated">正在搜尋...</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DisplayProtectedSystemItemsWarning_Content" translate="yes" xml:space="preserve">
+          <source>Hidden system files should not be modified, it is recommended not to turn on this switch, whether to continue?</source>
+          <target state="translated">隱藏的系統文件不應修改，建議不要打開此開關，是否繼續？</target>
+        </trans-unit>
+        <trans-unit id="SettingHideProtectedSystemItems.Content" translate="yes" xml:space="preserve">
+          <source>Hide protected system files (Recommended)</source>
+          <target state="translated">隱藏受保護的系統文件(推薦)</target>
         </trans-unit>
       </group>
     </body>

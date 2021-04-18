@@ -327,7 +327,7 @@ namespace RX_Explorer
 
             SecureFolder = await FileSystemStorageItemBase.CreateAsync(Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder"), StorageItemTypes.Folder, CreateOption.OpenIfExist) as FileSystemStorageFolder;
 
-            foreach (FileSystemStorageFile Item in await SecureFolder.GetChildItemsAsync(false, ItemFilters.File))
+            foreach (FileSystemStorageFile Item in await SecureFolder.GetChildItemsAsync(false, false, ItemFilters.File))
             {
                 SecureCollection.Add(Item);
             }

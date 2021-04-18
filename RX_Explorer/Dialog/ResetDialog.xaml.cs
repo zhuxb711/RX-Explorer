@@ -29,7 +29,7 @@ namespace RX_Explorer.Dialog
             QueryOptions Options = new QueryOptions
             {
                 FolderDepth = FolderDepth.Shallow,
-                IndexerOption = IndexerOption.UseIndexerWhenAvailable
+                IndexerOption = IndexerOption.DoNotUseIndexer
             };
 
             StorageItemQueryResult ItemQuery = SecureFolder.CreateItemQueryWithOptions(Options);

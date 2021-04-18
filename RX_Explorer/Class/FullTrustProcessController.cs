@@ -1952,14 +1952,15 @@ namespace RX_Explorer.Class
 
                             foreach (Dictionary<string, string> PropertyDic in JsonList)
                             {
-                                if (Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]) == StorageItemTypes.Folder)
-                                {
-                                    RecycleItems.Add(new RecycleStorageFolder(PropertyDic["ActualPath"], PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
-                                }
-                                else
-                                {
-                                    RecycleItems.Add(new RecycleStorageFile(PropertyDic["ActualPath"], PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"]))));
-                                }
+                                WIN_Native_API.WIN32_FIND_DATA Data = WIN_Native_API.GetStorageItemRawData(PropertyDic["ActualPath"]);
+
+                                IRecycleStorageItem Item = Enum.Parse<StorageItemTypes>(PropertyDic["StorageType"]) == StorageItemTypes.Folder
+                                                            ? new RecycleStorageFolder(PropertyDic["ActualPath"], Data)
+                                                            : new RecycleStorageFile(PropertyDic["ActualPath"], Data);
+
+                                Item.SetRelatedData(PropertyDic["OriginPath"], DateTimeOffset.FromFileTime(Convert.ToInt64(PropertyDic["DeleteTime"])));
+
+                                RecycleItems.Add(Item);
                             }
 
                             return RecycleItems;

@@ -4,18 +4,23 @@
       xmlns:local="using:RX_Explorer.Class"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
       xmlns:Behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
-      xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
       mc:Ignorable="d"
-      NavigationCacheMode="Enabled"
+      NavigationCacheMode="Required"
       Background="Transparent">
     <Page.Resources>
         <muxc:CommandBarFlyout x:Name="SearchCommandFlyout"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="OpenFile"
+                              Label="打开"
+                              MinWidth="160"
+                              x:Uid="FileOpen"
+                              x:Name="Open"
+                              Click="Open_Click">
+                </AppBarButton>
                 <AppBarButton x:Uid="SearchLocation"
                               x:Name="Location"
                               Label="打开所在位置"

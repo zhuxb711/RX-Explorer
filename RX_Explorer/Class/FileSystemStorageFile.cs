@@ -60,24 +60,33 @@ namespace RX_Explorer.Class
             }
         }
 
-        private bool isReadOnly;
-
-        public virtual bool IsReadOnly
+        public override bool IsReadOnly
         {
             get
             {
                 if (StorageItem == null)
                 {
-                    return isReadOnly;
+                    return base.IsReadOnly;
                 }
                 else
                 {
                     return StorageItem.Attributes.HasFlag(Windows.Storage.FileAttributes.ReadOnly);
                 }
             }
-            protected set
+        }
+
+        public override bool IsSystemItem
+        {
+            get
             {
-                isReadOnly = value;
+                if (StorageItem == null)
+                {
+                    return base.IsSystemItem;
+                }
+                else
+                {
+                    return false;
+                }
             }
         }
 
@@ -106,12 +115,7 @@ namespace RX_Explorer.Class
             return new FileSystemStorageFile(Item, await Item.GetModifiedTimeAsync(), await Item.GetSizeRawDataAsync());
         }
 
-        protected FileSystemStorageFile(string Path) : base(Path)
-        {
-
-        }
-
-        protected FileSystemStorageFile(StorageFile Item, DateTimeOffset ModifiedTime, ulong Size) : base(Item.Path)
+        protected FileSystemStorageFile(StorageFile Item, DateTimeOffset ModifiedTime, ulong Size) : base(Item)
         {
             TempStorageItem = Item;
             CreationTimeRaw = Item.DateCreated;
@@ -121,7 +125,7 @@ namespace RX_Explorer.Class
 
         public FileSystemStorageFile(string Path, WIN_Native_API.WIN32_FIND_DATA Data) : base(Path, Data)
         {
-            IsReadOnly = ((System.IO.FileAttributes)Data.dwFileAttributes).HasFlag(System.IO.FileAttributes.ReadOnly);
+
         }
 
         public async virtual Task<FileStream> GetFileStreamFromFileAsync(AccessMode Mode)

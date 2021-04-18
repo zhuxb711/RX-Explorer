@@ -213,7 +213,7 @@ namespace RX_Explorer.Class
 
         private static async Task ZipFolderCore(FileSystemStorageFolder Folder, ZipOutputStream OutputStream, string BaseFolderName, ProgressChangedEventHandler ProgressHandler = null)
         {
-            List<FileSystemStorageItemBase> ItemList = await Folder.GetChildItemsAsync(true).ConfigureAwait(false);
+            List<FileSystemStorageItemBase> ItemList = await Folder.GetChildItemsAsync(true, true).ConfigureAwait(false);
 
             if (ItemList.Count == 0)
             {
@@ -1076,7 +1076,7 @@ namespace RX_Explorer.Class
 
         private static async Task TarFolderCore(FileSystemStorageFolder Folder, TarOutputStream OutputStream, string BaseFolderName, ProgressChangedEventHandler ProgressHandler = null)
         {
-            List<FileSystemStorageItemBase> ItemList = await Folder.GetChildItemsAsync(true).ConfigureAwait(false);
+            List<FileSystemStorageItemBase> ItemList = await Folder.GetChildItemsAsync(true, true).ConfigureAwait(false);
 
             if (ItemList.Count == 0)
             {

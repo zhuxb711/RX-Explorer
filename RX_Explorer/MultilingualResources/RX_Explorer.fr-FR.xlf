@@ -2672,7 +2672,7 @@ Les noms non valides incluent
 "COM0", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9"
 "LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"</target>
         </trans-unit>
-        <trans-unit id="CustomUISubtype3.Content" translate="yes" xml:space="preserve">
+        <trans-unit id="CustomUISubtype3.Text" translate="yes" xml:space="preserve">
           <source>Bing Picture</source>
           <target state="translated">Image Bing</target>
         </trans-unit>
@@ -4047,6 +4047,14 @@ Les noms non valides incluent
         <trans-unit id="SearchProcessingText" translate="yes" xml:space="preserve">
           <source>Searching...</source>
           <target state="translated">Recherche...</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_DisplayProtectedSystemItemsWarning_Content" translate="yes" xml:space="preserve">
+          <source>Hidden system files should not be modified, it is recommended not to turn on this switch, whether to continue?</source>
+          <target state="translated">Les fichiers système cachés ne doivent pas être modifiés, il est recommandé de ne pas activer ce commutateur, que vous souhaitiez continuer?</target>
+        </trans-unit>
+        <trans-unit id="SettingHideProtectedSystemItems.Content" translate="yes" xml:space="preserve">
+          <source>Hide protected system files (Recommended)</source>
+          <target state="translated">Masquer les fichiers système protégés (Recommandé)</target>
         </trans-unit>
       </group>
     </body>

@@ -161,7 +161,7 @@ namespace RX_Explorer
                         Item.Header = string.IsNullOrEmpty(value.DisplayName) ? $"<{Globalization.GetString("UnknownText")}>" : value.DisplayName;
                     }
 
-                    AreaWatcher?.StartWatchDirectory(value.Path, SettingControl.IsDisplayHiddenItem);
+                    AreaWatcher?.StartWatchDirectory(value.Path);
 
                     if (this.FindParentOfType<BladeItem>() is BladeItem Parent)
                     {
@@ -674,7 +674,7 @@ namespace RX_Explorer
 
                 Container.ViewModeControl.SetCurrentViewMode(Config.Path, Config.DisplayModeIndex.GetValueOrDefault());
 
-                List<FileSystemStorageItemBase> ChildItems = await CurrentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem);
+                List<FileSystemStorageItemBase> ChildItems = await CurrentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems);
 
                 if (ChildItems.Count > 0)
                 {
@@ -754,7 +754,7 @@ namespace RX_Explorer
 
         private void Current_Resuming(object sender, object e)
         {
-            AreaWatcher.StartWatchDirectory(AreaWatcher.CurrentLocation, SettingControl.IsDisplayHiddenItem);
+            AreaWatcher.StartWatchDirectory(AreaWatcher.CurrentLocation);
         }
 
         private void Current_Suspending(object sender, SuspendingEventArgs e)
@@ -2477,7 +2477,7 @@ namespace RX_Explorer
                                                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                                             };
 
-                                                            await Dialog.ShowAsync().ConfigureAwait(true);
+                                                            await Dialog.ShowAsync();
                                                         }
                                                     }
                                                 }
@@ -2485,7 +2485,7 @@ namespace RX_Explorer
                                                 {
                                                     if ((await Launcher.FindFileHandlersAsync(File.Type)).FirstOrDefault((Item) => Item.PackageFamilyName == AdminExecutablePath) is AppInfo Info)
                                                     {
-                                                        if (await File.GetStorageItemAsync().ConfigureAwait(true) is StorageFile InnerFile)
+                                                        if (await File.GetStorageItemAsync() is StorageFile InnerFile)
                                                         {
                                                             if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { TargetApplicationPackageFamilyName = Info.PackageFamilyName, DisplayApplicationPicker = false }))
                                                             {
@@ -2501,7 +2501,7 @@ namespace RX_Explorer
                                                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                                             };
 
-                                                            _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                                                            _ = await Dialog.ShowAsync();
                                                         }
                                                     }
                                                     else
@@ -2519,9 +2519,9 @@ namespace RX_Explorer
                             }
                         case FileSystemStorageFolder Folder:
                             {
-                                if (await FileSystemStorageItemBase.CheckExistAsync(Folder.Path).ConfigureAwait(true))
+                                if (await FileSystemStorageItemBase.CheckExistAsync(Folder.Path))
                                 {
-                                    await DisplayItemsInFolder(Folder).ConfigureAwait(true);
+                                    await DisplayItemsInFolder(Folder);
                                 }
                                 else
                                 {
@@ -2532,7 +2532,7 @@ namespace RX_Explorer
                                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                     };
 
-                                    _ = await Dialog.ShowAsync().ConfigureAwait(true);
+                                    _ = await Dialog.ShowAsync();
                                 }
 
                                 break;
@@ -2584,7 +2584,7 @@ namespace RX_Explorer
         {
             ProgramPickerDialog Dialog = new ProgramPickerDialog(File);
 
-            if (await Dialog.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
             {
                 if (Dialog.SelectedProgram.Path == Package.Current.Id.FamilyName)
                 {
@@ -2596,7 +2596,7 @@ namespace RX_Explorer
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         {
-                            if (!await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), Parameters: File.Path).ConfigureAwait(true))
+                            if (!await Exclusive.Controller.RunAsync(Dialog.SelectedProgram.Path, Path.GetDirectoryName(Dialog.SelectedProgram.Path), Parameters: File.Path))
                             {
                                 QueueContentDialog Dialog1 = new QueueContentDialog
                                 {
@@ -2621,7 +2621,7 @@ namespace RX_Explorer
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
                             };
 
-                            if (await Dialog1.ShowAsync().ConfigureAwait(true) == ContentDialogResult.Primary)
+                            if (await Dialog1.ShowAsync() == ContentDialogResult.Primary)
                             {
                                 if (!await Launcher.LaunchFileAsync(InnerFile))
                                 {

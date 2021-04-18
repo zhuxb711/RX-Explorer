@@ -1,5 +1,6 @@
 ﻿using RX_Explorer.Class;
 using RX_Explorer.SeparateWindow.PropertyWindow;
+using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -7,8 +8,10 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
+using Windows.Storage;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
@@ -17,7 +20,9 @@ using Windows.UI.WindowManagement.Preview;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Hosting;
+using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
+using Package = Windows.ApplicationModel.Package;
 
 namespace RX_Explorer
 {
@@ -47,9 +52,11 @@ namespace RX_Explorer
             {
                 CoreWindow.GetForCurrentThread().KeyDown += SearchPage_KeyDown;
 
-                WeakToFileControl = Parameters.Item1;
-
-                await Initialize(Parameters.Item2, Parameters.Item3.GetValueOrDefault(), Parameters.Item4.GetValueOrDefault(), Parameters.Item5.GetValueOrDefault(), Parameters.Item6.GetValueOrDefault()).ConfigureAwait(false);
+                if (e.NavigationMode == NavigationMode.New)
+                {
+                    WeakToFileControl = Parameters.Item1;
+                    await Initialize(Parameters.Item2, Parameters.Item3.GetValueOrDefault(), Parameters.Item4.GetValueOrDefault(), Parameters.Item5.GetValueOrDefault(), Parameters.Item6.GetValueOrDefault()).ConfigureAwait(false);
+                }
             }
         }
 
@@ -90,7 +97,7 @@ namespace RX_Explorer
                         case SearchCategory.BuiltInEngine_Deep:
                         case SearchCategory.BuiltInEngine_Shallow:
                             {
-                                await foreach (FileSystemStorageItemBase Item in CurrentFolder.SearchAsync(SearchTarget, Category == SearchCategory.BuiltInEngine_Deep, SettingControl.IsDisplayHiddenItem, IncludeRegex, IngoreCase, Cancellation.Token))
+                                await foreach (FileSystemStorageItemBase Item in CurrentFolder.SearchAsync(SearchTarget, Category == SearchCategory.BuiltInEngine_Deep, SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, IncludeRegex, IngoreCase, Cancellation.Token))
                                 {
                                     if (Cancellation.IsCancellationRequested)
                                     {
@@ -150,9 +157,13 @@ namespace RX_Explorer
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            Cancellation?.Cancel();
-            SearchResult.Clear();
             CoreWindow.GetForCurrentThread().KeyDown -= SearchPage_KeyDown;
+            Cancellation?.Cancel();
+
+            if (e.NavigationMode == NavigationMode.Back)
+            {
+                SearchResult.Clear();
+            }
         }
 
         private async void Location_Click(object sender, RoutedEventArgs e)
@@ -461,42 +472,318 @@ namespace RX_Explorer
             }
         }
 
+        private bool TryOpenInternally(FileSystemStorageFile File)
+        {
+            Type InternalType = File.Type.ToLower() switch
+            {
+                ".jpg" or ".png" or ".bmp" => typeof(PhotoViewer),
+                ".mkv" or ".mp4" or ".mp3" or
+                ".flac" or ".wma" or ".wmv" or
+                ".m4a" or ".mov" or ".alac" => typeof(MediaPlayer),
+                ".txt" => typeof(TextViewer),
+                ".pdf" => typeof(PdfReader),
+                _ => null
+            };
+
+            if (InternalType != null)
+            {
+                NavigationTransitionInfo NavigationTransition = AnimationController.Current.IsEnableAnimation
+                                                            ? new DrillInNavigationTransitionInfo()
+                                                            : new SuppressNavigationTransitionInfo();
+
+                Frame.Navigate(InternalType, File, NavigationTransition);
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         private async void SearchResultList_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
         {
             if ((e.OriginalSource as FrameworkElement).DataContext is FileSystemStorageItemBase Item)
             {
-                try
+                await LaunchSelectedItem(Item);
+            }
+        }
+
+        private async Task LaunchSelectedItem(FileSystemStorageItemBase Item)
+        {
+            try
+            {
+                switch (Item)
                 {
-                    string ParentFolderPath = Path.GetDirectoryName(Item.Path);
-
-                    if (WeakToFileControl.TryGetTarget(out FileControl Control))
-                    {
-                        Frame.GoBack();
-
-                        await Control.CurrentPresenter.DisplayItemsInFolder(ParentFolderPath);
-
-                        await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, ParentFolderPath);
-
-                        if (Control.CurrentPresenter.FileCollection.FirstOrDefault((SItem) => SItem == Item) is FileSystemStorageItemBase Target)
+                    case FileSystemStorageFile File:
                         {
-                            Control.CurrentPresenter.ItemPresenter.ScrollIntoView(Target);
-                            Control.CurrentPresenter.SelectedItem = Target;
+                            if (!await FileSystemStorageItemBase.CheckExistAsync(File.Path))
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+
+                                _ = await Dialog.ShowAsync();
+
+                                return;
+                            }
+
+                            switch (File.Type.ToLower())
+                            {
+                                case ".exe":
+                                case ".bat":
+                                case ".msi":
+                                    {
+                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                        {
+                                            if (!await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path)))
+                                            {
+                                                QueueContentDialog Dialog = new QueueContentDialog
+                                                {
+                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                };
+
+                                                await Dialog.ShowAsync();
+                                            }
+                                        }
+
+                                        break;
+                                    }
+                                case ".msc":
+                                    {
+                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                        {
+                                            if (!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", File.Path))
+                                            {
+                                                QueueContentDialog Dialog = new QueueContentDialog
+                                                {
+                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                };
+
+                                                await Dialog.ShowAsync();
+                                            }
+                                        }
+
+                                        break;
+                                    }
+                                case ".lnk":
+                                    {
+                                        if (File is LinkStorageFile LinkItem)
+                                        {
+                                            if (LinkItem.LinkType == ShellLinkType.Normal)
+                                            {
+                                                switch (await FileSystemStorageItemBase.OpenAsync(LinkItem.LinkTargetPath))
+                                                {
+                                                    case FileSystemStorageFolder:
+                                                        {
+                                                            if (WeakToFileControl.TryGetTarget(out FileControl Control))
+                                                            {
+                                                                Frame.GoBack();
+
+                                                                await Control.CurrentPresenter.DisplayItemsInFolder(LinkItem.LinkTargetPath);
+
+                                                                await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, LinkItem.LinkTargetPath);
+
+                                                                if (Control.CurrentPresenter.FileCollection.FirstOrDefault((SItem) => SItem == LinkItem) is FileSystemStorageItemBase Target)
+                                                                {
+                                                                    Control.CurrentPresenter.ItemPresenter.ScrollIntoView(Target);
+                                                                    Control.CurrentPresenter.SelectedItem = Target;
+                                                                }
+                                                            }
+
+                                                            break;
+                                                        }
+                                                    case FileSystemStorageFile:
+                                                        {
+                                                            await LinkItem.LaunchAsync();
+                                                            break;
+                                                        }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                await LinkItem.LaunchAsync();
+                                            }
+                                        }
+
+                                        break;
+                                    }
+                                case ".url":
+                                    {
+                                        if (File is UrlStorageFile UrlItem)
+                                        {
+                                            await UrlItem.LaunchAsync();
+                                        }
+
+                                        break;
+                                    }
+                                default:
+                                    {
+                                        string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(File.Type);
+
+                                        if (string.IsNullOrEmpty(AdminExecutablePath) || AdminExecutablePath == Package.Current.Id.FamilyName)
+                                        {
+                                            if (!TryOpenInternally(File))
+                                            {
+                                                if (await File.GetStorageItemAsync() is StorageFile SFile)
+                                                {
+                                                    if (!await Launcher.LaunchFileAsync(SFile))
+                                                    {
+                                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                                        {
+                                                            if (!await Exclusive.Controller.RunAsync(File.Path))
+                                                            {
+                                                                QueueContentDialog Dialog = new QueueContentDialog
+                                                                {
+                                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                                };
+
+                                                                await Dialog.ShowAsync();
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                                    {
+                                                        if (!await Exclusive.Controller.RunAsync(File.Path))
+                                                        {
+                                                            QueueContentDialog Dialog = new QueueContentDialog
+                                                            {
+                                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                                Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                            };
+
+                                                            await Dialog.ShowAsync();
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (Path.IsPathRooted(AdminExecutablePath))
+                                            {
+                                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                                {
+                                                    if (!await Exclusive.Controller.RunAsync(AdminExecutablePath, Path.GetDirectoryName(AdminExecutablePath), Parameters: File.Path))
+                                                    {
+                                                        QueueContentDialog Dialog = new QueueContentDialog
+                                                        {
+                                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                            Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                        };
+
+                                                        await Dialog.ShowAsync();
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if ((await Launcher.FindFileHandlersAsync(File.Type)).FirstOrDefault((Item) => Item.PackageFamilyName == AdminExecutablePath) is AppInfo Info)
+                                                {
+                                                    if (await File.GetStorageItemAsync() is StorageFile InnerFile)
+                                                    {
+                                                        if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { TargetApplicationPackageFamilyName = Info.PackageFamilyName, DisplayApplicationPicker = false }))
+                                                        {
+                                                            QueueContentDialog Dialog = new QueueContentDialog
+                                                            {
+                                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                                Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                            };
+
+                                                            await Dialog.ShowAsync();
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        QueueContentDialog Dialog = new QueueContentDialog
+                                                        {
+                                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                            Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
+                                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                        };
+
+                                                        _ = await Dialog.ShowAsync();
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        break;
+                                    }
+                            }
+
+                            break;
                         }
-                    }
+                    case FileSystemStorageFolder Folder:
+                        {
+                            if (await FileSystemStorageItemBase.CheckExistAsync(Folder.Path))
+                            {
+                                if (WeakToFileControl.TryGetTarget(out FileControl Control))
+                                {
+                                    Frame.GoBack();
+
+                                    await Control.CurrentPresenter.DisplayItemsInFolder(Folder);
+
+                                    await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, Folder.Path);
+
+                                    if (Control.CurrentPresenter.FileCollection.FirstOrDefault((SItem) => SItem == Folder) is FileSystemStorageItemBase Target)
+                                    {
+                                        Control.CurrentPresenter.ItemPresenter.ScrollIntoView(Target);
+                                        Control.CurrentPresenter.SelectedItem = Target;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+
+                                _ = await Dialog.ShowAsync();
+                            }
+
+                            break;
+                        }
                 }
-                catch (Exception ex)
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An error was threw in {nameof(LaunchSelectedItem)}");
+
+                QueueContentDialog dialog = new QueueContentDialog
                 {
-                    LogTracer.Log(ex, $"An error was threw in {nameof(Location_Click)}");
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
 
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
+                _ = await dialog.ShowAsync();
+            }
+        }
 
-                    _ = await dialog.ShowAsync();
-                }
+        private async void Open_Click(object sender, RoutedEventArgs e)
+        {
+            if (SearchResultList.SelectedItem is FileSystemStorageItemBase Item)
+            {
+                await LaunchSelectedItem(Item);
             }
         }
     }
