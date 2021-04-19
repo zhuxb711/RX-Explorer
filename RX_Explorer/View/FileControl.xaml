@@ -220,7 +220,6 @@
                     </DataTemplate>
                 </AutoSuggestBox.ItemTemplate>
             </AutoSuggestBox>
-
             <ListView ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                       ScrollViewer.HorizontalScrollMode="Enabled"
                       ScrollViewer.VerticalScrollBarVisibility="Hidden"
@@ -245,8 +244,10 @@
                 </ListView.ItemsPanel>
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="Cls:AddressBlock">
-                        <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Horizontal"
+                                    ActualThemeChanged="{x:Bind ThemeChanged}">
                             <Button Content="{x:Bind DisplayName}"
+                                    Foreground="{x:Bind ForegroundColor, Mode=OneWay}"
                                     VerticalAlignment="Stretch"
                                     HorizontalAlignment="Stretch"
                                     Name="AddressButton"
@@ -262,6 +263,7 @@
                                     DragOver="AddressButton_DragOver"
                                     Background="Transparent" />
                             <Button Background="Transparent"
+                                    Foreground="{x:Bind ForegroundColor, Mode=OneWay}"
                                     VerticalAlignment="Stretch"
                                     HorizontalAlignment="Stretch"
                                     VerticalContentAlignment="Center"
@@ -293,7 +295,6 @@
                     </Style>
                 </ListView.ItemContainerStyle>
             </ListView>
-
             <Button Grid.Column="7"
                     HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Center"

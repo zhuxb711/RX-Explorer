@@ -63,7 +63,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 初始化AppThemeController对象
         /// </summary>
-        public AppThemeController()
+        private AppThemeController()
         {
             ApplicationData.Current.DataChanged += Current_DataChanged;
 

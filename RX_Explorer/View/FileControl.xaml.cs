@@ -263,16 +263,69 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        string PathString = AddressButtonList.Last().Path;
-
-                        List<string> IntersectList = new List<string>();
-
                         string[] CurrentSplit = Path.Split('\\', StringSplitOptions.RemoveEmptyEntries);
-                        string[] OriginSplit = PathString.Split('\\', StringSplitOptions.RemoveEmptyEntries);
+
+                        string LastPath = AddressButtonList.Last((Block) => Block.BlockType == AddressBlockType.Normal).Path;
+                        string LastGrayPath = AddressButtonList.LastOrDefault((Block) => Block.BlockType == AddressBlockType.Gray)?.Path;
+
+                        if (string.IsNullOrEmpty(LastGrayPath))
+                        {
+                            if (LastPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
+                            {
+                                string[] LastSplit = LastPath.Split('\\', StringSplitOptions.RemoveEmptyEntries);
+
+                                for (int i = LastSplit.Length - CurrentSplit.Length - 1; i >= 0; i--)
+                                {
+                                    AddressButtonList[AddressButtonList.Count - 1 - i].SetAsGrayBlock();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (LastGrayPath.Equals(Path, StringComparison.OrdinalIgnoreCase))
+                            {
+                                foreach (AddressBlock GrayBlock in AddressButtonList.Where((Block) => Block.BlockType == AddressBlockType.Gray))
+                                {
+                                    GrayBlock.SetAsNormalBlock();
+                                }
+                            }
+                            else if (LastGrayPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
+                            {
+                                if (LastPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    string[] LastGraySplit = LastGrayPath.Split('\\', StringSplitOptions.RemoveEmptyEntries);
+
+                                    for (int i = LastGraySplit.Length - CurrentSplit.Length - 1; i >= 0; i--)
+                                    {
+                                        AddressButtonList[AddressButtonList.Count - 1 - i].SetAsGrayBlock();
+                                    }
+                                }
+                                else if (Path.StartsWith(LastPath, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    string[] LastSplit = LastPath.Split('\\', StringSplitOptions.RemoveEmptyEntries);
+
+                                    for (int i = 0; i < CurrentSplit.Length - LastSplit.Length; i++)
+                                    {
+                                        if (AddressButtonList.FirstOrDefault((Block) => Block.BlockType == AddressBlockType.Gray) is AddressBlock GrayBlock)
+                                        {
+                                            GrayBlock.SetAsNormalBlock();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        //Refresh LastPath and LastGrayPath because we might changed the result
+                        LastPath = AddressButtonList.Last((Block) => Block.BlockType == AddressBlockType.Normal).Path;
+                        LastGrayPath = AddressButtonList.LastOrDefault((Block) => Block.BlockType == AddressBlockType.Gray)?.Path;
+
+                        string[] OriginSplit = LastPath.Split('\\', StringSplitOptions.RemoveEmptyEntries);
+
+                        List<string> IntersectList = new List<string>(Math.Min(CurrentSplit.Length, OriginSplit.Length));
 
                         for (int i = 0; i < CurrentSplit.Length && i < OriginSplit.Length; i++)
                         {
-                            if (CurrentSplit[i] == OriginSplit[i])
+                            if (CurrentSplit[i].Equals(OriginSplit[i], StringComparison.OrdinalIgnoreCase))
                             {
                                 IntersectList.Add(CurrentSplit[i]);
                             }
@@ -297,9 +350,15 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            for (int i = AddressButtonList.Count - 1; i >= IntersectList.Count; i--)
+                            if (!string.IsNullOrEmpty(LastGrayPath) 
+                                && Path.StartsWith(LastPath, StringComparison.OrdinalIgnoreCase) 
+                                && !Path.StartsWith(LastGrayPath, StringComparison.OrdinalIgnoreCase)
+                                && !LastGrayPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
                             {
-                                AddressButtonList.RemoveAt(i);
+                                for (int i = AddressButtonList.Count - 1; i >= IntersectList.Count; i--)
+                                {
+                                    AddressButtonList.RemoveAt(i);
+                                }
                             }
 
                             string BaseString = IntersectList.Count > 1 ? string.Join('\\', CurrentSplit.Take(IntersectList.Count)) : $"{CurrentSplit.First()}\\";

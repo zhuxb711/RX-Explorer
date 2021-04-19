@@ -2,6 +2,12 @@
 
 namespace RX_Explorer.Class
 {
+    public enum AddressBlockType
+    {
+        Normal,
+        Gray
+    }
+
     public enum OperationKind
     {
         Copy,
