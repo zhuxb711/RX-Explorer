@@ -220,38 +220,34 @@
                     </DataTemplate>
                 </AutoSuggestBox.ItemTemplate>
             </AutoSuggestBox>
-            <Grid Grid.Column="3" Margin="0,0,0,0" Padding="0,0,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto" />
-                    <ColumnDefinition   />
-                     
-                </Grid.ColumnDefinitions>
-                <ListView ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+            <ListView ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                       ScrollViewer.HorizontalScrollMode="Enabled"
                       ScrollViewer.VerticalScrollBarVisibility="Hidden"
                       ScrollViewer.VerticalScrollMode="Disabled"
                       HorizontalAlignment="Left"
-                      Grid.Column="0"
+                      Grid.Column="3"
                       Margin="5,0,0,0"
                       Padding="5,0,0,0"
                       SelectionMode="None"
                       x:Name="AddressButtonContainer"
                       ItemsSource="{x:Bind AddressButtonList}">
-                    <ListView.ItemContainerTransitions>
-                        <TransitionCollection>
-                            <AddDeleteThemeTransition />
-                        </TransitionCollection>
-                    </ListView.ItemContainerTransitions>
-                    <ListView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <ItemsStackPanel Orientation="Horizontal"
+                <ListView.ItemContainerTransitions>
+                    <TransitionCollection>
+                        <AddDeleteThemeTransition />
+                    </TransitionCollection>
+                </ListView.ItemContainerTransitions>
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <ItemsStackPanel Orientation="Horizontal"
                                          ItemsUpdatingScrollMode="KeepLastItemInView" />
-                        </ItemsPanelTemplate>
-                    </ListView.ItemsPanel>
-                    <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="Cls:AddressBlock">
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="{x:Bind DisplayName}"
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="Cls:AddressBlock">
+                        <StackPanel Orientation="Horizontal"
+                                    ActualThemeChanged="{x:Bind ThemeChanged}">
+                            <Button Content="{x:Bind DisplayName}"
+                                    Foreground="{x:Bind ForegroundColor, Mode=OneWay}"
                                     VerticalAlignment="Stretch"
                                     HorizontalAlignment="Stretch"
                                     Name="AddressButton"
@@ -266,7 +262,7 @@
                                     DragLeave="AddressButton_DragLeave"
                                     DragOver="AddressButton_DragOver"
                                     Background="Transparent" />
-                                <Button Background="Transparent"
+                            <Button Background="Transparent"
                                     VerticalAlignment="Stretch"
                                     HorizontalAlignment="Stretch"
                                     VerticalContentAlignment="Center"
@@ -275,106 +271,29 @@
                                     CornerRadius="0"
                                     Name="AddressExtention"
                                     Click="AddressExtention_Click">
-                                    <Button.Content>
-                                        <Viewbox Width="12">
-                                            <FontIcon FontFamily="Segoe UI Emoji"
+                                <Button.Content>
+                                    <Viewbox Width="12">
+                                        <FontIcon FontFamily="Segoe UI Emoji"
                                                   Glyph="&#x25B8;" />
-                                        </Viewbox>
-                                    </Button.Content>
-                                </Button>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="Padding"
+                                    </Viewbox>
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Padding"
                                 Value="0" />
-                            <Setter Property="MinWidth"
+                        <Setter Property="MinWidth"
                                 Value="0" />
-                            <Setter Property="MinHeight"
+                        <Setter Property="MinHeight"
                                 Value="0" />
-                            <Setter Property="VerticalContentAlignment"
+                        <Setter Property="VerticalContentAlignment"
                                 Value="Stretch" />
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                </ListView>
-
-                <ListView ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                      ScrollViewer.HorizontalScrollMode="Enabled"
-                      ScrollViewer.VerticalScrollBarVisibility="Hidden"
-                      ScrollViewer.VerticalScrollMode="Disabled"
-                      HorizontalAlignment="Left"
-                      Grid.Column="1"
-                      Margin="0,0,0,0"
-                      Padding="0,0,0,0"
-                      SelectionMode="None"
-                      x:Name="GrayAddressButtonContainer"
-                      ItemsSource="{x:Bind GrayAddressButtonList}">
-                    <ListView.ItemContainerTransitions>
-                        <TransitionCollection>
-                            <AddDeleteThemeTransition />
-                        </TransitionCollection>
-                    </ListView.ItemContainerTransitions>
-                    <ListView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <ItemsStackPanel Orientation="Horizontal"
-                                         ItemsUpdatingScrollMode="KeepLastItemInView" />
-                        </ItemsPanelTemplate>
-                    </ListView.ItemsPanel>
-                    <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="Cls:AddressBlock">
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="{x:Bind DisplayName}"
-                                    VerticalAlignment="Stretch"
-                                    HorizontalAlignment="Stretch"
-                                    Name="AddressButton"
-                                    Padding="3,4"
-                                    Click="AddressButton_Click"
-                                    HorizontalContentAlignment="Center"
-                                    VerticalContentAlignment="Center"
-                                    AllowDrop="True"
-                                    CornerRadius="0"
-                                    Foreground="Gray"
-                                    Drop="AddressButton_Drop"
-                                    DragEnter="AddressButton_DragEnter"
-                                    DragLeave="AddressButton_DragLeave"
-                                    DragOver="AddressButton_DragOver"
-                                    Background="Transparent" />
-                                <Button Background="Transparent"
-                                    VerticalAlignment="Stretch"
-                                    HorizontalAlignment="Stretch"
-                                    VerticalContentAlignment="Center"
-                                    HorizontalContentAlignment="Center"
-                                    Padding="0,4"
-                                    CornerRadius="0"
-                                    Name="AddressExtention"
-                                    Click="AddressExtention_Click">
-                                    <Button.Content>
-                                        <Viewbox Width="12">
-                                            <FontIcon FontFamily="Segoe UI Emoji"
-                                                  Glyph="&#x25B8;" Foreground="Gray"/>
-                                        </Viewbox>
-                                    </Button.Content>
-                                </Button>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="Padding"
-                                Value="0" />
-                            <Setter Property="MinWidth"
-                                Value="0" />
-                            <Setter Property="MinHeight"
-                                Value="0" />
-                            <Setter Property="VerticalContentAlignment"
-                                Value="Stretch" />
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                </ListView>
-            </Grid>
-            
-
+                    </Style>
+                </ListView.ItemContainerStyle>
+            </ListView>
             <Button Grid.Column="7"
                     HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Center"

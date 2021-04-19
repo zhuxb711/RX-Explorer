@@ -1,8 +1,30 @@
-﻿namespace RX_Explorer.Class
+﻿using System.ComponentModel;
+using Windows.UI;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media;
+
+namespace RX_Explorer.Class
 {
-    public sealed class AddressBlock
+    public sealed class AddressBlock : INotifyPropertyChanged
     {
         public string Path { get; }
+
+        public AddressBlockType BlockType { get; private set; }
+
+        public SolidColorBrush ForegroundColor
+        {
+            get
+            {
+                return foregroundColor ?? new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
+            }
+            private set
+            {
+                foregroundColor = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ForegroundColor)));
+            }
+        }
+
+        private SolidColorBrush foregroundColor;
 
         public string DisplayName
         {
@@ -13,6 +35,25 @@
         }
 
         private string InnerDisplayName;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void SetAsGrayBlock()
+        {
+            BlockType = AddressBlockType.Gray;
+            ForegroundColor = new SolidColorBrush(Colors.Gray);
+        }
+
+        public void SetAsNormalBlock()
+        {
+            BlockType = AddressBlockType.Normal;
+            ForegroundColor = null;
+        }
+
+        public void ThemeChanged(FrameworkElement element, object obj)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ForegroundColor)));
+        }
 
         public AddressBlock(string Path, string DisplayName = null)
         {
