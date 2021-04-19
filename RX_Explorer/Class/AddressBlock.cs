@@ -41,7 +41,7 @@ namespace RX_Explorer.Class
         public void SetAsGrayBlock()
         {
             BlockType = AddressBlockType.Gray;
-            ForegroundColor = new SolidColorBrush(Colors.Gray);
+            ForegroundColor = new SolidColorBrush(Colors.DarkGray);
         }
 
         public void SetAsNormalBlock()
