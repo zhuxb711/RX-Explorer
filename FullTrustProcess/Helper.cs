@@ -32,15 +32,48 @@ namespace FullTrustProcess
             }
         }
 
+        public static Task CreateSTATask(Action Executor)
+        {
+            TaskCompletionSource CompletionSource = new TaskCompletionSource();
+
+            Thread STAThread = new Thread(() =>
+            {
+                Ole32.OleInitialize();
+
+                try
+                {
+                    Executor();
+                    CompletionSource.SetResult();
+                }
+                catch (Exception ex)
+                {
+                    CompletionSource.SetException(ex);
+                }
+                finally
+                {
+                    Ole32.OleUninitialize();
+                }
+            })
+            {
+                IsBackground = true,
+                Priority = ThreadPriority.Normal
+            };
+            STAThread.SetApartmentState(ApartmentState.STA);
+            STAThread.Start();
+
+            return CompletionSource.Task;
+        }
+
         public static Task<T> CreateSTATask<T>(Func<T> Executor)
         {
             TaskCompletionSource<T> CompletionSource = new TaskCompletionSource<T>();
 
             Thread STAThread = new Thread(() =>
             {
+                Ole32.OleInitialize();
+
                 try
                 {
-                    Ole32.OleInitialize();
                     CompletionSource.SetResult(Executor());
                 }
                 catch (Exception ex)
@@ -51,7 +84,11 @@ namespace FullTrustProcess
                 {
                     Ole32.OleUninitialize();
                 }
-            });
+            })
+            {
+                IsBackground = true,
+                Priority = ThreadPriority.Normal
+            };
             STAThread.SetApartmentState(ApartmentState.STA);
             STAThread.Start();
 

@@ -2,12 +2,14 @@
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
@@ -1558,56 +1560,91 @@ namespace FullTrustProcess
                                 {
                                     try
                                     {
-                                        ProcessStartInfo StartInfo = new ProcessStartInfo
+                                        await Helper.CreateSTATask(() =>
                                         {
-                                            FileName = ExecutePath,
-                                            UseShellExecute = true,
-                                            WorkingDirectory = ExecuteWorkDirectory
-                                        };
+                                            ShowWindowCommand WindowCommand;
 
-                                        if (!string.IsNullOrWhiteSpace(ExecuteParameter))
-                                        {
-                                            StartInfo.Arguments = ExecuteParameter;
-                                        }
-
-                                        if (ExecuteCreateNoWindow)
-                                        {
-                                            StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                                        }
-                                        else
-                                        {
-                                            StartInfo.WindowStyle = (ProcessWindowStyle)Enum.Parse(typeof(ProcessWindowStyle), ExecuteWindowStyle);
-                                        }
-
-                                        if (ExecuteAuthority == "Administrator")
-                                        {
-                                            StartInfo.Verb = "runAs";
-                                        }
-
-                                        using (Process Process = new Process())
-                                        {
-                                            try
+                                            if (ExecuteCreateNoWindow)
                                             {
-                                                Process.StartInfo = StartInfo;
-                                                Process.Start();
+                                                WindowCommand = ShowWindowCommand.SW_HIDE;
                                             }
-                                            catch
+                                            else
                                             {
-                                                if (Path.GetExtension(ExecutePath).Equals(".exe", StringComparison.OrdinalIgnoreCase))
+                                                switch ((ProcessWindowStyle)Enum.Parse(typeof(ProcessWindowStyle), ExecuteWindowStyle))
                                                 {
-                                                    StartInfo.UseShellExecute = false;
-                                                    Process.StartInfo = StartInfo;
-                                                    Process.Start();
+                                                    case ProcessWindowStyle.Hidden:
+                                                        {
+                                                            WindowCommand = ShowWindowCommand.SW_HIDE;
+                                                            break;
+                                                        }
+                                                    case ProcessWindowStyle.Minimized:
+                                                        {
+                                                            WindowCommand = ShowWindowCommand.SW_SHOWMINIMIZED;
+                                                            break;
+                                                        }
+                                                    case ProcessWindowStyle.Maximized:
+                                                        {
+                                                            WindowCommand = ShowWindowCommand.SW_SHOWMAXIMIZED;
+                                                            break;
+                                                        }
+                                                    default:
+                                                        {
+                                                            WindowCommand = ShowWindowCommand.SW_NORMAL;
+                                                            break;
+                                                        }
                                                 }
                                             }
 
-                                            SetWindowsZPosition(Process);
-
-                                            if (ShouldWaitForExit)
+                                            Shell32.SHELLEXECUTEINFO ExecuteInfo = new Shell32.SHELLEXECUTEINFO
                                             {
-                                                Process.WaitForExit();
+                                                hwnd = HWND.NULL,
+                                                lpVerb = ExecuteAuthority == "Administrator" ? "runas" : "open",
+                                                cbSize = Marshal.SizeOf<Shell32.SHELLEXECUTEINFO>(),
+                                                lpFile = ExecutePath,
+                                                lpParameters = string.IsNullOrWhiteSpace(ExecuteParameter) ? null : ExecuteParameter,
+                                                lpDirectory = string.IsNullOrWhiteSpace(ExecuteWorkDirectory) ? null : ExecuteWorkDirectory,
+                                                fMask = Shell32.ShellExecuteMaskFlags.SEE_MASK_FLAG_NO_UI 
+                                                        | Shell32.ShellExecuteMaskFlags.SEE_MASK_UNICODE 
+                                                        | Shell32.ShellExecuteMaskFlags.SEE_MASK_DOENVSUBST 
+                                                        | Shell32.ShellExecuteMaskFlags.SEE_MASK_NOASYNC 
+                                                        | Shell32.ShellExecuteMaskFlags.SEE_MASK_NOCLOSEPROCESS,
+                                                nShellExecuteShow = WindowCommand,
+                                            };
+
+                                            if (Shell32.ShellExecuteEx(ref ExecuteInfo))
+                                            {
+                                                if (ExecuteInfo.hProcess != HPROCESS.NULL)
+                                                {
+                                                    IntPtr Buffer = Marshal.AllocHGlobal(Marshal.SizeOf<NtDll.PROCESS_BASIC_INFORMATION>());
+
+                                                    try
+                                                    {
+                                                        NtDll.PROCESS_BASIC_INFORMATION Info = new NtDll.PROCESS_BASIC_INFORMATION();
+
+                                                        Marshal.StructureToPtr(Info, Buffer, false);
+
+                                                        if (NtDll.NtQueryInformationProcess(ExecuteInfo.hProcess, NtDll.PROCESSINFOCLASS.ProcessBasicInformation, Buffer, Convert.ToUInt32(Marshal.SizeOf<NtDll.PROCESS_BASIC_INFORMATION>()), out _).Succeeded)
+                                                        {
+                                                            NtDll.PROCESS_BASIC_INFORMATION ResultInfo = Marshal.PtrToStructure<NtDll.PROCESS_BASIC_INFORMATION>(Buffer);
+
+                                                            using (Process OpenedProcess = Process.GetProcessById(ResultInfo.UniqueProcessId.ToInt32()))
+                                                            {
+                                                                SetWindowsZPosition(OpenedProcess);
+                                                            }
+                                                        }
+                                                    }
+                                                    finally
+                                                    {
+                                                        Marshal.FreeHGlobal(Buffer);
+                                                        Kernel32.CloseHandle(ExecuteInfo.hProcess);
+                                                    }
+                                                }
                                             }
-                                        }
+                                            else
+                                            {
+                                                throw new Win32Exception(Marshal.GetLastWin32Error());
+                                            }
+                                        });
 
                                         Value.Add("Success", string.Empty);
                                     }

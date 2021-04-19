@@ -140,6 +140,9 @@
     <PackageReference Include="Vanara.PInvoke.Msi">
       <Version>3.3.8</Version>
     </PackageReference>
+    <PackageReference Include="Vanara.PInvoke.NtDll">
+      <Version>3.3.8</Version>
+    </PackageReference>
     <PackageReference Include="Vanara.PInvoke.RstrtMgr">
       <Version>3.3.8</Version>
     </PackageReference>
