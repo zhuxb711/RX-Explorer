@@ -263,6 +263,7 @@
                                     DragOver="AddressButton_DragOver"
                                     Background="Transparent" />
                             <Button Background="Transparent"
+                                    Foreground="{x:Bind ForegroundColor, Mode=OneWay}"
                                     VerticalAlignment="Stretch"
                                     HorizontalAlignment="Stretch"
                                     VerticalContentAlignment="Center"

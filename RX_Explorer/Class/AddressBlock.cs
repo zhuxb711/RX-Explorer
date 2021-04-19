@@ -52,7 +52,14 @@ namespace RX_Explorer.Class
 
         public void ThemeChanged(FrameworkElement element, object obj)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ForegroundColor)));
+            if (BlockType == AddressBlockType.Normal)
+            {
+                ForegroundColor = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
+            }
+            else
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ForegroundColor)));
+            }
         }
 
         public AddressBlock(string Path, string DisplayName = null)
