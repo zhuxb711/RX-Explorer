@@ -15,7 +15,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return foregroundColor ?? new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
+                return foregroundColor ??= new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
             }
             private set
             {
@@ -47,7 +47,7 @@ namespace RX_Explorer.Class
         public void SetAsNormalBlock()
         {
             BlockType = AddressBlockType.Normal;
-            ForegroundColor = null;
+            ForegroundColor = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
         }
 
         public void ThemeChanged(FrameworkElement element, object obj)

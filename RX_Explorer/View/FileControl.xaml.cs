@@ -321,7 +321,7 @@ namespace RX_Explorer
 
                         string[] OriginSplit = LastPath.Split('\\', StringSplitOptions.RemoveEmptyEntries);
 
-                        List<string> IntersectList = new List<string>(Math.Max(CurrentSplit.Length, OriginSplit.Length));
+                        List<string> IntersectList = new List<string>(Math.Min(CurrentSplit.Length, OriginSplit.Length));
 
                         for (int i = 0; i < CurrentSplit.Length && i < OriginSplit.Length; i++)
                         {
