@@ -1480,7 +1480,7 @@ namespace RX_Explorer
                         TotalSize += Size;
                     }
 
-                    SizeInfo = $"  |  {TotalSize.ToFileSizeDescription()}";
+                    SizeInfo = $"  |  {TotalSize.GetFileSizeDescription()}";
                 }
 
                 if (StatusTipsSplit.Length > 0)
@@ -3084,7 +3084,7 @@ namespace RX_Explorer
                 {
                     if (e.Item is FileSystemStorageItemBase Item)
                     {
-                        await Item.LoadMorePropertyAsync().ConfigureAwait(false);
+                        await Item.LoadMorePropertiesAsync().ConfigureAwait(false);
                     }
                 });
             }

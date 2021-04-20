@@ -3056,4 +3056,7 @@ Inkorrekte Namen sind
   <data name="SettingHideProtectedSystemItems.Content" xml:space="preserve">
     <value>Geschützte Systemdateien ausblenden (empfohlen)</value>
   </data>
+  <data name="TaskList_Task_Status_Preparing" xml:space="preserve">
+    <value>Vorbereiten</value>
+  </data>
 </root>

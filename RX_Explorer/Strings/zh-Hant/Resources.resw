@@ -3056,4 +3056,7 @@
   <data name="SettingHideProtectedSystemItems.Content" xml:space="preserve">
     <value>隱藏受保護的系統文件(推薦)</value>
   </data>
+  <data name="TaskList_Task_Status_Preparing" xml:space="preserve">
+    <value>準備中</value>
+  </data>
 </root>

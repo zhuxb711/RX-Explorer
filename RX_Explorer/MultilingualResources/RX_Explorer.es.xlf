@@ -4054,6 +4054,10 @@ Las denominaciones no válidas son:
           <source>Hide protected system files (Recommended)</source>
           <target state="translated">Ocultar archivos de sistema protegidos (Recomendado)</target>
         </trans-unit>
+        <trans-unit id="TaskList_Task_Status_Preparing" translate="yes" xml:space="preserve">
+          <source>Preparing</source>
+          <target state="translated">Preparando</target>
+        </trans-unit>
       </group>
     </body>
   </file>

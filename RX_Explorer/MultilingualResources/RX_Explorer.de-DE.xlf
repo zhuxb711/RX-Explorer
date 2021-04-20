@@ -4054,6 +4054,10 @@ Inkorrekte Namen sind
           <source>Hide protected system files (Recommended)</source>
           <target state="translated">Geschützte Systemdateien ausblenden (empfohlen)</target>
         </trans-unit>
+        <trans-unit id="TaskList_Task_Status_Preparing" translate="yes" xml:space="preserve">
+          <source>Preparing</source>
+          <target state="translated">Vorbereiten</target>
+        </trans-unit>
       </group>
     </body>
   </file>

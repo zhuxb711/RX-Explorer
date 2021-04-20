@@ -3056,4 +3056,7 @@ Las denominaciones no válidas son:
   <data name="SettingHideProtectedSystemItems.Content" xml:space="preserve">
     <value>Ocultar archivos de sistema protegidos (Recomendado)</value>
   </data>
+  <data name="TaskList_Task_Status_Preparing" xml:space="preserve">
+    <value>Preparando</value>
+  </data>
 </root>

@@ -179,7 +179,7 @@ namespace RX_Explorer.View
             {
                 if (args.Item is FileSystemStorageItemBase File)
                 {
-                    await File.LoadMorePropertyAsync();
+                    await File.LoadMorePropertiesAsync();
                     args.ItemContainer.AllowFocusOnInteraction = false;
                 }
             }

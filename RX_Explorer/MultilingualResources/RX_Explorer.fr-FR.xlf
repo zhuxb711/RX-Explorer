@@ -4056,6 +4056,10 @@ Les noms non valides incluent
           <source>Hide protected system files (Recommended)</source>
           <target state="translated">Masquer les fichiers système protégés (Recommandé)</target>
         </trans-unit>
+        <trans-unit id="TaskList_Task_Status_Preparing" translate="yes" xml:space="preserve">
+          <source>Preparing</source>
+          <target state="translated">En train de préparer</target>
+        </trans-unit>
       </group>
     </body>
   </file>

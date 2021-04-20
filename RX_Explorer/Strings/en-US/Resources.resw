@@ -3161,4 +3161,7 @@ Invalid names include
   <data name="SettingHideProtectedSystemItems.Content" xml:space="preserve">
     <value>Hide protected system files (Recommended)</value>
   </data>
+  <data name="TaskList_Task_Status_Preparing" xml:space="preserve">
+    <value>Preparing</value>
+  </data>
 </root>

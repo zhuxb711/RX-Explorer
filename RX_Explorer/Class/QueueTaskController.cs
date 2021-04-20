@@ -229,7 +229,15 @@ namespace RX_Explorer.Class
             {
                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                 {
+                    Model.UpdateStatus(OperationStatus.Preparing);
+                }).AsTask().Wait();
+
+                Model.PrepareSizeDataAsync().Wait();
+
+                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                {
                     Model.UpdateStatus(OperationStatus.Processing);
+                    Model.UpdateProgress(0);
                 }).AsTask().Wait();
 
                 switch (Model)

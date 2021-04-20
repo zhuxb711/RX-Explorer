@@ -4056,6 +4056,10 @@ Invalid names include
           <source>Hide protected system files (Recommended)</source>
           <target state="translated">隐藏受保护的系统文件(推荐)</target>
         </trans-unit>
+        <trans-unit id="TaskList_Task_Status_Preparing" translate="yes" xml:space="preserve">
+          <source>Preparing</source>
+          <target state="translated">准备中</target>
+        </trans-unit>
       </group>
     </body>
   </file>

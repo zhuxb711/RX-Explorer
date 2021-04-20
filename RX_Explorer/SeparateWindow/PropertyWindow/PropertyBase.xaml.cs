@@ -920,7 +920,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             }
             else
             {
-                return $"{TotalSize.ToFileSizeDescription()} ({TotalSize:N0} {Globalization.GetString("Device_Capacity_Unit")})";
+                return $"{TotalSize.GetFileSizeDescription()} ({TotalSize:N0} {Globalization.GetString("Device_Capacity_Unit")})";
             }
         }
 

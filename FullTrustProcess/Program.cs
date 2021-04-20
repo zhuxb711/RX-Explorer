@@ -1603,10 +1603,10 @@ namespace FullTrustProcess
                                                 lpFile = ExecutePath,
                                                 lpParameters = string.IsNullOrWhiteSpace(ExecuteParameter) ? null : ExecuteParameter,
                                                 lpDirectory = string.IsNullOrWhiteSpace(ExecuteWorkDirectory) ? null : ExecuteWorkDirectory,
-                                                fMask = Shell32.ShellExecuteMaskFlags.SEE_MASK_FLAG_NO_UI 
-                                                        | Shell32.ShellExecuteMaskFlags.SEE_MASK_UNICODE 
-                                                        | Shell32.ShellExecuteMaskFlags.SEE_MASK_DOENVSUBST 
-                                                        | Shell32.ShellExecuteMaskFlags.SEE_MASK_NOASYNC 
+                                                fMask = Shell32.ShellExecuteMaskFlags.SEE_MASK_FLAG_NO_UI
+                                                        | Shell32.ShellExecuteMaskFlags.SEE_MASK_UNICODE
+                                                        | Shell32.ShellExecuteMaskFlags.SEE_MASK_DOENVSUBST
+                                                        | Shell32.ShellExecuteMaskFlags.SEE_MASK_NOASYNC
                                                         | Shell32.ShellExecuteMaskFlags.SEE_MASK_NOCLOSEPROCESS,
                                                 nShellExecuteShow = WindowCommand,
                                             };
@@ -1638,6 +1638,55 @@ namespace FullTrustProcess
                                                         Marshal.FreeHGlobal(Buffer);
                                                         Kernel32.CloseHandle(ExecuteInfo.hProcess);
                                                     }
+                                                }
+                                            }
+                                            else if (Path.GetExtension(ExecutePath).Equals(".exe", StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                Kernel32.CREATE_PROCESS CreationFlag = Kernel32.CREATE_PROCESS.NORMAL_PRIORITY_CLASS | Kernel32.CREATE_PROCESS.CREATE_UNICODE_ENVIRONMENT;
+
+                                                if (ExecuteCreateNoWindow)
+                                                {
+                                                    CreationFlag |= Kernel32.CREATE_PROCESS.CREATE_NO_WINDOW;
+                                                }
+
+                                                Kernel32.STARTUPINFO SInfo = new Kernel32.STARTUPINFO
+                                                {
+                                                    cb = Convert.ToUInt32(Marshal.SizeOf<Kernel32.STARTUPINFO>()),
+                                                    ShowWindowCommand = WindowCommand,
+                                                    dwFlags = Kernel32.STARTF.STARTF_USESHOWWINDOW,
+                                                };
+
+                                                if (Kernel32.CreateProcess(lpCommandLine: new StringBuilder($"\"{ExecutePath}\" {(string.IsNullOrWhiteSpace(ExecuteParameter) ? string.Empty : ExecuteParameter)}"),
+                                                                           bInheritHandles: false,
+                                                                           dwCreationFlags: CreationFlag,
+                                                                           lpCurrentDirectory: string.IsNullOrWhiteSpace(ExecuteWorkDirectory) ? null : ExecuteWorkDirectory,
+                                                                           lpStartupInfo: SInfo,
+                                                                           lpProcessInformation: out Kernel32.SafePROCESS_INFORMATION PInfo))
+
+                                                {
+                                                    try
+                                                    {
+                                                        using (Process OpenedProcess = Process.GetProcessById(Convert.ToInt32(PInfo.dwProcessId)))
+                                                        {
+                                                            SetWindowsZPosition(OpenedProcess);
+                                                        }
+                                                    }
+                                                    finally
+                                                    {
+                                                        if (!PInfo.hProcess.IsInvalid && !PInfo.hProcess.IsNull)
+                                                        {
+                                                            PInfo.hProcess.Dispose();
+                                                        }
+
+                                                        if (!PInfo.hThread.IsInvalid && !PInfo.hThread.IsNull)
+                                                        {
+                                                            PInfo.hThread.Dispose();
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    throw new Win32Exception(Marshal.GetLastWin32Error());
                                                 }
                                             }
                                             else

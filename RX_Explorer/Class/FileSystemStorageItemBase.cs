@@ -405,7 +405,7 @@ namespace RX_Explorer.Class
             OnPropertyChanged(nameof(ThumbnailOpacity));
         }
 
-        public async Task LoadMorePropertyAsync()
+        public async Task LoadMorePropertiesAsync()
         {
             if ((this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.FileAndFolder)
             {
@@ -425,7 +425,7 @@ namespace RX_Explorer.Class
                         }
                         catch (Exception ex)
                         {
-                            LogTracer.Log(ex, $"An exception was threw in {nameof(LoadMorePropertyAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
+                            LogTracer.Log(ex, $"An exception was threw in {nameof(LoadMorePropertiesAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
                         }
                     });
                 }

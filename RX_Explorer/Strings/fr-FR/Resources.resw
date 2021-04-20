@@ -3056,4 +3056,7 @@ Les noms non valides incluent
   <data name="SettingHideProtectedSystemItems.Content" xml:space="preserve">
     <value>Masquer les fichiers système protégés (Recommandé)</value>
   </data>
+  <data name="TaskList_Task_Status_Preparing" xml:space="preserve">
+    <value>En train de préparer</value>
+  </data>
 </root>

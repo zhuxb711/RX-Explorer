@@ -128,7 +128,7 @@ namespace RX_Explorer.Class
                 if (PropertiesRetrieve.TryGetValue("System.Capacity", out object TotalByteRaw) && TotalByteRaw is ulong TotalByte)
                 {
                     this.TotalByte = TotalByte;
-                    Capacity = TotalByte.ToFileSizeDescription();
+                    Capacity = TotalByte.GetFileSizeDescription();
                 }
                 else
                 {
@@ -138,7 +138,7 @@ namespace RX_Explorer.Class
                 if (PropertiesRetrieve.TryGetValue("System.FreeSpace", out object FreeByteRaw) && FreeByteRaw is ulong FreeByte)
                 {
                     this.FreeByte = FreeByte;
-                    FreeSpace = FreeByte.ToFileSizeDescription();
+                    FreeSpace = FreeByte.GetFileSizeDescription();
                 }
                 else
                 {
