@@ -2,11 +2,15 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
+using Windows.UI;
 using Windows.UI.Core;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
@@ -49,6 +53,51 @@ namespace RX_Explorer.Class
             get
             {
                 return Type;
+            }
+        }
+        public bool Colorful { get; private set; }
+
+        public SolidColorBrush ForegroundColor
+        {
+            get
+            {
+                return foregroundColor ??= new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
+            }
+            private set
+            {
+                foregroundColor = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ForegroundColor)));
+            }
+        }
+
+        private SolidColorBrush foregroundColor;
+
+       
+
+        public void SetForeGroundColor(Color color)
+        {
+
+             
+            Colorful = true;
+            ForegroundColor = new SolidColorBrush(color);
+            
+        }
+
+        public void SetNormalForeGroundColor()
+        {
+            Colorful = false;
+            ForegroundColor = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
+        }
+
+        public void ThemeChanged(FrameworkElement element, object obj)
+        {
+            if (!Colorful)
+            {
+                ForegroundColor = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
+            }
+            else
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ForegroundColor)));
             }
         }
 
@@ -357,11 +406,24 @@ namespace RX_Explorer.Class
         protected FileSystemStorageItemBase(IStorageItem Item)
         {
             Path = Item.Path;
+            if (FilePresenter.GlobalFileColor.ContainsKey(Path))
+            {
+                SetForeGroundColor(Microsoft.Toolkit.Uwp.Helpers.ColorHelper.ToColor(FilePresenter.GlobalFileColor[Path]));
+                
+            }
         }
 
         protected FileSystemStorageItemBase(string Path, WIN_Native_API.WIN32_FIND_DATA Data)
         {
             this.Path = Path;
+            if (FilePresenter.GlobalFileColor.ContainsKey(Path))
+            {
+                try { 
+                    
+                SetForeGroundColor(Microsoft.Toolkit.Uwp.Helpers.ColorHelper.ToColor(FilePresenter.GlobalFileColor[Path]));
+                }
+                catch { };
+            }
 
             IsReadOnly = ((System.IO.FileAttributes)Data.dwFileAttributes).HasFlag(System.IO.FileAttributes.ReadOnly);
             IsSystemItem = IsReadOnly = ((System.IO.FileAttributes)Data.dwFileAttributes).HasFlag(System.IO.FileAttributes.System);

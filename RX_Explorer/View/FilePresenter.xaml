@@ -46,7 +46,8 @@
                           x:Uid="FileRename"
                           ToolTipService.ToolTip="重命名"
                           Click="Rename_Click" />
-            <muxc:CommandBarFlyout.SecondaryCommands>
+            
+            <muxc:CommandBarFlyout.SecondaryCommands >
                 <AppBarButton Icon="OpenFile"
                               Label="打开"
                               MinWidth="250"
@@ -77,27 +78,72 @@
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
 
-        <muxc:CommandBarFlyout x:Name="FileFlyout"
+        <muxc:CommandBarFlyout x:Name="FileFlyout" Closed="FileFlyout_Closed" 
                                Placement="RightEdgeAlignedTop">
-            <AppBarButton Icon="Copy"
+            <AppBarButton Icon="Copy" 
                           ToolTipService.ToolTip="复制"
+                          Visibility="{x:Bind StandAppBar , Mode=OneWay}"
                           Name="Copy"
                           x:Uid="FileCopy"
                           Click="Copy_Click" />
             <AppBarButton Icon="Cut"
                           ToolTipService.ToolTip="剪切"
+                           Visibility="{x:Bind StandAppBar , Mode=OneWay}"
                           x:Uid="FileCut"
                           Click="Cut_Click"
                           Name="Cut" />
             <AppBarButton Icon="Delete"
                           ToolTipService.ToolTip="删除"
+                           Visibility="{x:Bind StandAppBar , Mode=OneWay}"
                           x:Uid="FileDelete"
                           x:Name="DeleteButton"
                           Click="Delete_Click" />
             <AppBarButton Icon="Rename"
                           ToolTipService.ToolTip="重命名"
+                           Visibility="{x:Bind StandAppBar , Mode=OneWay}"
                           x:Uid="FileRename"
+                           x:Name="FileRename"
                           Click="Rename_Click" />
+            <AppBarButton Icon="Like"
+                          ToolTipService.ToolTip="Tag"
+                           Visibility="{x:Bind StandAppBar , Mode=OneWay}"
+                          x:Uid="ColorTag"
+                          x:Name="ColorTag"
+                          PointerEntered="AppBarButton_Click"
+                          
+                           />
+            <AppBarButton Icon="Dislike" 
+                          ToolTipService.ToolTip="UnTag"
+                           Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
+                          Name="UnTag"
+                          
+                          Click="UnTag_Click" />
+            <AppBarButton Icon="Like"  Foreground="Orange"
+                          ToolTipService.ToolTip="Orange"
+                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
+                          Click="Color_Click"
+                          Name="Red" />
+            <AppBarButton Icon="Like"  Foreground="GreenYellow"
+                          ToolTipService.ToolTip="Green"
+                          
+                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
+                          x:Name="Green"
+                          Click="Color_Click" />
+            <AppBarButton Icon="Like"  Foreground="Yellow"
+                          ToolTipService.ToolTip="Yellow"
+                            x:Name="MixYellow"
+                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
+                          Click="Color_Click" />
+            <AppBarButton Icon="Like" Foreground="#409EFE"
+                          ToolTipService.ToolTip="Blue"
+                          x:Name="Blue"
+                           Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
+                          Click="Color_Click" />
+            <AppBarButton Icon="Back"  
+                          ToolTipService.ToolTip="Back"
+                          x:Name="Back"
+                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
+                          PointerEntered="Back_Click" />
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="OpenFile"
                               Label="打开"
@@ -281,20 +327,63 @@
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
 
-        <muxc:CommandBarFlyout x:Name="MixedFlyout"
+        <muxc:CommandBarFlyout x:Name="MixedFlyout" Closed="FileFlyout_Closed"
                                Placement="RightEdgeAlignedTop">
             <AppBarButton Icon="Copy"
                           ToolTipService.ToolTip="复制"
+                          Visibility="{x:Bind StandAppBar , Mode=OneWay}"
                           x:Uid="FileCopy"
                           Click="Copy_Click" />
             <AppBarButton Icon="Cut"
                           ToolTipService.ToolTip="剪切"
+                          Visibility="{x:Bind StandAppBar , Mode=OneWay}"
                           x:Uid="FileCut"
                           Click="Cut_Click" />
             <AppBarButton Icon="Delete"
                           ToolTipService.ToolTip="删除"
+                          Visibility="{x:Bind StandAppBar , Mode=OneWay}"
                           x:Uid="FileDelete"
                           Click="Delete_Click" />
+            <AppBarButton Icon="Like"
+                          ToolTipService.ToolTip="Tag"
+                           Visibility="{x:Bind StandAppBar , Mode=OneWay}"
+                          x:Uid="ColorTag"
+                          x:Name="MixColorTag"
+                          PointerEntered="AppBarButton_Click"
+                          
+                           />
+            <AppBarButton Icon="Dislike" 
+                          ToolTipService.ToolTip="UnTag"
+                           Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
+                          Name="MixUnTag"
+                          
+                          Click="MixUnTag_Click" />
+            <AppBarButton Icon="Like"  Foreground="Orange"
+                          ToolTipService.ToolTip="Orange"
+                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
+                          Click="MixColor_Click"
+                          Name="MixOrange" />
+            <AppBarButton Icon="Like"  Foreground="GreenYellow"
+                          ToolTipService.ToolTip="Green"
+                          
+                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
+                          x:Name="MixGreen"
+                          Click="MixColor_Click" />
+            <AppBarButton Icon="Like"  Foreground="Yellow"
+                          ToolTipService.ToolTip="Yellow"
+                            x:Name="Yellow"
+                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
+                          Click="MixColor_Click" />
+            <AppBarButton Icon="Like" Foreground="#409EFE"
+                          ToolTipService.ToolTip="Blue"
+                          x:Name="MixBlue"
+                           Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
+                          Click="MixColor_Click" />
+            <AppBarButton Icon="Back"  
+                          ToolTipService.ToolTip="Back"
+                          x:Name="MixBack"
+                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
+                          PointerEntered="Back_Click" />
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton x:Name="MixCompression"
                               MinWidth="250"
@@ -318,24 +407,68 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="FolderFlyout"
-                               Placement="RightEdgeAlignedTop">
+                               Placement="RightEdgeAlignedTop" Closed="FileFlyout_Closed">
             <AppBarButton Icon="Copy"
                           ToolTipService.ToolTip="复制"
+                           Visibility="{x:Bind StandAppBar , Mode=OneWay}"
                           x:Uid="FileCopy"
                           Click="Copy_Click" />
             <AppBarButton Icon="Cut"
                           ToolTipService.ToolTip="剪切"
+                           Visibility="{x:Bind StandAppBar , Mode=OneWay}"
                           x:Uid="FileCut"
                           Click="Cut_Click" />
             <AppBarButton Icon="Delete"
                           ToolTipService.ToolTip="删除"
+                           Visibility="{x:Bind StandAppBar , Mode=OneWay}"
                           x:Uid="FileDelete"
                           Click="Delete_Click" />
             <AppBarButton Icon="Rename"
                           ToolTipService.ToolTip="重命名"
+                           Visibility="{x:Bind StandAppBar , Mode=OneWay}"
                           x:Uid="FolderRename"
                           x:Name="FolderRename"
                           Click="Rename_Click" />
+            <AppBarButton Icon="Like"
+                          ToolTipService.ToolTip="Tag"
+                           Visibility="{x:Bind StandAppBar , Mode=OneWay}"
+                          x:Uid="ColorTag"
+                          x:Name="FolderColorTag"
+                          PointerEntered="AppBarButton_Click"
+                          
+                           />
+            <AppBarButton Icon="Dislike" 
+                          ToolTipService.ToolTip="UnTag"
+                          
+                          Name="FolderUnTag"
+                         Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
+                          Click="UnTag_Click" />
+            <AppBarButton Icon="Like"  Foreground="Orange"
+                          ToolTipService.ToolTip="Orange"
+                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
+                          Click="Color_Click"
+                          Name="FolderOrange" />
+            <AppBarButton Icon="Like"  Foreground="GreenYellow"
+                          ToolTipService.ToolTip="Green"
+                          
+                         Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
+                          x:Name="FolderGreen"
+                          Click="Color_Click" />
+            <AppBarButton Icon="Like"  Foreground="Yellow"
+                          ToolTipService.ToolTip="Yellow"
+                            x:Name="FolderYellow"
+                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
+                          Click="Color_Click" />
+            <AppBarButton Icon="Like" Foreground="#409EFE"
+                          ToolTipService.ToolTip="Blue"
+                          x:Name="FolderBlue"
+                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
+                          Click="Color_Click" />
+            <AppBarButton Icon="Back"  
+                          ToolTipService.ToolTip="Back"
+                          x:Name="FolderBack"
+                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
+                          PointerEntered="Back_Click" />
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow"
                               MinWidth="250"
@@ -727,7 +860,7 @@
                        Width="30"
                        x:Phase="1"
                        PointerPressed="GetFocus_PointerPressed" />
-                <TextBlock VerticalAlignment="Center"
+                <TextBlock VerticalAlignment="Center" 
                            HorizontalAlignment="Left"
                            FontSize="14"
                            Text="{x:Bind Name,Mode=OneWay}"
@@ -785,11 +918,12 @@
                            Width="30"
                            x:Phase="1"
                            PointerPressed="GetFocus_PointerPressed" />
-                    <TextBlock VerticalAlignment="Center"
+                    <TextBlock VerticalAlignment="Center"  ActualThemeChanged="{x:Bind ThemeChanged}"
                                HorizontalAlignment="Left"
                                FontSize="14"
                                Grid.Column="1"
                                x:Phase="0"
+                               Foreground="{x:Bind ForegroundColor, Mode=OneWay}"
                                Text="{x:Bind Name, Mode=OneWay}"
                                ToolTipService.ToolTip="{x:Bind Name, Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                                TextTrimming="CharacterEllipsis"
