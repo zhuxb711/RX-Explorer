@@ -104,41 +104,68 @@
                           x:Uid="FileRename"
                            x:Name="FileRename"
                           Click="Rename_Click" />
-            <AppBarButton Icon="Like"
+            <AppBarButton  
                           ToolTipService.ToolTip="Tag"
                            Visibility="{x:Bind StandAppBar , Mode=OneWay}"
                           x:Uid="ColorTag"
                           x:Name="ColorTag"
-                          PointerEntered="AppBarButton_Click"
-                          
-                           />
-            <AppBarButton Icon="Dislike" 
+                          PointerEntered="AppBarButton_Click">
+                <AppBarButton.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xEB52;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarButton  
                           ToolTipService.ToolTip="UnTag"
                            Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
                           Name="UnTag"
-                          
-                          Click="UnTag_Click" />
-            <AppBarButton Icon="Like"  Foreground="Orange"
+                          Click="UnTag_Click" >
+                <AppBarButton.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xEB51;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarButton    Foreground="Orange"
                           ToolTipService.ToolTip="Orange"
                           Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
                           Click="Color_Click"
-                          Name="Red" />
-            <AppBarButton Icon="Like"  Foreground="GreenYellow"
+                          Name="Orange"  >
+                <AppBarButton.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xEB51;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarButton   Foreground="GreenYellow"
                           ToolTipService.ToolTip="Green"
                           
                           Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
                           x:Name="Green"
-                          Click="Color_Click" />
-            <AppBarButton Icon="Like"  Foreground="Yellow"
+                          Click="Color_Click" >
+                <AppBarButton.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xEB51;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarButton    Foreground="Yellow"
                           ToolTipService.ToolTip="Yellow"
                             x:Name="MixYellow"
                           Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          Click="Color_Click" />
-            <AppBarButton Icon="Like" Foreground="#409EFE"
+                          Click="Color_Click" >
+                <AppBarButton.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xEB51;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarButton   Foreground="#409EFE"
                           ToolTipService.ToolTip="Blue"
                           x:Name="Blue"
                            Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          Click="Color_Click" />
+                          Click="Color_Click" >
+                <AppBarButton.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xEB51;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
             <AppBarButton Icon="Back"  
                           ToolTipService.ToolTip="Back"
                           x:Name="Back"
@@ -344,41 +371,69 @@
                           Visibility="{x:Bind StandAppBar , Mode=OneWay}"
                           x:Uid="FileDelete"
                           Click="Delete_Click" />
-            <AppBarButton Icon="Like"
+            <AppBarButton  
                           ToolTipService.ToolTip="Tag"
                            Visibility="{x:Bind StandAppBar , Mode=OneWay}"
                           x:Uid="ColorTag"
                           x:Name="MixColorTag"
-                          PointerEntered="AppBarButton_Click"
-                          
-                           />
-            <AppBarButton Icon="Dislike" 
+                          PointerEntered="AppBarButton_Click"  >
+                <AppBarButton.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xEB52;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarButton  
                           ToolTipService.ToolTip="UnTag"
                            Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
                           Name="MixUnTag"
                           
-                          Click="MixUnTag_Click" />
-            <AppBarButton Icon="Like"  Foreground="Orange"
+                          Click="MixUnTag_Click" >
+                <AppBarButton.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xEB51;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarButton   Foreground="Orange"
                           ToolTipService.ToolTip="Orange"
                           Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
                           Click="MixColor_Click"
-                          Name="MixOrange" />
-            <AppBarButton Icon="Like"  Foreground="GreenYellow"
+                          Name="MixOrange" >
+                <AppBarButton.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xEB51;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarButton   Foreground="GreenYellow"
                           ToolTipService.ToolTip="Green"
                           
                           Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
                           x:Name="MixGreen"
-                          Click="MixColor_Click" />
-            <AppBarButton Icon="Like"  Foreground="Yellow"
+                          Click="MixColor_Click" >
+                <AppBarButton.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xEB51;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarButton   Foreground="Yellow"
                           ToolTipService.ToolTip="Yellow"
                             x:Name="Yellow"
                           Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          Click="MixColor_Click" />
-            <AppBarButton Icon="Like" Foreground="#409EFE"
+                          Click="MixColor_Click" >
+                <AppBarButton.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xEB51;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarButton   Foreground="#409EFE"
                           ToolTipService.ToolTip="Blue"
                           x:Name="MixBlue"
                            Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          Click="MixColor_Click" />
+                          Click="MixColor_Click" >
+                <AppBarButton.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xEB51;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
             <AppBarButton Icon="Back"  
                           ToolTipService.ToolTip="Back"
                           x:Name="MixBack"
@@ -429,41 +484,69 @@
                           x:Uid="FolderRename"
                           x:Name="FolderRename"
                           Click="Rename_Click" />
-            <AppBarButton Icon="Like"
+            <AppBarButton  
                           ToolTipService.ToolTip="Tag"
                            Visibility="{x:Bind StandAppBar , Mode=OneWay}"
                           x:Uid="ColorTag"
                           x:Name="FolderColorTag"
-                          PointerEntered="AppBarButton_Click"
-                          
-                           />
-            <AppBarButton Icon="Dislike" 
+                          PointerEntered="AppBarButton_Click" >
+                <AppBarButton.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xEB52;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarButton  
                           ToolTipService.ToolTip="UnTag"
                           
                           Name="FolderUnTag"
                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          Click="UnTag_Click" />
-            <AppBarButton Icon="Like"  Foreground="Orange"
+                          Click="UnTag_Click" >
+                <AppBarButton.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xEB51;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarButton   Foreground="Orange"
                           ToolTipService.ToolTip="Orange"
                           Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
                           Click="Color_Click"
-                          Name="FolderOrange" />
-            <AppBarButton Icon="Like"  Foreground="GreenYellow"
+                          Name="FolderOrange" >
+                <AppBarButton.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xEB51;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarButton    Foreground="GreenYellow"
                           ToolTipService.ToolTip="Green"
                           
                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
                           x:Name="FolderGreen"
-                          Click="Color_Click" />
-            <AppBarButton Icon="Like"  Foreground="Yellow"
+                          Click="Color_Click" >
+                <AppBarButton.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xEB51;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarButton    Foreground="Yellow"
                           ToolTipService.ToolTip="Yellow"
                             x:Name="FolderYellow"
                           Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          Click="Color_Click" />
-            <AppBarButton Icon="Like" Foreground="#409EFE"
+                          Click="Color_Click" >
+                <AppBarButton.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xEB51;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarButton   Foreground="#409EFE"
                           ToolTipService.ToolTip="Blue"
                           x:Name="FolderBlue"
                           Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          Click="Color_Click" />
+                          Click="Color_Click" >
+                <AppBarButton.Icon>
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xEB51;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
             <AppBarButton Icon="Back"  
                           ToolTipService.ToolTip="Back"
                           x:Name="FolderBack"
