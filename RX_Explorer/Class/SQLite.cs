@@ -491,12 +491,11 @@ namespace RX_Explorer.Class
         /// 设置文件颜色 
         /// </summary>
         /// <param name="Path">文件路径</param>
-        /// <param name="Path">颜色</param>
+        /// <param name="Color">颜色</param>
         /// <returns></returns>
-        public async Task SetFileColorAsync(string Path,string Color)
+        public async Task SetFileColorAsync(string Path, string Color)
         {
-
-            using (SqliteCommand Command = new SqliteCommand("Insert or Replace Into FileColor Values (@Path,@Color)", Connection))
+            using (SqliteCommand Command = new SqliteCommand("Insert Or Replace Into FileColor Values (@Path, @Color)", Connection))
             {
                 Command.Parameters.AddWithValue("@Path", Path);
                 Command.Parameters.AddWithValue("@Color", Color);
@@ -508,20 +507,13 @@ namespace RX_Explorer.Class
         /// 获取所有文件颜色
         /// </summary>
         /// <returns></returns>
-        public async Task<List<(string, string)>> GetFileColorAsync()
+        public async Task<string> GetFileColorAsync(string Path)
         {
-            List<(string, string)> list = new List<(string, string)>();
-
-            using (SqliteCommand Command = new SqliteCommand("Select * From FileColor", Connection))
-            using (SqliteDataReader Query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
+            using (SqliteCommand Command = new SqliteCommand("Select Color From FileColor Where Path = @Path", Connection))
             {
-                while (Query.Read())
-                {
-                    list.Add((Query[0].ToString(), Query[1].ToString()));
-                }
+                Command.Parameters.AddWithValue("@Path", Path);
+                return Convert.ToString(await Command.ExecuteScalarAsync());
             }
-
-            return list;
         }
 
         /// <summary>

@@ -3161,4 +3161,19 @@ Invalid names include
   <data name="SettingHideProtectedSystemItems.Content" xml:space="preserve">
     <value>Hide protected system files (Recommended)</value>
   </data>
+  <data name="BlueTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Blue tag</value>
+  </data>
+  <data name="GreenTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Green tag</value>
+  </data>
+  <data name="OrangeTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Orange tag</value>
+  </data>
+  <data name="UnTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Untag</value>
+  </data>
+  <data name="YellowTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Yellow tag</value>
+  </data>
 </root>

@@ -3056,4 +3056,19 @@ Las denominaciones no válidas son:
   <data name="SettingHideProtectedSystemItems.Content" xml:space="preserve">
     <value>Ocultar archivos de sistema protegidos (Recomendado)</value>
   </data>
+  <data name="BlueTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Etiqueta azul</value>
+  </data>
+  <data name="GreenTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Etiqueta verde</value>
+  </data>
+  <data name="OrangeTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Etiqueta naranja</value>
+  </data>
+  <data name="UnTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Desmarcar</value>
+  </data>
+  <data name="YellowTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Etiqueta amarilla</value>
+  </data>
 </root>

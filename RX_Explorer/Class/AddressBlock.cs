@@ -56,10 +56,6 @@ namespace RX_Explorer.Class
             {
                 ForegroundColor = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
             }
-            else
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ForegroundColor)));
-            }
         }
 
         public AddressBlock(string Path, string DisplayName = null)

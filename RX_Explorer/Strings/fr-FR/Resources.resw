@@ -3056,4 +3056,19 @@ Les noms non valides incluent
   <data name="SettingHideProtectedSystemItems.Content" xml:space="preserve">
     <value>Masquer les fichiers système protégés (Recommandé)</value>
   </data>
+  <data name="BlueTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Étiquette bleue</value>
+  </data>
+  <data name="GreenTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Étiquette verte</value>
+  </data>
+  <data name="OrangeTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Étiquette orange</value>
+  </data>
+  <data name="UnTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Détacher</value>
+  </data>
+  <data name="YellowTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Étiquette jaune</value>
+  </data>
 </root>

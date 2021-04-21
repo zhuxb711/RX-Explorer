@@ -4056,6 +4056,26 @@ Invalid names include
           <source>Hide protected system files (Recommended)</source>
           <target state="translated">隐藏受保护的系统文件(推荐)</target>
         </trans-unit>
+        <trans-unit id="BlueTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Blue tag</source>
+          <target state="translated">蓝色标记</target>
+        </trans-unit>
+        <trans-unit id="GreenTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Green tag</source>
+          <target state="translated">绿色标记</target>
+        </trans-unit>
+        <trans-unit id="OrangeTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Orange tag</source>
+          <target state="translated">橙色标记</target>
+        </trans-unit>
+        <trans-unit id="UnTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Untag</source>
+          <target state="translated">取消标记</target>
+        </trans-unit>
+        <trans-unit id="YellowTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Yellow tag</source>
+          <target state="translated">黄色标记</target>
+        </trans-unit>
       </group>
     </body>
   </file>

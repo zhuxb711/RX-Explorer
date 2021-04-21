@@ -1,4 +1,5 @@
 ﻿using ComputerVision;
+using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
@@ -10,7 +11,6 @@ using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -43,26 +43,18 @@ using Windows.UI.Xaml.Media.Imaging;
 using ZXing;
 using ZXing.QrCode;
 using ZXing.QrCode.Internal;
+using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
 using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
 namespace RX_Explorer
 {
-    public sealed partial class FilePresenter : Page, IDisposable, INotifyPropertyChanged
+    public sealed partial class FilePresenter : Page, IDisposable
     {
         public ObservableCollection<FileSystemStorageItemBase> FileCollection { get; } = new ObservableCollection<FileSystemStorageItemBase>();
 
         private readonly ListViewHeaderController ListViewDetailHeader = new ListViewHeaderController();
 
-        public static Dictionary<string, string> GlobalFileColor = new Dictionary<string, string>();
-
-        static   FilePresenter()
-        {
-            foreach ( (string,string)item in   SQLite.Current.GetFileColorAsync().Result)
-            {
-                GlobalFileColor.Add(item.Item1, item.Item2);
-            } 
-        }
         private FileControl Container
         {
             get
@@ -100,28 +92,6 @@ namespace RX_Explorer
 
                 weakToFileControl = value;
             }
-        }
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public Visibility StandAppBar { get; private set; } = Visibility.Visible;
-        public Visibility ColorAppBar { get; private set; } = Visibility.Collapsed;
-
-        public void ShowColorAppBar(bool show)
-        {
-
-            if (show)
-            {
-                StandAppBar = Visibility.Collapsed;
-                ColorAppBar = Visibility.Visible;
-            }
-            else
-            {
-                StandAppBar = Visibility.Visible;
-                ColorAppBar = Visibility.Collapsed;
-            }
-
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StandAppBar)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ColorAppBar)));
         }
 
         private SemaphoreSlim EnterLock;
@@ -4744,6 +4714,82 @@ namespace RX_Explorer
             }
         }
 
+        private async void UnTag_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            SelectedItem.SetForegroundColorAsNormal();
+            await SQLite.Current.DeleteFileColorAsync(SelectedItem.Path).ConfigureAwait(false);
+        }
+
+
+        private async void MixUnTag_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            foreach (FileSystemStorageItemBase Item in SelectedItems)
+            {
+                Item.SetForegroundColorAsNormal();
+                await SQLite.Current.DeleteFileColorAsync(Item.Path).ConfigureAwait(false);
+            }
+        }
+
+        private async void Color_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            Color ForegroundColor = ((Windows.UI.Xaml.Media.SolidColorBrush)((AppBarButton)sender).Foreground).Color;
+
+            SelectedItem.SetForegroundColorAsSpecific(ForegroundColor);
+            await SQLite.Current.SetFileColorAsync(SelectedItem.Path, ForegroundColor.ToHex()).ConfigureAwait(false);
+        }
+
+        private void ColorTag_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is FrameworkElement Element)
+            {
+                if (Element.FindParentOfType<AppBarElementContainer>() is AppBarElementContainer Container)
+                {
+                    Container.Visibility = Visibility.Collapsed;
+                }
+            }
+        }
+
+        private void CommandBarFlyout_Closed(object sender, object e)
+        {
+            if (sender is CommandBarFlyout Flyout)
+            {
+                if (Flyout.PrimaryCommands.OfType<AppBarElementContainer>().FirstOrDefault((Container) => !string.IsNullOrEmpty(Container.Name)) is AppBarElementContainer Container)
+                {
+                    Container.Visibility = Visibility.Visible;
+                }
+            }
+        }
+
+        private void ColorBarBack_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is FrameworkElement Element)
+            {
+                if (Element.FindParentOfType<AppBarElementContainer>() is AppBarElementContainer Container)
+                {
+                    Container.Visibility = Visibility.Collapsed;
+                }
+            }
+        }
+
+        private async void MixColor_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            Color ForegroundColor = ((Windows.UI.Xaml.Media.SolidColorBrush)((AppBarButton)sender).Foreground).Color;
+
+            foreach (FileSystemStorageItemBase Item in SelectedItems)
+            {
+                Item.SetForegroundColorAsSpecific(ForegroundColor);
+                await SQLite.Current.SetFileColorAsync(Item.Path, ForegroundColor.ToHex()).ConfigureAwait(false);
+            }
+        }
+
         public void Dispose()
         {
             FileCollection.Clear();
@@ -4778,73 +4824,6 @@ namespace RX_Explorer
             Application.Current.Resuming -= Current_Resuming;
             SortCollectionGenerator.SortWayChanged -= Current_SortWayChanged;
             ViewModeController.ViewModeChanged -= Current_ViewModeChanged;
-        }
-       
-
-        private void AppBarButton_Click(object sender, RoutedEventArgs e)
-        {
-            ShowColorAppBar(true);
-        }
-
-        private async void UnTag_Click(object sender, RoutedEventArgs e)
-        {
-            CloseAllFlyout();
-            SelectedItem.SetNormalForeGroundColor();
-            
-            GlobalFileColor.Remove(SelectedItem.Path);
-            await SQLite.Current.DeleteFileColorAsync(SelectedItem.Path).ConfigureAwait(false);
-        }
-
-
-        private async void MixUnTag_Click(object sender, RoutedEventArgs e)
-        {
-            CloseAllFlyout();
-            foreach (var item in SelectedItems)
-            {
-                item.SetNormalForeGroundColor();
-
-                GlobalFileColor.Remove(item.Path);
-                await SQLite.Current.DeleteFileColorAsync(item.Path).ConfigureAwait(false);
-            }
-            
-        }
-
-
-        private async void Color_Click(object sender, RoutedEventArgs e)
-        {
-            CloseAllFlyout();
-            Color color = ((Windows.UI.Xaml.Media.SolidColorBrush)((AppBarButton)sender).Foreground).Color;
-            SelectedItem.SetForeGroundColor(color);
-             
-            GlobalFileColor.TryAdd(SelectedItem.Path, color.ToString());
-            await SQLite.Current.SetFileColorAsync(SelectedItem.Path, color.ToString()).ConfigureAwait(false);
-            
-        }
-
-
-        private void FileFlyout_Closed(object sender, object e)
-        {
-            ShowColorAppBar(false);
-        }
-
-        private void Back_Click(object sender, RoutedEventArgs e)
-        {
-            ShowColorAppBar(false);
-        }
-
-        private async void MixColor_Click(object sender, RoutedEventArgs e)
-        {
-            CloseAllFlyout();
-            Color color = ((Windows.UI.Xaml.Media.SolidColorBrush)((AppBarButton)sender).Foreground).Color;
-            foreach (var item in SelectedItems)
-            {
-                item.SetForeGroundColor(color);
-                GlobalFileColor.TryAdd(item.Path, color.ToString());
-                await SQLite.Current.SetFileColorAsync(item.Path, color.ToString()).ConfigureAwait(false);
-            }
-           
-
-           
         }
     }
 }

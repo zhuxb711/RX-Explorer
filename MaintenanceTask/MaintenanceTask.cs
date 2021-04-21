@@ -58,6 +58,16 @@ namespace MaintenanceTask
                                     ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "使用RX文件管理器打開";
                                     break;
                                 }
+                            case 4:
+                                {
+                                    ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Abrir con RX-Explorer";
+                                    break;
+                                }
+                            case 5:
+                                {
+                                    ApplicationData.Current.LocalSettings.Values["GlobalizationStringForContextMenu"] = "Öffnen Sie im RX-Explorer";
+                                    break;
+                                }
                         }
                     }
                 }
@@ -145,6 +155,11 @@ namespace MaintenanceTask
                 }
 
                 using (SqliteCommand Command = new SqliteCommand("Create Table If Not Exists PathConfiguration (Path Text Not Null Collate NoCase, DisplayMode Integer Default 1 Check(DisplayMode In (0,1,2,3,4,5)), SortColumn Text Default 'Name' Check(SortColumn In ('Name','ModifiedTime','Type','Size')), SortDirection Text Default 'Ascending' Check(SortDirection In ('Ascending','Descending')), Primary Key(Path))", Connection))
+                {
+                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                }
+
+                using (SqliteCommand Command = new SqliteCommand("Create Table If Not Exists FileColor (Path Text Not Null Collate NoCase, Color Text Not Null, Primary Key (Path));", Connection))
                 {
                     await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }

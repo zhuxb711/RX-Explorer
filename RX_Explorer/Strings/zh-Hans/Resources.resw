@@ -3056,4 +3056,19 @@
   <data name="SettingHideProtectedSystemItems.Content" xml:space="preserve">
     <value>隐藏受保护的系统文件(推荐)</value>
   </data>
+  <data name="BlueTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>蓝色标记</value>
+  </data>
+  <data name="GreenTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>绿色标记</value>
+  </data>
+  <data name="OrangeTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>橙色标记</value>
+  </data>
+  <data name="UnTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>取消标记</value>
+  </data>
+  <data name="YellowTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>黄色标记</value>
+  </data>
 </root>

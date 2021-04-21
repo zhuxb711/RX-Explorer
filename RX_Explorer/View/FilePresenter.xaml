@@ -27,6 +27,7 @@
                           Subtitle="名称不能为空且不能包含无效的名称" />
 
         <Cls:EmptyTextFiliterConverter x:Key="EmptyTextFiliter" />
+        <Cls:InverseBooleanConverter x:Key="InverseConverter" />
 
         <muxc:CommandBarFlyout x:Name="LnkItemFlyout"
                                Placement="RightEdgeAlignedTop">
@@ -46,8 +47,8 @@
                           x:Uid="FileRename"
                           ToolTipService.ToolTip="重命名"
                           Click="Rename_Click" />
-            
-            <muxc:CommandBarFlyout.SecondaryCommands >
+
+            <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="OpenFile"
                               Label="打开"
                               MinWidth="250"
@@ -78,99 +79,91 @@
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
 
-        <muxc:CommandBarFlyout x:Name="FileFlyout" Closed="FileFlyout_Closed" 
+        <muxc:CommandBarFlyout x:Name="FileFlyout"
+                               Closed="CommandBarFlyout_Closed"
                                Placement="RightEdgeAlignedTop">
-            <AppBarButton Icon="Copy" 
-                          ToolTipService.ToolTip="复制"
-                          Visibility="{x:Bind StandAppBar , Mode=OneWay}"
-                          Name="Copy"
-                          x:Uid="FileCopy"
-                          Click="Copy_Click" />
-            <AppBarButton Icon="Cut"
-                          ToolTipService.ToolTip="剪切"
-                           Visibility="{x:Bind StandAppBar , Mode=OneWay}"
-                          x:Uid="FileCut"
-                          Click="Cut_Click"
-                          Name="Cut" />
-            <AppBarButton Icon="Delete"
-                          ToolTipService.ToolTip="删除"
-                           Visibility="{x:Bind StandAppBar , Mode=OneWay}"
-                          x:Uid="FileDelete"
-                          x:Name="DeleteButton"
-                          Click="Delete_Click" />
-            <AppBarButton Icon="Rename"
-                          ToolTipService.ToolTip="重命名"
-                           Visibility="{x:Bind StandAppBar , Mode=OneWay}"
-                          x:Uid="FileRename"
-                           x:Name="FileRename"
-                          Click="Rename_Click" />
-            <AppBarButton  
-                          ToolTipService.ToolTip="Tag"
-                           Visibility="{x:Bind StandAppBar , Mode=OneWay}"
-                          x:Uid="ColorTag"
-                          x:Name="ColorTag"
-                          PointerEntered="AppBarButton_Click">
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xEB52;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton  
-                          ToolTipService.ToolTip="UnTag"
-                           Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          Name="UnTag"
-                          Click="UnTag_Click" >
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xEB51;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton    Foreground="Orange"
-                          ToolTipService.ToolTip="Orange"
-                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          Click="Color_Click"
-                          Name="Orange"  >
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xEB51;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton   Foreground="GreenYellow"
-                          ToolTipService.ToolTip="Green"
-                          
-                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          x:Name="Green"
-                          Click="Color_Click" >
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xEB51;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton    Foreground="Yellow"
-                          ToolTipService.ToolTip="Yellow"
-                            x:Name="MixYellow"
-                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          Click="Color_Click" >
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xEB51;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton   Foreground="#409EFE"
-                          ToolTipService.ToolTip="Blue"
-                          x:Name="Blue"
-                           Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          Click="Color_Click" >
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xEB51;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton Icon="Back"  
-                          ToolTipService.ToolTip="Back"
-                          x:Name="Back"
-                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          PointerEntered="Back_Click" />
+            <AppBarElementContainer x:Name="FileStandardBar">
+                <StackPanel Orientation="Horizontal">
+                    <AppBarButton Icon="Copy"
+                                  ToolTipService.ToolTip="复制"
+                                  Name="Copy"
+                                  x:Uid="FileCopy"
+                                  Click="Copy_Click" />
+                    <AppBarButton Icon="Cut"
+                                  ToolTipService.ToolTip="剪切"
+                                  x:Uid="FileCut"
+                                  Click="Cut_Click"
+                                  Name="Cut" />
+                    <AppBarButton Icon="Delete"
+                                  ToolTipService.ToolTip="删除"
+                                  x:Uid="FileDelete"
+                                  x:Name="DeleteButton"
+                                  Click="Delete_Click" />
+                    <AppBarButton Icon="Rename"
+                                  ToolTipService.ToolTip="重命名"
+                                  x:Uid="FileRename"
+                                  x:Name="FileRename"
+                                  Click="Rename_Click" />
+                    <AppBarButton PointerEntered="ColorTag_PointerEntered">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEB52;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                </StackPanel>
+            </AppBarElementContainer>
+            <AppBarElementContainer Visibility="{x:Bind FileStandardBar.Visibility, Mode=TwoWay, Converter={StaticResource InverseConverter}}">
+                <StackPanel Orientation="Horizontal">
+                    <AppBarButton ToolTipService.ToolTip="取消标记"
+                                  Name="UnTag"
+                                  x:Uid="UnTag"
+                                  Click="UnTag_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEB51;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Foreground="Orange"
+                                  x:Uid="OrangeTag"
+                                  ToolTipService.ToolTip="Orange"
+                                  Click="Color_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEB51;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Foreground="GreenYellow"
+                                  x:Uid="GreenTag"
+                                  ToolTipService.ToolTip="Green"
+                                  Click="Color_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEB51;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Foreground="Yellow"
+                                  x:Uid="YellowTag"
+                                  ToolTipService.ToolTip="Yellow"
+                                  Click="Color_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEB51;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Foreground="#409EFE"
+                                  x:Uid="BlueTag"
+                                  ToolTipService.ToolTip="Blue"
+                                  Click="Color_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEB51;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Icon="Back"
+                                  ToolTipService.ToolTip="Back"
+                                  PointerEntered="ColorBarBack_Click" />
+                </StackPanel>
+            </AppBarElementContainer>
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="OpenFile"
                               Label="打开"
@@ -354,91 +347,83 @@
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
 
-        <muxc:CommandBarFlyout x:Name="MixedFlyout" Closed="FileFlyout_Closed"
+        <muxc:CommandBarFlyout x:Name="MixedFlyout"
+                               Closed="CommandBarFlyout_Closed"
                                Placement="RightEdgeAlignedTop">
-            <AppBarButton Icon="Copy"
-                          ToolTipService.ToolTip="复制"
-                          Visibility="{x:Bind StandAppBar , Mode=OneWay}"
-                          x:Uid="FileCopy"
-                          Click="Copy_Click" />
-            <AppBarButton Icon="Cut"
-                          ToolTipService.ToolTip="剪切"
-                          Visibility="{x:Bind StandAppBar , Mode=OneWay}"
-                          x:Uid="FileCut"
-                          Click="Cut_Click" />
-            <AppBarButton Icon="Delete"
-                          ToolTipService.ToolTip="删除"
-                          Visibility="{x:Bind StandAppBar , Mode=OneWay}"
-                          x:Uid="FileDelete"
-                          Click="Delete_Click" />
-            <AppBarButton  
-                          ToolTipService.ToolTip="Tag"
-                           Visibility="{x:Bind StandAppBar , Mode=OneWay}"
-                          x:Uid="ColorTag"
-                          x:Name="MixColorTag"
-                          PointerEntered="AppBarButton_Click"  >
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xEB52;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton  
-                          ToolTipService.ToolTip="UnTag"
-                           Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          Name="MixUnTag"
-                          
-                          Click="MixUnTag_Click" >
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xEB51;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton   Foreground="Orange"
-                          ToolTipService.ToolTip="Orange"
-                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          Click="MixColor_Click"
-                          Name="MixOrange" >
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xEB51;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton   Foreground="GreenYellow"
-                          ToolTipService.ToolTip="Green"
-                          
-                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          x:Name="MixGreen"
-                          Click="MixColor_Click" >
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xEB51;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton   Foreground="Yellow"
-                          ToolTipService.ToolTip="Yellow"
-                            x:Name="Yellow"
-                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          Click="MixColor_Click" >
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xEB51;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton   Foreground="#409EFE"
-                          ToolTipService.ToolTip="Blue"
-                          x:Name="MixBlue"
-                           Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          Click="MixColor_Click" >
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xEB51;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton Icon="Back"  
-                          ToolTipService.ToolTip="Back"
-                          x:Name="MixBack"
-                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          PointerEntered="Back_Click" />
+            <AppBarElementContainer x:Name="MixedStandardBar">
+                <StackPanel Orientation="Horizontal">
+                    <AppBarButton Icon="Copy"
+                                  ToolTipService.ToolTip="复制"
+                                  x:Uid="FileCopy"
+                                  Click="Copy_Click" />
+                    <AppBarButton Icon="Cut"
+                                  ToolTipService.ToolTip="剪切"
+                                  x:Uid="FileCut"
+                                  Click="Cut_Click" />
+                    <AppBarButton Icon="Delete"
+                                  ToolTipService.ToolTip="删除"
+                                  x:Uid="FileDelete"
+                                  Click="Delete_Click" />
+                    <AppBarButton PointerEntered="ColorTag_PointerEntered">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEB52;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                </StackPanel>
+            </AppBarElementContainer>
+            <AppBarElementContainer Visibility="{x:Bind MixedStandardBar.Visibility, Mode=TwoWay, Converter={StaticResource InverseConverter}}">
+                <StackPanel Orientation="Horizontal">
+                    <AppBarButton ToolTipService.ToolTip="取消标记"
+                                  x:Uid="UnTag"
+                                  Name="MixUnTag"
+                                  Click="MixUnTag_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEB51;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Foreground="Orange"
+                                  x:Uid="OrangeTag"
+                                  ToolTipService.ToolTip="Orange"
+                                  Click="MixColor_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEB51;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Foreground="GreenYellow"
+                                  x:Uid="GreenTag"
+                                  ToolTipService.ToolTip="Green"
+                                  Click="MixColor_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEB51;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Foreground="Yellow"
+                                  x:Uid="YellowTag"
+                                  ToolTipService.ToolTip="Yellow"
+                                  Click="MixColor_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEB51;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Foreground="#409EFE"
+                                  x:Uid="BlueTag"
+                                  ToolTipService.ToolTip="Blue"
+                                  Click="MixColor_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEB51;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Icon="Back"
+                                  ToolTipService.ToolTip="Back"
+                                  PointerEntered="ColorBarBack_Click" />
+                </StackPanel>
+            </AppBarElementContainer>
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton x:Name="MixCompression"
                               MinWidth="250"
@@ -462,96 +447,86 @@
         </muxc:CommandBarFlyout>
 
         <muxc:CommandBarFlyout x:Name="FolderFlyout"
-                               Placement="RightEdgeAlignedTop" Closed="FileFlyout_Closed">
-            <AppBarButton Icon="Copy"
-                          ToolTipService.ToolTip="复制"
-                           Visibility="{x:Bind StandAppBar , Mode=OneWay}"
-                          x:Uid="FileCopy"
-                          Click="Copy_Click" />
-            <AppBarButton Icon="Cut"
-                          ToolTipService.ToolTip="剪切"
-                           Visibility="{x:Bind StandAppBar , Mode=OneWay}"
-                          x:Uid="FileCut"
-                          Click="Cut_Click" />
-            <AppBarButton Icon="Delete"
-                          ToolTipService.ToolTip="删除"
-                           Visibility="{x:Bind StandAppBar , Mode=OneWay}"
-                          x:Uid="FileDelete"
-                          Click="Delete_Click" />
-            <AppBarButton Icon="Rename"
-                          ToolTipService.ToolTip="重命名"
-                           Visibility="{x:Bind StandAppBar , Mode=OneWay}"
-                          x:Uid="FolderRename"
-                          x:Name="FolderRename"
-                          Click="Rename_Click" />
-            <AppBarButton  
-                          ToolTipService.ToolTip="Tag"
-                           Visibility="{x:Bind StandAppBar , Mode=OneWay}"
-                          x:Uid="ColorTag"
-                          x:Name="FolderColorTag"
-                          PointerEntered="AppBarButton_Click" >
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xEB52;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton  
-                          ToolTipService.ToolTip="UnTag"
-                          
-                          Name="FolderUnTag"
-                         Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          Click="UnTag_Click" >
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xEB51;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton   Foreground="Orange"
-                          ToolTipService.ToolTip="Orange"
-                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          Click="Color_Click"
-                          Name="FolderOrange" >
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xEB51;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton    Foreground="GreenYellow"
-                          ToolTipService.ToolTip="Green"
-                          
-                         Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          x:Name="FolderGreen"
-                          Click="Color_Click" >
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xEB51;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton    Foreground="Yellow"
-                          ToolTipService.ToolTip="Yellow"
-                            x:Name="FolderYellow"
-                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          Click="Color_Click" >
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xEB51;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton   Foreground="#409EFE"
-                          ToolTipService.ToolTip="Blue"
-                          x:Name="FolderBlue"
-                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          Click="Color_Click" >
-                <AppBarButton.Icon>
-                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                  Glyph="&#xEB51;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton Icon="Back"  
-                          ToolTipService.ToolTip="Back"
-                          x:Name="FolderBack"
-                          Visibility="{x:Bind ColorAppBar , Mode=OneWay}"
-                          PointerEntered="Back_Click" />
+                               Placement="RightEdgeAlignedTop"
+                               Closed="CommandBarFlyout_Closed">
+            <AppBarElementContainer x:Name="FolderStandardBar">
+                <StackPanel Orientation="Horizontal">
+                    <AppBarButton Icon="Copy"
+                                  ToolTipService.ToolTip="复制"
+                                  x:Uid="FileCopy"
+                                  Click="Copy_Click" />
+                    <AppBarButton Icon="Cut"
+                                  ToolTipService.ToolTip="剪切"
+                                  x:Uid="FileCut"
+                                  Click="Cut_Click" />
+                    <AppBarButton Icon="Delete"
+                                  ToolTipService.ToolTip="删除"
+                                  x:Uid="FileDelete"
+                                  Click="Delete_Click" />
+                    <AppBarButton Icon="Rename"
+                                  ToolTipService.ToolTip="重命名"
+                                  x:Uid="FolderRename"
+                                  x:Name="FolderRename"
+                                  Click="Rename_Click" />
+                    <AppBarButton PointerEntered="ColorTag_PointerEntered">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEB52;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                </StackPanel>
+            </AppBarElementContainer>
+            <AppBarElementContainer Visibility="{x:Bind FolderStandardBar.Visibility, Mode=TwoWay, Converter={StaticResource InverseConverter}}">
+                <StackPanel Orientation="Horizontal">
+                    <AppBarButton ToolTipService.ToolTip="取消标记"
+                                  x:Uid="UnTag"
+                                  Click="UnTag_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEB51;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Foreground="Orange"
+                                  x:Uid="OrangeTag"
+                                  ToolTipService.ToolTip="Orange"
+                                  Click="Color_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEB51;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Foreground="GreenYellow"
+                                  x:Uid="GreenTag"
+                                  ToolTipService.ToolTip="Green"
+                                  Click="Color_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEB51;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Foreground="Yellow"
+                                  x:Uid="YellowTag"
+                                  ToolTipService.ToolTip="Yellow"
+                                  Click="Color_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEB51;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Foreground="#409EFE"
+                                  x:Uid="BlueTag"
+                                  ToolTipService.ToolTip="Blue"
+                                  Click="Color_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEB51;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Icon="Back"
+                                  ToolTipService.ToolTip="Back"
+                                  PointerEntered="ColorBarBack_Click" />
+                </StackPanel>
+            </AppBarElementContainer>
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow"
                               MinWidth="250"
@@ -782,7 +757,7 @@
                                  IsSpellCheckEnabled="False"
                                  IsReadOnly="True"
                                  Header="复制此链接至浏览器即可下载"
-                                 GotFocus="QRText_GotFocus"/>
+                                 GotFocus="QRText_GotFocus" />
                         <Button VerticalAlignment="Bottom"
                                 RelativePanel.AlignRightWithPanel="True"
                                 RelativePanel.AlignBottomWithPanel="True"
@@ -805,6 +780,7 @@
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
             <StackPanel Orientation="Horizontal"
+                        ActualThemeChanged="{x:Bind ThemeChanged}"
                         Padding="5"
                         Width="220">
                 <Image VerticalAlignment="Center"
@@ -819,6 +795,7 @@
                             Margin="5,0,0,0">
                     <TextBlock Text="{x:Bind Name,Mode=OneWay}"
                                ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
+                               Foreground="{x:Bind ForegroundColor, Mode=OneWay}"
                                FontSize="14"
                                MaxWidth="150"
                                x:Phase="0"
@@ -858,6 +835,7 @@
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
             <StackPanel Padding="5"
+                        ActualThemeChanged="{x:Bind ThemeChanged}"
                         Orientation="Vertical">
                 <Image HorizontalAlignment="Center"
                        Stretch="Uniform"
@@ -868,6 +846,7 @@
                        Width="240" />
                 <TextBlock Text="{x:Bind Name,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
+                           Foreground="{x:Bind ForegroundColor, Mode=OneWay}"
                            FontSize="16"
                            Width="240"
                            x:Phase="0"
@@ -882,6 +861,7 @@
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
             <StackPanel Padding="5"
+                        ActualThemeChanged="{x:Bind ThemeChanged}"
                         Orientation="Vertical">
                 <Image HorizontalAlignment="Center"
                        Stretch="Uniform"
@@ -891,6 +871,7 @@
                        Width="180"
                        x:Phase="1" />
                 <TextBlock Text="{x:Bind Name,Mode=OneWay}"
+                           Foreground="{x:Bind ForegroundColor, Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            FontSize="15"
                            Width="180"
@@ -906,6 +887,7 @@
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
             <StackPanel Padding="5"
+                        ActualThemeChanged="{x:Bind ThemeChanged}"
                         Orientation="Vertical">
                 <Image HorizontalAlignment="Center"
                        Stretch="Uniform"
@@ -915,6 +897,7 @@
                        Width="120"
                        x:Phase="1" />
                 <TextBlock Text="{x:Bind Name,Mode=OneWay}"
+                           Foreground="{x:Bind ForegroundColor, Mode=OneWay}"
                            FontSize="14"
                            ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            Width="120"
@@ -930,7 +913,8 @@
                       x:Name="GridViewListDataTemplate"
                       x:FieldModifier="public">
             <Grid Width="200"
-                  Padding="5">
+                  Padding="5"
+                  ActualThemeChanged="{x:Bind ThemeChanged}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="40" />
                     <ColumnDefinition Width="*" />
@@ -943,9 +927,10 @@
                        Width="30"
                        x:Phase="1"
                        PointerPressed="GetFocus_PointerPressed" />
-                <TextBlock VerticalAlignment="Center" 
+                <TextBlock VerticalAlignment="Center"
                            HorizontalAlignment="Left"
                            FontSize="14"
+                           Foreground="{x:Bind ForegroundColor, Mode=OneWay}"
                            Text="{x:Bind Name,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            TextTrimming="CharacterEllipsis"
@@ -978,7 +963,8 @@
 
         <DataTemplate x:DataType="Cls:FileSystemStorageItemBase"
                       x:Key="ListViewDetailContent">
-            <Grid HorizontalAlignment="Stretch">
+            <Grid HorizontalAlignment="Stretch"
+                  ActualThemeChanged="{x:Bind ThemeChanged}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="6*" />
                     <ColumnDefinition Width="2.5*" />
@@ -1001,7 +987,7 @@
                            Width="30"
                            x:Phase="1"
                            PointerPressed="GetFocus_PointerPressed" />
-                    <TextBlock VerticalAlignment="Center"  ActualThemeChanged="{x:Bind ThemeChanged}"
+                    <TextBlock VerticalAlignment="Center"
                                HorizontalAlignment="Left"
                                FontSize="14"
                                Grid.Column="1"
@@ -1612,7 +1598,7 @@
             <Rectangle Fill="{ThemeResource SystemAccentColorDark2}"
                        Stroke="{ThemeResource SystemAccentColorLight2}"
                        x:Name="DrawRectangle"
-                       Opacity="0.4"/>
+                       Opacity="0.4" />
         </Canvas>
         <StackPanel Grid.Row="1"
                     VerticalAlignment="Bottom">
@@ -1625,7 +1611,7 @@
             <Border Height="3"
                     HorizontalAlignment="Stretch"
                     x:FieldModifier="public"
-                    x:Name="FocusIndicator"/>
+                    x:Name="FocusIndicator" />
             <CommandBar IsOpen="False"
                         ClosedDisplayMode="Minimal"
                         DefaultLabelPosition="Right"

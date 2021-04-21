@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
@@ -12,6 +10,7 @@ using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
+using ColorHelper = Microsoft.Toolkit.Uwp.Helpers.ColorHelper;
 
 namespace RX_Explorer.Class
 {
@@ -55,7 +54,6 @@ namespace RX_Explorer.Class
                 return Type;
             }
         }
-        public bool Colorful { get; private set; }
 
         public SolidColorBrush ForegroundColor
         {
@@ -72,32 +70,21 @@ namespace RX_Explorer.Class
 
         private SolidColorBrush foregroundColor;
 
-       
-
-        public void SetForeGroundColor(Color color)
+        public void SetForegroundColorAsSpecific(Color Color)
         {
-
-             
-            Colorful = true;
-            ForegroundColor = new SolidColorBrush(color);
-            
+            ForegroundColor = new SolidColorBrush(Color);
         }
 
-        public void SetNormalForeGroundColor()
+        public void SetForegroundColorAsNormal()
         {
-            Colorful = false;
             ForegroundColor = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
         }
 
         public void ThemeChanged(FrameworkElement element, object obj)
         {
-            if (!Colorful)
+            if (ForegroundColor.Color == Colors.White || ForegroundColor.Color == Colors.Black)
             {
                 ForegroundColor = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
-            }
-            else
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ForegroundColor)));
             }
         }
 
@@ -406,24 +393,11 @@ namespace RX_Explorer.Class
         protected FileSystemStorageItemBase(IStorageItem Item)
         {
             Path = Item.Path;
-            if (FilePresenter.GlobalFileColor.ContainsKey(Path))
-            {
-                SetForeGroundColor(Microsoft.Toolkit.Uwp.Helpers.ColorHelper.ToColor(FilePresenter.GlobalFileColor[Path]));
-                
-            }
         }
 
         protected FileSystemStorageItemBase(string Path, WIN_Native_API.WIN32_FIND_DATA Data)
         {
             this.Path = Path;
-            if (FilePresenter.GlobalFileColor.ContainsKey(Path))
-            {
-                try { 
-                    
-                SetForeGroundColor(Microsoft.Toolkit.Uwp.Helpers.ColorHelper.ToColor(FilePresenter.GlobalFileColor[Path]));
-                }
-                catch { };
-            }
 
             IsReadOnly = ((System.IO.FileAttributes)Data.dwFileAttributes).HasFlag(System.IO.FileAttributes.ReadOnly);
             IsSystemItem = IsReadOnly = ((System.IO.FileAttributes)Data.dwFileAttributes).HasFlag(System.IO.FileAttributes.System);
@@ -469,9 +443,9 @@ namespace RX_Explorer.Class
 
         public async Task LoadMorePropertyAsync()
         {
-            if ((this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.FileAndFolder)
+            if (!CheckIfPropertiesLoaded())
             {
-                if (!CheckIfPropertiesLoaded())
+                if ((this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.FileAndFolder)
                 {
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                     {
@@ -491,6 +465,18 @@ namespace RX_Explorer.Class
                         }
                     });
                 }
+
+                await LoadForegroundConfiguration();
+            }
+        }
+
+        private async Task LoadForegroundConfiguration()
+        {
+            string ColorString = await SQLite.Current.GetFileColorAsync(Path);
+
+            if (!string.IsNullOrEmpty(ColorString))
+            {
+                SetForegroundColorAsSpecific(ColorHelper.ToColor(ColorString));
             }
         }
 

@@ -4056,6 +4056,26 @@ Les noms non valides incluent
           <source>Hide protected system files (Recommended)</source>
           <target state="translated">Masquer les fichiers système protégés (Recommandé)</target>
         </trans-unit>
+        <trans-unit id="BlueTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Blue tag</source>
+          <target state="translated">Étiquette bleue</target>
+        </trans-unit>
+        <trans-unit id="GreenTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Green tag</source>
+          <target state="translated">Étiquette verte</target>
+        </trans-unit>
+        <trans-unit id="OrangeTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Orange tag</source>
+          <target state="translated">Étiquette orange</target>
+        </trans-unit>
+        <trans-unit id="UnTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Untag</source>
+          <target state="translated">Détacher</target>
+        </trans-unit>
+        <trans-unit id="YellowTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Yellow tag</source>
+          <target state="translated">Étiquette jaune</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -3056,4 +3056,16 @@ Inkorrekte Namen sind
   <data name="SettingHideProtectedSystemItems.Content" xml:space="preserve">
     <value>Geschützte Systemdateien ausblenden (empfohlen)</value>
   </data>
+  <data name="BlueTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Blaues Etikett</value>
+  </data>
+  <data name="GreenTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Grüner Etikett</value>
+  </data>
+  <data name="OrangeTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Orange Etikett</value>
+  </data>
+  <data name="YellowTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Gelbes Etikett</value>
+  </data>
 </root>
