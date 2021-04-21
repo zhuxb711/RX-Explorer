@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.UI.Xaml;
 
 namespace RX_Explorer.Class
@@ -38,6 +39,10 @@ namespace RX_Explorer.Class
 
         public int Progress { get; private set; }
 
+        public string ProgressSpeed { get; private set; }
+
+        public string RemainingTime { get; private set; }
+
         public string StatusText
         {
             get
@@ -47,6 +52,10 @@ namespace RX_Explorer.Class
                     case OperationStatus.Waiting:
                         {
                             return $"{Globalization.GetString("TaskList_Task_Status_Waiting")}...";
+                        }
+                    case OperationStatus.Preparing:
+                        {
+                            return $"{Globalization.GetString("TaskList_Task_Status_Preparing")}...";
                         }
                     case OperationStatus.Processing:
                         {
@@ -82,6 +91,8 @@ namespace RX_Explorer.Class
 
         public Visibility CancelButtonVisibility { get; private set; } = Visibility.Collapsed;
 
+        public Visibility SpeedAndTimeVisibility { get; private set; } = Visibility.Collapsed;
+
         private OperationStatus status;
         public OperationStatus Status
         {
@@ -100,6 +111,15 @@ namespace RX_Explorer.Class
                             ProgressIndeterminate = true;
                             RemoveButtonVisibility = Visibility.Collapsed;
                             CancelButtonVisibility = Visibility.Visible;
+                            SpeedAndTimeVisibility = Visibility.Collapsed;
+                            break;
+                        }
+                    case OperationStatus.Preparing:
+                        {
+                            ProgressIndeterminate = true;
+                            RemoveButtonVisibility = Visibility.Collapsed;
+                            CancelButtonVisibility = Visibility.Collapsed;
+                            SpeedAndTimeVisibility = Visibility.Collapsed;
                             break;
                         }
                     case OperationStatus.Processing:
@@ -107,6 +127,7 @@ namespace RX_Explorer.Class
                             ProgressIndeterminate = false;
                             RemoveButtonVisibility = Visibility.Collapsed;
                             CancelButtonVisibility = Visibility.Collapsed;
+                            SpeedAndTimeVisibility = Visibility.Visible;
                             break;
                         }
                     case OperationStatus.Error:
@@ -115,6 +136,7 @@ namespace RX_Explorer.Class
                             ProgressError = true;
                             RemoveButtonVisibility = Visibility.Visible;
                             CancelButtonVisibility = Visibility.Collapsed;
+                            SpeedAndTimeVisibility = Visibility.Collapsed;
                             break;
                         }
                     case OperationStatus.Cancel:
@@ -123,12 +145,14 @@ namespace RX_Explorer.Class
                             ProgressCancel = true;
                             RemoveButtonVisibility = Visibility.Visible;
                             CancelButtonVisibility = Visibility.Collapsed;
+                            SpeedAndTimeVisibility = Visibility.Collapsed;
                             break;
                         }
                     case OperationStatus.Complete:
                         {
                             RemoveButtonVisibility = Visibility.Visible;
                             CancelButtonVisibility = Visibility.Collapsed;
+                            SpeedAndTimeVisibility = Visibility.Collapsed;
                             ProgressIndeterminate = false;
                             OnCompleted?.Invoke(this, null);
                             break;
@@ -137,6 +161,7 @@ namespace RX_Explorer.Class
 
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CancelButtonVisibility)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RemoveButtonVisibility)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SpeedAndTimeVisibility)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProgressIndeterminate)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProgressError)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProgressCancel)));
@@ -150,10 +175,46 @@ namespace RX_Explorer.Class
 
         private event EventHandler OnCompleted;
 
+        private ProgressCalculator Calculator;
+
+        public async Task PrepareSizeDataAsync()
+        {
+            ulong TotalSize = 0;
+
+            foreach (string Path in FromPath)
+            {
+                switch (await FileSystemStorageItemBase.OpenAsync(Path))
+                {
+                    case FileSystemStorageFolder Folder:
+                        {
+                            TotalSize += await Folder.GetFolderSizeAsync();
+                            break;
+                        }
+                    case FileSystemStorageFile File:
+                        {
+                            TotalSize += File.SizeRaw;
+                            break;
+                        }
+                }
+            }
+
+            Calculator = new ProgressCalculator(TotalSize);
+        }
+
         public void UpdateProgress(int NewProgress)
         {
             Progress = Math.Min(Math.Max(0, NewProgress), 100);
+
+            if (Calculator != null)
+            {
+                Calculator.SetProgressValue(NewProgress);
+                ProgressSpeed = Calculator.GetSpeed();
+                RemainingTime = Calculator.GetRemainingTime().ConvertTimsSpanToString();
+            }
+
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Progress)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ProgressSpeed)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RemainingTime)));
         }
 
         public void UpdateStatus(OperationStatus Status, string ErrorMessage = null)

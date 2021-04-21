@@ -589,7 +589,7 @@ namespace RX_Explorer
             if (LibraryGrid.SelectedItem is LibraryFolder Library)
             {
                 FileSystemStorageFolder Folder = await FileSystemStorageFolder.CreateFromExistingStorageItem(Library.Folder);
-                await Folder.LoadMorePropertyAsync();
+                await Folder.LoadMorePropertiesAsync();
 
                 AppWindow NewWindow = await AppWindow.TryCreateAsync();
                 NewWindow.RequestSize(new Size(420, 600));

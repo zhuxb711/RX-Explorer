@@ -18,6 +18,7 @@ namespace RX_Explorer.Class
     public enum OperationStatus
     {
         Waiting,
+        Preparing,
         Processing,
         Error,
         Complete,

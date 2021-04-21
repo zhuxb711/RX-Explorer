@@ -3067,5 +3067,7 @@ Inkorrekte Namen sind
   </data>
   <data name="YellowTag.ToolTipService.ToolTip" xml:space="preserve">
     <value>Gelbes Etikett</value>
+  <data name="TaskList_Task_Status_Preparing" xml:space="preserve">
+    <value>Vorbereiten</value>
   </data>
 </root>

@@ -24,7 +24,7 @@ namespace RX_Explorer.Dialog
 
             FreeSpace.Text = Device.FreeSpace;
             TotalSpace.Text = Device.Capacity;
-            UsedSpace.Text = (Device.TotalByte - Device.FreeByte).ToFileSizeDescription();
+            UsedSpace.Text = (Device.TotalByte - Device.FreeByte).GetFileSizeDescription();
 
             switch (Device.DriveType)
             {

@@ -3070,5 +3070,7 @@ Las denominaciones no válidas son:
   </data>
   <data name="YellowTag.ToolTipService.ToolTip" xml:space="preserve">
     <value>Etiqueta amarilla</value>
+  <data name="TaskList_Task_Status_Preparing" xml:space="preserve">
+    <value>Preparando</value>
   </data>
 </root>

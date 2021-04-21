@@ -40,7 +40,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return SizeRaw.ToFileSizeDescription();
+                return SizeRaw.GetFileSizeDescription();
             }
         }
 

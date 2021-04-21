@@ -178,7 +178,7 @@
                                            Visibility="{x:Bind ToPathText, Converter={StaticResource VisibilityConverter}}"
                                            ToolTipService.ToolTip="{x:Bind ToPathText}"
                                            Text="{x:Bind ToPathText}" />
-                                <RelativePanel>
+                                <RelativePanel Margin="0,5,0,0">
                                     <muxc:ProgressBar RelativePanel.AlignLeftWithPanel="True"
                                                       RelativePanel.LeftOf="ProgressText"
                                                       RelativePanel.AlignVerticalCenterWithPanel="True"
@@ -195,10 +195,22 @@
                                                RelativePanel.AlignVerticalCenterWithPanel="True"
                                                RelativePanel.AlignRightWithPanel="True" />
                                 </RelativePanel>
+                                <RelativePanel Visibility="{x:Bind SpeedAndTimeVisibility, Mode=OneWay}">
+                                    <TextBlock Text="{x:Bind ProgressSpeed, Mode=OneWay}"
+                                               TextWrapping="Wrap"
+                                               FontSize="12"
+                                               RelativePanel.AlignLeftWithPanel="True"
+                                               RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                    <TextBlock FontSize="12"
+                                               Text="{x:Bind RemainingTime, Mode=OneWay}"
+                                               RelativePanel.AlignRightWithPanel="True"
+                                               RelativePanel.AlignVerticalCenterWithPanel="True" />
+                                </RelativePanel>
                                 <TextBlock Text="{x:Bind StatusText, Mode=OneWay}"
                                            TextWrapping="Wrap"
+                                           Margin="0,5,0,0"
                                            FontSize="12"
-                                           HorizontalAlignment="Left" />
+                                           HorizontalAlignment="Left"/>
                             </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>

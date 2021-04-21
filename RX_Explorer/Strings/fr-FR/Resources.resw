@@ -3070,5 +3070,7 @@ Les noms non valides incluent
   </data>
   <data name="YellowTag.ToolTipService.ToolTip" xml:space="preserve">
     <value>Étiquette jaune</value>
+  <data name="TaskList_Task_Status_Preparing" xml:space="preserve">
+    <value>En train de préparer</value>
   </data>
 </root>

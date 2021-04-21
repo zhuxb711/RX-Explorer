@@ -44,6 +44,11 @@ namespace RX_Explorer.Class
 
         public static string ConvertTimsSpanToString(this TimeSpan Span)
         {
+            if (Span == TimeSpan.MaxValue || Span == TimeSpan.MinValue)
+            {
+                return "--:--:--";
+            }
+
             int Hour = 0;
             int Minute = 0;
             int Second = Convert.ToInt32(Span.TotalSeconds);
@@ -280,12 +285,46 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static string ToFileSizeDescription(this ulong SizeRaw)
+        public static string GetFileSizeDescription(this ulong SizeRaw)
         {
-            return SizeRaw >> 10 < 1024 ? Math.Round(SizeRaw / 1024d, 1, MidpointRounding.AwayFromZero).ToString("0.0") + " KB" :
-                   (SizeRaw >> 20 < 1024 ? Math.Round(SizeRaw / 1048576d, 1, MidpointRounding.AwayFromZero).ToString("0.0") + " MB" :
-                   (SizeRaw >> 30 < 1024 ? Math.Round(SizeRaw / 1073741824d, 1, MidpointRounding.AwayFromZero).ToString("0.0") + " GB" :
-                   Math.Round(SizeRaw / 1099511627776d, 1, MidpointRounding.AwayFromZero).ToString("0.0") + " TB"));
+            if (SizeRaw > 0)
+            {
+                switch ((short)Math.Log(SizeRaw, 1024))
+                {
+                    case 0:
+                        {
+                            return $"{SizeRaw} B";
+                        }
+                    case 1:
+                        {
+                            return $"{SizeRaw / 1024d:##.##} KB";
+                        }
+                    case 2:
+                        {
+                            return $"{SizeRaw / 1048576d:##.##} MB";
+                        }
+                    case 3:
+                        {
+                            return $"{SizeRaw / 1073741824d:##.##} GB";
+                        }
+                    case 4:
+                        {
+                            return $"{SizeRaw / 1099511627776d:##.##} TB";
+                        }
+                    case 5:
+                        {
+                            return $"{SizeRaw / 1125899906842624d:##.##} PB";
+                        }
+                    default:
+                        {
+                            throw new ArgumentOutOfRangeException($"{nameof(SizeRaw)} is too large");
+                        }
+                }
+            }
+            else
+            {
+                return "0 KB";
+            }
         }
 
         /// <summary>

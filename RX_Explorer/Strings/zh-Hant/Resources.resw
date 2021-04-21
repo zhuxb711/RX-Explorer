@@ -3070,5 +3070,7 @@
   </data>
   <data name="YellowTag.ToolTipService.ToolTip" xml:space="preserve">
     <value>黃色標籤</value>
+  <data name="TaskList_Task_Status_Preparing" xml:space="preserve">
+    <value>準備中</value>
   </data>
 </root>
