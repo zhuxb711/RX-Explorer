@@ -4073,6 +4073,7 @@ Inkorrekte Namen sind
         <trans-unit id="YellowTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Yellow tag</source>
           <target state="translated">Gelbes Etikett</target>
+        </trans-unit>
         <trans-unit id="TaskList_Task_Status_Preparing" translate="yes" xml:space="preserve">
           <source>Preparing</source>
           <target state="translated">Vorbereiten</target>
