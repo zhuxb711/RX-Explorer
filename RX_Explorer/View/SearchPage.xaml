@@ -15,12 +15,10 @@
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="OpenFile"
-                              Label="打开"
+                              Label="{x:Bind local:Globalization.GetString('Operate_Text_Open')}"
                               MinWidth="160"
-                              x:Uid="FileOpen"
                               x:Name="Open"
-                              Click="Open_Click">
-                </AppBarButton>
+                              Click="Open_Click" />
                 <AppBarButton x:Uid="SearchLocation"
                               x:Name="Location"
                               Label="打开所在位置"

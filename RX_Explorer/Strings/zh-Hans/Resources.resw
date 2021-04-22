@@ -69,9 +69,6 @@
   <data name="BlueScreenReport.Content" xml:space="preserve">
     <value>报告给开发者</value>
   </data>
-  <data name="BluetoothShare.Text" xml:space="preserve">
-    <value>蓝牙</value>
-  </data>
   <data name="BluetoothTranfer.SecondaryButtonText" xml:space="preserve">
     <value>终止</value>
   </data>
@@ -98,9 +95,6 @@
   </data>
   <data name="Browser.Content" xml:space="preserve">
     <value>浏览器</value>
-  </data>
-  <data name="ChooseOtherApp.Text" xml:space="preserve">
-    <value>选择其他应用</value>
   </data>
   <data name="CloseButton.Content" xml:space="preserve">
     <value>退出</value>
@@ -183,15 +177,6 @@
   <data name="DeviceUsedSpace.Text" xml:space="preserve">
     <value>已用空间</value>
   </data>
-  <data name="EmptyFlyoutNew.Label" xml:space="preserve">
-    <value>新建</value>
-  </data>
-  <data name="EmptyFlyoutNewFile.Text" xml:space="preserve">
-    <value>新建文件</value>
-  </data>
-  <data name="EmptyFlyoutNewFolder.Text" xml:space="preserve">
-    <value>新建文件夹</value>
-  </data>
   <data name="FeedBackAddButton.Text" xml:space="preserve">
     <value>添加我的反馈</value>
   </data>
@@ -237,56 +222,14 @@
   <data name="FeedBackTip.Title" xml:space="preserve">
     <value>反馈说明</value>
   </data>
-  <data name="FileAttribute.Label" xml:space="preserve">
-    <value>属性</value>
-  </data>
-  <data name="FileControlAttribute.Label" xml:space="preserve">
-    <value>属性</value>
-  </data>
   <data name="FileControlBackButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>返回</value>
-  </data>
-  <data name="FileControlCreateFolder.Label" xml:space="preserve">
-    <value>新建文件夹</value>
   </data>
   <data name="FileControlForwardButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>前进</value>
   </data>
   <data name="FileControlParentButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>返回上一级</value>
-  </data>
-  <data name="FileCopy.ToolTipService.ToolTip" xml:space="preserve">
-    <value>复制</value>
-  </data>
-  <data name="FileCut.ToolTipService.ToolTip" xml:space="preserve">
-    <value>剪切</value>
-  </data>
-  <data name="FileDelete.ToolTipService.ToolTip" xml:space="preserve">
-    <value>删除</value>
-  </data>
-  <data name="FileEdit.Label" xml:space="preserve">
-    <value>编辑</value>
-  </data>
-  <data name="FileOpen.Label" xml:space="preserve">
-    <value>打开</value>
-  </data>
-  <data name="FilePaste.Label" xml:space="preserve">
-    <value>粘贴</value>
-  </data>
-  <data name="FileRename.ToolTipService.ToolTip" xml:space="preserve">
-    <value>重命名</value>
-  </data>
-  <data name="FileShare.Label" xml:space="preserve">
-    <value>共享</value>
-  </data>
-  <data name="FolderAttribute.Label" xml:space="preserve">
-    <value>属性</value>
-  </data>
-  <data name="FolderOpen.Label" xml:space="preserve">
-    <value>打开</value>
-  </data>
-  <data name="FolderRename.ToolTipService.ToolTip" xml:space="preserve">
-    <value>重命名</value>
   </data>
   <data name="HasFile.Text" xml:space="preserve">
     <value>无内容</value>
@@ -350,9 +293,6 @@
   </data>
   <data name="OpenDevice.Label" xml:space="preserve">
     <value>打开</value>
-  </data>
-  <data name="OtherOpenMethod.Label" xml:space="preserve">
-    <value>打开方式...</value>
   </data>
   <data name="PdfPasswordDialog.CloseButtonText" xml:space="preserve">
     <value>取消</value>
@@ -465,9 +405,6 @@
   <data name="RateTip.Title" xml:space="preserve">
     <value>请对我们进行评价</value>
   </data>
-  <data name="RefreshView.Label" xml:space="preserve">
-    <value>刷新</value>
-  </data>
   <data name="RenameDialog.CloseButtonText" xml:space="preserve">
     <value>取消</value>
   </data>
@@ -513,9 +450,6 @@
   </data>
   <data name="ResetDialogTip.Subtitle" xml:space="preserve">
     <value>请选择一个导出文件夹</value>
-  </data>
-  <data name="RunWithSystemAuthority.Text" xml:space="preserve">
-    <value>以管理员身份运行</value>
   </data>
   <data name="SAVerifyDialog.CloseButtonText" xml:space="preserve">
     <value>取消</value>
@@ -829,20 +763,11 @@
   <data name="SystemInfoDialogWindowsVersion.Text" xml:space="preserve">
     <value>Windows版本</value>
   </data>
-  <data name="SystemManagerOpen.Label" xml:space="preserve">
-    <value>使用系统管理器打开</value>
-  </data>
-  <data name="SystemShare.Text" xml:space="preserve">
-    <value>系统共享</value>
-  </data>
   <data name="TextViewerCancel.Label" xml:space="preserve">
     <value>取消</value>
   </data>
   <data name="TextViewerSave.Label" xml:space="preserve">
     <value>保存</value>
-  </data>
-  <data name="Transcode.Text" xml:space="preserve">
-    <value>转码</value>
   </data>
   <data name="TranscodeBoost.Content" xml:space="preserve">
     <value>使用硬件加速(推荐)</value>
@@ -942,15 +867,6 @@
   </data>
   <data name="VideoEditDialogUseSameProfile.Text" xml:space="preserve">
     <value>使用和源视频相同的编码配置</value>
-  </data>
-  <data name="VideoMerge.Text" xml:space="preserve">
-    <value>合并</value>
-  </data>
-  <data name="VideoMontage.Text" xml:space="preserve">
-    <value>剪辑</value>
-  </data>
-  <data name="WIFIShare.Text" xml:space="preserve">
-    <value>WIFI</value>
   </data>
   <data name="WIFIShareText.Text" xml:space="preserve">
     <value>传输过程中请勿关闭此窗口，否则将停止分享</value>
@@ -1882,9 +1798,6 @@
   <data name="EjectUSB.Label" xml:space="preserve">
     <value>弹出</value>
   </data>
-  <data name="OpenInTerminal.Label" xml:space="preserve">
-    <value>在终端中打开...</value>
-  </data>
   <data name="Operate_Text_OpenInTerminal" xml:space="preserve">
     <value>在终端中打开...</value>
   </data>
@@ -1921,12 +1834,6 @@
   <data name="Eject_Toast_Text_3" xml:space="preserve">
     <value>现在可安全的移除USB设备</value>
   </data>
-  <data name="OpenFolderInNewTab.Label" xml:space="preserve">
-    <value>在新标签页中打开</value>
-  </data>
-  <data name="OpenFolderInNewWindow.Label" xml:space="preserve">
-    <value>在新窗口中打开</value>
-  </data>
   <data name="Operate_Text_NewTab" xml:space="preserve">
     <value>在新标签页中打开</value>
   </data>
@@ -1941,9 +1848,6 @@
   </data>
   <data name="QueueDialog_DeleteFailUnexpectError_Content" xml:space="preserve">
     <value>删除文件时出现错误，删除操作已失败</value>
-  </data>
-  <data name="Undo.Label" xml:space="preserve">
-    <value>撤销</value>
   </data>
   <data name="LanguageRestartTip.Text" xml:space="preserve">
     <value>(请重启本应用以使设置生效)</value>
@@ -2033,15 +1937,6 @@
   </data>
   <data name="QueueDialog_FileOccupied_Content" xml:space="preserve">
     <value>该文件已被占用，因此无法重命名</value>
-  </data>
-  <data name="CollectionSort.Label" xml:space="preserve">
-    <value>排序</value>
-  </data>
-  <data name="CollectionSortDirection_Asc.Text" xml:space="preserve">
-    <value>升序</value>
-  </data>
-  <data name="CollectionSortDirection_Desc.Text" xml:space="preserve">
-    <value>降序</value>
   </data>
   <data name="Operate_Text_Sort" xml:space="preserve">
     <value>排序</value>
@@ -2408,9 +2303,6 @@
   </data>
   <data name="SettingPageContextMenuExt.OnContent" xml:space="preserve">
     <value>启用</value>
-  </data>
-  <data name="OpenFolderInVerticalSplitView.Label" xml:space="preserve">
-    <value>在垂直拆分视图中打开</value>
   </data>
   <data name="VerticalSplitViewButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>创建新的垂直拆分视图</value>
@@ -3073,5 +2965,8 @@
   </data>
   <data name="TaskList_Task_Status_Preparing" xml:space="preserve">
     <value>准备中</value>
+  </data>
+  <data name="Operate_Text_Copy" xml:space="preserve">
+    <value>复制</value>
   </data>
 </root>
