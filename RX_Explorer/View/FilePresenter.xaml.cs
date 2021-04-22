@@ -3634,6 +3634,8 @@ namespace RX_Explorer
                                     EditBox.Tag = SelectedItem;
                                     EditBox.Text = NameLabel.Text;
                                     EditBox.Visibility = Visibility.Visible;
+                                    EditBox.PreviewKeyDown += EditBox_PreviewKeyDown;
+                                    EditBox.LosingFocus += NameEditBox_LosingFocus;
                                     EditBox.Focus(FocusState.Programmatic);
                                 }
 
@@ -3645,9 +3647,20 @@ namespace RX_Explorer
             }
         }
 
-        private async void NameEditBox_LostFocus(object sender, RoutedEventArgs e)
+        private void EditBox_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == VirtualKey.Enter)
+            {
+                ItemPresenter.Focus(FocusState.Programmatic);
+            }
+        }
+
+        private async void NameEditBox_LosingFocus(object sender, LosingFocusEventArgs e)
         {
             TextBox NameEditBox = (TextBox)sender;
+
+            NameEditBox.LosingFocus -= NameEditBox_LosingFocus;
+            NameEditBox.PreviewKeyDown -= EditBox_PreviewKeyDown;
 
             if ((NameEditBox?.Parent as FrameworkElement)?.FindName("NameLabel") is TextBlock NameLabel && NameEditBox.Tag is FileSystemStorageItemBase CurrentEditItem)
             {

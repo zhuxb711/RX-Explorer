@@ -617,7 +617,6 @@
                              FontSize="14"
                              IsSpellCheckEnabled="False"
                              Visibility="Collapsed"
-                             LostFocus="NameEditBox_LostFocus"
                              BeforeTextChanging="NameEditBox_BeforeTextChanging"
                              x:Load="False" />
                     <TextBlock Text="{x:Bind DisplayType,Mode=OneWay}"
@@ -744,7 +743,6 @@
                          Grid.Column="1"
                          IsSpellCheckEnabled="False"
                          Visibility="Collapsed"
-                         LostFocus="NameEditBox_LostFocus"
                          BeforeTextChanging="NameEditBox_BeforeTextChanging"
                          x:Load="False" />
             </Grid>
@@ -801,7 +799,6 @@
                              Grid.Column="1"
                              IsSpellCheckEnabled="False"
                              Visibility="Collapsed"
-                             LostFocus="NameEditBox_LostFocus"
                              BeforeTextChanging="NameEditBox_BeforeTextChanging"
                              x:Load="False" />
                 </Grid>
