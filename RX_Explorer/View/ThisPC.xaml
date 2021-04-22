@@ -93,8 +93,7 @@
                 </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
-                              Label="属性"
-                              x:Uid="FolderAttribute"
+                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Property')}"
                               x:Name="LibraryProperties"
                               Click="LibraryProperties_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
@@ -104,8 +103,7 @@
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Refresh"
-                              Label="刷新"
-                              x:Uid="RefreshView"
+                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Refresh')}"
                               x:Name="Refresh"
                               Click="Refresh_Click" />
                 <AppBarButton Icon="Add"

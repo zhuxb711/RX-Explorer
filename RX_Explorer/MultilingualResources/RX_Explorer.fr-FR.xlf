@@ -82,10 +82,6 @@
           <source>Report to Developer</source>
           <target state="translated">Rapport au développeur</target>
         </trans-unit>
-        <trans-unit id="BluetoothShare.Text" translate="yes" xml:space="preserve">
-          <source>Bluetooth</source>
-          <target state="translated">Bluetooth</target>
-        </trans-unit>
         <trans-unit id="BluetoothTranfer.SecondaryButtonText" translate="yes" xml:space="preserve">
           <source>Abort</source>
           <target state="translated">Abandonner</target>
@@ -121,10 +117,6 @@
         <trans-unit id="Browser.Content" translate="yes" xml:space="preserve">
           <source>Browser</source>
           <target state="translated">Navigateur</target>
-        </trans-unit>
-        <trans-unit id="ChooseOtherApp.Text" translate="yes" xml:space="preserve">
-          <source>Choose another app</source>
-          <target state="translated">Ouvre avec...</target>
         </trans-unit>
         <trans-unit id="CloseButton.Content" translate="yes" xml:space="preserve">
           <source>Exit</source>
@@ -234,18 +226,6 @@
           <source>Used space</source>
           <target state="translated">Espace utilisé</target>
         </trans-unit>
-        <trans-unit id="EmptyFlyoutNew.Label" translate="yes" xml:space="preserve">
-          <source>Create</source>
-          <target state="translated">Nouveau</target>
-        </trans-unit>
-        <trans-unit id="EmptyFlyoutNewFile.Text" translate="yes" xml:space="preserve">
-          <source>Create file</source>
-          <target state="translated">Fichier</target>
-        </trans-unit>
-        <trans-unit id="EmptyFlyoutNewFolder.Text" translate="yes" xml:space="preserve">
-          <source>Create folder</source>
-          <target state="translated">Dossier</target>
-        </trans-unit>
         <trans-unit id="FeedBackAddButton.Text" translate="yes" xml:space="preserve">
           <source>Add my feedback</source>
           <target state="translated">Ajouter mon commentaire</target>
@@ -306,21 +286,9 @@
           <source>Feedback description</source>
           <target state="translated">Description de la liste</target>
         </trans-unit>
-        <trans-unit id="FileAttribute.Label" translate="yes" xml:space="preserve">
-          <source>Properties</source>
-          <target state="translated">Propriétés</target>
-        </trans-unit>
-        <trans-unit id="FileControlAttribute.Label" translate="yes" xml:space="preserve">
-          <source>Properties</source>
-          <target state="translated">Propriétés</target>
-        </trans-unit>
         <trans-unit id="FileControlBackButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Back</source>
           <target state="translated">Retour</target>
-        </trans-unit>
-        <trans-unit id="FileControlCreateFolder.Label" translate="yes" xml:space="preserve">
-          <source>New folder</source>
-          <target state="translated">Nouveau dossier</target>
         </trans-unit>
         <trans-unit id="FileControlForwardButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Forward</source>
@@ -329,50 +297,6 @@
         <trans-unit id="FileControlParentButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Upper</source>
           <target state="translated">Monter</target>
-        </trans-unit>
-        <trans-unit id="FileCopy.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
-          <source>Copy</source>
-          <target state="translated">Copier</target>
-        </trans-unit>
-        <trans-unit id="FileCut.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
-          <source>Move</source>
-          <target state="translated">Déplacer</target>
-        </trans-unit>
-        <trans-unit id="FileDelete.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
-          <source>Delete</source>
-          <target state="translated">Supprimer</target>
-        </trans-unit>
-        <trans-unit id="FileEdit.Label" translate="yes" xml:space="preserve">
-          <source>Edit</source>
-          <target state="translated">Editer</target>
-        </trans-unit>
-        <trans-unit id="FileOpen.Label" translate="yes" xml:space="preserve">
-          <source>Open</source>
-          <target state="translated">Ouvrir</target>
-        </trans-unit>
-        <trans-unit id="FilePaste.Label" translate="yes" xml:space="preserve">
-          <source>Paste</source>
-          <target state="translated">Coller</target>
-        </trans-unit>
-        <trans-unit id="FileRename.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
-          <source>Rename</source>
-          <target state="translated">Renommer</target>
-        </trans-unit>
-        <trans-unit id="FileShare.Label" translate="yes" xml:space="preserve">
-          <source>Share</source>
-          <target state="translated">Partager</target>
-        </trans-unit>
-        <trans-unit id="FolderAttribute.Label" translate="yes" xml:space="preserve">
-          <source>Properties</source>
-          <target state="translated">Propriétés</target>
-        </trans-unit>
-        <trans-unit id="FolderOpen.Label" translate="yes" xml:space="preserve">
-          <source>Open</source>
-          <target state="translated">Ouvrir</target>
-        </trans-unit>
-        <trans-unit id="FolderRename.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
-          <source>Rename</source>
-          <target state="translated">Renommer</target>
         </trans-unit>
         <trans-unit id="HasFile.Text" translate="yes" xml:space="preserve">
           <source>Empty</source>
@@ -457,10 +381,6 @@
         <trans-unit id="OpenDevice.Label" translate="yes" xml:space="preserve">
           <source>Open</source>
           <target state="translated">Ouvrir</target>
-        </trans-unit>
-        <trans-unit id="OtherOpenMethod.Label" translate="yes" xml:space="preserve">
-          <source>Open with...</source>
-          <target state="translated">Ouvrir avec...</target>
         </trans-unit>
         <trans-unit id="PdfPasswordDialog.CloseButtonText" translate="yes" xml:space="preserve">
           <source>Cancel</source>
@@ -610,10 +530,6 @@
           <source>Please rate us</source>
           <target state="translated">S'il vous plaît évaluez nous</target>
         </trans-unit>
-        <trans-unit id="RefreshView.Label" translate="yes" xml:space="preserve">
-          <source>Refresh</source>
-          <target state="translated">Rafraîchir</target>
-        </trans-unit>
         <trans-unit id="RenameDialog.CloseButtonText" translate="yes" xml:space="preserve">
           <source>Cancel</source>
           <target state="translated">Annuler</target>
@@ -675,10 +591,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="ResetDialogTip.Subtitle" translate="yes" xml:space="preserve">
           <source>Please select an export folder</source>
           <target state="translated">Veuillez sélectionner un dossier de destination</target>
-        </trans-unit>
-        <trans-unit id="RunWithSystemAuthority.Text" translate="yes" xml:space="preserve">
-          <source>Run as administrator</source>
-          <target state="translated">Exécuter en tant qu'administrateur</target>
         </trans-unit>
         <trans-unit id="SAVerifyDialog.CloseButtonText" translate="yes" xml:space="preserve">
           <source>Cancel</source>
@@ -1096,14 +1008,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Windows version</source>
           <target state="translated">Version de Windows</target>
         </trans-unit>
-        <trans-unit id="SystemManagerOpen.Label" translate="yes" xml:space="preserve">
-          <source>Open in Windows Explorer</source>
-          <target state="translated">Ouvrir dans l'Explorateur Windows</target>
-        </trans-unit>
-        <trans-unit id="SystemShare.Text" translate="yes" xml:space="preserve">
-          <source>System share</source>
-          <target state="translated">Options de partage système</target>
-        </trans-unit>
         <trans-unit id="TextViewerCancel.Label" translate="yes" xml:space="preserve">
           <source>Cancel</source>
           <target state="translated">Annuler</target>
@@ -1111,10 +1015,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="TextViewerSave.Label" translate="yes" xml:space="preserve">
           <source>Save</source>
           <target state="translated">Enregistrer</target>
-        </trans-unit>
-        <trans-unit id="Transcode.Text" translate="yes" xml:space="preserve">
-          <source>Transcode</source>
-          <target state="translated">Transcription</target>
         </trans-unit>
         <trans-unit id="TranscodeBoost.Content" translate="yes" xml:space="preserve">
           <source>Use hardware acceleration (Recommand)</source>
@@ -1247,18 +1147,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="VideoEditDialogUseSameProfile.Text" translate="yes" xml:space="preserve">
           <source>Use the same encoding configuration as the source video</source>
           <target state="translated">Utiliser le même encodage que la vidéo source</target>
-        </trans-unit>
-        <trans-unit id="VideoMerge.Text" translate="yes" xml:space="preserve">
-          <source>Merge</source>
-          <target state="translated">Fusionner</target>
-        </trans-unit>
-        <trans-unit id="VideoMontage.Text" translate="yes" xml:space="preserve">
-          <source>Montage</source>
-          <target state="translated">Montage</target>
-        </trans-unit>
-        <trans-unit id="WIFIShare.Text" translate="yes" xml:space="preserve">
-          <source>WIFI</source>
-          <target state="translated">WiFi</target>
         </trans-unit>
         <trans-unit id="WIFIShareText.Text" translate="yes" xml:space="preserve">
           <source>Do not close this window during transmission</source>
@@ -2486,10 +2374,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Eject</source>
           <target state="translated">Éjecter</target>
         </trans-unit>
-        <trans-unit id="OpenInTerminal.Label" translate="yes" xml:space="preserve">
-          <source>Open in terminal...</source>
-          <target state="translated">Ouvrir dans le terminal ...</target>
-        </trans-unit>
         <trans-unit id="Operate_Text_OpenInTerminal" translate="yes" xml:space="preserve">
           <source>Open in terminal...</source>
           <target state="translated">Ouvrir dans le terminal ...</target>
@@ -2538,14 +2422,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>It is now safe to remove the USB device</source>
           <target state="translated">Il est maintenant sûr de retirer le périphérique USB</target>
         </trans-unit>
-        <trans-unit id="OpenFolderInNewTab.Label" translate="yes" xml:space="preserve">
-          <source>Open in new tab</source>
-          <target state="translated">Ouvrir dans un nouvel onglet</target>
-        </trans-unit>
-        <trans-unit id="OpenFolderInNewWindow.Label" translate="yes" xml:space="preserve">
-          <source>Open in new window</source>
-          <target state="translated">Ouvrir dans une nouvelle fenetre</target>
-        </trans-unit>
         <trans-unit id="Operate_Text_NewTab" translate="yes" xml:space="preserve">
           <source>Open in new tab</source>
           <target state="translated">Ouvrir dans un nouvel onglet</target>
@@ -2565,10 +2441,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="QueueDialog_DeleteFailUnexpectError_Content" translate="yes" xml:space="preserve">
           <source>An error occurred while deleting the file, the delete operation failed</source>
           <target state="translated">Une erreur s'est produite lors de la suppression du fichier, l'opération de suppression a échoué</target>
-        </trans-unit>
-        <trans-unit id="Undo.Label" translate="yes" xml:space="preserve">
-          <source>Undo</source>
-          <target state="translated">Annuler</target>
         </trans-unit>
         <trans-unit id="LanguageRestartTip.Text" translate="yes" xml:space="preserve">
           <source>(Please restart the app for the settings to take effect)</source>
@@ -2691,18 +2563,6 @@ Les noms non valides incluent
         <trans-unit id="QueueDialog_FileOccupied_Content" translate="yes" xml:space="preserve">
           <source>The file is already occupied and cannot be renamed</source>
           <target state="translated">Le fichier est déjà occupé et ne peut pas être renommé</target>
-        </trans-unit>
-        <trans-unit id="CollectionSort.Label" translate="yes" xml:space="preserve">
-          <source>Sort</source>
-          <target state="translated">Trier</target>
-        </trans-unit>
-        <trans-unit id="CollectionSortDirection_Asc.Text" translate="yes" xml:space="preserve">
-          <source>Ascending</source>
-          <target state="translated">Ascendant</target>
-        </trans-unit>
-        <trans-unit id="CollectionSortDirection_Desc.Text" translate="yes" xml:space="preserve">
-          <source>Descending</source>
-          <target state="translated">Descendant</target>
         </trans-unit>
         <trans-unit id="Operate_Text_Sort" translate="yes" xml:space="preserve">
           <source>Sort</source>
@@ -3193,10 +3053,6 @@ Les noms non valides incluent
         <trans-unit id="SettingPageContextMenuExt.OnContent" translate="yes" xml:space="preserve">
           <source>Enable</source>
           <target state="translated">Activer</target>
-        </trans-unit>
-        <trans-unit id="OpenFolderInVerticalSplitView.Label" translate="yes" xml:space="preserve">
-          <source>Open in vertical split view</source>
-          <target state="translated">Ouvrir en vue fractionnée verticale</target>
         </trans-unit>
         <trans-unit id="VerticalSplitViewButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Create a new vertical split view</source>
@@ -4056,9 +3912,37 @@ Les noms non valides incluent
           <source>Hide protected system files (Recommended)</source>
           <target state="translated">Masquer les fichiers système protégés (Recommandé)</target>
         </trans-unit>
+        <trans-unit id="BlueTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Blue tag</source>
+          <target state="translated">Étiquette bleue</target>
+        </trans-unit>
+        <trans-unit id="GreenTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Green tag</source>
+          <target state="translated">Étiquette verte</target>
+        </trans-unit>
+        <trans-unit id="OrangeTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Orange tag</source>
+          <target state="translated">Étiquette orange</target>
+        </trans-unit>
+        <trans-unit id="UnTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Untag</source>
+          <target state="translated">Détacher</target>
+        </trans-unit>
+        <trans-unit id="YellowTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Yellow tag</source>
+          <target state="translated">Étiquette jaune</target>
+        </trans-unit>
         <trans-unit id="TaskList_Task_Status_Preparing" translate="yes" xml:space="preserve">
           <source>Preparing</source>
           <target state="translated">En train de préparer</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Copy" translate="yes" xml:space="preserve">
+          <source>Copy</source>
+          <target state="translated">Copie</target>
+        </trans-unit>
+        <trans-unit id="TagEntry.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Tag</source>
+          <target state="translated">Étiqueter</target>
         </trans-unit>
       </group>
     </body>

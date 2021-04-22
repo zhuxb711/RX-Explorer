@@ -42,9 +42,8 @@
                     </AppBarButton.KeyboardAccelerators>
                 </AppBarButton>
                 <AppBarSeparator />
-                <AppBarButton Label="属性"
+                <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Property')}"
                               Icon="Tag"
-                              x:Uid="FileAttribute"
                               Name="PropertyButton"
                               Click="PropertyButton_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
@@ -54,8 +53,7 @@
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Refresh"
-                              Label="刷新"
-                              x:Uid="RefreshView"
+                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Refresh')}"
                               x:Name="Refresh"
                               Click="Refresh_Click">
                     <AppBarButton.KeyboardAccelerators>

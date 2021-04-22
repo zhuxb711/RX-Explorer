@@ -2,12 +2,15 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
+using Windows.UI;
 using Windows.UI.Core;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
+using ColorHelper = Microsoft.Toolkit.Uwp.Helpers.ColorHelper;
 
 namespace RX_Explorer.Class
 {
@@ -49,6 +52,39 @@ namespace RX_Explorer.Class
             get
             {
                 return Type;
+            }
+        }
+
+        public SolidColorBrush ForegroundColor
+        {
+            get
+            {
+                return foregroundColor ??= new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
+            }
+            private set
+            {
+                foregroundColor = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ForegroundColor)));
+            }
+        }
+
+        private SolidColorBrush foregroundColor;
+
+        public void SetForegroundColorAsSpecific(Color Color)
+        {
+            ForegroundColor = new SolidColorBrush(Color);
+        }
+
+        public void SetForegroundColorAsNormal()
+        {
+            ForegroundColor = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
+        }
+
+        public void ThemeChanged(FrameworkElement element, object obj)
+        {
+            if (ForegroundColor.Color == Colors.White || ForegroundColor.Color == Colors.Black)
+            {
+                ForegroundColor = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
             }
         }
 
@@ -407,9 +443,9 @@ namespace RX_Explorer.Class
 
         public async Task LoadMorePropertiesAsync()
         {
-            if ((this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.FileAndFolder)
+            if (!CheckIfPropertiesLoaded())
             {
-                if (!CheckIfPropertiesLoaded())
+                if ((this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.FileAndFolder)
                 {
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                     {
@@ -429,6 +465,18 @@ namespace RX_Explorer.Class
                         }
                     });
                 }
+
+                await LoadForegroundConfiguration();
+            }
+        }
+
+        private async Task LoadForegroundConfiguration()
+        {
+            string ColorString = await SQLite.Current.GetFileColorAsync(Path);
+
+            if (!string.IsNullOrEmpty(ColorString))
+            {
+                SetForegroundColorAsSpecific(ColorHelper.ToColor(ColorString));
             }
         }
 

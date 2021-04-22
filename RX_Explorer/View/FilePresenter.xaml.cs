@@ -1,4 +1,5 @@
 ﻿using ComputerVision;
+using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
@@ -42,6 +43,7 @@ using Windows.UI.Xaml.Media.Imaging;
 using ZXing;
 using ZXing.QrCode;
 using ZXing.QrCode.Internal;
+using CommandBarFlyout = Microsoft.UI.Xaml.Controls.CommandBarFlyout;
 using NavigationViewItem = Microsoft.UI.Xaml.Controls.NavigationViewItem;
 using TreeViewNode = Microsoft.UI.Xaml.Controls.TreeViewNode;
 
@@ -858,7 +860,7 @@ namespace RX_Explorer
             FolderFlyout.Hide();
             EmptyFlyout.Hide();
             MixedFlyout.Hide();
-            LnkItemFlyout.Hide();
+            LinkItemFlyout.Hide();
         }
 
         private async Task Ctrl_Z_Click()
@@ -1581,7 +1583,7 @@ namespace RX_Explorer
                             {
                                 case LinkStorageFile:
                                     {
-                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender));
+                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LinkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                         break;
                                     }
                                 case FileSystemStorageFolder:
@@ -1628,7 +1630,7 @@ namespace RX_Explorer
                                         {
                                             case LinkStorageFile:
                                                 {
-                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender));
+                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LinkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                                     break;
                                                 }
                                             case FileSystemStorageFolder:
@@ -1653,7 +1655,7 @@ namespace RX_Explorer
                                             {
                                                 case LinkStorageFile:
                                                     {
-                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender));
+                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LinkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                                         break;
                                                     }
                                                 case FileSystemStorageFolder:
@@ -3407,7 +3409,7 @@ namespace RX_Explorer
                             {
                                 case LinkStorageFile:
                                     {
-                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender));
+                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LinkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                         break;
                                     }
                                 case FileSystemStorageFile:
@@ -3454,7 +3456,7 @@ namespace RX_Explorer
                                         {
                                             case LinkStorageFile:
                                                 {
-                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender));
+                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LinkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                                     break;
                                                 }
                                             case FileSystemStorageFile:
@@ -3479,7 +3481,7 @@ namespace RX_Explorer
                                             {
                                                 case LinkStorageFile:
                                                     {
-                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender));
+                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LinkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                                         break;
                                                     }
                                                 case FileSystemStorageFile:
@@ -3923,24 +3925,6 @@ namespace RX_Explorer
                 };
                 DeleteButton.Click += Delete_Click;
                 BottomCommandBar.PrimaryCommands.Add(DeleteButton);
-
-                AppBarButton CompressionButton = new AppBarButton
-                {
-                    Icon = new SymbolIcon(Symbol.Bookmarks),
-                    MinWidth = 250,
-                    Label = Globalization.GetString("Operate_Text_Compression")
-                };
-                CompressionButton.Click += MixCompression_Click;
-                BottomCommandBar.SecondaryCommands.Add(CompressionButton);
-
-                AppBarButton DecompressionButton = new AppBarButton
-                {
-                    Icon = new SymbolIcon(Symbol.Bookmarks),
-                    MinWidth = 250,
-                    Label = Globalization.GetString("Operate_Text_Decompression")
-                };
-                DecompressionButton.Click += MixDecompression_Click;
-                BottomCommandBar.SecondaryCommands.Add(DecompressionButton);
             }
             else
             {
@@ -3977,265 +3961,6 @@ namespace RX_Explorer
                     };
                     RenameButton.Click += Rename_Click;
                     BottomCommandBar.PrimaryCommands.Add(RenameButton);
-
-                    if (Item is FileSystemStorageFile)
-                    {
-                        AppBarButton OpenButton = new AppBarButton
-                        {
-                            Icon = new SymbolIcon(Symbol.OpenFile),
-                            MinWidth = 250,
-                            Label = Globalization.GetString("Operate_Text_Open")
-                        };
-                        OpenButton.Click += ItemOpen_Click;
-                        BottomCommandBar.SecondaryCommands.Add(OpenButton);
-
-                        MenuFlyout OpenFlyout = new MenuFlyout();
-                        MenuFlyoutItem AdminItem = new MenuFlyoutItem
-                        {
-                            Icon = new FontIcon { Glyph = "\uEA0D" },
-                            MinWidth = 150,
-                            MaxWidth = 300,
-                            Text = Globalization.GetString("Operate_Text_OpenAsAdministrator"),
-                            IsEnabled = RunWithSystemAuthority.IsEnabled
-                        };
-                        AdminItem.Click += RunWithSystemAuthority_Click;
-                        OpenFlyout.Items.Add(AdminItem);
-
-                        MenuFlyoutItem OtherItem = new MenuFlyoutItem
-                        {
-                            Icon = new SymbolIcon(Symbol.SwitchApps),
-                            MinWidth = 150,
-                            MaxWidth = 300,
-                            Text = Globalization.GetString("Operate_Text_ChooseAnotherApp"),
-                            IsEnabled = ChooseOtherApp.IsEnabled
-                        };
-                        OtherItem.Click += ChooseOtherApp_Click;
-                        OpenFlyout.Items.Add(OtherItem);
-
-                        BottomCommandBar.SecondaryCommands.Add(new AppBarButton
-                        {
-                            Icon = new SymbolIcon(Symbol.OpenWith),
-                            MinWidth = 250,
-                            Label = Globalization.GetString("Operate_Text_OpenWith"),
-                            Flyout = OpenFlyout
-                        });
-
-                        BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
-
-                        MenuFlyout EditFlyout = new MenuFlyout();
-                        MenuFlyoutItem MontageItem = new MenuFlyoutItem
-                        {
-                            Icon = new FontIcon { Glyph = "\uE177" },
-                            MinWidth = 150,
-                            MaxWidth = 300,
-                            Text = Globalization.GetString("Operate_Text_Montage"),
-                            IsEnabled = VideoEdit.IsEnabled
-                        };
-                        MontageItem.Click += VideoEdit_Click;
-                        EditFlyout.Items.Add(MontageItem);
-
-                        MenuFlyoutItem MergeItem = new MenuFlyoutItem
-                        {
-                            Icon = new FontIcon { Glyph = "\uE11E" },
-                            MinWidth = 150,
-                            MaxWidth = 300,
-                            Text = Globalization.GetString("Operate_Text_Merge"),
-                            IsEnabled = VideoMerge.IsEnabled
-                        };
-                        MergeItem.Click += VideoMerge_Click;
-                        EditFlyout.Items.Add(MergeItem);
-
-                        MenuFlyoutItem TranscodeItem = new MenuFlyoutItem
-                        {
-                            Icon = new FontIcon { Glyph = "\uE1CA" },
-                            MinWidth = 150,
-                            MaxWidth = 300,
-                            Text = Globalization.GetString("Operate_Text_Transcode"),
-                            IsEnabled = Transcode.IsEnabled
-                        };
-                        TranscodeItem.Click += Transcode_Click;
-                        EditFlyout.Items.Add(TranscodeItem);
-
-                        BottomCommandBar.SecondaryCommands.Add(new AppBarButton
-                        {
-                            Icon = new SymbolIcon(Symbol.Edit),
-                            MinWidth = 250,
-                            Label = Globalization.GetString("Operate_Text_Edit"),
-                            IsEnabled = FileEdit.IsEnabled,
-                            Flyout = EditFlyout
-                        });
-
-                        MenuFlyout ShareFlyout = new MenuFlyout();
-                        MenuFlyoutItem SystemShareItem = new MenuFlyoutItem
-                        {
-                            Icon = new SymbolIcon(Symbol.Share),
-                            MinWidth = 150,
-                            MaxWidth = 300,
-                            Text = Globalization.GetString("Operate_Text_SystemShare")
-                        };
-                        SystemShareItem.Click += SystemShare_Click;
-                        ShareFlyout.Items.Add(SystemShareItem);
-
-                        MenuFlyoutItem WIFIShareItem = new MenuFlyoutItem
-                        {
-                            Icon = new FontIcon { Glyph = "\uE701" },
-                            MinWidth = 150,
-                            MaxWidth = 300,
-                            Text = Globalization.GetString("Operate_Text_WIFIShare")
-                        };
-                        WIFIShareItem.Click += WIFIShare_Click;
-                        ShareFlyout.Items.Add(WIFIShareItem);
-
-                        MenuFlyoutItem BluetoothShare = new MenuFlyoutItem
-                        {
-                            Icon = new FontIcon { Glyph = "\uE702" },
-                            MinWidth = 150,
-                            MaxWidth = 300,
-                            Text = Globalization.GetString("Operate_Text_BluetoothShare")
-                        };
-                        BluetoothShare.Click += BluetoothShare_Click;
-                        ShareFlyout.Items.Add(BluetoothShare);
-
-                        BottomCommandBar.SecondaryCommands.Add(new AppBarButton
-                        {
-                            Icon = new SymbolIcon(Symbol.Share),
-                            MinWidth = 250,
-                            Label = Globalization.GetString("Operate_Text_Share"),
-                            IsEnabled = FileShare.IsEnabled,
-                            Flyout = ShareFlyout
-                        });
-
-                        BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
-
-                        AppBarButton CompressionButton = new AppBarButton
-                        {
-                            Icon = new SymbolIcon(Symbol.Bookmarks),
-                            MinWidth = 250,
-                            Label = Compression.Label
-                        };
-                        CompressionButton.Click += Compression_Click;
-                        BottomCommandBar.SecondaryCommands.Add(CompressionButton);
-
-                        MenuFlyout DecompressionFlyout = new MenuFlyout();
-
-                        MenuFlyoutItem DecompressionOption1 = new MenuFlyoutItem
-                        {
-                            Text = Globalization.GetString("DecompressOption/Text"),
-                            MinWidth = 150,
-                            MaxWidth = 300,
-                            Icon = new FontIcon
-                            {
-                                Glyph = "\uF0B2"
-                            }
-                        };
-                        DecompressionOption1.Click += DecompressOption_Click;
-                        DecompressionFlyout.Items.Add(DecompressionOption1);
-
-                        MenuFlyoutItem DecompressionOption2 = new MenuFlyoutItem
-                        {
-                            Text = Globalization.GetString("DecompressHere/Text"),
-                            MinWidth = 150,
-                            MaxWidth = 300,
-                            Icon = new FontIcon
-                            {
-                                Glyph = "\uF0B2"
-                            },
-                        };
-                        DecompressionOption2.Click += Decompression_Click;
-                        DecompressionFlyout.Items.Add(DecompressionOption2);
-
-                        MenuFlyoutItemWithImage DecompressionOption3 = new MenuFlyoutItemWithImage
-                        {
-                            Text = $"{Globalization.GetString("DecompressTo")} \"{Path.GetFileNameWithoutExtension(SelectedItem.Path)}\\\"",
-                            MinWidth = 150,
-                            MaxWidth = 300,
-                            Icon = new FontIcon
-                            {
-                                Glyph = "\uF0B2"
-                            }
-                        };
-                        DecompressionOption3.Click += Decompression_Click;
-                        DecompressionFlyout.Items.Add(DecompressionOption3);
-
-                        BottomCommandBar.SecondaryCommands.Add(new AppBarButton
-                        {
-                            Icon = new SymbolIcon(Symbol.Bookmarks),
-                            MinWidth = 250,
-                            Label = Globalization.GetString("Operate_Text_Decompression"),
-                            Flyout = DecompressionFlyout
-                        });
-
-                        BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
-
-                        AppBarButton PropertyButton = new AppBarButton
-                        {
-                            Icon = new SymbolIcon(Symbol.Tag),
-                            MinWidth = 250,
-                            Label = Globalization.GetString("Operate_Text_Property")
-                        };
-                        PropertyButton.Click += FileProperty_Click;
-                        BottomCommandBar.SecondaryCommands.Add(PropertyButton);
-                    }
-                    else
-                    {
-                        AppBarButton OpenButton = new AppBarButton
-                        {
-                            Icon = new SymbolIcon(Symbol.BackToWindow),
-                            MinWidth = 250,
-                            Label = Globalization.GetString("Operate_Text_Open")
-                        };
-                        OpenButton.Click += ItemOpen_Click;
-                        BottomCommandBar.SecondaryCommands.Add(OpenButton);
-
-                        AppBarButton NewWindowButton = new AppBarButton
-                        {
-                            Icon = new FontIcon { Glyph = "\uE727" },
-                            MinWidth = 250,
-                            Label = Globalization.GetString("Operate_Text_NewWindow")
-                        };
-                        NewWindowButton.Click += OpenFolderInNewWindow_Click;
-                        BottomCommandBar.SecondaryCommands.Add(NewWindowButton);
-
-                        AppBarButton NewTabButton = new AppBarButton
-                        {
-                            Icon = new FontIcon { Glyph = "\uF7ED" },
-                            MinWidth = 250,
-                            Label = Globalization.GetString("Operate_Text_NewTab")
-                        };
-                        NewTabButton.Click += OpenFolderInNewTab_Click;
-                        BottomCommandBar.SecondaryCommands.Add(NewTabButton);
-
-                        AppBarButton SplitViewButton = new AppBarButton
-                        {
-                            Icon = new FontIcon { Glyph = "\uE140" },
-                            MinWidth = 250,
-                            Label = Globalization.GetString("Operate_Text_SplitView")
-                        };
-                        SplitViewButton.Click += OpenFolderInVerticalSplitView_Click;
-                        BottomCommandBar.SecondaryCommands.Add(SplitViewButton);
-
-                        BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
-
-                        AppBarButton CompressionButton = new AppBarButton
-                        {
-                            Icon = new SymbolIcon(Symbol.Bookmarks),
-                            MinWidth = 250,
-                            Label = Globalization.GetString("Operate_Text_Compression")
-                        };
-                        CompressionButton.Click += CompressFolder_Click;
-                        BottomCommandBar.SecondaryCommands.Add(CompressionButton);
-
-                        BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
-
-                        AppBarButton PropertyButton = new AppBarButton
-                        {
-                            Icon = new SymbolIcon(Symbol.Tag),
-                            MinWidth = 250,
-                            Label = Globalization.GetString("Operate_Text_Property")
-                        };
-                        PropertyButton.Click += FolderProperty_Click;
-                        BottomCommandBar.SecondaryCommands.Add(PropertyButton);
-                    }
                 }
                 else
                 {
@@ -4297,194 +4022,6 @@ namespace RX_Explorer
                     };
                     RefreshButton.Click += Refresh_Click;
                     BottomCommandBar.PrimaryCommands.Add(RefreshButton);
-
-                    MenuFlyout NewFlyout = new MenuFlyout();
-                    MenuFlyoutItem CreateFileItem = new MenuFlyoutItem
-                    {
-                        Icon = new SymbolIcon(Symbol.Page2),
-                        Text = Globalization.GetString("Operate_Text_CreateFile"),
-                        MinWidth = 150,
-                        MaxWidth = 300
-                    };
-                    CreateFileItem.Click += CreateFile_Click;
-                    NewFlyout.Items.Add(CreateFileItem);
-
-                    MenuFlyoutItem CreateFolder = new MenuFlyoutItem
-                    {
-                        Icon = new SymbolIcon(Symbol.NewFolder),
-                        Text = Globalization.GetString("Operate_Text_CreateFolder"),
-                        MinWidth = 150,
-                        MaxWidth = 300
-                    };
-                    CreateFolder.Click += CreateFolder_Click;
-                    NewFlyout.Items.Add(CreateFolder);
-
-                    BottomCommandBar.SecondaryCommands.Add(new AppBarButton
-                    {
-                        Icon = new SymbolIcon(Symbol.Add),
-                        MinWidth = 250,
-                        Label = Globalization.GetString("Operate_Text_Create"),
-                        Flyout = NewFlyout
-                    });
-
-                    bool DescCheck = false;
-                    bool AscCheck = false;
-                    bool NameCheck = false;
-                    bool TimeCheck = false;
-                    bool TypeCheck = false;
-                    bool SizeCheck = false;
-
-                    PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
-
-                    if (Config.Direction == SortDirection.Ascending)
-                    {
-                        DescCheck = false;
-                        AscCheck = true;
-                    }
-                    else
-                    {
-                        AscCheck = false;
-                        DescCheck = true;
-                    }
-
-                    switch (Config.Target)
-                    {
-                        case SortTarget.Name:
-                            {
-                                TypeCheck = false;
-                                TimeCheck = false;
-                                SizeCheck = false;
-                                NameCheck = true;
-                                break;
-                            }
-                        case SortTarget.Type:
-                            {
-                                TimeCheck = false;
-                                SizeCheck = false;
-                                NameCheck = false;
-                                TypeCheck = true;
-                                break;
-                            }
-                        case SortTarget.ModifiedTime:
-                            {
-                                SizeCheck = false;
-                                NameCheck = false;
-                                TypeCheck = false;
-                                TimeCheck = true;
-                                break;
-                            }
-                        case SortTarget.Size:
-                            {
-                                NameCheck = false;
-                                TypeCheck = false;
-                                TimeCheck = false;
-                                SizeCheck = true;
-                                break;
-                            }
-                    }
-
-                    MenuFlyout SortFlyout = new MenuFlyout();
-
-                    RadioMenuFlyoutItem SortName = new RadioMenuFlyoutItem
-                    {
-                        Text = Globalization.GetString("Operate_Text_SortTarget_Name"),
-                        MinWidth = 150,
-                        MaxWidth = 300,
-                        IsChecked = NameCheck
-                    };
-                    SortName.Click += OrderByName_Click;
-                    SortFlyout.Items.Add(SortName);
-
-                    RadioMenuFlyoutItem SortTime = new RadioMenuFlyoutItem
-                    {
-                        Text = Globalization.GetString("Operate_Text_SortTarget_Time"),
-                        MinWidth = 150,
-                        MaxWidth = 300,
-                        IsChecked = TimeCheck
-                    };
-                    SortTime.Click += OrderByTime_Click;
-                    SortFlyout.Items.Add(SortTime);
-
-                    RadioMenuFlyoutItem SortType = new RadioMenuFlyoutItem
-                    {
-                        Text = Globalization.GetString("Operate_Text_SortTarget_Type"),
-                        MinWidth = 150,
-                        MaxWidth = 300,
-                        IsChecked = TypeCheck
-                    };
-                    SortType.Click += OrderByType_Click;
-                    SortFlyout.Items.Add(SortType);
-
-                    RadioMenuFlyoutItem SortSize = new RadioMenuFlyoutItem
-                    {
-                        Text = Globalization.GetString("Operate_Text_SortTarget_Size"),
-                        MinWidth = 150,
-                        MaxWidth = 300,
-                        IsChecked = SizeCheck
-                    };
-                    SortSize.Click += OrderBySize_Click;
-                    SortFlyout.Items.Add(SortSize);
-
-                    SortFlyout.Items.Add(new MenuFlyoutSeparator());
-
-                    RadioMenuFlyoutItem Asc = new RadioMenuFlyoutItem
-                    {
-                        Text = Globalization.GetString("Operate_Text_SortDirection_Asc"),
-                        MinWidth = 150,
-                        MaxWidth = 300,
-                        IsChecked = AscCheck
-                    };
-                    Asc.Click += Asc_Click;
-                    SortFlyout.Items.Add(Asc);
-
-                    RadioMenuFlyoutItem Desc = new RadioMenuFlyoutItem
-                    {
-                        Text = Globalization.GetString("Operate_Text_SortDirection_Desc"),
-                        MinWidth = 150,
-                        MaxWidth = 300,
-                        IsChecked = DescCheck
-                    };
-                    Desc.Click += Desc_Click;
-                    SortFlyout.Items.Add(Desc);
-
-                    BottomCommandBar.SecondaryCommands.Add(new AppBarButton
-                    {
-                        Icon = new SymbolIcon(Symbol.Sort),
-                        MinWidth = 250,
-                        Label = Globalization.GetString("Operate_Text_Sort"),
-                        Flyout = SortFlyout
-                    });
-
-                    BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
-
-                    AppBarButton WinExButton = new AppBarButton
-                    {
-                        Icon = new FontIcon { Glyph = "\uEC50" },
-                        MinWidth = 250,
-                        Label = Globalization.GetString("Operate_Text_OpenInWinExplorer")
-                    };
-                    WinExButton.Click += UseSystemFileMananger_Click;
-                    BottomCommandBar.SecondaryCommands.Add(WinExButton);
-
-                    AppBarButton TerminalButton = new AppBarButton
-                    {
-                        Icon = new FontIcon { Glyph = "\uE756" },
-                        MinWidth = 250,
-                        Label = Globalization.GetString("Operate_Text_OpenInTerminal")
-                    };
-                    TerminalButton.Click += OpenInTerminal_Click;
-                    BottomCommandBar.SecondaryCommands.Add(TerminalButton);
-
-                    BottomCommandBar.SecondaryCommands.Add(new AppBarSeparator());
-
-                    AppBarButton PropertyButton = new AppBarButton
-                    {
-                        Icon = new SymbolIcon(Symbol.Tag),
-                        MinWidth = 250,
-                        Label = Globalization.GetString("Operate_Text_Property")
-                    };
-                    PropertyButton.Click += ParentProperty_Click;
-                    BottomCommandBar.SecondaryCommands.Add(PropertyButton);
                 }
             }
         }
@@ -4722,6 +4259,104 @@ namespace RX_Explorer
                             break;
                         }
                 }
+            }
+        }
+
+        private async void UnTag_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            SelectedItem.SetForegroundColorAsNormal();
+            await SQLite.Current.DeleteFileColorAsync(SelectedItem.Path).ConfigureAwait(false);
+        }
+
+
+        private async void MixUnTag_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            foreach (FileSystemStorageItemBase Item in SelectedItems)
+            {
+                Item.SetForegroundColorAsNormal();
+                await SQLite.Current.DeleteFileColorAsync(Item.Path).ConfigureAwait(false);
+            }
+        }
+
+        private async void Color_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            Color ForegroundColor = ((Windows.UI.Xaml.Media.SolidColorBrush)((AppBarButton)sender).Foreground).Color;
+
+            SelectedItem.SetForegroundColorAsSpecific(ForegroundColor);
+            await SQLite.Current.SetFileColorAsync(SelectedItem.Path, ForegroundColor.ToHex()).ConfigureAwait(false);
+        }
+
+        private void ColorTag_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse && sender is FrameworkElement Element)
+            {
+                if (Element.FindParentOfType<AppBarElementContainer>() is AppBarElementContainer Container)
+                {
+                    Container.Visibility = Visibility.Collapsed;
+                }
+            }
+        }
+
+        private void ColorTag_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            if (e.PointerDeviceType != PointerDeviceType.Mouse && sender is FrameworkElement Element)
+            {
+                if (Element.FindParentOfType<AppBarElementContainer>() is AppBarElementContainer Container)
+                {
+                    Container.Visibility = Visibility.Collapsed;
+                }
+            }
+        }
+
+        private void CommandBarFlyout_Closed(object sender, object e)
+        {
+            if (sender is CommandBarFlyout Flyout)
+            {
+                if (Flyout.PrimaryCommands.OfType<AppBarElementContainer>().FirstOrDefault((Container) => !string.IsNullOrEmpty(Container.Name)) is AppBarElementContainer Container)
+                {
+                    Container.Visibility = Visibility.Visible;
+                }
+            }
+        }
+
+        private void ColorBarBack_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse && sender is FrameworkElement Element)
+            {
+                if (Element.FindParentOfType<AppBarElementContainer>() is AppBarElementContainer Container)
+                {
+                    Container.Visibility = Visibility.Collapsed;
+                }
+            }
+        }
+
+        private void ColorBarBack_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            if (e.PointerDeviceType != PointerDeviceType.Mouse && sender is FrameworkElement Element)
+            {
+                if (Element.FindParentOfType<AppBarElementContainer>() is AppBarElementContainer Container)
+                {
+                    Container.Visibility = Visibility.Collapsed;
+                }
+            }
+        }
+
+        private async void MixColor_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            Color ForegroundColor = ((Windows.UI.Xaml.Media.SolidColorBrush)((AppBarButton)sender).Foreground).Color;
+
+            foreach (FileSystemStorageItemBase Item in SelectedItems)
+            {
+                Item.SetForegroundColorAsSpecific(ForegroundColor);
+                await SQLite.Current.SetFileColorAsync(Item.Path, ForegroundColor.ToHex()).ConfigureAwait(false);
             }
         }
 

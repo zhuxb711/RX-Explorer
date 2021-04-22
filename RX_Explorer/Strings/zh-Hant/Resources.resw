@@ -69,9 +69,6 @@
   <data name="BlueScreenReport.Content" xml:space="preserve">
     <value>回報給開發人員</value>
   </data>
-  <data name="BluetoothShare.Text" xml:space="preserve">
-    <value>藍牙</value>
-  </data>
   <data name="BluetoothTranfer.SecondaryButtonText" xml:space="preserve">
     <value>中止</value>
   </data>
@@ -98,9 +95,6 @@
   </data>
   <data name="Browser.Content" xml:space="preserve">
     <value>瀏覽器</value>
-  </data>
-  <data name="ChooseOtherApp.Text" xml:space="preserve">
-    <value>選擇其他應用程式</value>
   </data>
   <data name="CloseButton.Content" xml:space="preserve">
     <value>結束</value>
@@ -192,15 +186,6 @@
   <data name="PurchaseTip.Title" xml:space="preserve">
     <value>購買支持這個程式!</value>
   </data>
-  <data name="EmptyFlyoutNew.Label" xml:space="preserve">
-    <value>新增</value>
-  </data>
-  <data name="EmptyFlyoutNewFile.Text" xml:space="preserve">
-    <value>新增檔案</value>
-  </data>
-  <data name="EmptyFlyoutNewFolder.Text" xml:space="preserve">
-    <value>新增資料夾</value>
-  </data>
   <data name="FeedBackAddButton.Text" xml:space="preserve">
     <value>提交我的回饋</value>
   </data>
@@ -246,56 +231,14 @@
   <data name="FeedBackTip.Title" xml:space="preserve">
     <value>建議說明</value>
   </data>
-  <data name="FileAttribute.Label" xml:space="preserve">
-    <value>內容</value>
-  </data>
-  <data name="FileControlAttribute.Label" xml:space="preserve">
-    <value>內容</value>
-  </data>
   <data name="FileControlBackButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>返回</value>
-  </data>
-  <data name="FileControlCreateFolder.Label" xml:space="preserve">
-    <value>新增資料夾</value>
   </data>
   <data name="FileControlForwardButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>下一步</value>
   </data>
   <data name="FileControlParentButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>上一步</value>
-  </data>
-  <data name="FileCopy.ToolTipService.ToolTip" xml:space="preserve">
-    <value>複製</value>
-  </data>
-  <data name="FileCut.ToolTipService.ToolTip" xml:space="preserve">
-    <value>移動</value>
-  </data>
-  <data name="FileDelete.ToolTipService.ToolTip" xml:space="preserve">
-    <value>刪除</value>
-  </data>
-  <data name="FileEdit.Label" xml:space="preserve">
-    <value>編輯</value>
-  </data>
-  <data name="FileOpen.Label" xml:space="preserve">
-    <value>開啟</value>
-  </data>
-  <data name="FilePaste.Label" xml:space="preserve">
-    <value>貼上</value>
-  </data>
-  <data name="FileRename.ToolTipService.ToolTip" xml:space="preserve">
-    <value>重新命名</value>
-  </data>
-  <data name="FileShare.Label" xml:space="preserve">
-    <value>分享</value>
-  </data>
-  <data name="FolderAttribute.Label" xml:space="preserve">
-    <value>屬性</value>
-  </data>
-  <data name="FolderOpen.Label" xml:space="preserve">
-    <value>開啟</value>
-  </data>
-  <data name="FolderRename.ToolTipService.ToolTip" xml:space="preserve">
-    <value>重新命名</value>
   </data>
   <data name="HasFile.Text" xml:space="preserve">
     <value>空白</value>
@@ -359,9 +302,6 @@
   </data>
   <data name="OpenDevice.Label" xml:space="preserve">
     <value>開啟</value>
-  </data>
-  <data name="OtherOpenMethod.Label" xml:space="preserve">
-    <value>開啟檔案</value>
   </data>
   <data name="PdfPasswordDialog.CloseButtonText" xml:space="preserve">
     <value>取消</value>
@@ -474,9 +414,6 @@
   <data name="RateTip.Title" xml:space="preserve">
     <value>請幫我們評分</value>
   </data>
-  <data name="RefreshView.Label" xml:space="preserve">
-    <value>重新整理</value>
-  </data>
   <data name="RenameDialog.CloseButtonText" xml:space="preserve">
     <value>取消</value>
   </data>
@@ -522,9 +459,6 @@
   </data>
   <data name="ResetDialogTip.Subtitle" xml:space="preserve">
     <value>請選擇輸出的資料夾</value>
-  </data>
-  <data name="RunWithSystemAuthority.Text" xml:space="preserve">
-    <value>以系統管理員身分執行</value>
   </data>
   <data name="SAVerifyDialog.CloseButtonText" xml:space="preserve">
     <value>取消</value>
@@ -841,20 +775,11 @@
   <data name="SystemInfoDialogWindowsVersion.Text" xml:space="preserve">
     <value>Windows 版本:</value>
   </data>
-  <data name="SystemManagerOpen.Label" xml:space="preserve">
-    <value>在 Windows 檔案總管中開啟</value>
-  </data>
-  <data name="SystemShare.Text" xml:space="preserve">
-    <value>系統分享</value>
-  </data>
   <data name="TextViewerCancel.Label" xml:space="preserve">
     <value>取消</value>
   </data>
   <data name="TextViewerSave.Label" xml:space="preserve">
     <value>儲存</value>
-  </data>
-  <data name="Transcode.Text" xml:space="preserve">
-    <value>轉檔</value>
   </data>
   <data name="TranscodeBoost.Content" xml:space="preserve">
     <value>使用硬體加速(推薦)</value>
@@ -954,15 +879,6 @@
   </data>
   <data name="VideoEditDialogUseSameProfile.Text" xml:space="preserve">
     <value>使用與源視頻相同的編碼配置</value>
-  </data>
-  <data name="VideoMerge.Text" xml:space="preserve">
-    <value>合併</value>
-  </data>
-  <data name="VideoMontage.Text" xml:space="preserve">
-    <value>剪輯</value>
-  </data>
-  <data name="WIFIShare.Text" xml:space="preserve">
-    <value>Wi-Fi</value>
   </data>
   <data name="WIFIShareText.Text" xml:space="preserve">
     <value>傳輸期間請勿關閉此頁面</value>
@@ -1885,9 +1801,6 @@
   <data name="EjectUSB.Label" xml:space="preserve">
     <value>退出</value>
   </data>
-  <data name="OpenInTerminal.Label" xml:space="preserve">
-    <value>在Windows PoweShell中打開...</value>
-  </data>
   <data name="Operate_Text_OpenInTerminal" xml:space="preserve">
     <value>在Windows PoweShell中打開...</value>
   </data>
@@ -1924,12 +1837,6 @@
   <data name="Eject_Toast_Text_3" xml:space="preserve">
     <value>現在可以安全刪除USB裝置</value>
   </data>
-  <data name="OpenFolderInNewTab.Label" xml:space="preserve">
-    <value>在新索引標籤中開啟</value>
-  </data>
-  <data name="OpenFolderInNewWindow.Label" xml:space="preserve">
-    <value>在新視窗開啟</value>
-  </data>
   <data name="Operate_Text_NewTab" xml:space="preserve">
     <value>在新索引標籤中開啟</value>
   </data>
@@ -1944,9 +1851,6 @@
   </data>
   <data name="QueueDialog_MoveFailUnexpectError_Content" xml:space="preserve">
     <value>移動檔案時發生錯誤，移動失敗</value>
-  </data>
-  <data name="Undo.Label" xml:space="preserve">
-    <value>復原</value>
   </data>
   <data name="LanguageRestartTip.Text" xml:space="preserve">
     <value>（請重新啟動應用程式以使設定生效）</value>
@@ -2033,15 +1937,6 @@
   </data>
   <data name="QueueDialog_FileOccupied_Content" xml:space="preserve">
     <value>該文件已被佔用，無法重命名</value>
-  </data>
-  <data name="CollectionSort.Label" xml:space="preserve">
-    <value>排序</value>
-  </data>
-  <data name="CollectionSortDirection_Asc.Text" xml:space="preserve">
-    <value>升序</value>
-  </data>
-  <data name="CollectionSortDirection_Desc.Text" xml:space="preserve">
-    <value>降序</value>
   </data>
   <data name="Operate_Text_Sort" xml:space="preserve">
     <value>排序</value>
@@ -2408,9 +2303,6 @@
   </data>
   <data name="SettingPageContextMenuExt.OnContent" xml:space="preserve">
     <value>啟用</value>
-  </data>
-  <data name="OpenFolderInVerticalSplitView.Label" xml:space="preserve">
-    <value>在垂直拆分視圖中打開</value>
   </data>
   <data name="VerticalSplitViewButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>創建新的垂直拆分視圖</value>
@@ -3056,7 +2948,28 @@
   <data name="SettingHideProtectedSystemItems.Content" xml:space="preserve">
     <value>隱藏受保護的系統文件(推薦)</value>
   </data>
+  <data name="BlueTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>藍色標籤</value>
+  </data>
+  <data name="GreenTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>綠色標籤</value>
+  </data>
+  <data name="OrangeTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>橙色標籤</value>
+  </data>
+  <data name="UnTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>取消標記</value>
+  </data>
+  <data name="YellowTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>黃色標籤</value>
+  </data>
   <data name="TaskList_Task_Status_Preparing" xml:space="preserve">
     <value>準備中</value>
+  </data>
+  <data name="Operate_Text_Copy" xml:space="preserve">
+    <value>複製</value>
+  </data>
+  <data name="TagEntry.ToolTipService.ToolTip" xml:space="preserve">
+    <value>标记</value>
   </data>
 </root>

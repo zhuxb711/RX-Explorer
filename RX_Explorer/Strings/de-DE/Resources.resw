@@ -69,9 +69,6 @@
   <data name="BlueScreenReport.Content" xml:space="preserve">
     <value>An Entwickler senden</value>
   </data>
-  <data name="BluetoothShare.Text" xml:space="preserve">
-    <value>Bluetooth</value>
-  </data>
   <data name="BluetoothTranfer.SecondaryButtonText" xml:space="preserve">
     <value>Abbrechen</value>
   </data>
@@ -98,9 +95,6 @@
   </data>
   <data name="Browser.Content" xml:space="preserve">
     <value>Browser</value>
-  </data>
-  <data name="ChooseOtherApp.Text" xml:space="preserve">
-    <value>Eine andere App auswählen</value>
   </data>
   <data name="CloseButton.Content" xml:space="preserve">
     <value>Schließen</value>
@@ -192,15 +186,6 @@
   <data name="PurchaseTip.Title" xml:space="preserve">
     <value>Diese App kaufen</value>
   </data>
-  <data name="EmptyFlyoutNew.Label" xml:space="preserve">
-    <value>Erstellen</value>
-  </data>
-  <data name="EmptyFlyoutNewFile.Text" xml:space="preserve">
-    <value>Datei erstellen</value>
-  </data>
-  <data name="EmptyFlyoutNewFolder.Text" xml:space="preserve">
-    <value>Ordner erstellen</value>
-  </data>
   <data name="FeedBackAddButton.Text" xml:space="preserve">
     <value>Mein Feedback hinzufügen</value>
   </data>
@@ -246,56 +231,14 @@
   <data name="FeedBackTip.Title" xml:space="preserve">
     <value>Feedbackbeschreibung</value>
   </data>
-  <data name="FileAttribute.Label" xml:space="preserve">
-    <value>Eigenschaften</value>
-  </data>
-  <data name="FileControlAttribute.Label" xml:space="preserve">
-    <value>Eigenschaften</value>
-  </data>
   <data name="FileControlBackButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Zurück</value>
-  </data>
-  <data name="FileControlCreateFolder.Label" xml:space="preserve">
-    <value>Neuer Ordner</value>
   </data>
   <data name="FileControlForwardButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Vorwärts</value>
   </data>
   <data name="FileControlParentButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Oberer</value>
-  </data>
-  <data name="FileCopy.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Kopieren</value>
-  </data>
-  <data name="FileCut.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Verschieben</value>
-  </data>
-  <data name="FileDelete.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Löschen</value>
-  </data>
-  <data name="FileEdit.Label" xml:space="preserve">
-    <value>Bearbeiten</value>
-  </data>
-  <data name="FileOpen.Label" xml:space="preserve">
-    <value>Öffnen</value>
-  </data>
-  <data name="FilePaste.Label" xml:space="preserve">
-    <value>Einfügen</value>
-  </data>
-  <data name="FileRename.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Umbenennen</value>
-  </data>
-  <data name="FileShare.Label" xml:space="preserve">
-    <value>Teilen</value>
-  </data>
-  <data name="FolderAttribute.Label" xml:space="preserve">
-    <value>Eigenschaften</value>
-  </data>
-  <data name="FolderOpen.Label" xml:space="preserve">
-    <value>Öffnen</value>
-  </data>
-  <data name="FolderRename.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Umbenennen</value>
   </data>
   <data name="HasFile.Text" xml:space="preserve">
     <value>Leer</value>
@@ -365,9 +308,6 @@
   </data>
   <data name="OpenDevice.Label" xml:space="preserve">
     <value>Öffnen</value>
-  </data>
-  <data name="OtherOpenMethod.Label" xml:space="preserve">
-    <value>Öffnen mit...</value>
   </data>
   <data name="PdfPasswordDialog.CloseButtonText" xml:space="preserve">
     <value>Abbrechen</value>
@@ -480,9 +420,6 @@
   <data name="RateTip.Title" xml:space="preserve">
     <value>Bitte bewerte uns</value>
   </data>
-  <data name="RefreshView.Label" xml:space="preserve">
-    <value>Aktualisieren</value>
-  </data>
   <data name="RenameDialog.CloseButtonText" xml:space="preserve">
     <value>Abbrechen</value>
   </data>
@@ -528,9 +465,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="ResetDialogTip.Subtitle" xml:space="preserve">
     <value>Bitte einen Export-Ordner auswählen</value>
-  </data>
-  <data name="RunWithSystemAuthority.Text" xml:space="preserve">
-    <value>Als Administrator ausführen</value>
   </data>
   <data name="SAVerifyDialog.CloseButtonText" xml:space="preserve">
     <value>Abbrechen</value>
@@ -847,20 +781,11 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="SystemInfoDialogWindowsVersion.Text" xml:space="preserve">
     <value>Windows-Version</value>
   </data>
-  <data name="SystemManagerOpen.Label" xml:space="preserve">
-    <value>Im WIndows Explorer öffnen</value>
-  </data>
-  <data name="SystemShare.Text" xml:space="preserve">
-    <value>Systemfreigabe</value>
-  </data>
   <data name="TextViewerCancel.Label" xml:space="preserve">
     <value>Abbrechen</value>
   </data>
   <data name="TextViewerSave.Label" xml:space="preserve">
     <value>Speichern</value>
-  </data>
-  <data name="Transcode.Text" xml:space="preserve">
-    <value>Umschlüsseln</value>
   </data>
   <data name="TranscodeBoost.Content" xml:space="preserve">
     <value>Hardwarebeschleunigung verwenden (Empfohlen)</value>
@@ -979,15 +904,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="VideoEditDialogUseSameProfile.Text" xml:space="preserve">
     <value>Verwenden derselben Kodierungskonfiguration wie das Quellvideo</value>
-  </data>
-  <data name="VideoMerge.Text" xml:space="preserve">
-    <value>Zusammenführen</value>
-  </data>
-  <data name="VideoMontage.Text" xml:space="preserve">
-    <value>Montage</value>
-  </data>
-  <data name="WIFIShare.Text" xml:space="preserve">
-    <value>WIFI</value>
   </data>
   <data name="WIFIShareText.Text" xml:space="preserve">
     <value>Schließen Sie dieses Fenster während der Übertragung nicht.</value>
@@ -1937,9 +1853,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="EjectUSB.Label" xml:space="preserve">
     <value>Auswerfen</value>
   </data>
-  <data name="OpenInTerminal.Label" xml:space="preserve">
-    <value>In Eingabeaufforderung öffnen...</value>
-  </data>
   <data name="Operate_Text_OpenInTerminal" xml:space="preserve">
     <value>In Eingabeaufforderung öffnen...</value>
   </data>
@@ -1976,12 +1889,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="Eject_Toast_Text_3" xml:space="preserve">
     <value>Sie können den USB-Stick jetzt entfernen.</value>
   </data>
-  <data name="OpenFolderInNewTab.Label" xml:space="preserve">
-    <value>In neuem Tab öffnen</value>
-  </data>
-  <data name="OpenFolderInNewWindow.Label" xml:space="preserve">
-    <value>In neuem Fenster öffnen</value>
-  </data>
   <data name="Operate_Text_NewTab" xml:space="preserve">
     <value>In neuem Tab öffnen</value>
   </data>
@@ -1996,9 +1903,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="QueueDialog_MoveFailUnexpectError_Content" xml:space="preserve">
     <value>Ein Fehler trat während des Verschiebens der Datei auf. Der Verschiebungsvorgang ist fehlgeschlagen.</value>
-  </data>
-  <data name="Undo.Label" xml:space="preserve">
-    <value>Rückgängig machen</value>
   </data>
   <data name="LanguageRestartTip.Text" xml:space="preserve">
     <value>(Die Änderungen werden nach einem Neustart der App übernommen.)</value>
@@ -2088,15 +1992,6 @@ Inkorrekte Namen sind
   </data>
   <data name="QueueDialog_FolderOccupied_Content" xml:space="preserve">
     <value>Ordner wird bereits verwendet und kann nicht umbenannt werden</value>
-  </data>
-  <data name="CollectionSort.Label" xml:space="preserve">
-    <value>Sortieren</value>
-  </data>
-  <data name="CollectionSortDirection_Asc.Text" xml:space="preserve">
-    <value>Aufsteigend</value>
-  </data>
-  <data name="CollectionSortDirection_Desc.Text" xml:space="preserve">
-    <value>Absteigend</value>
   </data>
   <data name="Operate_Text_Sort" xml:space="preserve">
     <value>Sortieren</value>
@@ -2442,9 +2337,6 @@ Inkorrekte Namen sind
   </data>
   <data name="SettingPageContextMenuExt.OnContent" xml:space="preserve">
     <value>Aktivieren</value>
-  </data>
-  <data name="OpenFolderInVerticalSplitView.Label" xml:space="preserve">
-    <value>In vertikaler Geteiltansicht öffnen</value>
   </data>
   <data name="VerticalSplitViewButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>In horizontaler Geteiltansicht öffnen</value>
@@ -3056,7 +2948,28 @@ Inkorrekte Namen sind
   <data name="SettingHideProtectedSystemItems.Content" xml:space="preserve">
     <value>Geschützte Systemdateien ausblenden (empfohlen)</value>
   </data>
+  <data name="BlueTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Blaues Etikett</value>
+  </data>
+  <data name="GreenTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Grüner Etikett</value>
+  </data>
+  <data name="OrangeTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Orange Etikett</value>
+  </data>
+  <data name="UnTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Untag</value>
+  </data>
+  <data name="YellowTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Gelbes Etikett</value>
+  </data>
   <data name="TaskList_Task_Status_Preparing" xml:space="preserve">
     <value>Vorbereiten</value>
+  </data>
+  <data name="Operate_Text_Copy" xml:space="preserve">
+    <value>Kopieren</value>
+  </data>
+  <data name="TagEntry.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Etikett</value>
   </data>
 </root>

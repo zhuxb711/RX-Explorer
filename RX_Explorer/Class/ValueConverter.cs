@@ -49,47 +49,83 @@ namespace RX_Explorer.Class
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value is bool v)
+            switch (value)
             {
-                if (targetType == typeof(Visibility))
-                {
-                    return v ? Visibility.Collapsed : Visibility.Visible;
-                }
-                else if (targetType == typeof(bool))
-                {
-                    return !v;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            else
-            {
-                return null;
+                case bool Bool:
+                    {
+                        if (targetType == typeof(Visibility))
+                        {
+                            return Bool ? Visibility.Collapsed : Visibility.Visible;
+                        }
+                        else if (targetType == typeof(bool))
+                        {
+                            return !Bool;
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+                case Visibility Vis:
+                    {
+                        if (targetType == typeof(Visibility))
+                        {
+                            return Vis == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
+                        }
+                        else if (targetType == typeof(bool))
+                        {
+                            return Vis == Visibility.Visible;
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+                default:
+                    {
+                        return null;
+                    }
             }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)
         {
-            if (value is bool v)
+            switch (value)
             {
-                if (targetType == typeof(Visibility))
-                {
-                    return v ? Visibility.Collapsed : Visibility.Visible;
-                }
-                else if (targetType == typeof(bool))
-                {
-                    return !v;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            else
-            {
-                return null;
+                case bool Bool:
+                    {
+                        if (targetType == typeof(Visibility))
+                        {
+                            return Bool ? Visibility.Collapsed : Visibility.Visible;
+                        }
+                        else if (targetType == typeof(bool))
+                        {
+                            return !Bool;
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+                case Visibility Vis:
+                    {
+                        if (targetType == typeof(Visibility))
+                        {
+                            return Vis == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
+                        }
+                        else if (targetType == typeof(bool))
+                        {
+                            return Vis == Visibility.Visible;
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+                default:
+                    {
+                        return null;
+                    }
             }
         }
     }

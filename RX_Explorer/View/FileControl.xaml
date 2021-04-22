@@ -63,53 +63,45 @@
                                x:Name="RightTabFlyout">
             <muxc:CommandBarFlyout.PrimaryCommands>
                 <AppBarButton Icon="Copy"
-                              ToolTipService.ToolTip="复制"
-                              x:Uid="FileCopy"
+                              ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
                               x:Name="FolderCopy"
                               Click="FolderCopy_Click"/>
                 <AppBarButton Icon="Cut"
-                              ToolTipService.ToolTip="剪切"
-                              x:Uid="FileCut"
+                              ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Cut')}"
                               x:Name="FolderCut"
                               Click="FolderCut_Click"/>
                 <AppBarButton Icon="Delete"
                               x:Name="FolderDelete"
-                              ToolTipService.ToolTip="删除"
-                              x:Uid="FileDelete"
+                              ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Delete')}"
                               Click="FolderDelete_Click" />
                 <AppBarButton Icon="Rename"
                               Name="FolderRename"
-                              ToolTipService.ToolTip="重命名"
-                              x:Uid="FolderRename"
+                              ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Rename')}"
                               Click="FolderRename_Click" />
             </muxc:CommandBarFlyout.PrimaryCommands>
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="NewFolder"
-                              Label="新建文件夹"
-                              x:Uid="FileControlCreateFolder"
+                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_CreateFolder')}"
                               Name="CreateFolder"
                               Click="CreateFolder_Click" />
-                <AppBarButton Label="在新窗口中打开"
+                <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_NewWindow')}"
                               x:Name="OpenFolderInNewWindow"
-                              x:Uid="OpenFolderInNewWindow"
                               Click="OpenFolderInNewWindow_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets"
                                   Glyph="&#xE727;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
-                <AppBarButton Label="在新标签页中打开"
+                <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_NewTab')}"
                               x:Name="OpenFolderInNewTab"
-                              x:Uid="OpenFolderInNewTab"
                               Click="OpenFolderInNewTab_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets"
                                   Glyph="&#xF7ED;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
-                <AppBarButton Label="在垂直拆分视图中打开"
+                <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_SplitView')}"
                               x:Name="OpenFolderInVerticalSplitView"
-                              x:Uid="OpenFolderInVerticalSplitView"
                               Click="OpenFolderInVerticalSplitView_Click">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets"
@@ -118,8 +110,7 @@
                 </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
-                              Label="属性"
-                              x:Uid="FileControlAttribute"
+                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Property')}"
                               x:Name="FolderAttribute"
                               Click="FolderAttribute_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>

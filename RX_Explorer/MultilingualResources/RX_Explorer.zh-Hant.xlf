@@ -82,10 +82,6 @@
           <source>Report to Developer</source>
           <target state="translated">回報給開發人員</target>
         </trans-unit>
-        <trans-unit id="BluetoothShare.Text" translate="yes" xml:space="preserve">
-          <source>Bluetooth</source>
-          <target state="translated" state-qualifier="tm-suggestion">藍牙</target>
-        </trans-unit>
         <trans-unit id="BluetoothTranfer.SecondaryButtonText" translate="yes" xml:space="preserve">
           <source>Abort</source>
           <target state="translated" state-qualifier="tm-suggestion">中止</target>
@@ -121,10 +117,6 @@
         <trans-unit id="Browser.Content" translate="yes" xml:space="preserve">
           <source>Browser</source>
           <target state="translated" state-qualifier="tm-suggestion">瀏覽器</target>
-        </trans-unit>
-        <trans-unit id="ChooseOtherApp.Text" translate="yes" xml:space="preserve">
-          <source>Choose another app</source>
-          <target state="translated" state-qualifier="tm-suggestion">選擇其他應用程式</target>
         </trans-unit>
         <trans-unit id="CloseButton.Content" translate="yes" xml:space="preserve">
           <source>Exit</source>
@@ -246,18 +238,6 @@
           <source>Purchase this app</source>
           <target state="translated">購買支持這個程式!</target>
         </trans-unit>
-        <trans-unit id="EmptyFlyoutNew.Label" translate="yes" xml:space="preserve">
-          <source>Create</source>
-          <target state="translated">新增</target>
-        </trans-unit>
-        <trans-unit id="EmptyFlyoutNewFile.Text" translate="yes" xml:space="preserve">
-          <source>Create file</source>
-          <target state="translated">新增檔案</target>
-        </trans-unit>
-        <trans-unit id="EmptyFlyoutNewFolder.Text" translate="yes" xml:space="preserve">
-          <source>Create folder</source>
-          <target state="translated">新增資料夾</target>
-        </trans-unit>
         <trans-unit id="FeedBackAddButton.Text" translate="yes" xml:space="preserve">
           <source>Add my feedback</source>
           <target state="translated">提交我的回饋</target>
@@ -318,21 +298,9 @@
           <source>Feedback description</source>
           <target state="translated">建議說明</target>
         </trans-unit>
-        <trans-unit id="FileAttribute.Label" translate="yes" xml:space="preserve">
-          <source>Properties</source>
-          <target state="translated" state-qualifier="tm-suggestion">內容</target>
-        </trans-unit>
-        <trans-unit id="FileControlAttribute.Label" translate="yes" xml:space="preserve">
-          <source>Properties</source>
-          <target state="translated" state-qualifier="tm-suggestion">內容</target>
-        </trans-unit>
         <trans-unit id="FileControlBackButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Back</source>
           <target state="translated" state-qualifier="tm-suggestion">返回</target>
-        </trans-unit>
-        <trans-unit id="FileControlCreateFolder.Label" translate="yes" xml:space="preserve">
-          <source>New folder</source>
-          <target state="translated" state-qualifier="tm-suggestion">新增資料夾</target>
         </trans-unit>
         <trans-unit id="FileControlForwardButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Forward</source>
@@ -341,50 +309,6 @@
         <trans-unit id="FileControlParentButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Upper</source>
           <target state="translated">上一步</target>
-        </trans-unit>
-        <trans-unit id="FileCopy.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
-          <source>Copy</source>
-          <target state="translated" state-qualifier="tm-suggestion">複製</target>
-        </trans-unit>
-        <trans-unit id="FileCut.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
-          <source>Move</source>
-          <target state="translated" state-qualifier="tm-suggestion">移動</target>
-        </trans-unit>
-        <trans-unit id="FileDelete.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
-          <source>Delete</source>
-          <target state="translated" state-qualifier="tm-suggestion">刪除</target>
-        </trans-unit>
-        <trans-unit id="FileEdit.Label" translate="yes" xml:space="preserve">
-          <source>Edit</source>
-          <target state="translated" state-qualifier="tm-suggestion">編輯</target>
-        </trans-unit>
-        <trans-unit id="FileOpen.Label" translate="yes" xml:space="preserve">
-          <source>Open</source>
-          <target state="translated" state-qualifier="tm-suggestion">開啟</target>
-        </trans-unit>
-        <trans-unit id="FilePaste.Label" translate="yes" xml:space="preserve">
-          <source>Paste</source>
-          <target state="translated" state-qualifier="tm-suggestion">貼上</target>
-        </trans-unit>
-        <trans-unit id="FileRename.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
-          <source>Rename</source>
-          <target state="translated" state-qualifier="tm-suggestion">重新命名</target>
-        </trans-unit>
-        <trans-unit id="FileShare.Label" translate="yes" xml:space="preserve">
-          <source>Share</source>
-          <target state="translated" state-qualifier="tm-suggestion">分享</target>
-        </trans-unit>
-        <trans-unit id="FolderAttribute.Label" translate="yes" xml:space="preserve">
-          <source>Properties</source>
-          <target state="translated" state-qualifier="tm-suggestion">屬性</target>
-        </trans-unit>
-        <trans-unit id="FolderOpen.Label" translate="yes" xml:space="preserve">
-          <source>Open</source>
-          <target state="translated" state-qualifier="tm-suggestion">開啟</target>
-        </trans-unit>
-        <trans-unit id="FolderRename.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
-          <source>Rename</source>
-          <target state="translated" state-qualifier="tm-suggestion">重新命名</target>
         </trans-unit>
         <trans-unit id="HasFile.Text" translate="yes" xml:space="preserve">
           <source>Empty</source>
@@ -469,10 +393,6 @@
         <trans-unit id="OpenDevice.Label" translate="yes" xml:space="preserve">
           <source>Open</source>
           <target state="translated" state-qualifier="tm-suggestion">開啟</target>
-        </trans-unit>
-        <trans-unit id="OtherOpenMethod.Label" translate="yes" xml:space="preserve">
-          <source>Open with...</source>
-          <target state="translated" state-qualifier="tm-suggestion">開啟檔案</target>
         </trans-unit>
         <trans-unit id="PdfPasswordDialog.CloseButtonText" translate="yes" xml:space="preserve">
           <source>Cancel</source>
@@ -622,10 +542,6 @@
           <source>Please rate us</source>
           <target state="translated">請幫我們評分</target>
         </trans-unit>
-        <trans-unit id="RefreshView.Label" translate="yes" xml:space="preserve">
-          <source>Refresh</source>
-          <target state="translated" state-qualifier="tm-suggestion">重新整理</target>
-        </trans-unit>
         <trans-unit id="RenameDialog.CloseButtonText" translate="yes" xml:space="preserve">
           <source>Cancel</source>
           <target state="translated" state-qualifier="tm-suggestion">取消</target>
@@ -687,10 +603,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="ResetDialogTip.Subtitle" translate="yes" xml:space="preserve">
           <source>Please select an export folder</source>
           <target state="translated">請選擇輸出的資料夾</target>
-        </trans-unit>
-        <trans-unit id="RunWithSystemAuthority.Text" translate="yes" xml:space="preserve">
-          <source>Run as administrator</source>
-          <target state="translated">以系統管理員身分執行</target>
         </trans-unit>
         <trans-unit id="SAVerifyDialog.CloseButtonText" translate="yes" xml:space="preserve">
           <source>Cancel</source>
@@ -1112,14 +1024,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Windows version</source>
           <target state="translated" state-qualifier="tm-suggestion">Windows 版本:</target>
         </trans-unit>
-        <trans-unit id="SystemManagerOpen.Label" translate="yes" xml:space="preserve">
-          <source>Open in Windows Explorer</source>
-          <target state="translated" state-qualifier="tm-suggestion">在 Windows 檔案總管中開啟</target>
-        </trans-unit>
-        <trans-unit id="SystemShare.Text" translate="yes" xml:space="preserve">
-          <source>System share</source>
-          <target state="translated">系統分享</target>
-        </trans-unit>
         <trans-unit id="TextViewerCancel.Label" translate="yes" xml:space="preserve">
           <source>Cancel</source>
           <target state="translated" state-qualifier="tm-suggestion">取消</target>
@@ -1127,10 +1031,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="TextViewerSave.Label" translate="yes" xml:space="preserve">
           <source>Save</source>
           <target state="translated" state-qualifier="tm-suggestion">儲存</target>
-        </trans-unit>
-        <trans-unit id="Transcode.Text" translate="yes" xml:space="preserve">
-          <source>Transcode</source>
-          <target state="translated">轉檔</target>
         </trans-unit>
         <trans-unit id="TranscodeBoost.Content" translate="yes" xml:space="preserve">
           <source>Use hardware acceleration (Recommand)</source>
@@ -1263,18 +1163,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="VideoEditDialogUseSameProfile.Text" translate="yes" xml:space="preserve">
           <source>Use the same encoding configuration as the source video</source>
           <target state="translated">使用與源視頻相同的編碼配置</target>
-        </trans-unit>
-        <trans-unit id="VideoMerge.Text" translate="yes" xml:space="preserve">
-          <source>Merge</source>
-          <target state="translated" state-qualifier="tm-suggestion">合併</target>
-        </trans-unit>
-        <trans-unit id="VideoMontage.Text" translate="yes" xml:space="preserve">
-          <source>Montage</source>
-          <target state="translated">剪輯</target>
-        </trans-unit>
-        <trans-unit id="WIFIShare.Text" translate="yes" xml:space="preserve">
-          <source>WIFI</source>
-          <target state="translated">Wi-Fi</target>
         </trans-unit>
         <trans-unit id="WIFIShareText.Text" translate="yes" xml:space="preserve">
           <source>Do not close this window during transmission</source>
@@ -2490,10 +2378,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Eject</source>
           <target state="translated" state-qualifier="tm-suggestion">退出</target>
         </trans-unit>
-        <trans-unit id="OpenInTerminal.Label" translate="yes" xml:space="preserve">
-          <source>Open in terminal...</source>
-          <target state="translated">在Windows PoweShell中打開...</target>
-        </trans-unit>
         <trans-unit id="Operate_Text_OpenInTerminal" translate="yes" xml:space="preserve">
           <source>Open in terminal...</source>
           <target state="translated">在Windows PoweShell中打開...</target>
@@ -2542,14 +2426,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>It is now safe to remove the USB device</source>
           <target state="translated">現在可以安全刪除USB裝置</target>
         </trans-unit>
-        <trans-unit id="OpenFolderInNewTab.Label" translate="yes" xml:space="preserve">
-          <source>Open in new tab</source>
-          <target state="translated" state-qualifier="tm-suggestion">在新索引標籤中開啟</target>
-        </trans-unit>
-        <trans-unit id="OpenFolderInNewWindow.Label" translate="yes" xml:space="preserve">
-          <source>Open in new window</source>
-          <target state="translated" state-qualifier="tm-suggestion">在新視窗開啟</target>
-        </trans-unit>
         <trans-unit id="Operate_Text_NewTab" translate="yes" xml:space="preserve">
           <source>Open in new tab</source>
           <target state="translated" state-qualifier="tm-suggestion">在新索引標籤中開啟</target>
@@ -2569,10 +2445,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
         <trans-unit id="QueueDialog_MoveFailUnexpectError_Content" translate="yes" xml:space="preserve">
           <source>An error occurred while moving the file, the move operation failed</source>
           <target state="translated">移動檔案時發生錯誤，移動失敗</target>
-        </trans-unit>
-        <trans-unit id="Undo.Label" translate="yes" xml:space="preserve">
-          <source>Undo</source>
-          <target state="translated" state-qualifier="tm-suggestion">復原</target>
         </trans-unit>
         <trans-unit id="LanguageRestartTip.Text" translate="yes" xml:space="preserve">
           <source>(Please restart the app for the settings to take effect)</source>
@@ -2691,18 +2563,6 @@ Invalid names include
         <trans-unit id="QueueDialog_FileOccupied_Content" translate="yes" xml:space="preserve">
           <source>The file is already occupied and cannot be renamed</source>
           <target state="translated">該文件已被佔用，無法重命名</target>
-        </trans-unit>
-        <trans-unit id="CollectionSort.Label" translate="yes" xml:space="preserve">
-          <source>Sort</source>
-          <target state="translated">排序</target>
-        </trans-unit>
-        <trans-unit id="CollectionSortDirection_Asc.Text" translate="yes" xml:space="preserve">
-          <source>Ascending</source>
-          <target state="translated">升序</target>
-        </trans-unit>
-        <trans-unit id="CollectionSortDirection_Desc.Text" translate="yes" xml:space="preserve">
-          <source>Descending</source>
-          <target state="translated">降序</target>
         </trans-unit>
         <trans-unit id="Operate_Text_Sort" translate="yes" xml:space="preserve">
           <source>Sort</source>
@@ -3193,10 +3053,6 @@ Invalid names include
         <trans-unit id="SettingPageContextMenuExt.OnContent" translate="yes" xml:space="preserve">
           <source>Enable</source>
           <target state="translated">啟用</target>
-        </trans-unit>
-        <trans-unit id="OpenFolderInVerticalSplitView.Label" translate="yes" xml:space="preserve">
-          <source>Open in vertical split view</source>
-          <target state="translated">在垂直拆分視圖中打開</target>
         </trans-unit>
         <trans-unit id="VerticalSplitViewButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Create a new vertical split view</source>
@@ -4056,9 +3912,37 @@ Invalid names include
           <source>Hide protected system files (Recommended)</source>
           <target state="translated">隱藏受保護的系統文件(推薦)</target>
         </trans-unit>
+        <trans-unit id="BlueTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Blue tag</source>
+          <target state="translated">藍色標籤</target>
+        </trans-unit>
+        <trans-unit id="GreenTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Green tag</source>
+          <target state="translated">綠色標籤</target>
+        </trans-unit>
+        <trans-unit id="OrangeTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Orange tag</source>
+          <target state="translated">橙色標籤</target>
+        </trans-unit>
+        <trans-unit id="UnTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Untag</source>
+          <target state="translated">取消標記</target>
+        </trans-unit>
+        <trans-unit id="YellowTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Yellow tag</source>
+          <target state="translated">黃色標籤</target>
+        </trans-unit>
         <trans-unit id="TaskList_Task_Status_Preparing" translate="yes" xml:space="preserve">
           <source>Preparing</source>
           <target state="translated">準備中</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Copy" translate="yes" xml:space="preserve">
+          <source>Copy</source>
+          <target state="translated">複製</target>
+        </trans-unit>
+        <trans-unit id="TagEntry.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Tag</source>
+          <target state="translated">标记</target>
         </trans-unit>
       </group>
     </body>
