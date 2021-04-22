@@ -104,12 +104,14 @@
                                   x:Uid="FileRename"
                                   x:Name="FileRename"
                                   Click="Rename_Click" />
-                    <AppBarButton PointerEntered="ColorTag_PointerEntered">
-                        <AppBarButton.Icon>
+                    <Border Background="Transparent"
+                            Padding="12"
+                            PointerEntered="ColorTag_PointerEntered">
+                        <Viewbox>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                       Glyph="&#xEB52;" />
-                        </AppBarButton.Icon>
-                    </AppBarButton>
+                        </Viewbox>
+                    </Border>
                 </StackPanel>
             </AppBarElementContainer>
             <AppBarElementContainer Visibility="{x:Bind FileStandardBar.Visibility, Mode=TwoWay, Converter={StaticResource InverseConverter}}">
@@ -159,9 +161,13 @@
                                       Glyph="&#xEB51;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Icon="Back"
-                                  ToolTipService.ToolTip="Back"
-                                  PointerEntered="ColorBarBack_Click" />
+                    <Border Background="Transparent"
+                            Padding="12"
+                            PointerEntered="ColorBarBack_Click">
+                        <Viewbox>
+                            <SymbolIcon Symbol="Back" />
+                        </Viewbox>
+                    </Border>
                 </StackPanel>
             </AppBarElementContainer>
             <muxc:CommandBarFlyout.SecondaryCommands>
@@ -364,12 +370,14 @@
                                   ToolTipService.ToolTip="删除"
                                   x:Uid="FileDelete"
                                   Click="Delete_Click" />
-                    <AppBarButton PointerEntered="ColorTag_PointerEntered">
-                        <AppBarButton.Icon>
+                    <Border Background="Transparent"
+                            Padding="12"
+                            PointerEntered="ColorTag_PointerEntered">
+                        <Viewbox>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                       Glyph="&#xEB52;" />
-                        </AppBarButton.Icon>
-                    </AppBarButton>
+                        </Viewbox>
+                    </Border>
                 </StackPanel>
             </AppBarElementContainer>
             <AppBarElementContainer Visibility="{x:Bind MixedStandardBar.Visibility, Mode=TwoWay, Converter={StaticResource InverseConverter}}">
@@ -419,9 +427,13 @@
                                       Glyph="&#xEB51;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Icon="Back"
-                                  ToolTipService.ToolTip="Back"
-                                  PointerEntered="ColorBarBack_Click" />
+                    <Border Background="Transparent"
+                            Padding="12"
+                            PointerEntered="ColorBarBack_Click">
+                        <Viewbox>
+                            <SymbolIcon Symbol="Back" />
+                        </Viewbox>
+                    </Border>
                 </StackPanel>
             </AppBarElementContainer>
             <muxc:CommandBarFlyout.SecondaryCommands>
@@ -468,12 +480,14 @@
                                   x:Uid="FolderRename"
                                   x:Name="FolderRename"
                                   Click="Rename_Click" />
-                    <AppBarButton PointerEntered="ColorTag_PointerEntered">
-                        <AppBarButton.Icon>
+                    <Border Background="Transparent"
+                            Padding="12"
+                            PointerEntered="ColorTag_PointerEntered">
+                        <Viewbox>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                       Glyph="&#xEB52;" />
-                        </AppBarButton.Icon>
-                    </AppBarButton>
+                        </Viewbox>
+                    </Border>
                 </StackPanel>
             </AppBarElementContainer>
             <AppBarElementContainer Visibility="{x:Bind FolderStandardBar.Visibility, Mode=TwoWay, Converter={StaticResource InverseConverter}}">
@@ -522,9 +536,13 @@
                                       Glyph="&#xEB51;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Icon="Back"
-                                  ToolTipService.ToolTip="Back"
-                                  PointerEntered="ColorBarBack_Click" />
+                    <Border Background="Transparent"
+                            Padding="12"
+                            PointerEntered="ColorBarBack_Click">
+                        <Viewbox>
+                            <SymbolIcon Symbol="Back" />
+                        </Viewbox>
+                    </Border>
                 </StackPanel>
             </AppBarElementContainer>
             <muxc:CommandBarFlyout.SecondaryCommands>
