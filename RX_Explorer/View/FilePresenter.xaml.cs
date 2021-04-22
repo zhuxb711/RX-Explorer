@@ -4281,7 +4281,18 @@ namespace RX_Explorer
 
         private void ColorTag_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
-            if (sender is FrameworkElement Element)
+            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse && sender is FrameworkElement Element)
+            {
+                if (Element.FindParentOfType<AppBarElementContainer>() is AppBarElementContainer Container)
+                {
+                    Container.Visibility = Visibility.Collapsed;
+                }
+            }
+        }
+
+        private void ColorTag_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            if (e.PointerDeviceType != PointerDeviceType.Mouse && sender is FrameworkElement Element)
             {
                 if (Element.FindParentOfType<AppBarElementContainer>() is AppBarElementContainer Container)
                 {
@@ -4301,9 +4312,20 @@ namespace RX_Explorer
             }
         }
 
-        private void ColorBarBack_Click(object sender, RoutedEventArgs e)
+        private void ColorBarBack_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
-            if (sender is FrameworkElement Element)
+            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse && sender is FrameworkElement Element)
+            {
+                if (Element.FindParentOfType<AppBarElementContainer>() is AppBarElementContainer Container)
+                {
+                    Container.Visibility = Visibility.Collapsed;
+                }
+            }
+        }
+
+        private void ColorBarBack_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            if (e.PointerDeviceType != PointerDeviceType.Mouse && sender is FrameworkElement Element)
             {
                 if (Element.FindParentOfType<AppBarElementContainer>() is AppBarElementContainer Container)
                 {

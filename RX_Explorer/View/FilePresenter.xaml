@@ -96,6 +96,8 @@
                                   Click="Rename_Click" />
                     <Border Background="Transparent"
                             Padding="12"
+                            IsTapEnabled="True"
+                            Tapped="ColorTag_Tapped"
                             PointerEntered="ColorTag_PointerEntered">
                         <Viewbox>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -153,7 +155,9 @@
                     </AppBarButton>
                     <Border Background="Transparent"
                             Padding="12"
-                            PointerEntered="ColorBarBack_Click">
+                            IsTapEnabled="True"
+                            Tapped="ColorBarBack_Tapped"
+                            PointerEntered="ColorBarBack_PointerEntered">
                         <Viewbox>
                             <SymbolIcon Symbol="Back" />
                         </Viewbox>
@@ -341,6 +345,8 @@
                                   Click="Delete_Click" />
                     <Border Background="Transparent"
                             Padding="12"
+                            IsTapEnabled="True"
+                            Tapped="ColorTag_Tapped"
                             PointerEntered="ColorTag_PointerEntered">
                         <Viewbox>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -398,7 +404,9 @@
                     </AppBarButton>
                     <Border Background="Transparent"
                             Padding="12"
-                            PointerEntered="ColorBarBack_Click">
+                            IsTapEnabled="True"
+                            Tapped="ColorBarBack_Tapped"
+                            PointerEntered="ColorBarBack_PointerEntered">
                         <Viewbox>
                             <SymbolIcon Symbol="Back" />
                         </Viewbox>
@@ -447,6 +455,8 @@
                                   Click="Rename_Click" />
                     <Border Background="Transparent"
                             Padding="12"
+                            IsTapEnabled="True"
+                            Tapped="ColorTag_Tapped"
                             PointerEntered="ColorTag_PointerEntered">
                         <Viewbox>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -503,7 +513,9 @@
                     </AppBarButton>
                     <Border Background="Transparent"
                             Padding="12"
-                            PointerEntered="ColorBarBack_Click">
+                            IsTapEnabled="True"
+                            Tapped="ColorBarBack_Tapped"
+                            PointerEntered="ColorBarBack_PointerEntered">
                         <Viewbox>
                             <SymbolIcon Symbol="Back" />
                         </Viewbox>
