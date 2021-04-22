@@ -29,21 +29,92 @@
         <Cls:EmptyTextFiliterConverter x:Key="EmptyTextFiliter" />
         <Cls:InverseBooleanConverter x:Key="InverseConverter" />
 
-        <muxc:CommandBarFlyout x:Name="LnkItemFlyout"
+        <muxc:CommandBarFlyout x:Name="LinkItemFlyout"
                                Placement="RightEdgeAlignedTop">
-            <AppBarButton Icon="Copy"
-                          ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
-                          Click="Copy_Click" />
-            <AppBarButton Icon="Cut"
-                          ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Cut')}"
-                          Click="Cut_Click" />
-            <AppBarButton Icon="Delete"
-                          ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Delete')}"
-                          Click="Delete_Click" />
-            <AppBarButton Icon="Rename"
-                          ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Rename')}"
-                          Click="Rename_Click" />
-
+            <AppBarElementContainer x:Name="LinkStandardBar">
+                <StackPanel Orientation="Horizontal">
+                    <AppBarButton Icon="Copy"
+                                  ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Copy')}"
+                                  Click="Copy_Click" />
+                    <AppBarButton Icon="Cut"
+                                  ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Cut')}"
+                                  Click="Cut_Click" />
+                    <AppBarButton Icon="Delete"
+                                  ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Delete')}"
+                                  Click="Delete_Click" />
+                    <AppBarButton Icon="Rename"
+                                  ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Rename')}"
+                                  Click="Rename_Click" />
+                    <Border Background="Transparent"
+                            Padding="12"
+                            IsTapEnabled="True"
+                            Tapped="ColorTag_Tapped"
+                            x:Uid="TagEntry"
+                            PointerEntered="ColorTag_PointerEntered">
+                        <Viewbox>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEB52;" />
+                        </Viewbox>
+                    </Border>
+                </StackPanel>
+            </AppBarElementContainer>
+            <AppBarElementContainer Visibility="{x:Bind LinkStandardBar.Visibility, Mode=TwoWay, Converter={StaticResource InverseConverter}}">
+                <StackPanel Orientation="Horizontal">
+                    <AppBarButton ToolTipService.ToolTip="Untag"
+                                  x:Uid="UnTag"
+                                  Click="UnTag_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEA92;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Foreground="Orange"
+                                  x:Uid="OrangeTag"
+                                  ToolTipService.ToolTip="Orange"
+                                  Click="Color_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEB51;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Foreground="GreenYellow"
+                                  x:Uid="GreenTag"
+                                  ToolTipService.ToolTip="Green"
+                                  Click="Color_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEB51;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Foreground="Yellow"
+                                  x:Uid="YellowTag"
+                                  ToolTipService.ToolTip="Yellow"
+                                  Click="Color_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEB51;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Foreground="#409EFE"
+                                  x:Uid="BlueTag"
+                                  ToolTipService.ToolTip="Blue"
+                                  Click="Color_Click">
+                        <AppBarButton.Icon>
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                      Glyph="&#xEB51;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <Border Background="Transparent"
+                            Padding="12"
+                            IsTapEnabled="True"
+                            Tapped="ColorBarBack_Tapped"
+                            PointerEntered="ColorBarBack_PointerEntered">
+                        <Viewbox>
+                            <SymbolIcon Symbol="Back" />
+                        </Viewbox>
+                    </Border>
+                </StackPanel>
+            </AppBarElementContainer>
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="OpenFile"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Open')}"
@@ -98,6 +169,7 @@
                             Padding="12"
                             IsTapEnabled="True"
                             Tapped="ColorTag_Tapped"
+                            x:Uid="TagEntry"
                             PointerEntered="ColorTag_PointerEntered">
                         <Viewbox>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -108,13 +180,12 @@
             </AppBarElementContainer>
             <AppBarElementContainer Visibility="{x:Bind FileStandardBar.Visibility, Mode=TwoWay, Converter={StaticResource InverseConverter}}">
                 <StackPanel Orientation="Horizontal">
-                    <AppBarButton ToolTipService.ToolTip="取消标记"
-                                  Name="UnTag"
+                    <AppBarButton ToolTipService.ToolTip="Untag"
                                   x:Uid="UnTag"
                                   Click="UnTag_Click">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                      Glyph="&#xEB51;" />
+                                      Glyph="&#xEA92;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
                     <AppBarButton Foreground="Orange"
@@ -346,6 +417,7 @@
                     <Border Background="Transparent"
                             Padding="12"
                             IsTapEnabled="True"
+                            x:Uid="TagEntry"
                             Tapped="ColorTag_Tapped"
                             PointerEntered="ColorTag_PointerEntered">
                         <Viewbox>
@@ -357,13 +429,12 @@
             </AppBarElementContainer>
             <AppBarElementContainer Visibility="{x:Bind MixedStandardBar.Visibility, Mode=TwoWay, Converter={StaticResource InverseConverter}}">
                 <StackPanel Orientation="Horizontal">
-                    <AppBarButton ToolTipService.ToolTip="取消标记"
+                    <AppBarButton ToolTipService.ToolTip="Untag"
                                   x:Uid="UnTag"
-                                  Name="MixUnTag"
                                   Click="MixUnTag_Click">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                      Glyph="&#xEB51;" />
+                                      Glyph="&#xEA92;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
                     <AppBarButton Foreground="Orange"
@@ -457,6 +528,7 @@
                             Padding="12"
                             IsTapEnabled="True"
                             Tapped="ColorTag_Tapped"
+                            x:Uid="TagEntry"
                             PointerEntered="ColorTag_PointerEntered">
                         <Viewbox>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -467,12 +539,12 @@
             </AppBarElementContainer>
             <AppBarElementContainer Visibility="{x:Bind FolderStandardBar.Visibility, Mode=TwoWay, Converter={StaticResource InverseConverter}}">
                 <StackPanel Orientation="Horizontal">
-                    <AppBarButton ToolTipService.ToolTip="取消标记"
+                    <AppBarButton ToolTipService.ToolTip="Untag"
                                   x:Uid="UnTag"
                                   Click="UnTag_Click">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                      Glyph="&#xEB51;" />
+                                      Glyph="&#xEA92;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
                     <AppBarButton Foreground="Orange"

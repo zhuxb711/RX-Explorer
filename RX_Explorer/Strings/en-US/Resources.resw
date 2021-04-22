@@ -3074,4 +3074,7 @@ Invalid names include
   <data name="Operate_Text_Copy" xml:space="preserve">
     <value>Copy</value>
   </data>
+  <data name="TagEntry.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Tag</value>
+  </data>
 </root>

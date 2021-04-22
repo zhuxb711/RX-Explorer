@@ -3940,6 +3940,10 @@ Invalid names include
           <source>Copy</source>
           <target state="translated">复制</target>
         </trans-unit>
+        <trans-unit id="TagEntry.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Tag</source>
+          <target state="translated">標籤</target>
+        </trans-unit>
       </group>
     </body>
   </file>

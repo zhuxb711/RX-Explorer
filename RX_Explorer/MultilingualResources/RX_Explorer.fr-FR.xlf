@@ -3940,6 +3940,10 @@ Les noms non valides incluent
           <source>Copy</source>
           <target state="translated">Copie</target>
         </trans-unit>
+        <trans-unit id="TagEntry.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Tag</source>
+          <target state="translated">Étiqueter</target>
+        </trans-unit>
       </group>
     </body>
   </file>

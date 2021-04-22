@@ -2969,4 +2969,7 @@
   <data name="Operate_Text_Copy" xml:space="preserve">
     <value>复制</value>
   </data>
+  <data name="TagEntry.ToolTipService.ToolTip" xml:space="preserve">
+    <value>標籤</value>
+  </data>
 </root>

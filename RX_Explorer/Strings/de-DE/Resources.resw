@@ -2969,4 +2969,7 @@ Inkorrekte Namen sind
   <data name="Operate_Text_Copy" xml:space="preserve">
     <value>Kopieren</value>
   </data>
+  <data name="TagEntry.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Etikett</value>
+  </data>
 </root>

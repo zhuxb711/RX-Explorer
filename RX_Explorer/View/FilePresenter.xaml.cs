@@ -860,7 +860,7 @@ namespace RX_Explorer
             FolderFlyout.Hide();
             EmptyFlyout.Hide();
             MixedFlyout.Hide();
-            LnkItemFlyout.Hide();
+            LinkItemFlyout.Hide();
         }
 
         private async Task Ctrl_Z_Click()
@@ -1583,7 +1583,7 @@ namespace RX_Explorer
                             {
                                 case LinkStorageFile:
                                     {
-                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender));
+                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LinkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                         break;
                                     }
                                 case FileSystemStorageFolder:
@@ -1630,7 +1630,7 @@ namespace RX_Explorer
                                         {
                                             case LinkStorageFile:
                                                 {
-                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender));
+                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LinkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                                     break;
                                                 }
                                             case FileSystemStorageFolder:
@@ -1655,7 +1655,7 @@ namespace RX_Explorer
                                             {
                                                 case LinkStorageFile:
                                                     {
-                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender));
+                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LinkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                                         break;
                                                     }
                                                 case FileSystemStorageFolder:
@@ -3409,7 +3409,7 @@ namespace RX_Explorer
                             {
                                 case LinkStorageFile:
                                     {
-                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender));
+                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LinkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                         break;
                                     }
                                 case FileSystemStorageFile:
@@ -3456,7 +3456,7 @@ namespace RX_Explorer
                                         {
                                             case LinkStorageFile:
                                                 {
-                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender));
+                                                    await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LinkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                                     break;
                                                 }
                                             case FileSystemStorageFile:
@@ -3481,7 +3481,7 @@ namespace RX_Explorer
                                             {
                                                 case LinkStorageFile:
                                                     {
-                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LnkItemFlyout, e.GetPosition((FrameworkElement)sender));
+                                                        await ItemPresenter.SetCommandBarFlyoutWithExtraContextMenuItems(LinkItemFlyout, e.GetPosition((FrameworkElement)sender));
                                                         break;
                                                     }
                                                 case FileSystemStorageFile:

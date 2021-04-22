@@ -3938,6 +3938,10 @@ Las denominaciones no válidas son:
           <source>Copy</source>
           <target state="translated">Dupdo</target>
         </trans-unit>
+        <trans-unit id="TagEntry.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Tag</source>
+          <target state="translated">Etiqueta</target>
+        </trans-unit>
       </group>
     </body>
   </file>

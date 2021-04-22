@@ -2969,4 +2969,7 @@ Les noms non valides incluent
   <data name="Operate_Text_Copy" xml:space="preserve">
     <value>Copie</value>
   </data>
+  <data name="TagEntry.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Étiqueter</value>
+  </data>
 </root>
