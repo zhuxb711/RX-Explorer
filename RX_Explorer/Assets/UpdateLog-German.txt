@@ -1,4 +1,47 @@
 ﻿*****
+###Was ist neu in Ver.6.3.5.0
+
+#####Funktionsaktualisierung
+
+>#####Den Einstellungen wurde ein Schalter hinzugefügt, mit dem gesteuert werden kann, ob Systemdateien angezeigt werden sollen
+
+>#####Sie können jetzt Dateien direkt öffnen oder den integrierten Viewer in die Suchergebnisse eingeben
+
+>#####Pfadspeicherfunktion hinzugefügt (Danke @silentmoooon) [PR #156](https://github.com/zhuxb711/RX-Explorer/pull/156)
+
+>>#####Wenn Sie zum übergeordneten Ordner zurückkehren, behalten Sie den Quellpfad bei und zeigen Sie ihn grau an
+
+>#####Farb-Tag-Funktion hinzugefügt (Danke @silentmoooon) [PR #158](https://github.com/zhuxb711/RX-Explorer/pull/158)
+
+>>#####Sie können Dateien nach Farbe markieren und unterscheiden
+
+#####UI-Update
+
+>#####Die Aufgabenliste unterstützt jetzt die Berechnungsgeschwindigkeit und die verbleibende Zeit
+
+>#####Bestätigen Sie, dass die Umbenennungsfunktion mit der Eingabetaste wieder online ist
+
+>#####Das zusätzliche Popup-Menü unten wurde entfernt
+
+#####Fehlerbehebung
+
+>#####Das Problem, das beim Ziehen und Auswählen in einigen Fällen zu einem Absturz führen kann, wurde behoben
+
+>#####In einigen Fällen wurde das Problem behoben, dass eine bestimmte Ordnerkonfiguration verloren ging
+
+>#####Es wurde das Problem behoben, dass einige Ordner nicht richtig durchsucht oder abgerufen werden konnten. Das Problem wurde durch die Indizierung verursacht und die Indizierung wurde deaktiviert
+
+>#####Es wurde das Problem behoben, dass das Dateisystemüberwachungsmodul die Änderung des Schalters "Versteckte Dateien anzeigen" in einigen Fällen nicht korrekt verarbeiten kann
+
+>#####Das Problem wurde behoben, dass das Suchmodul keine regulären Ausdrücke für die rekursive Suche verwenden kann
+
+>#####Das Problem wurde behoben, dass die Adressleiste die zusätzlichen Leerzeichen vor und nach der Adresse nicht verarbeitet
+
+>#####Das Problem wurde behoben, dass einige Benutzer den WIN + E-Schalter möglicherweise nicht richtig öffnen konnten
+
+>#####Einige zugrunde liegende Architekturprobleme wurden optimiert
+
+*****
 ###Was ist neu in Ver.6.3.1.0
 
 #####Fehlerbehebung

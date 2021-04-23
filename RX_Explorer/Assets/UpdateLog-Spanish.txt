@@ -1,4 +1,47 @@
 ﻿*****
+###Novedades de la versión 6.3.5.0
+
+#####Actualización de funciones
+
+>#####Se ha agregado a la configuración un interruptor para controlar si se muestran los archivos del sistema
+
+>#####Ahora puedes abrir archivos directamente o ingresar al visor integrado en los resultados de búsqueda
+
+>#####Función de memoria de ruta agregada (Gracias @silentmoooon) [PR #156](https://github.com/zhuxb711/RX-Explorer/pull/156)
+
+>>#####Al regresar a la carpeta principal, mantenga la ruta de origen y muéstrela en gris
+
+>#####Función de etiqueta de color agregada (Gracias @silentmoooon) [PR #158](https://github.com/zhuxb711/RX-Explorer/pull/158)
+
+>>#####Puedes marcar y distinguir archivos por color
+
+#####actualización de la interfaz de usuario
+
+>#####La lista de tareas ahora admite la velocidad de cálculo y el tiempo restante
+
+>#####Confirma que la función de cambio de nombre con la tecla Enter está ahora de nuevo en línea
+
+>#####Eliminado el menú emergente auxiliar en la parte inferior
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema que podía causar un bloqueo al arrastrar y seleccionar en algunos casos
+
+>#####Se solucionó el problema de perder la configuración de carpeta específica en algunos casos
+
+>#####Se solucionó el problema de que algunas carpetas no se podían buscar o recuperar correctamente. El problema fue causado por la indexación y la indexación se ha deshabilitado
+
+>#####Se solucionó el problema de que el módulo de monitoreo del sistema de archivos no puede manejar correctamente el cambio del interruptor "mostrar archivos ocultos" en algunos casos
+
+>#####Se solucionó el problema de que el módulo de búsqueda no puede usar expresiones regulares para búsquedas recursivas
+
+>#####Se solucionó el problema de que la barra de direcciones no procesara los espacios adicionales antes y después de la dirección
+
+>#####Se solucionó el problema de que algunos usuarios no pudieran abrir correctamente el interruptor WIN + E
+
+>#####Optimización de algunos problemas de arquitectura subyacentes
+
+*****
 ###Novedades de la versión 6.3.1.0
 
 #####Arreglo del fallo

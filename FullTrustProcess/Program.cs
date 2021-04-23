@@ -883,9 +883,36 @@ namespace FullTrustProcess
                         {
                             ValueSet Value = new ValueSet();
 
-                            string[] EnvironmentVariables = Environment.GetEnvironmentVariable("Path").Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+                            string[] EnvironmentVariables = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.User).Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries)
+                                                            .Concat(Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine).Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries)).Distinct().ToArray();
 
-                            if (EnvironmentVariables.Where((Var) => Var.Contains("WindowsApps")).Select((Var) => Path.Combine(Var, "RX-Explorer.exe")).FirstOrDefault((Path) => File.Exists(Path)) is string AliasLocation)
+                            string AliasLocation = null;
+
+                            if (EnvironmentVariables.Where((Var) => Var.Contains("WindowsApps")).Select((Var) => Path.Combine(Var, "RX-Explorer.exe")).FirstOrDefault((Path) => File.Exists(Path)) is string Location)
+                            {
+                                AliasLocation = Location;
+                            }
+                            else
+                            {
+                                string AppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+
+                                if (!string.IsNullOrEmpty(AppDataPath) && Directory.Exists(AppDataPath))
+                                {
+                                    string WindowsAppsPath = Path.Combine(AppDataPath, "Microsoft", "WindowsApps");
+
+                                    if (Directory.Exists(WindowsAppsPath))
+                                    {
+                                        string RXPath = Path.Combine(WindowsAppsPath, "RX-Explorer.exe");
+
+                                        if (File.Exists(RXPath))
+                                        {
+                                            AliasLocation = RXPath;
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (!string.IsNullOrEmpty(AliasLocation))
                             {
                                 StorageFile InterceptFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Intercept_WIN_E.reg"));
                                 StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("Intercept_WIN_E_Temp.reg", CreationCollisionOption.ReplaceExisting);
@@ -916,11 +943,9 @@ namespace FullTrustProcess
 
                                     try
                                     {
-                                        RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("shell", false)?.OpenSubKey("opennewwindow", false)?.OpenSubKey("command", false);
-
-                                        if (Key != null)
+                                        using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("shell", false)?.OpenSubKey("opennewwindow", false)?.OpenSubKey("command", false))
                                         {
-                                            try
+                                            if (Key != null)
                                             {
                                                 if (Convert.ToString(Key.GetValue(string.Empty)) == $"{AliasLocation} %1" && Key.GetValue("DelegateExecute") == null)
                                                 {
@@ -931,14 +956,10 @@ namespace FullTrustProcess
                                                     Value.Add("Error", "Registry verification failed");
                                                 }
                                             }
-                                            finally
+                                            else
                                             {
-                                                Key.Dispose();
+                                                Value.Add("Success", string.Empty);
                                             }
-                                        }
-                                        else
-                                        {
-                                            Value.Add("Success", string.Empty);
                                         }
                                     }
                                     catch

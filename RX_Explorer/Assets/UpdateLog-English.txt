@@ -1,4 +1,47 @@
 ﻿*****
+###What's new in Ver.6.3.5.0
+
+#####Feature update
+
+>#####A switch to control whether to display system files has been added to the settings
+
+>#####You can now open files directly or enter the built-in viewer in search results
+
+>#####Added path memory function (Thanks @silentmoooon) [PR #156](https://github.com/zhuxb711/RX-Explorer/pull/156)
+
+>>#####When returning to the parent folder, keep the source path and display it in gray
+
+>#####Added color tag function (Thanks @silentmoooon) [PR #158](https://github.com/zhuxb711/RX-Explorer/pull/158)
+
+>>#####You can mark and distinguish files by color
+
+#####UI update
+
+>#####Task list now supports calculation speed and remaining time
+
+>#####Confirm the renaming function with the Enter key is now back online
+
+>#####Removed the auxiliary pop-up menu at the bottom
+
+#####Bug fix
+
+>#####Fixed the problem that may cause a crash when dragging and selecting in some cases
+
+>#####Fixed the problem of losing specific folder configuration in some cases
+
+>#####Fixed the problem that some folders could not be searched or retrieved correctly. The problem was caused by indexing, and indexing has been disabled
+
+>#####Fixed the problem that the file system monitoring module cannot correctly handle the change of the "show hidden files" switch in some cases
+
+>#####Fixed the problem that the search module cannot use regular expressions for recursive search
+
+>#####Fixed the problem that the address bar will not process the extra spaces before and after the address
+
+>#####Fixed the problem that some users may not be able to open the WIN+E switch correctly
+
+>#####Optimized some underlying architecture issues
+
+*****
 ###What's new in Ver.6.3.1.0
 
 #####Bug fix

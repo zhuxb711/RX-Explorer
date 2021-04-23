@@ -1,4 +1,47 @@
 ﻿*****
+###Quoi de neuf dans la version 6.3.5.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Un commutateur pour contrôler si les fichiers système doivent être affichés a été ajouté aux paramètres
+
+>#####Vous pouvez maintenant ouvrir les fichiers directement ou accéder à la visionneuse intégrée dans les résultats de recherche
+
+>#####Ajout de la fonction de mémoire de chemin (Merci @silentmoooon) [PR #156](https://github.com/zhuxb711/RX-Explorer/pull/156)
+
+>>#####Lors du retour au dossier parent, conservez le chemin source et affichez-le en gris
+
+>#####Ajout de la fonction d'étiquette de couleur (Merci @silentmoooon) [PR #158](https://github.com/zhuxb711/RX-Explorer/pull/158)
+
+>>#####Vous pouvez marquer et distinguer les fichiers par couleur
+
+#####Mise à jour de l'interface utilisateur
+
+>#####La liste des tâches prend désormais en charge la vitesse de calcul et le temps restant
+
+>#####Confirmez que la fonction de changement de nom avec la touche Entrée est de nouveau en ligne
+
+>#####Suppression du menu contextuel auxiliaire en bas
+
+#####Correction d'un bug
+
+>#####Correction du problème pouvant provoquer un plantage lors du glissement et de la sélection dans certains cas
+
+>#####Correction du problème de perte de configuration de dossier spécifique dans certains cas
+
+>#####Correction du problème selon lequel certains dossiers ne pouvaient pas être recherchés ou récupérés correctement. Le problème a été causé par l'indexation et l'indexation a été désactivée
+
+>#####Correction du problème que le module de surveillance du système de fichiers ne peut pas gérer correctement le changement du commutateur "afficher les fichiers cachés" dans certains cas
+
+>#####Correction du problème que le module de recherche ne peut pas utiliser d'expressions régulières pour la recherche récursive
+
+>#####Correction du problème que la barre d'adresse ne traitera pas les espaces supplémentaires avant et après l'adresse
+
+>#####Correction du problème qui empêchait certains utilisateurs d'ouvrir correctement le commutateur WIN + E
+
+>#####Optimisation de certains problèmes d'architecture sous-jacents
+
+*****
 ###Quoi de neuf dans la version 6.3.1.0
 
 #####Correction d'un bug
