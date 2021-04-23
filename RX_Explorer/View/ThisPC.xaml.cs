@@ -218,8 +218,16 @@ namespace RX_Explorer
                             if (!NewDevice.IsLockedByBitlocker)
                             {
                                 int Index = CommonAccessCollection.DriveList.IndexOf(Device);
-                                CommonAccessCollection.DriveList.Remove(Device);
-                                CommonAccessCollection.DriveList.Insert(Index, NewDevice);
+
+                                if (Index >= 0)
+                                {
+                                    CommonAccessCollection.DriveList.Remove(Device);
+                                    CommonAccessCollection.DriveList.Insert(Index, NewDevice);
+                                }
+                                else
+                                {
+                                    CommonAccessCollection.DriveList.Add(NewDevice);
+                                }
                             }
                             else
                             {
