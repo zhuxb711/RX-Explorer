@@ -1992,7 +1992,7 @@ namespace RX_Explorer
                         {
                             Control.FolderTree.RootNodes.Clear();
 
-                            foreach (StorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.Folder))
+                            foreach (StorageFolder DriveFolder in CommonAccessCollection.DriveList.Select((Drive) => Drive.DriveFolder))
                             {
                                 FileSystemStorageFolder Folder = await FileSystemStorageFolder.CreateFromExistingStorageItem(DriveFolder);
 

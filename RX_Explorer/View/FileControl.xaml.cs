@@ -130,9 +130,9 @@ namespace RX_Explorer
             Loaded += FileControl_Loaded;
         }
 
-        private async void CommonAccessCollection_DeviceRemoved(object sender, DriveRelatedData Device)
+        private async void CommonAccessCollection_DeviceRemoved(object sender, DriveDataBase Device)
         {
-            if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent)?.Path == Device.Folder?.Path) is TreeViewNode Node)
+            if (FolderTree.RootNodes.FirstOrDefault((Node) => ((Node.Content as TreeViewNodeContent)?.Path.Equals(Device.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()) is TreeViewNode Node)
             {
                 FolderTree.RootNodes.Remove(Node);
                 FolderTree.SelectedNode = FolderTree.RootNodes.LastOrDefault();
@@ -144,13 +144,13 @@ namespace RX_Explorer
             }
         }
 
-        private async void CommonAccessCollection_DeviceAdded(object sender, DriveRelatedData Device)
+        private async void CommonAccessCollection_DeviceAdded(object sender, DriveDataBase Device)
         {
-            if (!string.IsNullOrWhiteSpace(Device.Folder.Path))
+            if (!string.IsNullOrWhiteSpace(Device.Path))
             {
-                if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => Content.Path != Device.Folder?.Path))
+                if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => !Content.Path.Equals(Device.Path, StringComparison.OrdinalIgnoreCase)))
                 {
-                    FileSystemStorageFolder DeviceFolder = await FileSystemStorageFolder.CreateFromExistingStorageItem(Device.Folder);
+                    FileSystemStorageFolder DeviceFolder = await FileSystemStorageFolder.CreateFromExistingStorageItem(Device.DriveFolder);
 
                     if (Device.DriveType == DriveType.Network)
                     {
@@ -158,7 +158,7 @@ namespace RX_Explorer
                          {
                              TreeViewNode RootNode = new TreeViewNode
                              {
-                                 Content = new TreeViewNodeContent(Device.Folder),
+                                 Content = new TreeViewNodeContent(Device.DriveFolder),
                                  IsExpanded = false,
                                  HasUnrealizedChildren = task.Result
                              };
@@ -173,7 +173,7 @@ namespace RX_Explorer
 
                         TreeViewNode RootNode = new TreeViewNode
                         {
-                            Content = new TreeViewNodeContent(Device.Folder),
+                            Content = new TreeViewNodeContent(Device.DriveFolder),
                             IsExpanded = false,
                             HasUnrealizedChildren = HasAnyFolder
                         };
@@ -480,19 +480,19 @@ namespace RX_Explorer
         {
             if (InitFolderPathArray.Length > 0)
             {
-                DriveRelatedData[] Drives = CommonAccessCollection.DriveList.Where((Drive) => !string.IsNullOrWhiteSpace(Drive.Folder?.Path)).ToArray();
+                DriveDataBase[] Drives = CommonAccessCollection.DriveList.Where((Drive) => !string.IsNullOrWhiteSpace(Drive.Path)).ToArray();
 
-                foreach (DriveRelatedData DriveData in Drives.Where((Dr) => Dr.DriveType != DriveType.Network))
+                foreach (DriveDataBase DriveData in Drives.Where((Dr) => Dr.DriveType != DriveType.Network))
                 {
-                    if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => Path != DriveData.Folder.Path))
+                    if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals(DriveData.Path, StringComparison.OrdinalIgnoreCase)))
                     {
-                        FileSystemStorageFolder DeviceFolder = await FileSystemStorageFolder.CreateFromExistingStorageItem(DriveData.Folder);
+                        FileSystemStorageFolder DeviceFolder = await FileSystemStorageFolder.CreateFromExistingStorageItem(DriveData.DriveFolder);
 
                         bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder);
 
                         TreeViewNode RootNode = new TreeViewNode
                         {
-                            Content = new TreeViewNodeContent(DriveData.Folder),
+                            Content = new TreeViewNodeContent(DriveData.DriveFolder),
                             IsExpanded = false,
                             HasUnrealizedChildren = HasAnyFolder
                         };
@@ -507,17 +507,17 @@ namespace RX_Explorer
                     await CreateNewBlade(TargetPath);
                 }
 
-                foreach (DriveRelatedData DriveData in Drives.Where((Dr) => Dr.DriveType == DriveType.Network))
+                foreach (DriveDataBase DriveData in Drives.Where((Dr) => Dr.DriveType == DriveType.Network))
                 {
-                    if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => Path != DriveData.Folder.Path))
+                    if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals(DriveData.Path, StringComparison.OrdinalIgnoreCase)))
                     {
-                        FileSystemStorageFolder DeviceFolder = await FileSystemStorageFolder.CreateFromExistingStorageItem(DriveData.Folder);
+                        FileSystemStorageFolder DeviceFolder = await FileSystemStorageFolder.CreateFromExistingStorageItem(DriveData.DriveFolder);
 
                         await Task.Run(() => DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder)).ContinueWith((task) =>
                           {
                               TreeViewNode RootNode = new TreeViewNode
                               {
-                                  Content = new TreeViewNodeContent(DriveData.Folder),
+                                  Content = new TreeViewNodeContent(DriveData.DriveFolder),
                                   IsExpanded = false,
                                   HasUnrealizedChildren = task.Result
                               };
@@ -902,7 +902,7 @@ namespace RX_Explorer
 
             if (FolderTree.RootNodes.Any((Node) => (Node.Content as TreeViewNodeContent).Path.Equals(CurrentPresenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)))
             {
-                if (CommonAccessCollection.DriveList.FirstOrDefault((Device) => Device.Folder.Path.Equals(CurrentPresenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)) is DriveRelatedData Info)
+                if (CommonAccessCollection.DriveList.FirstOrDefault((Device) => Device.Path.Equals(CurrentPresenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)) is DriveDataBase Info)
                 {
                     DeviceInfoDialog dialog = new DeviceInfoDialog(Info);
                     _ = await dialog.ShowAsync();
@@ -1176,16 +1176,16 @@ namespace RX_Explorer
 
                     QueryText = await CommonEnvironmentVariables.ReplaceVariableAndGetActualPath(QueryText);
 
-                    if (Path.IsPathRooted(QueryText) && CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Folder.Path.Equals(Path.GetPathRoot(QueryText), StringComparison.OrdinalIgnoreCase)) is DriveRelatedData Device)
+                    if (Path.IsPathRooted(QueryText) && CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Path.Equals(Path.GetPathRoot(QueryText), StringComparison.OrdinalIgnoreCase)) is DriveDataBase Drive)
                     {
-                        if (Device.IsLockedByBitlocker)
+                        if (Drive is LockedDriveData LockedDrive)
                         {
                         Retry:
                             BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
 
                             if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                             {
-                                if (!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString"))
+                                if (!await LockedDrive.UnlockAsync(Dialog.Password))
                                 {
                                     QueueContentDialog UnlockFailedDialog = new QueueContentDialog
                                     {
@@ -1205,33 +1205,41 @@ namespace RX_Explorer
                                     }
                                 }
 
-                                StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
+                                StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Drive.Path);
 
-                                DriveRelatedData NewDevice = await DriveRelatedData.CreateAsync(DeviceFolder, Device.DriveType);
+                                DriveDataBase NewDrive = await DriveDataBase.CreateAsync(DeviceFolder, Drive.DriveType);
 
-                                if (!NewDevice.IsLockedByBitlocker)
+                                if (NewDrive is LockedDriveData)
                                 {
-                                    int Index = CommonAccessCollection.DriveList.IndexOf(Device);
-                                    CommonAccessCollection.DriveList.Remove(Device);
-                                    CommonAccessCollection.DriveList.Insert(Index, NewDevice);
+                                    QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                    };
+
+                                    if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
+                                    {
+                                        goto Retry;
+                                    }
+                                    else
+                                    {
+                                        return;
+                                    }
                                 }
                                 else
                                 {
-                                    QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                                    int Index = CommonAccessCollection.DriveList.IndexOf(Drive);
+                                    
+                                    if (Index >= 0)
                                     {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
-                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                    };
-
-                                    if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
-                                    {
-                                        goto Retry;
+                                        CommonAccessCollection.DriveList.Remove(LockedDrive);
+                                        CommonAccessCollection.DriveList.Insert(Index, NewDrive);
                                     }
                                     else
                                     {
-                                        return;
+                                        CommonAccessCollection.DriveList.Add(NewDrive);
                                     }
                                 }
                             }
@@ -1312,7 +1320,7 @@ namespace RX_Explorer
 
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                if (Path.IsPathRooted(sender.Text) && CommonAccessCollection.DriveList.Any((Drive) => Drive.Folder.Path.Equals(Path.GetPathRoot(sender.Text), StringComparison.OrdinalIgnoreCase)))
+                if (Path.IsPathRooted(sender.Text) && CommonAccessCollection.DriveList.Any((Drive) => Drive.Path.Equals(Path.GetPathRoot(sender.Text), StringComparison.OrdinalIgnoreCase)))
                 {
                     if (Interlocked.Exchange(ref TextChangeLockResource, 1) == 0)
                     {
