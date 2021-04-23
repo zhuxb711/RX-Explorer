@@ -774,11 +774,10 @@ namespace RX_Explorer
 
         private void NavigateToStorageItem(VirtualKey Key)
         {
-            char Input = Convert.ToChar(Key);
 
-            if (char.IsLetterOrDigit(Input))
+            if (Key>= VirtualKey.Number0&& Key<=VirtualKey.Z)
             {
-                string SearchString = Input.ToString();
+                string SearchString = Convert.ToChar(Key).ToString();
 
                 try
                 {
