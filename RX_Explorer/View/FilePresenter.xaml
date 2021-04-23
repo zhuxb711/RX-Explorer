@@ -850,13 +850,13 @@
                                TextTrimming="CharacterEllipsis"
                                x:Name="NameLabel"
                                PointerPressed="NameLabel_PointerPressed" />
-                    <TextBox HorizontalTextAlignment="Left"
+                    <TextBox HorizontalAlignment="Stretch"
+                             VerticalAlignment="Center"
                              x:Name="NameEditBox"
                              Width="150"
                              FontSize="14"
                              IsSpellCheckEnabled="False"
                              Visibility="Collapsed"
-                             BeforeTextChanging="NameEditBox_BeforeTextChanging"
                              x:Load="False" />
                     <TextBlock Text="{x:Bind DisplayType,Mode=OneWay}"
                                FontSize="12"
@@ -990,7 +990,6 @@
                          Grid.Column="1"
                          IsSpellCheckEnabled="False"
                          Visibility="Collapsed"
-                         BeforeTextChanging="NameEditBox_BeforeTextChanging"
                          x:Load="False" />
             </Grid>
         </DataTemplate>
@@ -1043,12 +1042,12 @@
                                PointerPressed="NameLabel_PointerPressed"
                                x:Name="NameLabel" />
                     <TextBox VerticalAlignment="Center"
+                             HorizontalAlignment="Stretch"
                              x:Name="NameEditBox"
                              FontSize="14"
                              Grid.Column="1"
                              IsSpellCheckEnabled="False"
                              Visibility="Collapsed"
-                             BeforeTextChanging="NameEditBox_BeforeTextChanging"
                              x:Load="False" />
                 </Grid>
                 <TextBlock VerticalAlignment="Center"

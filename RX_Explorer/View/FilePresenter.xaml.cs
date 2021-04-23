@@ -3636,8 +3636,9 @@ namespace RX_Explorer
                                     EditBox.Tag = SelectedItem;
                                     EditBox.Text = NameLabel.Text;
                                     EditBox.Visibility = Visibility.Visible;
+                                    EditBox.BeforeTextChanging += EditBox_BeforeTextChanging;
                                     EditBox.PreviewKeyDown += EditBox_PreviewKeyDown;
-                                    EditBox.LosingFocus += NameEditBox_LosingFocus;
+                                    EditBox.LostFocus += EditBox_LostFocus;
                                     EditBox.Focus(FocusState.Programmatic);
                                 }
 
@@ -3657,12 +3658,27 @@ namespace RX_Explorer
             }
         }
 
-        private async void NameEditBox_LosingFocus(object sender, LosingFocusEventArgs e)
+        private void EditBox_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
+        {
+            if (args.NewText.Any((Item) => Path.GetInvalidFileNameChars().Contains(Item)))
+            {
+                args.Cancel = true;
+
+                if ((sender.Parent as FrameworkElement).FindName("NameLabel") is TextBlock NameLabel)
+                {
+                    InvalidCharTip.Target = NameLabel;
+                    InvalidCharTip.IsOpen = true;
+                }
+            }
+        }
+
+        private async void EditBox_LostFocus(object sender, RoutedEventArgs e)
         {
             TextBox NameEditBox = (TextBox)sender;
 
-            NameEditBox.LosingFocus -= NameEditBox_LosingFocus;
+            NameEditBox.LostFocus -= EditBox_LostFocus;
             NameEditBox.PreviewKeyDown -= EditBox_PreviewKeyDown;
+            NameEditBox.BeforeTextChanging -= EditBox_BeforeTextChanging;
 
             if ((NameEditBox?.Parent as FrameworkElement)?.FindName("NameLabel") is TextBlock NameLabel && NameEditBox.Tag is FileSystemStorageItemBase CurrentEditItem)
             {
@@ -3745,7 +3761,6 @@ namespace RX_Explorer
                 finally
                 {
                     NameEditBox.Visibility = Visibility.Collapsed;
-
                     NameLabel.Visibility = Visibility.Visible;
 
                     Container.BlockKeyboardShortCutInput = false;
@@ -3773,20 +3788,6 @@ namespace RX_Explorer
             CloseAllFlyout();
 
             await Ctrl_Z_Click().ConfigureAwait(false);
-        }
-
-        private void NameEditBox_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
-        {
-            if (args.NewText.Any((Item) => Path.GetInvalidFileNameChars().Contains(Item)))
-            {
-                args.Cancel = true;
-
-                if ((sender.Parent as FrameworkElement).FindName("NameLabel") is TextBlock NameLabel)
-                {
-                    InvalidCharTip.Target = NameLabel;
-                    InvalidCharTip.IsOpen = true;
-                }
-            }
         }
 
         private async void OrderByName_Click(object sender, RoutedEventArgs e)
