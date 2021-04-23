@@ -21,6 +21,11 @@ namespace RX_Explorer.Class
             }
         }
 
+        public static bool CheckIfContainsVariable(string Path)
+        {
+            return Regex.IsMatch(Path, @"(?<=(%))[\s\S]+(?=(%))");
+        }
+
         public static async Task<string> ReplaceVariableAndGetActualPath(string PathWithVariable)
         {
             if (string.IsNullOrWhiteSpace(PathWithVariable))

@@ -263,12 +263,13 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        string[] CurrentSplit = Path.Split('\\', StringSplitOptions.RemoveEmptyEntries);
-                        if (Path.StartsWith("\\\\"))
+                        string[] CurrentSplit = Path.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
+
+                        if (Path.StartsWith(@"\\"))
                         {
                             if (CurrentSplit.Length > 0)
                             {
-                                CurrentSplit[0] = "\\\\" + CurrentSplit[0];
+                                CurrentSplit[0] = $@"\\{CurrentSplit[0]}";
                             }
                         }
 
@@ -279,14 +280,16 @@ namespace RX_Explorer
                         {
                             if (LastPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
                             {
-                                string[] LastSplit = LastPath.Split('\\', StringSplitOptions.RemoveEmptyEntries);
-                                if (LastPath.StartsWith("\\\\"))
+                                string[] LastSplit = LastPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
+                                
+                                if (LastPath.StartsWith(@"\\"))
                                 {
                                     if (LastSplit.Length > 0)
                                     {
-                                        LastSplit[0] = "\\\\" + LastSplit[0];
+                                        LastSplit[0] = $@"\\{LastSplit[0]}";
                                     }
                                 }
+
                                 for (int i = LastSplit.Length - CurrentSplit.Length - 1; i >= 0; i--)
                                 {
                                     AddressButtonList[AddressButtonList.Count - 1 - i].SetAsGrayBlock();
@@ -295,7 +298,7 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            if (LastGrayPath.Equals(Path, StringComparison.OrdinalIgnoreCase))
+                            if (Path.StartsWith(LastGrayPath, StringComparison.OrdinalIgnoreCase))
                             {
                                 foreach (AddressBlock GrayBlock in AddressButtonList.Where((Block) => Block.BlockType == AddressBlockType.Gray))
                                 {
@@ -306,14 +309,16 @@ namespace RX_Explorer
                             {
                                 if (LastPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
                                 {
-                                    string[] LastGraySplit = LastGrayPath.Split('\\', StringSplitOptions.RemoveEmptyEntries);
-                                    if (LastGrayPath.StartsWith("\\\\"))
+                                    string[] LastGraySplit = LastGrayPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
+                                    
+                                    if (LastGrayPath.StartsWith(@"\\"))
                                     {
                                         if (LastGraySplit.Length > 0)
                                         {
-                                            LastGraySplit[0] = "\\\\" + LastGraySplit[0];
+                                            LastGraySplit[0] = $@"\\{LastGraySplit[0]}";
                                         }
                                     }
+                                    
                                     for (int i = LastGraySplit.Length - CurrentSplit.Length - 1; i >= 0; i--)
                                     {
                                         AddressButtonList[AddressButtonList.Count - 1 - i].SetAsGrayBlock();
@@ -321,14 +326,16 @@ namespace RX_Explorer
                                 }
                                 else if (Path.StartsWith(LastPath, StringComparison.OrdinalIgnoreCase))
                                 {
-                                    string[] LastSplit = LastPath.Split('\\', StringSplitOptions.RemoveEmptyEntries);
-                                    if (LastPath.StartsWith("\\\\"))
+                                    string[] LastSplit = LastPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
+                                    
+                                    if (LastPath.StartsWith(@"\\"))
                                     {
                                         if (LastSplit.Length > 0)
                                         {
-                                            LastSplit[0] = "\\\\" + LastSplit[0];
+                                            LastSplit[0] = @$"\\{LastSplit[0]}";
                                         }
                                     }
+                                    
                                     for (int i = 0; i < CurrentSplit.Length - LastSplit.Length; i++)
                                     {
                                         if (AddressButtonList.FirstOrDefault((Block) => Block.BlockType == AddressBlockType.Gray) is AddressBlock GrayBlock)
@@ -344,12 +351,13 @@ namespace RX_Explorer
                         LastPath = AddressButtonList.Last((Block) => Block.BlockType == AddressBlockType.Normal).Path;
                         LastGrayPath = AddressButtonList.LastOrDefault((Block) => Block.BlockType == AddressBlockType.Gray)?.Path;
 
-                        string[] OriginSplit = LastPath.Split('\\', StringSplitOptions.RemoveEmptyEntries);
-                        if (LastPath.StartsWith("\\\\"))
+                        string[] OriginSplit = LastPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
+                        
+                        if (LastPath.StartsWith(@"\\"))
                         {
                             if (OriginSplit.Length > 0)
                             {
-                                OriginSplit[0] = "\\\\" + OriginSplit[0];
+                                OriginSplit[0] = @$"\\{OriginSplit[0]}";
                             }
                         }
 
@@ -382,10 +390,9 @@ namespace RX_Explorer
                         }
                         else
                         {
-                            if (!string.IsNullOrEmpty(LastGrayPath) 
-                                && Path.StartsWith(LastPath, StringComparison.OrdinalIgnoreCase) 
-                                && !Path.StartsWith(LastGrayPath, StringComparison.OrdinalIgnoreCase)
-                                && !LastGrayPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
+                            if (string.IsNullOrEmpty(LastGrayPath)
+                                || !Path.StartsWith(LastPath, StringComparison.OrdinalIgnoreCase)
+                                    || !(Path.StartsWith(LastGrayPath, StringComparison.OrdinalIgnoreCase) || LastGrayPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase)))
                             {
                                 for (int i = AddressButtonList.Count - 1; i >= IntersectList.Count; i--)
                                 {
@@ -406,7 +413,7 @@ namespace RX_Explorer
                 }
                 catch (Exception ex)
                 {
-                    LogTracer.Log(ex, $"{ nameof(UpdateAddressButton)} throw an exception");
+                    LogTracer.Log(ex, $"{nameof(UpdateAddressButton)} throw an exception");
                 }
                 finally
                 {
@@ -1086,14 +1093,14 @@ namespace RX_Explorer
 
             QueryText = QueryText.TrimEnd('\\').Trim();
 
-            if (QueryText == CurrentPresenter.CurrentFolder.Path)
+            if (QueryText.Equals(CurrentPresenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
 
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+            try
             {
-                try
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {
                     if (string.Equals(QueryText, "Powershell", StringComparison.OrdinalIgnoreCase) || string.Equals(QueryText, "Powershell.exe", StringComparison.OrdinalIgnoreCase))
                     {
@@ -1158,166 +1165,158 @@ namespace RX_Explorer
 
                         return;
                     }
+                }
 
-                    string ProtentialPath1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), QueryText);
-                    string ProtentialPath2 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), QueryText);
-                    string ProtentialPath3 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), QueryText);
+                string ProtentialPath1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), QueryText);
+                string ProtentialPath2 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), QueryText);
+                string ProtentialPath3 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), QueryText);
 
-                    if (ProtentialPath1 != QueryText && await FileSystemStorageItemBase.CheckExistAsync(ProtentialPath1))
+                if (ProtentialPath1 != QueryText && await FileSystemStorageItemBase.CheckExistAsync(ProtentialPath1))
+                {
+                    if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath1) is FileSystemStorageItemBase Item)
                     {
-                        if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath1) is FileSystemStorageItemBase Item)
+                        await CurrentPresenter.EnterSelectedItem(Item);
+
+                        if (Item is FileSystemStorageFolder)
                         {
-                            await CurrentPresenter.EnterSelectedItem(Item);
-
-                            if (Item is FileSystemStorageFolder)
-                            {
-                                await SQLite.Current.SetPathHistoryAsync(Item.Path);
-                            }
+                            await SQLite.Current.SetPathHistoryAsync(Item.Path);
                         }
-
-                        return;
-                    }
-                    else if (ProtentialPath2 != QueryText && await FileSystemStorageItemBase.CheckExistAsync(ProtentialPath2))
-                    {
-                        if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath2) is FileSystemStorageItemBase Item)
-                        {
-                            await CurrentPresenter.EnterSelectedItem(Item);
-
-                            if (Item is FileSystemStorageFolder)
-                            {
-                                await SQLite.Current.SetPathHistoryAsync(Item.Path);
-                            }
-                        }
-
-                        return;
-                    }
-                    else if (ProtentialPath3 != QueryText && await FileSystemStorageItemBase.CheckExistAsync(ProtentialPath3))
-                    {
-                        if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath3) is FileSystemStorageItemBase Item)
-                        {
-                            await CurrentPresenter.EnterSelectedItem(Item);
-
-                            if (Item is FileSystemStorageFolder)
-                            {
-                                await SQLite.Current.SetPathHistoryAsync(Item.Path);
-                            }
-                        }
-
-                        return;
                     }
 
+                    return;
+                }
+                else if (ProtentialPath2 != QueryText && await FileSystemStorageItemBase.CheckExistAsync(ProtentialPath2))
+                {
+                    if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath2) is FileSystemStorageItemBase Item)
+                    {
+                        await CurrentPresenter.EnterSelectedItem(Item);
+
+                        if (Item is FileSystemStorageFolder)
+                        {
+                            await SQLite.Current.SetPathHistoryAsync(Item.Path);
+                        }
+                    }
+
+                    return;
+                }
+                else if (ProtentialPath3 != QueryText && await FileSystemStorageItemBase.CheckExistAsync(ProtentialPath3))
+                {
+                    if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath3) is FileSystemStorageItemBase Item)
+                    {
+                        await CurrentPresenter.EnterSelectedItem(Item);
+
+                        if (Item is FileSystemStorageFolder)
+                        {
+                            await SQLite.Current.SetPathHistoryAsync(Item.Path);
+                        }
+                    }
+
+                    return;
+                }
+
+                if (CommonEnvironmentVariables.CheckIfContainsVariable(QueryText))
+                {
                     QueryText = await CommonEnvironmentVariables.ReplaceVariableAndGetActualPath(QueryText);
+                }
 
-                    if (Path.IsPathRooted(QueryText) && CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Path.Equals(Path.GetPathRoot(QueryText), StringComparison.OrdinalIgnoreCase)) is DriveDataBase Drive)
+                if (Path.IsPathRooted(QueryText) && CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Path.TrimEnd('\\').Equals(Path.GetPathRoot(QueryText).TrimEnd('\\'), StringComparison.OrdinalIgnoreCase)) is DriveDataBase Drive)
+                {
+                    if (Drive is LockedDriveData LockedDrive)
                     {
-                        if (Drive is LockedDriveData LockedDrive)
+                    Retry:
+                        BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
+
+                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                         {
-                        Retry:
-                            BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
-
-                            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                            if (!await LockedDrive.UnlockAsync(Dialog.Password))
                             {
-                                if (!await LockedDrive.UnlockAsync(Dialog.Password))
+                                QueueContentDialog UnlockFailedDialog = new QueueContentDialog
                                 {
-                                    QueueContentDialog UnlockFailedDialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
-                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                    };
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
 
-                                    if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
-                                    {
-                                        goto Retry;
-                                    }
-                                    else
-                                    {
-                                        return;
-                                    }
-                                }
-
-                                StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Drive.Path);
-
-                                DriveDataBase NewDrive = await DriveDataBase.CreateAsync(DeviceFolder, Drive.DriveType);
-
-                                if (NewDrive is LockedDriveData)
+                                if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
                                 {
-                                    QueueContentDialog UnlockFailedDialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
-                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                    };
-
-                                    if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
-                                    {
-                                        goto Retry;
-                                    }
-                                    else
-                                    {
-                                        return;
-                                    }
+                                    goto Retry;
                                 }
                                 else
                                 {
-                                    int Index = CommonAccessCollection.DriveList.IndexOf(Drive);
-                                    
-                                    if (Index >= 0)
-                                    {
-                                        CommonAccessCollection.DriveList.Remove(LockedDrive);
-                                        CommonAccessCollection.DriveList.Insert(Index, NewDrive);
-                                    }
-                                    else
-                                    {
-                                        CommonAccessCollection.DriveList.Add(NewDrive);
-                                    }
+                                    return;
                                 }
                             }
-                            else
-                            {
-                                return;
-                            }
-                        }
 
-                        if (await FileSystemStorageItemBase.OpenAsync(QueryText) is FileSystemStorageItemBase Item)
-                        {
-                            if (Item is FileSystemStorageFile)
-                            {
-                                await CurrentPresenter.EnterSelectedItem(Item);
-                            }
-                            else
-                            {
-                                string TargetRootPath = Path.GetPathRoot(Item.Path);
-                                string CurrentRootPath = Path.GetPathRoot(CurrentPresenter.CurrentFolder.Path);
+                            StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Drive.Path);
 
-                                if (CurrentRootPath != TargetRootPath)
+                            DriveDataBase NewDrive = await DriveDataBase.CreateAsync(DeviceFolder, Drive.DriveType);
+
+                            if (NewDrive is LockedDriveData)
+                            {
+                                QueueContentDialog UnlockFailedDialog = new QueueContentDialog
                                 {
-                                    if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == TargetRootPath) is TreeViewNode TargetRootNode)
-                                    {
-                                        FolderTree.SelectNodeAndScrollToVertical(TargetRootNode);
-                                        TargetRootNode.IsExpanded = true;
-                                    }
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
+
+                                if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
+                                {
+                                    goto Retry;
                                 }
+                                else
+                                {
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                int Index = CommonAccessCollection.DriveList.IndexOf(Drive);
 
-                                await CurrentPresenter.DisplayItemsInFolder(Item.Path);
-
-                                await SQLite.Current.SetPathHistoryAsync(Item.Path);
-
-                                await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, Item.Path);
+                                if (Index >= 0)
+                                {
+                                    CommonAccessCollection.DriveList.Remove(LockedDrive);
+                                    CommonAccessCollection.DriveList.Insert(Index, NewDrive);
+                                }
+                                else
+                                {
+                                    CommonAccessCollection.DriveList.Add(NewDrive);
+                                }
                             }
                         }
                         else
                         {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} \r\"{QueryText}\"",
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                            };
+                            return;
+                        }
+                    }
 
-                            _ = await dialog.ShowAsync();
+                    if (await FileSystemStorageItemBase.OpenAsync(QueryText) is FileSystemStorageItemBase Item)
+                    {
+                        if (Item is FileSystemStorageFile)
+                        {
+                            await CurrentPresenter.EnterSelectedItem(Item);
+                        }
+                        else
+                        {
+                            string TargetRootPath = Path.GetPathRoot(Item.Path);
+                            string CurrentRootPath = Path.GetPathRoot(CurrentPresenter.CurrentFolder.Path);
+
+                            if (CurrentRootPath != TargetRootPath)
+                            {
+                                if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == TargetRootPath) is TreeViewNode TargetRootNode)
+                                {
+                                    FolderTree.SelectNodeAndScrollToVertical(TargetRootNode);
+                                    TargetRootNode.IsExpanded = true;
+                                }
+                            }
+
+                            await CurrentPresenter.DisplayItemsInFolder(Item.Path);
+
+                            await SQLite.Current.SetPathHistoryAsync(Item.Path);
+
+                            await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, Item.Path);
                         }
                     }
                     else
@@ -1332,7 +1331,7 @@ namespace RX_Explorer
                         _ = await dialog.ShowAsync();
                     }
                 }
-                catch (Exception)
+                else
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -1343,6 +1342,17 @@ namespace RX_Explorer
 
                     _ = await dialog.ShowAsync();
                 }
+            }
+            catch (Exception)
+            {
+                QueueContentDialog dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} \r\"{QueryText}\"",
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                };
+
+                _ = await dialog.ShowAsync();
             }
         }
 
