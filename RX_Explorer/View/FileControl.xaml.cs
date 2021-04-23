@@ -264,6 +264,13 @@ namespace RX_Explorer
                     else
                     {
                         string[] CurrentSplit = Path.Split('\\', StringSplitOptions.RemoveEmptyEntries);
+                        if (Path.StartsWith("\\\\"))
+                        {
+                            if (CurrentSplit.Length > 0)
+                            {
+                                CurrentSplit[0] = "\\\\" + CurrentSplit[0];
+                            }
+                        }
 
                         string LastPath = AddressButtonList.Last((Block) => Block.BlockType == AddressBlockType.Normal).Path;
                         string LastGrayPath = AddressButtonList.LastOrDefault((Block) => Block.BlockType == AddressBlockType.Gray)?.Path;
@@ -273,7 +280,13 @@ namespace RX_Explorer
                             if (LastPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
                             {
                                 string[] LastSplit = LastPath.Split('\\', StringSplitOptions.RemoveEmptyEntries);
-
+                                if (LastPath.StartsWith("\\\\"))
+                                {
+                                    if (LastSplit.Length > 0)
+                                    {
+                                        LastSplit[0] = "\\\\" + LastSplit[0];
+                                    }
+                                }
                                 for (int i = LastSplit.Length - CurrentSplit.Length - 1; i >= 0; i--)
                                 {
                                     AddressButtonList[AddressButtonList.Count - 1 - i].SetAsGrayBlock();
@@ -294,7 +307,13 @@ namespace RX_Explorer
                                 if (LastPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
                                 {
                                     string[] LastGraySplit = LastGrayPath.Split('\\', StringSplitOptions.RemoveEmptyEntries);
-
+                                    if (LastGrayPath.StartsWith("\\\\"))
+                                    {
+                                        if (LastGraySplit.Length > 0)
+                                        {
+                                            LastGraySplit[0] = "\\\\" + LastGraySplit[0];
+                                        }
+                                    }
                                     for (int i = LastGraySplit.Length - CurrentSplit.Length - 1; i >= 0; i--)
                                     {
                                         AddressButtonList[AddressButtonList.Count - 1 - i].SetAsGrayBlock();
@@ -303,7 +322,13 @@ namespace RX_Explorer
                                 else if (Path.StartsWith(LastPath, StringComparison.OrdinalIgnoreCase))
                                 {
                                     string[] LastSplit = LastPath.Split('\\', StringSplitOptions.RemoveEmptyEntries);
-
+                                    if (LastPath.StartsWith("\\\\"))
+                                    {
+                                        if (LastSplit.Length > 0)
+                                        {
+                                            LastSplit[0] = "\\\\" + LastSplit[0];
+                                        }
+                                    }
                                     for (int i = 0; i < CurrentSplit.Length - LastSplit.Length; i++)
                                     {
                                         if (AddressButtonList.FirstOrDefault((Block) => Block.BlockType == AddressBlockType.Gray) is AddressBlock GrayBlock)
@@ -320,6 +345,13 @@ namespace RX_Explorer
                         LastGrayPath = AddressButtonList.LastOrDefault((Block) => Block.BlockType == AddressBlockType.Gray)?.Path;
 
                         string[] OriginSplit = LastPath.Split('\\', StringSplitOptions.RemoveEmptyEntries);
+                        if (LastPath.StartsWith("\\\\"))
+                        {
+                            if (OriginSplit.Length > 0)
+                            {
+                                OriginSplit[0] = "\\\\" + OriginSplit[0];
+                            }
+                        }
 
                         List<string> IntersectList = new List<string>(Math.Min(CurrentSplit.Length, OriginSplit.Length));
 
