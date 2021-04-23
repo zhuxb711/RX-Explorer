@@ -646,6 +646,23 @@ namespace RX_Explorer
                             LogTracer.Log(ex, $"Hide the device \"{Device.Name}\" for error");
                         }
                     }
+
+                    foreach (IStorageItem Device in await CommonAccessCollection.GetWsl())
+                    {
+                        try
+                        {
+                            StorageFolder Folder=(StorageFolder)Device;
+                           
+                            if (CommonAccessCollection.DriveList.All((Item) => (string.IsNullOrEmpty(Item.Folder.Path) || string.IsNullOrEmpty(Folder.Path)) ? Item.Folder.Name != Folder.Name : Item.Folder.Path != Folder.Path))
+                            {
+                                CommonAccessCollection.DriveList.Add(await DriveRelatedData.CreateAsync(Folder, DriveType.Network, true));
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            LogTracer.Log(ex, $"Hide the device \"{Device.Name}\" for error");
+                        }
+                    }
                 }
                 finally
                 {

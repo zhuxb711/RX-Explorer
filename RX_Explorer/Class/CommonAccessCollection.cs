@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Portable;
+using Windows.Foundation;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
@@ -330,6 +331,21 @@ namespace RX_Explorer.Class
                             }
                         }
 
+                        foreach (IStorageItem Device in await GetWsl())
+                        {
+                            try
+                            {
+                                StorageFolder Folder = (StorageFolder)Device;
+
+                                DriveList.Add(await DriveRelatedData.CreateAsync(Folder, DriveType.Network, true));
+                                 
+                            }
+                            catch (Exception ex)
+                            {
+                                LogTracer.Log(ex, $"Hide the device \"{Device.Name}\" for error");
+                            }
+                        }
+
                         switch (PortalDeviceWatcher.Status)
                         {
                             case DeviceWatcherStatus.Created:
@@ -441,13 +457,24 @@ namespace RX_Explorer.Class
                 }
             });
         }
+        public async static Task<IReadOnlyList<IStorageItem>> GetWsl()
+        {
+            try { 
+                StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(@"\\wsl$");
+                return await Folder.GetItemsAsync();
+            }catch (Exception)
+            {
+                return new List<IStorageItem>();
+            }
+        }
 
         private async static void NetworkDriveCheckTimer_Tick(object sender, object e)
         {
+            
             NetworkDriveCheckTimer.Stop();
 
             DriveInfo[] NewNetworkDrive = DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Network).ToArray();
-            DriveRelatedData[] ExistNetworkDrive = DriveList.Where((ExistDrive) => ExistDrive.DriveType == DriveType.Network).ToArray();
+            DriveRelatedData[] ExistNetworkDrive = DriveList.Where((ExistDrive) => ExistDrive.DriveType == DriveType.Network&&!ExistDrive.IsWsl).ToArray();
 
             IEnumerable<DriveInfo> AddList = NewNetworkDrive.Where((NewDrive) => ExistNetworkDrive.All((ExistDrive) => ExistDrive.Folder.Path != NewDrive.RootDirectory.FullName));
             IEnumerable<DriveRelatedData> RemoveList = ExistNetworkDrive.Where((ExistDrive) => NewNetworkDrive.All((NewDrive) => ExistDrive.Folder.Path != NewDrive.RootDirectory.FullName));

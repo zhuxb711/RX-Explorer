@@ -84,6 +84,8 @@ namespace RX_Explorer.Class
             }
         }
 
+        public bool IsWsl { get; private set; }
+
         public DriveType DriveType { get; private set; }
 
         public string FileSystem { get; private set; }
@@ -92,10 +94,10 @@ namespace RX_Explorer.Class
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public static async Task<DriveRelatedData> CreateAsync(StorageFolder Drive, DriveType DriveType)
+        public static async Task<DriveRelatedData> CreateAsync(StorageFolder Drive, DriveType DriveType, bool IsWsl=false)
         {
             BasicProperties Properties = await Drive.GetBasicPropertiesAsync();
-            return new DriveRelatedData(Drive, await Drive.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem), await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" }), DriveType);
+            return new DriveRelatedData(Drive, await Drive.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem), await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" }), DriveType,IsWsl);
         }
 
         /// <summary>
@@ -104,13 +106,13 @@ namespace RX_Explorer.Class
         /// <param name="Device">驱动器文件夹</param>
         /// <param name="Thumbnail">缩略图</param>
         /// <param name="PropertiesRetrieve">额外信息</param>
-        private DriveRelatedData(StorageFolder Device, BitmapImage Thumbnail, IDictionary<string, object> PropertiesRetrieve, DriveType DriveType)
+        private DriveRelatedData(StorageFolder Device, BitmapImage Thumbnail, IDictionary<string, object> PropertiesRetrieve, DriveType DriveType,bool IsWsl)
         {
             Folder = Device ?? throw new FileNotFoundException();
 
             this.Thumbnail = Thumbnail ?? new BitmapImage(new Uri("ms-appx:///Assets/DeviceIcon.png"));
             this.DriveType = DriveType;
-
+            this.IsWsl = IsWsl;
             if (Percent >= 0.9)
             {
                 ProgressBarForeground = new SolidColorBrush(Colors.Red);
