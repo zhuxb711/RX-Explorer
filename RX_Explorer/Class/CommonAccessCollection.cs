@@ -331,18 +331,17 @@ namespace RX_Explorer.Class
                             }
                         }
 
-                        foreach (IStorageItem Device in await GetWsl())
+                        foreach (StorageFolder Folder in await GetWslAsync())
                         {
                             try
                             {
-                                StorageFolder Folder = (StorageFolder)Device;
 
                                 DriveList.Add(await DriveRelatedData.CreateAsync(Folder, DriveType.Network, true));
                                  
                             }
                             catch (Exception ex)
                             {
-                                LogTracer.Log(ex, $"Hide the device \"{Device.Name}\" for error");
+                                LogTracer.Log(ex, $"Hide the device \"{Folder.Name}\" for error");
                             }
                         }
 
@@ -457,14 +456,14 @@ namespace RX_Explorer.Class
                 }
             });
         }
-        public async static Task<IReadOnlyList<IStorageItem>> GetWsl()
+        public async static Task<IReadOnlyList<StorageFolder>> GetWslAsync()
         {
             try { 
                 StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(@"\\wsl$");
-                return await Folder.GetItemsAsync();
+                return await Folder.GetFoldersAsync();
             }catch (Exception)
             {
-                return new List<IStorageItem>();
+                return new List<StorageFolder>();
             }
         }
 

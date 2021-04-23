@@ -647,12 +647,11 @@ namespace RX_Explorer
                         }
                     }
 
-                    foreach (IStorageItem Device in await CommonAccessCollection.GetWsl())
+                    foreach (StorageFolder Folder in await CommonAccessCollection.GetWslAsync())
                     {
                         try
                         {
-                            StorageFolder Folder=(StorageFolder)Device;
-                           
+                            
                             if (CommonAccessCollection.DriveList.All((Item) => (string.IsNullOrEmpty(Item.Folder.Path) || string.IsNullOrEmpty(Folder.Path)) ? Item.Folder.Name != Folder.Name : Item.Folder.Path != Folder.Path))
                             {
                                 CommonAccessCollection.DriveList.Add(await DriveRelatedData.CreateAsync(Folder, DriveType.Network, true));
@@ -660,7 +659,7 @@ namespace RX_Explorer
                         }
                         catch (Exception ex)
                         {
-                            LogTracer.Log(ex, $"Hide the device \"{Device.Name}\" for error");
+                            LogTracer.Log(ex, $"Hide the device \"{Folder.Name}\" for error");
                         }
                     }
                 }
