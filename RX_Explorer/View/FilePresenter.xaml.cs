@@ -2117,7 +2117,9 @@ namespace RX_Explorer
 
                                 if (Element.FindName("NameEditBox") is TextBox EditBox)
                                 {
-                                    EditBox.Tag = NewItem;
+                                    EditBox.BeforeTextChanging += EditBox_BeforeTextChanging;
+                                    EditBox.PreviewKeyDown += EditBox_PreviewKeyDown;
+                                    EditBox.LostFocus += EditBox_LostFocus;
                                     EditBox.Text = NewItem.Name;
                                     EditBox.Visibility = Visibility.Visible;
                                     EditBox.Focus(FocusState.Programmatic);
@@ -3633,12 +3635,11 @@ namespace RX_Explorer
 
                                 if ((NameLabel.Parent as FrameworkElement)?.FindName("NameEditBox") is TextBox EditBox)
                                 {
-                                    EditBox.Tag = SelectedItem;
-                                    EditBox.Text = NameLabel.Text;
-                                    EditBox.Visibility = Visibility.Visible;
                                     EditBox.BeforeTextChanging += EditBox_BeforeTextChanging;
                                     EditBox.PreviewKeyDown += EditBox_PreviewKeyDown;
                                     EditBox.LostFocus += EditBox_LostFocus;
+                                    EditBox.Text = NameLabel.Text;
+                                    EditBox.Visibility = Visibility.Visible;
                                     EditBox.Focus(FocusState.Programmatic);
                                 }
 
@@ -3680,7 +3681,7 @@ namespace RX_Explorer
             NameEditBox.PreviewKeyDown -= EditBox_PreviewKeyDown;
             NameEditBox.BeforeTextChanging -= EditBox_BeforeTextChanging;
 
-            if ((NameEditBox?.Parent as FrameworkElement)?.FindName("NameLabel") is TextBlock NameLabel && NameEditBox.Tag is FileSystemStorageItemBase CurrentEditItem)
+            if ((NameEditBox?.Parent as FrameworkElement)?.FindName("NameLabel") is TextBlock NameLabel && NameEditBox.DataContext is FileSystemStorageItemBase CurrentEditItem)
             {
                 try
                 {

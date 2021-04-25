@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.Toolkit.Uwp.UI.Controls;
+using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using System;
 using System.Collections.Generic;
@@ -38,7 +39,6 @@ namespace RX_Explorer
             InitializeComponent();
             ThisPage = this;
             Loaded += TabViewContainer_Loaded;
-            TabCollection.CollectionChanged += TabCollection_CollectionChanged;
             Application.Current.Suspending += Current_Suspending;
             CoreWindow.GetForCurrentThread().PointerPressed += TabViewContainer_PointerPressed;
             CoreWindow.GetForCurrentThread().KeyDown += TabViewContainer_KeyDown;
@@ -93,20 +93,6 @@ namespace RX_Explorer
         private void ListItemSource_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             EmptyTip.Visibility = QueueTaskController.ListItemSource.Any() ? Visibility.Collapsed : Visibility.Visible;
-        }
-
-        private void TabCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                case NotifyCollectionChangedAction.Move:
-                    {
-                        UpdateLayout();
-                        TabViewControl.SelectedIndex = e.NewStartingIndex;
-                        break;
-                    }
-            }
         }
 
         private async void CommonAccessCollection_LibraryNotFound(object sender, Queue<string> ErrorList)
@@ -327,7 +313,7 @@ namespace RX_Explorer
                 {
                     if (Control != null)
                     {
-                        PathList.Add(Control.BladeViewer.Items.OfType<Microsoft.Toolkit.Uwp.UI.Controls.BladeItem>().Select((Blade) => (Blade.Content as FilePresenter)?.CurrentFolder?.Path).ToArray());
+                        PathList.Add(Control.BladeViewer.Items.OfType<BladeItem>().Select((Blade) => (Blade.Content as FilePresenter)?.CurrentFolder?.Path).ToArray());
                     }
                     else
                     {
@@ -387,6 +373,7 @@ namespace RX_Explorer
         private async void TabViewControl_AddTabButtonClick(TabView sender, object args)
         {
             await CreateNewTabAsync();
+            sender.SelectedIndex = TabCollection.Count - 1;
         }
 
         private async Task<TabViewItem> CreateNewTabCoreAsync(params string[] PathForNewTab)

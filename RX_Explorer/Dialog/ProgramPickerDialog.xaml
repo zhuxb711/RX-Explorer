@@ -48,7 +48,8 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Hidden">
         <Grid Padding="5">
-            <StackPanel Name="WholeArea">
+            <StackPanel Name="WholeArea"
+                        MinWidth="450">
                 <StackPanel x:Name="Area1"
                             Visibility="Collapsed">
                     <TextBlock FontSize="16"

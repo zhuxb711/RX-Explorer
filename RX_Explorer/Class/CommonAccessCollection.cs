@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Toolkit.Deferred;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -12,7 +13,6 @@ using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
@@ -30,9 +30,9 @@ namespace RX_Explorer.Class
             Interval = TimeSpan.FromSeconds(5)
         };
 
-        public static event EventHandler<DriveRelatedData> DeviceAdded;
+        public static event EventHandler<DriveChangeDeferredEventArgs> DriveAdded;
 
-        public static event EventHandler<DriveRelatedData> DeviceRemoved;
+        public static event EventHandler<DriveChangeDeferredEventArgs> DriveRemoved;
 
         public static event EventHandler<Queue<string>> LibraryNotFound;
 
@@ -416,24 +416,29 @@ namespace RX_Explorer.Class
 
         private async static void HardDeviceList_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async() =>
             {
                 switch (e.Action)
                 {
                     case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
                         {
-                            foreach (DriveRelatedData Device in e.NewItems)
+                            if (DriveAdded != null)
                             {
-                                DeviceAdded?.Invoke(null, Device);
+                                foreach (DriveRelatedData Drive in e.NewItems)
+                                {
+                                    await DriveAdded.InvokeAsync(null, new DriveChangeDeferredEventArgs(Drive));
+                                }
                             }
-
                             break;
                         }
                     case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
                         {
-                            foreach (DriveRelatedData Device in e.OldItems)
+                            if (DriveRemoved != null)
                             {
-                                DeviceRemoved?.Invoke(null, Device);
+                                foreach (DriveRelatedData Drive in e.OldItems)
+                                {
+                                    await DriveRemoved.InvokeAsync(null, new DriveChangeDeferredEventArgs(Drive));
+                                }
                             }
 
                             break;
