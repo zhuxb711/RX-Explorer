@@ -67,7 +67,7 @@
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="Padding"
-                                    Value="5" />
+                                    Value="5,0" />
                         </Style>
                     </ListView.ItemContainerStyle>
                 </ListView>
@@ -88,7 +88,7 @@
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="Padding"
-                                    Value="5" />
+                                    Value="5,0" />
                         </Style>
                     </ListView.ItemContainerStyle>
                 </ListView>

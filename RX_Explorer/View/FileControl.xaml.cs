@@ -137,7 +137,7 @@ namespace RX_Explorer
 
             try
             {
-                if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent)?.Path == args.Data.Folder?.Path) is TreeViewNode Node)
+                if (FolderTree.RootNodes.FirstOrDefault((Node) => ((Node.Content as TreeViewNodeContent)?.Path .Equals(args.Data.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()) is TreeViewNode Node)
                 {
                     FolderTree.RootNodes.Remove(Node);
                     FolderTree.SelectedNode = FolderTree.RootNodes.LastOrDefault();
@@ -164,11 +164,11 @@ namespace RX_Explorer
 
             try
             {
-                if (!string.IsNullOrWhiteSpace(args.Data.Folder.Path))
+                if (!string.IsNullOrWhiteSpace(args.Data.Path))
                 {
-                    if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => Content.Path != args.Data.Folder?.Path))
+                    if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => !Content.Path.Equals(args.Data.Path, StringComparison.OrdinalIgnoreCase)))
                     {
-                        FileSystemStorageFolder DeviceFolder = await FileSystemStorageFolder.CreateFromExistingStorageItem(args.Data.Folder);
+                        FileSystemStorageFolder DeviceFolder = await FileSystemStorageFolder.CreateFromExistingStorageItem(args.Data.DriveFolder);
 
                         if (args.Data.DriveType == DriveType.Network)
                         {
@@ -176,7 +176,7 @@ namespace RX_Explorer
                              {
                                  TreeViewNode RootNode = new TreeViewNode
                                  {
-                                     Content = new TreeViewNodeContent(args.Data.Folder),
+                                     Content = new TreeViewNodeContent(args.Data.DriveFolder),
                                      IsExpanded = false,
                                      HasUnrealizedChildren = task.Result
                                  };
@@ -191,7 +191,7 @@ namespace RX_Explorer
 
                             TreeViewNode RootNode = new TreeViewNode
                             {
-                                Content = new TreeViewNodeContent(args.Data.Folder),
+                                Content = new TreeViewNodeContent(args.Data.DriveFolder),
                                 IsExpanded = false,
                                 HasUnrealizedChildren = HasAnyFolder
                             };

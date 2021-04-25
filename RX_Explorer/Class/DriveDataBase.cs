@@ -226,7 +226,7 @@ namespace RX_Explorer.Class
         }
 
         /// <summary>
-        /// 初始化DriveRelatedData对象
+        /// 初始化DriveDataBase对象
         /// </summary>
         /// <param name="DriveFolder">驱动器文件夹</param>
         /// <param name="Thumbnail">缩略图</param>

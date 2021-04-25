@@ -467,7 +467,7 @@ namespace RX_Explorer.Class
                         {
                             if (DriveAdded != null)
                             {
-                                foreach (DriveRelatedData Drive in e.NewItems)
+                                foreach (DriveDataBase Drive in e.NewItems)
                                 {
                                     await DriveAdded.InvokeAsync(null, new DriveChangeDeferredEventArgs(Drive));
                                 }
@@ -478,7 +478,7 @@ namespace RX_Explorer.Class
                         {
                             if (DriveRemoved != null)
                             {
-                                foreach (DriveRelatedData Drive in e.OldItems)
+                                foreach (DriveDataBase Drive in e.OldItems)
                                 {
                                     await DriveRemoved.InvokeAsync(null, new DriveChangeDeferredEventArgs(Drive));
                                 }
