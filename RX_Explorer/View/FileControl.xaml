@@ -189,6 +189,7 @@
                 </Viewbox>
             </Button>
             <AutoSuggestBox Style="{ThemeResource CustomAutoSuggestBoxStyle}"
+                            ItemsSource="{x:Bind AddressSuggestionList}"
                             Grid.Column="3"
                             Grid.ColumnSpan="2"
                             Margin="5,0,0,0"
@@ -202,12 +203,36 @@
                             LostFocus="AddressBox_LostFocus"
                             QuerySubmitted="AddressBox_QuerySubmitted"
                             TextChanged="AddressBox_TextChanged">
+                <AutoSuggestBox.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment"
+                                Value="Stretch" />
+                    </Style>
+                </AutoSuggestBox.ItemContainerStyle>
                 <AutoSuggestBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding}" 
-                                   ToolTipService.ToolTip="{Binding}"
-                                   HorizontalAlignment="Stretch"
-                                   TextTrimming="CharacterEllipsis"/>
+                    <DataTemplate x:DataType="Cls:AddressSuggestionItem">
+                        <RelativePanel HorizontalAlignment="Stretch"
+                                       Padding="0,0,5,0">
+                            <TextBlock Text="{x:Bind Path}"
+                                       ToolTipService.ToolTip="{x:Bind Path}"
+                                       RelativePanel.AlignLeftWithPanel="True"
+                                       RelativePanel.AlignVerticalCenterWithPanel="True"
+                                       RelativePanel.LeftOf="AddressBarSelectionDelete"
+                                       TextTrimming="CharacterEllipsis" />
+                            <Border Height="20"
+                                    Width="20"
+                                    Padding="5"
+                                    RelativePanel.AlignRightWithPanel="True"
+                                    x:Name="AddressBarSelectionDelete"
+                                    RelativePanel.AlignVerticalCenterWithPanel="True"
+                                    PointerPressed="AddressBarSelectionDelete_PointerPressed">
+                                <Viewbox ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Delete')}"
+                                         Visibility="{x:Bind CloseButtonVisibility}">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Glyph="&#xE8BB;" />
+                                </Viewbox>
+                            </Border>
+                        </RelativePanel>
                     </DataTemplate>
                 </AutoSuggestBox.ItemTemplate>
             </AutoSuggestBox>

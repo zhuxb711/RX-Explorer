@@ -264,31 +264,32 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                         if (LinkFile.LinkType == ShellLinkType.Normal)
                         {
-                            FileSystemStorageItemBase TargetItem = await FileSystemStorageItemBase.OpenAsync(LinkFile.LinkTargetPath);
-
-                            switch (await TargetItem.GetStorageItemAsync())
+                            if (await FileSystemStorageItemBase.OpenAsync(LinkFile.LinkTargetPath) is FileSystemStorageItemBase TargetItem)
                             {
-                                case StorageFile File:
-                                    {
-                                        ShortcutTargetTypeContent.Text = File.DisplayType;
-                                        break;
-                                    }
-                                case StorageFolder Folder:
-                                    {
-                                        ShortcutTargetTypeContent.Text = Folder.DisplayType;
-                                        break;
-                                    }
-                                default:
-                                    {
-                                        ShortcutTargetTypeContent.Text = TargetItem.DisplayType;
-                                        break;
-                                    }
-                            }
+                                switch (await TargetItem.GetStorageItemAsync())
+                                {
+                                    case StorageFile File:
+                                        {
+                                            ShortcutTargetTypeContent.Text = File.DisplayType;
+                                            break;
+                                        }
+                                    case StorageFolder Folder:
+                                        {
+                                            ShortcutTargetTypeContent.Text = Folder.DisplayType;
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            ShortcutTargetTypeContent.Text = TargetItem.DisplayType;
+                                            break;
+                                        }
+                                }
 
-                            ShortcutTargetLocationContent.Text = Path.GetDirectoryName(TargetItem.Path).Split('\\', StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
-                            ShortcutTargetContent.Text = TargetItem.Path;
-                            ShortcutStartInContent.Text = LinkFile.WorkDirectory;
-                            RunAsAdmin.IsChecked = LinkFile.NeedRunAsAdmin;
+                                ShortcutTargetLocationContent.Text = Path.GetDirectoryName(TargetItem.Path).Split('\\', StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
+                                ShortcutTargetContent.Text = TargetItem.Path;
+                                ShortcutStartInContent.Text = LinkFile.WorkDirectory;
+                                RunAsAdmin.IsChecked = LinkFile.NeedRunAsAdmin;
+                            }
                         }
                         else
                         {
