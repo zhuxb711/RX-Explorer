@@ -1786,8 +1786,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">由於Microsoft 商店或網路問題而無法打開購買頁面，請稍後再試</target>
         </trans-unit>
         <trans-unit id="QueueDialog_LocateFolderFailure_Content" translate="yes" xml:space="preserve">
-          <source>Unable to locate folder, which may have been deleted or moved</source>
-          <target state="translated">無法找到資料夾，該資料夾可能已被刪除或移動</target>
+          <source>Cannot locate or access the folder, the folder does not exist or lacks access permissions</source>
+          <target state="translated">無法找到或訪問該文件夾，該文件夾不存在或缺少訪問權限</target>
         </trans-unit>
         <trans-unit id="QueueDialog_WaitUntilFinish_CloseButton" translate="yes" xml:space="preserve">
           <source>Later</source>

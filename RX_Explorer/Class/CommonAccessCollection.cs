@@ -354,7 +354,10 @@ namespace RX_Explorer.Class
                         {
                             try
                             {
-                                DriveList.Add(await DriveDataBase.CreateAsync(Folder, DriveType.Network));
+                                if (DriveList.All((Item) => (string.IsNullOrEmpty(Item.Path) || string.IsNullOrEmpty(Folder.Path)) ? !Item.Name.Equals(Folder.Name, StringComparison.OrdinalIgnoreCase) : !Item.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
+                                {
+                                    DriveList.Add(await DriveDataBase.CreateAsync(Folder, DriveType.Network));
+                                }
                             }
                             catch (Exception ex)
                             {

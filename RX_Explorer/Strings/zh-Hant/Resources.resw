@@ -1352,7 +1352,7 @@
     <value>由於Microsoft 商店或網路問題而無法打開購買頁面，請稍後再試</value>
   </data>
   <data name="QueueDialog_LocateFolderFailure_Content" xml:space="preserve">
-    <value>無法找到資料夾，該資料夾可能已被刪除或移動</value>
+    <value>無法找到或訪問該文件夾，該文件夾不存在或缺少訪問權限</value>
   </data>
   <data name="QueueDialog_WaitUntilFinish_CloseButton" xml:space="preserve">
     <value>稍後</value>

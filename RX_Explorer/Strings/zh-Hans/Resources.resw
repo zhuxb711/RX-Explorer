@@ -1337,7 +1337,7 @@
     <value>稍后提醒</value>
   </data>
   <data name="QueueDialog_LocateFolderFailure_Content" xml:space="preserve">
-    <value>无法定位文件夹，该文件夹可能已被删除或移动</value>
+    <value>无法定位或访问文件夹，文件夹不存在或缺少访问权限</value>
   </data>
   <data name="QueueDialog_WaitUntilFinish_CloseButton" xml:space="preserve">
     <value>稍后</value>

@@ -1386,7 +1386,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>Kaufseite kann aufgrund von Microsoft Store oder Netzwerkproblem nicht geöffnet werden. Versuchen Sie es später erneut.</value>
   </data>
   <data name="QueueDialog_LocateFolderFailure_Content" xml:space="preserve">
-    <value>Ordner, der möglicherweise gelöscht oder verschoben wurde, konnte nicht gefunden werden.</value>
+    <value>Der Ordner kann nicht gefunden werden oder auf ihn zugegriffen werden. Der Ordner ist nicht vorhanden oder verfügt nicht über Zugriffsberechtigungen</value>
   </data>
   <data name="QueueDialog_WaitUntilFinish_CloseButton" xml:space="preserve">
     <value>Später</value>

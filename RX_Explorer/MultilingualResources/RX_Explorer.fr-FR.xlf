@@ -1766,8 +1766,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Me le rappeller plus tard</target>
         </trans-unit>
         <trans-unit id="QueueDialog_LocateFolderFailure_Content" translate="yes" xml:space="preserve">
-          <source>Unable to locate folder, which may have been deleted or moved</source>
-          <target state="translated">Impossible de localiser le dossier, il a pu être supprimé ou déplacé</target>
+          <source>Cannot locate or access the folder, the folder does not exist or lacks access permissions</source>
+          <target state="translated">Impossible de localiser ou d'accéder au dossier, le dossier n'existe pas ou n'a pas les autorisations d'accès</target>
         </trans-unit>
         <trans-unit id="QueueDialog_WaitUntilFinish_CloseButton" translate="yes" xml:space="preserve">
           <source>Later</source>

@@ -1610,7 +1610,7 @@ namespace RX_Explorer
             {
                 try
                 {
-                    if (Block.Path.Split(@"\", StringSplitOptions.RemoveEmptyEntries).Length > 1)
+                    if (!Block.Path.StartsWith(@"\") || Block.Path.Split(@"\", StringSplitOptions.RemoveEmptyEntries).Length > 1)
                     {
                         await CurrentPresenter.DisplayItemsInFolder(Block.Path);
                         await SQLite.Current.SetPathHistoryAsync(Block.Path);

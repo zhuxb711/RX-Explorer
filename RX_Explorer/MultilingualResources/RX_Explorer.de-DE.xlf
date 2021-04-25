@@ -1831,8 +1831,8 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <target state="translated">Kaufseite kann aufgrund von Microsoft Store oder Netzwerkproblem nicht geöffnet werden. Versuchen Sie es später erneut.</target>
         </trans-unit>
         <trans-unit id="QueueDialog_LocateFolderFailure_Content" translate="yes" xml:space="preserve">
-          <source>Unable to locate folder, which may have been deleted or moved</source>
-          <target state="translated">Ordner, der möglicherweise gelöscht oder verschoben wurde, konnte nicht gefunden werden.</target>
+          <source>Cannot locate or access the folder, the folder does not exist or lacks access permissions</source>
+          <target state="translated">Der Ordner kann nicht gefunden werden oder auf ihn zugegriffen werden. Der Ordner ist nicht vorhanden oder verfügt nicht über Zugriffsberechtigungen</target>
         </trans-unit>
         <trans-unit id="QueueDialog_WaitUntilFinish_CloseButton" translate="yes" xml:space="preserve">
           <source>Later</source>

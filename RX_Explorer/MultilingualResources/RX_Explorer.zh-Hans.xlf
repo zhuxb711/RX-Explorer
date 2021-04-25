@@ -1766,8 +1766,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">稍后提醒</target>
         </trans-unit>
         <trans-unit id="QueueDialog_LocateFolderFailure_Content" translate="yes" xml:space="preserve">
-          <source>Unable to locate folder, which may have been deleted or moved</source>
-          <target state="translated">无法定位文件夹，该文件夹可能已被删除或移动</target>
+          <source>Cannot locate or access the folder, the folder does not exist or lacks access permissions</source>
+          <target state="translated">无法定位或访问文件夹，文件夹不存在或缺少访问权限</target>
         </trans-unit>
         <trans-unit id="QueueDialog_WaitUntilFinish_CloseButton" translate="yes" xml:space="preserve">
           <source>Later</source>

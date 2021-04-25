@@ -1386,7 +1386,7 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>No se ha podido abrir la página de compra debido a Microsoft Store o a la red; inténtalo de nuevo más tarde.</value>
   </data>
   <data name="QueueDialog_LocateFolderFailure_Content" xml:space="preserve">
-    <value>No se ha podido ubicar la carpeta; puede que se haya movido o eliminado.</value>
+    <value>No se puede ubicar o acceder a la carpeta, la carpeta no existe o carece de permisos de acceso</value>
   </data>
   <data name="QueueDialog_WaitUntilFinish_CloseButton" xml:space="preserve">
     <value>Más tarde</value>
