@@ -152,6 +152,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Class\AddressBlock.cs" />
+    <Compile Include="Class\AddressSuggestionItem.cs" />
     <Compile Include="Class\AnimationController.cs" />
     <Compile Include="Class\AppInstanceIdContainer.cs" />
     <Compile Include="Class\BackgroundController.cs" />

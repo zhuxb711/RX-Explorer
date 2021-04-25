@@ -115,9 +115,9 @@ namespace RX_Explorer
             }
         }
 
-        private ObservableCollection<AddressBlock> AddressButtonList = new ObservableCollection<AddressBlock>();
-        private ObservableCollection<AddressBlock> AddressExtentionList = new ObservableCollection<AddressBlock>();
-
+        private readonly ObservableCollection<AddressBlock> AddressButtonList = new ObservableCollection<AddressBlock>();
+        private readonly ObservableCollection<AddressBlock> AddressExtentionList = new ObservableCollection<AddressBlock>();
+        private readonly ObservableCollection<AddressSuggestionItem> AddressSuggestionList = new ObservableCollection<AddressSuggestionItem>();
         public WeakReference<TabViewItem> WeakToTabItem { get; private set; }
 
         public FileControl()
@@ -1136,13 +1136,13 @@ namespace RX_Explorer
 
             string QueryText = null;
 
-            if (args.ChosenSuggestion == null)
+            if (args.ChosenSuggestion is AddressSuggestionItem SuggestItem)
             {
-                QueryText = AddressBoxTextBackup;
+                QueryText = SuggestItem.Path;
             }
             else
             {
-                QueryText = args.ChosenSuggestion.ToString();
+                QueryText = AddressBoxTextBackup;
             }
 
             if (string.IsNullOrEmpty(QueryText))
@@ -1434,24 +1434,32 @@ namespace RX_Explorer
 
                                 if (await FileSystemStorageItemBase.OpenAsync(DirectoryPath) is FileSystemStorageFolder Folder)
                                 {
+                                    AddressSuggestionList.Clear();
+
                                     if (string.IsNullOrEmpty(FileName))
                                     {
-                                        sender.ItemsSource = (await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems)).Take(20).Select((It) => It.Path).ToArray();
+                                        foreach (string Path in (await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems)).Take(20).Select((It) => It.Path))
+                                        {
+                                            AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Collapsed));
+                                        }
                                     }
                                     else
                                     {
-                                        sender.ItemsSource = (await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems)).Where((Item) => Item.Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase)).Take(20).Select((It) => It.Path).ToArray();
+                                        foreach (string Path in (await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems)).Where((Item) => Item.Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase)).Take(20).Select((It) => It.Path))
+                                        {
+                                            AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Collapsed));
+                                        }
                                     }
                                 }
                                 else
                                 {
-                                    sender.ItemsSource = null;
+                                    AddressSuggestionList.Clear();
                                 }
                             }
                         }
                         catch (Exception)
                         {
-                            sender.ItemsSource = null;
+                            AddressSuggestionList.Clear();
                         }
                         finally
                         {
@@ -1631,7 +1639,12 @@ namespace RX_Explorer
 
             AddressBox.FindChildOfType<TextBox>()?.SelectAll();
 
-            AddressBox.ItemsSource = await SQLite.Current.GetRelatedPathHistoryAsync();
+            AddressSuggestionList.Clear();
+
+            foreach (string Path in await SQLite.Current.GetRelatedPathHistoryAsync())
+            {
+                AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Visible));
+            }
         }
 
         private void AddressBox_KeyDown(object sender, KeyRoutedEventArgs e)
@@ -2548,6 +2561,17 @@ namespace RX_Explorer
             if (FolderTree.SelectedNode?.Content is TreeViewNodeContent Content)
             {
                 await CreateNewBlade(Content.Path).ConfigureAwait(false);
+            }
+        }
+
+        private async void AddressBarSelectionDelete_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            e.Handled = true;
+
+            if ((sender as FrameworkElement)?.DataContext is AddressSuggestionItem Item)
+            {
+                AddressSuggestionList.Remove(Item);
+                await SQLite.Current.DeletePathHistoryAsync(Item.Path);
             }
         }
     }

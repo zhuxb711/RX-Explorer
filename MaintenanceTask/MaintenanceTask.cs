@@ -24,12 +24,7 @@ namespace MaintenanceTask
             try
             {
                 await ClearUselessLogTask(Cancellation.Token);
-
-                using (SqliteConnection Connection = GetSQLConnection())
-                {
-                    await ClearAddressBarHistory(Connection);
-                    await UpdateSQLiteDataBase(Connection);
-                }
+                await UpdateSQLiteDatabaseTask();
 
                 //The following code is used to update the globalization problem of the ContextMenu in the old version
                 if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("GlobalizationStringForContextMenu"))
@@ -129,89 +124,93 @@ namespace MaintenanceTask
             }
         }
 
-        //Clear history for addressbar and keep only 25 items
-        private async Task ClearAddressBarHistory(SqliteConnection Connection)
+        private async Task UpdateSQLiteDatabaseTask()
         {
-            try
+            using (SqliteConnection Connection = GetSQLConnection())
             {
-                using (SqliteCommand Command = new SqliteCommand("Delete From PathHistory Where rowid > 25", Connection))
+                try
                 {
-                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"An exception was threw in {nameof(ClearAddressBarHistory)}, message: {ex.Message}");
-            }
-        }
-
-        private async Task UpdateSQLiteDataBase(SqliteConnection Connection)
-        {
-            try
-            {
-                using (SqliteCommand Command = new SqliteCommand("Update TerminalProfile Set Argument = '-NoExit -Command \"Set-Location ''[CurrentLocation]''\"' Where Name = 'Powershell'", Connection))
-                {
-                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
-                }
-
-                using (SqliteCommand Command = new SqliteCommand("Create Table If Not Exists PathConfiguration (Path Text Not Null Collate NoCase, DisplayMode Integer Default 1 Check(DisplayMode In (0,1,2,3,4,5)), SortColumn Text Default 'Name' Check(SortColumn In ('Name','ModifiedTime','Type','Size')), SortDirection Text Default 'Ascending' Check(SortDirection In ('Ascending','Descending')), Primary Key(Path))", Connection))
-                {
-                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
-                }
-
-                using (SqliteCommand Command = new SqliteCommand("Create Table If Not Exists FileColor (Path Text Not Null Collate NoCase, Color Text Not Null, Primary Key (Path));", Connection))
-                {
-                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
-                }
-
-                using (SqliteCommand Command = new SqliteCommand("Delete From ProgramPicker Where FileType = '.*'", Connection))
-                {
-                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
-                }
-
-                bool HasIsDefaultColumn = false;
-                bool HasIsRecommandColumn = false;
-
-                using (SqliteCommand Command = new SqliteCommand("PRAGMA table_info('ProgramPicker')", Connection))
-                using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
-                {
-                    while (Reader.Read())
+                    using (SqliteCommand Command = new SqliteCommand("Update TerminalProfile Set Argument = '-NoExit -Command \"Set-Location ''[CurrentLocation]''\"' Where Name = 'Powershell'", Connection))
                     {
-                        switch (Convert.ToString(Reader[1]))
+                        await Command.ExecuteNonQueryAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"An exception was threw in {nameof(UpdateSQLiteDatabaseTask)}, message: {ex.Message}");
+                }
+
+                try
+                {
+                    using (SqliteCommand Command = new SqliteCommand("Delete From ProgramPicker Where FileType = '.*'", Connection))
+                    {
+                        await Command.ExecuteNonQueryAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"An exception was threw in {nameof(UpdateSQLiteDatabaseTask)}, message: {ex.Message}");
+                }
+
+                try
+                {
+                    //Clear history for addressbar and keep only 25 items
+                    using (SqliteCommand Command = new SqliteCommand("Delete From PathHistory Where rowid > 25", Connection))
+                    {
+                        await Command.ExecuteNonQueryAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"An exception was threw in {nameof(UpdateSQLiteDatabaseTask)}, message: {ex.Message}");
+                }
+
+                try
+                {
+                    bool HasIsDefaultColumn = false;
+                    bool HasIsRecommandColumn = false;
+
+                    using (SqliteCommand Command = new SqliteCommand("PRAGMA table_info('ProgramPicker')", Connection))
+                    using (SqliteDataReader Reader = await Command.ExecuteReaderAsync())
+                    {
+                        while (Reader.Read())
                         {
-                            case "IsRecommanded":
-                                HasIsRecommandColumn = true;
-                                break;
-                            case "IsDefault":
-                                HasIsDefaultColumn = true;
-                                break;
+                            switch (Convert.ToString(Reader[1]))
+                            {
+                                case "IsRecommanded":
+                                    HasIsRecommandColumn = true;
+                                    break;
+                                case "IsDefault":
+                                    HasIsDefaultColumn = true;
+                                    break;
+                            }
+                        }
+                    }
+
+                    StringBuilder Builder = new StringBuilder();
+
+                    if (!HasIsDefaultColumn)
+                    {
+                        Builder.AppendLine("Alter Table ProgramPicker Add Column IsDefault Text Default 'False' Check(IsDefault In ('True','False'));");
+                    }
+
+                    if (!HasIsRecommandColumn)
+                    {
+                        Builder.AppendLine("Alter Table ProgramPicker Add Column IsRecommanded Text Default 'False' Check(IsDefault In ('True','False'));");
+                    }
+
+                    if (Builder.Length > 0)
+                    {
+                        using (SqliteCommand Command = new SqliteCommand(Builder.ToString(), Connection))
+                        {
+                            await Command.ExecuteNonQueryAsync();
                         }
                     }
                 }
-
-                StringBuilder Builder = new StringBuilder();
-
-                if (!HasIsDefaultColumn)
+                catch (Exception ex)
                 {
-                    Builder.AppendLine("Alter Table ProgramPicker Add Column IsDefault Text Default 'False' Check(IsDefault In ('True','False'));");
+                    Debug.WriteLine($"An exception was threw in {nameof(UpdateSQLiteDatabaseTask)}, message: {ex.Message}");
                 }
-
-                if (!HasIsRecommandColumn)
-                {
-                    Builder.AppendLine("Alter Table ProgramPicker Add Column IsRecommanded Text Default 'False' Check(IsDefault In ('True','False'));");
-                }
-
-                if (Builder.Length > 0)
-                {
-                    using (SqliteCommand Command = new SqliteCommand(Builder.ToString(), Connection))
-                    {
-                        await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"An exception was threw in {nameof(UpdateSQLiteDataBase)}, message: {ex.Message}");
             }
         }
 

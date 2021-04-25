@@ -33,10 +33,7 @@ namespace RX_Explorer.Class
             Connection = new SqliteConnection("Filename=RX_Sqlite.db;");
             Connection.Open();
 
-            if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("DatabaseInit"))
-            {
-                InitializeDatabase();
-            }
+            InitializeDatabase();
         }
 
         /// <summary>
@@ -68,31 +65,35 @@ namespace RX_Explorer.Class
                    .Append("Create Table If Not Exists ProgramPicker (FileType Text Not Null, Path Text Not Null Collate NoCase, IsDefault Text Default 'False' Check(IsDefault In ('True','False')), IsRecommanded Text Default 'False' Check(IsRecommanded In ('True','False')), Primary Key(FileType, Path));")
                    .Append("Create Table If Not Exists TerminalProfile (Name Text Not Null, Path Text Not Null Collate NoCase, Argument Text Not Null, RunAsAdmin Text Not Null, Primary Key(Name));")
                    .Append("Create Table If Not Exists PathConfiguration (Path Text Not Null Collate NoCase, DisplayMode Integer Default 1 Check(DisplayMode In (0,1,2,3,4,5)), SortColumn Text Default 'Name' Check(SortColumn In ('Name','ModifiedTime','Type','Size')), SortDirection Text Default 'Ascending' Check(SortDirection In ('Ascending','Descending')), Primary Key(Path));")
-                   .Append("Create Table If Not Exists FileColor (Path Text Not Null Collate NoCase, Color Text Not Null, Primary Key (Path));")
-                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture1.jpg');")
-                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture2.jpg');")
-                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture3.jpg');")
-                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture4.jpg');")
-                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture5.jpg');")
-                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture6.jpg');")
-                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture7.jpg');")
-                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture8.jpg');")
-                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture9.jpg');")
-                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture10.jpg');")
-                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture11.jpg');")
-                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture12.jpg');")
-                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture13.jpg');")
-                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture14.jpg');")
-                   .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture15.jpg');")
-                   .Append($"Insert Or Ignore Into TerminalProfile Values ('Powershell', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe")}', '-NoExit -Command \"Set-Location ''[CurrentLocation]''\"', 'True');")
-                   .Append($"Insert Or Ignore Into TerminalProfile Values ('CMD', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe")}', '/k cd /d [CurrentLocation]', 'True');");
+                   .Append("Create Table If Not Exists FileColor (Path Text Not Null Collate NoCase, Color Text Not Null, Primary Key (Path));");
+
+            if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("DatabaseInit"))
+            {
+                Builder.Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture1.jpg');")
+                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture2.jpg');")
+                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture3.jpg');")
+                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture4.jpg');")
+                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture5.jpg');")
+                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture6.jpg');")
+                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture7.jpg');")
+                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture8.jpg');")
+                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture9.jpg');")
+                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture10.jpg');")
+                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture11.jpg');")
+                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture12.jpg');")
+                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture13.jpg');")
+                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture14.jpg');")
+                       .Append("Insert Or Ignore Into BackgroundPicture Values('ms-appx:///CustomImage/Picture15.jpg');")
+                       .Append($"Insert Or Ignore Into TerminalProfile Values ('Powershell', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell\\v1.0\\powershell.exe")}', '-NoExit -Command \"Set-Location ''[CurrentLocation]''\"', 'True');")
+                       .Append($"Insert Or Ignore Into TerminalProfile Values ('CMD', '{Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe")}', '/k cd /d [CurrentLocation]', 'True');");
+
+                ApplicationData.Current.LocalSettings.Values["DatabaseInit"] = true;
+            }
 
             using (SqliteCommand CreateTable = new SqliteCommand(Builder.ToString(), Connection))
             {
                 CreateTable.ExecuteNonQuery();
             }
-
-            ApplicationData.Current.LocalSettings.Values["DatabaseInit"] = true;
         }
 
         public async Task SetPathConfigurationAsync(PathConfiguration Configuration)
@@ -543,25 +544,29 @@ namespace RX_Explorer.Class
         /// <returns></returns>
         public async Task SetPathHistoryAsync(string Path)
         {
-            using (SqliteCommand Command = new SqliteCommand("Delete From PathHistory Where Path = @Para", Connection))
-            {
-                Command.Parameters.AddWithValue("@Para", Path);
-                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
-            }
-
-            using (SqliteCommand Command = new SqliteCommand("Insert Into PathHistory Values (@Para)", Connection))
+            using (SqliteCommand Command = new SqliteCommand("Insert Or Replace Into PathHistory Values (@Para)", Connection))
             {
                 Command.Parameters.AddWithValue("@Para", Path);
                 await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
+        public async Task DeletePathHistoryAsync(string Path)
+        {
+            using (SqliteCommand Command = new SqliteCommand("Delete From PathHistory Where Path = @Para", Connection))
+            {
+                Command.Parameters.AddWithValue("@Para", Path);
+                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+            }
+        }
+
+
         /// <summary>
         /// 模糊查询与文件路径栏相关的输入历史记录
         /// </summary>
         /// <param name="Target">输入内容</param>
         /// <returns></returns>
-        public async Task<List<string>> GetRelatedPathHistoryAsync()
+        public async Task<IReadOnlyList<string>> GetRelatedPathHistoryAsync()
         {
             List<string> PathList = new List<string>(25);
 

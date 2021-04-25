@@ -156,7 +156,7 @@ namespace RX_Explorer.Class
         {
             RawData = await GetRawDataAsync();
 
-            if (!string.IsNullOrEmpty(RawData.LinkTargetPath))
+            if (RawData != null && !string.IsNullOrEmpty(RawData.LinkTargetPath))
             {
                 if (RawData.IconData.Length != 0)
                 {
