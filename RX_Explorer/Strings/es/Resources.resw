@@ -2014,9 +2014,6 @@ Las denominaciones no válidas son:
   <data name="QueueDialog_ApplicationNotFound_Content" xml:space="preserve">
     <value>No se ha podido encontrar la aplicación; por favor, restablece la ruta del archivo ejecutable.</value>
   </data>
-  <data name="QueueDialog_AccessFolderFailure_Content" xml:space="preserve">
-    <value>No se ha podido acceder a la carpeta.\rMensaje de error:</value>
-  </data>
   <data name="SolidColor_FollowSystem.Content" xml:space="preserve">
     <value>Predeterminado de Windows</value>
   </data>

@@ -2122,9 +2122,6 @@ Invalid names include
   <data name="QueueDialog_ApplicationNotFound_Content" xml:space="preserve">
     <value>The application cannot be found, please reset the executable file path</value>
   </data>
-  <data name="QueueDialog_AccessFolderFailure_Content" xml:space="preserve">
-    <value>Unable to access the folder.\rError message:</value>
-  </data>
   <data name="SolidColor_FollowSystem.Content" xml:space="preserve">
     <value>Windows default</value>
   </data>

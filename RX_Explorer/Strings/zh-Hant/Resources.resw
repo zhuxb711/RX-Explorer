@@ -1968,9 +1968,6 @@
   <data name="QueueDialog_ApplicationNotFound_Content" xml:space="preserve">
     <value>該應用程序已無法找到，請重新設置可執行文件路徑</value>
   </data>
-  <data name="QueueDialog_AccessFolderFailure_Content" xml:space="preserve">
-    <value>無法訪問該文件夾\r錯誤信息：</value>
-  </data>
   <data name="SolidColor_FollowSystem.Content" xml:space="preserve">
     <value>Windows默認</value>
   </data>

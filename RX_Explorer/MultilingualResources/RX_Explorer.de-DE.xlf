@@ -2669,10 +2669,6 @@ Inkorrekte Namen sind
           <source>The application cannot be found, please reset the executable file path</source>
           <target state="translated">Die anwendung konnte nicht gefunden werden. Bitte setzen Sie den ausführbaren Dateipfad zurück.</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_AccessFolderFailure_Content" translate="yes" xml:space="preserve">
-          <source>Unable to access the folder.\rError message:</source>
-          <target state="translated">Auf Ordner konnte nicht zugegriffen werden.r\Fehlerbericht:</target>
-        </trans-unit>
         <trans-unit id="SolidColor_FollowSystem.Content" translate="yes" xml:space="preserve">
           <source>Windows default</source>
           <target state="translated">Windows-Standard</target>

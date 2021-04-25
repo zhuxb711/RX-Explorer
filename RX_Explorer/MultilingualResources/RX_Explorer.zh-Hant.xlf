@@ -2604,10 +2604,6 @@ Invalid names include
           <source>The application cannot be found, please reset the executable file path</source>
           <target state="translated">該應用程序已無法找到，請重新設置可執行文件路徑</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_AccessFolderFailure_Content" translate="yes" xml:space="preserve">
-          <source>Unable to access the folder.\rError message:</source>
-          <target state="translated">無法訪問該文件夾\r錯誤信息：</target>
-        </trans-unit>
         <trans-unit id="SolidColor_FollowSystem.Content" translate="yes" xml:space="preserve">
           <source>Windows default</source>
           <target state="translated">Windows默認</target>

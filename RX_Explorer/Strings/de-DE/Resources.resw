@@ -2017,9 +2017,6 @@ Inkorrekte Namen sind
   <data name="QueueDialog_ApplicationNotFound_Content" xml:space="preserve">
     <value>Die anwendung konnte nicht gefunden werden. Bitte setzen Sie den ausführbaren Dateipfad zurück.</value>
   </data>
-  <data name="QueueDialog_AccessFolderFailure_Content" xml:space="preserve">
-    <value>Auf Ordner konnte nicht zugegriffen werden.r\Fehlerbericht:</value>
-  </data>
   <data name="SolidColor_FollowSystem.Content" xml:space="preserve">
     <value>Windows-Standard</value>
   </data>

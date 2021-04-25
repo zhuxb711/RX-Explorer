@@ -1968,9 +1968,6 @@ Les noms non valides incluent
   <data name="QueueDialog_ApplicationNotFound_Content" xml:space="preserve">
     <value>L'application est introuvable, veuillez réinitialiser le chemin du fichier exécutable</value>
   </data>
-  <data name="QueueDialog_AccessFolderFailure_Content" xml:space="preserve">
-    <value>Impossible d'accéder au dossier\rMessage d'erreur:</value>
-  </data>
   <data name="SolidColor_FollowSystem.Content" xml:space="preserve">
     <value>Par défaut de Windows</value>
   </data>

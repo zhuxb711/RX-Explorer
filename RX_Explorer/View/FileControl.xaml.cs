@@ -137,7 +137,7 @@ namespace RX_Explorer
 
             try
             {
-                if (FolderTree.RootNodes.FirstOrDefault((Node) => ((Node.Content as TreeViewNodeContent)?.Path .Equals(args.Data.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()) is TreeViewNode Node)
+                if (FolderTree.RootNodes.FirstOrDefault((Node) => ((Node.Content as TreeViewNodeContent)?.Path.Equals(args.Data.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()) is TreeViewNode Node)
                 {
                     FolderTree.RootNodes.Remove(Node);
                     FolderTree.SelectedNode = FolderTree.RootNodes.LastOrDefault();
@@ -313,7 +313,7 @@ namespace RX_Explorer
                             if (LastPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
                             {
                                 string[] LastSplit = LastPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-                                
+
                                 if (LastPath.StartsWith(@"\\"))
                                 {
                                     if (LastSplit.Length > 0)
@@ -342,7 +342,7 @@ namespace RX_Explorer
                                 if (LastPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
                                 {
                                     string[] LastGraySplit = LastGrayPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-                                    
+
                                     if (LastGrayPath.StartsWith(@"\\"))
                                     {
                                         if (LastGraySplit.Length > 0)
@@ -350,7 +350,7 @@ namespace RX_Explorer
                                             LastGraySplit[0] = $@"\\{LastGraySplit[0]}";
                                         }
                                     }
-                                    
+
                                     for (int i = LastGraySplit.Length - CurrentSplit.Length - 1; i >= 0; i--)
                                     {
                                         AddressButtonList[AddressButtonList.Count - 1 - i].SetAsGrayBlock();
@@ -359,7 +359,7 @@ namespace RX_Explorer
                                 else if (Path.StartsWith(LastPath, StringComparison.OrdinalIgnoreCase))
                                 {
                                     string[] LastSplit = LastPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-                                    
+
                                     if (LastPath.StartsWith(@"\\"))
                                     {
                                         if (LastSplit.Length > 0)
@@ -367,7 +367,7 @@ namespace RX_Explorer
                                             LastSplit[0] = @$"\\{LastSplit[0]}";
                                         }
                                     }
-                                    
+
                                     for (int i = 0; i < CurrentSplit.Length - LastSplit.Length; i++)
                                     {
                                         if (AddressButtonList.FirstOrDefault((Block) => Block.BlockType == AddressBlockType.Gray) is AddressBlock GrayBlock)
@@ -384,7 +384,7 @@ namespace RX_Explorer
                         LastGrayPath = AddressButtonList.LastOrDefault((Block) => Block.BlockType == AddressBlockType.Gray)?.Path;
 
                         string[] OriginSplit = LastPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-                        
+
                         if (LastPath.StartsWith(@"\\"))
                         {
                             if (OriginSplit.Length > 0)
@@ -657,9 +657,23 @@ namespace RX_Explorer
 
         private async void FolderTree_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
         {
-            if (args.InvokedItem is TreeViewNode Node && Node.Content is TreeViewNodeContent Content && CurrentPresenter != null)
+            try
             {
-                await CurrentPresenter.DisplayItemsInFolder(Content.Path).ConfigureAwait(false);
+                if (args.InvokedItem is TreeViewNode Node && Node.Content is TreeViewNodeContent Content && CurrentPresenter != null)
+                {
+                    await CurrentPresenter.DisplayItemsInFolder(Content.Path);
+                }
+            }
+            catch
+            {
+                QueueContentDialog dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                await dialog.ShowAsync();
             }
         }
 
@@ -676,7 +690,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await dialog.ShowAsync();
+                await dialog.ShowAsync();
 
                 return;
             }
@@ -743,7 +757,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await dialog.ShowAsync();
+                    await dialog.ShowAsync();
                 }
                 catch (FileNotFoundException)
                 {
@@ -754,7 +768,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_RefreshButton")
                     };
 
-                    _ = await Dialog.ShowAsync();
+                    await Dialog.ShowAsync();
 
                     await CurrentPresenter.DisplayItemsInFolder(Path.GetDirectoryName(CurrentPresenter.CurrentFolder.Path));
                 }
@@ -781,7 +795,8 @@ namespace RX_Explorer
                         Content = Globalization.GetString("QueueDialog_DeleteItemError_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
-                    _ = await Dialog.ShowAsync();
+
+                    await Dialog.ShowAsync();
                 }
 
                 await LoadingActivation(false);
@@ -797,34 +812,48 @@ namespace RX_Explorer
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is TreeViewNode Node)
+                try
                 {
-                    if (FolderTree.RootNodes.Contains(Node))
+                    if ((e.OriginalSource as FrameworkElement)?.DataContext is TreeViewNode Node)
                     {
-                        FolderCopy.IsEnabled = false;
-                        FolderCut.IsEnabled = false;
-                        FolderDelete.IsEnabled = false;
-                        FolderRename.IsEnabled = false;
+                        if (FolderTree.RootNodes.Contains(Node))
+                        {
+                            FolderCopy.IsEnabled = false;
+                            FolderCut.IsEnabled = false;
+                            FolderDelete.IsEnabled = false;
+                            FolderRename.IsEnabled = false;
+                        }
+                        else
+                        {
+                            FolderCopy.IsEnabled = true;
+                            FolderCut.IsEnabled = true;
+                            FolderDelete.IsEnabled = true;
+                            FolderRename.IsEnabled = true;
+                        }
+
+                        FolderTree.ContextFlyout = RightTabFlyout;
+                        FolderTree.SelectedNode = Node;
+
+                        if (Node.Content is TreeViewNodeContent Content)
+                        {
+                            await CurrentPresenter.DisplayItemsInFolder(Content.Path).ConfigureAwait(false);
+                        }
                     }
                     else
                     {
-                        FolderCopy.IsEnabled = true;
-                        FolderCut.IsEnabled = true;
-                        FolderDelete.IsEnabled = true;
-                        FolderRename.IsEnabled = true;
-                    }
-
-                    FolderTree.ContextFlyout = RightTabFlyout;
-                    FolderTree.SelectedNode = Node;
-
-                    if (Node.Content is TreeViewNodeContent Content)
-                    {
-                        await CurrentPresenter.DisplayItemsInFolder(Content.Path).ConfigureAwait(false);
+                        FolderTree.ContextFlyout = null;
                     }
                 }
-                else
+                catch
                 {
-                    FolderTree.ContextFlyout = null;
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await dialog.ShowAsync();
                 }
             }
         }
@@ -875,7 +904,7 @@ namespace RX_Explorer
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                             };
 
-                            _ = await LoadExceptionDialog.ShowAsync();
+                            await LoadExceptionDialog.ShowAsync();
                         }
                         catch (InvalidOperationException)
                         {
@@ -918,7 +947,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await ErrorDialog.ShowAsync();
+                    await ErrorDialog.ShowAsync();
                 }
             }
         }
@@ -952,7 +981,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
 
-                _ = await dialog.ShowAsync();
+                await dialog.ShowAsync();
             }
         }
 
@@ -966,7 +995,7 @@ namespace RX_Explorer
                     Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                 };
-                _ = await dialog.ShowAsync();
+                await dialog.ShowAsync();
 
                 return;
             }
@@ -976,7 +1005,7 @@ namespace RX_Explorer
                 if (CommonAccessCollection.DriveList.FirstOrDefault((Device) => Device.Path.Equals(CurrentPresenter.CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)) is DriveDataBase Info)
                 {
                     DeviceInfoDialog dialog = new DeviceInfoDialog(Info);
-                    _ = await dialog.ShowAsync();
+                    await dialog.ShowAsync();
                 }
                 else
                 {
@@ -1105,22 +1134,20 @@ namespace RX_Explorer
         {
             LoadingControl.Focus(FocusState.Programmatic);
 
-            string QueryText = string.Empty;
+            string QueryText = null;
 
             if (args.ChosenSuggestion == null)
             {
-                if (string.IsNullOrEmpty(AddressBoxTextBackup))
-                {
-                    return;
-                }
-                else
-                {
-                    QueryText = AddressBoxTextBackup;
-                }
+                QueryText = AddressBoxTextBackup;
             }
             else
             {
                 QueryText = args.ChosenSuggestion.ToString();
+            }
+
+            if (string.IsNullOrEmpty(QueryText))
+            {
+                return;
             }
 
             QueryText = QueryText.TrimEnd('\\').Trim();
@@ -1251,9 +1278,9 @@ namespace RX_Explorer
                     QueryText = await CommonEnvironmentVariables.ReplaceVariableAndGetActualPath(QueryText);
                 }
 
-                if (Path.IsPathRooted(QueryText) && CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Path.TrimEnd('\\').Equals(Path.GetPathRoot(QueryText).TrimEnd('\\'), StringComparison.OrdinalIgnoreCase)) is DriveDataBase Drive)
+                if (Path.IsPathRooted(QueryText))
                 {
-                    if (Drive is LockedDriveData LockedDrive)
+                    if (CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Path.TrimEnd('\\').Equals(Path.GetPathRoot(QueryText).TrimEnd('\\'), StringComparison.OrdinalIgnoreCase)) is DriveDataBase Drive && Drive is LockedDriveData LockedDrive)
                     {
                     Retry:
                         BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
@@ -1360,7 +1387,7 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                         };
 
-                        _ = await dialog.ShowAsync();
+                        await dialog.ShowAsync();
                     }
                 }
                 else
@@ -1372,7 +1399,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                     };
 
-                    _ = await dialog.ShowAsync();
+                    await dialog.ShowAsync();
                 }
             }
             catch (Exception)
@@ -1384,7 +1411,7 @@ namespace RX_Explorer
                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                 };
 
-                _ = await dialog.ShowAsync();
+                await dialog.ShowAsync();
             }
         }
 
@@ -1505,7 +1532,7 @@ namespace RX_Explorer
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                             };
 
-                            _ = await dialog.ShowAsync();
+                            await dialog.ShowAsync();
 
                             CurrentPresenter.RecordIndex++;
                         }
@@ -1520,7 +1547,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                     };
 
-                    _ = await dialog.ShowAsync();
+                    await dialog.ShowAsync();
 
                 }
                 finally
@@ -1566,7 +1593,7 @@ namespace RX_Explorer
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                             };
 
-                            _ = await dialog.ShowAsync();
+                            await dialog.ShowAsync();
 
                             CurrentPresenter.RecordIndex--;
                         }
@@ -1580,7 +1607,7 @@ namespace RX_Explorer
                         Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} \r\"{Path}\"",
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
                     };
-                    _ = await dialog.ShowAsync();
+                    await dialog.ShowAsync();
 
                     CurrentPresenter.RecordIndex--;
                 }
@@ -1645,13 +1672,14 @@ namespace RX_Explorer
                 }
                 catch
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
+                    QueueContentDialog Dialog = new QueueContentDialog
                     {
                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} \r\"{Block.Path}\"",
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
-                    _ = await dialog.ShowAsync();
+
+                    await Dialog.ShowAsync();
                 }
             }
         }
@@ -1702,9 +1730,23 @@ namespace RX_Explorer
                 AddressExtentionFlyout.Hide();
             });
 
-            if (e.ClickedItem is AddressBlock TargeBlock)
+            try
             {
-                await CurrentPresenter.DisplayItemsInFolder(TargeBlock.Path);
+                if (e.ClickedItem is AddressBlock TargeBlock)
+                {
+                    await CurrentPresenter.DisplayItemsInFolder(TargeBlock.Path);
+                }
+            }
+            catch
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                await Dialog.ShowAsync();
             }
         }
 
@@ -1779,7 +1821,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await dialog.ShowAsync();
+                    await dialog.ShowAsync();
                 }
                 finally
                 {
@@ -1869,29 +1911,43 @@ namespace RX_Explorer
         {
             if (e.HoldingState == Windows.UI.Input.HoldingState.Started)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is TreeViewNode Node)
+                try
                 {
-                    if (FolderTree.RootNodes.Contains(Node))
+                    if ((e.OriginalSource as FrameworkElement)?.DataContext is TreeViewNode Node)
                     {
-                        FolderDelete.IsEnabled = false;
-                        FolderRename.IsEnabled = false;
+                        if (FolderTree.RootNodes.Contains(Node))
+                        {
+                            FolderDelete.IsEnabled = false;
+                            FolderRename.IsEnabled = false;
+                        }
+                        else
+                        {
+                            FolderDelete.IsEnabled = true;
+                            FolderRename.IsEnabled = true;
+                        }
+
+                        FolderTree.ContextFlyout = RightTabFlyout;
+
+                        if (Node.Content is TreeViewNodeContent Content)
+                        {
+                            await CurrentPresenter.DisplayItemsInFolder(Content.Path).ConfigureAwait(false);
+                        }
                     }
                     else
                     {
-                        FolderDelete.IsEnabled = true;
-                        FolderRename.IsEnabled = true;
-                    }
-
-                    FolderTree.ContextFlyout = RightTabFlyout;
-
-                    if (Node.Content is TreeViewNodeContent Content)
-                    {
-                        await CurrentPresenter.DisplayItemsInFolder(Content.Path).ConfigureAwait(false);
+                        FolderTree.ContextFlyout = null;
                     }
                 }
-                else
+                catch
                 {
-                    FolderTree.ContextFlyout = null;
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
                 }
             }
         }
