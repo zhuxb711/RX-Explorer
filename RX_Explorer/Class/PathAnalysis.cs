@@ -42,13 +42,15 @@ namespace RX_Explorer.Class
             if (string.IsNullOrEmpty(CurrentPath))
             {
                 string[] Split = FullPath.Split("\\", StringSplitOptions.RemoveEmptyEntries);
-                if (FullPath.StartsWith("\\\\"))
+                
+                if (FullPath.StartsWith(@"\\"))
                 {
                     if (Split.Length > 0)
                     {
-                        Split[0] = "\\\\" + Split[0];
+                        Split[0] = @"\\" + Split[0];
                     }
                 }
+
                 Split[0] = $"{Split[0]}\\";
                 PathQueue = new Queue<string>(Split);
                 HasNextLevel = true;
@@ -58,8 +60,7 @@ namespace RX_Explorer.Class
                 if (FullPath != CurrentPath)
                 {
                     HasNextLevel = true;
-                    string[] Split = Path.GetRelativePath(CurrentPath, FullPath).Split("\\", StringSplitOptions.RemoveEmptyEntries);
-                    PathQueue = new Queue<string>(Split);
+                    PathQueue = new Queue<string>(FullPath.Replace(CurrentPath, string.Empty).Split("\\", StringSplitOptions.RemoveEmptyEntries));
                 }
                 else
                 {

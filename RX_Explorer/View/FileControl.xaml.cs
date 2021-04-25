@@ -246,13 +246,28 @@ namespace RX_Explorer
                         return;
                     }
 
-                    string RootPath = System.IO.Path.GetPathRoot(Path);
+                    string RootPath = string.Empty;
+
+                    string[] CurrentSplit = Path.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
+
+                    if (Path.StartsWith(@"\\"))
+                    {
+                        if (CurrentSplit.Length > 0)
+                        {
+                            RootPath = $@"\\{CurrentSplit[0]}";
+                            CurrentSplit[0] = RootPath;
+                        }
+                    }
+                    else
+                    {
+                        RootPath = System.IO.Path.GetPathRoot(Path);
+                    }
 
                     StorageFolder DriveRootFolder = await StorageFolder.GetFolderFromPathAsync(RootPath);
 
                     if (AddressButtonList.Count == 0)
                     {
-                        AddressButtonList.Add(new AddressBlock(DriveRootFolder.Path, DriveRootFolder.DisplayName));
+                        AddressButtonList.Add(new AddressBlock(RootPath, DriveRootFolder.DisplayName));
 
                         PathAnalysis Analysis = new PathAnalysis(Path, RootPath);
 
@@ -263,16 +278,6 @@ namespace RX_Explorer
                     }
                     else
                     {
-                        string[] CurrentSplit = Path.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-
-                        if (Path.StartsWith(@"\\"))
-                        {
-                            if (CurrentSplit.Length > 0)
-                            {
-                                CurrentSplit[0] = $@"\\{CurrentSplit[0]}";
-                            }
-                        }
-
                         string LastPath = AddressButtonList.Last((Block) => Block.BlockType == AddressBlockType.Normal).Path;
                         string LastGrayPath = AddressButtonList.LastOrDefault((Block) => Block.BlockType == AddressBlockType.Gray)?.Path;
 
@@ -379,7 +384,7 @@ namespace RX_Explorer
                         {
                             AddressButtonList.Clear();
 
-                            AddressButtonList.Add(new AddressBlock(DriveRootFolder.Path, DriveRootFolder.DisplayName));
+                            AddressButtonList.Add(new AddressBlock(RootPath, DriveRootFolder.DisplayName));
 
                             PathAnalysis Analysis = new PathAnalysis(Path, RootPath);
 
@@ -1603,11 +1608,13 @@ namespace RX_Explorer
 
             if (Btn.DataContext is AddressBlock Block && Block.Path != CurrentPresenter.CurrentFolder.Path)
             {
-
                 try
                 {
-                    await CurrentPresenter.DisplayItemsInFolder(Block.Path);
-                    await SQLite.Current.SetPathHistoryAsync(Block.Path);
+                    if (Block.Path.Split(@"\", StringSplitOptions.RemoveEmptyEntries).Length > 1)
+                    {
+                        await CurrentPresenter.DisplayItemsInFolder(Block.Path);
+                        await SQLite.Current.SetPathHistoryAsync(Block.Path);
+                    }
                 }
                 catch
                 {

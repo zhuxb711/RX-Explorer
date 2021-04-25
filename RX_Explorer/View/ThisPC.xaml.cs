@@ -202,9 +202,10 @@ namespace RX_Explorer
 
                         break;
                     }
-                case NormalDriveData NormalDrive:
+                case WslDriveData:
+                case NormalDriveData:
                     {
-                        await OpenTargetFolder(NormalDrive.DriveFolder).ConfigureAwait(false);
+                        await OpenTargetFolder(Drive.DriveFolder).ConfigureAwait(false);
                         break;
                     }
             }
