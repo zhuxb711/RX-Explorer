@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.UI.Animations;
+﻿using Microsoft.Toolkit.Deferred;
+using Microsoft.Toolkit.Uwp.UI.Animations;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
@@ -130,62 +131,88 @@ namespace RX_Explorer
             Loaded += FileControl_Loaded;
         }
 
-        private async void CommonAccessCollection_DeviceRemoved(object sender, DriveDataBase Device)
+        private async void CommonAccessCollection_DriveRemoved(object sender, DriveChangeDeferredEventArgs args)
         {
-            if (FolderTree.RootNodes.FirstOrDefault((Node) => ((Node.Content as TreeViewNodeContent)?.Path.Equals(Device.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()) is TreeViewNode Node)
-            {
-                FolderTree.RootNodes.Remove(Node);
-                FolderTree.SelectedNode = FolderTree.RootNodes.LastOrDefault();
+            EventDeferral Deferral = args.GetDeferral();
 
-                if (FolderTree.SelectedNode?.Content is TreeViewNodeContent Content && CurrentPresenter != null)
+            try
+            {
+                if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent)?.Path == args.Data.Folder?.Path) is TreeViewNode Node)
                 {
-                    await CurrentPresenter.DisplayItemsInFolder(Content.Path).ConfigureAwait(false);
+                    FolderTree.RootNodes.Remove(Node);
+                    FolderTree.SelectedNode = FolderTree.RootNodes.LastOrDefault();
+
+                    if (FolderTree.SelectedNode?.Content is TreeViewNodeContent Content && CurrentPresenter != null)
+                    {
+                        await CurrentPresenter.DisplayItemsInFolder(Content.Path).ConfigureAwait(false);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "An exception was threw in DriveRemoved");
+            }
+            finally
+            {
+                Deferral.Complete();
             }
         }
 
-        private async void CommonAccessCollection_DeviceAdded(object sender, DriveDataBase Device)
+        private async void CommonAccessCollection_DriveAdded(object sender, DriveChangeDeferredEventArgs args)
         {
-            if (!string.IsNullOrWhiteSpace(Device.Path))
+            EventDeferral Deferral = args.GetDeferral();
+
+            try
             {
-                if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => !Content.Path.Equals(Device.Path, StringComparison.OrdinalIgnoreCase)))
+                if (!string.IsNullOrWhiteSpace(args.Data.Folder.Path))
                 {
-                    FileSystemStorageFolder DeviceFolder = await FileSystemStorageFolder.CreateFromExistingStorageItem(Device.DriveFolder);
-
-                    if (Device.DriveType == DriveType.Network)
+                    if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => Content.Path != args.Data.Folder?.Path))
                     {
-                        await Task.Run(() => DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder)).ContinueWith((task) =>
-                         {
-                             TreeViewNode RootNode = new TreeViewNode
-                             {
-                                 Content = new TreeViewNodeContent(Device.DriveFolder),
-                                 IsExpanded = false,
-                                 HasUnrealizedChildren = task.Result
-                             };
+                        FileSystemStorageFolder DeviceFolder = await FileSystemStorageFolder.CreateFromExistingStorageItem(args.Data.Folder);
 
-                             FolderTree.RootNodes.Add(RootNode);
-                             FolderTree.UpdateLayout();
-                         }, TaskScheduler.FromCurrentSynchronizationContext());
-                    }
-                    else
-                    {
-                        bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder);
-
-                        TreeViewNode RootNode = new TreeViewNode
+                        if (args.Data.DriveType == DriveType.Network)
                         {
-                            Content = new TreeViewNodeContent(Device.DriveFolder),
-                            IsExpanded = false,
-                            HasUnrealizedChildren = HasAnyFolder
-                        };
+                            await Task.Run(() => DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder)).ContinueWith((task) =>
+                             {
+                                 TreeViewNode RootNode = new TreeViewNode
+                                 {
+                                     Content = new TreeViewNodeContent(args.Data.Folder),
+                                     IsExpanded = false,
+                                     HasUnrealizedChildren = task.Result
+                                 };
 
-                        FolderTree.RootNodes.Add(RootNode);
+                                 FolderTree.RootNodes.Add(RootNode);
+                                 FolderTree.UpdateLayout();
+                             }, TaskScheduler.FromCurrentSynchronizationContext());
+                        }
+                        else
+                        {
+                            bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder);
+
+                            TreeViewNode RootNode = new TreeViewNode
+                            {
+                                Content = new TreeViewNodeContent(args.Data.Folder),
+                                IsExpanded = false,
+                                HasUnrealizedChildren = HasAnyFolder
+                            };
+
+                            FolderTree.RootNodes.Add(RootNode);
+                        }
+                    }
+
+                    if (FolderTree.RootNodes.FirstOrDefault() is TreeViewNode Node)
+                    {
+                        FolderTree.SelectNodeAndScrollToVertical(Node);
                     }
                 }
-
-                if (FolderTree.RootNodes.FirstOrDefault() is TreeViewNode Node)
-                {
-                    FolderTree.SelectNodeAndScrollToVertical(Node);
-                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "An exception was threw in DriveAdded");
+            }
+            finally
+            {
+                Deferral.Complete();
             }
         }
 
@@ -437,8 +464,8 @@ namespace RX_Explorer
                     {
                         Frame.Navigated += Frame_Navigated;
                         FullTrustProcessController.CurrentBusyStatus += FullTrustProcessController_CurrentBusyStatus;
-                        CommonAccessCollection.DeviceAdded += CommonAccessCollection_DeviceAdded;
-                        CommonAccessCollection.DeviceRemoved += CommonAccessCollection_DeviceRemoved;
+                        CommonAccessCollection.DriveAdded += CommonAccessCollection_DriveAdded;
+                        CommonAccessCollection.DriveRemoved += CommonAccessCollection_DriveRemoved;
 
                         WeakToTabItem = Parameters.Item1;
 
@@ -1884,8 +1911,8 @@ namespace RX_Explorer
 
             Frame.Navigated -= Frame_Navigated;
             FullTrustProcessController.CurrentBusyStatus -= FullTrustProcessController_CurrentBusyStatus;
-            CommonAccessCollection.DeviceAdded -= CommonAccessCollection_DeviceAdded;
-            CommonAccessCollection.DeviceRemoved -= CommonAccessCollection_DeviceRemoved;
+            CommonAccessCollection.DriveAdded -= CommonAccessCollection_DriveAdded;
+            CommonAccessCollection.DriveRemoved -= CommonAccessCollection_DriveRemoved;
 
             GoBackRecord.IsEnabled = false;
             GoForwardRecord.IsEnabled = false;

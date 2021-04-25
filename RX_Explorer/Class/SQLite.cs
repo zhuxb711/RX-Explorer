@@ -146,7 +146,7 @@ namespace RX_Explorer.Class
                     Command.Parameters.AddWithValue("@SortDirection", Enum.GetName(typeof(SortDirection), Configuration.Direction));
                 }
 
-                Command.CommandText = $"Insert Into PathConfiguration ({string.Join(", ", ValueLeft)}) Values ({string.Join(", ", ValueRight)}) On Conflict (Path) Do Update Set {string.Join(", ", UpdatePart)} Where Path = @Path Collate NoCase";
+                Command.CommandText = $"Insert Into PathConfiguration ({string.Join(", ", ValueLeft)}) Values ({string.Join(", ", ValueRight)}) On Conflict (Path) Do Update Set {string.Join(", ", UpdatePart)} Where Path = @Path";
 
                 await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
@@ -286,38 +286,44 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task UpdateProgramPickerRecordAsync(string FileType, params AssociationPackage[] AssociationList)
+        public async Task UpdateProgramPickerRecordAsync(string Extension, params AssociationPackage[] AssociationList)
         {
+            string DefaultPath = await GetDefaultProgramPickerRecordAsync(Extension);
+
             using (SqliteCommand Command = new SqliteCommand
             {
                 Connection = Connection
             })
             {
-                StringBuilder PathBuilder = new StringBuilder();
+                StringBuilder PathBuilder = new StringBuilder("Delete From ProgramPicker Where FileType = @FileType;");
 
                 for (int i = 0; i < AssociationList.Length; i++)
                 {
-                    PathBuilder.Append($"Insert Into ProgramPicker(Path, FileType, IsRecommanded) Values (@ExecutablePath_{i}, @FileType, @IsRecommanded_{i}) On Conflict (Path, FileType) Do Update Set IsDefault = 'False', IsRecommanded = @IsRecommanded_{i} Where FileType = @FileType And Path = @ExecutablePath_{i} Collate NoCase;");
+                    PathBuilder.Append($"Insert Into ProgramPicker Values (@FileType, @ExecutablePath_{i}, @IsDefault_{i}, @IsRecommanded_{i});");
 
                     Command.Parameters.AddWithValue($"@ExecutablePath_{i}", AssociationList[i].ExecutablePath);
                     Command.Parameters.AddWithValue($"@IsRecommanded_{i}", Convert.ToString(AssociationList[i].IsRecommanded));
+
+                    if (AssociationList[i].ExecutablePath.Equals(DefaultPath, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Command.Parameters.AddWithValue($"@IsDefault_{i}", "True");
+                    }
+                    else
+                    {
+                        Command.Parameters.AddWithValue($"@IsDefault_{i}", "False");
+                    }
                 }
 
-                Command.Parameters.AddWithValue($"@FileType", FileType);
+                Command.Parameters.AddWithValue("@FileType", Extension);
+                Command.CommandText = PathBuilder.ToString();
 
-                string SQLQuery = PathBuilder.ToString();
-
-                if (!string.IsNullOrEmpty(SQLQuery))
-                {
-                    Command.CommandText = SQLQuery;
-                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
-                }
+                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
         }
 
         public async Task<string> GetDefaultProgramPickerRecordAsync(string Extension)
         {
-            using (SqliteCommand Command = new SqliteCommand($"Select Path From ProgramPicker Where FileType = @FileType And IsDefault = 'True'", Connection))
+            using (SqliteCommand Command = new SqliteCommand("Select Path From ProgramPicker Where FileType = @FileType And IsDefault = 'True'", Connection))
             {
                 Command.Parameters.AddWithValue("@FileType", Extension);
                 return Convert.ToString(await Command.ExecuteScalarAsync().ConfigureAwait(false));
@@ -332,7 +338,7 @@ namespace RX_Explorer.Class
                 await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
 
-            using (SqliteCommand Command = new SqliteCommand("Insert Into ProgramPicker(Path, FileType, IsDefault) Values (@Path, @FileType, 'True') On Conflict (Path, FileType) Do Update Set IsDefault = 'True' Where FileType = @FileType And Path = @Path Collate NoCase", Connection))
+            using (SqliteCommand Command = new SqliteCommand("Update ProgramPicker Set IsDefault = 'True' Where FileType = @FileType And Path = @Path", Connection))
             {
                 Command.Parameters.AddWithValue("@FileType", FileType);
                 Command.Parameters.AddWithValue("@Path", Path);
@@ -340,7 +346,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<List<AssociationPackage>> GetProgramPickerRecordAsync(string Extension, bool IncludeUWPApplication)
+        public async Task<IReadOnlyList<AssociationPackage>> GetProgramPickerRecordAsync(string Extension, bool IncludeUWPApplication)
         {
             try
             {

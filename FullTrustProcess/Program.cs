@@ -495,6 +495,7 @@ namespace FullTrustProcess
                                             Value.Add("Success", e.Name);
                                         }))
                                         {
+                                            Value.Remove("Success");
                                             Value.Add("Error_Failure", "Error happened when rename");
                                         }
                                     }
