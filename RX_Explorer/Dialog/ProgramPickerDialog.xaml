@@ -16,63 +16,67 @@
     <local:QueueContentDialog.Resources>
         <DataTemplate x:DataType="local:ProgramPickerItem"
                       x:Key="CommonDataTemplate">
-            <StackPanel Orientation="Horizontal"
-                        Padding="5">
+            <RelativePanel Padding="5">
                 <Border Width="50"
                         Height="50"
                         Padding="5"
+                        x:Name="ImageArea"
+                        RelativePanel.AlignLeftWithPanel="True"
+                        RelativePanel.AlignVerticalCenterWithPanel="True"
                         Background="{ThemeResource SystemBaseMediumLowColor}">
                     <Image Stretch="Uniform"
                            Height="40"
                            Width="40"
                            Source="{x:Bind Thumbnuil}" />
                 </Border>
-                <StackPanel Margin="10,0,0,0">
+                <StackPanel Margin="10,0,0,0"
+                            RelativePanel.AlignRightWithPanel="True"
+                            RelativePanel.AlignTopWithPanel="True"
+                            RelativePanel.RightOf="ImageArea">
                     <TextBlock Text="{x:Bind Name}"
                                FontSize="15"
-                               MaxWidth="350"
                                TextTrimming="CharacterEllipsis" />
                     <TextBlock Text="{x:Bind Description}"
-                               Margin="0,5,0,0"
+                               Margin="0,2,0,0"
                                FontSize="12"
-                               MaxWidth="350"
+                               TextWrapping="WrapWholeWords"
                                TextTrimming="CharacterEllipsis" />
                 </StackPanel>
-            </StackPanel>
+            </RelativePanel>
         </DataTemplate>
     </local:QueueContentDialog.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Hidden">
         <Grid Padding="5">
-            <StackPanel Name="WholeArea">
+            <StackPanel Name="WholeArea"
+                        MinWidth="450">
                 <StackPanel x:Name="Area1"
                             Visibility="Collapsed">
                     <TextBlock FontSize="16"
                                Name="Title1" />
-                    <Line X1="0"
-                          X2="450"
-                          Y1="0"
-                          Y2="0"
-                          Stroke="{ThemeResource ApplicationForegroundThemeBrush}"
-                          StrokeThickness="1.5"
-                          Margin="0,5,0,5" />
+                    <Border Height="2"
+                            Background="{ThemeResource ApplicationForegroundThemeBrush}"
+                            Margin="0,5,0,5" />
                 </StackPanel>
                 <ListView x:Name="CurrentUseProgramList"
                           ScrollViewer.VerticalScrollMode="Disabled"
                           ScrollViewer.HorizontalScrollMode="Disabled"
                           SelectionChanged="CurrentUseProgramList_SelectionChanged"
                           ItemTemplate="{StaticResource CommonDataTemplate}"
-                          ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}" />
+                          ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Padding"
+                                    Value="5" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                </ListView>
                 <StackPanel>
                     <TextBlock FontSize="16"
                                Name="Title2" />
-                    <Line X1="0"
-                          X2="450"
-                          Y1="0"
-                          Y2="0"
-                          Stroke="{ThemeResource ApplicationForegroundThemeBrush}"
-                          StrokeThickness="1.5"
-                          Margin="0,5,0,5" />
+                    <Border Height="2"
+                            Background="{ThemeResource ApplicationForegroundThemeBrush}"
+                            Margin="0,5,0,5" />
                 </StackPanel>
                 <ListView ItemsSource="{x:Bind ProgramCollection}"
                           MaxHeight="220"
@@ -80,7 +84,14 @@
                           SelectionChanged="OtherProgramList_SelectionChanged"
                           ScrollViewer.HorizontalScrollMode="Disabled"
                           ItemTemplate="{StaticResource CommonDataTemplate}"
-                          ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}" />
+                          ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.AddDeleteTransitions,Mode=OneWay}">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Padding"
+                                    Value="5" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                </ListView>
                 <Button Style="{StaticResource OnlyClickableButtonStyle}"
                         Background="Transparent"
                         Padding="0,2,0,2"

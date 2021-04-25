@@ -844,12 +844,12 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 }
                 else
                 {
-                    if ((await Launcher.FindFileHandlersAsync(StorageItem.Type)).FirstOrDefault((Item) => Item.PackageFamilyName == AdminExecutablePath) is AppInfo Info)
+                    try
                     {
-                        OpenWithContent.Text = Info.Package.DisplayName;
-
-                        try
+                        if ((await Launcher.FindFileHandlersAsync(StorageItem.Type)).FirstOrDefault((Item) => Item.PackageFamilyName == AdminExecutablePath) is AppInfo Info)
                         {
+                            OpenWithContent.Text = Info.Package.DisplayName;
+
                             RandomAccessStreamReference Reference = Info.Package.GetLogoAsRandomAccessStreamReference(new Size(50, 50));
 
                             using (IRandomAccessStreamWithContentType LogoStream = await Reference.OpenReadAsync())
@@ -870,13 +870,15 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                                     await Image.SetSourceAsync(Stream);
                                 }
                             }
+
                         }
-                        catch
+                        else
                         {
+                            OpenWithContent.Text = Globalization.GetString("OpenWithEmptyText");
                             OpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
                         }
                     }
-                    else
+                    catch
                     {
                         OpenWithContent.Text = Globalization.GetString("OpenWithEmptyText");
                         OpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
