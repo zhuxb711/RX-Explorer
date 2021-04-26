@@ -1386,7 +1386,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>Kaufseite kann aufgrund von Microsoft Store oder Netzwerkproblem nicht geöffnet werden. Versuchen Sie es später erneut.</value>
   </data>
   <data name="QueueDialog_LocateFolderFailure_Content" xml:space="preserve">
-    <value>Ordner, der möglicherweise gelöscht oder verschoben wurde, konnte nicht gefunden werden.</value>
+    <value>Der Ordner kann nicht gefunden werden oder auf ihn zugegriffen werden. Der Ordner ist nicht vorhanden oder verfügt nicht über Zugriffsberechtigungen</value>
   </data>
   <data name="QueueDialog_WaitUntilFinish_CloseButton" xml:space="preserve">
     <value>Später</value>
@@ -2016,9 +2016,6 @@ Inkorrekte Namen sind
   </data>
   <data name="QueueDialog_ApplicationNotFound_Content" xml:space="preserve">
     <value>Die anwendung konnte nicht gefunden werden. Bitte setzen Sie den ausführbaren Dateipfad zurück.</value>
-  </data>
-  <data name="QueueDialog_AccessFolderFailure_Content" xml:space="preserve">
-    <value>Auf Ordner konnte nicht zugegriffen werden.r\Fehlerbericht:</value>
   </data>
   <data name="SolidColor_FollowSystem.Content" xml:space="preserve">
     <value>Windows-Standard</value>

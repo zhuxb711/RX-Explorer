@@ -3,7 +3,6 @@ using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
-using RX_Explorer.CustomControl;
 using RX_Explorer.Dialog;
 using RX_Explorer.Interface;
 using RX_Explorer.SeparateWindow.PropertyWindow;
@@ -606,19 +605,37 @@ namespace RX_Explorer
         {
             await EnterLock.WaitAsync();
 
-            if (string.IsNullOrWhiteSpace(FolderPath))
-            {
-                throw new ArgumentNullException(nameof(FolderPath), "Parameter could not be null or empty");
-            }
-
             try
             {
+                if (string.IsNullOrWhiteSpace(FolderPath))
+                {
+                    throw new ArgumentNullException(nameof(FolderPath), "Parameter could not be null or empty");
+                }
+
                 if (!ForceRefresh)
                 {
                     if (FolderPath == CurrentFolder?.Path)
                     {
                         return;
                     }
+                }
+
+                if (await FileSystemStorageItemBase.OpenAsync(FolderPath) is FileSystemStorageFolder Folder)
+                {
+                    CurrentFolder = Folder;
+                }
+                else
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                    };
+
+                    _ = await dialog.ShowAsync();
+
+                    return;
                 }
 
                 if (!SkipNavigationRecord && !ForceRefresh)
@@ -645,24 +662,6 @@ namespace RX_Explorer
                     GoAndBackRecord.Add((FolderPath, string.Empty));
 
                     RecordIndex = GoAndBackRecord.Count - 1;
-                }
-
-                if (await FileSystemStorageItemBase.OpenAsync(FolderPath) is FileSystemStorageFolder Folder)
-                {
-                    CurrentFolder = Folder;
-                }
-                else
-                {
-                    QueueContentDialog dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = $"{Globalization.GetString("QueueDialog_LocatePathFailure_Content")} \r\"{FolderPath}\"",
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                    };
-
-                    _ = await dialog.ShowAsync();
-
-                    return;
                 }
 
                 if (Container.FolderTree.SelectedNode == null && Container.FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent)?.Path == Path.GetPathRoot(FolderPath)) is TreeViewNode RootNode)
@@ -696,17 +695,6 @@ namespace RX_Explorer
 
                 ListViewDetailHeader.Filter.SetDataSource(CurrentFolder.Path, FileCollection);
                 ListViewDetailHeader.Indicator.SetIndicatorStatus(Config.Target.GetValueOrDefault(), Config.Direction.GetValueOrDefault());
-            }
-            catch (Exception ex)
-            {
-                QueueContentDialog Dialog = new QueueContentDialog
-                {
-                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                    Content = $"{Globalization.GetString("QueueDialog_AccessFolderFailure_Content")} {ex.Message}",
-                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                };
-
-                _ = await Dialog.ShowAsync();
             }
             finally
             {
@@ -774,11 +762,10 @@ namespace RX_Explorer
 
         private void NavigateToStorageItem(VirtualKey Key)
         {
-            char Input = Convert.ToChar(Key);
 
-            if (char.IsLetterOrDigit(Input))
+            if (Key >= VirtualKey.Number0 && Key <= VirtualKey.Z)
             {
-                string SearchString = Input.ToString();
+                string SearchString = Convert.ToChar(Key).ToString();
 
                 try
                 {
@@ -2523,22 +2510,7 @@ namespace RX_Explorer
                             }
                         case FileSystemStorageFolder Folder:
                             {
-                                if (await FileSystemStorageItemBase.CheckExistAsync(Folder.Path))
-                                {
-                                    await DisplayItemsInFolder(Folder);
-                                }
-                                else
-                                {
-                                    QueueContentDialog Dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-
-                                    _ = await Dialog.ShowAsync();
-                                }
-
+                                await DisplayItemsInFolder(Folder);
                                 break;
                             }
                     }
@@ -4046,21 +4018,35 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
 
-                    _ = await Dialog.ShowAsync();
+                    await Dialog.ShowAsync();
                 }
                 else
                 {
-                    if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(Item.LinkTargetPath)) is FileSystemStorageFolder ParentFolder)
+                    try
                     {
-                        await DisplayItemsInFolder(ParentFolder);
-
-                        if (FileCollection.FirstOrDefault((SItem) => SItem.Path.Equals(Item.LinkTargetPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Target)
+                        if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(Item.LinkTargetPath)) is FileSystemStorageFolder ParentFolder)
                         {
-                            ItemPresenter.ScrollIntoView(Target);
-                            SelectedItem = Target;
+                            await DisplayItemsInFolder(ParentFolder);
+
+                            if (FileCollection.FirstOrDefault((SItem) => SItem.Path.Equals(Item.LinkTargetPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Target)
+                            {
+                                ItemPresenter.ScrollIntoView(Target);
+                                SelectedItem = Target;
+                            }
+                        }
+                        else
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_LocateFileFailure_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            _ = await Dialog.ShowAsync();
                         }
                     }
-                    else
+                    catch
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {
@@ -4069,7 +4055,7 @@ namespace RX_Explorer
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
 
-                        _ = await Dialog.ShowAsync();
+                        await Dialog.ShowAsync();
                     }
                 }
             }

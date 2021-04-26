@@ -1491,7 +1491,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Unable to open purchase page due to Microsoft Store or network, please try again later</value>
   </data>
   <data name="QueueDialog_LocateFolderFailure_Content" xml:space="preserve">
-    <value>Unable to locate folder, which may have been deleted or moved</value>
+    <value>Cannot locate or access the folder, the folder does not exist or lacks access permissions</value>
   </data>
   <data name="QueueDialog_WaitUntilFinish_CloseButton" xml:space="preserve">
     <value>Later</value>
@@ -2121,9 +2121,6 @@ Invalid names include
   </data>
   <data name="QueueDialog_ApplicationNotFound_Content" xml:space="preserve">
     <value>The application cannot be found, please reset the executable file path</value>
-  </data>
-  <data name="QueueDialog_AccessFolderFailure_Content" xml:space="preserve">
-    <value>Unable to access the folder.\rError message:</value>
   </data>
   <data name="SolidColor_FollowSystem.Content" xml:space="preserve">
     <value>Windows default</value>

@@ -4,9 +4,9 @@ namespace RX_Explorer.Class
 {
     public sealed class DriveChangeDeferredEventArgs: DeferredEventArgs
     {
-        public DriveRelatedData Data { get; }
+        public DriveDataBase Data { get; }
 
-        public DriveChangeDeferredEventArgs(DriveRelatedData Data)
+        public DriveChangeDeferredEventArgs(DriveDataBase Data)
         {
             this.Data = Data;
         }

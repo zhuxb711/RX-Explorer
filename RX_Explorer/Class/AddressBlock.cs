@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Linq;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
@@ -30,7 +31,23 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return InnerDisplayName ?? System.IO.Path.GetFileName(Path);
+                if (string.IsNullOrEmpty(InnerDisplayName))
+                {
+                    string FileName = System.IO.Path.GetFileName(Path);
+
+                    if (string.IsNullOrEmpty(FileName))
+                    {
+                        return Path.Split(@"\", System.StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
+                    }
+                    else
+                    {
+                        return FileName;
+                    }
+                }
+                else 
+                { 
+                    return InnerDisplayName;
+                }
             }
         }
 

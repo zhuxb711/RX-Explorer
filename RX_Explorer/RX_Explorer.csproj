@@ -174,6 +174,8 @@
     <Compile Include="Class\FileSystemStorageFolder.cs" />
     <Compile Include="Class\FilterController.cs" />
     <Compile Include="Class\GroupItemBase.cs" />
+    <Compile Include="Class\LockedDriveData.cs" />
+    <Compile Include="Class\NormalDriveData.cs" />
     <Compile Include="Class\OperationListBaseModel.cs" />
     <Compile Include="Class\OperationListCompressionModel.cs" />
     <Compile Include="Class\OperationListCopyModel.cs" />
@@ -191,6 +193,7 @@
     <Compile Include="Class\QueueTaskController.cs" />
     <Compile Include="Class\RecycleStorageFolder.cs" />
     <Compile Include="Class\UrlStorageFile.cs" />
+    <Compile Include="Class\WslDriveData.cs" />
     <Compile Include="CustomControl\AppBarButtonWithImage.xaml.cs">
       <DependentUpon>AppBarButtonWithImage.xaml</DependentUpon>
     </Compile>
@@ -201,6 +204,7 @@
       <DependentUpon>DecompressDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Interface\ICryptable.cs" />
+    <Compile Include="Interface\IDriveData.cs" />
     <Compile Include="Interface\IHiddenStorageItem.cs" />
     <Compile Include="Interface\IIndirectLaunchStorageItem.cs" />
     <Compile Include="Interface\ILinkStorageFile.cs" />
@@ -291,7 +295,7 @@
     <Compile Include="Class\FilterItem.cs" />
     <Compile Include="Class\GeneralTransformer.cs" />
     <Compile Include="Class\Globalization.cs" />
-    <Compile Include="Class\DriveRelatedData.cs" />
+    <Compile Include="Class\DriveDataBase.cs" />
     <Compile Include="Class\KeyGenerator.cs" />
     <Compile Include="Class\LibraryFolder.cs" />
     <Compile Include="Class\MySQL.cs" />

@@ -1337,7 +1337,7 @@
     <value>Me le rappeller plus tard</value>
   </data>
   <data name="QueueDialog_LocateFolderFailure_Content" xml:space="preserve">
-    <value>Impossible de localiser le dossier, il a pu être supprimé ou déplacé</value>
+    <value>Impossible de localiser ou d'accéder au dossier, le dossier n'existe pas ou n'a pas les autorisations d'accès</value>
   </data>
   <data name="QueueDialog_WaitUntilFinish_CloseButton" xml:space="preserve">
     <value>Plus tard</value>
@@ -1967,9 +1967,6 @@ Les noms non valides incluent
   </data>
   <data name="QueueDialog_ApplicationNotFound_Content" xml:space="preserve">
     <value>L'application est introuvable, veuillez réinitialiser le chemin du fichier exécutable</value>
-  </data>
-  <data name="QueueDialog_AccessFolderFailure_Content" xml:space="preserve">
-    <value>Impossible d'accéder au dossier\rMessage d'erreur:</value>
   </data>
   <data name="SolidColor_FollowSystem.Content" xml:space="preserve">
     <value>Par défaut de Windows</value>

@@ -152,9 +152,9 @@ namespace RX_Explorer
                                 {
                                     if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                                     {
-                                        if (PC.DeviceGrid.SelectedItem is DriveRelatedData Device && !string.IsNullOrEmpty(Device.Folder.Path))
+                                        if (PC.DeviceGrid.SelectedItem is DriveDataBase Device && !string.IsNullOrEmpty(Device.Path))
                                         {
-                                            await Exclusive.Controller.ViewWithQuicklookAsync(Device.Folder.Path);
+                                            await Exclusive.Controller.ViewWithQuicklookAsync(Device.Path);
                                         }
                                         else if (PC.LibraryGrid.SelectedItem is LibraryFolder Library && !string.IsNullOrEmpty(Library.Folder.Path))
                                         {
@@ -169,9 +169,9 @@ namespace RX_Explorer
                             }
                         case VirtualKey.Enter:
                             {
-                                if (PC.DeviceGrid.SelectedItem is DriveRelatedData Device)
+                                if (PC.DeviceGrid.SelectedItem is DriveDataBase Device)
                                 {
-                                    if (string.IsNullOrEmpty(Device.Folder.Path))
+                                    if (string.IsNullOrEmpty(Device.Path))
                                     {
                                         QueueContentDialog Dialog = new QueueContentDialog
                                         {
@@ -184,7 +184,7 @@ namespace RX_Explorer
                                     }
                                     else
                                     {
-                                        await PC.OpenTargetFolder(Device.Folder);
+                                        await PC.OpenTargetFolder(Device.DriveFolder);
                                     }
 
                                     args.Handled = true;
@@ -349,7 +349,7 @@ namespace RX_Explorer
                 
                 if (SettingControl.DeviceExpanderIsExpand)
                 {
-                    LoadTaskList.Add(CommonAccessCollection.LoadDeviceAsync());
+                    LoadTaskList.Add(CommonAccessCollection.LoadDriveAsync());
                 }
                 
                 if (SettingControl.IsQuickStartExpanded)

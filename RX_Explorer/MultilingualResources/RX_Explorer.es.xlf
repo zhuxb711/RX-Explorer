@@ -1831,8 +1831,8 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <target state="translated">No se ha podido abrir la página de compra debido a Microsoft Store o a la red; inténtalo de nuevo más tarde.</target>
         </trans-unit>
         <trans-unit id="QueueDialog_LocateFolderFailure_Content" translate="yes" xml:space="preserve">
-          <source>Unable to locate folder, which may have been deleted or moved</source>
-          <target state="translated">No se ha podido ubicar la carpeta; puede que se haya movido o eliminado.</target>
+          <source>Cannot locate or access the folder, the folder does not exist or lacks access permissions</source>
+          <target state="translated">No se puede ubicar o acceder a la carpeta, la carpeta no existe o carece de permisos de acceso</target>
         </trans-unit>
         <trans-unit id="QueueDialog_WaitUntilFinish_CloseButton" translate="yes" xml:space="preserve">
           <source>Later</source>
@@ -2664,10 +2664,6 @@ Las denominaciones no válidas son:
         <trans-unit id="QueueDialog_ApplicationNotFound_Content" translate="yes" xml:space="preserve">
           <source>The application cannot be found, please reset the executable file path</source>
           <target state="translated">No se ha podido encontrar la aplicación; por favor, restablece la ruta del archivo ejecutable.</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_AccessFolderFailure_Content" translate="yes" xml:space="preserve">
-          <source>Unable to access the folder.\rError message:</source>
-          <target state="translated">No se ha podido acceder a la carpeta.\rMensaje de error:</target>
         </trans-unit>
         <trans-unit id="SolidColor_FollowSystem.Content" translate="yes" xml:space="preserve">
           <source>Windows default</source>

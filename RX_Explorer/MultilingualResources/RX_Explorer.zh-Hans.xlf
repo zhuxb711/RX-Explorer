@@ -1766,8 +1766,8 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">稍后提醒</target>
         </trans-unit>
         <trans-unit id="QueueDialog_LocateFolderFailure_Content" translate="yes" xml:space="preserve">
-          <source>Unable to locate folder, which may have been deleted or moved</source>
-          <target state="translated">无法定位文件夹，该文件夹可能已被删除或移动</target>
+          <source>Cannot locate or access the folder, the folder does not exist or lacks access permissions</source>
+          <target state="translated">无法定位或访问文件夹，文件夹不存在或缺少访问权限</target>
         </trans-unit>
         <trans-unit id="QueueDialog_WaitUntilFinish_CloseButton" translate="yes" xml:space="preserve">
           <source>Later</source>
@@ -2603,10 +2603,6 @@ Invalid names include
         <trans-unit id="QueueDialog_ApplicationNotFound_Content" translate="yes" xml:space="preserve">
           <source>The application cannot be found, please reset the executable file path</source>
           <target state="translated">该应用程序已无法找到，请重新设置可执行文件路径</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_AccessFolderFailure_Content" translate="yes" xml:space="preserve">
-          <source>Unable to access the folder.\rError message:</source>
-          <target state="translated">无法访问此文件夹\r错误信息:</target>
         </trans-unit>
         <trans-unit id="SolidColor_FollowSystem.Content" translate="yes" xml:space="preserve">
           <source>Windows default</source>

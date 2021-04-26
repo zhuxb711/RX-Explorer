@@ -1766,8 +1766,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Me le rappeller plus tard</target>
         </trans-unit>
         <trans-unit id="QueueDialog_LocateFolderFailure_Content" translate="yes" xml:space="preserve">
-          <source>Unable to locate folder, which may have been deleted or moved</source>
-          <target state="translated">Impossible de localiser le dossier, il a pu être supprimé ou déplacé</target>
+          <source>Cannot locate or access the folder, the folder does not exist or lacks access permissions</source>
+          <target state="translated">Impossible de localiser ou d'accéder au dossier, le dossier n'existe pas ou n'a pas les autorisations d'accès</target>
         </trans-unit>
         <trans-unit id="QueueDialog_WaitUntilFinish_CloseButton" translate="yes" xml:space="preserve">
           <source>Later</source>
@@ -2603,10 +2603,6 @@ Les noms non valides incluent
         <trans-unit id="QueueDialog_ApplicationNotFound_Content" translate="yes" xml:space="preserve">
           <source>The application cannot be found, please reset the executable file path</source>
           <target state="translated">L'application est introuvable, veuillez réinitialiser le chemin du fichier exécutable</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_AccessFolderFailure_Content" translate="yes" xml:space="preserve">
-          <source>Unable to access the folder.\rError message:</source>
-          <target state="translated">Impossible d'accéder au dossier\rMessage d'erreur:</target>
         </trans-unit>
         <trans-unit id="SolidColor_FollowSystem.Content" translate="yes" xml:space="preserve">
           <source>Windows default</source>

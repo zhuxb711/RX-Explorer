@@ -7,10 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using Windows.Devices.Enumeration;
-using Windows.Devices.Portable;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
@@ -36,7 +33,6 @@ namespace RX_Explorer
         private WeakReference<TabViewItem> WeakToTabItem;
 
         private QuickStartItem CurrentSelectedItem;
-        private int LockResource;
 
         public ThisPC()
         {
@@ -92,7 +88,7 @@ namespace RX_Explorer
                     Storyboard Story = new Storyboard();
                     DoubleAnimation Animation = new DoubleAnimation()
                     {
-                        To = (args.Item as DriveRelatedData).Percent,
+                        To = (args.Item as DriveDataBase).Percent,
                         From = 0,
                         EnableDependentAnimation = true,
                         EasingFunction = new CircleEase { EasingMode = EasingMode.EaseInOut },
@@ -129,12 +125,89 @@ namespace RX_Explorer
                         LibraryGrid.SelectedItem = Item;
                         DeviceGrid.SelectedIndex = -1;
                     }
-                    else if (Item is DriveRelatedData)
+                    else if (Item is DriveDataBase)
                     {
                         DeviceGrid.SelectedItem = Item;
                         LibraryGrid.SelectedIndex = -1;
                     }
                 }
+            }
+        }
+
+        public async Task OpenTargetDriveAsync(DriveDataBase Drive)
+        {
+            switch (Drive)
+            {
+                case LockedDriveData LockedDrive:
+                    {
+                    Retry:
+                        BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
+
+                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            if (!await LockedDrive.UnlockAsync(Dialog.Password))
+                            {
+                                QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
+
+                                if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
+                                {
+                                    goto Retry;
+                                }
+                                else
+                                {
+                                    return;
+                                }
+                            }
+
+                            StorageFolder DriveFolder = await StorageFolder.GetFolderFromPathAsync(LockedDrive.Path);
+
+                            DriveDataBase NewDrive = await DriveDataBase.CreateAsync(DriveFolder, LockedDrive.DriveType);
+
+                            if (NewDrive is LockedDriveData)
+                            {
+                                QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
+
+                                if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
+                                {
+                                    goto Retry;
+                                }
+                            }
+                            else
+                            {
+                                int Index = CommonAccessCollection.DriveList.IndexOf(LockedDrive);
+
+                                if (Index >= 0)
+                                {
+                                    CommonAccessCollection.DriveList.Remove(LockedDrive);
+                                    CommonAccessCollection.DriveList.Insert(Index, NewDrive);
+                                }
+                                else
+                                {
+                                    CommonAccessCollection.DriveList.Add(NewDrive);
+                                }
+                            }
+                        }
+
+                        break;
+                    }
+                case WslDriveData:
+                case NormalDriveData:
+                    {
+                        await OpenTargetFolder(Drive.DriveFolder).ConfigureAwait(false);
+                        break;
+                    }
             }
         }
 
@@ -180,77 +253,9 @@ namespace RX_Explorer
         {
             LibraryGrid.SelectedIndex = -1;
 
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is DriveRelatedData Device)
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is DriveDataBase Drive)
             {
-                if (Device.IsLockedByBitlocker)
-                {
-                Retry:
-                    BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
-
-                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                    {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                        {
-                            if(!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString"))
-                            {
-                                QueueContentDialog UnlockFailedDialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
-                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                };
-
-                                if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
-                                {
-                                    goto Retry;
-                                }
-                                else
-                                {
-                                    return;
-                                }
-                            }
-
-                            StorageFolder DriveFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
-
-                            DriveRelatedData NewDevice = await DriveRelatedData.CreateAsync(DriveFolder, Device.DriveType);
-
-                            if (!NewDevice.IsLockedByBitlocker)
-                            {
-                                int Index = CommonAccessCollection.DriveList.IndexOf(Device);
-
-                                if (Index >= 0)
-                                {
-                                    CommonAccessCollection.DriveList.Remove(Device);
-                                    CommonAccessCollection.DriveList.Insert(Index, NewDevice);
-                                }
-                                else
-                                {
-                                    CommonAccessCollection.DriveList.Add(NewDevice);
-                                }
-                            }
-                            else
-                            {
-                                QueueContentDialog UnlockFailedDialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
-                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                };
-
-                                if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
-                                {
-                                    goto Retry;
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    await OpenTargetFolder(Device.Folder).ConfigureAwait(false);
-                }
+                await OpenTargetDriveAsync(Drive);
             }
         }
 
@@ -282,7 +287,7 @@ namespace RX_Explorer
                                     {
                                         if (Path.GetExtension(Item.Protocol).ToLower() == ".msc")
                                         {
-                                            if(!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", Item.Protocol))
+                                            if (!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", Item.Protocol))
                                             {
                                                 QueueContentDialog Dialog = new QueueContentDialog
                                                 {
@@ -296,7 +301,7 @@ namespace RX_Explorer
                                         }
                                         else
                                         {
-                                            if(!await Exclusive.Controller.RunAsync(Item.Protocol, Path.GetDirectoryName(Item.Protocol)))
+                                            if (!await Exclusive.Controller.RunAsync(Item.Protocol, Path.GetDirectoryName(Item.Protocol)))
                                             {
                                                 QueueContentDialog Dialog = new QueueContentDialog
                                                 {
@@ -323,7 +328,7 @@ namespace RX_Explorer
                                     Content = Globalization.GetString("QueueDialog_ApplicationNotFound_Content"),
                                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                 };
-                                _ = await Dialog.ShowAsync();
+                                await Dialog.ShowAsync();
                             }
                         }
                         else
@@ -344,7 +349,7 @@ namespace RX_Explorer
                                     CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                 };
 
-                                _ = await Dialog.ShowAsync();
+                                await Dialog.ShowAsync();
                             }
                         }
                     }
@@ -370,7 +375,7 @@ namespace RX_Explorer
             if (CurrentSelectedItem != null)
             {
                 QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(CurrentSelectedItem);
-                _ = await dialog.ShowAsync();
+                await dialog.ShowAsync();
             }
         }
 
@@ -379,7 +384,7 @@ namespace RX_Explorer
             if (CurrentSelectedItem != null)
             {
                 QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(CurrentSelectedItem);
-                _ = await dialog.ShowAsync();
+                await dialog.ShowAsync();
             }
         }
 
@@ -427,19 +432,19 @@ namespace RX_Explorer
 
         private async void Attribute_Click(object sender, RoutedEventArgs e)
         {
-            DeviceInfoDialog Dialog = new DeviceInfoDialog(DeviceGrid.SelectedItem as DriveRelatedData);
-            _ = await Dialog.ShowAsync();
+            DeviceInfoDialog Dialog = new DeviceInfoDialog(DeviceGrid.SelectedItem as DriveDataBase);
+            await Dialog.ShowAsync();
         }
 
         private void DeviceGrid_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is DriveRelatedData Context)
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is DriveDataBase Context)
                 {
                     DeviceGrid.SelectedItem = Context;
 
-                    if (Context.IsLockedByBitlocker)
+                    if (Context is LockedDriveData)
                     {
                         DeviceGrid.ContextFlyout = BitlockerDeviceFlyout;
                     }
@@ -460,69 +465,9 @@ namespace RX_Explorer
         {
             LibraryGrid.SelectedIndex = -1;
 
-            if (DeviceGrid.SelectedItem is DriveRelatedData Device)
+            if (DeviceGrid.SelectedItem is DriveDataBase Drive)
             {
-                if (Device.IsLockedByBitlocker)
-                {
-                Retry:
-                    BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
-
-                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                    {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                        {
-                            if(!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString"))
-                            {
-                                QueueContentDialog UnlockFailedDialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
-                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                };
-
-                                if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
-                                {
-                                    goto Retry;
-                                }
-                                else
-                                {
-                                    return;
-                                }
-                            }
-                        }
-
-                        StorageFolder DriveFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
-
-                        DriveRelatedData NewDevice = await DriveRelatedData.CreateAsync(DriveFolder, Device.DriveType);
-
-                        if (!NewDevice.IsLockedByBitlocker)
-                        {
-                            int Index = CommonAccessCollection.DriveList.IndexOf(Device);
-                            CommonAccessCollection.DriveList.Remove(Device);
-                            CommonAccessCollection.DriveList.Insert(Index, NewDevice);
-                        }
-                        else
-                        {
-                            QueueContentDialog UnlockFailedDialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
-                                PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                            };
-
-                            if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
-                            {
-                                goto Retry;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    await OpenTargetFolder(Device.Folder).ConfigureAwait(false);
-                }
+                await OpenTargetDriveAsync(Drive);
             }
         }
 
@@ -617,118 +562,16 @@ namespace RX_Explorer
 
         public async void Refresh_Click(object sender, RoutedEventArgs e)
         {
-            if (Interlocked.Exchange(ref LockResource, 1) == 0)
-            {
-                try
-                {
-                    CommonAccessCollection.DriveList.Clear();
-
-                    foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Network)
-                                                                     .Where((NewItem) => CommonAccessCollection.DriveList.All((Item) => Item.Folder.Path != NewItem.RootDirectory.FullName)))
-                    {
-                        try
-                        {
-                            StorageFolder DriveFolder = await StorageFolder.GetFolderFromPathAsync(Drive.RootDirectory.FullName);
-
-                            CommonAccessCollection.DriveList.Add(await DriveRelatedData.CreateAsync(DriveFolder, Drive.DriveType));
-                        }
-                        catch (Exception ex)
-                        {
-                            LogTracer.Log(ex, $"Hide the device \"{Drive.RootDirectory.FullName}\" for error");
-                        }
-                    }
-
-                    foreach (DeviceInformation Device in await DeviceInformation.FindAllAsync(StorageDevice.GetDeviceSelector()))
-                    {
-                        try
-                        {
-                            StorageFolder DriveFolder = StorageDevice.FromId(Device.Id);
-
-                            if (CommonAccessCollection.DriveList.All((Item) => (string.IsNullOrEmpty(Item.Folder.Path) || string.IsNullOrEmpty(DriveFolder.Path)) ? Item.Folder.Name != DriveFolder.Name : Item.Folder.Path != DriveFolder.Path))
-                            {
-                                CommonAccessCollection.DriveList.Add(await DriveRelatedData.CreateAsync(DriveFolder, DriveType.Removable));
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            LogTracer.Log(ex, $"Hide the device \"{Device.Name}\" for error");
-                        }
-                    }
-                }
-                finally
-                {
-                    _ = Interlocked.Exchange(ref LockResource, 0);
-                }
-            }
+            await CommonAccessCollection.LoadDriveAsync(true);
         }
 
         private async void DeviceGrid_ItemClick(object sender, ItemClickEventArgs e)
         {
             LibraryGrid.SelectedIndex = -1;
 
-            if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is DriveRelatedData Device)
+            if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is DriveDataBase Drive)
             {
-                if (Device.IsLockedByBitlocker)
-                {
-                Retry:
-                    BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
-
-                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                    {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                        {
-                            if(!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString"))
-                            {
-                                QueueContentDialog UnlockFailedDialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
-                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                                };
-
-                                if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
-                                {
-                                    goto Retry;
-                                }
-                                else
-                                {
-                                    return;
-                                }
-                            }
-                        }
-
-                        StorageFolder DriveFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
-
-                        DriveRelatedData NewDevice = await DriveRelatedData.CreateAsync(DriveFolder, Device.DriveType);
-
-                        if (!NewDevice.IsLockedByBitlocker)
-                        {
-                            int Index = CommonAccessCollection.DriveList.IndexOf(Device);
-                            CommonAccessCollection.DriveList.Remove(Device);
-                            CommonAccessCollection.DriveList.Insert(Index, NewDevice);
-                        }
-                        else
-                        {
-                            QueueContentDialog UnlockFailedDialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
-                                PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                            };
-
-                            if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
-                            {
-                                goto Retry;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    await OpenTargetFolder(Device.Folder).ConfigureAwait(false);
-                }
+                await OpenTargetDriveAsync(Drive);
             }
         }
 
@@ -757,9 +600,9 @@ namespace RX_Explorer
             {
                 if (DriveFolder.Path.Equals(Path.GetPathRoot(DriveFolder.Path), StringComparison.OrdinalIgnoreCase) && DriveInfo.GetDrives().Where((Drive) => Drive.DriveType == DriveType.Fixed || Drive.DriveType == DriveType.Removable || Drive.DriveType == DriveType.Network).Any((Item) => Item.RootDirectory.FullName == DriveFolder.Path))
                 {
-                    if (CommonAccessCollection.DriveList.All((Item) => Item.Folder.Path != DriveFolder.Path))
+                    if (CommonAccessCollection.DriveList.All((Item) => !Item.Path.Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase)))
                     {
-                        CommonAccessCollection.DriveList.Add(await DriveRelatedData.CreateAsync(DriveFolder, new DriveInfo(DriveFolder.Path).DriveType));
+                        CommonAccessCollection.DriveList.Add(await DriveDataBase.CreateAsync(DriveFolder, new DriveInfo(DriveFolder.Path).DriveType));
                     }
                     else
                     {
@@ -769,7 +612,7 @@ namespace RX_Explorer
                             Content = Globalization.GetString("QueueDialog_DeviceExist_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
-                        _ = await Dialog.ShowAsync();
+                        await Dialog.ShowAsync();
                     }
                 }
                 else
@@ -781,7 +624,7 @@ namespace RX_Explorer
                         CloseButtonText = Globalization.GetString("Common_Dialog_TipTitle")
                     };
 
-                    _ = await Dialog.ShowAsync();
+                    await Dialog.ShowAsync();
                 }
             }
         }
@@ -839,7 +682,7 @@ namespace RX_Explorer
         {
             if (e.HoldingState == HoldingState.Started)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is DriveRelatedData Context)
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is DriveDataBase Context)
                 {
                     DeviceGrid.SelectedItem = Context;
                     DeviceGrid.ContextFlyout = Context.DriveType == DriveType.Removable ? PortableDeviceFlyout : DeviceFlyout;
@@ -866,9 +709,9 @@ namespace RX_Explorer
 
         private async void EjectButton_Click(object sender, RoutedEventArgs e)
         {
-            if (DeviceGrid.SelectedItem is DriveRelatedData Item)
+            if (DeviceGrid.SelectedItem is DriveDataBase Item)
             {
-                if (string.IsNullOrEmpty(Item.Folder.Path))
+                if (string.IsNullOrEmpty(Item.Path))
                 {
                     QueueContentDialog Dialog = new QueueContentDialog
                     {
@@ -876,18 +719,19 @@ namespace RX_Explorer
                         Content = Globalization.GetString("QueueContentDialog_UnableToEject_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
-                    _ = await Dialog.ShowAsync().ConfigureAwait(false);
+
+                    await Dialog.ShowAsync().ConfigureAwait(false);
                 }
                 else
                 {
-                    foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabCollection.Where((Tab) => (Tab.Content as Frame).CurrentSourcePageType != typeof(ThisPC) && Tab.Tag is FileControl Control && Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder?.Path) == Item.Folder.Path).ToArray())
+                    foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabCollection.Where((Tab) => (Tab.Content as Frame).CurrentSourcePageType != typeof(ThisPC) && Tab.Tag is FileControl Control && Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder?.Path).Equals(Item.Path, StringComparison.OrdinalIgnoreCase)).ToArray())
                     {
                         await TabViewContainer.ThisPage.CleanUpAndRemoveTabItem(Tab);
                     }
 
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                     {
-                        if (await Exclusive.Controller.EjectPortableDevice(Item.Folder.Path))
+                        if (await Exclusive.Controller.EjectPortableDevice(Item.Path))
                         {
                             ShowEjectNotification();
                         }
@@ -899,7 +743,8 @@ namespace RX_Explorer
                                 Content = Globalization.GetString("QueueContentDialog_UnableToEject_Content"),
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
-                            _ = await Dialog.ShowAsync().ConfigureAwait(false);
+                            
+                            await Dialog.ShowAsync().ConfigureAwait(false);
                         }
                     }
                 }
@@ -929,14 +774,12 @@ namespace RX_Explorer
 
         private async void AddQuickStartWeb_Click(object sender, RoutedEventArgs e)
         {
-            QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(QuickStartType.WebSite);
-            _ = await dialog.ShowAsync();
+            await new QuickStartModifiedDialog(QuickStartType.WebSite).ShowAsync();
         }
 
         private async void AddQuickStartApp_Click(object sender, RoutedEventArgs e)
         {
-            QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(QuickStartType.Application);
-            _ = await dialog.ShowAsync();
+            await new QuickStartModifiedDialog(QuickStartType.Application).ShowAsync();
         }
 
         private async void WebGridView_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
@@ -988,7 +831,7 @@ namespace RX_Explorer
                         Content = Globalization.GetString("QueueDialog_RepeatAddToHomePage_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
-                    _ = await dialog.ShowAsync();
+                    await dialog.ShowAsync();
                 }
                 else
                 {
@@ -1001,65 +844,9 @@ namespace RX_Explorer
 
         private async void UnlockBitlocker_Click(object sender, RoutedEventArgs e)
         {
-            if (DeviceGrid.SelectedItem is DriveRelatedData Device)
+            if (DeviceGrid.SelectedItem is DriveDataBase Drive)
             {
-            Retry:
-                BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
-
-                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                    {
-                        if(!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, true, true, true, "-Command", $"$BitlockerSecureString = ConvertTo-SecureString '{Dialog.Password}' -AsPlainText -Force;", $"Unlock-BitLocker -MountPoint '{Device.Folder.Path}' -Password $BitlockerSecureString"))
-                        {
-                            QueueContentDialog UnlockFailedDialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
-                                PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                            };
-
-                            if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
-                            {
-                                goto Retry;
-                            }
-                            else
-                            {
-                                return;
-                            }
-                        }
-                    }
-
-                    StorageFolder DeviceFolder = await StorageFolder.GetFolderFromPathAsync(Device.Folder.Path);
-
-                    BasicProperties Properties = await DeviceFolder.GetBasicPropertiesAsync();
-                    IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
-
-                    DriveRelatedData NewDevice = await DriveRelatedData.CreateAsync(DeviceFolder, Device.DriveType);
-
-                    if (!NewDevice.IsLockedByBitlocker)
-                    {
-                        int Index = CommonAccessCollection.DriveList.IndexOf(Device);
-                        CommonAccessCollection.DriveList.Remove(Device);
-                        CommonAccessCollection.DriveList.Insert(Index, NewDevice);
-                    }
-                    else
-                    {
-                        QueueContentDialog UnlockFailedDialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
-                            PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                        };
-
-                        if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
-                        {
-                            goto Retry;
-                        }
-                    }
-                }
+                await OpenTargetDriveAsync(Drive);
             }
         }
 
@@ -1080,7 +867,7 @@ namespace RX_Explorer
         private async void DeviceExpander_Expanded(object sender, EventArgs e)
         {
             SettingControl.DeviceExpanderIsExpand = true;
-            await CommonAccessCollection.LoadDeviceAsync();
+            await CommonAccessCollection.LoadDriveAsync();
         }
     }
 }

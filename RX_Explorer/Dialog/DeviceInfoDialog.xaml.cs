@@ -7,15 +7,15 @@ namespace RX_Explorer.Dialog
 {
     public sealed partial class DeviceInfoDialog : QueueContentDialog
     {
-        private DriveRelatedData Device;
+        private DriveDataBase Device;
 
-        public DeviceInfoDialog(DriveRelatedData Device)
+        public DeviceInfoDialog(DriveDataBase Device)
         {
             InitializeComponent();
 
             this.Device = Device ?? throw new ArgumentNullException(nameof(Device), "Parameter could not be null");
 
-            DeviceName.Text = Device.Name;
+            DeviceName.Text = Device.DisplayName;
             Thumbnail.Source = Device.Thumbnail;
 
             FreeByte.Text = $"{Device.FreeByte:N0} {Globalization.GetString("Device_Capacity_Unit")}";

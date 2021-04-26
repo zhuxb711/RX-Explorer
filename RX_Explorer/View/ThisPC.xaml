@@ -7,6 +7,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+      xmlns:Sys="using:System"
       mc:Ignorable="d"
       NavigationCacheMode="Required"
       Background="Transparent">
@@ -433,7 +434,7 @@
                               DoubleTapped="DeviceGrid_DoubleTapped"
                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.DeviceAndLibraryTransitions,Mode=OneWay}">
                         <GridView.ItemTemplate>
-                            <DataTemplate x:DataType="Cls:DriveRelatedData">
+                            <DataTemplate x:DataType="Cls:DriveDataBase">
                                 <StackPanel Orientation="Horizontal"
                                             Padding="5">
                                     <Image Height="50"
@@ -445,8 +446,8 @@
                                         <TextBlock FontSize="14"
                                                    Width="190"
                                                    TextTrimming="CharacterEllipsis"
-                                                   Text="{x:Bind Name}"
-                                                   ToolTipService.ToolTip="{x:Bind Name}" />
+                                                   Text="{x:Bind DisplayName}"
+                                                   ToolTipService.ToolTip="{x:Bind DisplayName}" />
                                         <muxc:ProgressBar x:Name="Pro"
                                                           Width="190"
                                                           Height="12"
@@ -458,7 +459,7 @@
                                         <TextBlock Width="190"
                                                    FontSize="13"
                                                    TextTrimming="CharacterEllipsis"
-                                                   Text="{x:Bind StorageSpaceDescription}" />
+                                                   Text="{x:Bind DriveSpaceDescription}" />
                                     </StackPanel>
                                 </StackPanel>
                             </DataTemplate>

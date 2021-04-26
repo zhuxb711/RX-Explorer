@@ -1386,7 +1386,7 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>No se ha podido abrir la página de compra debido a Microsoft Store o a la red; inténtalo de nuevo más tarde.</value>
   </data>
   <data name="QueueDialog_LocateFolderFailure_Content" xml:space="preserve">
-    <value>No se ha podido ubicar la carpeta; puede que se haya movido o eliminado.</value>
+    <value>No se puede ubicar o acceder a la carpeta, la carpeta no existe o carece de permisos de acceso</value>
   </data>
   <data name="QueueDialog_WaitUntilFinish_CloseButton" xml:space="preserve">
     <value>Más tarde</value>
@@ -2013,9 +2013,6 @@ Las denominaciones no válidas son:
   </data>
   <data name="QueueDialog_ApplicationNotFound_Content" xml:space="preserve">
     <value>No se ha podido encontrar la aplicación; por favor, restablece la ruta del archivo ejecutable.</value>
-  </data>
-  <data name="QueueDialog_AccessFolderFailure_Content" xml:space="preserve">
-    <value>No se ha podido acceder a la carpeta.\rMensaje de error:</value>
   </data>
   <data name="SolidColor_FollowSystem.Content" xml:space="preserve">
     <value>Predeterminado de Windows</value>
