@@ -16,7 +16,7 @@ namespace RX_Explorer
 {
     sealed partial class App : Application
     {
-        private bool IsInBackgroundMode;
+        bool IsInBackgroundMode;
 
         public App()
         {
@@ -305,11 +305,6 @@ namespace RX_Explorer
 
                 Window.Current.Activate();
             }
-        }
-
-        protected override void OnBackgroundActivated(BackgroundActivatedEventArgs args)
-        {
-            AppServiceConnectionController.SetIncomeBackgroundTask(args.TaskInstance);
         }
     }
 }
