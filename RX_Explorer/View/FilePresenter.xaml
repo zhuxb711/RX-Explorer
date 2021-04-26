@@ -77,7 +77,7 @@
                                       Glyph="&#xEB51;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Foreground="GreenYellow"
+                    <AppBarButton Foreground="#2CE62F"
                                   x:Uid="GreenTag"
                                   ToolTipService.ToolTip="Green"
                                   Click="Color_Click">
@@ -86,7 +86,7 @@
                                       Glyph="&#xEB51;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Foreground="Yellow"
+                    <AppBarButton Foreground="#CC6EFF"
                                   x:Uid="YellowTag"
                                   ToolTipService.ToolTip="Yellow"
                                   Click="Color_Click">
@@ -95,7 +95,7 @@
                                       Glyph="&#xEB51;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Foreground="#409EFE"
+                    <AppBarButton Foreground="#42C5FF"
                                   x:Uid="BlueTag"
                                   ToolTipService.ToolTip="Blue"
                                   Click="Color_Click">
@@ -197,7 +197,7 @@
                                       Glyph="&#xEB51;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Foreground="GreenYellow"
+                    <AppBarButton Foreground="#2CE62F"
                                   x:Uid="GreenTag"
                                   ToolTipService.ToolTip="Green"
                                   Click="Color_Click">
@@ -206,7 +206,7 @@
                                       Glyph="&#xEB51;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Foreground="Yellow"
+                    <AppBarButton Foreground="#CC6EFF"
                                   x:Uid="YellowTag"
                                   ToolTipService.ToolTip="Yellow"
                                   Click="Color_Click">
@@ -215,7 +215,7 @@
                                       Glyph="&#xEB51;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Foreground="#409EFE"
+                    <AppBarButton Foreground="#42C5FF"
                                   x:Uid="BlueTag"
                                   ToolTipService.ToolTip="Blue"
                                   Click="Color_Click">
@@ -446,7 +446,7 @@
                                       Glyph="&#xEB51;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Foreground="GreenYellow"
+                    <AppBarButton Foreground="#2CE62F"
                                   x:Uid="GreenTag"
                                   ToolTipService.ToolTip="Green"
                                   Click="MixColor_Click">
@@ -455,7 +455,7 @@
                                       Glyph="&#xEB51;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Foreground="Yellow"
+                    <AppBarButton Foreground="#CC6EFF"
                                   x:Uid="YellowTag"
                                   ToolTipService.ToolTip="Yellow"
                                   Click="MixColor_Click">
@@ -464,7 +464,7 @@
                                       Glyph="&#xEB51;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Foreground="#409EFE"
+                    <AppBarButton Foreground="#42C5FF"
                                   x:Uid="BlueTag"
                                   ToolTipService.ToolTip="Blue"
                                   Click="MixColor_Click">
@@ -556,7 +556,7 @@
                                       Glyph="&#xEB51;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Foreground="GreenYellow"
+                    <AppBarButton Foreground="#2CE62F"
                                   x:Uid="GreenTag"
                                   ToolTipService.ToolTip="Green"
                                   Click="Color_Click">
@@ -565,7 +565,7 @@
                                       Glyph="&#xEB51;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Foreground="Yellow"
+                    <AppBarButton Foreground="#CC6EFF"
                                   x:Uid="YellowTag"
                                   ToolTipService.ToolTip="Yellow"
                                   Click="Color_Click">
@@ -574,7 +574,7 @@
                                       Glyph="&#xEB51;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Foreground="#409EFE"
+                    <AppBarButton Foreground="#42C5FF"
                                   x:Uid="BlueTag"
                                   ToolTipService.ToolTip="Blue"
                                   Click="Color_Click">
@@ -826,7 +826,7 @@
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
             <StackPanel Orientation="Horizontal"
-                        ActualThemeChanged="{x:Bind ThemeChanged}"
+                        Background="{x:Bind BackgroundColor, Mode=OneWay}"
                         Padding="5"
                         Width="220">
                 <Image VerticalAlignment="Center"
@@ -841,7 +841,6 @@
                             Margin="5,0,0,0">
                     <TextBlock Text="{x:Bind Name,Mode=OneWay}"
                                ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
-                               Foreground="{x:Bind ForegroundColor, Mode=OneWay}"
                                FontSize="14"
                                MaxWidth="150"
                                x:Phase="0"
@@ -880,7 +879,7 @@
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
             <StackPanel Padding="5"
-                        ActualThemeChanged="{x:Bind ThemeChanged}"
+                        Background="{x:Bind BackgroundColor, Mode=OneWay}"
                         Orientation="Vertical">
                 <Image HorizontalAlignment="Center"
                        Stretch="Uniform"
@@ -891,7 +890,6 @@
                        Width="240" />
                 <TextBlock Text="{x:Bind Name,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
-                           Foreground="{x:Bind ForegroundColor, Mode=OneWay}"
                            FontSize="16"
                            Width="240"
                            x:Phase="0"
@@ -906,7 +904,7 @@
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
             <StackPanel Padding="5"
-                        ActualThemeChanged="{x:Bind ThemeChanged}"
+                        Background="{x:Bind BackgroundColor, Mode=OneWay}"
                         Orientation="Vertical">
                 <Image HorizontalAlignment="Center"
                        Stretch="Uniform"
@@ -916,7 +914,6 @@
                        Width="180"
                        x:Phase="1" />
                 <TextBlock Text="{x:Bind Name,Mode=OneWay}"
-                           Foreground="{x:Bind ForegroundColor, Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            FontSize="15"
                            Width="180"
@@ -932,7 +929,7 @@
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
             <StackPanel Padding="5"
-                        ActualThemeChanged="{x:Bind ThemeChanged}"
+                        Background="{x:Bind BackgroundColor, Mode=OneWay}"
                         Orientation="Vertical">
                 <Image HorizontalAlignment="Center"
                        Stretch="Uniform"
@@ -942,7 +939,6 @@
                        Width="120"
                        x:Phase="1" />
                 <TextBlock Text="{x:Bind Name,Mode=OneWay}"
-                           Foreground="{x:Bind ForegroundColor, Mode=OneWay}"
                            FontSize="14"
                            ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            Width="120"
@@ -958,8 +954,8 @@
                       x:Name="GridViewListDataTemplate"
                       x:FieldModifier="public">
             <Grid Width="200"
-                  Padding="5"
-                  ActualThemeChanged="{x:Bind ThemeChanged}">
+                  Background="{x:Bind BackgroundColor, Mode=OneWay}"
+                  Padding="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="40" />
                     <ColumnDefinition Width="*" />
@@ -975,7 +971,6 @@
                 <TextBlock VerticalAlignment="Center"
                            HorizontalAlignment="Left"
                            FontSize="14"
-                           Foreground="{x:Bind ForegroundColor, Mode=OneWay}"
                            Text="{x:Bind Name,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            TextTrimming="CharacterEllipsis"
@@ -1007,7 +1002,8 @@
         <DataTemplate x:DataType="Cls:FileSystemStorageItemBase"
                       x:Key="ListViewDetailContent">
             <Grid HorizontalAlignment="Stretch"
-                  ActualThemeChanged="{x:Bind ThemeChanged}">
+                  Padding="0,3"
+                  Background="{x:Bind BackgroundColor, Mode=OneWay}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="6*" />
                     <ColumnDefinition Width="2.5*" />
@@ -1035,7 +1031,6 @@
                                FontSize="14"
                                Grid.Column="1"
                                x:Phase="0"
-                               Foreground="{x:Bind ForegroundColor, Mode=OneWay}"
                                Text="{x:Bind Name, Mode=OneWay}"
                                ToolTipService.ToolTip="{x:Bind Name, Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                                TextTrimming="CharacterEllipsis"

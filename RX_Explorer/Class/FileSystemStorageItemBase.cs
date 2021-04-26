@@ -55,16 +55,16 @@ namespace RX_Explorer.Class
             }
         }
 
-        public SolidColorBrush ForegroundColor
+        public SolidColorBrush BackgroundColor
         {
             get
             {
-                return foregroundColor ??= new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
+                return foregroundColor ??= new SolidColorBrush(Colors.Transparent);
             }
             private set
             {
                 foregroundColor = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ForegroundColor)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundColor)));
             }
         }
 
@@ -72,20 +72,12 @@ namespace RX_Explorer.Class
 
         public void SetForegroundColorAsSpecific(Color Color)
         {
-            ForegroundColor = new SolidColorBrush(Color);
+            BackgroundColor = new SolidColorBrush(Color);
         }
 
         public void SetForegroundColorAsNormal()
         {
-            ForegroundColor = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
-        }
-
-        public void ThemeChanged(FrameworkElement element, object obj)
-        {
-            if (ForegroundColor.Color == Colors.White || ForegroundColor.Color == Colors.Black)
-            {
-                ForegroundColor = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
-            }
+            BackgroundColor = new SolidColorBrush(Colors.Transparent);
         }
 
         public double ThumbnailOpacity { get; protected set; } = 1d;
