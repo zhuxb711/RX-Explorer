@@ -25,22 +25,33 @@ namespace RX_Explorer.Dialog
 
         private void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            if (FileSystemItemNameChecker.IsValid(NewFileNameTextBox.Text))
-            {
-                if (string.IsNullOrWhiteSpace(Extension.Text))
-                {
-                    InvalidInputTip.IsOpen = true;
-                    args.Cancel = true;
-                }
-                else
-                {
-                    NewFileName = NewFileNameTextBox.Text + Regex.Match(Extension.SelectedItem.ToString(), @"\.\w+").Value;
-                }
-            }
-            else
+            bool IsNameEmpty = string.IsNullOrWhiteSpace(NewFileNameTextBox.Text);
+            bool IsExtensionEmpty = string.IsNullOrWhiteSpace(Extension.Text);
+
+            if (IsNameEmpty && IsExtensionEmpty)
             {
                 args.Cancel = true;
                 InvalidNameTip.IsOpen = true;
+                InvalidInputTip.IsOpen = true;
+            }
+            else
+            {
+                if (!IsNameEmpty && !FileSystemItemNameChecker.IsValid(NewFileNameTextBox.Text))
+                {
+                    args.Cancel = true;
+                    InvalidNameTip.IsOpen = true;
+                }
+                else
+                {
+                    if (IsExtensionEmpty)
+                    {
+                        NewFileName = NewFileNameTextBox.Text;
+                    }
+                    else
+                    {
+                        NewFileName = NewFileNameTextBox.Text + Regex.Match(Extension.SelectedItem.ToString(), @"\.\w+").Value;
+                    }
+                }
             }
         }
 

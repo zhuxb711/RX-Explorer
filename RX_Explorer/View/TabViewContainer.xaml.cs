@@ -34,6 +34,8 @@ namespace RX_Explorer
 
         public static TabViewContainer ThisPage { get; private set; }
 
+        private bool ShouldCloseApplication;
+
         public TabViewContainer()
         {
             InitializeComponent();
@@ -346,12 +348,12 @@ namespace RX_Explorer
                 {
                     LoadTaskList.Add(CommonAccessCollection.LoadLibraryFoldersAsync());
                 }
-                
+
                 if (SettingControl.DeviceExpanderIsExpand)
                 {
                     LoadTaskList.Add(CommonAccessCollection.LoadDriveAsync());
                 }
-                
+
                 if (SettingControl.IsQuickStartExpanded)
                 {
                     LoadTaskList.Add(CommonAccessCollection.LoadQuickStartItemsAsync());
@@ -374,6 +376,7 @@ namespace RX_Explorer
         {
             await CreateNewTabAsync();
             sender.SelectedIndex = TabCollection.Count - 1;
+            ShouldCloseApplication = false;
         }
 
         private async Task<TabViewItem> CreateNewTabCoreAsync(params string[] PathForNewTab)
@@ -724,7 +727,16 @@ namespace RX_Explorer
 
             if (TabCollection.Count == 0)
             {
-                await ApplicationView.GetForCurrentView().TryConsolidateAsync();
+                if (ShouldCloseApplication)
+                {
+                    await ApplicationView.GetForCurrentView().TryConsolidateAsync();
+                }
+                else
+                {
+                    await CreateNewTabAsync();
+                    TabViewControl.SelectedIndex = 0;
+                    ShouldCloseApplication = true;
+                }
             }
         }
 
