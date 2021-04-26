@@ -1935,7 +1935,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>Doppelklick</value>
   </data>
   <data name="Folder_Open_Method_2" xml:space="preserve">
-    <value>Klick</value>
+    <value>Einzelklick</value>
   </data>
   <data name="Font_Color_Black" xml:space="preserve">
     <value>Zurück</value>

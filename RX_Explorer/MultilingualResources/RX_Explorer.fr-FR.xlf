@@ -2483,8 +2483,8 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated">Double clic</target>
         </trans-unit>
         <trans-unit id="Folder_Open_Method_2" translate="yes" xml:space="preserve">
-          <source>Click</source>
-          <target state="translated">Cliquez sur</target>
+          <source>Single Click</source>
+          <target state="translated">Cliquez une seule fois</target>
         </trans-unit>
         <trans-unit id="Font_Color_Black" translate="yes" xml:space="preserve">
           <source>Black</source>

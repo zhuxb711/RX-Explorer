@@ -1,4 +1,37 @@
 ﻿*****
+###Was ist neu in Ver.6.3.7.0
+
+#####Funktionsaktualisierung
+
+>#####Unterstützung für WSL-Ordner hinzugefügt und Unterstützung für Netzwerkordner verbessert (danke @silentmoooon) [PR #161](https://github.com/zhuxb711/RX-Explorer/pull/161)
+
+>#####Das Adressfeld kann jetzt direkt zum Netzwerkordner navigieren
+
+>#####Es ist jetzt möglich, einen Verlaufsdatensatz in der Adressleiste einzeln zu löschen
+
+#####Fehlerbehebung
+
+>#####Das Problem wurde behoben, dass das Adressfeld im Netzwerkordner möglicherweise nicht richtig funktioniert
+
+>#####Es wurde das Problem behoben, dass die grauen Quadrate im Adressfeld in einigen Fällen möglicherweise nicht richtig angezeigt werden
+
+>#####Es wurde das Problem behoben, dass Nicht-Zahlen- und Nicht-Buchstaben-Schlüssel versehentlich die Suche nach Dateien auslösen konnten
+
+>#####Es wurde das Problem behoben, dass das Standarderöffnungsprogramm möglicherweise nicht korrekt gespeichert wurde
+
+>#####Es wurde das Problem behoben, dass der Ordner nach dem Erstellen eines neuen Ordners nicht umbenannt werden kann
+
+>#####Es wurde das Problem behoben, dass das Umbenennen fehlgeschlagen ist, der Benutzer jedoch nicht dazu aufgefordert wird
+
+>#####Das Problem wurde behoben, das zum Absturz des Eigenschaftenfensters führen konnte
+
+>#####Es wurde ein Problem behoben, das beim Wiederherstellen der zuletzt geöffneten Registerkarte zu einem Absturz führen konnte
+
+>#####Es wurde das Problem behoben, dass in einigen Fällen nach Eingabe eines ungültigen Pfads das Problem auftreten kann, dass nicht in andere Ordner gesprungen werden kann
+
+>#####Das Problem der abnormalen Anzeige ausgewählter Elemente im Einzelklickmodus wurde behoben
+
+*****
 ###Was ist neu in Ver.6.3.5.0
 
 #####Funktionsaktualisierung

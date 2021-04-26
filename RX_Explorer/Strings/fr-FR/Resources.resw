@@ -1880,7 +1880,7 @@
     <value>Double clic</value>
   </data>
   <data name="Folder_Open_Method_2" xml:space="preserve">
-    <value>Cliquez sur</value>
+    <value>Cliquez une seule fois</value>
   </data>
   <data name="Font_Color_Black" xml:space="preserve">
     <value>Noir</value>

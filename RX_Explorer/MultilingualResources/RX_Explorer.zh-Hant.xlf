@@ -2487,7 +2487,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <target state="translated" state-qualifier="tm-suggestion">按兩下</target>
         </trans-unit>
         <trans-unit id="Folder_Open_Method_2" translate="yes" xml:space="preserve">
-          <source>Click</source>
+          <source>Single Click</source>
           <target state="translated" state-qualifier="tm-suggestion">按一下</target>
         </trans-unit>
         <trans-unit id="Font_Color_Black" translate="yes" xml:space="preserve">

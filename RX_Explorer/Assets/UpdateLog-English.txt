@@ -1,4 +1,37 @@
 ﻿*****
+###What's new in Ver.6.3.7.0
+
+#####Feature update
+
+>#####Added support for WSL folders and improved support for network folders (thanks @silentmoooon) [PR #161](https://github.com/zhuxb711/RX-Explorer/pull/161)
+
+>#####The address box can now navigate directly to the network folder
+
+>#####It is now possible to delete a history record in the address bar individually
+
+#####Bug fix
+
+>#####Fixed the problem that the address box in the network folder may not work properly
+
+>#####Fixed the problem that the gray squares in the address box may not be displayed correctly in some cases
+
+>#####Fixed the problem that non-number and non-letter keys may accidentally trigger the search of file
+
+>#####Fixed the problem that the default opening program may not be saved correctly
+
+>#####Fixed the problem that the folder cannot be renamed after creating a new folder
+
+>#####Fixed the problem that the rename failed but the user will not be prompted
+
+>#####Fixed the problem that may cause the properties window to crash
+
+>#####Fixed an issue that may cause a crash when restoring the last opened tab
+
+>#####Fixed the problem that in some cases, after entering an invalid path, it may cause the problem of not being able to jump to other folders
+
+>#####Fixed the problem of abnormal display of selected items in single click mode
+
+*****
 ###What's new in Ver.6.3.5.0
 
 #####Feature update

@@ -762,7 +762,6 @@ namespace RX_Explorer
 
         private void NavigateToStorageItem(VirtualKey Key)
         {
-
             if (Key >= VirtualKey.Number0 && Key <= VirtualKey.Z)
             {
                 string SearchString = Convert.ToChar(Key).ToString();
@@ -3079,11 +3078,11 @@ namespace RX_Explorer
                 DelayEnterCancel?.Dispose();
                 DelayEnterCancel = new CancellationTokenSource();
 
-                Task.Delay(1500).ContinueWith((task) =>
+                Task.Delay(1500).ContinueWith((task, input) =>
                 {
                     try
                     {
-                        if (DelayEnterCancel != null && !DelayEnterCancel.IsCancellationRequested)
+                        if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
                         {
                             _ = EnterSelectedItem(Item);
                         }
@@ -3092,7 +3091,7 @@ namespace RX_Explorer
                     {
                         LogTracer.Log(ex, "An exception was thew in DelayEnterProcess");
                     }
-                }, TaskScheduler.FromCurrentSynchronizationContext());
+                }, DelayEnterCancel, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
 
@@ -3261,13 +3260,13 @@ namespace RX_Explorer
                     DelaySelectionCancel?.Dispose();
                     DelaySelectionCancel = new CancellationTokenSource();
 
-                    Task.Delay(800).ContinueWith((task) =>
+                    Task.Delay(700).ContinueWith((task, input) =>
                     {
-                        if (DelaySelectionCancel != null && !DelaySelectionCancel.IsCancellationRequested)
+                        if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
                         {
                             SelectedItem = Item;
                         }
-                    }, TaskScheduler.FromCurrentSynchronizationContext());
+                    }, DelaySelectionCancel, TaskScheduler.FromCurrentSynchronizationContext());
                 }
             }
         }
@@ -3599,9 +3598,9 @@ namespace RX_Explorer
                         DelayRenameCancel?.Dispose();
                         DelayRenameCancel = new CancellationTokenSource();
 
-                        Task.Delay(1200).ContinueWith((task) =>
+                        Task.Delay(1200).ContinueWith((task, input) =>
                         {
-                            if (DelayRenameCancel != null && !DelayRenameCancel.IsCancellationRequested)
+                            if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
                             {
                                 NameLabel.Visibility = Visibility.Collapsed;
 
@@ -3617,7 +3616,7 @@ namespace RX_Explorer
 
                                 Container.BlockKeyboardShortCutInput = true;
                             }
-                        }, TaskScheduler.FromCurrentSynchronizationContext());
+                        }, DelayRenameCancel, TaskScheduler.FromCurrentSynchronizationContext());
                     }
                 }
             }

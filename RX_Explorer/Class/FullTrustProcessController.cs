@@ -2728,28 +2728,35 @@ namespace RX_Explorer.Class
         {
             if (!IsDisposed)
             {
-                IsDisposed = true;
-                IsConnected = false;
-
-                GC.SuppressFinalize(this);
-
-                Interlocked.Decrement(ref CurrentRunningControllerNum);
-
-                Application.Current.Suspending -= Current_Suspending;
-
-                if (Connection != null)
+                try
                 {
-                    Connection.RequestReceived -= Connection_RequestReceived;
-                    Connection.ServiceClosed -= Connection_ServiceClosed;
+                    IsDisposed = true;
+                    IsConnected = false;
 
-                    Connection.Dispose();
-                    Connection = null;
+                    GC.SuppressFinalize(this);
+
+                    Interlocked.Decrement(ref CurrentRunningControllerNum);
+
+                    if (Connection != null)
+                    {
+                        Connection.RequestReceived -= Connection_RequestReceived;
+                        Connection.ServiceClosed -= Connection_ServiceClosed;
+
+                        Connection.Dispose();
+                        Connection = null;
+                    }
+
+                    if (PipeController != null)
+                    {
+                        PipeController.Dispose();
+                        PipeController = null;
+                    }
+
+                    Application.Current.Suspending -= Current_Suspending;
                 }
-
-                if (PipeController != null)
+                catch (Exception ex)
                 {
-                    PipeController.Dispose();
-                    PipeController = null;
+                    LogTracer.Log(ex);
                 }
             }
         }

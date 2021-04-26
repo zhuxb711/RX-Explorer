@@ -1,4 +1,37 @@
 ﻿*****
+###Quoi de neuf dans la version 6.3.7.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Ajout de la prise en charge des dossiers WSL et amélioration de la prise en charge des dossiers réseau (merci @silentmoooon) [PR #161](https://github.com/zhuxb711/RX-Explorer/pull/161)
+
+>#####La zone d'adresse peut désormais accéder directement au dossier réseau
+
+>#####Il est désormais possible de supprimer individuellement un enregistrement d'historique dans la barre d'adresse
+
+#####Correction d'un bug
+
+>#####Correction du problème selon lequel la zone d'adresse dans le dossier réseau peut ne pas fonctionner correctement
+
+>#####Correction du problème selon lequel les carrés gris dans la zone d'adresse peuvent ne pas s'afficher correctement dans certains cas
+
+>#####Correction du problème selon lequel les touches non numériques et non alphabétiques pouvaient déclencher accidentellement la recherche de fichier
+
+>#####Correction du problème selon lequel le programme d'ouverture par défaut pouvait ne pas être enregistré correctement
+
+>#####Correction du problème selon lequel le dossier ne peut pas être renommé après la création d'un nouveau dossier
+
+>#####Correction du problème d'échec du changement de nom, mais l'utilisateur ne sera pas invité
+
+>#####Correction du problème qui pouvait provoquer le plantage de la fenêtre des propriétés
+
+>#####Correction d'un problème pouvant provoquer un plantage lors de la restauration du dernier onglet ouvert
+
+>#####Correction du problème qui, dans certains cas, après avoir entré un chemin non valide, peut causer le problème de ne pas pouvoir accéder à d'autres dossiers
+
+>#####Correction du problème d'affichage anormal des éléments sélectionnés en mode simple clic
+
+*****
 ###Quoi de neuf dans la version 6.3.5.0
 
 #####Mise à jour des fonctionnalités

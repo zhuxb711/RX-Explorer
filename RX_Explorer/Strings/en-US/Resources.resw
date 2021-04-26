@@ -2040,7 +2040,7 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
     <value>Double Click</value>
   </data>
   <data name="Folder_Open_Method_2" xml:space="preserve">
-    <value>Click</value>
+    <value>Single Click</value>
   </data>
   <data name="Font_Color_Black" xml:space="preserve">
     <value>Black</value>

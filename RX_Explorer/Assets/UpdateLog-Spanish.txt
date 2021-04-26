@@ -1,4 +1,37 @@
 ﻿*****
+###Novedades de la versión 6.3.7.0
+
+#####Actualización de funciones
+
+>#####Soporte agregado para carpetas WSL y soporte mejorado para carpetas de red (gracias @silentmoooon) [PR # 161] (https://github.com/zhuxb711/RX-Explorer/pull/161)
+
+>#####El cuadro de dirección ahora puede navegar directamente a la carpeta de red
+
+>#####Ahora es posible eliminar un registro del historial en la barra de direcciones individualmente
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que el cuadro de dirección en la carpeta de red podría no funcionar correctamente
+
+>#####Se solucionó el problema de que los cuadrados grises en el cuadro de dirección no se mostraran correctamente en algunos casos
+
+>#####Se solucionó el problema de que las teclas sin números y sin letras pueden activar accidentalmente la búsqueda de archivos
+
+>#####Se solucionó el problema de que el programa de apertura predeterminado no se guardaba correctamente
+
+>#####Se solucionó el problema de que no se podía cambiar el nombre de la carpeta después de crear una nueva carpeta
+
+>#####Se solucionó el problema de que el cambio de nombre fallaba pero no se le pedía al usuario
+
+>#####Se solucionó el problema que podía causar que la ventana de propiedades se bloqueara
+
+>#####Se solucionó un problema que podía causar un bloqueo al restaurar la última pestaña abierta
+
+>#####Se solucionó el problema de que, en algunos casos, después de ingresar una ruta no válida, puede causar el problema de no poder saltar a otras carpetas
+
+>#####Se solucionó el problema de visualización anormal de los elementos seleccionados en el modo de un solo clic
+
+*****
 ###Novedades de la versión 6.3.5.0
 
 #####Actualización de funciones
