@@ -92,7 +92,7 @@
             <uap:LaunchAction ActionDisplayName="ms-resource:USBDisplayName" Verb="USBArrival" ContentEvent="StorageOnArrival"/>
           </uap:AutoPlayContent>
         </uap:Extension>
-        <uap:Extension Category="windows.appService" EntryPoint="CommunicateService.Service">
+        <uap:Extension Category="windows.appService">
           <uap:AppService Name="CommunicateService"/>
         </uap:Extension>
         <uap:Extension Category="windows.protocol">
