@@ -2,6 +2,15 @@
 
 namespace RX_Explorer.Class
 {
+
+    public enum TarCompressionType
+    {
+        None,
+        Gz,
+        Xz,
+        Bz2
+    }
+
     public enum AddressBlockType
     {
         Normal,

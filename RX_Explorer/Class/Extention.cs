@@ -78,6 +78,11 @@ namespace RX_Explorer.Class
 
                     byte[] DataBuffer = new byte[2048];
 
+                    if (TotalBytesLength <= 1024 * 1024)
+                    {
+                        ProgressHandler = null;
+                    }
+                    int BeginSecond = DateTime.Now.Second;
                     while (true)
                     {
                         int bytesRead = From.Read(DataBuffer, 0, DataBuffer.Length);
@@ -92,8 +97,13 @@ namespace RX_Explorer.Class
                             To.Flush();
                             break;
                         }
-
-                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(TotalBytesRead * 100d / TotalBytesLength), null));
+                        if (ProgressHandler != null) { 
+                            int Second = DateTime.Now.Second;
+                            if (Second != BeginSecond) {
+                                BeginSecond = Second;
+                                ProgressHandler.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(TotalBytesRead * 100d / TotalBytesLength), null));
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)

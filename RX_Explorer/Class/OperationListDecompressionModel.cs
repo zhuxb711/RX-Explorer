@@ -14,10 +14,12 @@ namespace RX_Explorer.Class
         }
 
         public Encoding Encoding { get; }
+        public bool CreateFolder { get; }
 
-        public OperationListDecompressionModel(string[] FromPath, string ToPath, Encoding Encoding = null, EventHandler OnCompleted = null) : base(FromPath, ToPath, OnCompleted)
+        public OperationListDecompressionModel(string[] FromPath, string ToPath,bool CreateFolder, Encoding Encoding = null, EventHandler OnCompleted = null) : base(FromPath, ToPath, OnCompleted)
         {
             this.Encoding = Encoding ?? System.Text.Encoding.Default;
+            this.CreateFolder = CreateFolder;
         }
     }
 }

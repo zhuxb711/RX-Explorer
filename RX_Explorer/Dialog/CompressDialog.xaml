@@ -17,12 +17,22 @@
                  Name="FName"
                  MinWidth="280"
                  HorizontalAlignment="Left"/>
-        <ComboBox Header="压缩类型"
+        <StackPanel Orientation="Horizontal">
+            <ComboBox Header="压缩类型"
                   Margin="0,10,0,0"
                   MinWidth="150"
                   x:Uid="CompressDialogType"
                   Name="CompressionType" 
                   SelectionChanged="CompressionType_SelectionChanged"/>
+            <ComboBox  Header="    "
+                  Margin="10,10,0,0"
+                  MinWidth="60"
+                  
+                  Name="TarCompressionAlgorithm" 
+                  Visibility="Collapsed"
+                  SelectionChanged="TarCompressionType_SelectionChanged"/>
+        </StackPanel>
+        
         <ComboBox x:Uid="CompressDialogLevel"
                   Header="压缩等级"
                   Margin="0,10,0,0"
