@@ -2957,9 +2957,6 @@ Inkorrekte Namen sind
   <data name="UnTag.ToolTipService.ToolTip" xml:space="preserve">
     <value>Untag</value>
   </data>
-  <data name="YellowTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Gelbes Etikett</value>
-  </data>
   <data name="TaskList_Task_Status_Preparing" xml:space="preserve">
     <value>Vorbereiten</value>
   </data>
@@ -2968,5 +2965,8 @@ Inkorrekte Namen sind
   </data>
   <data name="TagEntry.ToolTipService.ToolTip" xml:space="preserve">
     <value>Etikett</value>
+  </data>
+  <data name="PurpleTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Lila Etikett</value>
   </data>
 </root>

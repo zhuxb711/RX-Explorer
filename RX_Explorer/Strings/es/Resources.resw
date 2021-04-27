@@ -2957,9 +2957,6 @@ Las denominaciones no válidas son:
   <data name="UnTag.ToolTipService.ToolTip" xml:space="preserve">
     <value>Desmarcar</value>
   </data>
-  <data name="YellowTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Etiqueta amarilla</value>
-  </data>
   <data name="TaskList_Task_Status_Preparing" xml:space="preserve">
     <value>Preparando</value>
   </data>
@@ -2968,5 +2965,8 @@ Las denominaciones no válidas son:
   </data>
   <data name="TagEntry.ToolTipService.ToolTip" xml:space="preserve">
     <value>Etiqueta</value>
+  </data>
+  <data name="PurpleTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Etiqueta morada</value>
   </data>
 </root>

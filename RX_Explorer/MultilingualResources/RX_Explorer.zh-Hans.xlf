@@ -3924,10 +3924,6 @@ Invalid names include
           <source>Untag</source>
           <target state="translated">取消标记</target>
         </trans-unit>
-        <trans-unit id="YellowTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
-          <source>Yellow tag</source>
-          <target state="translated">黄色标记</target>
-        </trans-unit>
         <trans-unit id="TaskList_Task_Status_Preparing" translate="yes" xml:space="preserve">
           <source>Preparing</source>
           <target state="translated">准备中</target>
@@ -3939,6 +3935,10 @@ Invalid names include
         <trans-unit id="TagEntry.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Tag</source>
           <target state="translated">標籤</target>
+        </trans-unit>
+        <trans-unit id="PurpleTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Purple tag</source>
+          <target state="translated">紫色标记</target>
         </trans-unit>
       </group>
     </body>

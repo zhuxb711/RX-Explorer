@@ -21,6 +21,7 @@ using Windows.Services.Store;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.System;
+using Windows.System.Power;
 using Windows.System.Profile;
 using Windows.UI.Core;
 using Windows.UI.Core.Preview;
@@ -173,20 +174,23 @@ namespace RX_Explorer
                 {
                     ToastNotificationManager.History.Remove("EnterBackgroundTips");
 
-                    ToastContentBuilder Builder = new ToastContentBuilder()
-                                                  .SetToastScenario(ToastScenario.Reminder)
-                                                  .AddToastActivationInfo("EnterBackgroundTips", ToastActivationType.Foreground)
-                                                  .AddText(Globalization.GetString("Toast_EnterBackground_Text_1"))
-                                                  .AddText(Globalization.GetString("Toast_EnterBackground_Text_2"))
-                                                  .AddText(Globalization.GetString("Toast_EnterBackground_Text_4"))
-                                                  .AddButton(new ToastButton(Globalization.GetString("Toast_EnterBackground_ActionButton"), "EnterBackgroundTips"))
-                                                  .AddButton(new ToastButtonDismiss(Globalization.GetString("Toast_EnterBackground_Dismiss")));
-
-                    ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Builder.GetToastContent().GetXml())
+                    if (PowerManager.PowerSupplyStatus == PowerSupplyStatus.NotPresent || PowerManager.EnergySaverStatus == EnergySaverStatus.On)
                     {
-                        Tag = "EnterBackgroundTips",
-                        Priority = ToastNotificationPriority.High
-                    });
+                        ToastContentBuilder Builder = new ToastContentBuilder()
+                                                      .SetToastScenario(ToastScenario.Reminder)
+                                                      .AddToastActivationInfo("EnterBackgroundTips", ToastActivationType.Foreground)
+                                                      .AddText(Globalization.GetString("Toast_EnterBackground_Text_1"))
+                                                      .AddText(Globalization.GetString("Toast_EnterBackground_Text_2"))
+                                                      .AddText(Globalization.GetString("Toast_EnterBackground_Text_4"))
+                                                      .AddButton(new ToastButton(Globalization.GetString("Toast_EnterBackground_ActionButton"), "EnterBackgroundTips"))
+                                                      .AddButton(new ToastButtonDismiss(Globalization.GetString("Toast_EnterBackground_Dismiss")));
+
+                        ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Builder.GetToastContent().GetXml())
+                        {
+                            Tag = "EnterBackgroundTips",
+                            Priority = ToastNotificationPriority.High
+                        });
+                    }
                 }
                 catch (Exception ex)
                 {

@@ -260,10 +260,10 @@ namespace FullTrustProcess
             {
                 using (ShellFileOperations Operation = new ShellFileOperations
                 {
-                    Options = ShellFileOperations.OperationFlags.AddUndoRecord 
-                                | ShellFileOperations.OperationFlags.NoConfirmMkDir 
-                                | ShellFileOperations.OperationFlags.Silent 
-                                | ShellFileOperations.OperationFlags.RequireElevation 
+                    Options = ShellFileOperations.OperationFlags.AddUndoRecord
+                                | ShellFileOperations.OperationFlags.NoConfirmMkDir
+                                | ShellFileOperations.OperationFlags.Silent
+                                | ShellFileOperations.OperationFlags.RequireElevation
                                 | ShellFileOperations.OperationFlags.RenameOnCollision
                 })
                 {
@@ -294,16 +294,15 @@ namespace FullTrustProcess
                 using (ShellFileOperations Operation = new ShellFileOperations
                 {
                     Options = PermanentDelete
-                    ? ShellFileOperations.OperationFlags.NoConfirmMkDir 
-                    | ShellFileOperations.OperationFlags.Silent 
-                    | ShellFileOperations.OperationFlags.NoConfirmation 
-                    | ShellFileOperations.OperationFlags.RequireElevation
+                                ? ShellFileOperations.OperationFlags.Silent
+                                | ShellFileOperations.OperationFlags.NoConfirmation
+                                | ShellFileOperations.OperationFlags.RequireElevation
 
-                    : ShellFileOperations.OperationFlags.AddUndoRecord 
-                    | ShellFileOperations.OperationFlags.Silent 
-                    | ShellFileOperations.OperationFlags.NoConfirmMkDir 
-                    | ShellFileOperations.OperationFlags.RecycleOnDelete 
-                    | ShellFileOperations.OperationFlags.RequireElevation
+                                : ShellFileOperations.OperationFlags.Silent
+                                | ShellFileOperations.OperationFlags.AddUndoRecord
+                                | ShellFileOperations.OperationFlags.NoConfirmation
+                                | ShellFileOperations.OperationFlags.RecycleOnDelete
+                                | ShellFileOperations.OperationFlags.RequireElevation
                 })
                 {
                     Operation.UpdateProgress += Progress;
@@ -393,9 +392,9 @@ namespace FullTrustProcess
 
                 using (ShellFileOperations Operation = new ShellFileOperations
                 {
-                    Options = ShellFileOperations.OperationFlags.AddUndoRecord 
-                                | ShellFileOperations.OperationFlags.NoConfirmMkDir 
-                                | ShellFileOperations.OperationFlags.Silent 
+                    Options = ShellFileOperations.OperationFlags.AddUndoRecord
+                                | ShellFileOperations.OperationFlags.NoConfirmMkDir
+                                | ShellFileOperations.OperationFlags.Silent
                                 | ShellFileOperations.OperationFlags.RequireElevation
                 })
                 {

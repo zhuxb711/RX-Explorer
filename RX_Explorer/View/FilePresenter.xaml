@@ -77,7 +77,7 @@
                                       Glyph="&#xEB51;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Foreground="#2CE62F"
+                    <AppBarButton Foreground="#22B324"
                                   x:Uid="GreenTag"
                                   ToolTipService.ToolTip="Green"
                                   Click="Color_Click">
@@ -87,7 +87,7 @@
                         </AppBarButton.Icon>
                     </AppBarButton>
                     <AppBarButton Foreground="#CC6EFF"
-                                  x:Uid="YellowTag"
+                                  x:Uid="PurpleTag"
                                   ToolTipService.ToolTip="Yellow"
                                   Click="Color_Click">
                         <AppBarButton.Icon>
@@ -197,7 +197,7 @@
                                       Glyph="&#xEB51;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Foreground="#2CE62F"
+                    <AppBarButton Foreground="#22B324"
                                   x:Uid="GreenTag"
                                   ToolTipService.ToolTip="Green"
                                   Click="Color_Click">
@@ -446,7 +446,7 @@
                                       Glyph="&#xEB51;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Foreground="#2CE62F"
+                    <AppBarButton Foreground="#22B324"
                                   x:Uid="GreenTag"
                                   ToolTipService.ToolTip="Green"
                                   Click="MixColor_Click">
@@ -556,7 +556,7 @@
                                       Glyph="&#xEB51;" />
                         </AppBarButton.Icon>
                     </AppBarButton>
-                    <AppBarButton Foreground="#2CE62F"
+                    <AppBarButton Foreground="#22B324"
                                   x:Uid="GreenTag"
                                   ToolTipService.ToolTip="Green"
                                   Click="Color_Click">

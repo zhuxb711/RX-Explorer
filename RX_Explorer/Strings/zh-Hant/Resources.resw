@@ -2957,9 +2957,6 @@
   <data name="UnTag.ToolTipService.ToolTip" xml:space="preserve">
     <value>取消標記</value>
   </data>
-  <data name="YellowTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>黃色標籤</value>
-  </data>
   <data name="TaskList_Task_Status_Preparing" xml:space="preserve">
     <value>準備中</value>
   </data>
@@ -2968,5 +2965,8 @@
   </data>
   <data name="TagEntry.ToolTipService.ToolTip" xml:space="preserve">
     <value>标记</value>
+  </data>
+  <data name="PurpleTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>紫色標籤</value>
   </data>
 </root>

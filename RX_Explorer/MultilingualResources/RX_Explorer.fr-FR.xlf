@@ -3924,10 +3924,6 @@ Les noms non valides incluent
           <source>Untag</source>
           <target state="translated">Détacher</target>
         </trans-unit>
-        <trans-unit id="YellowTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
-          <source>Yellow tag</source>
-          <target state="translated">Étiquette jaune</target>
-        </trans-unit>
         <trans-unit id="TaskList_Task_Status_Preparing" translate="yes" xml:space="preserve">
           <source>Preparing</source>
           <target state="translated">En train de préparer</target>
@@ -3939,6 +3935,10 @@ Les noms non valides incluent
         <trans-unit id="TagEntry.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Tag</source>
           <target state="translated">Étiqueter</target>
+        </trans-unit>
+        <trans-unit id="PurpleTag.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Purple tag</source>
+          <target state="translated">Étiquette violette</target>
         </trans-unit>
       </group>
     </body>

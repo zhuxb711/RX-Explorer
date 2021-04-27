@@ -2957,9 +2957,6 @@ Les noms non valides incluent
   <data name="UnTag.ToolTipService.ToolTip" xml:space="preserve">
     <value>Détacher</value>
   </data>
-  <data name="YellowTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Étiquette jaune</value>
-  </data>
   <data name="TaskList_Task_Status_Preparing" xml:space="preserve">
     <value>En train de préparer</value>
   </data>
@@ -2968,5 +2965,8 @@ Les noms non valides incluent
   </data>
   <data name="TagEntry.ToolTipService.ToolTip" xml:space="preserve">
     <value>Étiqueter</value>
+  </data>
+  <data name="PurpleTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Étiquette violette</value>
   </data>
 </root>

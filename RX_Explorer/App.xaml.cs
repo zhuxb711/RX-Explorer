@@ -1,4 +1,5 @@
-﻿using RX_Explorer.Class;
+﻿using Microsoft.Toolkit.Uwp.Notifications;
+using RX_Explorer.Class;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,9 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
 using Windows.System;
+using Windows.System.Power;
 using Windows.UI;
+using Windows.UI.Notifications;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -30,6 +33,54 @@ namespace RX_Explorer
             LeavingBackground += App_LeavingBackground;
             MemoryManager.AppMemoryUsageIncreased += MemoryManager_AppMemoryUsageIncreased;
             MemoryManager.AppMemoryUsageLimitChanging += MemoryManager_AppMemoryUsageLimitChanging;
+            PowerManager.EnergySaverStatusChanged += PowerManager_EnergySaverStatusChanged;
+            PowerManager.PowerSupplyStatusChanged += PowerManager_PowerSupplyStatusChanged;
+        }
+
+        private void PowerManager_PowerSupplyStatusChanged(object sender, object e)
+        {
+            SendActivateToast();
+        }
+
+        private void PowerManager_EnergySaverStatusChanged(object sender, object e)
+        {
+            SendActivateToast();
+        }
+
+        private void SendActivateToast()
+        {
+            if (IsInBackgroundMode
+                && (FullTrustProcessController.IsAnyActionExcutingInAllControllers
+                    || GeneralTransformer.IsAnyTransformTaskRunning
+                    || QueueTaskController.IsAnyTaskRunningInController))
+            {
+                try
+                {
+                    ToastNotificationManager.History.Remove("EnterBackgroundTips");
+
+                    if (PowerManager.EnergySaverStatus == EnergySaverStatus.On)
+                    {
+                        ToastContentBuilder Builder = new ToastContentBuilder()
+                                                      .SetToastScenario(ToastScenario.Reminder)
+                                                      .AddToastActivationInfo("EnterBackgroundTips", ToastActivationType.Foreground)
+                                                      .AddText(Globalization.GetString("Toast_EnterBackground_Text_1"))
+                                                      .AddText(Globalization.GetString("Toast_EnterBackground_Text_2"))
+                                                      .AddText(Globalization.GetString("Toast_EnterBackground_Text_4"))
+                                                      .AddButton(new ToastButton(Globalization.GetString("Toast_EnterBackground_ActionButton"), "EnterBackgroundTips"))
+                                                      .AddButton(new ToastButtonDismiss(Globalization.GetString("Toast_EnterBackground_Dismiss")));
+
+                        ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Builder.GetToastContent().GetXml())
+                        {
+                            Tag = "EnterBackgroundTips",
+                            Priority = ToastNotificationPriority.High
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Toast notification could not be sent");
+                }
+            }
         }
 
         private void App_Resuming(object sender, object e)
@@ -44,6 +95,9 @@ namespace RX_Explorer
 
         private void App_Suspending(object sender, SuspendingEventArgs e)
         {
+            SQLite.Current.Dispose();
+            MySQL.Current.Dispose();
+
             AppInstanceIdContainer.UngisterId(AppInstanceIdContainer.CurrentId);
         }
 

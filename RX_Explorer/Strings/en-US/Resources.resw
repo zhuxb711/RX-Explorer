@@ -3062,8 +3062,8 @@ Invalid names include
   <data name="UnTag.ToolTipService.ToolTip" xml:space="preserve">
     <value>Untag</value>
   </data>
-  <data name="YellowTag.ToolTipService.ToolTip" xml:space="preserve">
-    <value>Yellow tag</value>
+  <data name="PurpleTag.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Purple tag</value>
   </data>
   <data name="TaskList_Task_Status_Preparing" xml:space="preserve">
     <value>Preparing</value>

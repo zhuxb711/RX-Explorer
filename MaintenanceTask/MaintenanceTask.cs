@@ -130,7 +130,7 @@ namespace MaintenanceTask
             {
                 try
                 {
-                    using (SqliteCommand Command = new SqliteCommand(@"Update FileColor Set Color = '#2CE62F' Where Color = '#FFADFF2F';
+                    using (SqliteCommand Command = new SqliteCommand(@"Update FileColor Set Color = '#22B324' Where Color = '#FFADFF2F';
                                                                        Update FileColor Set Color = '#CC6EFF' Where Color = '#FFFFFF00';
                                                                        Update FileColor Set Color = '#42C5FF' Where Color = '#FF409EFE';", Connection))
                     {
