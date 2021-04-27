@@ -164,6 +164,9 @@ namespace RX_Explorer.Class
     /// </summary>
     public enum CompressionLevel
     {
+        /// <summary>
+        /// 未指定
+        /// </summary>
         Undefine = -1,
 
         /// <summary>

@@ -18,7 +18,7 @@ namespace RX_Explorer.Dialog
         /// <summary>
         /// 获取压缩等级
         /// </summary>
-        public CompressionLevel Level { get; private set; }
+        public CompressionLevel Level { get; private set; } = CompressionLevel.Undefine;
 
         public TarCompressionType TarType { get; private set; } = TarCompressionType.None;
 
@@ -46,6 +46,7 @@ namespace RX_Explorer.Dialog
             if (ShouldDisplayGzip)
             {
                 CompressionType.Items.Add("GZip");
+                CompressionType.Items.Add("BZip2");
             }
 
             CompressionType.SelectedIndex = 0;
@@ -60,10 +61,8 @@ namespace RX_Explorer.Dialog
             TarCompressionAlgorithm.Items.Add(TarCompressionType.Bz2.ToString());
             TarCompressionAlgorithm.Items.Add(TarCompressionType.None.ToString());
 
-            //SharpCompress暂时不支付tar.xz
+            //SharpCompress暂时不支持tar.xz
             //TarCompressionAlgorithm.Items.Add(TarCompressionType.Xz.ToString());
-
-            
         }
 
         private void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
@@ -83,16 +82,14 @@ namespace RX_Explorer.Dialog
                     }
                 case 1:
                     {
-                        if (TarType==TarCompressionType.None)
+                        if (TarType == TarCompressionType.None)
                         {
                             FileName = FName.Text.EndsWith(".tar", StringComparison.OrdinalIgnoreCase) ? FName.Text : $"{FName.Text}.tar";
-                            
                         }
-                        else 
+                        else
                         {
-                            string Suffix = ".tar." + TarType.ToString().ToLower();
+                            string Suffix = $".tar.{Enum.GetName(typeof(TarCompressionType), TarType).ToLower()}";
                             FileName = FName.Text.EndsWith(Suffix, StringComparison.OrdinalIgnoreCase) ? FName.Text : FName.Text + Suffix;
-                             
                         }
                         break;
                     }
@@ -120,13 +117,7 @@ namespace RX_Explorer.Dialog
                         Level = CompressionLevel.PackageOnly;
                         break;
                     }
-                default:
-                    {
-                        Level = CompressionLevel.Standard;
-                        break;
-                    }
             }
-           
         }
 
         private void CompressionType_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -136,55 +127,105 @@ namespace RX_Explorer.Dialog
                 case 0:
                     {
                         FName.Text = $"{(string.IsNullOrEmpty(SuggestName) ? Globalization.GetString("Compression_Admin_Name_Text") : Path.GetFileNameWithoutExtension(SuggestName))}.zip";
-                        FName.Select(0, FName.Text.Length - 4);
                         Type = Class.CompressionType.Zip;
                         CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Visible;
                         TarCompressionAlgorithm.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
-                         
 
                         break;
                     }
                 case 1:
                     {
                         FName.Text = $"{(string.IsNullOrEmpty(SuggestName) ? Globalization.GetString("Compression_Admin_Name_Text") : Path.GetFileNameWithoutExtension(SuggestName))}.tar.gz";
-                        FName.Select(0, FName.Text.Length - 4);
                         Type = Class.CompressionType.Tar;
                         CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
                         TarCompressionAlgorithm.Visibility = Windows.UI.Xaml.Visibility.Visible;
                         TarCompressionAlgorithm.SelectedIndex = 0;
 
-
-
                         break;
                     }
                 case 2:
                     {
-                        FName.Text = $"{(string.IsNullOrEmpty(SuggestName) ? Globalization.GetString("Compression_Admin_Name_Text") : SuggestName)}.gz";
-                        FName.Select(0, FName.Text.Length - 7);
+                        FName.Text = $"{(string.IsNullOrEmpty(SuggestName) ? Globalization.GetString("Compression_Admin_Name_Text") : Path.GetFileNameWithoutExtension(SuggestName))}.gz";
                         Type = Class.CompressionType.Gzip;
                         CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Visible;
                         TarCompressionAlgorithm.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
-                         
+
+                        break;
+                    }
+                case 3:
+                    {
+                        FName.Text = $"{(string.IsNullOrEmpty(SuggestName) ? Globalization.GetString("Compression_Admin_Name_Text") : Path.GetFileNameWithoutExtension(SuggestName))}.bz2";
+                        Type = Class.CompressionType.Gzip;
+                        CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                        TarCompressionAlgorithm.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+
                         break;
                     }
             }
         }
 
-     
+
 
         private void TarCompressionType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            TarType = (TarCompressionType)Enum.Parse(typeof(TarCompressionType),TarCompressionAlgorithm.SelectedValue.ToString());
-            if (TarType == TarCompressionType.None)
-            {
-                FName.Text = $"{(string.IsNullOrEmpty(SuggestName) ? Globalization.GetString("Compression_Admin_Name_Text") : Path.GetFileNameWithoutExtension(SuggestName))}.tar";
+            TarType = Enum.Parse<TarCompressionType>(TarCompressionAlgorithm.SelectedValue.ToString());
 
+            if (TarType == TarCompressionType.Gz)
+            {
+                CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Visible;
             }
             else
             {
-                string Suffix = ".tar." + TarType.ToString().ToLower();
-                FName.Text = (string.IsNullOrEmpty(SuggestName) ? Globalization.GetString("Compression_Admin_Name_Text") : Path.GetFileNameWithoutExtension(SuggestName))+Suffix;
+                CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+            }
 
+            if (TarType == TarCompressionType.None)
+            {
+                FName.Text = $"{(string.IsNullOrEmpty(SuggestName) ? Globalization.GetString("Compression_Admin_Name_Text") : Path.GetFileNameWithoutExtension(SuggestName))}.tar";
+            }
+            else
+            {
+                FName.Text = $"{(string.IsNullOrEmpty(SuggestName) ? Globalization.GetString("Compression_Admin_Name_Text") : Path.GetFileNameWithoutExtension(SuggestName))}.tar.{Enum.GetName(typeof(TarCompressionType), TarType).ToLower()}";
+            }
+        }
+
+        private void FName_GotFocus(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            switch (CompressionType.SelectedIndex)
+            {
+                case 0:
+                case 3:
+                    {
+                        FName.Select(0, FName.Text.Length - 4);
+                        break;
+                    }
+                case 1:
+                    {
+                        switch (TarCompressionAlgorithm.SelectedIndex)
+                        {
+                            case 0:
+                                {
+                                    FName.Select(0, FName.Text.Length - 7);
+                                    break;
+                                }
+                            case 1:
+                                {
+                                    FName.Select(0, FName.Text.Length - 8);
+                                    break;
+                                }
+                            case 2:
+                                {
+                                    FName.Select(0, FName.Text.Length - 4);
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case 2:
+                    {
+                        FName.Select(0, FName.Text.Length - 3);
+                        break;
+                    }
             }
         }
     }

@@ -453,7 +453,7 @@ namespace RX_Explorer.Class
                                 {
                                     case CompressionType.Zip:
                                         {
-                                            CompressionUtil.CreateZipAsync(CModel.FromPath, CModel.ToPath, (int)CModel.Level, (s, e) =>
+                                            CompressionUtil.CreateZipAsync(CModel.FromPath, CModel.ToPath, CModel.Level, (s, e) =>
                                             {
                                                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                 {
@@ -465,7 +465,7 @@ namespace RX_Explorer.Class
                                         }
                                     case CompressionType.Tar:
                                         {
-                                            CompressionUtil.CreateTarAsync(CModel.FromPath, CModel.ToPath, CModel.TarType, (s, e) =>
+                                            CompressionUtil.CreateTarAsync(CModel.FromPath, CModel.ToPath, CModel.TarType, CModel.Level, (s, e) =>
                                             {
                                                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                 {
@@ -479,7 +479,7 @@ namespace RX_Explorer.Class
                                         {
                                             if (CModel.FromPath.Length == 1)
                                             {
-                                                CompressionUtil.CreateGzipAsync(CModel.FromPath.First(), CModel.ToPath, (int)CModel.Level, (s, e) =>
+                                                CompressionUtil.CreateGzipAsync(CModel.FromPath.First(), CModel.ToPath, CModel.Level, (s, e) =>
                                                 {
                                                     CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                     {

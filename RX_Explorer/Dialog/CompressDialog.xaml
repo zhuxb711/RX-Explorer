@@ -15,6 +15,7 @@
         <TextBox Header="文件名"
                  x:Uid="CompressDialogName"
                  Name="FName"
+                 GotFocus="FName_GotFocus"
                  MinWidth="280"
                  HorizontalAlignment="Left"/>
         <StackPanel Orientation="Horizontal">
