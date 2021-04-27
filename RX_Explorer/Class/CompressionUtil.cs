@@ -6,7 +6,6 @@ using SharpCompress.Archives.Zip;
 using SharpCompress.Common;
 using SharpCompress.Readers;
 using SharpCompress.Writers;
-using SharpCompress.Writers.Tar;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -58,89 +57,84 @@ namespace RX_Explorer.Class
                 ulong TotalSize = 0;
                 ulong CurrentPosition = 0;
 
-                ZipStrings.CodePage = EncodingSetting.CodePage;
-
-                using (FileStream NewFileStream = await NewFile.GetFileStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
-                using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
+                foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
                 {
-                    OutputStream.SetLevel(ZipLevel);
-                    OutputStream.UseZip64 = UseZip64.Dynamic;
-                    OutputStream.IsStreamOwner = false;
-
-                    foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
+                    switch (StorageItem)
                     {
-                        switch (StorageItem)
-                        {
-                            case FileSystemStorageFile File:
-                                {
-                                    TotalSize += File.SizeRaw;
-                                    break;
-                                }
-                            case FileSystemStorageFolder Folder:
-                                {
-                                    TotalSize += await Folder.GetFolderSizeAsync().ConfigureAwait(false);
-                                    break;
-                                }
-                        }
+                        case FileSystemStorageFile File:
+                            {
+                                TotalSize += File.SizeRaw;
+                                break;
+                            }
+                        case FileSystemStorageFolder Folder:
+                            {
+                                TotalSize += await Folder.GetFolderSizeAsync().ConfigureAwait(false);
+                                break;
+                            }
                     }
+                }
 
-                    foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
+                if (TotalSize > 0)
+                {
+                    ZipStrings.CodePage = EncodingSetting.CodePage;
+
+                    using (FileStream NewFileStream = await NewFile.GetFileStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
+                    using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
                     {
-                        switch (StorageItem)
+                        OutputStream.SetLevel(ZipLevel);
+                        OutputStream.UseZip64 = UseZip64.Dynamic;
+                        OutputStream.IsStreamOwner = false;
+
+                        foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
                         {
-                            case FileSystemStorageFile File:
-                                {
-                                    using (FileStream FileStream = await File.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
+                            switch (StorageItem)
+                            {
+                                case FileSystemStorageFile File:
                                     {
-                                        ZipEntry NewEntry = new ZipEntry(File.Name)
+                                        using (FileStream FileStream = await File.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
                                         {
-                                            DateTime = DateTime.Now,
-                                            CompressionMethod = CompressionMethod.Deflated,
-                                            Size = FileStream.Length
-                                        };
+                                            ZipEntry NewEntry = new ZipEntry(File.Name)
+                                            {
+                                                DateTime = DateTime.Now,
+                                                CompressionMethod = CompressionMethod.Deflated,
+                                                Size = FileStream.Length
+                                            };
 
-                                        OutputStream.PutNextEntry(NewEntry);
+                                            OutputStream.PutNextEntry(NewEntry);
 
-                                        await FileStream.CopyToAsync(OutputStream, (s, e) =>
-                                        {
-                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.SizeRaw)) * 100d / TotalSize), null));
-                                        }).ConfigureAwait(false);
-                                    }
+                                            await FileStream.CopyToAsync(OutputStream, (s, e) =>
+                                            {
+                                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.SizeRaw)) * 100d / TotalSize), null));
+                                            }).ConfigureAwait(false);
+                                        }
 
-                                    OutputStream.CloseEntry();
+                                        OutputStream.CloseEntry();
 
-                                    if (TotalSize > 0)
-                                    {
                                         CurrentPosition += File.SizeRaw;
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
+
+                                        break;
                                     }
-
-                                    break;
-                                }
-                            case FileSystemStorageFolder Folder:
-                                {
-                                    ulong InnerFolderSize = await Folder.GetFolderSizeAsync().ConfigureAwait(false);
-
-                                    await ZipFolderCore(Folder, OutputStream, Folder.Name, (s, e) =>
+                                case FileSystemStorageFolder Folder:
                                     {
-                                        if (TotalSize > 0)
+                                        ulong InnerFolderSize = 0;
+
+                                        await ZipFolderCore(Folder, OutputStream, Folder.Name, (ByteRead) =>
                                         {
-                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFolderSize)) * 100d / TotalSize), null));
-                                        }
-                                    }).ConfigureAwait(false);
+                                            InnerFolderSize = ByteRead;
+                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + ByteRead) * 100d / TotalSize), null));
+                                        }).ConfigureAwait(false);
 
-                                    if (TotalSize > 0)
-                                    {
                                         CurrentPosition += InnerFolderSize;
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
+
+                                        break;
                                     }
-
-                                    break;
-                                }
+                            }
                         }
-                    }
 
-                    await OutputStream.FlushAsync().ConfigureAwait(false);
+                        await OutputStream.FlushAsync().ConfigureAwait(false);
+                    }
                 }
             }
             else
@@ -149,7 +143,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        private static async Task ZipFolderCore(FileSystemStorageFolder Folder, ZipOutputStream OutputStream, string BaseFolderName, ProgressChangedEventHandler ProgressHandler = null)
+        private static async Task ZipFolderCore(FileSystemStorageFolder Folder, ZipOutputStream OutputStream, string BaseFolderName, ByteReadChangedEventHandler ByteReadHandler = null)
         {
             List<FileSystemStorageItemBase> ItemList = await Folder.GetChildItemsAsync(true, true).ConfigureAwait(false);
 
@@ -164,7 +158,6 @@ namespace RX_Explorer.Class
             }
             else
             {
-                ulong TotalSize = await Folder.GetFolderSizeAsync().ConfigureAwait(false);
                 ulong CurrentPosition = 0;
 
                 foreach (FileSystemStorageItemBase Item in ItemList)
@@ -173,30 +166,22 @@ namespace RX_Explorer.Class
                     {
                         case FileSystemStorageFolder InnerFolder:
                             {
-                                ulong InnerFolderSize = await InnerFolder.GetFolderSizeAsync().ConfigureAwait(false);
+                                ulong InnerFolderSize = 0;
 
-                                await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{Item.Name}", ProgressHandler: (s, e) =>
+                                await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{Item.Name}", ByteReadHandler: (ByteRead) =>
                                 {
-                                    if (TotalSize > 0)
-                                    {
-                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFolderSize)) * 100d / TotalSize), null));
-                                    }
+                                    InnerFolderSize = ByteRead;
+                                    ByteReadHandler?.Invoke(CurrentPosition + ByteRead);
                                 }).ConfigureAwait(false);
 
-                                if (TotalSize > 0)
-                                {
-                                    CurrentPosition += InnerFolderSize;
-                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
-                                }
+                                ByteReadHandler?.Invoke(CurrentPosition += InnerFolderSize);
 
                                 break;
                             }
                         case FileSystemStorageFile InnerFile:
                             {
-
                                 using (FileStream FileStream = await InnerFile.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
                                 {
-
                                     ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/{Item.Name}")
                                     {
                                         DateTime = DateTime.Now,
@@ -208,18 +193,13 @@ namespace RX_Explorer.Class
 
                                     await FileStream.CopyToAsync(OutputStream, (s, e) =>
                                     {
-                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFile.SizeRaw)) * 100d / TotalSize), null));
+                                        ByteReadHandler?.Invoke(CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFile.SizeRaw));
                                     }).ConfigureAwait(false);
                                 }
 
                                 OutputStream.CloseEntry();
 
-                                if (TotalSize > 0)
-                                {
-                                    CurrentPosition += Item.SizeRaw;
-                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
-                                }
-
+                                ByteReadHandler?.Invoke(CurrentPosition += Item.SizeRaw);
 
                                 break;
                             }
@@ -519,8 +499,7 @@ namespace RX_Explorer.Class
                                     ByteReadHandler?.Invoke(CurrentPosition + ByteRead);
                                 }).ConfigureAwait(false);
 
-                                CurrentPosition += InnerFolderSize;
-                                ByteReadHandler?.Invoke(CurrentPosition);
+                                ByteReadHandler?.Invoke(CurrentPosition += InnerFolderSize);
 
                                 break;
                             }
@@ -542,8 +521,7 @@ namespace RX_Explorer.Class
 
                                 OutputStream.CloseEntry();
 
-                                CurrentPosition += InnerFile.SizeRaw;
-                                ByteReadHandler?.Invoke(CurrentPosition);
+                                ByteReadHandler?.Invoke(CurrentPosition += InnerFile.SizeRaw);
 
                                 break;
                             }
