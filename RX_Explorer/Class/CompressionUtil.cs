@@ -1,6 +1,8 @@
 ﻿using ICSharpCode.SharpZipLib.GZip;
 using ICSharpCode.SharpZipLib.Tar;
 using ICSharpCode.SharpZipLib.Zip;
+using SharpCompress.Archives;
+using SharpCompress.Archives.Zip;
 using SharpCompress.Common;
 using SharpCompress.Readers;
 using SharpCompress.Writers;
@@ -418,20 +420,22 @@ namespace RX_Explorer.Class
                         }
                 }
 
+                var WriterOptions = new WriterOptions(TarCompressionType);
+                WriterOptions.ArchiveEncoding.Default = EncodingSetting;
                 using (Stream OutputStream = await NewFile.GetFileStreamFromFileAsync(AccessMode.Write).ConfigureAwait(false))
-                using (IWriter Writer = WriterFactory.Open(OutputStream, ArchiveType.Tar, new WriterOptions(TarCompressionType)
+                using (IWriter Writer = WriterFactory.Open(OutputStream, ArchiveType.Tar, WriterOptions))
                 {
-                    LeaveStreamOpen = true
-                }))
-                {
+                    
                     foreach (FileSystemStorageItemBase BaseFile in SourceItemGroup)
                     {
                         switch (BaseFile)
                         {
+                           
                             case FileSystemStorageFile File:
                                 {
                                     using (Stream InputStream = await File.GetFileStreamFromFileAsync(AccessMode.Read))
                                     {
+                                        
                                         Writer.Write(File.Name, InputStream, File.ModifiedTimeRaw.DateTime);
                                         CurrentSize += File.SizeRaw;
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentSize * 100d / TotalSize), null));
@@ -589,13 +593,16 @@ namespace RX_Explorer.Class
                     }
                 }
 
+                var ReadOptions = new ReaderOptions();
+                ReadOptions.ArchiveEncoding.Default = EncodingSetting;
                 using (Stream InputStream = await File.GetFileStreamFromFileAsync(AccessMode.Read))
-                using (IReader Reader = ReaderFactory.Open(InputStream))
+                using (IReader Reader = ReaderFactory.Open(InputStream, ReadOptions))
                 {
                     while (Reader.MoveToNextEntry())
                     {
                         if (Reader.Entry.IsDirectory)
                         {
+                            await FileSystemStorageItemBase.CreateAsync(Path.Combine(DestPath,Reader.Entry.Key.Substring(0, Reader.Entry.Key.Length-1)), StorageItemTypes.Folder, CreateOption.OpenIfExist).ConfigureAwait(false);
                             continue;
                         }
 
