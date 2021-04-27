@@ -447,6 +447,8 @@ namespace RX_Explorer.Class
                         {
                             try
                             {
+                                CompressionUtil.SetEncoding(Encoding.Default);
+
                                 switch (CModel.Type)
                                 {
                                     case CompressionType.Zip:
