@@ -78,27 +78,27 @@ namespace RX_Explorer.Dialog
             {
                 case 0:
                     {
-                        FileName = FName.Text.EndsWith(".zip", System.StringComparison.OrdinalIgnoreCase) ? FName.Text : $"{FName.Text}.zip";
+                        FileName = FName.Text.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) ? FName.Text : $"{FName.Text}.zip";
                         break;
                     }
                 case 1:
                     {
                         if (TarType==TarCompressionType.None)
                         {
-                            FileName = FName.Text.EndsWith(".tar", System.StringComparison.OrdinalIgnoreCase) ? FName.Text : $"{FName.Text}.tar";
+                            FileName = FName.Text.EndsWith(".tar", StringComparison.OrdinalIgnoreCase) ? FName.Text : $"{FName.Text}.tar";
                             
                         }
                         else 
                         {
                             string Suffix = ".tar." + TarType.ToString().ToLower();
-                            FileName = FName.Text.EndsWith(Suffix, System.StringComparison.OrdinalIgnoreCase) ? FName.Text : FName.Text + Suffix;
+                            FileName = FName.Text.EndsWith(Suffix, StringComparison.OrdinalIgnoreCase) ? FName.Text : FName.Text + Suffix;
                              
                         }
                         break;
                     }
                 case 2:
                     {
-                        FileName = FName.Text.EndsWith(".gz", System.StringComparison.OrdinalIgnoreCase) ? FName.Text : $"{FName.Text}.gz";
+                        FileName = FName.Text.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) ? FName.Text : $"{FName.Text}.gz";
                         break;
                     }
             }
