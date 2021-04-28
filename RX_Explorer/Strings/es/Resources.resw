@@ -2969,4 +2969,19 @@ Las denominaciones no válidas son:
   <data name="PurpleTag.ToolTipService.ToolTip" xml:space="preserve">
     <value>Etiqueta morada</value>
   </data>
+  <data name="SettingPageWinEQuestion.Title" xml:space="preserve">
+    <value>¿Hay algún problema? Prueba lo siguiente</value>
+  </data>
+  <data name="SettingPageWinEQuestionAction1.Content" xml:space="preserve">
+    <value>Haga clic aquí para ir</value>
+  </data>
+  <data name="SettingPageWinEQuestionAction2.Content" xml:space="preserve">
+    <value>Haga clic aquí para exportar</value>
+  </data>
+  <data name="SettingPageWinEQuestionLine1.Text" xml:space="preserve">
+    <value>1. ¿Cómo abrir Win+E manualmente? Enlace tutorial:</value>
+  </data>
+  <data name="SettingPageWinEQuestionLine2.Text" xml:space="preserve">
+    <value>2. ¿Cómo restaurar manualmente Win+E? Restaurar archivo:</value>
+  </data>
 </root>

@@ -3940,6 +3940,26 @@ Invalid names include
           <source>Purple tag</source>
           <target state="translated">紫色標籤</target>
         </trans-unit>
+        <trans-unit id="SettingPageWinEQuestion.Title" translate="yes" xml:space="preserve">
+          <source>Is there a problem? Try the following</source>
+          <target state="translated">有問題嗎? 嘗試以下</target>
+        </trans-unit>
+        <trans-unit id="SettingPageWinEQuestionAction1.Content" translate="yes" xml:space="preserve">
+          <source>Click here to go</source>
+          <target state="translated">點擊這裡進入</target>
+        </trans-unit>
+        <trans-unit id="SettingPageWinEQuestionAction2.Content" translate="yes" xml:space="preserve">
+          <source>Click here to export</source>
+          <target state="translated">點擊這裡導出</target>
+        </trans-unit>
+        <trans-unit id="SettingPageWinEQuestionLine1.Text" translate="yes" xml:space="preserve">
+          <source>1. How to open the Win+E manually? Tutorial link:</source>
+          <target state="translated">1.如何手動打開Win+E? 教程鏈接:</target>
+        </trans-unit>
+        <trans-unit id="SettingPageWinEQuestionLine2.Text" translate="yes" xml:space="preserve">
+          <source>2. How to manually restore Win+E? Restore file:</source>
+          <target state="translated">2. 如何手動還原Win+E? 恢復文件:</target>
+        </trans-unit>
       </group>
     </body>
   </file>

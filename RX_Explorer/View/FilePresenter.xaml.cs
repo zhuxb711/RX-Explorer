@@ -620,11 +620,7 @@ namespace RX_Explorer
                     }
                 }
 
-                if (await FileSystemStorageItemBase.OpenAsync(FolderPath) is FileSystemStorageFolder Folder)
-                {
-                    CurrentFolder = Folder;
-                }
-                else
+                if (!await FileSystemStorageItemBase.CheckExistAsync(FolderPath))
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -662,6 +658,11 @@ namespace RX_Explorer
                     GoAndBackRecord.Add((FolderPath, string.Empty));
 
                     RecordIndex = GoAndBackRecord.Count - 1;
+                }
+
+                if (await FileSystemStorageItemBase.OpenAsync(FolderPath) is FileSystemStorageFolder Folder)
+                {
+                    CurrentFolder = Folder;
                 }
 
                 if (Container.FolderTree.SelectedNode == null && Container.FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent)?.Path == Path.GetPathRoot(FolderPath)) is TreeViewNode RootNode)
@@ -2034,19 +2035,28 @@ namespace RX_Explorer
 
             if (await FileSystemStorageItemBase.CheckExistAsync(CurrentFolder.Path))
             {
-                AppWindow NewWindow = await AppWindow.TryCreateAsync();
-                NewWindow.RequestSize(new Size(420, 600));
-                NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
-                NewWindow.PersistedStateId = "Properties";
-                NewWindow.Title = Globalization.GetString("Properties_Window_Title");
-                NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-                NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-                NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+                if (CurrentFolder.Path.Equals(Path.GetPathRoot(CurrentFolder.Path), StringComparison.OrdinalIgnoreCase)
+                     && CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Path.Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase)) is DriveDataBase Data)
+                {
+                    DeviceInfoDialog Dialog = new DeviceInfoDialog(Data);
+                    await Dialog.ShowAsync();
+                }
+                else
+                {
+                    AppWindow NewWindow = await AppWindow.TryCreateAsync();
+                    NewWindow.RequestSize(new Size(420, 600));
+                    NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+                    NewWindow.PersistedStateId = "Properties";
+                    NewWindow.Title = Globalization.GetString("Properties_Window_Title");
+                    NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+                    NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                    NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
-                ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, CurrentFolder));
-                WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
+                    ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, CurrentFolder));
+                    WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
 
-                await NewWindow.TryShowAsync();
+                    await NewWindow.TryShowAsync();
+                }
             }
             else
             {

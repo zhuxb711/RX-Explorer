@@ -2717,5 +2717,34 @@ namespace RX_Explorer
                 ApplicationData.Current.SignalDataChanged();
             }
         }
+
+        private void WIN_E_Question_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            WIN_E_Tip.IsOpen = true;
+        }
+
+        private async void ExportWinERestoreFile_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                FileSavePicker Picker = new FileSavePicker
+                {
+                    SuggestedStartLocation = PickerLocationId.Desktop,
+                    SuggestedFileName = "Restore_Win_E.reg"
+                };
+
+                Picker.FileTypeChoices.Add("REG", new string[] { ".reg" });
+
+                if (await Picker.PickSaveFileAsync() is StorageFile ExportFile)
+                {
+                    StorageFile File = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Restore_WIN_E.reg"));
+                    await File.CopyAndReplaceAsync(ExportFile);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not export restore file");
+            }
+        }
     }
 }

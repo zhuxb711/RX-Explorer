@@ -3074,4 +3074,19 @@ Invalid names include
   <data name="TagEntry.ToolTipService.ToolTip" xml:space="preserve">
     <value>Tag</value>
   </data>
+  <data name="SettingPageWinEQuestion.Title" xml:space="preserve">
+    <value>Is there a problem? Try the following</value>
+  </data>
+  <data name="SettingPageWinEQuestionAction1.Content" xml:space="preserve">
+    <value>Click here to go</value>
+  </data>
+  <data name="SettingPageWinEQuestionAction2.Content" xml:space="preserve">
+    <value>Click here to export</value>
+  </data>
+  <data name="SettingPageWinEQuestionLine1.Text" xml:space="preserve">
+    <value>1. How to open the Win+E manually? Tutorial link:</value>
+  </data>
+  <data name="SettingPageWinEQuestionLine2.Text" xml:space="preserve">
+    <value>2. How to manually restore Win+E? Restore file:</value>
+  </data>
 </root>

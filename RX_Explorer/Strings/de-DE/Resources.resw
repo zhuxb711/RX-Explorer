@@ -2969,4 +2969,19 @@ Inkorrekte Namen sind
   <data name="PurpleTag.ToolTipService.ToolTip" xml:space="preserve">
     <value>Lila Etikett</value>
   </data>
+  <data name="SettingPageWinEQuestion.Title" xml:space="preserve">
+    <value>Gibt es ein Problem? Versuche Folgendes</value>
+  </data>
+  <data name="SettingPageWinEQuestionAction1.Content" xml:space="preserve">
+    <value>Klicken Sie hier, um zu gehen</value>
+  </data>
+  <data name="SettingPageWinEQuestionAction2.Content" xml:space="preserve">
+    <value>Klicken Sie hier zum Exportieren</value>
+  </data>
+  <data name="SettingPageWinEQuestionLine1.Text" xml:space="preserve">
+    <value>1. Wie öffne ich Win+E manuell? Tutorial Link:</value>
+  </data>
+  <data name="SettingPageWinEQuestionLine2.Text" xml:space="preserve">
+    <value>2. Wie kann man Win+E manuell wiederherstellen? Datei wiederherstellen:</value>
+  </data>
 </root>

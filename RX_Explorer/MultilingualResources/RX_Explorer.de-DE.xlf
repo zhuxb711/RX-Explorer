@@ -3938,6 +3938,26 @@ Inkorrekte Namen sind
           <source>Purple tag</source>
           <target state="translated">Lila Etikett</target>
         </trans-unit>
+        <trans-unit id="SettingPageWinEQuestion.Title" translate="yes" xml:space="preserve">
+          <source>Is there a problem? Try the following</source>
+          <target state="translated">Gibt es ein Problem? Versuche Folgendes</target>
+        </trans-unit>
+        <trans-unit id="SettingPageWinEQuestionAction1.Content" translate="yes" xml:space="preserve">
+          <source>Click here to go</source>
+          <target state="translated">Klicken Sie hier, um zu gehen</target>
+        </trans-unit>
+        <trans-unit id="SettingPageWinEQuestionAction2.Content" translate="yes" xml:space="preserve">
+          <source>Click here to export</source>
+          <target state="translated">Klicken Sie hier zum Exportieren</target>
+        </trans-unit>
+        <trans-unit id="SettingPageWinEQuestionLine1.Text" translate="yes" xml:space="preserve">
+          <source>1. How to open the Win+E manually? Tutorial link:</source>
+          <target state="translated">1. Wie öffne ich Win+E manuell? Tutorial Link:</target>
+        </trans-unit>
+        <trans-unit id="SettingPageWinEQuestionLine2.Text" translate="yes" xml:space="preserve">
+          <source>2. How to manually restore Win+E? Restore file:</source>
+          <target state="translated">2. Wie kann man Win+E manuell wiederherstellen? Datei wiederherstellen:</target>
+        </trans-unit>
       </group>
     </body>
   </file>

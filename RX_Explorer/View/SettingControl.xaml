@@ -92,6 +92,39 @@
                           x:Uid="FeedBackTip"
                           Subtitle="此反馈清单将向所有使用者展示您的建议或者反馈，同样您也可以查看其他人提出的建议，并给予您感兴趣的提议一个支持，支持越多且反对越少的建议将越靠前，开发者将聆听您的建议。您只能修改或删除您提交的建议。" />
 
+        <muxc:TeachingTip x:Name="WIN_E_Tip"
+                          IsLightDismissEnabled="True"
+                          PreferredPlacement="Right"
+                          Target="{x:Bind WIN_E_Question}"
+                          x:Uid="SettingPageWinEQuestion"
+                          Title="存在问题?尝试以下方法">
+            <StackPanel>
+                <StackPanel>
+                    <TextBlock Text="1. 如何手动开启Win+E? 教程链接:"
+                               x:Uid="SettingPageWinEQuestionLine1"
+                               TextWrapping="WrapWholeWords"
+                               VerticalAlignment="Center"/>
+                    <HyperlinkButton Content="点击这里前往"
+                                     Margin="15,0,0,0"
+                                     x:Uid="SettingPageWinEQuestionAction1"
+                                     VerticalAlignment="Center"
+                                     NavigateUri="https://github.com/zhuxb711/RX-Explorer/issues/27#issuecomment-692418152"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Text="2. 如何手动还原Win+E? 还原文件:"
+                               x:Uid="SettingPageWinEQuestionLine2"
+                               TextWrapping="WrapWholeWords"
+                               VerticalAlignment="Center"/>
+                    <HyperlinkButton Content="点击这里导出"
+                                     Margin="15,0,0,0"
+                                     x:Uid="SettingPageWinEQuestionAction2"
+                                     VerticalAlignment="Center"
+                                     Name="ExportWinERestoreFile"
+                                     Click="ExportWinERestoreFile_Click" />
+                </StackPanel>
+            </StackPanel>
+        </muxc:TeachingTip>
+
         <muxc:CommandBarFlyout x:Name="FeedBackFlyout"
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
@@ -274,12 +307,21 @@
                                       Toggled="EnableQuicklook_Toggled" />
                     </StackPanel>
 
-                    <ToggleSwitch Header="使用[Win+E]激活该应用"
-                                  Margin="0,20,0,0"
-                                  Name="UseWinAndEActivate"
-                                  OnContent="启用"
-                                  OffContent="禁用"
-                                  x:Uid="UseWinAndEActivate" />
+                    <StackPanel Orientation="Horizontal"
+                                Margin="0,20,0,0">
+                        <ToggleSwitch Header="使用[Win+E]激活该应用"
+                                      Name="UseWinAndEActivate"
+                                      OnContent="启用"
+                                      OffContent="禁用"
+                                      x:Uid="UseWinAndEActivate" />
+                        <Viewbox Margin="10,3,0,0"
+                                 Height="15"
+                                 VerticalAlignment="Top">
+                            <FontIcon Glyph="&#xE9CE;"
+                                      Name="WIN_E_Question"
+                                      PointerPressed="WIN_E_Question_PointerPressed" />
+                        </Viewbox>
+                    </StackPanel>
 
                     <StackPanel Orientation="Horizontal"
                                 Name="AlwaysLaunchNewArea"

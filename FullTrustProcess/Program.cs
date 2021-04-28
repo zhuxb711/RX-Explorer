@@ -916,61 +916,54 @@ namespace FullTrustProcess
                             if (!string.IsNullOrEmpty(AliasLocation))
                             {
                                 StorageFile InterceptFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Intercept_WIN_E.reg"));
-                                StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("Intercept_WIN_E_Temp.reg", CreationCollisionOption.ReplaceExisting);
+                                StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("Intercept_WIN_E_Temp.reg", CreationCollisionOption.GenerateUniqueName);
+
+                                using (Stream FileStream = await InterceptFile.OpenStreamForReadAsync())
+                                using (StreamReader Reader = new StreamReader(FileStream))
+                                {
+                                    string Content = await Reader.ReadToEndAsync();
+
+                                    using (Stream TempStream = await TempFile.OpenStreamForWriteAsync())
+                                    using (StreamWriter Writer = new StreamWriter(TempStream, Encoding.Unicode))
+                                    {
+                                        await Writer.WriteAsync(Content.Replace("<FillActualAliasPathInHere>", $"{AliasLocation.Replace(@"\", @"\\")} %1"));
+                                    }
+                                }
+
+                                using (Process RegisterProcess = new Process())
+                                {
+                                    RegisterProcess.StartInfo.FileName = TempFile.Path;
+                                    RegisterProcess.StartInfo.UseShellExecute = true;
+                                    RegisterProcess.Start();
+
+                                    SetWindowsZPosition(RegisterProcess);
+                                    RegisterProcess.WaitForExit();
+                                }
 
                                 try
                                 {
-                                    using (Stream FileStream = await InterceptFile.OpenStreamForReadAsync())
-                                    using (StreamReader Reader = new StreamReader(FileStream))
+                                    using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("shell", false)?.OpenSubKey("opennewwindow", false)?.OpenSubKey("command", false))
                                     {
-                                        string Content = await Reader.ReadToEndAsync();
-
-                                        using (Stream TempStream = await TempFile.OpenStreamForWriteAsync())
-                                        using (StreamWriter Writer = new StreamWriter(TempStream, Encoding.Unicode))
+                                        if (Key != null)
                                         {
-                                            await Writer.WriteAsync(Content.Replace("<FillActualAliasPathInHere>", $"{AliasLocation.Replace(@"\", @"\\")} %1"));
-                                        }
-                                    }
-
-                                    using (Process RegisterProcess = new Process())
-                                    {
-                                        RegisterProcess.StartInfo.FileName = TempFile.Path;
-                                        RegisterProcess.StartInfo.UseShellExecute = true;
-                                        RegisterProcess.Start();
-
-                                        SetWindowsZPosition(RegisterProcess);
-                                        RegisterProcess.WaitForExit();
-                                    }
-
-                                    try
-                                    {
-                                        using (RegistryKey Key = Registry.ClassesRoot.OpenSubKey("Folder", false)?.OpenSubKey("shell", false)?.OpenSubKey("opennewwindow", false)?.OpenSubKey("command", false))
-                                        {
-                                            if (Key != null)
-                                            {
-                                                if (Convert.ToString(Key.GetValue(string.Empty)) == $"{AliasLocation} %1" && Key.GetValue("DelegateExecute") == null)
-                                                {
-                                                    Value.Add("Success", string.Empty);
-                                                }
-                                                else
-                                                {
-                                                    Value.Add("Error", "Registry verification failed");
-                                                }
-                                            }
-                                            else
+                                            if (Convert.ToString(Key.GetValue(string.Empty)).Equals($"{AliasLocation} %1", StringComparison.OrdinalIgnoreCase) && Key.GetValue("DelegateExecute") == null)
                                             {
                                                 Value.Add("Success", string.Empty);
                                             }
+                                            else
+                                            {
+                                                Value.Add("Error", "Registry verification failed");
+                                            }
+                                        }
+                                        else
+                                        {
+                                            Value.Add("Success", string.Empty);
                                         }
                                     }
-                                    catch
-                                    {
-                                        Value.Add("Success", string.Empty);
-                                    }
                                 }
-                                finally
+                                catch
                                 {
-                                    await TempFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                                    Value.Add("Success", string.Empty);
                                 }
                             }
                             else

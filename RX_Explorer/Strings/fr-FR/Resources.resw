@@ -2969,4 +2969,19 @@ Les noms non valides incluent
   <data name="PurpleTag.ToolTipService.ToolTip" xml:space="preserve">
     <value>Étiquette violette</value>
   </data>
+  <data name="SettingPageWinEQuestion.Title" xml:space="preserve">
+    <value>Y a-t-il un problème? Essayez ce qui suit</value>
+  </data>
+  <data name="SettingPageWinEQuestionAction1.Content" xml:space="preserve">
+    <value>Cliquez ici pour aller</value>
+  </data>
+  <data name="SettingPageWinEQuestionAction2.Content" xml:space="preserve">
+    <value>Cliquez ici pour exporter</value>
+  </data>
+  <data name="SettingPageWinEQuestionLine1.Text" xml:space="preserve">
+    <value>1. Comment ouvrir le Win+E manuellement? Lien du didacticiel:</value>
+  </data>
+  <data name="SettingPageWinEQuestionLine2.Text" xml:space="preserve">
+    <value>2. Comment restaurer manuellement Win+E? Restaurer le fichier:</value>
+  </data>
 </root>

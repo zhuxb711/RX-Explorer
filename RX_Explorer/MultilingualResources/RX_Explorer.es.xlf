@@ -3938,6 +3938,26 @@ Las denominaciones no válidas son:
           <source>Purple tag</source>
           <target state="translated">Etiqueta morada</target>
         </trans-unit>
+        <trans-unit id="SettingPageWinEQuestion.Title" translate="yes" xml:space="preserve">
+          <source>Is there a problem? Try the following</source>
+          <target state="translated">¿Hay algún problema? Prueba lo siguiente</target>
+        </trans-unit>
+        <trans-unit id="SettingPageWinEQuestionAction1.Content" translate="yes" xml:space="preserve">
+          <source>Click here to go</source>
+          <target state="translated">Haga clic aquí para ir</target>
+        </trans-unit>
+        <trans-unit id="SettingPageWinEQuestionAction2.Content" translate="yes" xml:space="preserve">
+          <source>Click here to export</source>
+          <target state="translated">Haga clic aquí para exportar</target>
+        </trans-unit>
+        <trans-unit id="SettingPageWinEQuestionLine1.Text" translate="yes" xml:space="preserve">
+          <source>1. How to open the Win+E manually? Tutorial link:</source>
+          <target state="translated">1. ¿Cómo abrir Win+E manualmente? Enlace tutorial:</target>
+        </trans-unit>
+        <trans-unit id="SettingPageWinEQuestionLine2.Text" translate="yes" xml:space="preserve">
+          <source>2. How to manually restore Win+E? Restore file:</source>
+          <target state="translated">2. ¿Cómo restaurar manualmente Win+E? Restaurar archivo:</target>
+        </trans-unit>
       </group>
     </body>
   </file>
