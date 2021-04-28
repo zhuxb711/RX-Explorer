@@ -2806,10 +2806,6 @@ Invalid names include
           <source>Unable to download Bing image</source>
           <target state="translated">无法下载必应图片</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_CanNotDecompressEncrypted_Content" translate="yes" xml:space="preserve">
-          <source>Unable to decompress encrypted compressed file</source>
-          <target state="translated">无法解压已加密的压缩包</target>
-        </trans-unit>
         <trans-unit id="ExportLog.Content" translate="yes" xml:space="preserve">
           <source>Export error log</source>
           <target state="translated">导出错误日志</target>

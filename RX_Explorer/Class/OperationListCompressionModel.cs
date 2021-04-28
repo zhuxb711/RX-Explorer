@@ -14,14 +14,14 @@ namespace RX_Explorer.Class
 
         public CompressionType Type { get; }
 
-        public TarCompressionType TarType { get; }
+        public CompressionAlgorithm Algorithm { get; }
 
         public CompressionLevel Level { get; }
 
-        public OperationListCompressionModel(CompressionType Type, TarCompressionType TarType, CompressionLevel Level, string[] FromPath, string ToPath, EventHandler OnCompleted = null) : base(FromPath, ToPath, OnCompleted)
+        public OperationListCompressionModel(CompressionType Type, CompressionAlgorithm Algorithm, CompressionLevel Level, string[] FromPath, string ToPath, EventHandler OnCompleted = null) : base(FromPath, ToPath, OnCompleted)
         {
             this.Type = Type;
-            this.TarType = TarType;
+            this.Algorithm = Algorithm;
             this.Level = Level;
         }
     }

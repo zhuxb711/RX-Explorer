@@ -2164,9 +2164,6 @@ Las denominaciones no válidas son:
   <data name="QueueDialog_BingDownloadError_Content" xml:space="preserve">
     <value>No se ha podido descargar la imagen Bing.</value>
   </data>
-  <data name="QueueDialog_CanNotDecompressEncrypted_Content" xml:space="preserve">
-    <value>No se ha podido descomprimir el archivo comprimido cifrado.</value>
-  </data>
   <data name="ExportLog.Content" xml:space="preserve">
     <value>Exportar registro de errores</value>
   </data>

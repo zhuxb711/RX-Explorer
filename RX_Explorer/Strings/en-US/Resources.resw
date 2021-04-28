@@ -2272,9 +2272,6 @@ Invalid names include
   <data name="QueueDialog_BingDownloadError_Content" xml:space="preserve">
     <value>Unable to download Bing image</value>
   </data>
-  <data name="QueueDialog_CanNotDecompressEncrypted_Content" xml:space="preserve">
-    <value>Unable to decompress encrypted compressed file</value>
-  </data>
   <data name="ExportLog.Content" xml:space="preserve">
     <value>Export error log</value>
   </data>

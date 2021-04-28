@@ -3,12 +3,12 @@
 namespace RX_Explorer.Class
 {
 
-    public enum TarCompressionType
+    public enum CompressionAlgorithm
     {
         None,
-        Gz,
-        Xz,
-        Bz2
+        GZip,
+        BZip2,
+        Deflated
     }
 
     public enum AddressBlockType
@@ -156,7 +156,8 @@ namespace RX_Explorer.Class
     {
         Zip = 0,
         Tar = 1,
-        Gzip = 2
+        Gzip = 2,
+        BZip2 = 4
     }
 
     /// <summary>

@@ -2865,10 +2865,6 @@ Las denominaciones no válidas son:
           <source>Unable to download Bing image</source>
           <target state="translated">No se ha podido descargar la imagen Bing.</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_CanNotDecompressEncrypted_Content" translate="yes" xml:space="preserve">
-          <source>Unable to decompress encrypted compressed file</source>
-          <target state="translated">No se ha podido descomprimir el archivo comprimido cifrado.</target>
-        </trans-unit>
         <trans-unit id="ExportLog.Content" translate="yes" xml:space="preserve">
           <source>Export error log</source>
           <target state="translated">Exportar registro de errores</target>
