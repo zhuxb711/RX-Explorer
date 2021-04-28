@@ -2981,4 +2981,7 @@ Las denominaciones no válidas son:
   <data name="SettingPageWinEQuestionLine2.Text" xml:space="preserve">
     <value>2. ¿Cómo restaurar manualmente Win+E? Restaurar archivo:</value>
   </data>
+  <data name="CompressDialogAlgorithm.Header" xml:space="preserve">
+    <value>Algoritmo de compresión</value>
+  </data>
 </root>

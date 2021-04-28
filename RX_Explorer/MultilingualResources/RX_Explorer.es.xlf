@@ -3954,6 +3954,10 @@ Las denominaciones no válidas son:
           <source>2. How to manually restore Win+E? Restore file:</source>
           <target state="translated">2. ¿Cómo restaurar manualmente Win+E? Restaurar archivo:</target>
         </trans-unit>
+        <trans-unit id="CompressDialogAlgorithm.Header" translate="yes" xml:space="preserve">
+          <source>Compression algorithm</source>
+          <target state="translated">Algoritmo de compresión</target>
+        </trans-unit>
       </group>
     </body>
   </file>

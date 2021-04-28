@@ -860,16 +860,14 @@
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
             <Grid Padding="5"
-                        Width="220">
+                  Width="220"
+                  Background="{x:Bind BackgroundColor, Mode=OneWay}">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="55"/>
-                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="60" />
+                    <ColumnDefinition Width="auto" />
                 </Grid.ColumnDefinitions>
-                <Border Background="{x:Bind BackgroundColor, Mode=OneWay}"
-                        IsHitTestVisible="False"
-                        Grid.ColumnSpan="2"
-                        Margin="-5" />
                 <Image VerticalAlignment="Center"
+                       HorizontalAlignment="Center"
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
                        Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
@@ -883,7 +881,7 @@
                     <TextBlock Text="{x:Bind Name,Mode=OneWay}"
                                ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                                FontSize="14"
-                               MaxWidth="150"
+                               MaxWidth="145"
                                x:Phase="0"
                                HorizontalTextAlignment="Left"
                                HorizontalAlignment="Left"
@@ -893,7 +891,7 @@
                     <TextBox HorizontalAlignment="Stretch"
                              VerticalAlignment="Center"
                              x:Name="NameEditBox"
-                             Width="150"
+                             Width="145"
                              FontSize="14"
                              IsSpellCheckEnabled="False"
                              Visibility="Collapsed"
@@ -904,14 +902,14 @@
                                HorizontalTextAlignment="Left"
                                TextTrimming="CharacterEllipsis"
                                HorizontalAlignment="Left"
-                               MaxWidth="150" />
+                               MaxWidth="145" />
                     <TextBlock Text="{x:Bind Size,Mode=OneWay}"
                                FontSize="12"
                                x:Phase="0"
                                HorizontalTextAlignment="Left"
                                HorizontalAlignment="Left"
                                TextTrimming="CharacterEllipsis"
-                               MaxWidth="150" />
+                               MaxWidth="145" />
                 </StackPanel>
             </Grid>
         </DataTemplate>
@@ -919,15 +917,12 @@
         <DataTemplate x:Name="GridViewLargeImageDataTemplate"
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
-            <Grid Padding="5">
+            <Grid Padding="5"
+                  Background="{x:Bind BackgroundColor, Mode=OneWay}">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="190"/>
-                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="190" />
+                    <RowDefinition Height="auto" />
                 </Grid.RowDefinitions>
-                <Border Background="{x:Bind BackgroundColor, Mode=OneWay}"
-                        IsHitTestVisible="False"
-                        Grid.RowSpan="2"
-                        Margin="-5" />
                 <Image HorizontalAlignment="Center"
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
@@ -950,15 +945,12 @@
         <DataTemplate x:Name="GridViewMediumImageDataTemplate"
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
-            <Grid Padding="5">
+            <Grid Padding="5"
+                  Background="{x:Bind BackgroundColor, Mode=OneWay}">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="140"/>
-                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="140" />
+                    <RowDefinition Height="auto" />
                 </Grid.RowDefinitions>
-                <Border Background="{x:Bind BackgroundColor, Mode=OneWay}"
-                        IsHitTestVisible="False"
-                        Grid.RowSpan="2"
-                        Margin="-5" />
                 <Image HorizontalAlignment="Center"
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
@@ -981,15 +973,12 @@
         <DataTemplate x:Name="GridViewSmallImageDataTemplate"
                       x:FieldModifier="public"
                       x:DataType="Cls:FileSystemStorageItemBase">
-            <Grid Padding="5">
+            <Grid Padding="5"
+                  Background="{x:Bind BackgroundColor, Mode=OneWay}">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="80"/>
-                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="80" />
+                    <RowDefinition Height="auto" />
                 </Grid.RowDefinitions>
-                <Border Background="{x:Bind BackgroundColor, Mode=OneWay}"
-                        IsHitTestVisible="False"
-                        Grid.RowSpan="2"
-                        Margin="-5" />
                 <Image HorizontalAlignment="Center"
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
@@ -1013,15 +1002,12 @@
                       x:Name="GridViewListDataTemplate"
                       x:FieldModifier="public">
             <Grid Width="200"
+                  Background="{x:Bind BackgroundColor, Mode=OneWay}"
                   Padding="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="40" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <Border Background="{x:Bind BackgroundColor, Mode=OneWay}"
-                        IsHitTestVisible="False"
-                        Grid.ColumnSpan="2"
-                        Margin="-5" />
                 <Image VerticalAlignment="Center"
                        Stretch="Uniform"
                        Source="{x:Bind Thumbnail,Mode=OneWay}"
@@ -1063,7 +1049,8 @@
 
         <DataTemplate x:DataType="Cls:FileSystemStorageItemBase"
                       x:Key="ListViewDetailContent">
-            <Grid Padding="0,3">
+            <Grid Padding="0,3"
+                  Background="{x:Bind BackgroundColor, Mode=OneWay}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="6*" />
                     <ColumnDefinition Width="2.5*" />
@@ -1072,10 +1059,6 @@
                     <ColumnDefinition MinWidth="50"
                                       Width="*" />
                 </Grid.ColumnDefinitions>
-                <Border Background="{x:Bind BackgroundColor, Mode=OneWay}"
-                        IsHitTestVisible="False"
-                        Grid.ColumnSpan="5"
-                        Margin="0,-3" />
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="45" />

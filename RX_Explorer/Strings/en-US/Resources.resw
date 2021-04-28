@@ -3086,4 +3086,7 @@ Invalid names include
   <data name="SettingPageWinEQuestionLine2.Text" xml:space="preserve">
     <value>2. How to manually restore Win+E? Restore file:</value>
   </data>
+  <data name="CompressDialogAlgorithm.Header" xml:space="preserve">
+    <value>Compression algorithm</value>
+  </data>
 </root>

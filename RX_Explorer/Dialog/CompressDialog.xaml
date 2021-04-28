@@ -32,6 +32,7 @@
                       SelectionChanged="CType_SelectionChanged" />
             <ComboBox Header="压缩算法"
                       Grid.Column="1"
+                      x:Uid="CompressDialogAlgorithm"
                       Name="CAlgorithm"
                       Margin="5,0,0,0"
                       HorizontalAlignment="Stretch"

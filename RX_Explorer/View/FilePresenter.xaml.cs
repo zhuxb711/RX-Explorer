@@ -1519,7 +1519,7 @@ namespace RX_Explorer
                                     SelectedItem = Item;
                                 }
 
-                                if (e.OriginalSource is ListViewItemPresenter || (e.OriginalSource is TextBlock Block && Block.Name == "EmptyTextblock"))
+                                if (e.OriginalSource is Grid || (e.OriginalSource is TextBlock Block && Block.Name == "EmptyTextblock"))
                                 {
                                     SelectionExtention.Enable();
                                 }

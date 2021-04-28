@@ -2981,4 +2981,7 @@ Inkorrekte Namen sind
   <data name="SettingPageWinEQuestionLine2.Text" xml:space="preserve">
     <value>2. Wie kann man Win+E manuell wiederherstellen? Datei wiederherstellen:</value>
   </data>
+  <data name="CompressDialogAlgorithm.Header" xml:space="preserve">
+    <value>Komprimierungsalgorithmus</value>
+  </data>
 </root>

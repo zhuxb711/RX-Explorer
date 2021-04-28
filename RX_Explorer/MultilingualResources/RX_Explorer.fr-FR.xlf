@@ -3956,6 +3956,10 @@ Les noms non valides incluent
           <source>2. How to manually restore Win+E? Restore file:</source>
           <target state="translated">2. Comment restaurer manuellement Win+E? Restaurer le fichier:</target>
         </trans-unit>
+        <trans-unit id="CompressDialogAlgorithm.Header" translate="yes" xml:space="preserve">
+          <source>Compression algorithm</source>
+          <target state="translated">Algorithme de compression</target>
+        </trans-unit>
       </group>
     </body>
   </file>

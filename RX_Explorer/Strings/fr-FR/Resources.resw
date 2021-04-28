@@ -2981,4 +2981,7 @@ Les noms non valides incluent
   <data name="SettingPageWinEQuestionLine2.Text" xml:space="preserve">
     <value>2. Comment restaurer manuellement Win+E? Restaurer le fichier:</value>
   </data>
+  <data name="CompressDialogAlgorithm.Header" xml:space="preserve">
+    <value>Algorithme de compression</value>
+  </data>
 </root>

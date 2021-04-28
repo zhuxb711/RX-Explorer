@@ -3956,6 +3956,10 @@ Invalid names include
           <source>2. How to manually restore Win+E? Restore file:</source>
           <target state="translated">2. 如何手動還原Win+E? 恢復文件:</target>
         </trans-unit>
+        <trans-unit id="CompressDialogAlgorithm.Header" translate="yes" xml:space="preserve">
+          <source>Compression algorithm</source>
+          <target state="translated">壓縮算法</target>
+        </trans-unit>
       </group>
     </body>
   </file>

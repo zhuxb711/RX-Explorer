@@ -710,7 +710,6 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         private async Task LoadDataForGeneralPage()
         {
             Thumbnail.Source = StorageItem.Thumbnail;
-            StorageItemName.Text = StorageItem.DisplayName;
             TypeContent.Text = $"{StorageItem.DisplayType} ({StorageItem.Type})";
             LocationContent.Text = StorageItem.Path;
             SizeContent.Text = $"{StorageItem.Size} ({StorageItem.SizeRaw:N0} {Globalization.GetString("Device_Capacity_Unit")})";
@@ -720,6 +719,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
             if (StorageItem is FileSystemStorageFolder Folder)
             {
+                StorageItemName.Text = StorageItem.DisplayName;
                 SizeContent.Text = Globalization.GetString("SizeProperty_Calculating_Text");
                 ContainsContent.Text = Globalization.GetString("SizeProperty_Calculating_Text");
                 ReadonlyAttribute.IsThreeState = true;
@@ -757,6 +757,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             }
             else if (StorageItem is FileSystemStorageFile File)
             {
+                StorageItemName.Text = StorageItem.Name;
                 ReadonlyAttribute.IsChecked = File.IsReadOnly;
 
                 string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(StorageItem.Type);

@@ -3954,6 +3954,10 @@ Inkorrekte Namen sind
           <source>2. How to manually restore Win+E? Restore file:</source>
           <target state="translated">2. Wie kann man Win+E manuell wiederherstellen? Datei wiederherstellen:</target>
         </trans-unit>
+        <trans-unit id="CompressDialogAlgorithm.Header" translate="yes" xml:space="preserve">
+          <source>Compression algorithm</source>
+          <target state="translated">Komprimierungsalgorithmus</target>
+        </trans-unit>
       </group>
     </body>
   </file>

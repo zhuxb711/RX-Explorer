@@ -2981,4 +2981,7 @@
   <data name="SettingPageWinEQuestionLine2.Text" xml:space="preserve">
     <value>2. 如何手动还原Win+E? 还原文件:</value>
   </data>
+  <data name="CompressDialogAlgorithm.Header" xml:space="preserve">
+    <value>压缩算法</value>
+  </data>
 </root>
