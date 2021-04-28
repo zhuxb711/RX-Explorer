@@ -2118,9 +2118,6 @@
   <data name="QueueDialog_BingDownloadError_Content" xml:space="preserve">
     <value>无法下载必应图片</value>
   </data>
-  <data name="QueueDialog_CanNotDecompressEncrypted_Content" xml:space="preserve">
-    <value>无法解压已加密的压缩包</value>
-  </data>
   <data name="ExportLog.Content" xml:space="preserve">
     <value>导出错误日志</value>
   </data>

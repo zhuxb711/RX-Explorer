@@ -2,6 +2,15 @@
 
 namespace RX_Explorer.Class
 {
+
+    public enum CompressionAlgorithm
+    {
+        None,
+        GZip,
+        BZip2,
+        Deflated
+    }
+
     public enum AddressBlockType
     {
         Normal,
@@ -147,7 +156,8 @@ namespace RX_Explorer.Class
     {
         Zip = 0,
         Tar = 1,
-        Gzip = 2
+        Gzip = 2,
+        BZip2 = 4
     }
 
     /// <summary>
@@ -155,6 +165,9 @@ namespace RX_Explorer.Class
     /// </summary>
     public enum CompressionLevel
     {
+        /// <summary>
+        /// 未指定
+        /// </summary>
         Undefine = -1,
 
         /// <summary>

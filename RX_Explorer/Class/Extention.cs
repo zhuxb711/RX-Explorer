@@ -67,16 +67,18 @@ namespace RX_Explorer.Class
             return string.Format("{0:D2}:{1:D2}:{2:D2}", Hour, Minute, Second);
         }
 
-        public static Task CopyToAsync(this Stream From, Stream To, ProgressChangedEventHandler ProgressHandler)
+        public static Task CopyToAsync(this Stream From, Stream To, long Length = -1, ProgressChangedEventHandler ProgressHandler = null)
         {
             return Task.Run(() =>
             {
                 try
                 {
                     long TotalBytesRead = 0;
-                    long TotalBytesLength = From.Length;
+                    long TotalBytesLength = Length > 0 ? Length : From.Length;
 
-                    byte[] DataBuffer = new byte[2048];
+                    byte[] DataBuffer = new byte[4096];
+
+                    int ProgressValue = 0;
 
                     while (true)
                     {
@@ -93,7 +95,16 @@ namespace RX_Explorer.Class
                             break;
                         }
 
-                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(TotalBytesRead * 100d / TotalBytesLength), null));
+                        if (TotalBytesLength > 1024 * 1024)
+                        {
+                            int LatestValue = Convert.ToInt32(TotalBytesRead * 100d / TotalBytesLength);
+
+                            if (LatestValue > ProgressValue)
+                            {
+                                ProgressValue = LatestValue;
+                                ProgressHandler.Invoke(null, new ProgressChangedEventArgs(ProgressValue, null));
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)

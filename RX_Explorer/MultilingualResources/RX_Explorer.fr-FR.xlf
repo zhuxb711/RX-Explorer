@@ -2806,10 +2806,6 @@ Les noms non valides incluent
           <source>Unable to download Bing image</source>
           <target state="translated">Impossible de télécharger l'image Bing</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_CanNotDecompressEncrypted_Content" translate="yes" xml:space="preserve">
-          <source>Unable to decompress encrypted compressed file</source>
-          <target state="translated">Impossible de décompresser le fichier compressé chiffré</target>
-        </trans-unit>
         <trans-unit id="ExportLog.Content" translate="yes" xml:space="preserve">
           <source>Export error log</source>
           <target state="translated">Exporter le journal des erreurs</target>
