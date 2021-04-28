@@ -200,7 +200,7 @@ namespace RX_Explorer.Class
         {
             if (System.IO.Path.IsPathRooted(Path))
             {
-                if (WIN_Native_API.CheckLocationAvailability(Path))
+                if (WIN_Native_API.CheckLocationAvailability(System.IO.Path.GetDirectoryName(Path)))
                 {
                     return WIN_Native_API.CheckExist(Path);
                 }
@@ -244,9 +244,9 @@ namespace RX_Explorer.Class
 
         public static async Task<FileSystemStorageItemBase> OpenAsync(string Path)
         {
-            if (System.IO.Path.GetPathRoot(Path) != Path && WIN_Native_API.GetStorageItem(Path) is FileSystemStorageItemBase Item)
+            if (WIN_Native_API.CheckLocationAvailability(System.IO.Path.GetDirectoryName(Path)))
             {
-                return Item;
+                return WIN_Native_API.GetStorageItem(Path);
             }
             else
             {

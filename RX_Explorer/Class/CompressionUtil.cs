@@ -744,17 +744,18 @@ namespace RX_Explorer.Class
                 //如果解压到独立文件夹,则要额外创建目录
                 if (CreateFolder)
                 {
-                    string NewFolderName = (File.Name.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase) || File.Name.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)) ? File.Name.Split(".")[0] : Path.GetFileNameWithoutExtension(File.Name);
+                    string NewFolderName = File.Name.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                        ? File.Name.Substring(0, File.Name.Length - 7)
+                                                        : (File.Name.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                                                        ? File.Name.Substring(0, File.Name.Length - 8)
+                                                                        : Path.GetFileNameWithoutExtension(File.Name));
 
-                    if (!string.IsNullOrEmpty(NewFolderName))
+                    if (string.IsNullOrEmpty(NewFolderName))
                     {
-                        DestPath = Path.Combine(BaseDestPath, NewFolderName);
-
-                        if (await FileSystemStorageItemBase.CreateAsync(DestPath, StorageItemTypes.Folder, CreateOption.OpenIfExist) is not FileSystemStorageFolder)
-                        {
-                            throw new UnauthorizedAccessException();
-                        }
+                        NewFolderName = Globalization.GetString("Operate_Text_CreateFolder");
                     }
+
+                    DestPath = await MakeSureCreateFolderHelperAsync(Path.Combine(BaseDestPath, NewFolderName));
                 }
 
                 if (File.Name.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) && !File.Name.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase))
@@ -785,18 +786,23 @@ namespace RX_Explorer.Class
                     using (FileStream InputStream = await File.GetFileStreamFromFileAsync(AccessMode.Read))
                     using (IReader Reader = ReaderFactory.Open(InputStream, ReadOptions))
                     {
+                        Dictionary<string, string> DirectoryMap = new Dictionary<string, string>();
+
                         while (Reader.MoveToNextEntry())
                         {
                             if (Reader.Entry.IsDirectory)
                             {
-                                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(DestPath, Reader.Entry.Key.Replace("/", @"\").TrimEnd('\\')), StorageItemTypes.Folder, CreateOption.OpenIfExist) is not FileSystemStorageFolder)
+                                string DirectoryPath = Path.Combine(DestPath, Reader.Entry.Key.Replace("/", @"\").TrimEnd('\\'));
+                                string NewDirectoryPath = await MakeSureCreateFolderHelperAsync(DirectoryPath);
+
+                                if (!DirectoryPath.Equals(NewDirectoryPath, StringComparison.OrdinalIgnoreCase))
                                 {
-                                    throw new UnauthorizedAccessException();
+                                    DirectoryMap.Add(DirectoryPath, NewDirectoryPath);
                                 }
                             }
                             else
                             {
-                                string[] PathList = (Reader.Entry.Key?.Replace("/", @"\").Split(@"\")) ?? Array.Empty<string>();
+                                string[] PathList = (Reader.Entry.Key?.Split("/")) ?? Array.Empty<string>();
 
                                 string LastFolder = DestPath;
 
@@ -804,9 +810,17 @@ namespace RX_Explorer.Class
                                 {
                                     LastFolder = Path.Combine(LastFolder, PathList[i]);
 
-                                    if (await FileSystemStorageItemBase.CreateAsync(LastFolder, StorageItemTypes.Folder, CreateOption.OpenIfExist) is not FileSystemStorageFolder)
+                                    if (DirectoryMap.ContainsKey(LastFolder))
                                     {
-                                        throw new UnauthorizedAccessException();
+                                        LastFolder = DirectoryMap[LastFolder];
+                                    }
+
+                                    string NewDirectoryPath = await MakeSureCreateFolderHelperAsync(LastFolder);
+
+                                    if (!LastFolder.Equals(NewDirectoryPath, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        DirectoryMap.Add(LastFolder, NewDirectoryPath);
+                                        LastFolder = NewDirectoryPath;
                                     }
                                 }
 
@@ -830,6 +844,35 @@ namespace RX_Explorer.Class
                         }
                     }
                 }
+            }
+        }
+
+        private static async Task<string> MakeSureCreateFolderHelperAsync(string Path)
+        {
+            switch (await FileSystemStorageItemBase.OpenAsync(Path))
+            {
+                case FileSystemStorageFile:
+                    {
+                        if (await FileSystemStorageItemBase.CreateAsync(Path, StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageFolder NewFolder)
+                        {
+                            return NewFolder.Path;
+                        }
+                        else
+                        {
+                            throw new UnauthorizedAccessException();
+                        }
+                    }
+                default:
+                    {
+                        if (await FileSystemStorageItemBase.CreateAsync(Path, StorageItemTypes.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder)
+                        {
+                            return Path;
+                        }
+                        else
+                        {
+                            throw new UnauthorizedAccessException();
+                        }
+                    }
             }
         }
 
