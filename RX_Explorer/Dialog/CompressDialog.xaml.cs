@@ -1,4 +1,6 @@
 ﻿using RX_Explorer.Class;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using Windows.UI.Xaml.Controls;
 
@@ -14,10 +16,19 @@ namespace RX_Explorer.Dialog
 
         private readonly string SuggestName;
 
+        private static readonly IReadOnlyDictionary<CompressionAlgorithm, string> AlgorithmExtensionMap = new Dictionary<CompressionAlgorithm, string>
+        {
+            { CompressionAlgorithm.None, string.Empty },
+            { CompressionAlgorithm.GZip, ".gz" },
+            { CompressionAlgorithm.BZip2, ".bz2" }
+        };
+
         /// <summary>
         /// 获取压缩等级
         /// </summary>
-        public CompressionLevel Level { get; private set; }
+        public CompressionLevel Level { get; private set; } = CompressionLevel.Undefine;
+
+        public CompressionAlgorithm Algorithm { get; private set; } = CompressionAlgorithm.None;
 
         public CompressionType Type { get; private set; }
 
@@ -37,15 +48,16 @@ namespace RX_Explorer.Dialog
 
         private void Initialize(bool ShouldDisplayGzip)
         {
-            CompressionType.Items.Add("Zip");
-            CompressionType.Items.Add("Tar");
+            CType.Items.Add("Zip");
+            CType.Items.Add("Tar");
 
             if (ShouldDisplayGzip)
             {
-                CompressionType.Items.Add("GZip");
+                CType.Items.Add("GZip");
+                CType.Items.Add("BZip2");
             }
 
-            CompressionType.SelectedIndex = 0;
+            CType.SelectedIndex = 0;
 
             CompressLevel.Items.Add(Globalization.GetString("Compression_Dialog_Level_1"));
             CompressLevel.Items.Add(Globalization.GetString("Compression_Dialog_Level_2"));
@@ -62,21 +74,34 @@ namespace RX_Explorer.Dialog
                 return;
             }
 
-            switch (CompressionType.SelectedIndex)
+            switch (CType.SelectedIndex)
             {
                 case 0:
                     {
-                        FileName = FName.Text.EndsWith(".zip", System.StringComparison.OrdinalIgnoreCase) ? FName.Text : $"{FName.Text}.zip";
+                        FileName = FName.Text.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) ? FName.Text : $"{FName.Text}.zip";
                         break;
                     }
                 case 1:
                     {
-                        FileName = FName.Text.EndsWith(".tar", System.StringComparison.OrdinalIgnoreCase) ? FName.Text : $"{FName.Text}.tar";
+                        if (Algorithm == CompressionAlgorithm.None)
+                        {
+                            FileName = FName.Text.EndsWith(".tar", StringComparison.OrdinalIgnoreCase) ? FName.Text : $"{FName.Text}.tar";
+                        }
+                        else
+                        {
+                            string Suffix = $".tar{AlgorithmExtensionMap[Algorithm].ToLower()}";
+                            FileName = FName.Text.EndsWith(Suffix, StringComparison.OrdinalIgnoreCase) ? FName.Text : FName.Text + Suffix;
+                        }
                         break;
                     }
                 case 2:
                     {
-                        FileName = FName.Text.EndsWith(".gz", System.StringComparison.OrdinalIgnoreCase) ? FName.Text : $"{FName.Text}.gz";
+                        FileName = FName.Text.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) ? FName.Text : $"{FName.Text}.gz";
+                        break;
+                    }
+                case 3:
+                    {
+                        FileName = FName.Text.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase) ? FName.Text : $"{FName.Text}.bz2";
                         break;
                     }
             }
@@ -98,43 +123,130 @@ namespace RX_Explorer.Dialog
                         Level = CompressionLevel.PackageOnly;
                         break;
                     }
-                default:
-                    {
-                        Level = CompressionLevel.Standard;
-                        break;
-                    }
             }
         }
 
-        private void CompressionType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void CType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            switch (CompressionType.SelectedIndex)
+            switch (CType.SelectedIndex)
             {
                 case 0:
                     {
                         FName.Text = $"{(string.IsNullOrEmpty(SuggestName) ? Globalization.GetString("Compression_Admin_Name_Text") : Path.GetFileNameWithoutExtension(SuggestName))}.zip";
-                        FName.Select(0, FName.Text.Length - 4);
-                        Type = Class.CompressionType.Zip;
+                        Type = CompressionType.Zip;
                         CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Visible;
+                        CAlgorithm.Visibility = Windows.UI.Xaml.Visibility.Visible;
+                        CAlgorithm.Items.Clear();
+                        CAlgorithm.Items.Add(CompressionAlgorithm.Deflated.ToString());
+                        CAlgorithm.Items.Add(CompressionAlgorithm.None.ToString());
+                        CAlgorithm.SelectedIndex = 0;
 
                         break;
                     }
                 case 1:
                     {
                         FName.Text = $"{(string.IsNullOrEmpty(SuggestName) ? Globalization.GetString("Compression_Admin_Name_Text") : Path.GetFileNameWithoutExtension(SuggestName))}.tar";
-                        FName.Select(0, FName.Text.Length - 4);
-                        Type = Class.CompressionType.Tar;
+                        Type = CompressionType.Tar;
                         CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                        CAlgorithm.Visibility = Windows.UI.Xaml.Visibility.Visible;
+                        CAlgorithm.Items.Clear();
+                        CAlgorithm.Items.Add(CompressionAlgorithm.GZip.ToString());
+                        CAlgorithm.Items.Add(CompressionAlgorithm.BZip2.ToString());
+                        CAlgorithm.Items.Add(CompressionAlgorithm.None.ToString());
+                        CAlgorithm.SelectedIndex = 0;
 
                         break;
                     }
                 case 2:
                     {
                         FName.Text = $"{(string.IsNullOrEmpty(SuggestName) ? Globalization.GetString("Compression_Admin_Name_Text") : SuggestName)}.gz";
-                        FName.Select(0, FName.Text.Length - 7);
-                        Type = Class.CompressionType.Gzip;
+                        Type = CompressionType.Gzip;
                         CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Visible;
+                        CAlgorithm.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
 
+                        break;
+                    }
+                case 3:
+                    {
+                        FName.Text = $"{(string.IsNullOrEmpty(SuggestName) ? Globalization.GetString("Compression_Admin_Name_Text") : SuggestName)}.bz2";
+                        Type = CompressionType.BZip2;
+                        CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                        CAlgorithm.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+
+                        break;
+                    }
+            }
+        }
+
+
+
+        private void CAlgorithm_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (CAlgorithm.SelectedIndex >= 0)
+            {
+                Algorithm = Enum.Parse<CompressionAlgorithm>(CAlgorithm.SelectedItem.ToString());
+
+                switch (CType.SelectedIndex)
+                {
+                    case 0:
+                        {
+                            if (Algorithm == CompressionAlgorithm.None)
+                            {
+                                CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                            }
+                            else
+                            {
+                                CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Visible;
+                            }
+
+                            break;
+                        }
+                    case > 0:
+                        {
+                            CompressLevel.IsEnabled = true;
+                            CompressLevel.Visibility = Algorithm == CompressionAlgorithm.GZip ? Windows.UI.Xaml.Visibility.Visible : Windows.UI.Xaml.Visibility.Collapsed;
+                            FName.Text = $"{(string.IsNullOrEmpty(SuggestName) ? Globalization.GetString("Compression_Admin_Name_Text") : Path.GetFileNameWithoutExtension(SuggestName))}.tar{AlgorithmExtensionMap[Algorithm].ToLower()}";
+                            break;
+                        }
+                }
+            }
+        }
+
+        private void FName_GotFocus(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            switch (CType.SelectedIndex)
+            {
+                case 0:
+                case 3:
+                    {
+                        FName.Select(0, FName.Text.Length - 4);
+                        break;
+                    }
+                case 1:
+                    {
+                        switch (CAlgorithm.SelectedIndex)
+                        {
+                            case 0:
+                                {
+                                    FName.Select(0, FName.Text.Length - 7);
+                                    break;
+                                }
+                            case 1:
+                                {
+                                    FName.Select(0, FName.Text.Length - 8);
+                                    break;
+                                }
+                            case 2:
+                                {
+                                    FName.Select(0, FName.Text.Length - 4);
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case 2:
+                    {
+                        FName.Select(0, FName.Text.Length - 3);
                         break;
                     }
             }

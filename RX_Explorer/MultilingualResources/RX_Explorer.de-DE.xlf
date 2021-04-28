@@ -2869,10 +2869,6 @@ Inkorrekte Namen sind
           <source>Unable to download Bing image</source>
           <target state="translated">Bin-Foto konnte nicht heruntergeladen werden</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_CanNotDecompressEncrypted_Content" translate="yes" xml:space="preserve">
-          <source>Unable to decompress encrypted compressed file</source>
-          <target state="translated">Verschlüsselte komprimierte Datei konnte nicht dekomprimiert werden</target>
-        </trans-unit>
         <trans-unit id="ExportLog.Content" translate="yes" xml:space="preserve">
           <source>Export error log</source>
           <target state="translated">Fehlerverlauf speichern</target>

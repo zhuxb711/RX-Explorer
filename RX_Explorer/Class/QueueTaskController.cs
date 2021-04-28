@@ -123,24 +123,32 @@ namespace RX_Explorer.Class
             EnqueueModelCore(new OperationListDeleteModel(DeleteFrom.ToArray(), IsPermanentDelete, OnCompleted));
         }
 
-        public static void EnqueueCompressionOpeartion(CompressionType Type, CompressionLevel Level, string FromPath, string ToPath = null, EventHandler OnCompleted = null)
+        public static void EnqueueCompressionOpeartion(CompressionType Type, CompressionAlgorithm TarType, CompressionLevel Level, string FromPath, string ToPath = null, EventHandler OnCompleted = null)
         {
-            EnqueueCompressionOpeartion(Type, Level, new string[] { FromPath }, ToPath, OnCompleted);
+            EnqueueCompressionOpeartion(Type, TarType, Level, new string[] { FromPath }, ToPath, OnCompleted);
         }
 
-        public static void EnqueueCompressionOpeartion(CompressionType Type, CompressionLevel Level, IEnumerable<string> FromPath, string ToPath = null, EventHandler OnCompleted = null)
+        public static void EnqueueCompressionOpeartion(CompressionType Type, CompressionAlgorithm TarType, CompressionLevel Level, IEnumerable<string> FromPath, string ToPath = null, EventHandler OnCompleted = null)
         {
-            EnqueueModelCore(new OperationListCompressionModel(Type, Level, FromPath.ToArray(), ToPath, OnCompleted));
+            EnqueueModelCore(new OperationListCompressionModel(Type, TarType, Level, FromPath.ToArray(), ToPath, OnCompleted));
         }
 
-        public static void EnqueueDecompressionOpeartion(string FromPath, string ToPath = null, Encoding Encoding = null, EventHandler OnCompleted = null)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="FromPath"></param>
+        /// <param name="ToPath"></param>
+        /// <param name="NewFolder">是否解压到独立文件夹</param>
+        /// <param name="Encoding"></param>
+        /// <param name="OnCompleted"></param>
+        public static void EnqueueDecompressionOpeartion(string FromPath, string ToPath, bool NewFolder, Encoding Encoding = null, EventHandler OnCompleted = null)
         {
-            EnqueueDecompressionOpeartion(new string[] { FromPath }, ToPath, Encoding, OnCompleted);
+            EnqueueDecompressionOpeartion(new string[] { FromPath }, ToPath, NewFolder, Encoding, OnCompleted);
         }
 
-        public static void EnqueueDecompressionOpeartion(IEnumerable<string> FromPath, string ToPath = null, Encoding Encoding = null, EventHandler OnCompleted = null)
+        public static void EnqueueDecompressionOpeartion(IEnumerable<string> FromPath, string ToPath, bool ShouldCreateNewFolder, Encoding Encoding = null, EventHandler OnCompleted = null)
         {
-            EnqueueModelCore(new OperationListDecompressionModel(FromPath.ToArray(), ToPath, Encoding, OnCompleted));
+            EnqueueModelCore(new OperationListDecompressionModel(FromPath.ToArray(), ToPath, ShouldCreateNewFolder, Encoding, OnCompleted));
         }
 
         public static void EnqueueUndoOpeartion(OperationKind UndoKind, string FromPath, string ToPath = null, EventHandler OnCompleted = null)
@@ -439,11 +447,13 @@ namespace RX_Explorer.Class
                         {
                             try
                             {
+                                CompressionUtil.SetEncoding(Encoding.Default);
+
                                 switch (CModel.Type)
                                 {
                                     case CompressionType.Zip:
                                         {
-                                            CompressionUtil.CreateZipAsync(CModel.FromPath, CModel.ToPath, (int)CModel.Level, (s, e) =>
+                                            CompressionUtil.CreateZipAsync(CModel.FromPath, CModel.ToPath, CModel.Level, CModel.Algorithm, (s, e) =>
                                             {
                                                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                 {
@@ -455,7 +465,7 @@ namespace RX_Explorer.Class
                                         }
                                     case CompressionType.Tar:
                                         {
-                                            CompressionUtil.CreateTarAsync(CModel.FromPath, CModel.ToPath, (s, e) =>
+                                            CompressionUtil.CreateTarAsync(CModel.FromPath, CModel.ToPath, CModel.Level, CModel.Algorithm, (s, e) =>
                                             {
                                                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                 {
@@ -469,7 +479,26 @@ namespace RX_Explorer.Class
                                         {
                                             if (CModel.FromPath.Length == 1)
                                             {
-                                                CompressionUtil.CreateGzipAsync(CModel.FromPath.First(), CModel.ToPath, (int)CModel.Level, (s, e) =>
+                                                CompressionUtil.CreateGzipAsync(CModel.FromPath.First(), CModel.ToPath, CModel.Level, (s, e) =>
+                                                {
+                                                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                    {
+                                                        Model.UpdateProgress(e.ProgressPercentage);
+                                                    }).AsTask().Wait();
+                                                }).Wait();
+                                            }
+                                            else
+                                            {
+                                                throw new ArgumentException("Gzip could not contains more than one item");
+                                            }
+
+                                            break;
+                                        }
+                                    case CompressionType.BZip2:
+                                        {
+                                            if (CModel.FromPath.Length == 1)
+                                            {
+                                                CompressionUtil.CreateBZip2Async(CModel.FromPath.First(), CModel.ToPath, (s, e) =>
                                                 {
                                                     CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                     {
@@ -518,74 +547,22 @@ namespace RX_Explorer.Class
                             {
                                 CompressionUtil.SetEncoding(DModel.Encoding);
 
-                                if (Model.FromPath.All((Item) => Path.GetExtension(Item).Equals(".zip", StringComparison.OrdinalIgnoreCase)))
+                                if (Model.FromPath.All((Item) => Item.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+                                                                || Item.EndsWith(".tar", StringComparison.OrdinalIgnoreCase)
+                                                                || Item.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                                || Item.EndsWith(".tgz", StringComparison.OrdinalIgnoreCase)
+                                                                || Item.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                                                || Item.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase)
+                                                                || Item.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
+                                                                || Item.EndsWith(".rar", StringComparison.OrdinalIgnoreCase)))
                                 {
-                                    if (string.IsNullOrEmpty(Model.ToPath))
+                                    CompressionUtil.ExtractAllAsync(Model.FromPath, Model.ToPath, DModel.ShouldCreateFolder, (s, e) =>
                                     {
-                                        CompressionUtil.ExtractZipAsync(Model.FromPath, (s, e) =>
+                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
-                                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                            {
-                                                Model.UpdateProgress(e.ProgressPercentage);
-                                            }).AsTask().Wait();
-                                        }).Wait();
-                                    }
-                                    else
-                                    {
-                                        CompressionUtil.ExtractZipAsync(Model.FromPath, Model.ToPath, (s, e) =>
-                                        {
-                                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                            {
-                                                Model.UpdateProgress(e.ProgressPercentage);
-                                            }).AsTask().Wait();
-                                        }).Wait();
-                                    }
-                                }
-                                else if (Model.FromPath.All((Item) => Path.GetExtension(Item).Equals(".tar", StringComparison.OrdinalIgnoreCase)))
-                                {
-                                    if (string.IsNullOrEmpty(Model.ToPath))
-                                    {
-                                        CompressionUtil.ExtractTarAsync(Model.FromPath, (s, e) =>
-                                        {
-                                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                            {
-                                                Model.UpdateProgress(e.ProgressPercentage);
-                                            }).AsTask().Wait();
-                                        }).Wait();
-                                    }
-                                    else
-                                    {
-                                        CompressionUtil.ExtractTarAsync(Model.FromPath, Model.ToPath, (s, e) =>
-                                        {
-                                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                            {
-                                                Model.UpdateProgress(e.ProgressPercentage);
-                                            }).AsTask().Wait();
-                                        }).Wait();
-                                    }
-                                }
-                                else if (Model.FromPath.All((Item) => Path.GetExtension(Item).Equals(".gz", StringComparison.OrdinalIgnoreCase)))
-                                {
-                                    if (string.IsNullOrEmpty(Model.ToPath))
-                                    {
-                                        CompressionUtil.ExtractGZipAsync(Model.FromPath, (s, e) =>
-                                        {
-                                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                            {
-                                                Model.UpdateProgress(e.ProgressPercentage);
-                                            }).AsTask().Wait();
-                                        }).Wait();
-                                    }
-                                    else
-                                    {
-                                        CompressionUtil.ExtractGZipAsync(Model.FromPath, Model.ToPath, (s, e) =>
-                                        {
-                                            CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                            {
-                                                Model.UpdateProgress(e.ProgressPercentage);
-                                            }).AsTask().Wait();
-                                        }).Wait();
-                                    }
+                                            Model.UpdateProgress(e.ProgressPercentage);
+                                        }).AsTask().Wait();
+                                    }).Wait();
                                 }
                                 else
                                 {
@@ -597,13 +574,6 @@ namespace RX_Explorer.Class
                                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                 {
                                     Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"));
-                                }).AsTask().Wait();
-                            }
-                            catch (NotImplementedException)
-                            {
-                                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
-                                {
-                                    Model.UpdateStatus(OperationStatus.Error, Globalization.GetString("QueueDialog_CanNotDecompressEncrypted_Content"));
                                 }).AsTask().Wait();
                             }
                             catch (FileNotFoundException)

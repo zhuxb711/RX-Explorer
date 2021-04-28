@@ -496,12 +496,46 @@
                 </AppBarButton>
                 <AppBarButton x:Name="MixDecompression"
                               MinWidth="250"
-                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Decompression')}"
-                              Click="MixDecompression_Click">
+                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Decompression')}">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xF133;" />
                     </AppBarButton.Icon>
+                    <AppBarButton.Flyout>
+                        <MenuFlyout x:Name="MixDecompressionOptionFlyout" >
+                            <Custom:MenuFlyoutItemWithImage Text="解压选项..."
+                                                            Name="MixDecompressOption"
+                                                            x:Uid="DecompressOption"
+                                                            MinWidth="150"
+                                                            MaxWidth="300"
+                                                            Click="MixDecompressOption_Click">
+                                <Custom:MenuFlyoutItemWithImage.Icon>
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Glyph="&#xF0B2;" />
+                                </Custom:MenuFlyoutItemWithImage.Icon>
+                            </Custom:MenuFlyoutItemWithImage>
+                            <Custom:MenuFlyoutItemWithImage Text="解压到此文件夹"
+                                                            Click="MixDecompression_Click"
+                                                            x:Uid="DecompressHere"
+                                                            MinWidth="150"
+                                                            MaxWidth="300">
+                                <Custom:MenuFlyoutItemWithImage.Icon>
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Glyph="&#xF0B2;" />
+                                </Custom:MenuFlyoutItemWithImage.Icon>
+                            </Custom:MenuFlyoutItemWithImage>
+                            <Custom:MenuFlyoutItemWithImage Text="解压到各自的文件夹"
+                                                            Click="MixDecompression_Click"
+                                                            x:Name="MixDecompressIndie"
+                                                            MinWidth="150"
+                                                            MaxWidth="300">
+                                <Custom:MenuFlyoutItemWithImage.Icon>
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Glyph="&#xF0B2;" />
+                                </Custom:MenuFlyoutItemWithImage.Icon>
+                            </Custom:MenuFlyoutItemWithImage>
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
                 </AppBarButton>
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>

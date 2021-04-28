@@ -963,22 +963,24 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static bool CheckLocationAvailability(string ItemPath)
+        public static bool CheckLocationAvailability(string FolderPath)
         {
-            if (string.IsNullOrWhiteSpace(ItemPath))
+            if (string.IsNullOrWhiteSpace(FolderPath))
             {
-                throw new ArgumentNullException(nameof(ItemPath), "Argument could not be null");
+                return false;
             }
-
-            IntPtr Ptr = FindFirstFileExFromApp(Path.GetPathRoot(ItemPath) == ItemPath ? Path.Combine(ItemPath, "*") : ItemPath.TrimEnd('\\'), FINDEX_INFO_LEVELS.FindExInfoBasic, out _, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.NONE);
-
-            try
+            else
             {
-                return Ptr != INVALID_HANDLE;
-            }
-            finally
-            {
-                FindClose(Ptr);
+                IntPtr Ptr = FindFirstFileExFromApp(Path.Combine(FolderPath, "*"), FINDEX_INFO_LEVELS.FindExInfoBasic, out _, FINDEX_SEARCH_OPS.FindExSearchNameMatch, IntPtr.Zero, FINDEX_ADDITIONAL_FLAGS.NONE);
+
+                try
+                {
+                    return Ptr != INVALID_HANDLE;
+                }
+                finally
+                {
+                    FindClose(Ptr);
+                }
             }
         }
 

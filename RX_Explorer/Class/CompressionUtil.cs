@@ -1,6 +1,9 @@
-﻿using ICSharpCode.SharpZipLib.GZip;
+﻿using ICSharpCode.SharpZipLib.BZip2;
+using ICSharpCode.SharpZipLib.GZip;
 using ICSharpCode.SharpZipLib.Tar;
 using ICSharpCode.SharpZipLib.Zip;
+using SharpCompress.Common;
+using SharpCompress.Readers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,79 +17,11 @@ namespace RX_Explorer.Class
 {
     public static class CompressionUtil
     {
+
         private static Encoding EncodingSetting = Encoding.Default;
+        private delegate void ByteReadChangedEventHandler(ulong ByteRead);
 
-        /// <summary>
-        /// 执行ZIP文件创建功能
-        /// </summary>
-        /// <param name="Source">待压缩文件</param>
-        /// <param name="NewZipPath">生成的Zip文件名</param>
-        /// <param name="ZipLevel">压缩等级</param>
-        /// <param name="ProgressHandler">进度通知</param>
-        public static async Task CreateZipAsync(FileSystemStorageItemBase Source, string NewZipPath, int ZipLevel, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            if (await FileSystemStorageItemBase.CreateAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
-            {
-                ZipStrings.CodePage = EncodingSetting.CodePage;
-
-                using (FileStream NewFileStream = await NewFile.GetFileStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
-                using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
-                {
-                    OutputStream.SetLevel(ZipLevel);
-                    OutputStream.UseZip64 = UseZip64.Dynamic;
-                    OutputStream.IsStreamOwner = false;
-
-                    switch (Source)
-                    {
-                        case FileSystemStorageFile File:
-                            {
-                                using (FileStream FileStream = await File.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
-                                {
-                                    ZipEntry NewEntry = new ZipEntry(File.Name)
-                                    {
-                                        DateTime = DateTime.Now,
-                                        CompressionMethod = CompressionMethod.Deflated,
-                                        Size = FileStream.Length
-                                    };
-
-                                    OutputStream.PutNextEntry(NewEntry);
-
-                                    await FileStream.CopyToAsync(OutputStream, ProgressHandler).ConfigureAwait(false);
-                                }
-
-                                OutputStream.CloseEntry();
-
-                                break;
-                            }
-                        case FileSystemStorageFolder Folder:
-                            {
-                                await ZipFolderCore(Folder, OutputStream, Folder.Name, ProgressHandler).ConfigureAwait(false);
-                                break;
-                            }
-                    }
-
-                    await OutputStream.FlushAsync().ConfigureAwait(false);
-                }
-            }
-            else
-            {
-                throw new UnauthorizedAccessException();
-            }
-        }
-
-        public static async Task CreateZipAsync(string Source, string NewZipPath, int ZipLevel, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            if (await FileSystemStorageItemBase.OpenAsync(Source) is FileSystemStorageItemBase Item)
-            {
-                await CreateZipAsync(Item, NewZipPath, ZipLevel, ProgressHandler);
-            }
-            else
-            {
-                throw new FileNotFoundException("Could not found the file or path is a directory");
-            }
-        }
-
-        public static async Task CreateZipAsync(IEnumerable<string> SourceItemGroup, string NewZipPath, int ZipLevel, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task CreateZipAsync(IEnumerable<string> SourceItemGroup, string NewZipPath, CompressionLevel ZipLevel, CompressionAlgorithm Algorithm, ProgressChangedEventHandler ProgressHandler = null)
         {
             List<FileSystemStorageItemBase> TransformList = new List<FileSystemStorageItemBase>();
 
@@ -102,7 +37,7 @@ namespace RX_Explorer.Class
                 }
             }
 
-            await CreateZipAsync(TransformList, NewZipPath, ZipLevel, ProgressHandler);
+            await CreateZipAsync(TransformList, NewZipPath, ZipLevel, Algorithm, ProgressHandler);
         }
 
         /// <summary>
@@ -113,96 +48,101 @@ namespace RX_Explorer.Class
         /// <param name="ZipLevel">压缩等级</param>
         /// <param name="ProgressHandler">进度通知</param>
         /// <returns>无</returns>
-        public static async Task CreateZipAsync(IEnumerable<FileSystemStorageItemBase> SourceItemGroup, string NewZipPath, int ZipLevel, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task CreateZipAsync(IEnumerable<FileSystemStorageItemBase> SourceItemGroup, string NewZipPath, CompressionLevel Level, CompressionAlgorithm Algorithm, ProgressChangedEventHandler ProgressHandler = null)
         {
+            if (Level == CompressionLevel.Undefine)
+            {
+                throw new ArgumentException("Undefine is not allowed in this function", nameof(Level));
+            }
+
+            if (Algorithm == CompressionAlgorithm.GZip)
+            {
+                throw new ArgumentException("GZip is not allowed in this function", nameof(Algorithm));
+            }
+
             if (await FileSystemStorageItemBase.CreateAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
             {
                 ulong TotalSize = 0;
                 ulong CurrentPosition = 0;
 
-                ZipStrings.CodePage = EncodingSetting.CodePage;
-
-                using (FileStream NewFileStream = await NewFile.GetFileStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
-                using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
+                foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
                 {
-                    OutputStream.SetLevel(ZipLevel);
-                    OutputStream.UseZip64 = UseZip64.Dynamic;
-                    OutputStream.IsStreamOwner = false;
-
-                    foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
+                    switch (StorageItem)
                     {
-                        switch (StorageItem)
-                        {
-                            case FileSystemStorageFile File:
-                                {
-                                    TotalSize += File.SizeRaw;
-                                    break;
-                                }
-                            case FileSystemStorageFolder Folder:
-                                {
-                                    TotalSize += await Folder.GetFolderSizeAsync().ConfigureAwait(false);
-                                    break;
-                                }
-                        }
+                        case FileSystemStorageFile File:
+                            {
+                                TotalSize += File.SizeRaw;
+                                break;
+                            }
+                        case FileSystemStorageFolder Folder:
+                            {
+                                TotalSize += await Folder.GetFolderSizeAsync().ConfigureAwait(false);
+                                break;
+                            }
                     }
+                }
 
-                    foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
+                if (TotalSize > 0)
+                {
+                    ZipStrings.CodePage = EncodingSetting.CodePage;
+
+                    using (FileStream NewFileStream = await NewFile.GetFileStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
+                    using (ZipOutputStream OutputStream = new ZipOutputStream(NewFileStream))
                     {
-                        switch (StorageItem)
+                        OutputStream.SetLevel((int)Level);
+                        OutputStream.UseZip64 = UseZip64.Dynamic;
+                        OutputStream.IsStreamOwner = false;
+
+                        foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
                         {
-                            case FileSystemStorageFile File:
-                                {
-                                    using (FileStream FileStream = await File.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
+                            switch (StorageItem)
+                            {
+                                case FileSystemStorageFile File:
                                     {
-                                        ZipEntry NewEntry = new ZipEntry(File.Name)
+                                        using (FileStream FileStream = await File.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
                                         {
-                                            DateTime = DateTime.Now,
-                                            CompressionMethod = CompressionMethod.Deflated,
-                                            Size = FileStream.Length
-                                        };
+                                            ZipEntry NewEntry = new ZipEntry(File.Name)
+                                            {
+                                                DateTime = DateTime.Now,
+                                                CompressionMethod = Algorithm == CompressionAlgorithm.None ? CompressionMethod.Stored : Enum.Parse<CompressionMethod>(Enum.GetName(typeof(CompressionAlgorithm), Algorithm)),
+                                                Size = FileStream.Length
+                                            };
 
-                                        OutputStream.PutNextEntry(NewEntry);
+                                            OutputStream.PutNextEntry(NewEntry);
 
-                                        await FileStream.CopyToAsync(OutputStream, (s, e) =>
-                                        {
-                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.SizeRaw)) * 100d / TotalSize), null));
-                                        }).ConfigureAwait(false);
-                                    }
+                                            await FileStream.CopyToAsync(OutputStream, ProgressHandler: (s, e) =>
+                                            {
+                                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.SizeRaw)) * 100d / TotalSize), null));
+                                            }).ConfigureAwait(false);
+                                        }
 
-                                    OutputStream.CloseEntry();
+                                        OutputStream.CloseEntry();
 
-                                    if (TotalSize > 0)
-                                    {
                                         CurrentPosition += File.SizeRaw;
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
+
+                                        break;
                                     }
-
-                                    break;
-                                }
-                            case FileSystemStorageFolder Folder:
-                                {
-                                    ulong InnerFolderSize = await Folder.GetFolderSizeAsync().ConfigureAwait(false);
-
-                                    await ZipFolderCore(Folder, OutputStream, Folder.Name, (s, e) =>
+                                case FileSystemStorageFolder Folder:
                                     {
-                                        if (TotalSize > 0)
+                                        ulong InnerFolderSize = 0;
+
+                                        await ZipFolderCore(Folder, OutputStream, Folder.Name, Algorithm, (ByteRead) =>
                                         {
-                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFolderSize)) * 100d / TotalSize), null));
-                                        }
-                                    }).ConfigureAwait(false);
+                                            InnerFolderSize = ByteRead;
+                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + ByteRead) * 100d / TotalSize), null));
+                                        }).ConfigureAwait(false);
 
-                                    if (TotalSize > 0)
-                                    {
                                         CurrentPosition += InnerFolderSize;
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
+
+                                        break;
                                     }
-
-                                    break;
-                                }
+                            }
                         }
-                    }
 
-                    await OutputStream.FlushAsync().ConfigureAwait(false);
+                        await OutputStream.FlushAsync().ConfigureAwait(false);
+                    }
                 }
             }
             else
@@ -211,7 +151,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        private static async Task ZipFolderCore(FileSystemStorageFolder Folder, ZipOutputStream OutputStream, string BaseFolderName, ProgressChangedEventHandler ProgressHandler = null)
+        private static async Task ZipFolderCore(FileSystemStorageFolder Folder, ZipOutputStream OutputStream, string BaseFolderName, CompressionAlgorithm Algorithm, ByteReadChangedEventHandler ByteReadHandler = null)
         {
             List<FileSystemStorageItemBase> ItemList = await Folder.GetChildItemsAsync(true, true).ConfigureAwait(false);
 
@@ -219,14 +159,17 @@ namespace RX_Explorer.Class
             {
                 if (!string.IsNullOrEmpty(BaseFolderName))
                 {
-                    ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/");
+                    ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/")
+                    {
+                        DateTime = DateTime.Now
+                    };
+
                     OutputStream.PutNextEntry(NewEntry);
                     OutputStream.CloseEntry();
                 }
             }
             else
             {
-                ulong TotalSize = await Folder.GetFolderSizeAsync().ConfigureAwait(false);
                 ulong CurrentPosition = 0;
 
                 foreach (FileSystemStorageItemBase Item in ItemList)
@@ -235,21 +178,15 @@ namespace RX_Explorer.Class
                     {
                         case FileSystemStorageFolder InnerFolder:
                             {
-                                ulong InnerFolderSize = await InnerFolder.GetFolderSizeAsync().ConfigureAwait(false);
+                                ulong InnerFolderSize = 0;
 
-                                await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{Item.Name}", ProgressHandler: (s, e) =>
+                                await ZipFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{Item.Name}", Algorithm, (ByteRead) =>
                                 {
-                                    if (TotalSize > 0)
-                                    {
-                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFolderSize)) * 100d / TotalSize), null));
-                                    }
+                                    InnerFolderSize = ByteRead;
+                                    ByteReadHandler?.Invoke(CurrentPosition + ByteRead);
                                 }).ConfigureAwait(false);
 
-                                if (TotalSize > 0)
-                                {
-                                    CurrentPosition += InnerFolderSize;
-                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
-                                }
+                                ByteReadHandler?.Invoke(CurrentPosition += InnerFolderSize);
 
                                 break;
                             }
@@ -260,25 +197,21 @@ namespace RX_Explorer.Class
                                     ZipEntry NewEntry = new ZipEntry($"{BaseFolderName}/{Item.Name}")
                                     {
                                         DateTime = DateTime.Now,
-                                        CompressionMethod = CompressionMethod.Deflated,
+                                        CompressionMethod = Algorithm == CompressionAlgorithm.None ? CompressionMethod.Stored : Enum.Parse<CompressionMethod>(Enum.GetName(typeof(CompressionAlgorithm), Algorithm)),
                                         Size = FileStream.Length
                                     };
 
                                     OutputStream.PutNextEntry(NewEntry);
 
-                                    await FileStream.CopyToAsync(OutputStream, (s, e) =>
+                                    await FileStream.CopyToAsync(OutputStream, ProgressHandler: (s, e) =>
                                     {
-                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFile.SizeRaw)) * 100d / TotalSize), null));
+                                        ByteReadHandler?.Invoke(CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFile.SizeRaw));
                                     }).ConfigureAwait(false);
                                 }
 
                                 OutputStream.CloseEntry();
 
-                                if (TotalSize > 0)
-                                {
-                                    CurrentPosition += Item.SizeRaw;
-                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
-                                }
+                                ByteReadHandler?.Invoke(CurrentPosition += Item.SizeRaw);
 
                                 break;
                             }
@@ -287,240 +220,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task ExtractZipAsync(string FilePath, string NewFolderPath, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task CreateGzipAsync(string Source, string NewZipPath, CompressionLevel ZipLevel, ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (await FileSystemStorageItemBase.OpenAsync(NewFolderPath) is FileSystemStorageFolder Folder)
-            {
-                if (await FileSystemStorageItemBase.OpenAsync(FilePath) is FileSystemStorageFile File)
-                {
-                    await ExtractZipAsync(File, Folder, ProgressHandler);
-                }
-                else
-                {
-                    throw new FileNotFoundException("Could not found the file path");
-                }
-            }
-            else
-            {
-                throw new FileNotFoundException("Could not found the folder path");
-            }
-        }
-
-        /// <summary>
-        /// 执行ZIP解压功能
-        /// </summary>
-        /// <param name="File">ZIP文件</param>
-        /// <returns>无</returns>
-        public static async Task ExtractZipAsync(FileSystemStorageFile File, FileSystemStorageFolder NewFolder, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            ZipStrings.CodePage = EncodingSetting.CodePage;
-
-            using (FileStream BaseStream = await File.GetFileStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
-            using (ZipInputStream InputZipStream = new ZipInputStream(BaseStream))
-            {
-                BaseStream.Seek(0, SeekOrigin.Begin);
-
-                InputZipStream.IsStreamOwner = false;
-
-                long CurrentPosition = 0;
-
-                while (InputZipStream.GetNextEntry() is ZipEntry Entry)
-                {
-                    if (!InputZipStream.CanDecompressEntry || Entry.IsCrypted)
-                    {
-                        throw new NotImplementedException();
-                    }
-
-                    if (Entry.Name.Contains("/"))
-                    {
-                        string[] SplitFolderPath = Entry.Name.Split('/', StringSplitOptions.RemoveEmptyEntries);
-
-                        string TempFolderPath = NewFolder.Path;
-
-                        for (int i = 0; i < SplitFolderPath.Length - 1; i++)
-                        {
-                            if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TempFolderPath, SplitFolderPath[i]), StorageItemTypes.Folder, CreateOption.OpenIfExist).ConfigureAwait(false) is FileSystemStorageFolder NextFolder)
-                            {
-                                TempFolderPath = NextFolder.Path;
-                            }
-                            else
-                            {
-                                throw new UnauthorizedAccessException("Could not create directory");
-                            }
-                        }
-
-                        if (Entry.Name.Last() == '/')
-                        {
-                            if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TempFolderPath, SplitFolderPath.Last()), StorageItemTypes.Folder, CreateOption.OpenIfExist).ConfigureAwait(false) == null)
-                            {
-                                throw new UnauthorizedAccessException("Could not create directory");
-                            }
-                        }
-                        else
-                        {
-                            if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TempFolderPath, SplitFolderPath.Last()), StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
-                            {
-                                using (FileStream NewFileStream = await NewFile.GetFileStreamFromFileAsync(AccessMode.Write).ConfigureAwait(false))
-                                {
-                                    //For some files in Zip, CompressedSize or Size might less than zero, then we could not get progress by reading ZipInputStream.Length
-                                    if (Entry.CompressedSize > 0 && Entry.Size > 0)
-                                    {
-                                        await InputZipStream.CopyToAsync(NewFileStream, (s, e) =>
-                                        {
-                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * Entry.CompressedSize)) * 100d / BaseStream.Length), null));
-                                        }).ConfigureAwait(false);
-                                    }
-                                    else
-                                    {
-                                        await InputZipStream.CopyToAsync(NewFileStream).ConfigureAwait(false);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                throw new UnauthorizedAccessException();
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(NewFolder.Path, Entry.Name), StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
-                        {
-                            using (FileStream NewFileStream = await NewFile.GetFileStreamFromFileAsync(AccessMode.Write).ConfigureAwait(false))
-                            {
-                                //For some files in Zip, CompressedSize or Size might less than zero, then we could not get progress by reading ZipInputStream.Length
-                                if (Entry.CompressedSize > 0 && Entry.Size > 0)
-                                {
-                                    await InputZipStream.CopyToAsync(NewFileStream, (s, e) =>
-                                    {
-                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * Entry.CompressedSize)) * 100d / BaseStream.Length), null));
-                                    });
-                                }
-                                else
-                                {
-                                    await InputZipStream.CopyToAsync(NewFileStream).ConfigureAwait(false);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            throw new UnauthorizedAccessException();
-                        }
-                    }
-
-                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition = BaseStream.Position) * 100d / BaseStream.Length), null));
-                }
-            }
-        }
-
-        public static async Task ExtractZipAsync(IEnumerable<string> FileList, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            List<FileSystemStorageFile> TransformList = new List<FileSystemStorageFile>();
-
-            foreach (string Path in FileList)
-            {
-                if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFile File)
-                {
-                    TransformList.Add(File);
-                }
-                else
-                {
-                    throw new FileNotFoundException("Could not found the file or path is a directory");
-                }
-            }
-
-            await ExtractZipAsync(TransformList, ProgressHandler);
-        }
-
-        public static async Task ExtractZipAsync(IEnumerable<string> FileList, string NewFolderPath, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            List<FileSystemStorageFile> TransformList = new List<FileSystemStorageFile>();
-
-            foreach (string Path in FileList)
-            {
-                if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFile File)
-                {
-                    TransformList.Add(File);
-                }
-                else
-                {
-                    throw new FileNotFoundException("Could not found the file or path is a directory");
-                }
-            }
-
-            if (await FileSystemStorageItemBase.OpenAsync(NewFolderPath) is FileSystemStorageFolder NewFolder)
-            {
-                await ExtractZipAsync(TransformList, NewFolder, ProgressHandler);
-            }
-            else
-            {
-                throw new FileNotFoundException("Could not found the directory");
-            }
-        }
-
-
-        public static async Task ExtractZipAsync(IEnumerable<FileSystemStorageFile> FileList, FileSystemStorageFolder NewFolder, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            ulong TotalSize = 0;
-            ulong CurrentPosition = 0;
-
-            foreach (FileSystemStorageFile File in FileList)
-            {
-                TotalSize += File.SizeRaw;
-            }
-
-            if (TotalSize == 0)
-            {
-                return;
-            }
-
-            foreach (FileSystemStorageFile File in FileList)
-            {
-                await ExtractZipAsync(File, NewFolder, (s, e) =>
-                {
-                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((e.ProgressPercentage * Convert.ToDouble(File.SizeRaw) + CurrentPosition * 100) / TotalSize), null));
-                });
-
-                CurrentPosition += File.SizeRaw;
-            }
-        }
-
-        public static async Task ExtractZipAsync(IEnumerable<FileSystemStorageFile> FileList, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            ulong TotalSize = 0;
-            ulong CurrentPosition = 0;
-
-            foreach (FileSystemStorageFile File in FileList)
-            {
-                TotalSize += File.SizeRaw;
-            }
-
-            if (TotalSize == 0)
-            {
-                return;
-            }
-
-            foreach (FileSystemStorageFile File in FileList)
-            {
-                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(Path.GetDirectoryName(File.Path), Path.GetFileNameWithoutExtension(File.Name)), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageFolder NewFolder)
-                {
-                    await ExtractZipAsync(File, NewFolder, (s, e) =>
-                    {
-                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((e.ProgressPercentage * Convert.ToDouble(File.SizeRaw) + CurrentPosition * 100) / TotalSize), null));
-                    });
-
-                    CurrentPosition += File.SizeRaw;
-                }
-                else
-                {
-                    throw new UnauthorizedAccessException();
-                }
-            }
-        }
-
-        public static async Task CreateGzipAsync(string Source, string NewZipPath, int ZipLevel, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            if(await FileSystemStorageItemBase.OpenAsync(Source) is FileSystemStorageFile File)
+            if (await FileSystemStorageItemBase.OpenAsync(Source) is FileSystemStorageFile File)
             {
                 await CreateGzipAsync(File, NewZipPath, ZipLevel, ProgressHandler);
             }
@@ -530,17 +232,22 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task CreateGzipAsync(FileSystemStorageFile Source, string NewZipPath, int ZipLevel, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task CreateGzipAsync(FileSystemStorageFile Source, string NewZipPath, CompressionLevel Level, ProgressChangedEventHandler ProgressHandler = null)
         {
+            if (Level == CompressionLevel.Undefine)
+            {
+                throw new ArgumentException("Undefine is not allowed in this function", nameof(Level));
+            }
+
             if (await FileSystemStorageItemBase.CreateAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
             {
-                using (FileStream SourceFileStream = await Source.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
-                using (FileStream NewFileStream = await NewFile.GetFileStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
+                using (FileStream SourceFileStream = await Source.GetFileStreamFromFileAsync(AccessMode.Read))
+                using (FileStream NewFileStream = await NewFile.GetFileStreamFromFileAsync(AccessMode.Exclusive))
                 using (GZipOutputStream GZipStream = new GZipOutputStream(NewFileStream))
                 {
-                    GZipStream.SetLevel(ZipLevel);
-
-                    await SourceFileStream.CopyToAsync(GZipStream, ProgressHandler).ConfigureAwait(false);
+                    GZipStream.SetLevel((int)Level);
+                    GZipStream.IsStreamOwner = false;
+                    await SourceFileStream.CopyToAsync(GZipStream, ProgressHandler: ProgressHandler).ConfigureAwait(false);
                 }
             }
             else
@@ -549,79 +256,28 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task ExtractGZipAsync(string NewFolderPath, string FilePath, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task ExtractGZipAsync(string Source, string NewZipPath, ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (await FileSystemStorageItemBase.OpenAsync(NewFolderPath) is FileSystemStorageFolder Folder)
+            if (await FileSystemStorageItemBase.OpenAsync(Source) is FileSystemStorageFile File)
             {
-                if (await FileSystemStorageItemBase.OpenAsync(FilePath) is FileSystemStorageFile File)
-                {
-                    await ExtractGZipAsync(Folder, File, ProgressHandler);
-                }
-                else
-                {
-                    throw new FileNotFoundException("Could not found the file path");
-                }
+                await ExtractGZipAsync(File, NewZipPath, ProgressHandler);
             }
             else
             {
-                throw new FileNotFoundException("Could not found the folder path");
+                throw new FileNotFoundException("Could not found the file path");
             }
         }
 
-        public static async Task ExtractGZipAsync(IEnumerable<string> FileList, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task ExtractGZipAsync(FileSystemStorageFile Source, string NewFilePath, ProgressChangedEventHandler ProgressHandler = null)
         {
-            List<FileSystemStorageFile> TransformList = new List<FileSystemStorageFile>();
-
-            foreach (string Path in FileList)
+            if (await FileSystemStorageItemBase.CreateAsync(NewFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
             {
-                if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFile File)
-                {
-                    TransformList.Add(File);
-                }
-                else
-                {
-                    throw new FileNotFoundException("Could not found the file or path is a directory");
-                }
-            }
-
-            await ExtractGZipAsync(TransformList, ProgressHandler);
-        }
-
-        public static async Task ExtractGZipAsync(IEnumerable<string> FileList, string NewFolderPath, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            List<FileSystemStorageFile> TransformList = new List<FileSystemStorageFile>();
-
-            foreach (string Path in FileList)
-            {
-                if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFile File)
-                {
-                    TransformList.Add(File);
-                }
-                else
-                {
-                    throw new FileNotFoundException("Could not found the file or path is a directory");
-                }
-            }
-
-            if (await FileSystemStorageItemBase.OpenAsync(NewFolderPath) is FileSystemStorageFolder NewFolder)
-            {
-                await ExtractGZipAsync(TransformList, NewFolder, ProgressHandler);
-            }
-            else
-            {
-                throw new FileNotFoundException("Could not found the directory");
-            }
-        }
-
-        public static async Task ExtractGZipAsync(FileSystemStorageFolder NewFolder, FileSystemStorageFile Item, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(NewFolder.Path, Path.GetFileNameWithoutExtension(Item.Name)), StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
-            {
-                using (FileStream SourceFileStream = await Item.GetFileStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
+                using (FileStream SourceFileStream = await Source.GetFileStreamFromFileAsync(AccessMode.Exclusive))
                 using (FileStream NewFileStrem = await NewFile.GetFileStreamFromFileAsync(AccessMode.Write))
                 using (GZipInputStream GZipStream = new GZipInputStream(SourceFileStream))
                 {
-                    await GZipStream.CopyToAsync(NewFileStrem, ProgressHandler).ConfigureAwait(false);
+                    GZipStream.IsStreamOwner = false;
+                    await GZipStream.CopyToAsync(NewFileStrem, ProgressHandler: ProgressHandler).ConfigureAwait(false);
                 }
             }
             else
@@ -630,102 +286,28 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task ExtractGZipAsync(IEnumerable<FileSystemStorageFile> FileList, FileSystemStorageFolder NewFolder, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task CreateBZip2Async(string Source, string NewZipPath, ProgressChangedEventHandler ProgressHandler = null)
         {
-            ulong TotalSize = 0;
-            ulong CurrentPosition = 0;
-
-            foreach (FileSystemStorageFile File in FileList)
+            if (await FileSystemStorageItemBase.OpenAsync(Source) is FileSystemStorageFile File)
             {
-                TotalSize += File.SizeRaw;
-            }
-
-            if (TotalSize == 0)
-            {
-                return;
-            }
-
-            foreach (FileSystemStorageFile File in FileList)
-            {
-                await ExtractGZipAsync(NewFolder, File, (s, e) =>
-                {
-                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((e.ProgressPercentage * Convert.ToDouble(File.SizeRaw) + CurrentPosition * 100) / TotalSize), null));
-                });
-
-                CurrentPosition += File.SizeRaw;
-            }
-        }
-
-        public static async Task ExtractGZipAsync(IEnumerable<FileSystemStorageFile> FileList, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            ulong TotalSize = 0;
-            ulong CurrentPosition = 0;
-
-            foreach (FileSystemStorageFile File in FileList)
-            {
-                TotalSize += File.SizeRaw;
-            }
-
-            if (TotalSize == 0)
-            {
-                return;
-            }
-
-            if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(FileList.First().Path)) is FileSystemStorageFolder NewFolder)
-            {
-                foreach (FileSystemStorageFile File in FileList)
-                {
-                    await ExtractGZipAsync(NewFolder, File, (s, e) =>
-                    {
-                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((e.ProgressPercentage * Convert.ToDouble(File.SizeRaw) + CurrentPosition * 100) / TotalSize), null));
-                    });
-
-                    CurrentPosition += File.SizeRaw;
-                }
+                await CreateBZip2Async(File, NewZipPath, ProgressHandler);
             }
             else
             {
-                throw new UnauthorizedAccessException();
+                throw new FileNotFoundException("Could not found the file path");
             }
         }
 
-        public static async Task CreateTarAsync(FileSystemStorageItemBase Source, string NewZipPath, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task CreateBZip2Async(FileSystemStorageFile Source, string NewZipPath, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (await FileSystemStorageItemBase.CreateAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
             {
-                using (FileStream NewFileStream = await NewFile.GetFileStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
-                using (TarOutputStream OutputTarStream = new TarOutputStream(NewFileStream, Encoding.UTF8))
+                using (FileStream SourceFileStream = await Source.GetFileStreamFromFileAsync(AccessMode.Read))
+                using (FileStream NewFileStream = await NewFile.GetFileStreamFromFileAsync(AccessMode.Exclusive))
+                using (BZip2OutputStream BZip2Stream = new BZip2OutputStream(NewFileStream))
                 {
-                    OutputTarStream.IsStreamOwner = false;
-
-                    switch (Source)
-                    {
-                        case FileSystemStorageFile File:
-                            {
-                                using (FileStream FileStream = await File.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
-                                {
-                                    TarEntry NewEntry = TarEntry.CreateTarEntry(File.Name);
-                                    NewEntry.ModTime = DateTime.Now;
-                                    NewEntry.Size = FileStream.Length;
-
-                                    OutputTarStream.PutNextEntry(NewEntry);
-
-                                    await FileStream.CopyToAsync(OutputTarStream, ProgressHandler).ConfigureAwait(false);
-                                }
-
-                                OutputTarStream.CloseEntry();
-
-                                break;
-                            }
-                        case FileSystemStorageFolder Folder:
-                            {
-                                await TarFolderCore(Folder, OutputTarStream, Folder.Name, ProgressHandler).ConfigureAwait(false);
-
-                                break;
-                            }
-                    }
-
-                    await OutputTarStream.FlushAsync().ConfigureAwait(false);
+                    BZip2Stream.IsStreamOwner = false;
+                    await SourceFileStream.CopyToAsync(BZip2Stream, ProgressHandler: ProgressHandler).ConfigureAwait(false);
                 }
             }
             else
@@ -734,19 +316,37 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task CreateTarAsync(string Source, string NewZipPath, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task ExtractBZip2Async(string Source, string NewZipPath, ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (await FileSystemStorageItemBase.OpenAsync(Source) is FileSystemStorageItemBase Item)
+            if (await FileSystemStorageItemBase.OpenAsync(Source) is FileSystemStorageFile File)
             {
-                await CreateTarAsync(Item, NewZipPath, ProgressHandler);
+                await ExtractBZip2Async(File, NewZipPath, ProgressHandler);
             }
             else
             {
-                throw new FileNotFoundException("Could not found the file or path is a directory");
+                throw new FileNotFoundException("Could not found the file path");
             }
         }
 
-        public static async Task CreateTarAsync(IEnumerable<string> SourceItemGroup, string NewZipPath, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task ExtractBZip2Async(FileSystemStorageFile Source, string NewFilePath, ProgressChangedEventHandler ProgressHandler = null)
+        {
+            if (await FileSystemStorageItemBase.CreateAsync(NewFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
+            {
+                using (FileStream SourceFileStream = await Source.GetFileStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
+                using (FileStream NewFileStrem = await NewFile.GetFileStreamFromFileAsync(AccessMode.Write))
+                using (BZip2InputStream BZip2Stream = new BZip2InputStream(SourceFileStream))
+                {
+                    BZip2Stream.IsStreamOwner = false;
+                    await BZip2Stream.CopyToAsync(NewFileStrem, ProgressHandler: ProgressHandler).ConfigureAwait(false);
+                }
+            }
+            else
+            {
+                throw new UnauthorizedAccessException();
+            }
+        }
+
+        public static async Task CreateTarAsync(IEnumerable<string> SourceItemGroup, string NewZipPath, CompressionLevel Level, CompressionAlgorithm Algorithm, ProgressChangedEventHandler ProgressHandler = null)
         {
             List<FileSystemStorageItemBase> TransformList = new List<FileSystemStorageItemBase>();
 
@@ -762,92 +362,106 @@ namespace RX_Explorer.Class
                 }
             }
 
-            await CreateTarAsync(TransformList, NewZipPath, ProgressHandler);
+            switch (Algorithm)
+            {
+                case CompressionAlgorithm.None:
+                    {
+                        await CreateTarAsync(TransformList, NewZipPath, ProgressHandler);
+                        break;
+                    }
+                case CompressionAlgorithm.GZip:
+                    {
+                        await CreateTarGzipAsync(TransformList, NewZipPath, Level, ProgressHandler);
+                        break;
+                    }
+                case CompressionAlgorithm.BZip2:
+                    {
+                        await CreateTarBzip2Async(TransformList, NewZipPath, ProgressHandler);
+                        break;
+                    }
+            }
         }
 
-        public static async Task CreateTarAsync(IEnumerable<FileSystemStorageItemBase> SourceItemGroup, string NewZipPath, ProgressChangedEventHandler ProgressHandler = null)
+        private static async Task CreateTarBzip2Async(IEnumerable<FileSystemStorageItemBase> SourceItemGroup, string NewZipPath, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (await FileSystemStorageItemBase.CreateAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
             {
                 ulong TotalSize = 0;
                 ulong CurrentPosition = 0;
 
-                using (FileStream NewFileStream = await NewFile.GetFileStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
-                using (TarOutputStream OutputTarStream = new TarOutputStream(NewFileStream, EncodingSetting))
+                foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
                 {
-                    OutputTarStream.IsStreamOwner = false;
-
-                    foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
+                    switch (StorageItem)
                     {
-                        switch (StorageItem)
-                        {
-                            case FileSystemStorageFile File:
-                                {
-                                    TotalSize += File.SizeRaw;
-                                    break;
-                                }
-                            case FileSystemStorageFolder Folder:
-                                {
-                                    TotalSize += await Folder.GetFolderSizeAsync().ConfigureAwait(false);
-                                    break;
-                                }
-                        }
+                        case FileSystemStorageFile File:
+                            {
+                                TotalSize += File.SizeRaw;
+                                break;
+                            }
+                        case FileSystemStorageFolder Folder:
+                            {
+                                TotalSize += await Folder.GetFolderSizeAsync().ConfigureAwait(false);
+                                break;
+                            }
                     }
+                }
 
-                    foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
+                if (TotalSize > 0)
+                {
+                    using (FileStream NewFileStream = await NewFile.GetFileStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
+                    using (BZip2OutputStream OutputBZip2Stream = new BZip2OutputStream(NewFileStream))
+                    using (TarOutputStream OutputTarStream = new TarOutputStream(OutputBZip2Stream, EncodingSetting))
                     {
-                        switch (StorageItem)
+                        OutputBZip2Stream.IsStreamOwner = false;
+                        OutputTarStream.IsStreamOwner = false;
+
+                        foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
                         {
-                            case FileSystemStorageFile File:
-                                {
-                                    using (FileStream FileStream = await File.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
+                            switch (StorageItem)
+                            {
+                                case FileSystemStorageFile File:
                                     {
-                                        TarEntry NewEntry = TarEntry.CreateTarEntry(File.Name);
-                                        NewEntry.ModTime = DateTime.Now;
-                                        NewEntry.Size = FileStream.Length;
-
-                                        OutputTarStream.PutNextEntry(NewEntry);
-
-                                        await FileStream.CopyToAsync(OutputTarStream, (s, e) =>
+                                        using (FileStream FileStream = await File.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
                                         {
-                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.SizeRaw)) * 100d / TotalSize), null));
-                                        }).ConfigureAwait(false);
-                                    }
+                                            TarEntry NewEntry = TarEntry.CreateTarEntry(File.Name);
+                                            NewEntry.ModTime = DateTime.Now;
+                                            NewEntry.Size = FileStream.Length;
 
-                                    OutputTarStream.CloseEntry();
+                                            OutputTarStream.PutNextEntry(NewEntry);
 
-                                    if (TotalSize > 0)
-                                    {
+                                            await FileStream.CopyToAsync(OutputTarStream, ProgressHandler: (s, e) =>
+                                            {
+                                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.SizeRaw)) * 100d / TotalSize), null));
+                                            }).ConfigureAwait(false);
+                                        }
+
+                                        OutputTarStream.CloseEntry();
+
                                         CurrentPosition += File.SizeRaw;
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
+
+                                        break;
                                     }
-
-                                    break;
-                                }
-                            case FileSystemStorageFolder Folder:
-                                {
-                                    ulong InnerFolderSize = await Folder.GetFolderSizeAsync().ConfigureAwait(false);
-
-                                    await TarFolderCore(Folder, OutputTarStream, Folder.Name, (s, e) =>
+                                case FileSystemStorageFolder Folder:
                                     {
-                                        if (TotalSize > 0)
+                                        ulong InnerFolderSize = 0;
+
+                                        await TarFolderCore(Folder, OutputTarStream, Folder.Name, (ByteRead) =>
                                         {
-                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFolderSize)) * 100d / TotalSize), null));
-                                        }
-                                    }).ConfigureAwait(false);
+                                            InnerFolderSize = ByteRead;
+                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + ByteRead) * 100d / TotalSize), null));
+                                        }).ConfigureAwait(false);
 
-                                    if (TotalSize > 0)
-                                    {
                                         CurrentPosition += InnerFolderSize;
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
+
+                                        break;
                                     }
-
-                                    break;
-                                }
+                            }
                         }
-                    }
 
-                    await OutputTarStream.FlushAsync().ConfigureAwait(false);
+                        await OutputTarStream.FlushAsync().ConfigureAwait(false);
+                    }
                 }
             }
             else
@@ -856,225 +470,187 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task ExtractTarAsync(string NewFolderPath, string FilePath, ProgressChangedEventHandler ProgressHandler = null)
+        private static async Task CreateTarGzipAsync(IEnumerable<FileSystemStorageItemBase> SourceItemGroup, string NewZipPath, CompressionLevel Level, ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (await FileSystemStorageItemBase.OpenAsync(NewFolderPath) is FileSystemStorageFolder Folder)
+            if (Level == CompressionLevel.Undefine)
             {
-                if (await FileSystemStorageItemBase.OpenAsync(FilePath) is FileSystemStorageFile File)
-                {
-                    await ExtractTarAsync(File, Folder, ProgressHandler);
-                }
-                else
-                {
-                    throw new FileNotFoundException("Could not found the file path");
-                }
+                throw new ArgumentException("Undefine is not allowed in this function", nameof(Level));
             }
-            else
+
+            if (await FileSystemStorageItemBase.CreateAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
             {
-                throw new FileNotFoundException("Could not found the folder path");
-            }
-        }
+                ulong TotalSize = 0;
+                ulong CurrentPosition = 0;
 
-        public static async Task ExtractTarAsync(FileSystemStorageFile File, FileSystemStorageFolder NewFolder, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            using (FileStream BaseStream = await File.GetFileStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
-            using (TarInputStream InputTarStream = new TarInputStream(BaseStream, EncodingSetting))
-            {
-                BaseStream.Seek(0, SeekOrigin.Begin);
-
-                InputTarStream.IsStreamOwner = false;
-
-                long CurrentPosition = 0;
-
-                while (InputTarStream.GetNextEntry() is TarEntry Entry)
+                foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
                 {
-                    if (Entry.Name.Contains("/"))
+                    switch (StorageItem)
                     {
-                        string[] SplitFolderPath = Entry.Name.Split('/', StringSplitOptions.RemoveEmptyEntries);
-
-                        string TempFolderPath = NewFolder.Path;
-
-                        for (int i = 0; i < SplitFolderPath.Length - 1; i++)
-                        {
-                            if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TempFolderPath, SplitFolderPath[i]), StorageItemTypes.Folder, CreateOption.OpenIfExist).ConfigureAwait(false) is FileSystemStorageFolder NextFolder)
+                        case FileSystemStorageFile File:
                             {
-                                TempFolderPath = NextFolder.Path;
+                                TotalSize += File.SizeRaw;
+                                break;
                             }
-                            else
+                        case FileSystemStorageFolder Folder:
                             {
-                                throw new UnauthorizedAccessException("Could not create directory");
+                                TotalSize += await Folder.GetFolderSizeAsync().ConfigureAwait(false);
+                                break;
                             }
-                        }
+                    }
+                }
 
-                        if (Entry.Name.Last() == '/')
+                if (TotalSize > 0)
+                {
+                    using (FileStream NewFileStream = await NewFile.GetFileStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
+                    using (GZipOutputStream OutputGzipStream = new GZipOutputStream(NewFileStream))
+                    using (TarOutputStream OutputTarStream = new TarOutputStream(OutputGzipStream, EncodingSetting))
+                    {
+                        OutputGzipStream.SetLevel((int)Level);
+                        OutputGzipStream.IsStreamOwner = false;
+                        OutputTarStream.IsStreamOwner = false;
+
+                        foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
                         {
-                            if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TempFolderPath, SplitFolderPath.Last()), StorageItemTypes.Folder, CreateOption.OpenIfExist).ConfigureAwait(false) == null)
+                            switch (StorageItem)
                             {
-                                throw new UnauthorizedAccessException("Could not create directory");
-                            }
-                        }
-                        else
-                        {
-                            if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(TempFolderPath, SplitFolderPath.Last()), StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
-                            {
-                                using (FileStream NewFileStream = await NewFile.GetFileStreamFromFileAsync(AccessMode.Write).ConfigureAwait(false))
-                                {
-                                    if (Entry.Size > 0)
+                                case FileSystemStorageFile File:
                                     {
-                                        await InputTarStream.CopyToAsync(NewFileStream, (s, e) =>
+                                        using (FileStream FileStream = await File.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
                                         {
-                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * Entry.Size)) * 100d / BaseStream.Length), null));
+                                            TarEntry NewEntry = TarEntry.CreateTarEntry(File.Name);
+                                            NewEntry.ModTime = DateTime.Now;
+                                            NewEntry.Size = FileStream.Length;
+
+                                            OutputTarStream.PutNextEntry(NewEntry);
+
+                                            await FileStream.CopyToAsync(OutputTarStream, ProgressHandler: (s, e) =>
+                                            {
+                                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.SizeRaw)) * 100d / TotalSize), null));
+                                            }).ConfigureAwait(false);
+                                        }
+
+                                        OutputTarStream.CloseEntry();
+
+                                        CurrentPosition += File.SizeRaw;
+                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
+
+                                        break;
+                                    }
+                                case FileSystemStorageFolder Folder:
+                                    {
+                                        ulong InnerFolderSize = 0;
+
+                                        await TarFolderCore(Folder, OutputTarStream, Folder.Name, (ByteRead) =>
+                                        {
+                                            InnerFolderSize = ByteRead;
+                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + ByteRead) * 100d / TotalSize), null));
                                         }).ConfigureAwait(false);
+
+                                        CurrentPosition += InnerFolderSize;
+                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
+
+                                        break;
                                     }
-                                    else
-                                    {
-                                        await InputTarStream.CopyToAsync(NewFileStream).ConfigureAwait(false);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                throw new UnauthorizedAccessException();
                             }
                         }
+
+                        await OutputTarStream.FlushAsync().ConfigureAwait(false);
                     }
-                    else
-                    {
-                        if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(NewFolder.Path, Entry.Name), StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
-                        {
-                            using (FileStream NewFileStream = await NewFile.GetFileStreamFromFileAsync(AccessMode.Write).ConfigureAwait(false))
-                            {
-                                if (Entry.Size > 0)
-                                {
-                                    await InputTarStream.CopyToAsync(NewFileStream, (s, e) =>
-                                    {
-                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToInt64(e.ProgressPercentage / 100d * Entry.Size)) * 100d / BaseStream.Length), null));
-                                    }).ConfigureAwait(false);
-                                }
-                                else
-                                {
-                                    await InputTarStream.CopyToAsync(NewFileStream).ConfigureAwait(false);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            throw new UnauthorizedAccessException();
-                        }
-                    }
-
-                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition = BaseStream.Position) * 100d / BaseStream.Length), null));
                 }
-            }
-        }
-
-        public static async Task ExtractTarAsync(IEnumerable<string> FileList, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            List<FileSystemStorageFile> TransformList = new List<FileSystemStorageFile>();
-
-            foreach (string Path in FileList)
-            {
-                if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFile File)
-                {
-                    TransformList.Add(File);
-                }
-                else
-                {
-                    throw new FileNotFoundException("Could not found the file or path is a directory");
-                }
-            }
-
-            await ExtractTarAsync(TransformList, ProgressHandler);
-        }
-
-        public static async Task ExtractTarAsync(IEnumerable<string> FileList, string NewFolderPath, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            List<FileSystemStorageFile> TransformList = new List<FileSystemStorageFile>();
-
-            foreach (string Path in FileList)
-            {
-                if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageFile File)
-                {
-                    TransformList.Add(File);
-                }
-                else
-                {
-                    throw new FileNotFoundException("Could not found the file or path is a directory");
-                }
-            }
-
-            if (await FileSystemStorageItemBase.OpenAsync(NewFolderPath) is FileSystemStorageFolder NewFolder)
-            {
-                await ExtractTarAsync(TransformList, NewFolder, ProgressHandler);
             }
             else
             {
-                throw new FileNotFoundException("Could not found the directory");
+                throw new UnauthorizedAccessException();
             }
         }
 
-        public static async Task ExtractTarAsync(IEnumerable<FileSystemStorageFile> FileList, FileSystemStorageFolder NewFolder, ProgressChangedEventHandler ProgressHandler = null)
+        private static async Task CreateTarAsync(IEnumerable<FileSystemStorageItemBase> SourceItemGroup, string NewZipPath, ProgressChangedEventHandler ProgressHandler = null)
         {
-            long TotalSize = 0;
-
-            foreach (FileSystemStorageFile File in FileList)
+            if (await FileSystemStorageItemBase.CreateAsync(NewZipPath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
             {
-                TotalSize += Convert.ToInt64(File.SizeRaw);
-            }
+                ulong TotalSize = 0;
+                ulong CurrentPosition = 0;
 
-            if (TotalSize == 0)
-            {
-                return;
-            }
-
-            long Step = 0;
-
-            foreach (FileSystemStorageFile File in FileList)
-            {
-                await ExtractTarAsync(File, NewFolder, (s, e) =>
+                foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
                 {
-                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((e.ProgressPercentage * Convert.ToDouble(File.SizeRaw) + Step * 100) / TotalSize), null));
-                });
-
-                Step += Convert.ToInt64(File.SizeRaw);
-            }
-        }
-
-        public static async Task ExtractTarAsync(IEnumerable<FileSystemStorageFile> FileList, ProgressChangedEventHandler ProgressHandler = null)
-        {
-            long TotalSize = 0;
-
-            foreach (FileSystemStorageFile File in FileList)
-            {
-                TotalSize += Convert.ToInt64(File.SizeRaw);
-            }
-
-            if (TotalSize == 0)
-            {
-                return;
-            }
-
-            long Step = 0;
-
-            foreach (FileSystemStorageFile File in FileList)
-            {
-                if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(Path.GetDirectoryName(File.Path), Path.GetFileNameWithoutExtension(File.Name)), StorageItemTypes.Folder, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFolder NewFolder)
-                {
-                    await ExtractTarAsync(File, NewFolder, (s, e) =>
+                    switch (StorageItem)
                     {
-                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((e.ProgressPercentage * Convert.ToDouble(File.SizeRaw) + Step * 100) / TotalSize), null));
-                    });
+                        case FileSystemStorageFile File:
+                            {
+                                TotalSize += File.SizeRaw;
+                                break;
+                            }
+                        case FileSystemStorageFolder Folder:
+                            {
+                                TotalSize += await Folder.GetFolderSizeAsync().ConfigureAwait(false);
+                                break;
+                            }
+                    }
+                }
 
-                    Step += Convert.ToInt64(File.SizeRaw);
-                }
-                else
+                if (TotalSize > 0)
                 {
-                    throw new UnauthorizedAccessException();
+                    using (FileStream NewFileStream = await NewFile.GetFileStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
+                    using (TarOutputStream OutputTarStream = new TarOutputStream(NewFileStream, EncodingSetting))
+                    {
+                        OutputTarStream.IsStreamOwner = false;
+
+                        foreach (FileSystemStorageItemBase StorageItem in SourceItemGroup)
+                        {
+                            switch (StorageItem)
+                            {
+                                case FileSystemStorageFile File:
+                                    {
+                                        using (FileStream FileStream = await File.GetFileStreamFromFileAsync(AccessMode.Read).ConfigureAwait(false))
+                                        {
+                                            TarEntry NewEntry = TarEntry.CreateTarEntry(File.Name);
+                                            NewEntry.ModTime = DateTime.Now;
+                                            NewEntry.Size = FileStream.Length;
+
+                                            OutputTarStream.PutNextEntry(NewEntry);
+
+                                            await FileStream.CopyToAsync(OutputTarStream, ProgressHandler: (s, e) =>
+                                            {
+                                                ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.SizeRaw)) * 100d / TotalSize), null));
+                                            }).ConfigureAwait(false);
+                                        }
+
+                                        OutputTarStream.CloseEntry();
+
+                                        CurrentPosition += File.SizeRaw;
+                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
+
+                                        break;
+                                    }
+                                case FileSystemStorageFolder Folder:
+                                    {
+                                        ulong InnerFolderSize = 0;
+
+                                        await TarFolderCore(Folder, OutputTarStream, Folder.Name, (ByteRead) =>
+                                        {
+                                            InnerFolderSize = ByteRead;
+                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + ByteRead) * 100d / TotalSize), null));
+                                        }).ConfigureAwait(false);
+
+                                        CurrentPosition += InnerFolderSize;
+                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
+
+                                        break;
+                                    }
+                            }
+                        }
+
+                        await OutputTarStream.FlushAsync().ConfigureAwait(false);
+                    }
                 }
+            }
+            else
+            {
+                throw new UnauthorizedAccessException();
             }
         }
 
-        private static async Task TarFolderCore(FileSystemStorageFolder Folder, TarOutputStream OutputStream, string BaseFolderName, ProgressChangedEventHandler ProgressHandler = null)
+        private static async Task TarFolderCore(FileSystemStorageFolder Folder, TarOutputStream OutputStream, string BaseFolderName, ByteReadChangedEventHandler ByteReadHandler = null)
         {
             List<FileSystemStorageItemBase> ItemList = await Folder.GetChildItemsAsync(true, true).ConfigureAwait(false);
 
@@ -1089,7 +665,6 @@ namespace RX_Explorer.Class
             }
             else
             {
-                ulong TotalSize = await Folder.GetFolderSizeAsync().ConfigureAwait(false);
                 ulong CurrentPosition = 0;
 
                 foreach (FileSystemStorageItemBase Item in ItemList)
@@ -1098,21 +673,15 @@ namespace RX_Explorer.Class
                     {
                         case FileSystemStorageFolder InnerFolder:
                             {
-                                ulong InnerFolderSize = await InnerFolder.GetFolderSizeAsync().ConfigureAwait(false);
+                                ulong InnerFolderSize = 0;
 
-                                await TarFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{InnerFolder.Name}", ProgressHandler: (s, e) =>
+                                await TarFolderCore(InnerFolder, OutputStream, $"{BaseFolderName}/{InnerFolder.Name}", ByteReadHandler: (ByteRead) =>
                                 {
-                                    if (TotalSize > 0)
-                                    {
-                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFolderSize)) * 100d / TotalSize), null));
-                                    }
+                                    InnerFolderSize = ByteRead;
+                                    ByteReadHandler?.Invoke(CurrentPosition + ByteRead);
                                 }).ConfigureAwait(false);
 
-                                if (TotalSize > 0)
-                                {
-                                    CurrentPosition += InnerFolderSize;
-                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
-                                }
+                                ByteReadHandler?.Invoke(CurrentPosition += InnerFolderSize);
 
                                 break;
                             }
@@ -1126,24 +695,184 @@ namespace RX_Explorer.Class
 
                                     OutputStream.PutNextEntry(NewEntry);
 
-                                    await FileStream.CopyToAsync(OutputStream, (s, e) =>
+                                    await FileStream.CopyToAsync(OutputStream, ProgressHandler: (s, e) =>
                                     {
-                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFile.SizeRaw)) * 100d / TotalSize), null));
+                                        ByteReadHandler?.Invoke(CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * InnerFile.SizeRaw));
                                     }).ConfigureAwait(false);
                                 }
 
                                 OutputStream.CloseEntry();
 
-                                if (TotalSize > 0)
-                                {
-                                    CurrentPosition += InnerFile.SizeRaw;
-                                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
-                                }
+                                ByteReadHandler?.Invoke(CurrentPosition += InnerFile.SizeRaw);
 
                                 break;
                             }
                     }
                 }
+            }
+        }
+
+        public static async Task ExtractAllAsync(IEnumerable<string> SourceItemGroup, string BaseDestPath, bool CreateFolder, ProgressChangedEventHandler ProgressHandler)
+        {
+            ulong TotalSize = 0;
+            ulong CurrentPosition = 0;
+
+            List<FileSystemStorageFile> TransformList = new List<FileSystemStorageFile>();
+
+            foreach (string FileItem in SourceItemGroup)
+            {
+                if (await FileSystemStorageItemBase.OpenAsync(FileItem).ConfigureAwait(false) is FileSystemStorageFile File)
+                {
+                    TransformList.Add(File);
+                    TotalSize += File.SizeRaw;
+                }
+                else
+                {
+                    throw new FileNotFoundException("Could not found the file or path is a directory");
+                }
+            }
+
+            if (TotalSize == 0)
+            {
+                return;
+            }
+
+            foreach (FileSystemStorageFile File in TransformList)
+            {
+                string DestPath = BaseDestPath;
+
+                //如果解压到独立文件夹,则要额外创建目录
+                if (CreateFolder)
+                {
+                    string NewFolderName = File.Name.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                        ? File.Name.Substring(0, File.Name.Length - 7)
+                                                        : (File.Name.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                                                        ? File.Name.Substring(0, File.Name.Length - 8)
+                                                                        : Path.GetFileNameWithoutExtension(File.Name));
+
+                    if (string.IsNullOrEmpty(NewFolderName))
+                    {
+                        NewFolderName = Globalization.GetString("Operate_Text_CreateFolder");
+                    }
+
+                    DestPath = await MakeSureCreateFolderHelperAsync(Path.Combine(BaseDestPath, NewFolderName));
+                }
+
+                if (File.Name.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) && !File.Name.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase))
+                {
+                    await ExtractGZipAsync(File, Path.Combine(DestPath, Path.GetFileNameWithoutExtension(File.Name)), (s, e) =>
+                    {
+                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.SizeRaw)) * 100d / TotalSize), null));
+                    });
+
+                    CurrentPosition += Convert.ToUInt64(File.SizeRaw);
+                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
+                }
+                else if (File.Name.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase) && !File.Name.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase))
+                {
+                    await ExtractBZip2Async(File, Path.Combine(DestPath, Path.GetFileNameWithoutExtension(File.Name)), (s, e) =>
+                    {
+                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.SizeRaw)) * 100d / TotalSize), null));
+                    });
+
+                    CurrentPosition += Convert.ToUInt64(File.SizeRaw);
+                    ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
+                }
+                else
+                {
+                    ReaderOptions ReadOptions = new ReaderOptions();
+                    ReadOptions.ArchiveEncoding.Default = EncodingSetting;
+
+                    using (FileStream InputStream = await File.GetFileStreamFromFileAsync(AccessMode.Read))
+                    using (IReader Reader = ReaderFactory.Open(InputStream, ReadOptions))
+                    {
+                        Dictionary<string, string> DirectoryMap = new Dictionary<string, string>();
+
+                        while (Reader.MoveToNextEntry())
+                        {
+                            if (Reader.Entry.IsDirectory)
+                            {
+                                string DirectoryPath = Path.Combine(DestPath, Reader.Entry.Key.Replace("/", @"\").TrimEnd('\\'));
+                                string NewDirectoryPath = await MakeSureCreateFolderHelperAsync(DirectoryPath);
+
+                                if (!DirectoryPath.Equals(NewDirectoryPath, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    DirectoryMap.Add(DirectoryPath, NewDirectoryPath);
+                                }
+                            }
+                            else
+                            {
+                                string[] PathList = (Reader.Entry.Key?.Split("/")) ?? Array.Empty<string>();
+
+                                string LastFolder = DestPath;
+
+                                for (int i = 0; i < PathList.Length - 1; i++)
+                                {
+                                    LastFolder = Path.Combine(LastFolder, PathList[i]);
+
+                                    if (DirectoryMap.ContainsKey(LastFolder))
+                                    {
+                                        LastFolder = DirectoryMap[LastFolder];
+                                    }
+
+                                    string NewDirectoryPath = await MakeSureCreateFolderHelperAsync(LastFolder);
+
+                                    if (!LastFolder.Equals(NewDirectoryPath, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        DirectoryMap.Add(LastFolder, NewDirectoryPath);
+                                        LastFolder = NewDirectoryPath;
+                                    }
+                                }
+
+                                string DestFileName = Path.Combine(LastFolder, PathList.LastOrDefault() ?? Path.GetFileNameWithoutExtension(File.Name));
+
+                                if (await FileSystemStorageItemBase.CreateAsync(DestFileName, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
+                                {
+                                    using (FileStream OutputStream = await NewFile.GetFileStreamFromFileAsync(AccessMode.Write))
+                                    using (EntryStream EntryStream = Reader.OpenEntryStream())
+                                    {
+                                        await EntryStream.CopyToAsync(OutputStream, Reader.Entry.Size, (s, e) =>
+                                        {
+                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.SizeRaw)) * 100d / TotalSize), null));
+                                        });
+
+                                        CurrentPosition += Convert.ToUInt64(File.SizeRaw);
+                                        ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static async Task<string> MakeSureCreateFolderHelperAsync(string Path)
+        {
+            switch (await FileSystemStorageItemBase.OpenAsync(Path))
+            {
+                case FileSystemStorageFile:
+                    {
+                        if (await FileSystemStorageItemBase.CreateAsync(Path, StorageItemTypes.Folder, CreateOption.GenerateUniqueName) is FileSystemStorageFolder NewFolder)
+                        {
+                            return NewFolder.Path;
+                        }
+                        else
+                        {
+                            throw new UnauthorizedAccessException();
+                        }
+                    }
+                default:
+                    {
+                        if (await FileSystemStorageItemBase.CreateAsync(Path, StorageItemTypes.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder)
+                        {
+                            return Path;
+                        }
+                        else
+                        {
+                            throw new UnauthorizedAccessException();
+                        }
+                    }
             }
         }
 

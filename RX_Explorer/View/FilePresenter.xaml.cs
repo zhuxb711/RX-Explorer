@@ -1706,7 +1706,7 @@ namespace RX_Explorer
 
                 if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
-                    QueueTaskController.EnqueueCompressionOpeartion(Dialog.Type, Dialog.Level, File.Path, Path.Combine(CurrentFolder.Path, Dialog.FileName));
+                    QueueTaskController.EnqueueCompressionOpeartion(Dialog.Type, Dialog.Algorithm, Dialog.Level, File.Path, Path.Combine(CurrentFolder.Path, Dialog.FileName));
                 }
             }
         }
@@ -1717,51 +1717,31 @@ namespace RX_Explorer
 
             if (SelectedItem is FileSystemStorageFile File)
             {
-                switch (File.Type.ToLower())
+                if (File.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+                    || File.Name.EndsWith(".tar", StringComparison.OrdinalIgnoreCase)
+                    || File.Name.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                    || File.Name.EndsWith(".tgz", StringComparison.OrdinalIgnoreCase)
+                    || File.Name.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                    || File.Name.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
+                    || File.Name.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase)
+                    || File.Name.EndsWith(".rar", StringComparison.OrdinalIgnoreCase))
+
                 {
-                    case ".zip":
-                    case ".tar":
-                    case ".gz":
+                    QueueTaskController.EnqueueDecompressionOpeartion(File.Path, CurrentFolder.Path, (sender as FrameworkElement)?.Name == "DecompressionOption2");
+                }
+                else
+                {
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
                         {
-                            FileSystemStorageFolder TargetFolder = ((sender as FrameworkElement)?.Name == "DecompressionOption2")
-                                                                    ? await FileSystemStorageItemBase.CreateAsync(Path.Combine(Path.GetDirectoryName(File.Path), Path.GetFileNameWithoutExtension(File.Name)), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) as FileSystemStorageFolder
-                                                                    : CurrentFolder;
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_FileTypeIncorrect_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
 
-                            if (TargetFolder == null)
-                            {
-                                QueueContentDialog dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"),
-                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                                };
+                        await dialog.ShowAsync();
 
-                                if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                                {
-                                    _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                                }
-                            }
-                            else
-                            {
-                                QueueTaskController.EnqueueDecompressionOpeartion(File.Path, TargetFolder.Path);
-                            }
-
-                            break;
-                        }
-                    default:
-                        {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_FileTypeIncorrect_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-
-                            await dialog.ShowAsync();
-
-                            break;
-                        }
+                    }
                 }
             }
         }
@@ -2868,7 +2848,7 @@ namespace RX_Explorer
 
                 if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
-                    QueueTaskController.EnqueueCompressionOpeartion(dialog.Type, dialog.Level, Folder.Path, Path.Combine(CurrentFolder.Path, dialog.FileName));
+                    QueueTaskController.EnqueueCompressionOpeartion(dialog.Type, dialog.Algorithm, dialog.Level, Folder.Path, Path.Combine(CurrentFolder.Path, dialog.FileName));
                 }
             }
         }
@@ -3506,11 +3486,16 @@ namespace RX_Explorer
                 return;
             }
 
-            if (SelectedItems.All((Item) => Item.Type.Equals(".zip", StringComparison.OrdinalIgnoreCase))
-                || SelectedItems.All((Item) => Item.Type.Equals(".tar", StringComparison.OrdinalIgnoreCase))
-                || SelectedItems.All((Item) => Item.Type.Equals(".gz", StringComparison.OrdinalIgnoreCase)))
+            if (SelectedItems.All((Item) => Item.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Name.EndsWith(".tar", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Name.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Name.EndsWith(".tgz", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Name.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Name.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Name.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Name.EndsWith(".rar", StringComparison.OrdinalIgnoreCase)))
             {
-                QueueTaskController.EnqueueDecompressionOpeartion(SelectedItems.Select((Item) => Item.Path));
+                QueueTaskController.EnqueueDecompressionOpeartion(SelectedItems.Select((Item) => Item.Path), CurrentFolder.Path, (sender as FrameworkElement)?.Name == "MixDecompressIndie");
             }
             else
             {
@@ -3547,7 +3532,7 @@ namespace RX_Explorer
 
             if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
             {
-                QueueTaskController.EnqueueCompressionOpeartion(Dialog.Type, Dialog.Level, SelectedItems.Select((Item) => Item.Path), Path.Combine(CurrentFolder.Path, Dialog.FileName));
+                QueueTaskController.EnqueueCompressionOpeartion(Dialog.Type, Dialog.Algorithm, Dialog.Level, SelectedItems.Select((Item) => Item.Path), Path.Combine(CurrentFolder.Path, Dialog.FileName));
             }
         }
 
@@ -4174,7 +4159,23 @@ namespace RX_Explorer
 
         private void DecompressionOptionFlyout_Opening(object sender, object e)
         {
-            DecompressionOption2.Text = $"{Globalization.GetString("DecompressTo")} \"{Path.GetFileNameWithoutExtension(SelectedItem.Path)}\\\"";
+            string DecompressionFolderName = SelectedItem.Name.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                                ? SelectedItem.Name.Substring(0, SelectedItem.Name.Length - 7)
+                                                                : (SelectedItem.Name.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                                                                        ? SelectedItem.Name.Substring(0, SelectedItem.Name.Length - 8)
+                                                                                        : Path.GetFileNameWithoutExtension(SelectedItem.Name));
+
+            if (string.IsNullOrEmpty(DecompressionFolderName))
+            {
+                DecompressionFolderName = Globalization.GetString("Operate_Text_CreateFolder");
+            }
+
+            DecompressionOption2.Text = $"{Globalization.GetString("DecompressTo")} \"{DecompressionFolderName}\\\"";
+            
+            ToolTipService.SetToolTip(DecompressionOption2, new ToolTip
+            {
+                Content = DecompressionOption2.Text
+            });
         }
 
         private async void DecompressOption_Click(object sender, RoutedEventArgs e)
@@ -4197,56 +4198,109 @@ namespace RX_Explorer
                     return;
                 }
 
-                switch (File.Type.ToLower())
+
+                if (SelectedItems.All((Item) => Item.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Name.EndsWith(".tar", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Name.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Name.EndsWith(".tgz", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Name.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Name.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Name.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
+                                                || Item.Name.EndsWith(".rar", StringComparison.OrdinalIgnoreCase)))
                 {
-                    case ".zip":
-                    case ".tar":
-                    case ".gz":
-                        {
-                            DecompressDialog Dialog = new DecompressDialog(Path.GetDirectoryName(File.Path));
+                    DecompressDialog Dialog = new DecompressDialog(Path.GetDirectoryName(File.Path));
 
-                            if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
-                            {
-                                FileSystemStorageFolder TargetFolder = await FileSystemStorageItemBase.CreateAsync(Path.Combine(Dialog.ExtractLocation, Path.GetFileNameWithoutExtension(File.Name)), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) as FileSystemStorageFolder;
+                    if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        FileSystemStorageFolder TargetFolder = await FileSystemStorageItemBase.CreateAsync(Path.Combine(Dialog.ExtractLocation, File.Name.Split(".")[0]), StorageItemTypes.Folder, CreateOption.GenerateUniqueName) as FileSystemStorageFolder;
 
-                                if (TargetFolder == null)
-                                {
-                                    QueueContentDialog dialog = new QueueContentDialog
-                                    {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"),
-                                        PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
-                                    };
-
-                                    if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                                    {
-                                        _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                                    }
-                                }
-                                else
-                                {
-                                    QueueTaskController.EnqueueDecompressionOpeartion(File.Path, TargetFolder.Path, Dialog.CurrentEncoding);
-                                }
-                            }
-
-                            break;
-                        }
-                    default:
+                        if (TargetFolder == null)
                         {
                             QueueContentDialog dialog = new QueueContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_FileTypeIncorrect_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                Content = Globalization.GetString("QueueDialog_UnauthorizedDecompression_Content"),
+                                PrimaryButtonText = Globalization.GetString("Common_Dialog_NowButton"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_LaterButton")
                             };
 
-                            await dialog.ShowAsync();
-
-                            break;
+                            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                            {
+                                _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
+                            }
                         }
+                        else
+                        {
+                            QueueTaskController.EnqueueDecompressionOpeartion(File.Path, TargetFolder.Path, false, Dialog.CurrentEncoding);
+                        }
+                    }
+                }
+                else
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_FileTypeIncorrect_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await dialog.ShowAsync();
                 }
             }
+        }
+
+        private async void MixDecompressOption_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            if (SelectedItems.Any((Item) => Item is LinkStorageFile))
+            {
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_LinkIsNotAllowInMixZip_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                _ = await Dialog.ShowAsync();
+
+                return;
+            }
+
+
+            if (SelectedItems.All((Item) => Item.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Name.EndsWith(".tar", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Name.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Name.EndsWith(".tgz", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Name.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Name.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Name.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
+                                            || Item.Name.EndsWith(".rar", StringComparison.OrdinalIgnoreCase)))
+            {
+                DecompressDialog Dialog = new DecompressDialog(CurrentFolder.Path);
+
+                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                {
+                    QueueTaskController.EnqueueDecompressionOpeartion(SelectedItems.Select((Item) => Item.Path), Dialog.ExtractLocation, true, Dialog.CurrentEncoding);
+                }
+
+
+            }
+            else
+            {
+                QueueContentDialog dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_FileTypeIncorrect_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                await dialog.ShowAsync();
+
+
+            }
+
+
         }
 
         private async void UnTag_Click(object sender, RoutedEventArgs e)

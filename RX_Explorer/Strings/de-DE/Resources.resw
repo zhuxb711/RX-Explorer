@@ -2167,9 +2167,6 @@ Inkorrekte Namen sind
   <data name="QueueDialog_BingDownloadError_Content" xml:space="preserve">
     <value>Bin-Foto konnte nicht heruntergeladen werden</value>
   </data>
-  <data name="QueueDialog_CanNotDecompressEncrypted_Content" xml:space="preserve">
-    <value>Verschlüsselte komprimierte Datei konnte nicht dekomprimiert werden</value>
-  </data>
   <data name="ExportLog.Content" xml:space="preserve">
     <value>Fehlerverlauf speichern</value>
   </data>

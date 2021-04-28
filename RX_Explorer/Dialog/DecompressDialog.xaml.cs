@@ -75,7 +75,14 @@ namespace RX_Explorer.Dialog
                 }
                 else if (await FileSystemStorageItemBase.OpenAsync(ExtractLocation) is not FileSystemStorageFolder)
                 {
-                    args.Cancel = true;
+                    if(await FileSystemStorageItemBase.CheckExistAsync(ExtractLocation) == false)
+                    {
+                        await FileSystemStorageItemBase.CreateAsync(ExtractLocation,StorageItemTypes.Folder,CreateOption.OpenIfExist).ConfigureAwait(false);
+                    }
+                    else 
+                    { 
+                        args.Cancel = true;
+                    }
                 }
             }
             catch(Exception ex)
