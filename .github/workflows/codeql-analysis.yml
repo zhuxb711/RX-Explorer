@@ -17,8 +17,6 @@ on:
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ master ]
-  schedule:
-    - cron: '38 4 * * 4'
 
 jobs:
   analyze:
@@ -69,9 +67,9 @@ jobs:
     - name: "Restore NuGets"
       run: nuget restore -LockedMode RX_Explorer.sln
 
-    - name: "Perform Project Build"
+    - name: "Run Debug X64 Build"
       run: |
-        msbuild **/*.sln -nologo -m -t:Package:Rebuild -p:AppxBundlePlatforms=x64 -p:AppxBundle=Always -p:AppxBundlePlatforms=x64 -p:Configuration=Debug
+        msbuild "*.sln" -nologo -nr:false -m -t:"Clean" -t:Package:Rebuild -p:AppxBundlePlatforms="x64" -p:AppxBundle=Always -p:AppxBundlePlatforms=x64 -p:Configuration=Debug
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
