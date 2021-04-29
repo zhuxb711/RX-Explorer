@@ -48,28 +48,6 @@ jobs:
         # By default, queries listed here will override any specified in a config file.
         # Prefix the list here with "+" to use these queries and those in the config file.
         # queries: ./path/to/local/query, your-org/your-repo/queries@main
-    - name: "Set NuGet Tool Version"
-      uses: nuget/setup-nuget@v1
-      with:
-        nuget-version: '5.x'
-
-    - name: "Using MSBuild"
-      uses: microsoft/setup-msbuild@v1
-
-    - name: "Checking NuGet Cache"
-      uses: actions/cache@v2
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/Package/Package.appxmanifest') }}
-        restore-keys: |
-            ${{ runner.os }}-nuget-
-    
-    - name: "Restore NuGets"
-      run: nuget restore -LockedMode RX_Explorer.sln
-
-    - name: "Run Debug X64 Build"
-      run: |
-        msbuild "*.sln" -nologo -nr:false -m -t:"Clean" -t:Package:Rebuild -p:AppxBundlePlatforms="x64" -p:AppxBundle=Always -p:AppxBundlePlatforms=x64 -p:Configuration=Debug
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
