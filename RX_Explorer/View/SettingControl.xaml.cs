@@ -858,17 +858,20 @@ namespace RX_Explorer
 
             try
             {
-                await foreach (FeedBackItem FeedBackItem in MySQL.Current.GetAllFeedBackAsync())
+                using (MySQL SQL = new MySQL())
                 {
-                    if (FeedBackCollection.Count == 0)
+                    await foreach (FeedBackItem FeedBackItem in SQL.GetAllFeedBackAsync())
                     {
+                        if (FeedBackCollection.Count == 0)
+                        {
 
-                        EmptyFeedBackArea.Visibility = Visibility.Collapsed;
-                        SubmitIssueOnGithub.Visibility = Visibility.Collapsed;
-                        FeedBackList.Visibility = Visibility.Visible;
+                            EmptyFeedBackArea.Visibility = Visibility.Collapsed;
+                            SubmitIssueOnGithub.Visibility = Visibility.Collapsed;
+                            FeedBackList.Visibility = Visibility.Visible;
+                        }
+
+                        FeedBackCollection.Add(FeedBackItem);
                     }
-
-                    FeedBackCollection.Add(FeedBackItem);
                 }
             }
             catch (Exception ex)
@@ -915,8 +918,6 @@ namespace RX_Explorer
                     try
                     {
                         SQLite.Current.Dispose();
-                        MySQL.Current.Dispose();
-
                         await ApplicationData.Current.ClearAsync();
                     }
                     catch (Exception ex)
@@ -966,7 +967,6 @@ namespace RX_Explorer
                             try
                             {
                                 SQLite.Current.Dispose();
-                                MySQL.Current.Dispose();
 
                                 await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Local);
                                 await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Temporary);
@@ -1275,46 +1275,39 @@ namespace RX_Explorer
 
         private async void AddFeedBack_Click(object sender, RoutedEventArgs e)
         {
-            FeedBackDialog Dialog = new FeedBackDialog();
+            string Title = string.Empty;
+            string Suggestion = string.Empty;
+
+            Retry:
+            FeedBackDialog Dialog;
+
+            if (string.IsNullOrEmpty(Title) && string.IsNullOrEmpty(Suggestion))
+            {
+                Dialog = new FeedBackDialog();
+            }
+            else
+            {
+                Dialog = new FeedBackDialog(Title, Suggestion);
+            }
+
             if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
             {
-                if (FeedBackCollection.Count != 0)
+                if (FeedBackCollection.Any((It) => It.UserName == UserName && It.Suggestion == Dialog.Suggestion && It.Title == Dialog.TitleName))
                 {
-                    if (FeedBackCollection.FirstOrDefault((It) => It.UserName == UserName && It.Suggestion == Dialog.FeedBack && It.Title == Dialog.TitleName) == null)
+                    return;
+                }
+
+                FeedBackItem Item = new FeedBackItem(UserName, Dialog.TitleName, Dialog.Suggestion, "0", "0", UserID, Guid.NewGuid().ToString("D"));
+
+                using (MySQL SQL = new MySQL())
+                {
+                    if (await SQL.SetFeedBackAsync(Item))
                     {
-                        FeedBackItem Item = new FeedBackItem(UserName, Dialog.TitleName, Dialog.FeedBack, "0", "0", UserID, Guid.NewGuid().ToString("D"));
-                        if (await MySQL.Current.SetFeedBackAsync(Item))
-                        {
-                            FeedBackCollection.Add(Item);
-                            await Task.Delay(1000);
-                            FeedBackList.ScrollIntoViewSmoothly(FeedBackCollection.Last());
-                        }
-                        else
-                        {
-                            QueueContentDialog dialog = new QueueContentDialog
-                            {
-                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                Content = Globalization.GetString("QueueDialog_FeedBackNetworkError_Content"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                            };
-                            _ = await dialog.ShowAsync();
-                        }
+                        FeedBackCollection.Add(Item);
+                        await Task.Delay(1000);
+                        FeedBackList.ScrollIntoViewSmoothly(FeedBackCollection.Last());
                     }
                     else
-                    {
-                        QueueContentDialog TipsDialog = new QueueContentDialog
-                        {
-                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                            Content = Globalization.GetString("QueueDialog_FeedBackRepeatError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await TipsDialog.ShowAsync();
-                    }
-                }
-                else
-                {
-                    FeedBackItem Item = new FeedBackItem(UserName, Dialog.TitleName, Dialog.FeedBack, "0", "0", UserID, Guid.NewGuid().ToString("D"));
-                    if (!await MySQL.Current.SetFeedBackAsync(Item))
                     {
                         QueueContentDialog dialog = new QueueContentDialog
                         {
@@ -1322,13 +1315,13 @@ namespace RX_Explorer
                             Content = Globalization.GetString("QueueDialog_FeedBackNetworkError_Content"),
                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                         };
-                        _ = await dialog.ShowAsync();
-                    }
-                    else
-                    {
-                        FeedBackCollection.Add(Item);
-                        await Task.Delay(1000);
-                        FeedBackList.ScrollIntoViewSmoothly(FeedBackCollection.Last());
+
+                        await dialog.ShowAsync();
+
+                        Title = Dialog.TitleName;
+                        Suggestion = Dialog.Suggestion;
+
+                        goto Retry;
                     }
                 }
             }
@@ -1347,22 +1340,36 @@ namespace RX_Explorer
         {
             if (FeedBackList.SelectedItem is FeedBackItem SelectItem)
             {
-                FeedBackDialog Dialog = new FeedBackDialog(SelectItem.Title, SelectItem.Suggestion);
+                string Title = SelectItem.Title;
+                string Suggestion = SelectItem.Suggestion;
+
+            Retry:
+                FeedBackDialog Dialog = new FeedBackDialog(Title, Suggestion);
+                
                 if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
-                    if (!await MySQL.Current.UpdateFeedBackAsync(Dialog.TitleName, Dialog.FeedBack, SelectItem.GUID))
+                    using (MySQL SQL = new MySQL())
                     {
-                        QueueContentDialog dialog = new QueueContentDialog
+                        if (await SQL.UpdateFeedBackAsync(Dialog.TitleName, Dialog.Suggestion, SelectItem.GUID))
                         {
-                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                            Content = Globalization.GetString("QueueDialog_FeedBackNetworkError_Content"),
-                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                        };
-                        _ = await dialog.ShowAsync();
-                    }
-                    else
-                    {
-                        SelectItem.UpdateTitleAndSuggestion(Dialog.TitleName, Dialog.FeedBack);
+                            SelectItem.UpdateTitleAndSuggestion(Dialog.TitleName, Dialog.Suggestion);
+                        }
+                        else
+                        {
+                            QueueContentDialog dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_FeedBackNetworkError_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+                            
+                            await dialog.ShowAsync();
+
+                            Title = Dialog.TitleName;
+                            Suggestion = Dialog.Suggestion;
+
+                            goto Retry;
+                        }
                     }
                 }
             }
@@ -1372,19 +1379,23 @@ namespace RX_Explorer
         {
             if (FeedBackList.SelectedItem is FeedBackItem SelectItem)
             {
-                if (!await MySQL.Current.DeleteFeedBackAsync(SelectItem))
+                using (MySQL SQL = new MySQL())
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
+                    if (await SQL.DeleteFeedBackAsync(SelectItem))
                     {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_FeedBackNetworkError_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                    };
-                    _ = await dialog.ShowAsync();
-                }
-                else
-                {
-                    FeedBackCollection.Remove(SelectItem);
+                        FeedBackCollection.Remove(SelectItem);
+                    }
+                    else
+                    {
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_FeedBackNetworkError_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+
+                        await dialog.ShowAsync();
+                    }
                 }
             }
         }
@@ -1956,12 +1967,12 @@ namespace RX_Explorer
                     {
                         if (Globalization.CurrentLanguage == LanguageEnum.Chinese_Simplified)
                         {
-                            string Message = $"您的反馈原文：{Environment.NewLine}------------------------------------{Environment.NewLine}{SelectItem.Title}{Environment.NewLine}{SelectItem.Suggestion}{Environment.NewLine}------------------------------------{Environment.NewLine}{Environment.NewLine}开发者回复内容：{Environment.NewLine}------------------------------------\r{Dialog.TitleName}{Environment.NewLine}{Dialog.FeedBack}{Environment.NewLine}------------------------------------{Environment.NewLine}";
+                            string Message = $"您的反馈原文：{Environment.NewLine}------------------------------------{Environment.NewLine}{SelectItem.Title}{Environment.NewLine}{SelectItem.Suggestion}{Environment.NewLine}------------------------------------{Environment.NewLine}{Environment.NewLine}开发者回复内容：{Environment.NewLine}------------------------------------\r{Dialog.TitleName}{Environment.NewLine}{Dialog.Suggestion}{Environment.NewLine}------------------------------------{Environment.NewLine}";
                             _ = await Launcher.LaunchUriAsync(new Uri($"mailto:{SelectItem.UserID}?subject=开发者已回复您的反馈&body={Uri.EscapeDataString(Message)}"), new LauncherOptions { TreatAsUntrusted = false, DisplayApplicationPicker = false });
                         }
                         else
                         {
-                            string Message = $"Your original feedback：{Environment.NewLine}------------------------------------{Environment.NewLine}{SelectItem.Title}{Environment.NewLine}{SelectItem.Suggestion}{Environment.NewLine}------------------------------------{Environment.NewLine}{Environment.NewLine}Developer reply：{Environment.NewLine}------------------------------------\r{Dialog.TitleName}{Environment.NewLine}{Dialog.FeedBack}{Environment.NewLine}------------------------------------{Environment.NewLine}";
+                            string Message = $"Your original feedback：{Environment.NewLine}------------------------------------{Environment.NewLine}{SelectItem.Title}{Environment.NewLine}{SelectItem.Suggestion}{Environment.NewLine}------------------------------------{Environment.NewLine}{Environment.NewLine}Developer reply：{Environment.NewLine}------------------------------------\r{Dialog.TitleName}{Environment.NewLine}{Dialog.Suggestion}{Environment.NewLine}------------------------------------{Environment.NewLine}";
                             _ = await Launcher.LaunchUriAsync(new Uri($"mailto:{SelectItem.UserID}?subject=The developer has responded to your feedback in RX Explorer&body={Uri.EscapeDataString(Message)}"), new LauncherOptions { TreatAsUntrusted = false, DisplayApplicationPicker = false });
                         }
                     }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -252,6 +251,11 @@ namespace FullTrustProcess
                 Everything_SetOffset(0);
                 Everything_SetMax(Convert.ToInt32(MaxCount));
 
+                if (SearchWord.Contains(" ") && !SearchWord.StartsWith("\"") && !SearchWord.EndsWith("\""))
+                {
+                    SearchWord = $"\"{SearchWord}\"";
+                }
+
                 if (string.IsNullOrEmpty(BaseLocation))
                 {
                     Everything_SetSearch(SearchWord);
@@ -263,11 +267,9 @@ namespace FullTrustProcess
 
                 if (Everything_Query(true))
                 {
-                    StringBuilder Builder = new StringBuilder(BufferSize);
-
                     for (int index = 0; index < Everything_GetNumResults(); index++)
                     {
-                        Builder.Clear();
+                        StringBuilder Builder = new StringBuilder(BufferSize);
                         Everything_GetResultFullPathName(index, Builder, BufferSize);
                         yield return Builder.ToString();
                     }

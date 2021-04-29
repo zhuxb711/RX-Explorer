@@ -1,4 +1,51 @@
 ﻿*****
+###Novedades de la versión 6.4.0.0
+
+#####Actualización de funciones
+
+>#####Soporte extendido para algoritmos de compresión y descompresión (gracias @silentmoooon) [PR #193](https://github.com/zhuxb711/RX-Explorer/pull/193)
+
+>>#####La compresión y descompresión ahora son compatibles con Zip / Tar / Tar.Gz / Tar.Bz2 / RAR (solo descompresión) / GZip / BZip2
+
+>#####Ahora puedes usar el comando "Abrir" para varios archivos
+
+>#####Cerrar la última pestaña por primera vez no cerrará todo el programa directamente
+
+#####actualización de la interfaz de usuario
+
+>#####Se actualizó la apariencia de la lista de tareas en el modo de ahorro de energía
+
+>#####Color de etiqueta actualizado y posición del color para un mejor contraste
+
+>#####Se actualizó la apariencia del editor de texto incorporado
+
+>#####Se actualizó la lógica de la notificación de Toast, si el dispositivo está conectado a la fuente de alimentación, la notificación de activación no aparecerá
+
+>#####Proporciona un método de recuperación manual para la función Win + E
+
+>#####La regla de crear un nuevo archivo se cambia para que solo sea necesario completar el nombre o el sufijo
+
+#####Mejora del rendimiento
+
+>#####Mejora significativamente la eficiencia de comprimir y descomprimir carpetas muy grandes
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que al usar palabras clave con espacios y especificar usar el motor de búsqueda de Everything, los resultados devueltos pueden ser incorrectos
+
+>#####Se solucionó el problema de que los atajos de teclado aún funcionan al salir de la página del archivo
+
+>#####Se solucionó el problema de que la tecla Intro no se puede usar en el editor de texto incorporado
+
+>#####Se solucionó el problema de que la función de eliminación usaba una configuración incorrecta
+
+>#####Se solucionó el problema de que el color del texto no cambia con el color del tema en algunos casos
+
+>#####Se solucionó el problema de que el método de apertura predeterminado no se puede cambiar en algunos casos
+
+>#####Se solucionó el problema que puede ser incorrecto al usar el cuadro de propiedades para cambiar el nombre
+
+*****
 ###Novedades de la versión 6.3.7.0
 
 #####Actualización de funciones

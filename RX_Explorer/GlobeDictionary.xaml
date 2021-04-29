@@ -17,6 +17,12 @@
                   TintOpacity="0.1"
                   FallbackColor="{ThemeResource SystemAccentColor}" />
 
+    <AcrylicBrush x:Key="TaskListAcrylicBrush"
+                  BackgroundSource="Backdrop"
+                  TintColor="Gray"
+                  TintOpacity="0.1"
+                  FallbackColor="{ThemeResource SystemAltHighColor}" />
+
     <SolidColorBrush x:Key="NavigationViewTopPaneBackground"
                      Color="Transparent" />
 

@@ -371,15 +371,15 @@ namespace RX_Explorer.Dialog
                 else if (OtherProgramList.SelectedItem is ProgramPickerItem OtherItem)
                 {
                     SelectedProgram = OtherItem;
-
-                    if (UseAsAdmin.IsChecked.GetValueOrDefault() || OpenFromPropertiesWindow)
-                    {
-                        await SQLite.Current.SetDefaultProgramPickerRecordAsync(OpenFile.Type, OtherItem.Path);
-                    }
                 }
                 else
                 {
                     args.Cancel = true;
+                }
+
+                if (SelectedProgram != null && UseAsAdmin.IsChecked.GetValueOrDefault() || OpenFromPropertiesWindow)
+                {
+                    await SQLite.Current.SetDefaultProgramPickerRecordAsync(OpenFile.Type, SelectedProgram.Path);
                 }
             }
             catch (Exception ex)

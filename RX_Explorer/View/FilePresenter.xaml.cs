@@ -230,6 +230,7 @@ namespace RX_Explorer
         {
             if (Container.CurrentPresenter == this
                 && args.KeyStatus.IsMenuKeyDown
+                && Container.Frame.CurrentSourcePageType == typeof(FileControl)
                 && MainPage.ThisPage.NavView.SelectedItem is NavigationViewItem NavItem
                 && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
             {
@@ -252,6 +253,7 @@ namespace RX_Explorer
         private async void FilePresenter_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
             if (Container.CurrentPresenter == this
+                && Container.Frame.CurrentSourcePageType == typeof(FileControl)
                 && MainPage.ThisPage.NavView.SelectedItem is NavigationViewItem NavItem
                 && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
             {
@@ -313,7 +315,7 @@ namespace RX_Explorer
                                 }
                             case VirtualKey.Enter when SelectedItems.Count == 1 && SelectedItem is FileSystemStorageItemBase Item:
                                 {
-                                    await EnterSelectedItem(Item).ConfigureAwait(false);
+                                    await EnterSelectedItemAsync(Item).ConfigureAwait(false);
                                     break;
                                 }
                             case VirtualKey.Back:
@@ -426,7 +428,7 @@ namespace RX_Explorer
                                 }
                             case VirtualKey.B when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItem != null:
                                 {
-                                    await Container.CreateNewBlade(SelectedItem.Path);
+                                    await Container.CreateNewBladeAsync(SelectedItem.Path);
                                     break;
                                 }
                             default:
@@ -1755,7 +1757,7 @@ namespace RX_Explorer
 
             if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase ReFile)
             {
-                await EnterSelectedItem(ReFile).ConfigureAwait(false);
+                await EnterSelectedItemAsync(ReFile).ConfigureAwait(false);
             }
             else if (e.OriginalSource is Grid)
             {
@@ -2057,7 +2059,7 @@ namespace RX_Explorer
 
             if (SelectedItem is FileSystemStorageItemBase ReFile)
             {
-                await EnterSelectedItem(ReFile).ConfigureAwait(false);
+                await EnterSelectedItemAsync(ReFile).ConfigureAwait(false);
             }
         }
 
@@ -2280,7 +2282,7 @@ namespace RX_Explorer
 
                 if (!CtrlState.HasFlag(CoreVirtualKeyStates.Down) && !ShiftState.HasFlag(CoreVirtualKeyStates.Down))
                 {
-                    await EnterSelectedItem(ReFile).ConfigureAwait(false);
+                    await EnterSelectedItemAsync(ReFile).ConfigureAwait(false);
                 }
             }
         }
@@ -2289,10 +2291,10 @@ namespace RX_Explorer
         {
             FileSystemStorageItemBase Item = await FileSystemStorageItemBase.OpenAsync(Path);
 
-            await EnterSelectedItem(Item, RunAsAdministrator).ConfigureAwait(false);
+            await EnterSelectedItemAsync(Item, RunAsAdministrator).ConfigureAwait(false);
         }
 
-        public async Task EnterSelectedItem(FileSystemStorageItemBase ReFile, bool RunAsAdministrator = false)
+        public async Task EnterSelectedItemAsync(FileSystemStorageItemBase ReFile, bool RunAsAdministrator = false)
         {
             if (Interlocked.Exchange(ref TabTarget, ReFile) == null)
             {
@@ -2551,7 +2553,7 @@ namespace RX_Explorer
 
             if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
             {
-                if (Dialog.SelectedProgram.Path == Package.Current.Id.FamilyName)
+                if (Dialog.SelectedProgram.Path.Equals(Package.Current.Id.FamilyName, StringComparison.OrdinalIgnoreCase))
                 {
                     TryOpenInternally(File);
                 }
@@ -2694,7 +2696,7 @@ namespace RX_Explorer
 
             if (SelectedItem != null)
             {
-                await EnterSelectedItem(SelectedItem, true).ConfigureAwait(false);
+                await EnterSelectedItemAsync(SelectedItem, true).ConfigureAwait(false);
             }
         }
 
@@ -3074,7 +3076,7 @@ namespace RX_Explorer
                     {
                         if (input is CancellationTokenSource Cancel && !Cancel.IsCancellationRequested)
                         {
-                            _ = EnterSelectedItem(Item);
+                            _ = EnterSelectedItemAsync(Item);
                         }
                     }
                     catch (Exception ex)
@@ -4163,7 +4165,7 @@ namespace RX_Explorer
 
             if (SelectedItem != null)
             {
-                await Container.CreateNewBlade(SelectedItem.Path).ConfigureAwait(false);
+                await Container.CreateNewBladeAsync(SelectedItem.Path).ConfigureAwait(false);
             }
         }
 
@@ -4181,7 +4183,7 @@ namespace RX_Explorer
             }
 
             DecompressionOption2.Text = $"{Globalization.GetString("DecompressTo")} \"{DecompressionFolderName}\\\"";
-            
+
             ToolTipService.SetToolTip(DecompressionOption2, new ToolTip
             {
                 Content = DecompressionOption2.Text
@@ -4408,6 +4410,31 @@ namespace RX_Explorer
             {
                 Item.SetForegroundColorAsSpecific(ForegroundColor);
                 await SQLite.Current.SetFileColorAsync(Item.Path, ForegroundColor.ToHex()).ConfigureAwait(false);
+            }
+        }
+
+        private async void MixOpen_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            if (SelectedItems.Count > 0)
+            {
+                foreach (FileSystemStorageItemBase Item in SelectedItems)
+                {
+                    switch (Item)
+                    {
+                        case FileSystemStorageFolder Folder:
+                            {
+                                await Container.CreateNewBladeAsync(Folder.Path);
+                                break;
+                            }
+                        case FileSystemStorageFile File:
+                            {
+                                await EnterSelectedItemAsync(File);
+                                break;
+                            }
+                    }
+                }
             }
         }
 

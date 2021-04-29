@@ -17,7 +17,7 @@
             <TextBox Header="标题"
                      IsSpellCheckEnabled="False"
                      x:Uid="FeedBackDialogTitle"
-                     Text="{x:Bind TitleName,Mode=TwoWay}"
+                     Text="{x:Bind TitleName, Mode=TwoWay}"
                      PlaceholderText="请输入标题"
                      Name="TitleBox"
                      MaxWidth="350"
@@ -34,7 +34,7 @@
                      Name="FeedBox"
                      TextWrapping="Wrap"
                      AcceptsReturn="True"
-                     Text="{x:Bind FeedBack,Mode=TwoWay}"/>
+                     Text="{x:Bind Suggestion, Mode=TwoWay}"/>
         </StackPanel>
     </Grid>
 </local:QueueContentDialog>

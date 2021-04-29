@@ -17,8 +17,7 @@
                  x:Uid="CompressDialogName"
                  Name="FName"
                  GotFocus="FName_GotFocus"
-                 MinWidth="280"
-                 HorizontalAlignment="Left"/>
+                 HorizontalAlignment="Stretch"/>
         <Grid Margin="0,10,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
@@ -42,7 +41,7 @@
         <ComboBox x:Uid="CompressDialogLevel"
                   Header="压缩等级"
                   Margin="0,10,0,0"
-                  MinWidth="150"
+                  MinWidth="180"
                   Name="CompressLevel" />
     </StackPanel>
 </local:QueueContentDialog>

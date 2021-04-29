@@ -2274,12 +2274,6 @@ Les noms non valides incluent
   <data name="TextViewer_EncodingErrorTip.Title" xml:space="preserve">
     <value>Erreur d'encodage</value>
   </data>
-  <data name="TextViewer_EncodingProfilePlaceholerText.PlaceholderText" xml:space="preserve">
-    <value>Entrez le nom de l'encodage ou de la page de codes</value>
-  </data>
-  <data name="TextViewer_EncodingProfileText.Text" xml:space="preserve">
-    <value>Codage:</value>
-  </data>
   <data name="SettingConfiguration.Content" xml:space="preserve">
     <value>Importer ou exporter la configuration</value>
   </data>
@@ -2983,5 +2977,14 @@ Les noms non valides incluent
   </data>
   <data name="CompressDialogAlgorithm.Header" xml:space="preserve">
     <value>Algorithme de compression</value>
+  </data>
+  <data name="TextViewer_EncodingCombo.PlaceholderText" xml:space="preserve">
+    <value>Entrez le nom de l'encodage ou de la page de codes</value>
+  </data>
+  <data name="TextViewer_EncodingCombo.Header" xml:space="preserve">
+    <value>Encodage de texte</value>
+  </data>
+  <data name="TextEncodingDialog.Title" xml:space="preserve">
+    <value>Sélectionnez l'encodage de texte</value>
   </data>
 </root>

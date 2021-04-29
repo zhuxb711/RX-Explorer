@@ -13,34 +13,16 @@ namespace RX_Explorer.Class
     /// <summary>
     /// 提供对MySQL数据库的访问支持
     /// </summary>
-    public sealed class MySQL : IAsyncDisposable, IDisposable
+    public sealed class MySQL : IDisposable
     {
-        private volatile static MySQL Instance;
-
         private bool IsDisposed;
-
-        private static readonly object Locker = new object();
 
         private MySqlConnection Connection;
 
         /// <summary>
-        /// 提供对MySQL实例的访问
-        /// </summary>
-        public static MySQL Current
-        {
-            get
-            {
-                lock (Locker)
-                {
-                    return Instance ??= new MySQL();
-                }
-            }
-        }
-
-        /// <summary>
         /// 初始化MySQL实例
         /// </summary>
-        private MySQL()
+        public MySQL()
         {
             Connection = new MySqlConnection(SecureAccessProvider.GetMySQLAccessCredential(Package.Current));
         }
@@ -330,29 +312,11 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 调用此方法以完全释放MySQL的资源
         /// </summary>
-        public async ValueTask DisposeAsync()
-        {
-            if (!IsDisposed)
-            {
-                IsDisposed = true;
-                Instance = null;
-
-                await Connection.DisposeAsync();
-                Connection = null;
-
-                GC.SuppressFinalize(this);
-            }
-        }
-
-        /// <summary>
-        /// 调用此方法以完全释放MySQL的资源
-        /// </summary>
         public void Dispose()
         {
             if (!IsDisposed)
             {
                 IsDisposed = true;
-                Instance = null;
 
                 Connection.Dispose();
                 Connection = null;

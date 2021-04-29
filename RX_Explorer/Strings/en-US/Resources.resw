@@ -2413,11 +2413,8 @@ Invalid names include
   <data name="TextViewer_EncodingErrorTip.Subtitle" xml:space="preserve">
     <value>The encoding is incorrect, please re-enter the encoding</value>
   </data>
-  <data name="TextViewer_EncodingProfilePlaceholerText.PlaceholderText" xml:space="preserve">
+  <data name="TextViewer_EncodingCombo.PlaceholderText" xml:space="preserve">
     <value>Enter the name of encoding or codepage</value>
-  </data>
-  <data name="TextViewer_EncodingProfileText.Text" xml:space="preserve">
-    <value>Encoding:</value>
   </data>
   <data name="SettingConfiguration.Content" xml:space="preserve">
     <value>Import or export configuration</value>
@@ -3088,5 +3085,11 @@ Invalid names include
   </data>
   <data name="CompressDialogAlgorithm.Header" xml:space="preserve">
     <value>Compression algorithm</value>
+  </data>
+  <data name="TextViewer_EncodingCombo.Header" xml:space="preserve">
+    <value>Text Encoding</value>
+  </data>
+  <data name="TextEncodingDialog.Title" xml:space="preserve">
+    <value>Select text encoding</value>
   </data>
 </root>

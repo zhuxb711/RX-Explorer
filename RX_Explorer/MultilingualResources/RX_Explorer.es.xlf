@@ -3053,14 +3053,6 @@ Las denominaciones no válidas son:
           <source>The encoding is incorrect, please re-enter the encoding</source>
           <target state="translated">La codificación es incorrecta; vuelve a introducirla.</target>
         </trans-unit>
-        <trans-unit id="TextViewer_EncodingProfilePlaceholerText.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Enter the name of encoding or codepage</source>
-          <target state="translated">Introducir nombre de codificación o página de código</target>
-        </trans-unit>
-        <trans-unit id="TextViewer_EncodingProfileText.Text" translate="yes" xml:space="preserve">
-          <source>Encoding:</source>
-          <target state="translated">Codificando:</target>
-        </trans-unit>
         <trans-unit id="SettingConfiguration.Content" translate="yes" xml:space="preserve">
           <source>Import or export configuration</source>
           <target state="translated">Configuración de importación o exportación</target>
@@ -3957,6 +3949,18 @@ Las denominaciones no válidas son:
         <trans-unit id="CompressDialogAlgorithm.Header" translate="yes" xml:space="preserve">
           <source>Compression algorithm</source>
           <target state="translated">Algoritmo de compresión</target>
+        </trans-unit>
+        <trans-unit id="TextViewer_EncodingCombo.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter the name of encoding or codepage</source>
+          <target state="translated">Ingrese el nombre de la codificación o la página de códigos</target>
+        </trans-unit>
+        <trans-unit id="TextViewer_EncodingCombo.Header" translate="yes" xml:space="preserve">
+          <source>Text Encoding</source>
+          <target state="translated">Codificacion de texto</target>
+        </trans-unit>
+        <trans-unit id="TextEncodingDialog.Title" translate="yes" xml:space="preserve">
+          <source>Select text encoding</source>
+          <target state="translated">Seleccionar codificación de texto</target>
         </trans-unit>
       </group>
     </body>

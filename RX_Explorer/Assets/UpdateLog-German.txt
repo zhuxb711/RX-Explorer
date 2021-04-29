@@ -1,4 +1,51 @@
 ﻿*****
+###Was ist neu in Ver.6.4.0.0
+
+#####Funktionsaktualisierung
+
+>#####Erweiterte Unterstützung für Komprimierungs- und Dekomprimierungsalgorithmen (danke @silentmoooon) [PR #193](https://github.com/zhuxb711/RX-Explorer/pull/193)
+
+>>#####Komprimierung und Dekomprimierung unterstützt jetzt Zip / Tar / Tar.Gz / Tar.Bz2 / RAR (nur Dekomprimierung) / GZip / BZip2
+
+>#####Jetzt können Sie den Befehl "Öffnen" für mehrere Dateien verwenden
+
+>#####Durch das erstmalige Schließen der letzten Registerkarte wird nicht das gesamte Programm direkt geschlossen
+
+#####UI-Update
+
+>#####Das Erscheinungsbild der Aufgabenliste im Energiesparmodus wurde aktualisiert
+
+>#####Tag-Farbe und Farbposition für besseren Kontrast aktualisiert
+
+>#####Das Erscheinungsbild des integrierten Texteditors wurde aktualisiert
+
+>#####Die Logik der Toast-Benachrichtigung wurde aktualisiert. Wenn das Gerät an die Stromversorgung angeschlossen ist, wird die Aktivierungsbenachrichtigung nicht angezeigt
+
+>#####Bietet eine manuelle Wiederherstellungsmethode für die Win + E-Funktion
+
+>#####Die Regel zum Erstellen einer neuen Datei wird dahingehend geändert, dass nur der Name oder das Suffix eingegeben werden muss
+
+#####Leistungsverbesserung
+
+>#####Verbessert die Effizienz beim Komprimieren und Dekomprimieren sehr großer Ordner erheblich
+
+#####Fehlerbehebung
+
+>#####Es wurde das Problem behoben, dass bei Verwendung von Schlüsselwörtern mit Leerzeichen und Angabe der Verwendung der Suchmaschine "Alles" die zurückgegebenen Ergebnisse möglicherweise falsch sind
+
+>#####Es wurde das Problem behoben, dass Tastaturkürzel beim Verlassen der Dateiseite weiterhin funktionieren
+
+>#####Es wurde das Problem behoben, dass die Eingabetaste im integrierten Texteditor nicht verwendet werden kann
+
+>#####Das Problem, dass die Löschfunktion eine falsche Konfiguration verwendet, wurde behoben
+
+>#####Es wurde das Problem behoben, dass sich die Textfarbe in einigen Fällen nicht mit der Themenfarbe ändert
+
+>#####Das Problem wurde behoben, dass die Standardöffnungsmethode in einigen Fällen nicht geändert werden kann
+
+>#####Das Problem wurde behoben, das möglicherweise falsch war, wenn das Eigenschaftsfeld zum Umbenennen verwendet wurde
+
+*****
 ###Was ist neu in Ver.6.3.7.0
 
 #####Funktionsaktualisierung

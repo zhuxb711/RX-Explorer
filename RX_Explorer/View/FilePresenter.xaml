@@ -485,6 +485,12 @@
                 </StackPanel>
             </AppBarElementContainer>
             <muxc:CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="OpenFile"
+                              Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Open')}"
+                              MinWidth="250"
+                              Name="MixOpen"
+                              Click="MixOpen_Click" />
+                <AppBarSeparator />
                 <AppBarButton x:Name="MixCompression"
                               MinWidth="250"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Compression')}"
@@ -629,7 +635,7 @@
                 </StackPanel>
             </AppBarElementContainer>
             <muxc:CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="BackToWindow"
+                <AppBarButton Icon="OpenFile"
                               MinWidth="250"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Open')}"
                               x:Name="FolderOpen"

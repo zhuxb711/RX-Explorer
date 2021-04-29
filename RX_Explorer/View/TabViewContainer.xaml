@@ -35,7 +35,7 @@
                PanePlacement="Right"
                Name="TaskListPanel"
                x:FieldModifier="public"
-               PaneBackground="{ThemeResource ElementAcrylicBrush}">
+               PaneBackground="{ThemeResource TaskListAcrylicBrush}">
         <Grid>
             <muxc:TabView TabWidthMode="Equal"
                           Name="TabViewControl"

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
 {
@@ -143,7 +142,6 @@ namespace RX_Explorer.Class
         private string userVoteAction;
         private bool? isLike;
         private bool? isDislike;
-        private static AutoResetEvent Locker = new AutoResetEvent(true);
 
         /// <summary>
         /// 初始化FeedBackItem
@@ -219,14 +217,9 @@ namespace RX_Explorer.Class
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsLike)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsDislike)));
 
-            await Task.Run(() =>
+            using (MySQL SQL = new MySQL())
             {
-                Locker.WaitOne();
-            });
-
-            try
-            {
-                if (!await MySQL.Current.UpdateFeedBackVoteAsync(this))
+                if (!await SQL.UpdateFeedBackVoteAsync(this))
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -234,12 +227,9 @@ namespace RX_Explorer.Class
                         Content = Globalization.GetString("Network_Error_Dialog_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
-                    _ = await dialog.ShowAsync();
+
+                    await dialog.ShowAsync();
                 }
-            }
-            finally
-            {
-                Locker.Set();
             }
         }
 

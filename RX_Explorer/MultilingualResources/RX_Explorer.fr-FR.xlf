@@ -3014,14 +3014,6 @@ Les noms non valides incluent
           <source>Encoding error</source>
           <target state="translated">Erreur d'encodage</target>
         </trans-unit>
-        <trans-unit id="TextViewer_EncodingProfilePlaceholerText.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Enter the name of encoding or codepage</source>
-          <target state="translated">Entrez le nom de l'encodage ou de la page de codes</target>
-        </trans-unit>
-        <trans-unit id="TextViewer_EncodingProfileText.Text" translate="yes" xml:space="preserve">
-          <source>Encoding:</source>
-          <target state="translated">Codage:</target>
-        </trans-unit>
         <trans-unit id="SettingConfiguration.Content" translate="yes" xml:space="preserve">
           <source>Import or export configuration</source>
           <target state="translated">Importer ou exporter la configuration</target>
@@ -3959,6 +3951,18 @@ Les noms non valides incluent
         <trans-unit id="CompressDialogAlgorithm.Header" translate="yes" xml:space="preserve">
           <source>Compression algorithm</source>
           <target state="translated">Algorithme de compression</target>
+        </trans-unit>
+        <trans-unit id="TextViewer_EncodingCombo.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter the name of encoding or codepage</source>
+          <target state="translated">Entrez le nom de l'encodage ou de la page de codes</target>
+        </trans-unit>
+        <trans-unit id="TextViewer_EncodingCombo.Header" translate="yes" xml:space="preserve">
+          <source>Text Encoding</source>
+          <target state="translated">Encodage de texte</target>
+        </trans-unit>
+        <trans-unit id="TextEncodingDialog.Title" translate="yes" xml:space="preserve">
+          <source>Select text encoding</source>
+          <target state="translated">Sélectionnez l'encodage de texte</target>
         </trans-unit>
       </group>
     </body>

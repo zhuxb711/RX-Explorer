@@ -1,4 +1,51 @@
 ﻿*****
+###What's new in Ver.6.4.0.0
+
+#####Feature update
+
+>#####Extended support for compression and decompression algorithms (thanks @silentmoooon) [PR #193](https://github.com/zhuxb711/RX-Explorer/pull/193)
+
+>>#####Compression and decompression now supports Zip/Tar/Tar.Gz/Tar.Bz2/RAR(decompression only)/GZip/BZip2
+
+>#####Now you can use the "Open" command for multiple files
+
+>#####Closing the last tab for the first time will not close the entire program directly
+
+#####UI update
+
+>#####Updated the appearance of the task list in power saving mode
+
+>#####Updated tag color and color position for better contrast
+
+>#####Updated the appearance of the built-in text editor
+
+>#####Updated the logic of Toast notification, if the device is connected to the power supply, the activation notification will not pop up
+
+>#####Provides a manual recovery method for the Win+E function
+
+>#####The rule of creating a new file is changed to only need to fill in the name or suffix
+
+#####Performance improvement
+
+>#####Significantly improves the efficiency of compressing and decompressing very large folders
+
+#####Bug fix
+
+>#####Fixed the problem that when using keywords with spaces and specifying to use the Everything search engine, the returned results may be incorrect
+
+>#####Fixed the problem that keyboard shortcuts still work when leaving from the file page
+
+>#####Fixed the problem that the enter key cannot be used in the built-in text editor
+
+>#####Fixed the problem that the delete function use incorrect configuration
+
+>#####Fixed the problem that the text color does not change with the theme color in some cases
+
+>#####Fixed the problem that the default opening method cannot be changed in some cases
+
+>#####Fixed the problem that may be incorrect when using the property box to rename
+
+*****
 ###What's new in Ver.6.3.7.0
 
 #####Feature update

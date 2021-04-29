@@ -2305,12 +2305,6 @@ Las denominaciones no válidas son:
   <data name="TextViewer_EncodingErrorTip.Subtitle" xml:space="preserve">
     <value>La codificación es incorrecta; vuelve a introducirla.</value>
   </data>
-  <data name="TextViewer_EncodingProfilePlaceholerText.PlaceholderText" xml:space="preserve">
-    <value>Introducir nombre de codificación o página de código</value>
-  </data>
-  <data name="TextViewer_EncodingProfileText.Text" xml:space="preserve">
-    <value>Codificando:</value>
-  </data>
   <data name="SettingConfiguration.Content" xml:space="preserve">
     <value>Configuración de importación o exportación</value>
   </data>
@@ -2983,5 +2977,14 @@ Las denominaciones no válidas son:
   </data>
   <data name="CompressDialogAlgorithm.Header" xml:space="preserve">
     <value>Algoritmo de compresión</value>
+  </data>
+  <data name="TextViewer_EncodingCombo.PlaceholderText" xml:space="preserve">
+    <value>Ingrese el nombre de la codificación o la página de códigos</value>
+  </data>
+  <data name="TextViewer_EncodingCombo.Header" xml:space="preserve">
+    <value>Codificacion de texto</value>
+  </data>
+  <data name="TextEncodingDialog.Title" xml:space="preserve">
+    <value>Seleccionar codificación de texto</value>
   </data>
 </root>

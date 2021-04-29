@@ -7,6 +7,10 @@ namespace RX_Explorer.Dialog
 {
     public sealed partial class FeedBackDialog : QueueContentDialog
     {
+        public string TitleName { get; private set; }
+
+        public string Suggestion { get; private set; }
+
         public FeedBackDialog()
         {
             InitializeComponent();
@@ -17,7 +21,7 @@ namespace RX_Explorer.Dialog
             InitializeComponent();
 
             TitleName = Title;
-            FeedBack = Suggestion;
+            this.Suggestion = Suggestion;
         }
 
         public FeedBackDialog(string Title)
@@ -27,13 +31,9 @@ namespace RX_Explorer.Dialog
             TitleName = Title;
         }
 
-        public string TitleName { get; private set; }
-
-        public string FeedBack { get; private set; }
-
         private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            if (string.IsNullOrWhiteSpace(TitleName) && string.IsNullOrWhiteSpace(FeedBack))
+            if (string.IsNullOrWhiteSpace(TitleName) && string.IsNullOrWhiteSpace(Suggestion))
             {
                 TitleBox.BorderBrush = new SolidColorBrush(Colors.Red);
                 FeedBox.BorderBrush = new SolidColorBrush(Colors.Red);
@@ -45,7 +45,7 @@ namespace RX_Explorer.Dialog
                 FeedBox.BorderBrush = new SolidColorBrush(Colors.Gray);
                 args.Cancel = true;
             }
-            else if (string.IsNullOrWhiteSpace(FeedBack))
+            else if (string.IsNullOrWhiteSpace(Suggestion))
             {
                 FeedBox.BorderBrush = new SolidColorBrush(Colors.Red);
                 TitleBox.BorderBrush = new SolidColorBrush(Colors.Gray);

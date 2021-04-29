@@ -96,8 +96,6 @@ namespace RX_Explorer
         private void App_Suspending(object sender, SuspendingEventArgs e)
         {
             SQLite.Current.Dispose();
-            MySQL.Current.Dispose();
-
             AppInstanceIdContainer.UngisterId(AppInstanceIdContainer.CurrentId);
         }
 
@@ -136,8 +134,6 @@ namespace RX_Explorer
         private void ReduceMemoryUsage()
         {
             SQLite.Current.Dispose();
-            MySQL.Current.Dispose();
-
             GC.Collect();
         }
 

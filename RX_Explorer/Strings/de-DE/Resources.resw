@@ -2308,12 +2308,6 @@ Inkorrekte Namen sind
   <data name="TextViewer_EncodingErrorTip.Subtitle" xml:space="preserve">
     <value>Die Kodierung ist inkorrekt. Bitte geben sie die Kodierung erneut ein.</value>
   </data>
-  <data name="TextViewer_EncodingProfilePlaceholerText.PlaceholderText" xml:space="preserve">
-    <value>Geben Sie den Namen der Kodierung oder Codeseite ein.</value>
-  </data>
-  <data name="TextViewer_EncodingProfileText.Text" xml:space="preserve">
-    <value>Kodierung:</value>
-  </data>
   <data name="SettingConfiguration.Content" xml:space="preserve">
     <value>Konfiguration importieren oder exportieren</value>
   </data>
@@ -2983,5 +2977,14 @@ Inkorrekte Namen sind
   </data>
   <data name="CompressDialogAlgorithm.Header" xml:space="preserve">
     <value>Komprimierungsalgorithmus</value>
+  </data>
+  <data name="TextViewer_EncodingCombo.PlaceholderText" xml:space="preserve">
+    <value>Geben Sie den Namen der Codierung oder Codepage ein</value>
+  </data>
+  <data name="TextViewer_EncodingCombo.Header" xml:space="preserve">
+    <value>Textcodierung</value>
+  </data>
+  <data name="TextEncodingDialog.Title" xml:space="preserve">
+    <value>Wählen Sie die Textcodierung</value>
   </data>
 </root>

@@ -575,7 +575,7 @@ namespace RX_Explorer
 
                 foreach (string TargetPath in InitFolderPathArray.Where((FolderPath) => !string.IsNullOrWhiteSpace(FolderPath)))
                 {
-                    await CreateNewBlade(TargetPath);
+                    await CreateNewBladeAsync(TargetPath);
                 }
 
                 foreach (DriveDataBase DriveData in Drives.Where((Dr) => Dr.DriveType == DriveType.Network))
@@ -1234,7 +1234,7 @@ namespace RX_Explorer
                 {
                     if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath1) is FileSystemStorageItemBase Item)
                     {
-                        await CurrentPresenter.EnterSelectedItem(Item);
+                        await CurrentPresenter.EnterSelectedItemAsync(Item);
 
                         if (Item is FileSystemStorageFolder)
                         {
@@ -1248,7 +1248,7 @@ namespace RX_Explorer
                 {
                     if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath2) is FileSystemStorageItemBase Item)
                     {
-                        await CurrentPresenter.EnterSelectedItem(Item);
+                        await CurrentPresenter.EnterSelectedItemAsync(Item);
 
                         if (Item is FileSystemStorageFolder)
                         {
@@ -1262,7 +1262,7 @@ namespace RX_Explorer
                 {
                     if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath3) is FileSystemStorageItemBase Item)
                     {
-                        await CurrentPresenter.EnterSelectedItem(Item);
+                        await CurrentPresenter.EnterSelectedItemAsync(Item);
 
                         if (Item is FileSystemStorageFolder)
                         {
@@ -1355,7 +1355,7 @@ namespace RX_Explorer
                     {
                         if (Item is FileSystemStorageFile)
                         {
-                            await CurrentPresenter.EnterSelectedItem(Item);
+                            await CurrentPresenter.EnterSelectedItemAsync(Item);
                         }
                         else
                         {
@@ -2352,7 +2352,7 @@ namespace RX_Explorer
             }
         }
 
-        public async Task CreateNewBlade(string FolderPath)
+        public async Task CreateNewBladeAsync(string FolderPath)
         {
             if (Interlocked.Exchange(ref CreateBladeLockResource, 1) == 0)
             {
@@ -2505,7 +2505,7 @@ namespace RX_Explorer
 
         private async void VerticalSplitViewButton_Click(object sender, RoutedEventArgs e)
         {
-            await CreateNewBlade(CurrentPresenter.CurrentFolder.Path).ConfigureAwait(false);
+            await CreateNewBladeAsync(CurrentPresenter.CurrentFolder.Path).ConfigureAwait(false);
         }
 
         private void AddressButton_DragEnter(object sender, DragEventArgs e)
@@ -2560,7 +2560,7 @@ namespace RX_Explorer
         {
             if (FolderTree.SelectedNode?.Content is TreeViewNodeContent Content)
             {
-                await CreateNewBlade(Content.Path).ConfigureAwait(false);
+                await CreateNewBladeAsync(Content.Path).ConfigureAwait(false);
             }
         }
 

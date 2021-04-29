@@ -3014,14 +3014,6 @@ Invalid names include
           <source>Encoding error</source>
           <target state="translated">編碼錯誤</target>
         </trans-unit>
-        <trans-unit id="TextViewer_EncodingProfilePlaceholerText.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Enter the name of encoding or codepage</source>
-          <target state="translated">輸入編碼或代碼頁的名稱</target>
-        </trans-unit>
-        <trans-unit id="TextViewer_EncodingProfileText.Text" translate="yes" xml:space="preserve">
-          <source>Encoding:</source>
-          <target state="translated">編碼方式:</target>
-        </trans-unit>
         <trans-unit id="SettingConfiguration.Content" translate="yes" xml:space="preserve">
           <source>Import or export configuration</source>
           <target state="translated">導入或導出配置</target>
@@ -3959,6 +3951,18 @@ Invalid names include
         <trans-unit id="CompressDialogAlgorithm.Header" translate="yes" xml:space="preserve">
           <source>Compression algorithm</source>
           <target state="translated">壓縮算法</target>
+        </trans-unit>
+        <trans-unit id="TextViewer_EncodingCombo.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter the name of encoding or codepage</source>
+          <target state="translated">輸入編碼或代碼頁的名稱</target>
+        </trans-unit>
+        <trans-unit id="TextViewer_EncodingCombo.Header" translate="yes" xml:space="preserve">
+          <source>Text Encoding</source>
+          <target state="translated">文字編碼</target>
+        </trans-unit>
+        <trans-unit id="TextEncodingDialog.Title" translate="yes" xml:space="preserve">
+          <source>Select text encoding</source>
+          <target state="translated">選擇文字編碼</target>
         </trans-unit>
       </group>
     </body>

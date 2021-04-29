@@ -3057,14 +3057,6 @@ Inkorrekte Namen sind
           <source>The encoding is incorrect, please re-enter the encoding</source>
           <target state="translated">Die Kodierung ist inkorrekt. Bitte geben sie die Kodierung erneut ein.</target>
         </trans-unit>
-        <trans-unit id="TextViewer_EncodingProfilePlaceholerText.PlaceholderText" translate="yes" xml:space="preserve">
-          <source>Enter the name of encoding or codepage</source>
-          <target state="translated">Geben Sie den Namen der Kodierung oder Codeseite ein.</target>
-        </trans-unit>
-        <trans-unit id="TextViewer_EncodingProfileText.Text" translate="yes" xml:space="preserve">
-          <source>Encoding:</source>
-          <target state="translated">Kodierung:</target>
-        </trans-unit>
         <trans-unit id="SettingConfiguration.Content" translate="yes" xml:space="preserve">
           <source>Import or export configuration</source>
           <target state="translated">Konfiguration importieren oder exportieren</target>
@@ -3957,6 +3949,18 @@ Inkorrekte Namen sind
         <trans-unit id="CompressDialogAlgorithm.Header" translate="yes" xml:space="preserve">
           <source>Compression algorithm</source>
           <target state="translated">Komprimierungsalgorithmus</target>
+        </trans-unit>
+        <trans-unit id="TextViewer_EncodingCombo.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Enter the name of encoding or codepage</source>
+          <target state="translated">Geben Sie den Namen der Codierung oder Codepage ein</target>
+        </trans-unit>
+        <trans-unit id="TextViewer_EncodingCombo.Header" translate="yes" xml:space="preserve">
+          <source>Text Encoding</source>
+          <target state="translated">Textcodierung</target>
+        </trans-unit>
+        <trans-unit id="TextEncodingDialog.Title" translate="yes" xml:space="preserve">
+          <source>Select text encoding</source>
+          <target state="translated">Wählen Sie die Textcodierung</target>
         </trans-unit>
       </group>
     </body>

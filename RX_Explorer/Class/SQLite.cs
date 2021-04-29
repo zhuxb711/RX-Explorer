@@ -276,7 +276,7 @@ namespace RX_Explorer.Class
                 {
                     AddPathBuilder.Append($"Insert Or Ignore Into ProgramPicker Values (@Extension_{i}, @ExecutablePath_{i}, 'False', @IsRecommanded_{i});");
 
-                    Command.Parameters.AddWithValue($"@Extension_{i}", Packages[i].Extension);
+                    Command.Parameters.AddWithValue($"@Extension_{i}", Packages[i].Extension.ToLower());
                     Command.Parameters.AddWithValue($"@ExecutablePath_{i}", Packages[i].ExecutablePath);
                     Command.Parameters.AddWithValue($"@IsRecommanded_{i}", Convert.ToString(Packages[i].IsRecommanded));
                 }
@@ -315,7 +315,7 @@ namespace RX_Explorer.Class
                     }
                 }
 
-                Command.Parameters.AddWithValue("@FileType", Extension);
+                Command.Parameters.AddWithValue("@FileType", Extension.ToLower());
                 Command.CommandText = PathBuilder.ToString();
 
                 await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
@@ -326,22 +326,22 @@ namespace RX_Explorer.Class
         {
             using (SqliteCommand Command = new SqliteCommand("Select Path From ProgramPicker Where FileType = @FileType And IsDefault = 'True'", Connection))
             {
-                Command.Parameters.AddWithValue("@FileType", Extension);
+                Command.Parameters.AddWithValue("@FileType", Extension.ToLower());
                 return Convert.ToString(await Command.ExecuteScalarAsync().ConfigureAwait(false));
             }
         }
 
-        public async Task SetDefaultProgramPickerRecordAsync(string FileType, string Path)
+        public async Task SetDefaultProgramPickerRecordAsync(string Extension, string Path)
         {
             using (SqliteCommand Command = new SqliteCommand("Update ProgramPicker Set IsDefault = 'False' Where FileType = @FileType", Connection))
             {
-                Command.Parameters.AddWithValue("@FileType", FileType);
+                Command.Parameters.AddWithValue("@FileType", Extension.ToLower());
                 await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
 
             using (SqliteCommand Command = new SqliteCommand("Update ProgramPicker Set IsDefault = 'True' Where FileType = @FileType And Path = @Path", Connection))
             {
-                Command.Parameters.AddWithValue("@FileType", FileType);
+                Command.Parameters.AddWithValue("@FileType", Extension.ToLower());
                 Command.Parameters.AddWithValue("@Path", Path);
                 await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
@@ -355,7 +355,7 @@ namespace RX_Explorer.Class
 
                 using (SqliteCommand Command = new SqliteCommand("Select * From ProgramPicker Where FileType = @FileType", Connection))
                 {
-                    Command.Parameters.AddWithValue("@FileType", Extension);
+                    Command.Parameters.AddWithValue("@FileType", Extension.ToLower());
 
                     using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
                     {
@@ -392,7 +392,7 @@ namespace RX_Explorer.Class
         {
             using (SqliteCommand Command = new SqliteCommand("Delete From ProgramPicker Where FileType = @FileType And Path = @Path", Connection))
             {
-                Command.Parameters.AddWithValue("@FileType", Package.Extension);
+                Command.Parameters.AddWithValue("@FileType", Package.Extension.ToLower());
                 Command.Parameters.AddWithValue("@Path", Package.ExecutablePath);
                 await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }

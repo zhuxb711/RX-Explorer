@@ -1,4 +1,51 @@
 ﻿*****
+###Quoi de neuf dans la version 6.4.0.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Prise en charge étendue des algorithmes de compression et de décompression (merci @silentmoooon) [PR #193](https://github.com/zhuxb711/RX-Explorer/pull/193)
+
+>>#####La compression et la décompression prennent désormais en charge Zip/Tar/Tar.Gz/Tar.Bz2/RAR(décompression uniquement)/GZip/BZip2
+
+>#####Vous pouvez maintenant utiliser la commande "Ouvrir" pour plusieurs fichiers
+
+>#####La première fermeture du dernier onglet ne fermera pas directement l'ensemble du programme
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Mise à jour de l'apparence de la liste des tâches en mode économie d'énergie
+
+>#####Mise à jour de la couleur de l'étiquette et de la position de la couleur pour un meilleur contraste
+
+>#####Mise à jour de l'apparence de l'éditeur de texte intégré
+
+>#####Mise à jour de la logique de notification Toast, si l'appareil est connecté à l'alimentation électrique, la notification d'activation n'apparaîtra pas
+
+>#####Fournit une méthode de récupération manuelle pour la fonction Win + E
+
+>#####La règle de création d'un nouveau fichier est modifiée pour ne nécessiter que de renseigner le nom ou le suffixe
+
+#####Amélioration des performances
+
+>#####Améliore considérablement l'efficacité de la compression et de la décompression de très gros dossiers
+
+#####Correction d'un bug
+
+>#####Correction du problème suivant: lors de l'utilisation de mots-clés avec des espaces et de la spécification d'utiliser le moteur de recherche Everything, les résultats renvoyés peuvent être incorrects
+
+>#####Correction du problème que les raccourcis clavier fonctionnent toujours en quittant la page de fichier
+
+>#####Correction du problème selon lequel la touche Entrée ne peut pas être utilisée dans l'éditeur de texte intégré
+
+>#####Correction du problème que la fonction de suppression utilise une configuration incorrecte
+
+>#####Correction du problème que la couleur du texte ne change pas avec la couleur du thème dans certains cas
+
+>#####Correction du problème selon lequel la méthode d'ouverture par défaut ne peut pas être modifiée dans certains cas
+
+>#####Correction du problème qui peut être incorrect lors de l'utilisation de la zone de propriété pour renommer
+
+*****
 ###Quoi de neuf dans la version 6.3.7.0
 
 #####Mise à jour des fonctionnalités
