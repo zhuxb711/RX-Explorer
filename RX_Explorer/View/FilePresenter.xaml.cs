@@ -1,4 +1,5 @@
 ﻿using ComputerVision;
+using Microsoft.Toolkit.Deferred;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
@@ -36,6 +37,7 @@ using Windows.UI.WindowManagement.Preview;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
@@ -120,10 +122,14 @@ namespace RX_Explorer
                         if (ListViewControl != null)
                         {
                             ListViewControl.Visibility = Visibility.Collapsed;
-                            ListViewControl.ItemsSource = null;
+                            ListCollectionVS.Source = null;
                         }
 
-                        GridViewControl.ItemsSource = ContactsCVS.View;
+                        if (GridCollectionVS.Source == null)
+                        {
+                            GridCollectionVS.Source = IsGroupedEnable ? GroupCollection : FileCollection;
+                        }
+
                         GridViewControl.Visibility = Visibility.Visible;
                     }
                     else
@@ -131,10 +137,14 @@ namespace RX_Explorer
                         if (GridViewControl != null)
                         {
                             GridViewControl.Visibility = Visibility.Collapsed;
-                            GridViewControl.ItemsSource = null;
+                            GridCollectionVS.Source = null;
                         }
 
-                        ListViewControl.ItemsSource = ContactsCVS.View;
+                        if (ListCollectionVS.Source == null)
+                        {
+                            ListCollectionVS.Source = IsGroupedEnable ? GroupCollection : FileCollection;
+                        }
+
                         ListViewControl.Visibility = Visibility.Visible;
                     }
                 }
@@ -187,25 +197,39 @@ namespace RX_Explorer
         private CancellationTokenSource DelayEnterCancel;
         private CancellationTokenSource DelaySelectionCancel;
         private int CurrentViewModeIndex = -1;
+        private bool GroupedEnable;
 
-        public bool IsGroupedEnable
+        private CollectionViewSource CurrentCVS 
+        { 
+            get
+            {
+                return ItemPresenter is GridView ? GridCollectionVS : ListCollectionVS;
+            } 
+        }
+
+        private bool IsGroupedEnable
         {
             get
             {
-                return ContactsCVS.IsSourceGrouped;
+                return GroupedEnable;
             }
-            private set
+            set
             {
-                if (value)
+                if (GroupedEnable != value)
                 {
-                    ContactsCVS.Source = GroupCollection;
-                }
-                else
-                {
-                    ContactsCVS.Source = FileCollection;
-                }
+                    ListCollectionVS.IsSourceGrouped = value;
+                    GridCollectionVS.IsSourceGrouped = value;
+                    GroupedEnable = value;
 
-                ContactsCVS.IsSourceGrouped = value;
+                    if (value)
+                    {
+                        CurrentCVS.Source = GroupCollection;
+                    }
+                    else
+                    {
+                        CurrentCVS.Source = FileCollection;
+                    }
+                }
             }
         }
 
@@ -473,143 +497,156 @@ namespace RX_Explorer
         {
             if (e.Path.Equals(CurrentFolder?.Path, StringComparison.OrdinalIgnoreCase) && CurrentViewModeIndex != e.Index)
             {
-                CurrentViewModeIndex = e.Index;
+                EventDeferral Deferral = e.GetDeferral();
 
-                switch (e.Index)
+                try
                 {
-                    case 0:
-                        {
-                            ItemPresenter = FindName("GridViewControl") as ListViewBase;
+                    CurrentViewModeIndex = e.Index;
 
-                            GridViewControl.ItemTemplate = GridViewTileDataTemplate;
-                            GridViewControl.ItemsPanel = HorizontalGridViewPanel;
-
-                            while (true)
+                    switch (e.Index)
+                    {
+                        case 0:
                             {
-                                if (GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
+                                ItemPresenter = FindName("GridViewControl") as ListViewBase;
+
+                                GridViewControl.ItemTemplate = GridViewTileDataTemplate;
+                                GridViewControl.ItemsPanel = HorizontalGridViewPanel;
+
+                                while (true)
                                 {
-                                    Scroll.HorizontalScrollMode = ScrollMode.Disabled;
-                                    Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
-                                    Scroll.VerticalScrollMode = ScrollMode.Auto;
-                                    Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-                                    break;
+                                    if (GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
+                                    {
+                                        Scroll.HorizontalScrollMode = ScrollMode.Disabled;
+                                        Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
+                                        Scroll.VerticalScrollMode = ScrollMode.Auto;
+                                        Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        await Task.Delay(200);
+                                    }
                                 }
-                                else
-                                {
-                                    await Task.Delay(200);
-                                }
+
+                                break;
                             }
-
-                            break;
-                        }
-                    case 1:
-                        {
-                            ItemPresenter = FindName("ListViewControl") as ListViewBase;
-                            break;
-                        }
-                    case 2:
-                        {
-                            ItemPresenter = FindName("GridViewControl") as ListViewBase;
-
-                            GridViewControl.ItemTemplate = GridViewListDataTemplate;
-                            GridViewControl.ItemsPanel = VerticalGridViewPanel;
-
-                            while (true)
+                        case 1:
                             {
-                                if (GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
-                                {
-                                    Scroll.HorizontalScrollMode = ScrollMode.Auto;
-                                    Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
-                                    Scroll.VerticalScrollMode = ScrollMode.Disabled;
-                                    Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
-                                    break;
-                                }
-                                else
-                                {
-                                    await Task.Delay(200);
-                                }
+                                ItemPresenter = FindName("ListViewControl") as ListViewBase;
+                                break;
                             }
-
-                            break;
-                        }
-                    case 3:
-                        {
-                            ItemPresenter = FindName("GridViewControl") as ListViewBase;
-
-                            GridViewControl.ItemTemplate = GridViewLargeImageDataTemplate;
-                            GridViewControl.ItemsPanel = HorizontalGridViewPanel;
-
-                            while (true)
+                        case 2:
                             {
-                                if (GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
+                                ItemPresenter = FindName("GridViewControl") as ListViewBase;
+
+                                GridViewControl.ItemTemplate = GridViewListDataTemplate;
+                                GridViewControl.ItemsPanel = VerticalGridViewPanel;
+
+                                while (true)
                                 {
-                                    Scroll.HorizontalScrollMode = ScrollMode.Disabled;
-                                    Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
-                                    Scroll.VerticalScrollMode = ScrollMode.Auto;
-                                    Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-                                    break;
+                                    if (GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
+                                    {
+                                        Scroll.HorizontalScrollMode = ScrollMode.Auto;
+                                        Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+                                        Scroll.VerticalScrollMode = ScrollMode.Disabled;
+                                        Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        await Task.Delay(200);
+                                    }
                                 }
-                                else
-                                {
-                                    await Task.Delay(200);
-                                }
+
+                                break;
                             }
-
-                            break;
-                        }
-                    case 4:
-                        {
-                            ItemPresenter = FindName("GridViewControl") as ListViewBase;
-
-                            GridViewControl.ItemTemplate = GridViewMediumImageDataTemplate;
-                            GridViewControl.ItemsPanel = HorizontalGridViewPanel;
-
-                            while (true)
+                        case 3:
                             {
-                                if (GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
+                                ItemPresenter = FindName("GridViewControl") as ListViewBase;
+
+                                GridViewControl.ItemTemplate = GridViewLargeImageDataTemplate;
+                                GridViewControl.ItemsPanel = HorizontalGridViewPanel;
+
+                                while (true)
                                 {
-                                    Scroll.HorizontalScrollMode = ScrollMode.Disabled;
-                                    Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
-                                    Scroll.VerticalScrollMode = ScrollMode.Auto;
-                                    Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-                                    break;
+                                    if (GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
+                                    {
+                                        Scroll.HorizontalScrollMode = ScrollMode.Disabled;
+                                        Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
+                                        Scroll.VerticalScrollMode = ScrollMode.Auto;
+                                        Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        await Task.Delay(200);
+                                    }
                                 }
-                                else
-                                {
-                                    await Task.Delay(200);
-                                }
+
+                                break;
                             }
-
-                            break;
-                        }
-                    case 5:
-                        {
-                            ItemPresenter = FindName("GridViewControl") as ListViewBase;
-
-                            GridViewControl.ItemTemplate = GridViewSmallImageDataTemplate;
-                            GridViewControl.ItemsPanel = HorizontalGridViewPanel;
-
-                            while (true)
+                        case 4:
                             {
-                                if (GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
-                                {
-                                    Scroll.HorizontalScrollMode = ScrollMode.Disabled;
-                                    Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
-                                    Scroll.VerticalScrollMode = ScrollMode.Auto;
-                                    Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-                                    break;
-                                }
-                                else
-                                {
-                                    await Task.Delay(200);
-                                }
-                            }
+                                ItemPresenter = FindName("GridViewControl") as ListViewBase;
 
-                            break;
-                        }
+                                GridViewControl.ItemTemplate = GridViewMediumImageDataTemplate;
+                                GridViewControl.ItemsPanel = HorizontalGridViewPanel;
+
+                                while (true)
+                                {
+                                    if (GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
+                                    {
+                                        Scroll.HorizontalScrollMode = ScrollMode.Disabled;
+                                        Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
+                                        Scroll.VerticalScrollMode = ScrollMode.Auto;
+                                        Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        await Task.Delay(200);
+                                    }
+                                }
+
+                                break;
+                            }
+                        case 5:
+                            {
+                                ItemPresenter = FindName("GridViewControl") as ListViewBase;
+
+                                GridViewControl.ItemTemplate = GridViewSmallImageDataTemplate;
+                                GridViewControl.ItemsPanel = HorizontalGridViewPanel;
+
+                                while (true)
+                                {
+                                    if (GridViewControl.FindChildOfType<ScrollViewer>() is ScrollViewer Scroll)
+                                    {
+                                        Scroll.HorizontalScrollMode = ScrollMode.Disabled;
+                                        Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
+                                        Scroll.VerticalScrollMode = ScrollMode.Auto;
+                                        Scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        await Task.Delay(200);
+                                    }
+                                }
+
+                                break;
+                            }
+                    }
+
+                    await SQLite.Current.SetPathConfigurationAsync(new PathConfiguration(CurrentFolder.Path, e.Index));
                 }
-
-                await SQLite.Current.SetPathConfigurationAsync(new PathConfiguration(CurrentFolder.Path, e.Index));
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Switch DisplayMode could not be completed successfully");
+                }
+                finally
+                {
+                    Deferral.Complete();
+                }
             }
         }
 
@@ -703,7 +740,7 @@ namespace RX_Explorer
 
                 PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(FolderPath);
 
-                Container.ViewModeControl.SetCurrentViewMode(Config.Path, Config.DisplayModeIndex.GetValueOrDefault());
+                await Container.ViewModeControl.SetCurrentViewMode(Config.Path, Config.DisplayModeIndex.GetValueOrDefault());
 
                 List<FileSystemStorageItemBase> ChildItems = await CurrentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems);
 
@@ -711,7 +748,25 @@ namespace RX_Explorer
                 {
                     HasFile.Visibility = Visibility.Collapsed;
 
-                    foreach (FileSystemStorageItemBase SubItem in SortCollectionGenerator.GetSortedCollection(ChildItems, Config.Target.GetValueOrDefault(), Config.Direction.GetValueOrDefault()))
+                    if (Config.GroupTarget != GroupTarget.None)
+                    {
+                        GroupCollection.Clear();
+
+                        IsGroupedEnable = true;
+
+                        foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(ChildItems, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Ascending))
+                        {
+                            GroupCollection.Add(GroupItem);
+                        }
+                    }
+                    else
+                    {
+                        GroupCollection.Clear();
+
+                        IsGroupedEnable = true;
+                    }
+
+                    foreach (FileSystemStorageItemBase SubItem in SortCollectionGenerator.GetSortedCollection(ChildItems, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()))
                     {
                         FileCollection.Add(SubItem);
                     }
@@ -724,7 +779,7 @@ namespace RX_Explorer
                 StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCollection.Count.ToString());
 
                 ListViewDetailHeader.Filter.SetDataSource(CurrentFolder.Path, FileCollection);
-                ListViewDetailHeader.Indicator.SetIndicatorStatus(Config.Target.GetValueOrDefault(), Config.Direction.GetValueOrDefault());
+                ListViewDetailHeader.Indicator.SetIndicatorStatus(Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
             }
             finally
             {
@@ -2752,7 +2807,7 @@ namespace RX_Explorer
         {
             PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
 
-            if (Config.Direction == SortDirection.Ascending)
+            if (Config.SortDirection == SortDirection.Ascending)
             {
                 await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.Name, SortDirection.Descending);
             }
@@ -2766,7 +2821,7 @@ namespace RX_Explorer
         {
             PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
 
-            if (Config.Direction == SortDirection.Ascending)
+            if (Config.SortDirection == SortDirection.Ascending)
             {
                 await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.ModifiedTime, SortDirection.Descending);
             }
@@ -2780,7 +2835,7 @@ namespace RX_Explorer
         {
             PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
 
-            if (Config.Direction == SortDirection.Ascending)
+            if (Config.SortDirection == SortDirection.Ascending)
             {
                 await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.Type, SortDirection.Descending);
             }
@@ -2794,7 +2849,7 @@ namespace RX_Explorer
         {
             PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
 
-            if (Config.Direction == SortDirection.Ascending)
+            if (Config.SortDirection == SortDirection.Ascending)
             {
                 await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.Size, SortDirection.Descending);
             }
@@ -3811,64 +3866,64 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.Name, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+            await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.Name, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
         }
 
         private async void OrderByTime_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.ModifiedTime, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+            await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.ModifiedTime, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
         }
 
         private async void OrderByType_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.Type, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+            await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.Type, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
         }
 
         private async void OrderBySize_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.Size, Desc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+            await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.Size, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
         }
 
-        private async void Desc_Click(object sender, RoutedEventArgs e)
+        private async void SortDesc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
             PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
 
-            await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, Config.Target.GetValueOrDefault(), SortDirection.Descending);
+            await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, Config.SortTarget.GetValueOrDefault(), SortDirection.Descending);
         }
 
-        private async void Asc_Click(object sender, RoutedEventArgs e)
+        private async void SortAsc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
             PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
 
-            await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, Config.Target.GetValueOrDefault(), SortDirection.Ascending);
+            await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, Config.SortTarget.GetValueOrDefault(), SortDirection.Ascending);
         }
 
         private async void SortMenuFlyout_Opening(object sender, object e)
         {
             PathConfiguration Configuration = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
 
-            if (Configuration.Direction == SortDirection.Ascending)
+            if (Configuration.SortDirection == SortDirection.Ascending)
             {
-                Desc.IsChecked = false;
-                Asc.IsChecked = true;
+                SortDesc.IsChecked = false;
+                SortAsc.IsChecked = true;
             }
             else
             {
-                Asc.IsChecked = false;
-                Desc.IsChecked = true;
+                SortAsc.IsChecked = false;
+                SortDesc.IsChecked = true;
             }
 
-            switch (Configuration.Target)
+            switch (Configuration.SortTarget)
             {
                 case SortTarget.Name:
                     {
@@ -4520,6 +4575,207 @@ namespace RX_Explorer
             Application.Current.Resuming -= Current_Resuming;
             SortCollectionGenerator.SortWayChanged -= Current_SortWayChanged;
             ViewModeController.ViewModeChanged -= Current_ViewModeChanged;
+        }
+
+        private async void GroupMenuFlyout_Opening(object sender, object e)
+        {
+            PathConfiguration Configuration = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
+
+            if (Configuration.GroupDirection == GroupDirection.Ascending)
+            {
+                GroupDesc.IsChecked = false;
+                GroupAsc.IsChecked = true;
+            }
+            else
+            {
+                GroupAsc.IsChecked = false;
+                GroupDesc.IsChecked = true;
+            }
+
+            switch (Configuration.GroupTarget)
+            {
+                case GroupTarget.None:
+                    {
+                        GroupAsc.IsEnabled = false;
+                        GroupDesc.IsEnabled = false;
+                        GroupByType.IsChecked = false;
+                        GroupByTime.IsChecked = false;
+                        GroupBySize.IsChecked = false;
+                        GroupByName.IsChecked = false;
+                        GroupByNone.IsChecked = true;
+                        break;
+                    }
+                case GroupTarget.Name:
+                    {
+                        GroupAsc.IsEnabled = true;
+                        GroupDesc.IsEnabled = true;
+                        GroupByType.IsChecked = false;
+                        GroupByTime.IsChecked = false;
+                        GroupBySize.IsChecked = false;
+                        GroupByName.IsChecked = true;
+                        GroupByNone.IsChecked = false;
+                        break;
+                    }
+                case GroupTarget.Type:
+                    {
+                        GroupAsc.IsEnabled = true;
+                        GroupDesc.IsEnabled = true;
+                        GroupByTime.IsChecked = false;
+                        GroupBySize.IsChecked = false;
+                        GroupByName.IsChecked = false;
+                        GroupByType.IsChecked = true;
+                        GroupByNone.IsChecked = false;
+                        break;
+                    }
+                case GroupTarget.ModifiedTime:
+                    {
+                        GroupAsc.IsEnabled = true;
+                        GroupDesc.IsEnabled = true;
+                        GroupBySize.IsChecked = false;
+                        GroupByName.IsChecked = false;
+                        GroupByType.IsChecked = false;
+                        GroupByTime.IsChecked = true;
+                        GroupByNone.IsChecked = false;
+                        break;
+                    }
+                case GroupTarget.Size:
+                    {
+                        GroupAsc.IsEnabled = true;
+                        GroupDesc.IsEnabled = true;
+                        GroupByName.IsChecked = false;
+                        GroupByType.IsChecked = false;
+                        GroupByTime.IsChecked = false;
+                        GroupBySize.IsChecked = true;
+                        GroupByNone.IsChecked = false;
+                        break;
+                    }
+            }
+        }
+
+        private async void GroupByName_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            GroupAsc.IsEnabled = true;
+            GroupDesc.IsEnabled = true;
+
+            GroupCollection.Clear();
+
+            IsGroupedEnable = true;
+
+            foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(FileCollection, GroupTarget.Name, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending))
+            {
+                GroupCollection.Add(GroupItem);
+            }
+
+            await SQLite.Current.SetPathConfigurationAsync(new PathConfiguration(CurrentFolder.Path, GroupTarget.Name, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending));
+        }
+
+        private async void GroupByTime_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            GroupAsc.IsEnabled = true;
+            GroupDesc.IsEnabled = true;
+
+            GroupCollection.Clear();
+
+            IsGroupedEnable = true;
+
+            foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(FileCollection, GroupTarget.ModifiedTime, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending))
+            {
+                GroupCollection.Add(GroupItem);
+            }
+
+            await SQLite.Current.SetPathConfigurationAsync(new PathConfiguration(CurrentFolder.Path, GroupTarget.ModifiedTime, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending));
+        }
+
+        private async void GroupByType_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            GroupAsc.IsEnabled = true;
+            GroupDesc.IsEnabled = true;
+
+            GroupCollection.Clear();
+
+            IsGroupedEnable = true;
+
+            foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(FileCollection, GroupTarget.Type, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending))
+            {
+                GroupCollection.Add(GroupItem);
+            }
+
+            await SQLite.Current.SetPathConfigurationAsync(new PathConfiguration(CurrentFolder.Path, GroupTarget.Type, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending));
+        }
+
+        private async void GroupBySize_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            GroupAsc.IsEnabled = true;
+            GroupDesc.IsEnabled = true;
+
+            GroupCollection.Clear();
+
+            IsGroupedEnable = true;
+
+            foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(FileCollection, GroupTarget.Name, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending))
+            {
+                GroupCollection.Add(GroupItem);
+            }
+
+            await SQLite.Current.SetPathConfigurationAsync(new PathConfiguration(CurrentFolder.Path, GroupTarget.Size, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending));
+        }
+
+        private async void GroupAsc_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            GroupCollection.Clear();
+
+            IsGroupedEnable = true;
+
+            PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
+
+            foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(FileCollection, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Ascending))
+            {
+                GroupCollection.Add(GroupItem);
+            }
+
+            await SQLite.Current.SetPathConfigurationAsync(new PathConfiguration(CurrentFolder.Path, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Ascending));
+        }
+
+        private async void GroupDesc_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            GroupCollection.Clear();
+
+            IsGroupedEnable = true;
+
+            PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
+
+            foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(FileCollection, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Descending))
+            {
+                GroupCollection.Add(GroupItem);
+            }
+
+            await SQLite.Current.SetPathConfigurationAsync(new PathConfiguration(CurrentFolder.Path, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Descending));
+        }
+
+        private async void GroupNone_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            GroupAsc.IsEnabled = true;
+            GroupDesc.IsEnabled = true;
+
+            GroupCollection.Clear();
+
+            IsGroupedEnable = false;
+
+            await SQLite.Current.SetPathConfigurationAsync(new PathConfiguration(CurrentFolder.Path, GroupTarget.None, GroupDirection.Ascending));
         }
     }
 }

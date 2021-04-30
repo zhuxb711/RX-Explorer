@@ -19,7 +19,7 @@ namespace RX_Explorer.Class
 
             PathConfiguration CurrentConfiguration = await SQLite.Current.GetPathConfigurationAsync(Path);
 
-            if (CurrentConfiguration.Target != Target || CurrentConfiguration.Direction != Direction)
+            if (CurrentConfiguration.SortTarget != Target || CurrentConfiguration.SortDirection != Direction)
             {
                 await SQLite.Current.SetPathConfigurationAsync(new PathConfiguration(Path, Target, Direction));
                 SortWayChanged?.Invoke(null, new SortWayChangedEventArgs(Path, Target, Direction));

@@ -14,10 +14,12 @@
       Background="Transparent">
 
     <Page.Resources>
-        <CollectionViewSource x:Name="ContactsCVS"
-                              IsSourceGrouped="False"
-                              Source="{x:Bind FileCollection}"/>
-        
+        <CollectionViewSource x:Name="ListCollectionVS"
+                              IsSourceGrouped="False"/>
+
+        <CollectionViewSource x:Name="GridCollectionVS"
+                              IsSourceGrouped="False"/>
+
         <muxc:TeachingTip x:Name="InvalidCharTip"
                           IsLightDismissEnabled="True"
                           x:Uid="PresentInvalidCharTip"
@@ -771,15 +773,62 @@
                                                       Click="OrderBySize_Click" />
                             <MenuFlyoutSeparator />
                             <muxc:RadioMenuFlyoutItem Text="{x:Bind Cls:Globalization.GetString('Operate_Text_SortDirection_Asc')}"
-                                                      Name="Asc"
+                                                      Name="SortAsc"
                                                       MinWidth="160"
-                                                      GroupName="Direction"
-                                                      Click="Asc_Click" />
+                                                      GroupName="SortDirection"
+                                                      Click="SortAsc_Click" />
                             <muxc:RadioMenuFlyoutItem Text="{x:Bind Cls:Globalization.GetString('Operate_Text_SortDirection_Desc')}"
-                                                      Name="Desc"
+                                                      Name="SortDesc"
                                                       MinWidth="160"
-                                                      GroupName="Direction"
-                                                      Click="Desc_Click" />
+                                                      GroupName="SortDirection"
+                                                      Click="SortDesc_Click" />
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
+                <AppBarButton Label="分组"
+                              MinWidth="250">
+                    <AppBarButton.Icon>
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xF168;" />
+                    </AppBarButton.Icon>
+                    <AppBarButton.Flyout>
+                        <MenuFlyout Opening="GroupMenuFlyout_Opening">
+                            <muxc:RadioMenuFlyoutItem Text="{x:Bind Cls:Globalization.GetString('Operate_Text_SortTarget_Name')}"
+                                                      MinWidth="160"
+                                                      GroupName="Group"
+                                                      Name="GroupByName" 
+                                                      Click="GroupByName_Click"/>
+                            <muxc:RadioMenuFlyoutItem Text="{x:Bind Cls:Globalization.GetString('Operate_Text_SortTarget_Time')}"
+                                                      MinWidth="160"
+                                                      GroupName="Group"
+                                                      Name="GroupByTime"
+                                                      Click="GroupByTime_Click"/>
+                            <muxc:RadioMenuFlyoutItem Text="{x:Bind Cls:Globalization.GetString('Operate_Text_SortTarget_Type')}"
+                                                      MinWidth="160"
+                                                      GroupName="Group"
+                                                      Name="GroupByType"
+                                                      Click="GroupByType_Click"/>
+                            <muxc:RadioMenuFlyoutItem Text="{x:Bind Cls:Globalization.GetString('Operate_Text_SortTarget_Size')}"
+                                                      MinWidth="160"
+                                                      GroupName="Group"
+                                                      Name="GroupBySize"
+                                                      Click="GroupBySize_Click"/>
+                            <muxc:RadioMenuFlyoutItem Text="无"
+                                                      Name="GroupByNone"
+                                                      MinWidth="160"
+                                                      GroupName="Group"
+                                                      Click="GroupNone_Click" />
+                            <MenuFlyoutSeparator />
+                            <muxc:RadioMenuFlyoutItem Text="升序"
+                                                      MinWidth="160"
+                                                      GroupName="GroupDirection"
+                                                      Name="GroupAsc"
+                                                      Click="GroupAsc_Click" />
+                            <muxc:RadioMenuFlyoutItem Text="降序"
+                                                      MinWidth="160"
+                                                      Name="GroupDesc"
+                                                      GroupName="GroupDirection"
+                                                      Click="GroupDesc_Click" />
                         </MenuFlyout>
                     </AppBarButton.Flyout>
                 </AppBarButton>
@@ -1049,11 +1098,13 @@
 
         <ItemsPanelTemplate x:Name="HorizontalGridViewPanel">
             <ItemsWrapGrid Orientation="Horizontal"
+                           AreStickyGroupHeadersEnabled="False"
                            HorizontalAlignment="Stretch" />
         </ItemsPanelTemplate>
 
         <ItemsPanelTemplate x:Name="VerticalGridViewPanel">
             <ItemsWrapGrid Orientation="Vertical"
+                           AreStickyGroupHeadersEnabled="False"
                            HorizontalAlignment="Stretch" />
         </ItemsPanelTemplate>
 
@@ -1167,6 +1218,7 @@
                   PreviewKeyDown="ViewControl_PreviewKeyDown"
                   ShowsScrollingPlaceholders="False"
                   x:Load="False"
+                  ItemsSource="{x:Bind ListCollectionVS.View,Mode=OneWay}"
                   ItemTemplate="{StaticResource ListViewDetailContent}"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
             <Interactivity:Interaction.Behaviors>
@@ -1656,6 +1708,11 @@
                             Style="{StaticResource ListHeaderButtonStyle}" />
                 </Grid>
             </ListView.Header>
+            <ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <ItemsStackPanel AreStickyGroupHeadersEnabled="False" />
+                </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment"
@@ -1687,7 +1744,17 @@
                   PreviewKeyDown="ViewControl_PreviewKeyDown"
                   DoubleTapped="ViewControl_DoubleTapped"
                   ShowsScrollingPlaceholders="False"
+                  ItemsSource="{x:Bind GridCollectionVS.View,Mode=OneWay}"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
+            <GridView.GroupStyle>
+                <GroupStyle>
+                    <GroupStyle.HeaderTemplate>
+                        <DataTemplate x:DataType="Cls:FileSystemStorageGroupItem">
+                            <TextBlock Text="{x:Bind Key}" />
+                        </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                </GroupStyle>
+            </GridView.GroupStyle>
         </GridView>
         <TextBlock Name="HasFile"
                    x:FieldModifier="public"

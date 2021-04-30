@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.Toolkit.Deferred;
+using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
 {
@@ -42,10 +44,14 @@ namespace RX_Explorer.Class
 
         private string CurrentPath = string.Empty;
 
-        public void SetCurrentViewMode(string CurrentPath, int ViewModeIndex)
-        {
+        public async Task SetCurrentViewMode(string CurrentPath, int ViewModeIndex)
+        {            
+            modeIndex = ViewModeIndex;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ViewModeIndex)));
+            
+            await ViewModeChanged?.InvokeAsync(this, new ViewModeChangedEventArgs(CurrentPath, ViewModeIndex));
+
             this.CurrentPath = CurrentPath ?? string.Empty;
-            this.ViewModeIndex = ViewModeIndex;
         }
 
         public ViewModeController()
@@ -70,7 +76,7 @@ namespace RX_Explorer.Class
             ViewModeChanged -= ViewModeController_ViewModeChanged;
         }
 
-        public sealed class ViewModeChangedEventArgs
+        public sealed class ViewModeChangedEventArgs : DeferredEventArgs
         {
             public string Path { get; }
 

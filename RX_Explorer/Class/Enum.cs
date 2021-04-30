@@ -144,10 +144,11 @@ namespace RX_Explorer.Class
 
     public enum GroupTarget
     {
-        Name = 0,
-        Type = 1,
-        ModifiedTime = 2,
-        Size = 4
+        None = 0,
+        Name = 1,
+        Type = 2,
+        ModifiedTime = 4,
+        Size = 8
     }
 
     public enum SortDirection

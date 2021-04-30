@@ -64,7 +64,7 @@ namespace RX_Explorer.Class
                    .Append("Create Table If Not Exists BackgroundPicture (FileName Text Not Null, Primary Key (FileName));")
                    .Append("Create Table If Not Exists ProgramPicker (FileType Text Not Null, Path Text Not Null Collate NoCase, IsDefault Text Default 'False' Check(IsDefault In ('True','False')), IsRecommanded Text Default 'False' Check(IsRecommanded In ('True','False')), Primary Key(FileType, Path));")
                    .Append("Create Table If Not Exists TerminalProfile (Name Text Not Null, Path Text Not Null Collate NoCase, Argument Text Not Null, RunAsAdmin Text Not Null, Primary Key(Name));")
-                   .Append("Create Table If Not Exists PathConfiguration (Path Text Not Null Collate NoCase, DisplayMode Integer Default 1 Check(DisplayMode In (0,1,2,3,4,5)), SortColumn Text Default 'Name' Check(SortColumn In ('Name','ModifiedTime','Type','Size')), SortDirection Text Default 'Ascending' Check(SortDirection In ('Ascending','Descending')), Primary Key(Path));")
+                   .Append("Create Table If Not Exists PathConfiguration (Path Text Not Null Collate NoCase, DisplayMode Integer Default 1 Check(DisplayMode In (0,1,2,3,4,5)), SortColumn Text Default 'Name' Check(SortColumn In ('Name','ModifiedTime','Type','Size')), SortDirection Text Default 'Ascending' Check(SortDirection In ('Ascending','Descending')), GroupColumn Text Default 'None' Check(GroupColumn In ('None','Name','ModifiedTime','Type','Size')), GroupDirection Text Default 'Ascending' Check(GroupDirection In ('Ascending','Descending')), Primary Key(Path));")
                    .Append("Create Table If Not Exists FileColor (Path Text Not Null Collate NoCase, Color Text Not Null, Primary Key (Path));");
 
             if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("DatabaseInit"))
@@ -120,7 +120,7 @@ namespace RX_Explorer.Class
 
                 Command.Parameters.AddWithValue("@Path", Configuration.Path);
 
-                if (Configuration.DisplayModeIndex.HasValue)
+                if (Configuration.DisplayModeIndex != null)
                 {
                     ValueLeft.Add("DisplayMode");
                     ValueRight.Add("@DisplayMode");
@@ -129,22 +129,40 @@ namespace RX_Explorer.Class
                     Command.Parameters.AddWithValue("@DisplayMode", Configuration.DisplayModeIndex);
                 }
 
-                if (Configuration.Target.HasValue)
+                if (Configuration.SortTarget != null)
                 {
                     ValueLeft.Add("SortColumn");
                     ValueRight.Add("@SortColumn");
                     UpdatePart.Add("SortColumn = @SortColumn");
 
-                    Command.Parameters.AddWithValue("@SortColumn", Enum.GetName(typeof(SortTarget), Configuration.Target));
+                    Command.Parameters.AddWithValue("@SortColumn", Enum.GetName(typeof(SortTarget), Configuration.SortTarget));
                 }
 
-                if (Configuration.Direction.HasValue)
+                if (Configuration.SortDirection != null)
                 {
                     ValueLeft.Add("SortDirection");
                     ValueRight.Add("@SortDirection");
                     UpdatePart.Add("SortDirection = @SortDirection");
 
-                    Command.Parameters.AddWithValue("@SortDirection", Enum.GetName(typeof(SortDirection), Configuration.Direction));
+                    Command.Parameters.AddWithValue("@SortDirection", Enum.GetName(typeof(SortDirection), Configuration.SortDirection));
+                }
+
+                if (Configuration.GroupTarget != null)
+                {
+                    ValueLeft.Add("GroupColumn");
+                    ValueRight.Add("@GroupColumn");
+                    UpdatePart.Add("GroupColumn = @GroupColumn");
+
+                    Command.Parameters.AddWithValue("@GroupColumn", Enum.GetName(typeof(GroupTarget), Configuration.GroupTarget));
+                }
+
+                if (Configuration.GroupDirection != null)
+                {
+                    ValueLeft.Add("GroupDirection");
+                    ValueRight.Add("@GroupDirection");
+                    UpdatePart.Add("GroupDirection = @GroupDirection");
+
+                    Command.Parameters.AddWithValue("@GroupDirection", Enum.GetName(typeof(GroupDirection), Configuration.GroupDirection));
                 }
 
                 Command.CommandText = $"Insert Into PathConfiguration ({string.Join(", ", ValueLeft)}) Values ({string.Join(", ", ValueRight)}) On Conflict (Path) Do Update Set {string.Join(", ", UpdatePart)} Where Path = @Path";
@@ -163,11 +181,11 @@ namespace RX_Explorer.Class
                 {
                     if (Reader.Read())
                     {
-                        return new PathConfiguration(Path, Convert.ToInt32(Reader[1]), Enum.Parse<SortTarget>(Convert.ToString(Reader[2])), Enum.Parse<SortDirection>(Convert.ToString(Reader[3])));
+                        return new PathConfiguration(Path, Convert.ToInt32(Reader[1]), Enum.Parse<SortTarget>(Convert.ToString(Reader[2])), Enum.Parse<SortDirection>(Convert.ToString(Reader[3])), Enum.Parse<GroupTarget>(Convert.ToString(Reader[4])), Enum.Parse<GroupDirection>(Convert.ToString(Reader[5])));
                     }
                     else
                     {
-                        return new PathConfiguration(Path, 1, SortTarget.Name, SortDirection.Ascending);
+                        return new PathConfiguration(Path, 1, SortTarget.Name, SortDirection.Ascending, GroupTarget.Name, GroupDirection.Ascending);
                     }
                 }
             }

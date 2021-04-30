@@ -42,7 +42,6 @@ namespace RX_Explorer.Class
                             Result.Add(new FileSystemStorageGroupItem("U - Z", GroupItem4));
                         }
 
-
                         IEnumerable<T> GroupItem5 = InputCollection.Where((Item) => Item.Name.FirstOrDefault() < 65 || (Item.Name.FirstOrDefault() > 90 && Item.Name.FirstOrDefault() < 97) || Item.Name.FirstOrDefault() > 122);
 
                         if (GroupItem5.Any())

@@ -8,9 +8,13 @@ namespace RX_Explorer.Class
 
         public int? DisplayModeIndex { get; }
 
-        public SortTarget? Target { get; }
+        public SortTarget? SortTarget { get; }
 
-        public SortDirection? Direction { get; }
+        public SortDirection? SortDirection { get; }
+
+        public GroupTarget? GroupTarget { get; }
+
+        public GroupDirection? GroupDirection { get; }
 
         public PathConfiguration(string Path, int DisplayModeIndex)
         {
@@ -31,11 +35,23 @@ namespace RX_Explorer.Class
             }
 
             this.Path = Path;
-            this.Direction = Direction;
-            this.Target = Target;
+            this.SortDirection = Direction;
+            this.SortTarget = Target;
         }
 
-        public PathConfiguration(string Path, int DisplayModeIndex, SortTarget Target, SortDirection Direction)
+        public PathConfiguration(string Path, GroupTarget GroupTarget, GroupDirection GroupDirection)
+        {
+            if (string.IsNullOrWhiteSpace(Path))
+            {
+                throw new ArgumentException("Argument could not be empty or white space", nameof(Path));
+            }
+
+            this.Path = Path;
+            this.GroupTarget = GroupTarget;
+            this.GroupDirection = GroupDirection;
+        }
+
+        public PathConfiguration(string Path, int DisplayModeIndex, SortTarget SortTarget, SortDirection SortDirection, GroupTarget GroupTarget, GroupDirection GroupDirection)
         {
             if (string.IsNullOrWhiteSpace(Path))
             {
@@ -44,8 +60,10 @@ namespace RX_Explorer.Class
 
             this.Path = Path;
             this.DisplayModeIndex = DisplayModeIndex;
-            this.Direction = Direction;
-            this.Target = Target;
+            this.SortTarget = SortTarget;
+            this.SortDirection = SortDirection;
+            this.GroupTarget = GroupTarget;
+            this.GroupDirection = GroupDirection;
         }
     }
 }

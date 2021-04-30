@@ -903,7 +903,7 @@ namespace RX_Explorer.Class
             if (FilterIntersct != null && FilterIntersct.Any())
             {
                 PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentPath);
-                return SortCollectionGenerator.GetSortedCollection(FilterIntersct, Config.Target.GetValueOrDefault(), Config.Direction.GetValueOrDefault());
+                return SortCollectionGenerator.GetSortedCollection(FilterIntersct, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
             }
             else
             {

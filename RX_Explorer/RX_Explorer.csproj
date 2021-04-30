@@ -166,7 +166,6 @@
     <Compile Include="Class\CompressionUtil.cs" />
     <Compile Include="Class\ContextMenuItem.cs" />
     <Compile Include="Class\CustomDataTemplateSelector.cs" />
-    <Compile Include="Class\DriveChangeDeferredEventArgs.cs" />
     <Compile Include="Class\Enum.cs" />
     <Compile Include="Class\Exception.cs" />
     <Compile Include="Class\ExtendedExecutionController.cs" />

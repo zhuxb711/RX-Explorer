@@ -131,7 +131,7 @@ namespace RX_Explorer
             Loaded += FileControl_Loaded;
         }
 
-        private async void CommonAccessCollection_DriveRemoved(object sender, DriveChangeDeferredEventArgs args)
+        private async void CommonAccessCollection_DriveRemoved(object sender, CommonAccessCollection.DriveChangeDeferredEventArgs args)
         {
             EventDeferral Deferral = args.GetDeferral();
 
@@ -158,7 +158,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void CommonAccessCollection_DriveAdded(object sender, DriveChangeDeferredEventArgs args)
+        private async void CommonAccessCollection_DriveAdded(object sender, CommonAccessCollection.DriveChangeDeferredEventArgs args)
         {
             EventDeferral Deferral = args.GetDeferral();
 
@@ -2450,7 +2450,7 @@ namespace RX_Explorer
                 if (!string.IsNullOrEmpty(CurrentPresenter.CurrentFolder?.Path))
                 {
                     PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentPresenter.CurrentFolder.Path);
-                    ViewModeControl.SetCurrentViewMode(Config.Path, Config.DisplayModeIndex.GetValueOrDefault());
+                    await ViewModeControl.SetCurrentViewMode(Config.Path, Config.DisplayModeIndex.GetValueOrDefault());
                 }
             }
         }

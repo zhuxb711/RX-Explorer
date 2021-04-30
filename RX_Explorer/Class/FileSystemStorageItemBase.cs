@@ -69,7 +69,20 @@ namespace RX_Explorer.Class
             }
         }
 
-        public SolidColorBrush BackgroundColor { get; private set; } = new SolidColorBrush(Colors.Transparent);
+        public SolidColorBrush BackgroundColor
+        {
+            get
+            {
+                return backgroundColor ??= new SolidColorBrush(Colors.Transparent);
+            }
+            private set
+            {
+                backgroundColor = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundColor)));
+            }
+        }
+
+        private SolidColorBrush backgroundColor;
 
         public void SetColorAsSpecific(Color Color)
         {

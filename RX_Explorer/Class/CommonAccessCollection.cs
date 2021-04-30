@@ -542,13 +542,22 @@ namespace RX_Explorer.Class
             NetworkDriveCheckTimer.Start();
         }
 
-
         static CommonAccessCollection()
         {
             PortalDeviceWatcher.Added += PortalDeviceWatcher_Added;
             PortalDeviceWatcher.Removed += PortalDeviceWatcher_Removed;
             DriveList.CollectionChanged += HardDeviceList_CollectionChanged;
             NetworkDriveCheckTimer.Tick += NetworkDriveCheckTimer_Tick;
+        }
+
+        public sealed class DriveChangeDeferredEventArgs : DeferredEventArgs
+        {
+            public DriveDataBase Data { get; }
+
+            public DriveChangeDeferredEventArgs(DriveDataBase Data)
+            {
+                this.Data = Data;
+            }
         }
     }
 }
