@@ -194,6 +194,7 @@
     <Compile Include="Class\RecycleStorageFolder.cs" />
     <Compile Include="Class\UrlStorageFile.cs" />
     <Compile Include="Class\WslDriveData.cs" />
+    <Compile Include="Class\ZipStorageItem.cs" />
     <Compile Include="CustomControl\AppBarButtonWithImage.xaml.cs">
       <DependentUpon>AppBarButtonWithImage.xaml</DependentUpon>
     </Compile>

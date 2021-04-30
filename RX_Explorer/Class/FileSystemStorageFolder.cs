@@ -12,7 +12,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public class FileSystemStorageFolder : FileSystemStorageItemBase
+    public class FileSystemStorageFolder : FileSystemStorageItemBase<StorageFolder>
     {
         public override string Name
         {
@@ -94,8 +94,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected StorageFolder StorageItem { get; set; }
-        private StorageFolder TempStorageItem;
+        private readonly StorageFolder TempStorageItem;
 
         protected FileSystemStorageFolder(StorageFolder Item, DateTimeOffset ModifiedTime) : base(Item)
         {
@@ -107,11 +106,6 @@ namespace RX_Explorer.Class
         public FileSystemStorageFolder(string Path, WIN_Native_API.WIN32_FIND_DATA Data) : base(Path, Data)
         {
 
-        }
-
-        public async static Task<FileSystemStorageFolder> CreateFromExistingStorageItem(StorageFolder Item)
-        {
-            return new FileSystemStorageFolder(Item, await Item.GetModifiedTimeAsync());
         }
 
         public async Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItem = false, bool IncludeSystemItem = false, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder)
@@ -338,12 +332,12 @@ namespace RX_Explorer.Class
                                 {
                                     case StorageFolder SubFolder:
                                         {
-                                            yield return await CreateFromExistingStorageItem(SubFolder);
+                                            yield return new FileSystemStorageFolder(SubFolder, await SubFolder.GetModifiedTimeAsync());
                                             break;
                                         }
                                     case StorageFile SubFile:
                                         {
-                                            yield return await FileSystemStorageFile.CreateFromExistingStorageItem(SubFile);
+                                            yield return await CreateFromStorageItemAsync(SubFile);
                                             break;
                                         }
                                 }
@@ -394,11 +388,11 @@ namespace RX_Explorer.Class
                                 {
                                     if (Item is StorageFolder SubFolder)
                                     {
-                                        Result.Add(await CreateFromExistingStorageItem(SubFolder));
+                                        Result.Add(new FileSystemStorageFolder(SubFolder, await SubFolder.GetModifiedTimeAsync()));
                                     }
                                     else if (Item is StorageFile SubFile)
                                     {
-                                        Result.Add(await FileSystemStorageFile.CreateFromExistingStorageItem(SubFile));
+                                        Result.Add(await CreateFromStorageItemAsync(SubFile));
                                     }
                                 }
                             }

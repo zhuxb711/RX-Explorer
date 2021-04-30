@@ -4319,7 +4319,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            SelectedItem.SetForegroundColorAsNormal();
+            SelectedItem.SetColorAsNormal();
             await SQLite.Current.DeleteFileColorAsync(SelectedItem.Path).ConfigureAwait(false);
         }
 
@@ -4330,7 +4330,7 @@ namespace RX_Explorer
 
             foreach (FileSystemStorageItemBase Item in SelectedItems)
             {
-                Item.SetForegroundColorAsNormal();
+                Item.SetColorAsNormal();
                 await SQLite.Current.DeleteFileColorAsync(Item.Path).ConfigureAwait(false);
             }
         }
@@ -4341,7 +4341,7 @@ namespace RX_Explorer
 
             Color ForegroundColor = ((Windows.UI.Xaml.Media.SolidColorBrush)((AppBarButton)sender).Foreground).Color;
 
-            SelectedItem.SetForegroundColorAsSpecific(ForegroundColor);
+            SelectedItem.SetColorAsSpecific(ForegroundColor);
             await SQLite.Current.SetFileColorAsync(SelectedItem.Path, ForegroundColor.ToHex()).ConfigureAwait(false);
         }
 
@@ -4408,7 +4408,7 @@ namespace RX_Explorer
 
             foreach (FileSystemStorageItemBase Item in SelectedItems)
             {
-                Item.SetForegroundColorAsSpecific(ForegroundColor);
+                Item.SetColorAsSpecific(ForegroundColor);
                 await SQLite.Current.SetFileColorAsync(Item.Path, ForegroundColor.ToHex()).ConfigureAwait(false);
             }
         }

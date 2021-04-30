@@ -1,19 +1,33 @@
 ﻿using RX_Explorer.Interface;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
+using System.Reflection;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI;
 using Windows.UI.Core;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using ColorHelper = Microsoft.Toolkit.Uwp.Helpers.ColorHelper;
 
 namespace RX_Explorer.Class
 {
+    public abstract class FileSystemStorageItemBase<T> : FileSystemStorageItemBase where T : IStorageItem
+    {
+        protected T StorageItem { get; set; }
+
+        protected FileSystemStorageItemBase(T Item) : base(Item.Path)
+        {
+            StorageItem = Item;
+        }
+
+        protected FileSystemStorageItemBase(string Path, WIN_Native_API.WIN32_FIND_DATA Data) : base(Path, Data)
+        {
+
+        }
+    }
+
     /// <summary>
     /// 提供对设备中的存储对象的描述
     /// </summary>
@@ -55,29 +69,18 @@ namespace RX_Explorer.Class
             }
         }
 
-        public SolidColorBrush BackgroundColor
-        {
-            get
-            {
-                return foregroundColor ??= new SolidColorBrush(Colors.Transparent);
-            }
-            private set
-            {
-                foregroundColor = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundColor)));
-            }
-        }
+        public SolidColorBrush BackgroundColor { get; private set; } = new SolidColorBrush(Colors.Transparent);
 
-        private SolidColorBrush foregroundColor;
-
-        public void SetForegroundColorAsSpecific(Color Color)
+        public void SetColorAsSpecific(Color Color)
         {
             BackgroundColor = new SolidColorBrush(Color);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundColor)));
         }
 
-        public void SetForegroundColorAsNormal()
+        public void SetColorAsNormal()
         {
             BackgroundColor = new SolidColorBrush(Colors.Transparent);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundColor)));
         }
 
         public double ThumbnailOpacity { get; protected set; } = 1d;
@@ -132,62 +135,6 @@ namespace RX_Explorer.Class
 
         protected static readonly Uri Const_File_Black_Image_Uri = new Uri("ms-appx:///Assets/Page_Solid_Black.png");
 
-        public static async Task MoveAsync(string SourcePath, string DirectoryPath, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
-        {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-            {
-                await Exclusive.Controller.MoveAsync(SourcePath, DirectoryPath, IsUndoOperation, ProgressHandler).ConfigureAwait(false);
-            }
-        }
-
-        public static async Task MoveAsync(IEnumerable<string> SourcePathList, string DirectoryPath, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
-        {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-            {
-                await Exclusive.Controller.MoveAsync(SourcePathList, DirectoryPath, IsUndoOperation, ProgressHandler).ConfigureAwait(false);
-            }
-        }
-
-        public static async Task CopyAsync(string SourcePath, string DirectoryPath, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
-        {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-            {
-                await Exclusive.Controller.CopyAsync(SourcePath, DirectoryPath, IsUndoOperation, ProgressHandler).ConfigureAwait(false);
-            }
-        }
-
-        public static async Task CopyAsync(IEnumerable<string> SourcePathList, string DirectoryPath, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
-        {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-            {
-                await Exclusive.Controller.CopyAsync(SourcePathList, DirectoryPath, IsUndoOperation, ProgressHandler).ConfigureAwait(false);
-            }
-        }
-
-        public static async Task<string> RenameAsync(string Path, string DesireName)
-        {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-            {
-                return await Exclusive.Controller.RenameAsync(Path, DesireName).ConfigureAwait(false);
-            }
-        }
-
-        public static async Task DeleteAsync(string SourcePath, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
-        {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-            {
-                await Exclusive.Controller.DeleteAsync(SourcePath, PermanentDelete, IsUndoOperation, ProgressHandler).ConfigureAwait(false);
-            }
-        }
-
-        public static async Task DeleteAsync(IEnumerable<string> SourcePathList, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
-        {
-            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-            {
-                await Exclusive.Controller.DeleteAsync(SourcePathList, PermanentDelete, IsUndoOperation, ProgressHandler).ConfigureAwait(false);
-            }
-        }
-
         public static async Task<bool> CheckExistAsync(string Path)
         {
             if (System.IO.Path.IsPathRooted(Path))
@@ -234,6 +181,45 @@ namespace RX_Explorer.Class
             }
         }
 
+        public static async Task<FileSystemStorageItemBase> CreateFromStorageItemAsync<T>(T Item) where T : IStorageItem
+        {
+            switch (Item)
+            {
+                case StorageFile File:
+                    {
+                        foreach (ConstructorInfo Info in typeof(FileSystemStorageFile).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
+                        {
+                            ParameterInfo[] Parameters = Info.GetParameters();
+
+                            if (Parameters[0].ParameterType == typeof(StorageFile))
+                            {
+                                return (FileSystemStorageFile)Info.Invoke(new object[] { File, await File.GetModifiedTimeAsync(), await File.GetSizeRawDataAsync() });
+                            }
+                        }
+
+                        return null;
+                    }
+                case StorageFolder Folder:
+                    {
+                        foreach (ConstructorInfo Info in typeof(FileSystemStorageFolder).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
+                        {
+                            ParameterInfo[] Parameters = Info.GetParameters();
+
+                            if (Parameters[0].ParameterType == typeof(StorageFolder))
+                            {
+                                return (FileSystemStorageFolder)Info.Invoke(new object[] { Folder, await Folder.GetModifiedTimeAsync() });
+                            }
+                        }
+
+                        return null;
+                    }
+                default:
+                    {
+                        return null;
+                    }
+            }
+        }
+
         public static async Task<FileSystemStorageItemBase> OpenAsync(string Path)
         {
             if (WIN_Native_API.CheckLocationAvailability(System.IO.Path.GetDirectoryName(Path)))
@@ -251,7 +237,7 @@ namespace RX_Explorer.Class
                     if (string.IsNullOrEmpty(DirectoryPath))
                     {
                         StorageFolder Folder = await StorageFolder.GetFolderFromPathAsync(Path);
-                        return await FileSystemStorageFolder.CreateFromExistingStorageItem(Folder);
+                        return await CreateFromStorageItemAsync(Folder);
                     }
                     else
                     {
@@ -261,11 +247,11 @@ namespace RX_Explorer.Class
                         {
                             case StorageFolder Folder:
                                 {
-                                    return await FileSystemStorageFolder.CreateFromExistingStorageItem(Folder);
+                                    return await CreateFromStorageItemAsync(Folder);
                                 }
                             case StorageFile File:
                                 {
-                                    return await FileSystemStorageFile.CreateFromExistingStorageItem(File);
+                                    return await CreateFromStorageItemAsync(File);
                                 }
                             default:
                                 {
@@ -306,17 +292,17 @@ namespace RX_Explorer.Class
                                     case CreateOption.GenerateUniqueName:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
-                                            return await FileSystemStorageFile.CreateFromExistingStorageItem(NewFile);
+                                            return await CreateFromStorageItemAsync(NewFile);
                                         }
                                     case CreateOption.OpenIfExist:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
-                                            return await FileSystemStorageFile.CreateFromExistingStorageItem(NewFile);
+                                            return await CreateFromStorageItemAsync(NewFile);
                                         }
                                     case CreateOption.ReplaceExisting:
                                         {
                                             StorageFile NewFile = await Folder.CreateFileAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
-                                            return await FileSystemStorageFile.CreateFromExistingStorageItem(NewFile);
+                                            return await CreateFromStorageItemAsync(NewFile);
                                         }
                                     default:
                                         {
@@ -350,17 +336,17 @@ namespace RX_Explorer.Class
                                     case CreateOption.GenerateUniqueName:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.GenerateUniqueName);
-                                            return await FileSystemStorageFolder.CreateFromExistingStorageItem(NewFolder);
+                                            return await CreateFromStorageItemAsync(NewFolder);
                                         }
                                     case CreateOption.OpenIfExist:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.OpenIfExists);
-                                            return await FileSystemStorageFolder.CreateFromExistingStorageItem(NewFolder);
+                                            return await CreateFromStorageItemAsync(NewFolder);
                                         }
                                     case CreateOption.ReplaceExisting:
                                         {
                                             StorageFolder NewFolder = await Folder.CreateFolderAsync(System.IO.Path.GetFileName(Path), CreationCollisionOption.ReplaceExisting);
-                                            return await FileSystemStorageFolder.CreateFromExistingStorageItem(NewFolder);
+                                            return await CreateFromStorageItemAsync(NewFolder);
                                         }
                                     default:
                                         {
@@ -382,9 +368,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected FileSystemStorageItemBase(IStorageItem Item)
+        protected FileSystemStorageItemBase(string Path)
         {
-            Path = Item.Path;
+            this.Path = Path;
         }
 
         protected FileSystemStorageItemBase(string Path, WIN_Native_API.WIN32_FIND_DATA Data)
@@ -468,7 +454,7 @@ namespace RX_Explorer.Class
 
             if (!string.IsNullOrEmpty(ColorString))
             {
-                SetForegroundColorAsSpecific(ColorHelper.ToColor(ColorString));
+                SetColorAsSpecific(ColorHelper.ToColor(ColorString));
             }
         }
 
@@ -503,9 +489,12 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual Task MoveAsync(string DirectoryPath, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
+        public virtual async Task MoveAsync(string DirectoryPath, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
         {
-            return MoveAsync(Path, DirectoryPath, ProgressHandler, IsUndoOperation);
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+            {
+                await Exclusive.Controller.MoveAsync(Path, DirectoryPath, IsUndoOperation, ProgressHandler);
+            }
         }
 
         public virtual Task MoveAsync(FileSystemStorageFolder Directory, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
@@ -513,9 +502,12 @@ namespace RX_Explorer.Class
             return MoveAsync(Directory.Path, ProgressHandler, IsUndoOperation);
         }
 
-        public virtual Task CopyAsync(string DirectoryPath, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
+        public virtual async Task CopyAsync(string DirectoryPath, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
         {
-            return CopyAsync(Path, DirectoryPath, ProgressHandler, IsUndoOperation);
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+            {
+                await Exclusive.Controller.CopyAsync(Path, DirectoryPath, IsUndoOperation, ProgressHandler);
+            }
         }
 
         public virtual Task CopyAsync(FileSystemStorageFolder Directory, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
@@ -525,14 +517,20 @@ namespace RX_Explorer.Class
 
         public async virtual Task<string> RenameAsync(string DesireName)
         {
-            string NewName = await RenameAsync(Path, DesireName);
-            Path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), NewName);
-            return NewName;
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+            {
+                string NewName = await Exclusive.Controller.RenameAsync(Path, DesireName);
+                Path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path), NewName);
+                return NewName;
+            }
         }
 
-        public virtual Task DeleteAsync(bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
+        public virtual async Task DeleteAsync(bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
         {
-            return DeleteAsync(Path, PermanentDelete, ProgressHandler, IsUndoOperation);
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+            {
+                await Exclusive.Controller.DeleteAsync(Path, PermanentDelete, IsUndoOperation, ProgressHandler);
+            }
         }
 
         public override string ToString()

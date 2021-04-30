@@ -18,13 +18,13 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public class FileSystemStorageFile : FileSystemStorageItemBase, ICryptable
+    public class FileSystemStorageFile : FileSystemStorageItemBase<StorageFile>, ICryptable
     {
         public override string Name
         {
             get
             {
-                return StorageItem?.Name ?? System.IO.Path.GetFileName(Path);
+                return (StorageItem?.Name) ?? System.IO.Path.GetFileName(Path);
             }
         }
 
@@ -32,7 +32,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return StorageItem?.DisplayName ?? Name;
+                return (StorageItem?.DisplayName) ?? Name;
             }
         }
 
@@ -48,7 +48,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return StorageItem?.DisplayType ?? Type;
+                return (StorageItem?.DisplayType) ?? Type;
             }
         }
 
@@ -56,7 +56,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return StorageItem?.FileType ?? System.IO.Path.GetExtension(Name).ToUpper();
+                return (StorageItem?.FileType) ?? System.IO.Path.GetExtension(Name).ToUpper();
             }
         }
 
@@ -107,13 +107,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected StorageFile StorageItem { get; set; }
-        private StorageFile TempStorageItem;
-
-        public async static Task<FileSystemStorageFile> CreateFromExistingStorageItem(StorageFile Item)
-        {
-            return new FileSystemStorageFile(Item, await Item.GetModifiedTimeAsync(), await Item.GetSizeRawDataAsync());
-        }
+        private readonly StorageFile TempStorageItem;
 
         protected FileSystemStorageFile(StorageFile Item, DateTimeOffset ModifiedTime, ulong Size) : base(Item)
         {

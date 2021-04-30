@@ -168,35 +168,36 @@ namespace RX_Explorer
                 {
                     if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => !Content.Path.Equals(args.Data.Path, StringComparison.OrdinalIgnoreCase)))
                     {
-                        FileSystemStorageFolder DeviceFolder = await FileSystemStorageFolder.CreateFromExistingStorageItem(args.Data.DriveFolder);
-
-                        if (args.Data.DriveType == DriveType.Network)
+                        if (await FileSystemStorageItemBase.CreateFromStorageItemAsync(args.Data.DriveFolder) is FileSystemStorageFolder DeviceFolder)
                         {
-                            await Task.Run(() => DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder)).ContinueWith((task) =>
-                             {
-                                 TreeViewNode RootNode = new TreeViewNode
-                                 {
-                                     Content = new TreeViewNodeContent(args.Data.DriveFolder),
-                                     IsExpanded = false,
-                                     HasUnrealizedChildren = task.Result
-                                 };
-
-                                 FolderTree.RootNodes.Add(RootNode);
-                                 FolderTree.UpdateLayout();
-                             }, TaskScheduler.FromCurrentSynchronizationContext());
-                        }
-                        else
-                        {
-                            bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder);
-
-                            TreeViewNode RootNode = new TreeViewNode
+                            if (args.Data.DriveType == DriveType.Network)
                             {
-                                Content = new TreeViewNodeContent(args.Data.DriveFolder),
-                                IsExpanded = false,
-                                HasUnrealizedChildren = HasAnyFolder
-                            };
+                                await Task.Run(() => DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder)).ContinueWith((task) =>
+                                 {
+                                     TreeViewNode RootNode = new TreeViewNode
+                                     {
+                                         Content = new TreeViewNodeContent(args.Data.DriveFolder),
+                                         IsExpanded = false,
+                                         HasUnrealizedChildren = task.Result
+                                     };
 
-                            FolderTree.RootNodes.Add(RootNode);
+                                     FolderTree.RootNodes.Add(RootNode);
+                                     FolderTree.UpdateLayout();
+                                 }, TaskScheduler.FromCurrentSynchronizationContext());
+                            }
+                            else
+                            {
+                                bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder);
+
+                                TreeViewNode RootNode = new TreeViewNode
+                                {
+                                    Content = new TreeViewNodeContent(args.Data.DriveFolder),
+                                    IsExpanded = false,
+                                    HasUnrealizedChildren = HasAnyFolder
+                                };
+
+                                FolderTree.RootNodes.Add(RootNode);
+                            }
                         }
                     }
 
@@ -557,19 +558,20 @@ namespace RX_Explorer
                 {
                     if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals(DriveData.Path, StringComparison.OrdinalIgnoreCase)))
                     {
-                        FileSystemStorageFolder DeviceFolder = await FileSystemStorageFolder.CreateFromExistingStorageItem(DriveData.DriveFolder);
-
-                        bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder);
-
-                        TreeViewNode RootNode = new TreeViewNode
+                        if (await FileSystemStorageItemBase.CreateFromStorageItemAsync(DriveData.DriveFolder) is FileSystemStorageFolder DeviceFolder)
                         {
-                            Content = new TreeViewNodeContent(DriveData.DriveFolder),
-                            IsExpanded = false,
-                            HasUnrealizedChildren = HasAnyFolder
-                        };
+                            bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder);
 
-                        FolderTree.RootNodes.Add(RootNode);
-                        FolderTree.UpdateLayout();
+                            TreeViewNode RootNode = new TreeViewNode
+                            {
+                                Content = new TreeViewNodeContent(DriveData.DriveFolder),
+                                IsExpanded = false,
+                                HasUnrealizedChildren = HasAnyFolder
+                            };
+
+                            FolderTree.RootNodes.Add(RootNode);
+                            FolderTree.UpdateLayout();
+                        }
                     }
                 }
 
@@ -582,20 +584,21 @@ namespace RX_Explorer
                 {
                     if (FolderTree.RootNodes.Select((Node) => (Node.Content as TreeViewNodeContent)?.Path).All((Path) => !Path.Equals(DriveData.Path, StringComparison.OrdinalIgnoreCase)))
                     {
-                        FileSystemStorageFolder DeviceFolder = await FileSystemStorageFolder.CreateFromExistingStorageItem(DriveData.DriveFolder);
+                        if (await FileSystemStorageItemBase.CreateFromStorageItemAsync(DriveData.DriveFolder) is FileSystemStorageFolder DeviceFolder)
+                        {
+                            await Task.Run(() => DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder)).ContinueWith((task) =>
+                            {
+                                TreeViewNode RootNode = new TreeViewNode
+                                {
+                                    Content = new TreeViewNodeContent(DriveData.DriveFolder),
+                                    IsExpanded = false,
+                                    HasUnrealizedChildren = task.Result
+                                };
 
-                        await Task.Run(() => DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder)).ContinueWith((task) =>
-                          {
-                              TreeViewNode RootNode = new TreeViewNode
-                              {
-                                  Content = new TreeViewNodeContent(DriveData.DriveFolder),
-                                  IsExpanded = false,
-                                  HasUnrealizedChildren = task.Result
-                              };
-
-                              FolderTree.RootNodes.Add(RootNode);
-                              FolderTree.UpdateLayout();
-                          }, TaskScheduler.FromCurrentSynchronizationContext());
+                                FolderTree.RootNodes.Add(RootNode);
+                                FolderTree.UpdateLayout();
+                            }, TaskScheduler.FromCurrentSynchronizationContext());
+                        }
                     }
                 }
             }
