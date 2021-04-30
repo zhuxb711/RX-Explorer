@@ -172,7 +172,9 @@
     <Compile Include="Class\ExtendedExecutionController.cs" />
     <Compile Include="Class\FileSystemStorageFile.cs" />
     <Compile Include="Class\FileSystemStorageFolder.cs" />
+    <Compile Include="Class\FileSystemStorageGroupItem.cs" />
     <Compile Include="Class\FilterController.cs" />
+    <Compile Include="Class\GroupCollectionGenerator.cs" />
     <Compile Include="Class\GroupItemBase.cs" />
     <Compile Include="Class\LockedDriveData.cs" />
     <Compile Include="Class\NormalDriveData.cs" />
@@ -194,7 +196,6 @@
     <Compile Include="Class\RecycleStorageFolder.cs" />
     <Compile Include="Class\UrlStorageFile.cs" />
     <Compile Include="Class\WslDriveData.cs" />
-    <Compile Include="Class\ZipStorageItem.cs" />
     <Compile Include="CustomControl\AppBarButtonWithImage.xaml.cs">
       <DependentUpon>AppBarButtonWithImage.xaml</DependentUpon>
     </Compile>

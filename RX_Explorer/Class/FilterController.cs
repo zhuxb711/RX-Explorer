@@ -557,14 +557,14 @@ namespace RX_Explorer.Class
 
                     InnerPanel.Children.Add(new TextBlock
                     {
-                        Text = Type,
+                        Text = Type.ToUpper(),
                         Margin = new Thickness(10, 0, 0, 0)
                     });
 
                     CheckBox Box = new CheckBox
                     {
                         Content = InnerPanel,
-                        IsChecked = TypeFilter.Contains(Type)
+                        IsChecked = TypeFilter.Contains(Type.ToUpper())
                     };
 
                     Box.Checked += FilterCheckBox_Checked;
@@ -721,14 +721,14 @@ namespace RX_Explorer.Class
             }
         }
 
-        private void RemoveTypeCondition(string FileType)
+        private void RemoveTypeCondition(string Type)
         {
-            TypeFilter.Remove(FileType.ToLower());
+            TypeFilter.Remove(Type.ToUpper());
         }
 
-        private void AddTypeCondition(string FileType)
+        private void AddTypeCondition(string Type)
         {
-            TypeFilter.Add(FileType.ToLower());
+            TypeFilter.Add(Type.ToUpper());
         }
 
         private void AddSizeCondition(SizeFilterCondition Condition)
@@ -822,7 +822,7 @@ namespace RX_Explorer.Class
 
             if (TypeFilter.Count > 0)
             {
-                TypeFilterResult = OriginCopy.Where((Item) => TypeFilter.Contains(Item.Type.ToLower())).ToList();
+                TypeFilterResult = OriginCopy.Where((Item) => TypeFilter.Contains(Item.Type.ToUpper())).ToList();
             }
 
             if (SizeCondition != SizeFilterCondition.None)

@@ -1,34 +1,21 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace RX_Explorer.Class
 {
-    public class GroupItemBase<T> : IGrouping<string, T>
+    public class GroupItemBase<TKey, TElement> : ObservableCollection<TElement>, IGrouping<TKey, TElement>
     {
-        public string Key { get; set; }
+        public TKey Key { get; set; }
 
-        private readonly IEnumerable<T> Items;
-
-        public GroupItemBase(string Key, IEnumerable<T> Items)
+        public GroupItemBase(TKey Key, IEnumerable<TElement> Items)
         {
             this.Key = Key;
-            this.Items = Items;
-        }
 
-        public IEnumerator<T> GetEnumerator()
-        {
-            return Items.GetEnumerator();
-        }
-
-        IEnumerator<T> IEnumerable<T>.GetEnumerator()
-        {
-            return Items.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return Items.GetEnumerator();
+            foreach (TElement Item in Items)
+            {
+                Add(Item);
+            }
         }
     }
 }

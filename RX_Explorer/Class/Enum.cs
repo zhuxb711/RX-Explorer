@@ -136,6 +136,20 @@ namespace RX_Explorer.Class
         ReduceOpacity = 1
     }
 
+    public enum GroupDirection
+    {
+        Ascending = 0,
+        Descending = 1
+    }
+
+    public enum GroupTarget
+    {
+        Name = 0,
+        Type = 1,
+        ModifiedTime = 2,
+        Size = 4
+    }
+
     public enum SortDirection
     {
         Ascending = 0,

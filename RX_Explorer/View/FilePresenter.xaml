@@ -14,6 +14,10 @@
       Background="Transparent">
 
     <Page.Resources>
+        <CollectionViewSource x:Name="ContactsCVS"
+                              IsSourceGrouped="False"
+                              Source="{x:Bind FileCollection}"/>
+        
         <muxc:TeachingTip x:Name="InvalidCharTip"
                           IsLightDismissEnabled="True"
                           x:Uid="PresentInvalidCharTip"
@@ -1168,6 +1172,15 @@
             <Interactivity:Interaction.Behaviors>
                 <Behaviors:StickyHeaderBehavior />
             </Interactivity:Interaction.Behaviors>
+            <ListView.GroupStyle>
+                <GroupStyle>
+                    <GroupStyle.HeaderTemplate>
+                        <DataTemplate x:DataType="Cls:FileSystemStorageGroupItem">
+                            <TextBlock Text="{x:Bind Key}" />
+                        </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                </GroupStyle>
+            </ListView.GroupStyle>
             <ListView.Header>
                 <Grid Height="35">
                     <Grid.ColumnDefinitions>

@@ -10,6 +10,7 @@ using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -50,7 +51,8 @@ namespace RX_Explorer
 {
     public sealed partial class FilePresenter : Page, IDisposable
     {
-        public ObservableCollection<FileSystemStorageItemBase> FileCollection { get; } = new ObservableCollection<FileSystemStorageItemBase>();
+        public ObservableCollection<FileSystemStorageItemBase> FileCollection { get; }
+        private ObservableCollection<FileSystemStorageGroupItem> GroupCollection { get; }
 
         private readonly ListViewHeaderController ListViewDetailHeader = new ListViewHeaderController();
 
@@ -121,7 +123,7 @@ namespace RX_Explorer
                             ListViewControl.ItemsSource = null;
                         }
 
-                        GridViewControl.ItemsSource = FileCollection;
+                        GridViewControl.ItemsSource = ContactsCVS.View;
                         GridViewControl.Visibility = Visibility.Visible;
                     }
                     else
@@ -132,7 +134,7 @@ namespace RX_Explorer
                             GridViewControl.ItemsSource = null;
                         }
 
-                        ListViewControl.ItemsSource = FileCollection;
+                        ListViewControl.ItemsSource = ContactsCVS.View;
                         ListViewControl.Visibility = Visibility.Visible;
                     }
                 }
@@ -186,6 +188,27 @@ namespace RX_Explorer
         private CancellationTokenSource DelaySelectionCancel;
         private int CurrentViewModeIndex = -1;
 
+        public bool IsGroupedEnable
+        {
+            get
+            {
+                return ContactsCVS.IsSourceGrouped;
+            }
+            private set
+            {
+                if (value)
+                {
+                    ContactsCVS.Source = GroupCollection;
+                }
+                else
+                {
+                    ContactsCVS.Source = FileCollection;
+                }
+
+                ContactsCVS.IsSourceGrouped = value;
+            }
+        }
+
         public FileSystemStorageItemBase SelectedItem
         {
             get => ItemPresenter.SelectedItem as FileSystemStorageItemBase;
@@ -206,7 +229,11 @@ namespace RX_Explorer
         {
             InitializeComponent();
 
+            GroupCollection = new ObservableCollection<FileSystemStorageGroupItem>();
+
+            FileCollection = new ObservableCollection<FileSystemStorageItemBase>();
             FileCollection.CollectionChanged += FileCollection_CollectionChanged;
+
             ListViewDetailHeader.Filter.RefreshListRequested += Filter_RefreshListRequested;
 
             PointerPressedEventHandler = new PointerEventHandler(ViewControl_PointerPressed);
@@ -832,9 +859,30 @@ namespace RX_Explorer
             }
         }
 
-        private void FileCollection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void FileCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (e.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    {
+                        break;
+                    }
+                case NotifyCollectionChangedAction.Remove:
+                    {
+                        break;
+                    }
+                case NotifyCollectionChangedAction.Replace:
+                    {
+                        break;
+                    }
+                case NotifyCollectionChangedAction.Reset:
+                    {
+                        GroupCollection.Clear();
+                        break;
+                    }
+            }
+
+            if (e.Action != NotifyCollectionChangedAction.Reset)
             {
                 HasFile.Visibility = FileCollection.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
             }
