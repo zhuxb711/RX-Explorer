@@ -40,9 +40,7 @@ namespace RX_Explorer.Class
         private bool sizeFilterCheckBox3;
         private bool sizeFilterCheckBox4;
 
-        private string CurrentPath;
-
-        public event EventHandler<Task<IEnumerable<FileSystemStorageItemBase>>> RefreshListRequested;
+        public event EventHandler<RefreshRequestedEventArgs> RefreshListRequested;
 
         public bool? NameFilterCheckBox1
         {
@@ -609,10 +607,8 @@ namespace RX_Explorer.Class
             }
         }
 
-        public void SetDataSource(string CurrentPath, IEnumerable<FileSystemStorageItemBase> DataSource)
+        public void SetDataSource(IEnumerable<FileSystemStorageItemBase> DataSource)
         {
-            this.CurrentPath = CurrentPath;
-
             OriginCopy.Clear();
             OriginCopy.AddRange(DataSource);
 
@@ -628,11 +624,11 @@ namespace RX_Explorer.Class
         {
             if (AnyConditionApplied)
             {
-                RefreshListRequested?.Invoke(this, GetFilterCollection());
+                RefreshListRequested?.Invoke(this, new RefreshRequestedEventArgs(GetFilterCollection()));
             }
             else
             {
-                RefreshListRequested?.Invoke(this, Task.FromResult<IEnumerable<FileSystemStorageItemBase>>(OriginCopy));
+                RefreshListRequested?.Invoke(this, new RefreshRequestedEventArgs(OriginCopy));
             }
         }
 
@@ -744,7 +740,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<IEnumerable<FileSystemStorageItemBase>> GetFilterCollection()
+        public IEnumerable<FileSystemStorageItemBase> GetFilterCollection()
         {
             List<FileSystemStorageItemBase> NameFilterResult = null;
             List<FileSystemStorageItemBase> ModTimeFilterResult = null;
@@ -902,8 +898,7 @@ namespace RX_Explorer.Class
 
             if (FilterIntersct != null && FilterIntersct.Any())
             {
-                PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentPath);
-                return SortCollectionGenerator.GetSortedCollection(FilterIntersct, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+                return FilterIntersct;
             }
             else
             {
@@ -917,6 +912,16 @@ namespace RX_Explorer.Class
             TypeFilter = new List<string>();
             ModTimeFrom = default;
             ModTimeTo = default;
+        }
+
+        public sealed class RefreshRequestedEventArgs
+        {
+            public IEnumerable<FileSystemStorageItemBase> FilterCollection { get; }
+
+            public RefreshRequestedEventArgs(IEnumerable<FileSystemStorageItemBase> FilterCollection)
+            {
+                this.FilterCollection = FilterCollection;
+            }
         }
     }
 }

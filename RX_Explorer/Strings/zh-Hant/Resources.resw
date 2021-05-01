@@ -2987,4 +2987,49 @@
   <data name="TextEncodingDialog.Title" xml:space="preserve">
     <value>選擇文字編碼</value>
   </data>
+  <data name="GroupHeader_EarlierThisMonth" xml:space="preserve">
+    <value>本月初</value>
+  </data>
+  <data name="GroupHeader_EarlierThisWeek" xml:space="preserve">
+    <value>本週早些時候</value>
+  </data>
+  <data name="GroupHeader_EarlierThisYear" xml:space="preserve">
+    <value>今年早些時候</value>
+  </data>
+  <data name="GroupHeader_Huge" xml:space="preserve">
+    <value>龐大</value>
+  </data>
+  <data name="GroupHeader_Larger" xml:space="preserve">
+    <value>較大</value>
+  </data>
+  <data name="GroupHeader_LastMonth" xml:space="preserve">
+    <value>上個月</value>
+  </data>
+  <data name="GroupHeader_LastWeek" xml:space="preserve">
+    <value>上個星期</value>
+  </data>
+  <data name="GroupHeader_LongTimeAgo" xml:space="preserve">
+    <value>很久以前</value>
+  </data>
+  <data name="GroupHeader_Medium" xml:space="preserve">
+    <value>中等</value>
+  </data>
+  <data name="GroupHeader_Others" xml:space="preserve">
+    <value>其他</value>
+  </data>
+  <data name="GroupHeader_Smaller" xml:space="preserve">
+    <value>較小</value>
+  </data>
+  <data name="GroupHeader_Today" xml:space="preserve">
+    <value>今天</value>
+  </data>
+  <data name="GroupHeader_Unspecified" xml:space="preserve">
+    <value>未指定</value>
+  </data>
+  <data name="GroupHeader_Yesterday" xml:space="preserve">
+    <value>昨天</value>
+  </data>
+  <data name="Operate_Text_GroupNone" xml:space="preserve">
+    <value>無</value>
+  </data>
 </root>

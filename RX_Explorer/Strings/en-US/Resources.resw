@@ -3092,4 +3092,49 @@ Invalid names include
   <data name="TextEncodingDialog.Title" xml:space="preserve">
     <value>Select text encoding</value>
   </data>
+  <data name="GroupHeader_EarlierThisMonth" xml:space="preserve">
+    <value>Earlier this month</value>
+  </data>
+  <data name="GroupHeader_EarlierThisWeek" xml:space="preserve">
+    <value>Earlier this week</value>
+  </data>
+  <data name="GroupHeader_EarlierThisYear" xml:space="preserve">
+    <value>Earlier this year</value>
+  </data>
+  <data name="GroupHeader_Huge" xml:space="preserve">
+    <value>Huge</value>
+  </data>
+  <data name="GroupHeader_Larger" xml:space="preserve">
+    <value>Larger</value>
+  </data>
+  <data name="GroupHeader_LastMonth" xml:space="preserve">
+    <value>Last month</value>
+  </data>
+  <data name="GroupHeader_LastWeek" xml:space="preserve">
+    <value>Last week</value>
+  </data>
+  <data name="GroupHeader_LongTimeAgo" xml:space="preserve">
+    <value>A long time ago</value>
+  </data>
+  <data name="GroupHeader_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="GroupHeader_Others" xml:space="preserve">
+    <value>Others</value>
+  </data>
+  <data name="GroupHeader_Smaller" xml:space="preserve">
+    <value>Smaller</value>
+  </data>
+  <data name="GroupHeader_Today" xml:space="preserve">
+    <value>Today</value>
+  </data>
+  <data name="GroupHeader_Unspecified" xml:space="preserve">
+    <value>Unspecified</value>
+  </data>
+  <data name="GroupHeader_Yesterday" xml:space="preserve">
+    <value>Yesterday</value>
+  </data>
+  <data name="Operate_Text_GroupNone" xml:space="preserve">
+    <value>None</value>
+  </data>
 </root>

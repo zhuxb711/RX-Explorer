@@ -3964,6 +3964,66 @@ Invalid names include
           <source>Select text encoding</source>
           <target state="translated">选择文本编码格式</target>
         </trans-unit>
+        <trans-unit id="GroupHeader_EarlierThisMonth" translate="yes" xml:space="preserve">
+          <source>Earlier this month</source>
+          <target state="translated">本月早些时候</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_EarlierThisWeek" translate="yes" xml:space="preserve">
+          <source>Earlier this week</source>
+          <target state="translated">本周早些时候</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_EarlierThisYear" translate="yes" xml:space="preserve">
+          <source>Earlier this year</source>
+          <target state="translated">今年早些时候</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_Huge" translate="yes" xml:space="preserve">
+          <source>Huge</source>
+          <target state="translated">超大</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_Larger" translate="yes" xml:space="preserve">
+          <source>Larger</source>
+          <target state="translated">较大</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_LastMonth" translate="yes" xml:space="preserve">
+          <source>Last month</source>
+          <target state="translated">上个月</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_LastWeek" translate="yes" xml:space="preserve">
+          <source>Last week</source>
+          <target state="translated">上个星期</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_LongTimeAgo" translate="yes" xml:space="preserve">
+          <source>A long time ago</source>
+          <target state="translated">很久以前</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_Medium" translate="yes" xml:space="preserve">
+          <source>Medium</source>
+          <target state="translated">中等</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_Others" translate="yes" xml:space="preserve">
+          <source>Others</source>
+          <target state="translated">其他</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_Smaller" translate="yes" xml:space="preserve">
+          <source>Smaller</source>
+          <target state="translated">较小</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_Today" translate="yes" xml:space="preserve">
+          <source>Today</source>
+          <target state="translated">今天</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_Unspecified" translate="yes" xml:space="preserve">
+          <source>Unspecified</source>
+          <target state="translated">未指定</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_Yesterday" translate="yes" xml:space="preserve">
+          <source>Yesterday</source>
+          <target state="translated">昨天</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_GroupNone" translate="yes" xml:space="preserve">
+          <source>None</source>
+          <target state="translated">无</target>
+        </trans-unit>
       </group>
     </body>
   </file>

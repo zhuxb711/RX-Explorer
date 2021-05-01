@@ -8,9 +8,9 @@ namespace RX_Explorer.Class
 {
     public static class SortCollectionGenerator
     {
-        public static event EventHandler<SortWayChangedEventArgs> SortWayChanged;
+        public static event EventHandler<SortStateChangedEventArgs> SortStateChanged;
 
-        public static async Task SavePathSortWayAsync(string Path, SortTarget Target, SortDirection Direction)
+        public static async Task SavePathSortStateAsync(string Path, SortTarget Target, SortDirection Direction)
         {
             if (Target == SortTarget.OriginPath || Target == SortTarget.Path)
             {
@@ -22,7 +22,7 @@ namespace RX_Explorer.Class
             if (CurrentConfiguration.SortTarget != Target || CurrentConfiguration.SortDirection != Direction)
             {
                 await SQLite.Current.SetPathConfigurationAsync(new PathConfiguration(Path, Target, Direction));
-                SortWayChanged?.Invoke(null, new SortWayChangedEventArgs(Path, Target, Direction));
+                SortStateChanged?.Invoke(null, new SortStateChangedEventArgs(Path, Target, Direction));
             }
         }
 
@@ -282,21 +282,21 @@ namespace RX_Explorer.Class
                     }
             }
         }
-    }
 
-    public sealed class SortWayChangedEventArgs
-    {
-        public SortTarget Target { get; }
-
-        public SortDirection Direction { get; }
-
-        public string Path { get; }
-
-        public SortWayChangedEventArgs(string Path, SortTarget Target, SortDirection Direction)
+        public sealed class SortStateChangedEventArgs
         {
-            this.Path = Path;
-            this.Target = Target;
-            this.Direction = Direction;
+            public SortTarget Target { get; }
+
+            public SortDirection Direction { get; }
+
+            public string Path { get; }
+
+            public SortStateChangedEventArgs(string Path, SortTarget Target, SortDirection Direction)
+            {
+                this.Path = Path;
+                this.Target = Target;
+                this.Direction = Direction;
+            }
         }
     }
 }

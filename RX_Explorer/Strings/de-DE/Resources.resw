@@ -2987,4 +2987,49 @@ Inkorrekte Namen sind
   <data name="TextEncodingDialog.Title" xml:space="preserve">
     <value>Wählen Sie die Textcodierung</value>
   </data>
+  <data name="GroupHeader_EarlierThisMonth" xml:space="preserve">
+    <value>Früher in diesem Monat</value>
+  </data>
+  <data name="GroupHeader_EarlierThisWeek" xml:space="preserve">
+    <value>Früher diese Woche</value>
+  </data>
+  <data name="GroupHeader_EarlierThisYear" xml:space="preserve">
+    <value>Früher in diesem Jahr</value>
+  </data>
+  <data name="GroupHeader_Huge" xml:space="preserve">
+    <value>Enorm</value>
+  </data>
+  <data name="GroupHeader_Larger" xml:space="preserve">
+    <value>Größer</value>
+  </data>
+  <data name="GroupHeader_LastMonth" xml:space="preserve">
+    <value>Letzten Monat</value>
+  </data>
+  <data name="GroupHeader_LastWeek" xml:space="preserve">
+    <value>Letzte Woche</value>
+  </data>
+  <data name="GroupHeader_LongTimeAgo" xml:space="preserve">
+    <value>Vor langer Zeit</value>
+  </data>
+  <data name="GroupHeader_Medium" xml:space="preserve">
+    <value>Mittel</value>
+  </data>
+  <data name="GroupHeader_Others" xml:space="preserve">
+    <value>Andere</value>
+  </data>
+  <data name="GroupHeader_Smaller" xml:space="preserve">
+    <value>Kleiner</value>
+  </data>
+  <data name="GroupHeader_Today" xml:space="preserve">
+    <value>Heute</value>
+  </data>
+  <data name="GroupHeader_Unspecified" xml:space="preserve">
+    <value>Nicht spezifiziert</value>
+  </data>
+  <data name="GroupHeader_Yesterday" xml:space="preserve">
+    <value>Gestern</value>
+  </data>
+  <data name="Operate_Text_GroupNone" xml:space="preserve">
+    <value>Keiner</value>
+  </data>
 </root>

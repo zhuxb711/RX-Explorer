@@ -185,7 +185,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        return new PathConfiguration(Path, 1, SortTarget.Name, SortDirection.Ascending, GroupTarget.Name, GroupDirection.Ascending);
+                        return new PathConfiguration(Path, 1, SortTarget.Name, SortDirection.Ascending, GroupTarget.None, GroupDirection.Ascending);
                     }
                 }
             }

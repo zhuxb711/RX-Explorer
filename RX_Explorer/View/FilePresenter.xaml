@@ -813,18 +813,18 @@
                                                       GroupName="Group"
                                                       Name="GroupBySize"
                                                       Click="GroupBySize_Click"/>
-                            <muxc:RadioMenuFlyoutItem Text="无"
+                            <muxc:RadioMenuFlyoutItem Text="{x:Bind Cls:Globalization.GetString('Operate_Text_GroupNone')}"
                                                       Name="GroupByNone"
                                                       MinWidth="160"
                                                       GroupName="Group"
                                                       Click="GroupNone_Click" />
                             <MenuFlyoutSeparator />
-                            <muxc:RadioMenuFlyoutItem Text="升序"
+                            <muxc:RadioMenuFlyoutItem Text="{x:Bind Cls:Globalization.GetString('Operate_Text_SortDirection_Asc')}"
                                                       MinWidth="160"
                                                       GroupName="GroupDirection"
                                                       Name="GroupAsc"
                                                       Click="GroupAsc_Click" />
-                            <muxc:RadioMenuFlyoutItem Text="降序"
+                            <muxc:RadioMenuFlyoutItem Text="{x:Bind Cls:Globalization.GetString('Operate_Text_SortDirection_Desc')}"
                                                       MinWidth="160"
                                                       Name="GroupDesc"
                                                       GroupName="GroupDirection"
@@ -1225,7 +1225,7 @@
                 <Behaviors:StickyHeaderBehavior />
             </Interactivity:Interaction.Behaviors>
             <ListView.GroupStyle>
-                <GroupStyle>
+                <GroupStyle HidesIfEmpty="True">
                     <GroupStyle.HeaderTemplate>
                         <DataTemplate x:DataType="Cls:FileSystemStorageGroupItem">
                             <TextBlock Text="{x:Bind Key}" />
@@ -1747,7 +1747,7 @@
                   ItemsSource="{x:Bind GridCollectionVS.View,Mode=OneWay}"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
             <GridView.GroupStyle>
-                <GroupStyle>
+                <GroupStyle HidesIfEmpty="True">
                     <GroupStyle.HeaderTemplate>
                         <DataTemplate x:DataType="Cls:FileSystemStorageGroupItem">
                             <TextBlock Text="{x:Bind Key}" />

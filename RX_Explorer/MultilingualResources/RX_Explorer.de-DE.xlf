@@ -3962,6 +3962,66 @@ Inkorrekte Namen sind
           <source>Select text encoding</source>
           <target state="translated">Wählen Sie die Textcodierung</target>
         </trans-unit>
+        <trans-unit id="GroupHeader_EarlierThisMonth" translate="yes" xml:space="preserve">
+          <source>Earlier this month</source>
+          <target state="translated">Früher in diesem Monat</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_EarlierThisWeek" translate="yes" xml:space="preserve">
+          <source>Earlier this week</source>
+          <target state="translated">Früher diese Woche</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_EarlierThisYear" translate="yes" xml:space="preserve">
+          <source>Earlier this year</source>
+          <target state="translated">Früher in diesem Jahr</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_Huge" translate="yes" xml:space="preserve">
+          <source>Huge</source>
+          <target state="translated">Enorm</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_Larger" translate="yes" xml:space="preserve">
+          <source>Larger</source>
+          <target state="translated">Größer</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_LastMonth" translate="yes" xml:space="preserve">
+          <source>Last month</source>
+          <target state="translated">Letzten Monat</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_LastWeek" translate="yes" xml:space="preserve">
+          <source>Last week</source>
+          <target state="translated">Letzte Woche</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_LongTimeAgo" translate="yes" xml:space="preserve">
+          <source>A long time ago</source>
+          <target state="translated">Vor langer Zeit</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_Medium" translate="yes" xml:space="preserve">
+          <source>Medium</source>
+          <target state="translated">Mittel</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_Others" translate="yes" xml:space="preserve">
+          <source>Others</source>
+          <target state="translated">Andere</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_Smaller" translate="yes" xml:space="preserve">
+          <source>Smaller</source>
+          <target state="translated">Kleiner</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_Today" translate="yes" xml:space="preserve">
+          <source>Today</source>
+          <target state="translated">Heute</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_Unspecified" translate="yes" xml:space="preserve">
+          <source>Unspecified</source>
+          <target state="translated">Nicht spezifiziert</target>
+        </trans-unit>
+        <trans-unit id="GroupHeader_Yesterday" translate="yes" xml:space="preserve">
+          <source>Yesterday</source>
+          <target state="translated">Gestern</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_GroupNone" translate="yes" xml:space="preserve">
+          <source>None</source>
+          <target state="translated">Keiner</target>
+        </trans-unit>
       </group>
     </body>
   </file>

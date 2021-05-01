@@ -98,6 +98,7 @@ namespace RX_Explorer
         }
 
         private SemaphoreSlim EnterLock;
+        private SemaphoreSlim CollectionChangeLock;
 
         private readonly PointerEventHandler PointerPressedEventHandler;
 
@@ -199,12 +200,12 @@ namespace RX_Explorer
         private int CurrentViewModeIndex = -1;
         private bool GroupedEnable;
 
-        private CollectionViewSource CurrentCVS 
-        { 
+        private CollectionViewSource CurrentCVS
+        {
             get
             {
                 return ItemPresenter is GridView ? GridCollectionVS : ListCollectionVS;
-            } 
+            }
         }
 
         private bool IsGroupedEnable
@@ -264,6 +265,7 @@ namespace RX_Explorer
 
             AreaWatcher = new StorageAreaWatcher(FileCollection);
             EnterLock = new SemaphoreSlim(1, 1);
+            CollectionChangeLock = new SemaphoreSlim(1, 1);
 
             CoreWindow Window = CoreWindow.GetForCurrentThread();
             Window.KeyDown += FilePresenter_KeyDown;
@@ -273,8 +275,39 @@ namespace RX_Explorer
 
             Application.Current.Suspending += Current_Suspending;
             Application.Current.Resuming += Current_Resuming;
-            SortCollectionGenerator.SortWayChanged += Current_SortWayChanged;
+            SortCollectionGenerator.SortStateChanged += Current_SortStateChanged;
+            GroupCollectionGenerator.GroupStateChanged += GroupCollectionGenerator_GroupStateChanged;
             ViewModeController.ViewModeChanged += Current_ViewModeChanged;
+        }
+
+        private void GroupCollectionGenerator_GroupStateChanged(object sender, GroupCollectionGenerator.GroupStateChangedEventArgs args)
+        {
+            if (args.Path.Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
+            {
+                if (args.Target == GroupTarget.None)
+                {
+                    GroupAsc.IsEnabled = false;
+                    GroupDesc.IsEnabled = false;
+
+                    GroupCollection.Clear();
+
+                    IsGroupedEnable = false;
+                }
+                else
+                {
+                    GroupAsc.IsEnabled = true;
+                    GroupDesc.IsEnabled = true;
+
+                    GroupCollection.Clear();
+
+                    foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(FileCollection, args.Target, args.Direction))
+                    {
+                        GroupCollection.Add(GroupItem);
+                    }
+
+                    IsGroupedEnable = true;
+                }
+            }
         }
 
         private void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
@@ -650,11 +683,26 @@ namespace RX_Explorer
             }
         }
 
-        private void Current_SortWayChanged(object sender, SortWayChangedEventArgs args)
+        private void Current_SortStateChanged(object sender, SortCollectionGenerator.SortStateChangedEventArgs args)
         {
             if (args.Path.Equals(CurrentFolder.Path, StringComparison.OrdinalIgnoreCase))
             {
                 ListViewDetailHeader.Indicator.SetIndicatorStatus(args.Target, args.Direction);
+
+                if (IsGroupedEnable)
+                {
+                    foreach (FileSystemStorageGroupItem GroupItem in GroupCollection)
+                    {
+                        FileSystemStorageItemBase[] SortedGroupItem = SortCollectionGenerator.GetSortedCollection(GroupItem, args.Target, args.Direction).ToArray();
+
+                        GroupItem.Clear();
+
+                        foreach (FileSystemStorageItemBase Item in SortedGroupItem)
+                        {
+                            GroupItem.Add(Item);
+                        }
+                    }
+                }
 
                 FileSystemStorageItemBase[] ItemList = SortCollectionGenerator.GetSortedCollection(FileCollection, args.Target, args.Direction).ToArray();
 
@@ -752,18 +800,17 @@ namespace RX_Explorer
                     {
                         GroupCollection.Clear();
 
-                        IsGroupedEnable = true;
-
                         foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(ChildItems, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Ascending))
                         {
-                            GroupCollection.Add(GroupItem);
+                            GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, SortCollectionGenerator.GetSortedCollection(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
                         }
+
+                        IsGroupedEnable = true;
                     }
                     else
                     {
                         GroupCollection.Clear();
-
-                        IsGroupedEnable = true;
+                        IsGroupedEnable = false;
                     }
 
                     foreach (FileSystemStorageItemBase SubItem in SortCollectionGenerator.GetSortedCollection(ChildItems, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()))
@@ -778,7 +825,7 @@ namespace RX_Explorer
 
                 StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCollection.Count.ToString());
 
-                ListViewDetailHeader.Filter.SetDataSource(CurrentFolder.Path, FileCollection);
+                ListViewDetailHeader.Filter.SetDataSource(FileCollection);
                 ListViewDetailHeader.Indicator.SetIndicatorStatus(Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
             }
             finally
@@ -914,32 +961,118 @@ namespace RX_Explorer
             }
         }
 
-        private void FileCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private async void FileCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    {
-                        break;
-                    }
-                case NotifyCollectionChangedAction.Remove:
-                    {
-                        break;
-                    }
-                case NotifyCollectionChangedAction.Replace:
-                    {
-                        break;
-                    }
-                case NotifyCollectionChangedAction.Reset:
-                    {
-                        GroupCollection.Clear();
-                        break;
-                    }
-            }
+            PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
 
-            if (e.Action != NotifyCollectionChangedAction.Reset)
+            await CollectionChangeLock.WaitAsync();
+
+            try
             {
-                HasFile.Visibility = FileCollection.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+                switch (e.Action)
+                {
+                    case NotifyCollectionChangedAction.Add:
+                        {
+                            IEnumerable<FileSystemStorageItemBase> GroupExpandedCollection = GroupCollection.SelectMany((Group) => Group);
+
+                            foreach (FileSystemStorageItemBase Item in e.NewItems)
+                            {
+                                if (GroupExpandedCollection.All((ExistItem) => ExistItem != Item))
+                                {
+                                    string Key = GroupCollectionGenerator.SearchGroupBelonging(Item, Config.GroupTarget.GetValueOrDefault());
+
+                                    if (GroupCollection.FirstOrDefault((Item) => Item.Key == Key) is FileSystemStorageGroupItem GroupItem)
+                                    {
+                                        int Index = SortCollectionGenerator.SearchInsertLocation(GroupItem, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+
+                                        if (Index >= 0)
+                                        {
+                                            GroupItem.Insert(Index, Item);
+                                        }
+                                        else
+                                        {
+                                            GroupItem.Add(Item);
+                                        }
+                                    }
+                                }
+                            }
+
+                            break;
+                        }
+                    case NotifyCollectionChangedAction.Remove:
+                        {
+                            IEnumerable<FileSystemStorageItemBase> GroupExpandedCollection = GroupCollection.SelectMany((Group) => Group);
+
+                            foreach (FileSystemStorageItemBase Item in e.OldItems)
+                            {
+                                if (GroupExpandedCollection.Any((ExistItem) => ExistItem == Item))
+                                {
+                                    string Key = GroupCollectionGenerator.SearchGroupBelonging(Item, Config.GroupTarget.GetValueOrDefault());
+
+                                    if (GroupCollection.FirstOrDefault((Item) => Item.Key == Key) is FileSystemStorageGroupItem GroupItem)
+                                    {
+                                        GroupItem.Remove(Item);
+                                    }
+                                }
+                            }
+
+                            break;
+                        }
+                    case NotifyCollectionChangedAction.Replace:
+                        {
+                            IEnumerable<FileSystemStorageItemBase> GroupExpandedCollection = GroupCollection.SelectMany((Group) => Group);
+
+                            foreach (FileSystemStorageItemBase Item in e.OldItems)
+                            {
+                                if (GroupExpandedCollection.Any((ExistItem) => ExistItem == Item))
+                                {
+                                    string Key = GroupCollectionGenerator.SearchGroupBelonging(Item, Config.GroupTarget.GetValueOrDefault());
+
+                                    if (GroupCollection.FirstOrDefault((Item) => Item.Key == Key) is FileSystemStorageGroupItem GroupItem)
+                                    {
+                                        GroupItem.Remove(Item);
+                                    }
+                                }
+                            }
+
+                            foreach (FileSystemStorageItemBase Item in e.NewItems)
+                            {
+                                if (GroupExpandedCollection.All((ExistItem) => ExistItem != Item))
+                                {
+                                    string Key = GroupCollectionGenerator.SearchGroupBelonging(Item, Config.GroupTarget.GetValueOrDefault());
+
+                                    if (GroupCollection.FirstOrDefault((Item) => Item.Key == Key) is FileSystemStorageGroupItem GroupItem)
+                                    {
+                                        int Index = SortCollectionGenerator.SearchInsertLocation(GroupItem, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+
+                                        if (Index >= 0)
+                                        {
+                                            GroupItem.Insert(Index, Item);
+                                        }
+                                        else
+                                        {
+                                            GroupItem.Add(Item);
+                                        }
+                                    }
+                                }
+                            }
+
+                            break;
+                        }
+                }
+
+                if (e.Action != NotifyCollectionChangedAction.Reset)
+                {
+                    HasFile.Visibility = FileCollection.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex);
+            }
+            finally
+            {
+                CollectionChangeLock.Release();
             }
         }
 
@@ -2809,11 +2942,11 @@ namespace RX_Explorer
 
             if (Config.SortDirection == SortDirection.Ascending)
             {
-                await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.Name, SortDirection.Descending);
+                await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.Name, SortDirection.Descending);
             }
             else
             {
-                await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.Name, SortDirection.Ascending);
+                await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.Name, SortDirection.Ascending);
             }
         }
 
@@ -2823,11 +2956,11 @@ namespace RX_Explorer
 
             if (Config.SortDirection == SortDirection.Ascending)
             {
-                await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.ModifiedTime, SortDirection.Descending);
+                await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.ModifiedTime, SortDirection.Descending);
             }
             else
             {
-                await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.ModifiedTime, SortDirection.Ascending);
+                await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.ModifiedTime, SortDirection.Ascending);
             }
         }
 
@@ -2837,11 +2970,11 @@ namespace RX_Explorer
 
             if (Config.SortDirection == SortDirection.Ascending)
             {
-                await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.Type, SortDirection.Descending);
+                await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.Type, SortDirection.Descending);
             }
             else
             {
-                await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.Type, SortDirection.Ascending);
+                await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.Type, SortDirection.Ascending);
             }
         }
 
@@ -2851,11 +2984,11 @@ namespace RX_Explorer
 
             if (Config.SortDirection == SortDirection.Ascending)
             {
-                await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.Size, SortDirection.Descending);
+                await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.Size, SortDirection.Descending);
             }
             else
             {
-                await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.Size, SortDirection.Ascending);
+                await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.Size, SortDirection.Ascending);
             }
         }
 
@@ -3866,28 +3999,28 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.Name, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+            await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.Name, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
         }
 
         private async void OrderByTime_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.ModifiedTime, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+            await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.ModifiedTime, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
         }
 
         private async void OrderByType_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.Type, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+            await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.Type, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
         }
 
         private async void OrderBySize_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, SortTarget.Size, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+            await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.Size, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
         }
 
         private async void SortDesc_Click(object sender, RoutedEventArgs e)
@@ -3896,7 +4029,7 @@ namespace RX_Explorer
 
             PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
 
-            await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, Config.SortTarget.GetValueOrDefault(), SortDirection.Descending);
+            await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, Config.SortTarget.GetValueOrDefault(), SortDirection.Descending);
         }
 
         private async void SortAsc_Click(object sender, RoutedEventArgs e)
@@ -3905,7 +4038,7 @@ namespace RX_Explorer
 
             PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
 
-            await SortCollectionGenerator.SavePathSortWayAsync(CurrentFolder.Path, Config.SortTarget.GetValueOrDefault(), SortDirection.Ascending);
+            await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, Config.SortTarget.GetValueOrDefault(), SortDirection.Ascending);
         }
 
         private async void SortMenuFlyout_Opening(object sender, object e)
@@ -4252,11 +4385,23 @@ namespace RX_Explorer
             Container.BlockKeyboardShortCutInput = true;
         }
 
-        private async void Filter_RefreshListRequested(object sender, Task<IEnumerable<FileSystemStorageItemBase>> RefreshData)
+        private async void Filter_RefreshListRequested(object sender, FilterController.RefreshRequestedEventArgs args)
         {
+            PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
+
+            if (IsGroupedEnable)
+            {
+                GroupCollection.Clear();
+
+                foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(args.FilterCollection, Config.GroupTarget.GetValueOrDefault(), Config.GroupDirection.GetValueOrDefault()))
+                {
+                    GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, SortCollectionGenerator.GetSortedCollection(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
+                }
+            }
+
             FileCollection.Clear();
 
-            foreach (FileSystemStorageItemBase Item in await RefreshData)
+            foreach (FileSystemStorageItemBase Item in args.FilterCollection)
             {
                 FileCollection.Add(Item);
             }
@@ -4552,6 +4697,7 @@ namespace RX_Explorer
             DelayEnterCancel?.Dispose();
             DelaySelectionCancel?.Dispose();
             EnterLock?.Dispose();
+            CollectionChangeLock?.Dispose();
 
             AreaWatcher = null;
             WiFiProvider = null;
@@ -4560,6 +4706,7 @@ namespace RX_Explorer
             DelayEnterCancel = null;
             DelaySelectionCancel = null;
             EnterLock = null;
+            CollectionChangeLock = null;
 
             RecordIndex = 0;
             GoAndBackRecord.Clear();
@@ -4573,7 +4720,8 @@ namespace RX_Explorer
 
             Application.Current.Suspending -= Current_Suspending;
             Application.Current.Resuming -= Current_Resuming;
-            SortCollectionGenerator.SortWayChanged -= Current_SortWayChanged;
+            SortCollectionGenerator.SortStateChanged -= Current_SortStateChanged;
+            GroupCollectionGenerator.GroupStateChanged -= GroupCollectionGenerator_GroupStateChanged;
             ViewModeController.ViewModeChanged -= Current_ViewModeChanged;
         }
 
@@ -4656,126 +4804,53 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            GroupAsc.IsEnabled = true;
-            GroupDesc.IsEnabled = true;
-
-            GroupCollection.Clear();
-
-            IsGroupedEnable = true;
-
-            foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(FileCollection, GroupTarget.Name, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending))
-            {
-                GroupCollection.Add(GroupItem);
-            }
-
-            await SQLite.Current.SetPathConfigurationAsync(new PathConfiguration(CurrentFolder.Path, GroupTarget.Name, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending));
+            await GroupCollectionGenerator.SavePathGroupStateAsync(CurrentFolder.Path, GroupTarget.Name, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending);
         }
 
         private async void GroupByTime_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            GroupAsc.IsEnabled = true;
-            GroupDesc.IsEnabled = true;
-
-            GroupCollection.Clear();
-
-            IsGroupedEnable = true;
-
-            foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(FileCollection, GroupTarget.ModifiedTime, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending))
-            {
-                GroupCollection.Add(GroupItem);
-            }
-
-            await SQLite.Current.SetPathConfigurationAsync(new PathConfiguration(CurrentFolder.Path, GroupTarget.ModifiedTime, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending));
+            await GroupCollectionGenerator.SavePathGroupStateAsync(CurrentFolder.Path, GroupTarget.ModifiedTime, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending);
         }
 
         private async void GroupByType_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            GroupAsc.IsEnabled = true;
-            GroupDesc.IsEnabled = true;
-
-            GroupCollection.Clear();
-
-            IsGroupedEnable = true;
-
-            foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(FileCollection, GroupTarget.Type, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending))
-            {
-                GroupCollection.Add(GroupItem);
-            }
-
-            await SQLite.Current.SetPathConfigurationAsync(new PathConfiguration(CurrentFolder.Path, GroupTarget.Type, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending));
+            await GroupCollectionGenerator.SavePathGroupStateAsync(CurrentFolder.Path, GroupTarget.Type, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending);
         }
 
         private async void GroupBySize_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            GroupAsc.IsEnabled = true;
-            GroupDesc.IsEnabled = true;
-
-            GroupCollection.Clear();
-
-            IsGroupedEnable = true;
-
-            foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(FileCollection, GroupTarget.Name, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending))
-            {
-                GroupCollection.Add(GroupItem);
-            }
-
-            await SQLite.Current.SetPathConfigurationAsync(new PathConfiguration(CurrentFolder.Path, GroupTarget.Size, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending));
+            await GroupCollectionGenerator.SavePathGroupStateAsync(CurrentFolder.Path, GroupTarget.Size, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending);
         }
 
         private async void GroupAsc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            GroupCollection.Clear();
-
-            IsGroupedEnable = true;
-
             PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
 
-            foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(FileCollection, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Ascending))
-            {
-                GroupCollection.Add(GroupItem);
-            }
-
-            await SQLite.Current.SetPathConfigurationAsync(new PathConfiguration(CurrentFolder.Path, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Ascending));
+            await GroupCollectionGenerator.SavePathGroupStateAsync(CurrentFolder.Path, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Ascending);
         }
 
         private async void GroupDesc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            GroupCollection.Clear();
-
-            IsGroupedEnable = true;
-
             PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
 
-            foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(FileCollection, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Descending))
-            {
-                GroupCollection.Add(GroupItem);
-            }
-
-            await SQLite.Current.SetPathConfigurationAsync(new PathConfiguration(CurrentFolder.Path, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Descending));
+            await GroupCollectionGenerator.SavePathGroupStateAsync(CurrentFolder.Path, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Descending);
         }
 
         private async void GroupNone_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            GroupAsc.IsEnabled = true;
-            GroupDesc.IsEnabled = true;
-
-            GroupCollection.Clear();
-
-            IsGroupedEnable = false;
-
-            await SQLite.Current.SetPathConfigurationAsync(new PathConfiguration(CurrentFolder.Path, GroupTarget.None, GroupDirection.Ascending));
+            await GroupCollectionGenerator.SavePathGroupStateAsync(CurrentFolder.Path, GroupTarget.None, GroupDirection.Ascending);
         }
     }
 }
