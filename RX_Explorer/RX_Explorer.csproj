@@ -207,6 +207,9 @@
     <Compile Include="Dialog\TextEncodingDialog.xaml.cs">
       <DependentUpon>TextEncodingDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialog\WinAndETipDialog.xaml.cs">
+      <DependentUpon>WinAndETipDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Interface\ICryptable.cs" />
     <Compile Include="Interface\IDriveData.cs" />
     <Compile Include="Interface\IHiddenStorageItem.cs" />
@@ -614,6 +617,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialog\WhatIsNew.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialog\WinAndETipDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

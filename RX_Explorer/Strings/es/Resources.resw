@@ -3032,4 +3032,7 @@ Las denominaciones no válidas son:
   <data name="Operate_Text_GroupNone" xml:space="preserve">
     <value>Ninguno</value>
   </data>
+  <data name="EverythingQuestionDownloadLink" xml:space="preserve">
+    <value>Descarga "Everything"</value>
+  </data>
 </root>

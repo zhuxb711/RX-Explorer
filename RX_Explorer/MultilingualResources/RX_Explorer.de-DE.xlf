@@ -4022,6 +4022,10 @@ Inkorrekte Namen sind
           <source>None</source>
           <target state="translated">Keiner</target>
         </trans-unit>
+        <trans-unit id="EverythingQuestionDownloadLink" translate="yes" xml:space="preserve">
+          <source>Download Everything</source>
+          <target state="translated">Laden Sie "Everything" herunter</target>
+        </trans-unit>
       </group>
     </body>
   </file>

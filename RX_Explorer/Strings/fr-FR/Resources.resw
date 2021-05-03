@@ -3032,4 +3032,7 @@ Les noms non valides incluent
   <data name="Operate_Text_GroupNone" xml:space="preserve">
     <value>Rien</value>
   </data>
+  <data name="EverythingQuestionDownloadLink" xml:space="preserve">
+    <value>Téléchargez "Everything"</value>
+  </data>
 </root>

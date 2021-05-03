@@ -124,8 +124,6 @@ namespace RX_Explorer
         {
             InitializeComponent();
 
-            EverythingTip.Subtitle = Globalization.GetString("EverythingQuestionSubtitle");
-
             BladePointerPressedEventHandler = new PointerEventHandler(Blade_PointerPressed);
 
             Loaded += FileControl_Loaded;

@@ -2232,13 +2232,7 @@ namespace RX_Explorer
 
                 if (UseWinAndEActivate.IsOn)
                 {
-                    QueueContentDialog Dialog = new QueueContentDialog
-                    {
-                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                        Content = Globalization.GetString("QueueDialog_BeforeInterceptWindowsETip_Content"),
-                        PrimaryButtonText = Globalization.GetString("Common_Dialog_ContinueButton"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                    };
+                    WinAndETipDialog Dialog = new WinAndETipDialog();
 
                     if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
                     {

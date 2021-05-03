@@ -120,7 +120,15 @@
                           IsLightDismissEnabled="True"
                           x:Uid="EverythingQuestion"
                           Target="{x:Bind EverythingQuestion}"
-                          x:Name="EverythingTip"/>
+                          x:Name="EverythingTip">
+            <StackPanel>
+                <TextBlock Text="{x:Bind Cls:Globalization.GetString('EverythingQuestionSubtitle')}"
+                           TextWrapping="Wrap"/>
+                <HyperlinkButton Content="{x:Bind Cls:Globalization.GetString('EverythingQuestionDownloadLink')}"
+                                 Margin="0,5,0,0"
+                                 NavigateUri="https://www.voidtools.com/zh-cn/downloads/"/>
+            </StackPanel>
+        </muxc:TeachingTip>
     </Page.Resources>
     <Grid Padding="1,2,1,0">
         <Grid.RowDefinitions>

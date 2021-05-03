@@ -4024,6 +4024,10 @@ Invalid names include
           <source>None</source>
           <target state="translated">无</target>
         </trans-unit>
+        <trans-unit id="EverythingQuestionDownloadLink" translate="yes" xml:space="preserve">
+          <source>Download Everything</source>
+          <target state="translated">下载"Everything"</target>
+        </trans-unit>
       </group>
     </body>
   </file>

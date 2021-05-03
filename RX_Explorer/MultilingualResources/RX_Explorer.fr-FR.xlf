@@ -4024,6 +4024,10 @@ Les noms non valides incluent
           <source>None</source>
           <target state="translated">Rien</target>
         </trans-unit>
+        <trans-unit id="EverythingQuestionDownloadLink" translate="yes" xml:space="preserve">
+          <source>Download Everything</source>
+          <target state="translated">Téléchargez "Everything"</target>
+        </trans-unit>
       </group>
     </body>
   </file>

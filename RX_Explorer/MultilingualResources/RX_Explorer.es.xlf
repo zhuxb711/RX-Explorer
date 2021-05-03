@@ -4022,6 +4022,10 @@ Las denominaciones no válidas son:
           <source>None</source>
           <target state="translated">Ninguno</target>
         </trans-unit>
+        <trans-unit id="EverythingQuestionDownloadLink" translate="yes" xml:space="preserve">
+          <source>Download Everything</source>
+          <target state="translated">Descarga "Everything"</target>
+        </trans-unit>
       </group>
     </body>
   </file>
