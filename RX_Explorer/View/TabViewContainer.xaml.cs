@@ -406,14 +406,14 @@ namespace RX_Explorer
                 }
             }
 
-            if (AnimationController.Current.IsEnableAnimation)
-            {
-                frame.Navigate(typeof(ThisPC), new WeakReference<TabViewItem>(Item), new DrillInNavigationTransitionInfo());
-            }
-            else
-            {
-                frame.Navigate(typeof(ThisPC), new WeakReference<TabViewItem>(Item), new SuppressNavigationTransitionInfo());
-            }
+            //if (AnimationController.Current.IsEnableAnimation)
+            //{
+            //    frame.Navigate(typeof(FileControl), new WeakReference<TabViewItem>(Item), new DrillInNavigationTransitionInfo());
+            //}
+            //else
+            //{
+            //    frame.Navigate(typeof(FileControl), new WeakReference<TabViewItem>(Item), new SuppressNavigationTransitionInfo());
+            //}
 
             if (ValidPathArray.Count > 0)
             {
@@ -426,6 +426,19 @@ namespace RX_Explorer
                 else
                 {
                     frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string[]>(new WeakReference<TabViewItem>(Item), ValidPathArray.ToArray()), new SuppressNavigationTransitionInfo());
+                }
+            }
+            else
+            {
+                Item.Header = Globalization.GetString("MainPage_PageDictionary_ThisPC_Label");
+
+                if (AnimationController.Current.IsEnableAnimation)
+                {
+                    frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string[]>(new WeakReference<TabViewItem>(Item),new string[] { Globalization.GetString("MainPage_PageDictionary_ThisPC_Label") }), new DrillInNavigationTransitionInfo());
+                }
+                else
+                {
+                    frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string[]>(new WeakReference<TabViewItem>(Item), new string[] { Globalization.GetString("MainPage_PageDictionary_ThisPC_Label") }), new SuppressNavigationTransitionInfo());
                 }
             }
 

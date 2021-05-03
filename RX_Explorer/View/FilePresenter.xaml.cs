@@ -73,6 +73,8 @@ namespace RX_Explorer
             }
         }
 
+        public readonly  FileSystemStorageFolder THIS_PC_FOLDER = new FileSystemStorageFolder(Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"));
+
         public List<ValueTuple<string, string>> GoAndBackRecord { get; } = new List<ValueTuple<string, string>>();
 
         public int RecordIndex { get; set; }
@@ -166,7 +168,7 @@ namespace RX_Explorer
                     Container.UpdateAddressButton(value.Path);
 
                     Container.GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {value.Name}";
-                    Container.GoParentFolder.IsEnabled = value.Path != Path.GetPathRoot(value.Path);
+                    Container.GoParentFolder.IsEnabled = value.Path != Globalization.GetString("MainPage_PageDictionary_ThisPC_Label") && value.Path != Path.GetPathRoot(value.Path) || value.Path.EndsWith(@":\");
                     Container.GoBackRecord.IsEnabled = RecordIndex > 0;
                     Container.GoForwardRecord.IsEnabled = RecordIndex < GoAndBackRecord.Count - 1;
 
@@ -332,6 +334,7 @@ namespace RX_Explorer
                         }
                 }
             }
+            
         }
 
         private async void FilePresenter_KeyDown(CoreWindow sender, KeyEventArgs args)
@@ -734,7 +737,7 @@ namespace RX_Explorer
                     }
                 }
 
-                if (!await FileSystemStorageItemBase.CheckExistAsync(FolderPath))
+                if (FolderPath!= Globalization.GetString("MainPage_PageDictionary_ThisPC_Label") && !await FileSystemStorageItemBase.CheckExistAsync(FolderPath))
                 {
                     QueueContentDialog dialog = new QueueContentDialog
                     {
@@ -759,7 +762,11 @@ namespace RX_Explorer
                     {
                         string ParentPath = Path.GetDirectoryName(FolderPath);
 
-                        if (ParentPath == GoAndBackRecord[GoAndBackRecord.Count - 1].Item1)
+                        if(GoAndBackRecord.Count==1&&GoAndBackRecord[0].Item1== Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
+                        {
+
+                        }
+                       else if (ParentPath == GoAndBackRecord[GoAndBackRecord.Count - 1].Item1)
                         {
                             GoAndBackRecord[GoAndBackRecord.Count - 1] = (ParentPath, FolderPath);
                         }
@@ -771,15 +778,36 @@ namespace RX_Explorer
 
                     GoAndBackRecord.Add((FolderPath, string.Empty));
 
-                    RecordIndex = GoAndBackRecord.Count - 1;
+                    RecordIndex = GoAndBackRecord.Count - 1 ;
                 }
 
+                if(FolderPath == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
+                {
+                    FileCollection.Clear();
+                    string ThisPC = Globalization.GetString("MainPage_PageDictionary_ThisPC_Label");
+                    Container.UpdateAddressButton(Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"));
+
+                    Container.GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {ThisPC}";
+                    Container.GoParentFolder.IsEnabled = false;
+                    Container.GoBackRecord.IsEnabled = RecordIndex > 0;
+                    Container.GoForwardRecord.IsEnabled = RecordIndex < GoAndBackRecord.Count - 1;
+
+                    if (Container.WeakToTabItem.TryGetTarget(out TabViewItem Item))
+                    {
+                        Item.Header = ThisPC;
+                    }
+                    CurrentFolder = THIS_PC_FOLDER;
+                    Container?.ShowThisPC();
+                    Container.FolderTree.SelectedNode = null;
+                    return;
+                }
                 if (await FileSystemStorageItemBase.OpenAsync(FolderPath) is FileSystemStorageFolder Folder)
                 {
+                    Container?.HideThisPC();
                     CurrentFolder = Folder;
                 }
 
-                if (Container.FolderTree.SelectedNode == null && Container.FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent)?.Path == Path.GetPathRoot(FolderPath)) is TreeViewNode RootNode)
+                if (Container.FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent)?.Path == Path.GetPathRoot(FolderPath)) is TreeViewNode RootNode)
                 {
                     Container.FolderTree.SelectNodeAndScrollToVertical(RootNode);
                 }
@@ -963,6 +991,10 @@ namespace RX_Explorer
 
         private async void FileCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
+            if (CurrentFolder == null)
+            {
+                return;
+            }
             PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
 
             await CollectionChangeLock.WaitAsync();

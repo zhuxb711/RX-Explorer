@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Deferred;
+using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.Toolkit.Uwp.UI.Animations;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using RX_Explorer.Class;
@@ -20,9 +21,12 @@ using Windows.ApplicationModel.DataTransfer.DragDrop;
 using Windows.Data.Xml.Dom;
 using Windows.Foundation;
 using Windows.Storage;
+using Windows.Storage.Pickers;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
+using Windows.UI.Input;
+using Windows.UI.Notifications;
 using Windows.UI.WindowManagement;
 using Windows.UI.WindowManagement.Preview;
 using Windows.UI.Xaml;
@@ -96,9 +100,8 @@ namespace RX_Explorer
                     if (value?.CurrentFolder is FileSystemStorageItemBase Folder)
                     {
                         UpdateAddressButton(Folder.Path);
-
                         GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {Folder.Name}";
-                        GoParentFolder.IsEnabled = Folder.Path != Path.GetPathRoot(Folder.Path);
+                        GoParentFolder.IsEnabled = Folder.Path!= Globalization.GetString("MainPage_PageDictionary_ThisPC_Label") && Folder.Path != Path.GetPathRoot(Folder.Path)||Folder.Path.EndsWith(@":\");
                         GoBackRecord.IsEnabled = value.RecordIndex > 0;
                         GoForwardRecord.IsEnabled = value.RecordIndex < value.GoAndBackRecord.Count - 1;
 
@@ -125,6 +128,9 @@ namespace RX_Explorer
             InitializeComponent();
 
             BladePointerPressedEventHandler = new PointerEventHandler(Blade_PointerPressed);
+
+            LibraryExpander.IsExpanded = SettingControl.LibraryExpanderIsExpand;
+            DeviceExpander.IsExpanded = SettingControl.DeviceExpanderIsExpand;
 
             Loaded += FileControl_Loaded;
         }
@@ -199,10 +205,10 @@ namespace RX_Explorer
                         }
                     }
 
-                    if (FolderTree.RootNodes.FirstOrDefault() is TreeViewNode Node)
-                    {
-                        FolderTree.SelectNodeAndScrollToVertical(Node);
-                    }
+                    //if (FolderTree.RootNodes.FirstOrDefault() is TreeViewNode Node)
+                    //{
+                    //    FolderTree.SelectNodeAndScrollToVertical(Node);
+                    //}
                 }
             }
             catch (Exception ex)
@@ -289,17 +295,28 @@ namespace RX_Explorer
                         RootPath = System.IO.Path.GetPathRoot(Path);
                     }
 
-                    StorageFolder DriveRootFolder = await StorageFolder.GetFolderFromPathAsync(RootPath);
-
+                    
+                    StorageFolder DriveRootFolder=null;
+                    if (RootPath != string.Empty)
+                    {
+                        DriveRootFolder = await StorageFolder.GetFolderFromPathAsync(RootPath);
+                    }
                     if (AddressButtonList.Count == 0)
                     {
-                        AddressButtonList.Add(new AddressBlock(RootPath, DriveRootFolder.DisplayName));
+                        if(!Path.StartsWith(@"\\"))
+                        { 
+                            AddressButtonList.Add(new AddressBlock(Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"), Globalization.GetString("MainPage_PageDictionary_ThisPC_Label")));
+                        }
+                        if (RootPath != string.Empty) 
+                        { 
+                            AddressButtonList.Add(new AddressBlock(RootPath, DriveRootFolder.DisplayName));
 
-                        PathAnalysis Analysis = new PathAnalysis(Path, RootPath);
+                            PathAnalysis Analysis = new PathAnalysis(Path, RootPath);
 
-                        while (Analysis.HasNextLevel)
-                        {
-                            AddressButtonList.Add(new AddressBlock(Analysis.NextFullPath()));
+                            while (Analysis.HasNextLevel)
+                            {
+                                AddressButtonList.Add(new AddressBlock(Analysis.NextFullPath()));
+                            }
                         }
                     }
                     else
@@ -311,15 +328,8 @@ namespace RX_Explorer
                         {
                             if (LastPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
                             {
-                                string[] LastSplit = LastPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
+                                string[] LastSplit = GetPathSplit(LastPath);
 
-                                if (LastPath.StartsWith(@"\\"))
-                                {
-                                    if (LastSplit.Length > 0)
-                                    {
-                                        LastSplit[0] = $@"\\{LastSplit[0]}";
-                                    }
-                                }
 
                                 for (int i = LastSplit.Length - CurrentSplit.Length - 1; i >= 0; i--)
                                 {
@@ -340,15 +350,7 @@ namespace RX_Explorer
                             {
                                 if (LastPath.StartsWith(Path, StringComparison.OrdinalIgnoreCase))
                                 {
-                                    string[] LastGraySplit = LastGrayPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-
-                                    if (LastGrayPath.StartsWith(@"\\"))
-                                    {
-                                        if (LastGraySplit.Length > 0)
-                                        {
-                                            LastGraySplit[0] = $@"\\{LastGraySplit[0]}";
-                                        }
-                                    }
+                                    string[] LastGraySplit = GetPathSplit(LastGrayPath);
 
                                     for (int i = LastGraySplit.Length - CurrentSplit.Length - 1; i >= 0; i--)
                                     {
@@ -357,15 +359,7 @@ namespace RX_Explorer
                                 }
                                 else if (Path.StartsWith(LastPath, StringComparison.OrdinalIgnoreCase))
                                 {
-                                    string[] LastSplit = LastPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
-
-                                    if (LastPath.StartsWith(@"\\"))
-                                    {
-                                        if (LastSplit.Length > 0)
-                                        {
-                                            LastSplit[0] = @$"\\{LastSplit[0]}";
-                                        }
-                                    }
+                                    string[] LastSplit = GetPathSplit(LastPath);
 
                                     for (int i = 0; i < CurrentSplit.Length - LastSplit.Length; i++)
                                     {
@@ -382,15 +376,9 @@ namespace RX_Explorer
                         LastPath = AddressButtonList.Last((Block) => Block.BlockType == AddressBlockType.Normal).Path;
                         LastGrayPath = AddressButtonList.LastOrDefault((Block) => Block.BlockType == AddressBlockType.Gray)?.Path;
 
-                        string[] OriginSplit = LastPath.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
+                        string[] OriginSplit = GetPathSplit(LastPath);
 
-                        if (LastPath.StartsWith(@"\\"))
-                        {
-                            if (OriginSplit.Length > 0)
-                            {
-                                OriginSplit[0] = @$"\\{OriginSplit[0]}";
-                            }
-                        }
+                        
 
                         List<string> IntersectList = new List<string>(Math.Min(CurrentSplit.Length, OriginSplit.Length));
 
@@ -409,7 +397,10 @@ namespace RX_Explorer
                         if (IntersectList.Count == 0)
                         {
                             AddressButtonList.Clear();
-
+                            if (!Path.StartsWith(@"\\"))
+                            {
+                                AddressButtonList.Add(new AddressBlock(Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"), Globalization.GetString("MainPage_PageDictionary_ThisPC_Label")));
+                            }
                             AddressButtonList.Add(new AddressBlock(RootPath, DriveRootFolder.DisplayName));
 
                             PathAnalysis Analysis = new PathAnalysis(Path, RootPath);
@@ -430,7 +421,10 @@ namespace RX_Explorer
                                     AddressButtonList.RemoveAt(i);
                                 }
                             }
-
+                            if(Path== Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
+                            {
+                                return;
+                            }
                             string BaseString = IntersectList.Count > 1 ? string.Join('\\', CurrentSplit.Take(IntersectList.Count)) : $"{CurrentSplit.First()}\\";
 
                             PathAnalysis Analysis = new PathAnalysis(Path, BaseString);
@@ -441,6 +435,7 @@ namespace RX_Explorer
                             }
                         }
                     }
+                    
                 }
                 catch (Exception ex)
                 {
@@ -453,6 +448,25 @@ namespace RX_Explorer
             }
         }
 
+        private string[] GetPathSplit(string Path)
+        {
+            
+            if(Path!= Globalization.GetString("MainPage_PageDictionary_ThisPC_Label")&&!Path.StartsWith("@\\"))
+            {
+                Path = Globalization.GetString("MainPage_PageDictionary_ThisPC_Label") + @"\" + Path;
+            }
+            string[] Split = Path.Split(@"\", StringSplitOptions.RemoveEmptyEntries);
+
+            if (Path.StartsWith(@"\\"))
+            {
+                if (Split.Length > 0)
+                {
+                    Split[0] = @$"\\{Split[0]}";
+                }
+            }
+            return Split;
+        }
+
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             if (Interlocked.Exchange(ref NavigateLockResource, 1) == 0)
@@ -461,17 +475,19 @@ namespace RX_Explorer
                 {
                     if (e.NavigationMode == NavigationMode.New && e?.Parameter is Tuple<WeakReference<TabViewItem>, string[]> Parameters)
                     {
-                        Frame.Navigated += Frame_Navigated;
-                        FullTrustProcessController.CurrentBusyStatus += FullTrustProcessController_CurrentBusyStatus;
-                        CommonAccessCollection.DriveAdded += CommonAccessCollection_DriveAdded;
-                        CommonAccessCollection.DriveRemoved += CommonAccessCollection_DriveRemoved;
-
                         WeakToTabItem = Parameters.Item1;
 
                         if (WeakToTabItem.TryGetTarget(out TabViewItem Item))
                         {
                             Item.Tag = this;
                         }
+                         
+                        Frame.Navigated += Frame_Navigated;
+                        FullTrustProcessController.CurrentBusyStatus += FullTrustProcessController_CurrentBusyStatus;
+                        CommonAccessCollection.DriveAdded += CommonAccessCollection_DriveAdded;
+                        CommonAccessCollection.DriveRemoved += CommonAccessCollection_DriveRemoved;
+
+                           
 
                         ViewModeControl = new ViewModeController();
 
@@ -483,6 +499,8 @@ namespace RX_Explorer
                         };
                         ViewModeComboBox.SetBinding(Selector.SelectedIndexProperty, SelectedIndexBinding);
 
+                            
+                        
                         await Initialize(Parameters.Item2).ConfigureAwait(false);
                     }
                 }
@@ -548,8 +566,14 @@ namespace RX_Explorer
         /// </summary>
         public async Task Initialize(string[] InitFolderPathArray)
         {
+
             if (InitFolderPathArray.Length > 0)
-            {
+            { 
+                 
+                foreach (string TargetPath in InitFolderPathArray.Where((FolderPath) => !string.IsNullOrWhiteSpace(FolderPath)))
+                {
+                    await CreateNewBladeAsync(TargetPath);
+                }
                 DriveDataBase[] Drives = CommonAccessCollection.DriveList.Where((Drive) => !string.IsNullOrWhiteSpace(Drive.Path)).ToArray();
 
                 foreach (DriveDataBase DriveData in Drives.Where((Dr) => Dr.DriveType != DriveType.Network))
@@ -573,10 +597,7 @@ namespace RX_Explorer
                     }
                 }
 
-                foreach (string TargetPath in InitFolderPathArray.Where((FolderPath) => !string.IsNullOrWhiteSpace(FolderPath)))
-                {
-                    await CreateNewBladeAsync(TargetPath);
-                }
+                
 
                 foreach (DriveDataBase DriveData in Drives.Where((Dr) => Dr.DriveType == DriveType.Network))
                 {
@@ -599,7 +620,23 @@ namespace RX_Explorer
                         }
                     }
                 }
+
+                //if(CurrentPresenter.CurrentFolder.Path == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
+                //{
+                 
+                //}
+                //else { 
+                //    string TargetRootPath = Path.GetPathRoot(CurrentPresenter.CurrentFolder.Path);
+                
+                //    if (FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent).Path == TargetRootPath) is TreeViewNode TargetRootNode)
+                //    {
+                //        FolderTree.SelectNodeAndScrollToVertical(TargetRootNode);
+                //        TargetRootNode.IsExpanded = true;
+                //    }
+                //}
+
             }
+
         }
 
         /// <summary>
@@ -1158,6 +1195,12 @@ namespace RX_Explorer
                 return;
             }
 
+            if (QueryText == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
+            {
+                await CurrentPresenter.DisplayItemsInFolder(QueryText);
+                return;
+            }
+
             try
             {
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
@@ -1278,7 +1321,7 @@ namespace RX_Explorer
                 {
                     QueryText = await CommonEnvironmentVariables.ReplaceVariableAndGetActualPath(QueryText);
                 }
-
+                
                 if (Path.IsPathRooted(QueryText))
                 {
                     if (CommonAccessCollection.DriveList.FirstOrDefault((Drive) => Drive.Path.TrimEnd('\\').Equals(Path.GetPathRoot(QueryText).TrimEnd('\\'), StringComparison.OrdinalIgnoreCase)) is DriveDataBase Drive && Drive is LockedDriveData LockedDrive)
@@ -1481,10 +1524,19 @@ namespace RX_Explorer
                     {
                         string CurrentFolderPath = CurrentPresenter.CurrentFolder.Path;
                         string DirectoryPath = Path.GetDirectoryName(CurrentFolderPath);
-
-                        if (!string.IsNullOrWhiteSpace(DirectoryPath))
+                        if (CurrentFolderPath.EndsWith(@":\"))
                         {
-                            await CurrentPresenter.DisplayItemsInFolder(Path.GetDirectoryName(CurrentPresenter.CurrentFolder.Path));
+                            DirectoryPath = Globalization.GetString("MainPage_PageDictionary_ThisPC_Label");
+                        }
+                        if (DirectoryPath == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
+                        {
+                           
+                            await CurrentPresenter.DisplayItemsInFolder(DirectoryPath);
+                        }
+                        else if (!string.IsNullOrWhiteSpace(DirectoryPath))
+                        {
+                            HideThisPC();
+                            await CurrentPresenter.DisplayItemsInFolder(DirectoryPath);
 
                             if (CurrentPresenter.FileCollection.OfType<FileSystemStorageFolder>().FirstOrDefault((Item) => Item.Path.Equals(CurrentFolderPath, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase Folder)
                             {
@@ -1494,6 +1546,7 @@ namespace RX_Explorer
                         }
                         else
                         {
+                            
                             GoParentFolder.IsEnabled = false;
                         }
                     }
@@ -1516,12 +1569,22 @@ namespace RX_Explorer
                 {
                     if (GoBackRecord.IsEnabled)
                     {
-                        CurrentPresenter.GoAndBackRecord[CurrentPresenter.RecordIndex] = (CurrentPresenter.GoAndBackRecord[CurrentPresenter.RecordIndex].Item1, CurrentPresenter.SelectedItems.Count > 1 ? string.Empty : (CurrentPresenter.SelectedItem?.Path ?? string.Empty));
-
-                        (Path, SelectedPath) = CurrentPresenter.GoAndBackRecord[--CurrentPresenter.RecordIndex];
-
-                        if (await FileSystemStorageItemBase.CheckExistAsync(Path))
+                        if(CurrentPresenter.CurrentFolder==null||CurrentPresenter.CurrentFolder.Path== Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
                         {
+
+                        }
+                        else { 
+                            CurrentPresenter.GoAndBackRecord[CurrentPresenter.RecordIndex] = (CurrentPresenter.GoAndBackRecord[CurrentPresenter.RecordIndex].Item1, CurrentPresenter.SelectedItems.Count > 1 ? string.Empty : (CurrentPresenter.SelectedItem?.Path ?? string.Empty));
+                        }
+                        (Path, SelectedPath) = CurrentPresenter.GoAndBackRecord[--CurrentPresenter.RecordIndex];
+                        if( Path == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
+                        {
+                           
+                            await CurrentPresenter.DisplayItemsInFolder(Path, SkipNavigationRecord: true);
+                        }
+                        else if (await FileSystemStorageItemBase.CheckExistAsync(Path))
+                        {
+                            
                             await CurrentPresenter.DisplayItemsInFolder(Path, SkipNavigationRecord: true);
 
                             await SQLite.Current.SetPathHistoryAsync(Path);
@@ -1543,7 +1606,7 @@ namespace RX_Explorer
 
                             await dialog.ShowAsync();
 
-                            CurrentPresenter.RecordIndex++;
+                            CurrentPresenter.RecordIndex--;
                         }
                     }
                 }
@@ -1577,12 +1640,23 @@ namespace RX_Explorer
                 {
                     if (GoForwardRecord.IsEnabled)
                     {
-                        CurrentPresenter.GoAndBackRecord[CurrentPresenter.RecordIndex] = (CurrentPresenter.GoAndBackRecord[CurrentPresenter.RecordIndex].Item1, CurrentPresenter.SelectedItems.Count > 1 ? string.Empty : (CurrentPresenter.SelectedItem?.Path ?? string.Empty));
+                        if (CurrentPresenter.GoAndBackRecord[CurrentPresenter.RecordIndex].Item1 == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
+                        {
 
+                        }else
+                        { 
+                            CurrentPresenter.GoAndBackRecord[CurrentPresenter.RecordIndex] = (CurrentPresenter.GoAndBackRecord[CurrentPresenter.RecordIndex].Item1, CurrentPresenter.SelectedItems.Count > 1 ? string.Empty : (CurrentPresenter.SelectedItem?.Path ?? string.Empty));
+                        }
                         (Path, SelectedPath) = CurrentPresenter.GoAndBackRecord[++CurrentPresenter.RecordIndex];
 
-                        if (await FileSystemStorageItemBase.CheckExistAsync(Path))
+                        if (Path == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
                         {
+                            
+                            await CurrentPresenter.DisplayItemsInFolder(Path, SkipNavigationRecord: true);
+                        }
+                        else if (await FileSystemStorageItemBase.CheckExistAsync(Path))
+                        {
+                            
                             await CurrentPresenter.DisplayItemsInFolder(Path, SkipNavigationRecord: true);
 
                             await SQLite.Current.SetPathHistoryAsync(Path);
@@ -1604,7 +1678,7 @@ namespace RX_Explorer
 
                             await dialog.ShowAsync();
 
-                            CurrentPresenter.RecordIndex--;
+                            CurrentPresenter.RecordIndex++;
                         }
                     }
                 }
@@ -1678,11 +1752,17 @@ namespace RX_Explorer
             {
                 try
                 {
-                    if (!Block.Path.StartsWith(@"\") || Block.Path.Split(@"\", StringSplitOptions.RemoveEmptyEntries).Length > 1)
+                    if (Block.Path == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
                     {
                         await CurrentPresenter.DisplayItemsInFolder(Block.Path);
-                        await SQLite.Current.SetPathHistoryAsync(Block.Path);
+                         
                     }
+                    else if (!Block.Path.StartsWith(@"\") || Block.Path.Split(@"\", StringSplitOptions.RemoveEmptyEntries).Length > 1)
+                    {
+                        
+                        await CurrentPresenter.DisplayItemsInFolder(Block.Path);
+                        await SQLite.Current.SetPathHistoryAsync(Block.Path);
+                    } 
                 }
                 catch
                 {
@@ -1706,11 +1786,20 @@ namespace RX_Explorer
 
             if (Btn.DataContext is AddressBlock Block)
             {
-                List<string> ItemList = WIN_Native_API.GetStorageItems(Block.Path, SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder).Select((Item) => Item.Path).ToList();
-
-                foreach (string Path in ItemList)
+                if(Block.Path== Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
                 {
-                    AddressExtentionList.Add(new AddressBlock(Path));
+                    foreach (var item in CommonAccessCollection.DriveList.OfType<NormalDriveData>())
+                    {
+                        AddressExtentionList.Add(new AddressBlock(item.Path));
+                    }
+                }
+                else { 
+                    List<string> ItemList = WIN_Native_API.GetStorageItems(Block.Path, SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder).Select((Item) => Item.Path).ToList();
+
+                    foreach (string Path in ItemList)
+                    {
+                        AddressExtentionList.Add(new AddressBlock(Path));
+                    }
                 }
 
                 if (AddressExtentionList.Count > 0 && Btn.Content is FrameworkElement DropDownElement)
@@ -1748,6 +1837,7 @@ namespace RX_Explorer
             {
                 if (e.ClickedItem is AddressBlock TargeBlock)
                 {
+                   
                     await CurrentPresenter.DisplayItemsInFolder(TargeBlock.Path);
                 }
             }
@@ -2575,5 +2665,602 @@ namespace RX_Explorer
                 await SQLite.Current.DeletePathHistoryAsync(Item.Path);
             }
         }
+        private void LibraryExpander_Collapsed(object sender, EventArgs e)
+        {
+            SettingControl.LibraryExpanderIsExpand = false;
+            LibraryGrid.SelectedIndex = -1;
+        }
+
+        private void DeviceExpander_Collapsed(object sender, EventArgs e)
+        {
+            SettingControl.DeviceExpanderIsExpand = false;
+            DeviceGrid.SelectedIndex = -1;
+        }
+
+        private async void EjectButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (DeviceGrid.SelectedItem is DriveDataBase Item)
+            {
+                if (string.IsNullOrEmpty(Item.Path))
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueContentDialog_UnableToEject_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync().ConfigureAwait(false);
+                }
+                else
+                {
+                    foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabCollection.Where((Tab) => (Tab.Content as Frame).CurrentSourcePageType != typeof(ThisPC) && Tab.Tag is FileControl Control && Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder?.Path).Equals(Item.Path, StringComparison.OrdinalIgnoreCase)).ToArray())
+                    {
+                        await TabViewContainer.ThisPage.CleanUpAndRemoveTabItem(Tab);
+                    }
+
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    {
+                        if (await Exclusive.Controller.EjectPortableDevice(Item.Path))
+                        {
+                            ShowEjectNotification();
+                        }
+                        else
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueContentDialog_UnableToEject_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            await Dialog.ShowAsync().ConfigureAwait(false);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void ShowEjectNotification()
+        {
+            try
+            {
+                ToastNotificationManager.History.Remove("MergeVideoNotification");
+
+                ToastContentBuilder Builder = new ToastContentBuilder()
+                                              .SetToastScenario(ToastScenario.Default)
+                                              .AddToastActivationInfo("Transcode", ToastActivationType.Foreground)
+                                              .AddText(Globalization.GetString("Eject_Toast_Text_1"))
+                                              .AddText(Globalization.GetString("Eject_Toast_Text_2"))
+                                              .AddText(Globalization.GetString("Eject_Toast_Text_3"));
+
+                ToastNotificationManager.CreateToastNotifier().Show(new ToastNotification(Builder.GetToastContent().GetXml()));
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Toast notification could not be sent");
+            }
+        }
+        private async void LibraryGrid_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
+        {
+            await SQLite.Current.ClearTableAsync("Library");
+
+            foreach (LibraryFolder Item in CommonAccessCollection.LibraryFolderList)
+            {
+                await SQLite.Current.SetLibraryPathAsync(Item.Folder.Path, Item.Type);
+            }
+        }
+
+        private async void AddLibraryButton_Click(object sender, RoutedEventArgs e)
+        {
+            FolderPicker Picker = new FolderPicker
+            {
+                ViewMode = PickerViewMode.List,
+                SuggestedStartLocation = PickerLocationId.ComputerFolder
+            };
+            Picker.FileTypeFilter.Add("*");
+
+            if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
+            {
+                if (CommonAccessCollection.LibraryFolderList.Any((Library) => Library.Folder.Path.Equals(Folder.Path, StringComparison.OrdinalIgnoreCase)))
+                {
+                    QueueContentDialog dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                        Content = Globalization.GetString("QueueDialog_RepeatAddToHomePage_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+                    await dialog.ShowAsync();
+                }
+                else
+                {
+                    CommonAccessCollection.LibraryFolderList.Add(await LibraryFolder.CreateAsync(Folder, LibraryType.UserCustom));
+                    await SQLite.Current.SetLibraryPathAsync(Folder.Path, LibraryType.UserCustom).ConfigureAwait(false);
+                    await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path).ConfigureAwait(false);
+                }
+            }
+        }
+
+        private async void UnlockBitlocker_Click(object sender, RoutedEventArgs e)
+        {
+            if (DeviceGrid.SelectedItem is DriveDataBase Drive)
+            {
+                await OpenTargetDriveAsync(Drive);
+            }
+        }
+
+        private void GridView_PreviewKeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (e.Key == VirtualKey.Space)
+            {
+                e.Handled = true;
+            }
+        }
+
+        private async void LibraryExpander_Expanded(object sender, EventArgs e)
+        {
+            SettingControl.LibraryExpanderIsExpand = true;
+            await CommonAccessCollection.LoadLibraryFoldersAsync();
+        }
+
+        private async void DeviceExpander_Expanded(object sender, EventArgs e)
+        {
+            SettingControl.DeviceExpanderIsExpand = true;
+            await CommonAccessCollection.LoadDriveAsync();
+        }
+
+        private void DeviceGrid_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
+        {
+            if (args.InRecycleQueue)
+            {
+                args.ItemContainer.PointerEntered -= ItemContainer_PointerEntered;
+            }
+            else
+            {
+                args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
+
+                if (AnimationController.Current.IsEnableAnimation)
+                {
+                //    ProgressBar ProBar = args.ItemContainer.FindChildOfType<ProgressBar>();
+                //    Storyboard Story = new Storyboard();
+                //    DoubleAnimation Animation = new DoubleAnimation()
+                //    {
+                //        To = (args.Item as DriveDataBase).Percent,
+                //        From = 0,
+                //        EnableDependentAnimation = true,
+                //        EasingFunction = new CircleEase { EasingMode = EasingMode.EaseInOut },
+                //        Duration = new TimeSpan(0, 0, 0, 0, 800)
+                //    };
+                //    Storyboard.SetTarget(Animation, ProBar);
+                //    Storyboard.SetTargetProperty(Animation, "Value");
+                //    Story.Children.Add(Animation);
+                //    Story.Begin();
+                }
+            }
+        }
+
+        private void LibraryGrid_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
+        {
+            if (args.InRecycleQueue)
+            {
+                args.ItemContainer.PointerEntered -= ItemContainer_PointerEntered;
+            }
+            else
+            {
+                args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
+            }
+        }
+
+        private void ItemContainer_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (!SettingControl.IsDoubleClickEnable)
+            {
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is object Item)
+                {
+                    if (Item is LibraryFolder)
+                    {
+                        LibraryGrid.SelectedItem = Item;
+                        DeviceGrid.SelectedIndex = -1;
+                    }
+                    else if (Item is DriveDataBase)
+                    {
+                        DeviceGrid.SelectedItem = Item;
+                        LibraryGrid.SelectedIndex = -1;
+                    }
+                }
+            }
+        }
+
+        public async Task OpenTargetDriveAsync(DriveDataBase Drive)
+        {
+            switch (Drive)
+            {
+                case LockedDriveData LockedDrive:
+                    {
+                    Retry:
+                        BitlockerPasswordDialog Dialog = new BitlockerPasswordDialog();
+
+                        if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            if (!await LockedDrive.UnlockAsync(Dialog.Password))
+                            {
+                                QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
+
+                                if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
+                                {
+                                    goto Retry;
+                                }
+                                else
+                                {
+                                    return;
+                                }
+                            }
+
+                            StorageFolder DriveFolder = await StorageFolder.GetFolderFromPathAsync(LockedDrive.Path);
+
+                            DriveDataBase NewDrive = await DriveDataBase.CreateAsync(DriveFolder, LockedDrive.DriveType);
+
+                            if (NewDrive is LockedDriveData)
+                            {
+                                QueueContentDialog UnlockFailedDialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_UnlockBitlockerFailed_Content"),
+                                    PrimaryButtonText = Globalization.GetString("Common_Dialog_RetryButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
+
+                                if (await UnlockFailedDialog.ShowAsync() == ContentDialogResult.Primary)
+                                {
+                                    goto Retry;
+                                }
+                            }
+                            else
+                            {
+                                int Index = CommonAccessCollection.DriveList.IndexOf(LockedDrive);
+
+                                if (Index >= 0)
+                                {
+                                    CommonAccessCollection.DriveList.Remove(LockedDrive);
+                                    CommonAccessCollection.DriveList.Insert(Index, NewDrive);
+                                }
+                                else
+                                {
+                                    CommonAccessCollection.DriveList.Add(NewDrive);
+                                }
+                            }
+                        }
+
+                        break;
+                    }
+                case WslDriveData:
+                case NormalDriveData:
+                    {
+                        await OpenTargetFolder(Drive.DriveFolder).ConfigureAwait(false);
+                        break;
+                    }
+            }
+        }
+
+        public async Task OpenTargetFolder(StorageFolder Folder)
+        {
+            if (Folder == null)
+            {
+                throw new ArgumentNullException(nameof(Folder), "Argument could not be null");
+            }
+
+            try
+            {
+                if (string.IsNullOrEmpty(Folder.Path))
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                        Content = Globalization.GetString("QueueDialog_CouldNotAccess_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
+                }
+                else
+                {
+                    
+                    if (CurrentPresenter != null)
+                    {
+                        await CurrentPresenter.DisplayItemsInFolder(Folder.Path);
+                    }
+                    //if (AnimationController.Current.IsEnableAnimation)
+                    //{
+                    //    Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string[]>(WeakToTabItem, new string[] { Folder.Path }), new DrillInNavigationTransitionInfo());
+                    //}
+                    //else
+                    //{
+                    //    Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string[]>(WeakToTabItem, new string[] { Folder.Path }), new SuppressNavigationTransitionInfo());
+                    //}
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "An error was threw when entering device");
+            }
+        }
+
+        private async void DeviceGrid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        {
+            LibraryGrid.SelectedIndex = -1;
+
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is DriveDataBase Drive)
+            {
+                await OpenTargetDriveAsync(Drive);
+            }
+        }
+
+        private async void LibraryGrid_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        {
+            DeviceGrid.SelectedIndex = -1;
+
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Library)
+            {
+                await OpenTargetFolder(Library.Folder).ConfigureAwait(false);
+            }
+        }
+        private void LibraryGrid_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
+        {
+            if (e.HoldingState == HoldingState.Started)
+            {
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Context)
+                {
+                    LibraryGrid.SelectedItem = Context;
+                    LibraryGrid.ContextFlyout = LibraryFlyout;
+                }
+                else
+                {
+                    LibraryGrid.ContextFlyout = null;
+                }
+            }
+        }
+
+        private void DeviceGrid_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
+        {
+            if (e.HoldingState == HoldingState.Started)
+            {
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is DriveDataBase Context)
+                {
+                    DeviceGrid.SelectedItem = Context;
+                    DeviceGrid.ContextFlyout = Context.DriveType == DriveType.Removable ? PortableDeviceFlyout : DeviceFlyout;
+                }
+                else
+                {
+                    DeviceGrid.SelectedIndex = -1;
+                    DeviceGrid.ContextFlyout = EmptyFlyout;
+                }
+            }
+        }
+
+        private async void Attribute_Click(object sender, RoutedEventArgs e)
+        {
+            DeviceInfoDialog Dialog = new DeviceInfoDialog(DeviceGrid.SelectedItem as DriveDataBase);
+            await Dialog.ShowAsync();
+        }
+
+        private void DeviceGrid_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        {
+            if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
+            {
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is DriveDataBase Context)
+                {
+                    DeviceGrid.SelectedItem = Context;
+
+                    if (Context is LockedDriveData)
+                    {
+                        DeviceGrid.ContextFlyout = BitlockerDeviceFlyout;
+                    }
+                    else
+                    {
+                        DeviceGrid.ContextFlyout = Context.DriveType == DriveType.Removable ? PortableDeviceFlyout : DeviceFlyout;
+                    }
+                }
+                else
+                {
+                    DeviceGrid.SelectedIndex = -1;
+                    DeviceGrid.ContextFlyout = EmptyFlyout;
+                }
+            }
+        }
+
+        private async void OpenDevice_Click(object sender, RoutedEventArgs e)
+        {
+            LibraryGrid.SelectedIndex = -1;
+
+            if (DeviceGrid.SelectedItem is DriveDataBase Drive)
+            {
+                await OpenTargetDriveAsync(Drive);
+            }
+        }
+
+        private void DeviceGrid_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if ((e.OriginalSource as FrameworkElement)?.DataContext == null)
+            {
+                DeviceGrid.SelectedIndex = -1;
+            }
+            else
+            {
+                LibraryGrid.SelectedIndex = -1;
+            }
+        }
+
+        private void LibraryGrid_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if ((e.OriginalSource as FrameworkElement)?.DataContext == null)
+            {
+                LibraryGrid.SelectedIndex = -1;
+            }
+            else
+            {
+                DeviceGrid.SelectedIndex = -1;
+            }
+        }
+
+        private void Grid_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            DeviceGrid.SelectedIndex = -1;
+            LibraryGrid.SelectedIndex = -1;
+        }
+
+        private void LibraryGrid_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        {
+            if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
+            {
+                if ((e.OriginalSource as FrameworkElement)?.DataContext is LibraryFolder Context)
+                {
+                    LibraryGrid.SelectedItem = Context;
+                    LibraryGrid.ContextFlyout = LibraryFlyout;
+                }
+                else
+                {
+                    LibraryGrid.ContextFlyout = LibraryEmptyFlyout;
+                }
+            }
+        }
+
+        private async void OpenLibrary_Click(object sender, RoutedEventArgs e)
+        {
+            DeviceGrid.SelectedIndex = -1;
+
+            if (LibraryGrid.SelectedItem is LibraryFolder Library)
+            {
+                await OpenTargetFolder(Library.Folder).ConfigureAwait(false);
+            }
+        }
+
+        private async void RemovePin_Click(object sender, RoutedEventArgs e)
+        {
+            if (LibraryGrid.SelectedItem is LibraryFolder Library)
+            {
+                CommonAccessCollection.LibraryFolderList.Remove(Library);
+                await SQLite.Current.DeleteLibraryAsync(Library.Folder.Path).ConfigureAwait(false);
+                await JumpListController.Current.RemoveItem(JumpListGroup.Library, Library.Folder).ConfigureAwait(false);
+            }
+        }
+
+        private async void LibraryProperties_Click(object sender, RoutedEventArgs e)
+        {
+            if (LibraryGrid.SelectedItem is LibraryFolder Library)
+            {
+                if (await FileSystemStorageItemBase.CreateFromStorageItemAsync(Library.Folder) is FileSystemStorageFolder Folder)
+                {
+                    await Folder.LoadMorePropertiesAsync();
+
+                    AppWindow NewWindow = await AppWindow.TryCreateAsync();
+                    NewWindow.RequestSize(new Size(420, 600));
+                    NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+                    NewWindow.PersistedStateId = "Properties";
+                    NewWindow.Title = Globalization.GetString("Properties_Window_Title");
+                    NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+                    NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                    NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
+                    ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, Folder));
+                    WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
+
+                    await NewWindow.TryShowAsync();
+                }
+            }
+        }
+
+        public async void Refresh_Click(object sender, RoutedEventArgs e)
+        {
+            await CommonAccessCollection.LoadDriveAsync(true);
+        }
+
+        private async void DeviceGrid_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            LibraryGrid.SelectedIndex = -1;
+
+            if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is DriveDataBase Drive)
+            {
+                await OpenTargetDriveAsync(Drive);
+            }
+        }
+
+        private async void LibraryGrid_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            DeviceGrid.SelectedIndex = -1;
+
+            if (!SettingControl.IsDoubleClickEnable && e.ClickedItem is LibraryFolder Library)
+            {
+                await OpenTargetFolder(Library.Folder).ConfigureAwait(false);
+            }
+        }
+
+        private async void AddDevice_Click(object sender, RoutedEventArgs e)
+        {
+            FolderPicker Picker = new FolderPicker
+            {
+                SuggestedStartLocation = PickerLocationId.ComputerFolder,
+                ViewMode = PickerViewMode.Thumbnail
+            };
+            Picker.FileTypeFilter.Add("*");
+
+            StorageFolder DriveFolder = await Picker.PickSingleFolderAsync();
+
+            if (DriveFolder != null)
+            {
+                if (DriveFolder.Path.Equals(Path.GetPathRoot(DriveFolder.Path), StringComparison.OrdinalIgnoreCase) && DriveInfo.GetDrives().Where((Drive) => Drive.DriveType == DriveType.Fixed || Drive.DriveType == DriveType.Removable || Drive.DriveType == DriveType.Network).Any((Item) => Item.RootDirectory.FullName == DriveFolder.Path))
+                {
+                    if (CommonAccessCollection.DriveList.All((Item) => !Item.Path.Equals(DriveFolder.Path, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        CommonAccessCollection.DriveList.Add(await DriveDataBase.CreateAsync(DriveFolder, new DriveInfo(DriveFolder.Path).DriveType));
+                    }
+                    else
+                    {
+                        QueueContentDialog Dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                            Content = Globalization.GetString("QueueDialog_DeviceExist_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                        };
+                        await Dialog.ShowAsync();
+                    }
+                }
+                else
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                        Content = Globalization.GetString("QueueDialog_DeviceSelectError_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_TipTitle")
+                    };
+
+                    await Dialog.ShowAsync();
+                }
+            }
+        }
+
+        public void ShowThisPC()
+        {
+            if (ThisPCView.Visibility == Visibility.Collapsed)
+            {
+                ThisPCView.Visibility = Visibility.Visible;
+                BladeViewer.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        public void HideThisPC()
+        {
+            if (ThisPCView.Visibility == Visibility.Visible)
+            {
+                ThisPCView.Visibility = Visibility.Collapsed;
+                BladeViewer.Visibility = Visibility.Visible;
+            }
+        }
+
     }
 }

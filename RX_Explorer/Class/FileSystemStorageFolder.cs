@@ -18,6 +18,7 @@ namespace RX_Explorer.Class
         {
             get
             {
+                if (Path == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label")) return Path;
                 return (StorageItem?.Name) ?? (System.IO.Path.GetPathRoot(Path) == Path ? Path : System.IO.Path.GetFileName(Path));
             }
         }
@@ -102,7 +103,10 @@ namespace RX_Explorer.Class
             CreationTimeRaw = Item.DateCreated;
             ModifiedTimeRaw = ModifiedTime;
         }
+        public FileSystemStorageFolder(string Path) : base(Path)
+        {
 
+        }
         public FileSystemStorageFolder(string Path, WIN_Native_API.WIN32_FIND_DATA Data) : base(Path, Data)
         {
 
@@ -285,7 +289,17 @@ namespace RX_Explorer.Class
 
         public async IAsyncEnumerable<FileSystemStorageItemBase> SearchAsync(string SearchWord, bool SearchInSubFolders = false, bool IncludeHiddenItem = false, bool IncludeSystemItem = false, bool IsRegexExpresstion = false, bool IgnoreCase = true, [EnumeratorCancellation] CancellationToken CancelToken = default)
         {
-            if (WIN_Native_API.CheckLocationAvailability(Path))
+            if(Path == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
+            {
+                foreach (var item in CommonAccessCollection.DriveList)
+                {
+                    foreach (FileSystemStorageItemBase Item in await Task.Run(() => WIN_Native_API.Search(item.Path, SearchWord, SearchInSubFolders, IncludeHiddenItem, IncludeSystemItem, IsRegexExpresstion, IgnoreCase, CancelToken)))
+                    {
+                        yield return Item;
+                    }
+                }
+            }
+            else if (WIN_Native_API.CheckLocationAvailability(Path))
             {
                 foreach (FileSystemStorageItemBase Item in await Task.Run(() => WIN_Native_API.Search(Path, SearchWord, SearchInSubFolders, IncludeHiddenItem, IncludeSystemItem, IsRegexExpresstion, IgnoreCase, CancelToken)))
                 {

@@ -3,8 +3,10 @@ using Microsoft.Toolkit.Uwp.Notifications;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using RX_Explorer.View;
+using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -25,6 +27,7 @@ using Windows.System.Power;
 using Windows.System.Profile;
 using Windows.UI.Core;
 using Windows.UI.Core.Preview;
+using Windows.UI.Input;
 using Windows.UI.Notifications;
 using Windows.UI.Shell;
 using Windows.UI.StartScreen;
@@ -52,6 +55,8 @@ namespace RX_Explorer
 
         private DeviceWatcher BluetoothAudioWatcher;
 
+        private QuickStartItem CurrentSelectedItem;
+
         public MainPage(Rect Parameter, List<string[]> ActivatePathArray = null)
         {
             InitializeComponent();
@@ -61,6 +66,7 @@ namespace RX_Explorer
             Loaded += MainPage_Loaded;
             Loaded += MainPage_Loaded1;
             Window.Current.Activated += MainPage_Activated;
+            Window.Current.CoreWindow.Dispatcher.AcceleratorKeyActivated += Dispatcher_AcceleratorKeyActivated;
             Application.Current.EnteredBackground += Current_EnteredBackground;
             Application.Current.LeavingBackground += Current_LeavingBackground;
             SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += MainPage_CloseRequested;
@@ -876,5 +882,250 @@ namespace RX_Explorer
         {
             BluetoothAudioQuestionTip.IsOpen = true;
         }
+        private void GridView_PreviewKeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (e.Key == VirtualKey.Space)
+            {
+                e.Handled = true;
+            }
+        }
+        private async void QuickStartGridView_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            if (e.ClickedItem is QuickStartItem Item)
+            {
+                if ((sender as GridView).Name == nameof(QuickStartGridView))
+                {
+                    if (Uri.TryCreate(Item.Protocol, UriKind.Absolute, out Uri Ur))
+                    {
+                        if (Ur.IsFile)
+                        {
+                            if (await FileSystemStorageItemBase.CheckExistAsync(Item.Protocol))
+                            {
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                {
+                                    try
+                                    {
+                                        if (Path.GetExtension(Item.Protocol).ToLower() == ".msc")
+                                        {
+                                            if (!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", Item.Protocol))
+                                            {
+                                                QueueContentDialog Dialog = new QueueContentDialog
+                                                {
+                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                };
+
+                                                await Dialog.ShowAsync();
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (!await Exclusive.Controller.RunAsync(Item.Protocol, Path.GetDirectoryName(Item.Protocol)))
+                                            {
+                                                QueueContentDialog Dialog = new QueueContentDialog
+                                                {
+                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                };
+
+                                                await Dialog.ShowAsync();
+                                            }
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        LogTracer.Log(ex, "Could not execute program in quick start");
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_ApplicationNotFound_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+                                await Dialog.ShowAsync();
+                            }
+                        }
+                        else
+                        {
+                            await Launcher.LaunchUriAsync(Ur);
+                        }
+                    }
+                    else
+                    {
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                        {
+                            if (!await Exclusive.Controller.LaunchUWPLnkAsync(Item.Protocol))
+                            {
+                                QueueContentDialog Dialog = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                };
+
+                                await Dialog.ShowAsync();
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    await Launcher.LaunchUriAsync(new Uri(Item.Protocol));
+                }
+            }
+        }
+
+        private async void AppDelete_Click(object sender, RoutedEventArgs e)
+        {
+            if (CurrentSelectedItem != null)
+            {
+                CommonAccessCollection.QuickStartList.Remove(CurrentSelectedItem);
+                await SQLite.Current.DeleteQuickStartItemAsync(CurrentSelectedItem).ConfigureAwait(false);
+            }
+        }
+
+        private async void AppEdit_Click(object sender, RoutedEventArgs e)
+        {
+            if (CurrentSelectedItem != null)
+            {
+                QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(CurrentSelectedItem);
+                await dialog.ShowAsync();
+            }
+        }
+
+        private async void WebEdit_Click(object sender, RoutedEventArgs e)
+        {
+            if (CurrentSelectedItem != null)
+            {
+                QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(CurrentSelectedItem);
+                await dialog.ShowAsync();
+            }
+        }
+
+        private async void WebDelete_Click(object sender, RoutedEventArgs e)
+        {
+            if (CurrentSelectedItem != null)
+            {
+                CommonAccessCollection.HotWebList.Remove(CurrentSelectedItem);
+                await SQLite.Current.DeleteQuickStartItemAsync(CurrentSelectedItem).ConfigureAwait(false);
+            }
+        }
+
+        private void QuickStartGridView_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        {
+            if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
+            {
+                if ((sender as GridView).Name == nameof(QuickStartGridView))
+                {
+                    if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
+                    {
+                        CurrentSelectedItem = Item;
+
+                        QuickStartGridView.ContextFlyout = AppFlyout;
+                    }
+                    else
+                    {
+                        QuickStartGridView.ContextFlyout = AppEmptyFlyout;
+                    }
+                }
+                else
+                {
+                    if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
+                    {
+                        CurrentSelectedItem = Item;
+
+                        WebGridView.ContextFlyout = WebFlyout;
+                    }
+                    else
+                    {
+                        WebGridView.ContextFlyout = WebEmptyFlyout;
+                    }
+                }
+            }
+        }
+
+        private void SymbolIcon_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            QuickStartTip.IsOpen = true;
+        }
+
+        private async void AddQuickStartWeb_Click(object sender, RoutedEventArgs e)
+        {
+            await new QuickStartModifiedDialog(QuickStartType.WebSite).ShowAsync();
+        }
+
+        private async void AddQuickStartApp_Click(object sender, RoutedEventArgs e)
+        {
+            await new QuickStartModifiedDialog(QuickStartType.Application).ShowAsync();
+        }
+
+        private async void WebGridView_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
+        {
+            await SQLite.Current.DeleteQuickStartItemAsync(QuickStartType.WebSite);
+
+            foreach (QuickStartItem Item in CommonAccessCollection.HotWebList)
+            {
+                await SQLite.Current.SetQuickStartItemAsync(Item.DisplayName, Item.RelativePath, Item.Protocol, QuickStartType.WebSite);
+            }
+        }
+
+        private async void QuickStartGridView_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
+        {
+            await SQLite.Current.DeleteQuickStartItemAsync(QuickStartType.Application);
+
+            foreach (QuickStartItem Item in CommonAccessCollection.QuickStartList)
+            {
+                await SQLite.Current.SetQuickStartItemAsync(Item.DisplayName, Item.RelativePath, Item.Protocol, QuickStartType.Application);
+            }
+        }
+
+        private void QuickStartGridView_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
+        {
+            if (e.HoldingState == HoldingState.Started)
+            {
+                if ((sender as GridView).Name == nameof(QuickStartGridView))
+                {
+                    if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
+                    {
+                        CurrentSelectedItem = Item;
+
+                        QuickStartGridView.ContextFlyout = AppFlyout;
+                    }
+                    else
+                    {
+                        QuickStartGridView.ContextFlyout = AppEmptyFlyout;
+                    }
+                }
+                else
+                {
+                    if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
+                    {
+                        CurrentSelectedItem = Item;
+
+                        WebGridView.ContextFlyout = WebFlyout;
+                    }
+                    else
+                    {
+                        WebGridView.ContextFlyout = WebEmptyFlyout;
+                    }
+                }
+            }
+        }
+        private void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
+        {
+            if (args.EventType.ToString().Contains("KeyUp")&&args.VirtualKey.ToString() == "192")
+            {
+                QuickStartTip.IsOpen = !QuickStartTip.IsOpen;
+            }
+
+        }
+
+
     }
 }
