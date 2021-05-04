@@ -405,20 +405,15 @@ namespace RX_Explorer
                     ValidPathArray.Add(Path);
                 }
             }
-
-            //if (AnimationController.Current.IsEnableAnimation)
-            //{
-            //    frame.Navigate(typeof(FileControl), new WeakReference<TabViewItem>(Item), new DrillInNavigationTransitionInfo());
-            //}
-            //else
-            //{
-            //    frame.Navigate(typeof(FileControl), new WeakReference<TabViewItem>(Item), new SuppressNavigationTransitionInfo());
-            //}
+ 
 
             if (ValidPathArray.Count > 0)
             {
                 Item.Header = Path.GetFileName(ValidPathArray.Last());
-
+                if (Item.Header.ToString() == string.Empty)
+                {
+                    Item.Header = Path.GetPathRoot(ValidPathArray.Last());
+                }
                 if (AnimationController.Current.IsEnableAnimation)
                 {
                     frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string[]>(new WeakReference<TabViewItem>(Item), ValidPathArray.ToArray()), new DrillInNavigationTransitionInfo());

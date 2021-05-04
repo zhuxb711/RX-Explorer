@@ -673,7 +673,14 @@ namespace RX_Explorer
 
                     if (FindName(nameof(SettingControl)) is SettingControl Control)
                     {
-                        await Control.Show();
+                        if (Control.Visibility == Visibility.Visible)
+                        {
+                            await Control.Hide();
+                        }
+                        else 
+                        { 
+                            await Control.Show();
+                        }
                     }
                 }
                 else
@@ -895,6 +902,11 @@ namespace RX_Explorer
             {
                 if ((sender as GridView).Name == nameof(QuickStartGridView))
                 {
+                    if (Item.Type == QuickStartType.AddButton)
+                    {
+                        await new QuickStartModifiedDialog(QuickStartType.Application).ShowAsync();
+                        return;
+                    }
                     if (Uri.TryCreate(Item.Protocol, UriKind.Absolute, out Uri Ur))
                     {
                         if (Ur.IsFile)
@@ -976,6 +988,11 @@ namespace RX_Explorer
                 }
                 else
                 {
+                    if (Item.Type == QuickStartType.AddButton)
+                    {
+                        await new QuickStartModifiedDialog(QuickStartType.WebSite).ShowAsync();
+                        return;
+                    }
                     await Launcher.LaunchUriAsync(new Uri(Item.Protocol));
                 }
             }
@@ -1025,9 +1042,12 @@ namespace RX_Explorer
                 {
                     if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
                     {
-                        CurrentSelectedItem = Item;
+                        if (Item.Type != QuickStartType.AddButton) 
+                        { 
+                            CurrentSelectedItem = Item;
 
-                        QuickStartGridView.ContextFlyout = AppFlyout;
+                            QuickStartGridView.ContextFlyout = AppFlyout;
+                        }
                     }
                     else
                     {
@@ -1038,9 +1058,12 @@ namespace RX_Explorer
                 {
                     if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
                     {
-                        CurrentSelectedItem = Item;
+                        if (Item.Type != QuickStartType.AddButton)
+                        {
+                            CurrentSelectedItem = Item;
 
-                        WebGridView.ContextFlyout = WebFlyout;
+                            WebGridView.ContextFlyout = WebFlyout;
+                        }
                     }
                     else
                     {
