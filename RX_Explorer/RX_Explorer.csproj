@@ -193,6 +193,7 @@
     <Compile Include="Class\InstalledApplication.cs" />
     <Compile Include="Class\QueueTaskController.cs" />
     <Compile Include="Class\RecycleStorageFolder.cs" />
+    <Compile Include="Class\RootStorageFolder.cs" />
     <Compile Include="Class\UrlStorageFile.cs" />
     <Compile Include="Class\WslDriveData.cs" />
     <Compile Include="CustomControl\AppBarButtonWithImage.xaml.cs">

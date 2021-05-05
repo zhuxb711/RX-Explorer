@@ -27,11 +27,8 @@ namespace RX_Explorer.Class
             {
                 CurrentLocation = Path;
 
-                if (WatchPtr != IntPtr.Zero)
-                {
-                    WIN_Native_API.StopDirectoryWatcher(ref WatchPtr);
-                }
-
+                StopWatchDirectory();
+                
                 WatchPtr = WIN_Native_API.CreateDirectoryWatcher(Path, Added, Removed, Renamed, Modified);
             }
         }

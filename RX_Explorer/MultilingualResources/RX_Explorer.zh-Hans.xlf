@@ -832,18 +832,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Rate the app</source>
           <target state="translated">给App点赞</target>
         </trans-unit>
-        <trans-unit id="SettingOpenLeftArea.Header" translate="yes" xml:space="preserve">
-          <source>Sidebar</source>
-          <target state="translated">侧边栏</target>
-        </trans-unit>
-        <trans-unit id="SettingOpenLeftArea.OffContent" translate="yes" xml:space="preserve">
-          <source>Hide</source>
-          <target state="translated">隐藏</target>
-        </trans-unit>
-        <trans-unit id="SettingOpenLeftArea.OnContent" translate="yes" xml:space="preserve">
-          <source>Show</source>
-          <target state="translated">启用</target>
-        </trans-unit>
         <trans-unit id="SettingOther.Text" translate="yes" xml:space="preserve">
           <source>Other</source>
           <target state="translated">其他</target>

@@ -631,15 +631,6 @@
   <data name="SettingLike.Text" xml:space="preserve">
     <value>给App点赞</value>
   </data>
-  <data name="SettingOpenLeftArea.Header" xml:space="preserve">
-    <value>侧边栏</value>
-  </data>
-  <data name="SettingOpenLeftArea.OffContent" xml:space="preserve">
-    <value>隐藏</value>
-  </data>
-  <data name="SettingOpenLeftArea.OnContent" xml:space="preserve">
-    <value>启用</value>
-  </data>
   <data name="SettingOther.Text" xml:space="preserve">
     <value>其他</value>
   </data>

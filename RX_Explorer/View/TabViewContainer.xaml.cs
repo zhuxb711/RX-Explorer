@@ -315,7 +315,7 @@ namespace RX_Explorer
                 {
                     if (Control != null)
                     {
-                        PathList.Add(Control.BladeViewer.Items.OfType<BladeItem>().Select((Blade) => (Blade.Content as FilePresenter)?.CurrentFolder?.Path).ToArray());
+                        PathList.Add(Control.BladeViewer.Items.Cast<BladeItem>().Select((Blade) => (Blade.Content as FilePresenter)?.CurrentFolder?.Path).ToArray());
                     }
                     else
                     {
@@ -342,7 +342,7 @@ namespace RX_Explorer
                     await CreateNewTabAsync(MainPage.ThisPage.ActivatePathArray);
                 }
 
-                List<Task> LoadTaskList = new List<Task>(3);
+                List<Task> LoadTaskList = new List<Task>(2);
 
                 if (SettingControl.LibraryExpanderIsExpand)
                 {
@@ -352,11 +352,6 @@ namespace RX_Explorer
                 if (SettingControl.DeviceExpanderIsExpand)
                 {
                     LoadTaskList.Add(CommonAccessCollection.LoadDriveAsync());
-                }
-
-                if (SettingControl.IsQuickStartExpanded)
-                {
-                    LoadTaskList.Add(CommonAccessCollection.LoadQuickStartItemsAsync());
                 }
 
                 await Task.WhenAll(LoadTaskList).ConfigureAwait(false);
@@ -406,27 +401,23 @@ namespace RX_Explorer
                 }
             }
 
-            if (AnimationController.Current.IsEnableAnimation)
+            if (ValidPathArray.Count == 0)
             {
-                frame.Navigate(typeof(ThisPC), new WeakReference<TabViewItem>(Item), new DrillInNavigationTransitionInfo());
+                Item.Header = RootStorageFolder.Instance.DisplayName;
+                ValidPathArray.Add(RootStorageFolder.Instance.Path);
             }
             else
             {
-                frame.Navigate(typeof(ThisPC), new WeakReference<TabViewItem>(Item), new SuppressNavigationTransitionInfo());
+                Item.Header = Path.GetFileName(ValidPathArray.Last());
             }
 
-            if (ValidPathArray.Count > 0)
+            if (AnimationController.Current.IsEnableAnimation)
             {
-                Item.Header = Path.GetFileName(ValidPathArray.Last());
-
-                if (AnimationController.Current.IsEnableAnimation)
-                {
-                    frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string[]>(new WeakReference<TabViewItem>(Item), ValidPathArray.ToArray()), new DrillInNavigationTransitionInfo());
-                }
-                else
-                {
-                    frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string[]>(new WeakReference<TabViewItem>(Item), ValidPathArray.ToArray()), new SuppressNavigationTransitionInfo());
-                }
+                frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, string[]>(Item, ValidPathArray.ToArray()), new DrillInNavigationTransitionInfo());
+            }
+            else
+            {
+                frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, string[]>(Item, ValidPathArray.ToArray()), new SuppressNavigationTransitionInfo());
             }
 
             return Item;
@@ -550,7 +541,7 @@ namespace RX_Explorer
                 {
                     if (args.Tab.Tag is FileControl Control)
                     {
-                        ItemElement.InnerText = $"FileControl||{string.Join("||", Control.BladeViewer.Items.OfType<Microsoft.Toolkit.Uwp.UI.Controls.BladeItem>().Select((Item) => ((Item.Content as FilePresenter)?.CurrentFolder?.Path)))}";
+                        ItemElement.InnerText = $"FileControl||{string.Join("||", Control.BladeViewer.Items.Cast<BladeItem>().Select((Item) => ((Item.Content as FilePresenter)?.CurrentFolder?.Path)))}";
                     }
                     else
                     {
@@ -583,7 +574,7 @@ namespace RX_Explorer
                     }
                     else if (args.Tab.Tag is FileControl Control)
                     {
-                        Uri NewWindowActivationUri = new Uri($"rx-explorer:{Uri.EscapeDataString(string.Join("||", Control.BladeViewer.Items.OfType<Microsoft.Toolkit.Uwp.UI.Controls.BladeItem>().Select((Item) => ((Item.Content as FilePresenter)?.CurrentFolder?.Path))))}");
+                        Uri NewWindowActivationUri = new Uri($"rx-explorer:{Uri.EscapeDataString(string.Join("||", Control.BladeViewer.Items.Cast<BladeItem>().Select((Item) => ((Item.Content as FilePresenter)?.CurrentFolder?.Path))))}");
 
                         await CleanUpAndRemoveTabItem(args.Tab);
                         await Launcher.LaunchUriAsync(NewWindowActivationUri);

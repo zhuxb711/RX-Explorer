@@ -640,15 +640,6 @@
   <data name="SettingLike.Text" xml:space="preserve">
     <value>為應用程式評分</value>
   </data>
-  <data name="SettingOpenLeftArea.Header" xml:space="preserve">
-    <value>側邊欄</value>
-  </data>
-  <data name="SettingOpenLeftArea.OffContent" xml:space="preserve">
-    <value>隱藏視窗</value>
-  </data>
-  <data name="SettingOpenLeftArea.OnContent" xml:space="preserve">
-    <value>顯示</value>
-  </data>
   <data name="SettingOther.Text" xml:space="preserve">
     <value>其他</value>
   </data>

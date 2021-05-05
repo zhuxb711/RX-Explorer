@@ -646,15 +646,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="SettingLike.Text" xml:space="preserve">
     <value>Valorar aplicación</value>
   </data>
-  <data name="SettingOpenLeftArea.Header" xml:space="preserve">
-    <value>Barra lateral</value>
-  </data>
-  <data name="SettingOpenLeftArea.OffContent" xml:space="preserve">
-    <value>Ocultar</value>
-  </data>
-  <data name="SettingOpenLeftArea.OnContent" xml:space="preserve">
-    <value>Mostrar</value>
-  </data>
   <data name="SettingOther.Text" xml:space="preserve">
     <value>Otros</value>
   </data>

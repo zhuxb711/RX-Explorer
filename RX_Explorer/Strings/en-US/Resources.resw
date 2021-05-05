@@ -751,15 +751,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="SettingLike.Text" xml:space="preserve">
     <value>Rate the app</value>
   </data>
-  <data name="SettingOpenLeftArea.Header" xml:space="preserve">
-    <value>Sidebar</value>
-  </data>
-  <data name="SettingOpenLeftArea.OffContent" xml:space="preserve">
-    <value>Hide</value>
-  </data>
-  <data name="SettingOpenLeftArea.OnContent" xml:space="preserve">
-    <value>Show</value>
-  </data>
   <data name="SettingOther.Text" xml:space="preserve">
     <value>Other</value>
   </data>

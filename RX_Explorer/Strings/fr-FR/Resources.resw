@@ -631,15 +631,6 @@
   <data name="SettingLike.Text" xml:space="preserve">
     <value>Évaluez l'application</value>
   </data>
-  <data name="SettingOpenLeftArea.Header" xml:space="preserve">
-    <value>Barre latérale d'accueil</value>
-  </data>
-  <data name="SettingOpenLeftArea.OffContent" xml:space="preserve">
-    <value>Cacher</value>
-  </data>
-  <data name="SettingOpenLeftArea.OnContent" xml:space="preserve">
-    <value>Afficher</value>
-  </data>
   <data name="SettingOther.Text" xml:space="preserve">
     <value>Autre</value>
   </data>

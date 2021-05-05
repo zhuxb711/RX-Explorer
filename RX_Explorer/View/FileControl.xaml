@@ -330,6 +330,7 @@
                     Click="VerticalSplitViewButton_Click"
                     x:Name="VerticalSplitViewButton"
                     x:Uid="VerticalSplitViewButton"
+                    x:FieldModifier="public"
                     ToolTipService.ToolTip="创建新的垂直拆分视图">
                 <Viewbox>
                     <FontIcon FontFamily="Segoe MDL2 Assets"
@@ -341,6 +342,7 @@
                       Margin="5,0,5,0"
                       HorizontalAlignment="Stretch"
                       CornerRadius="0"
+                      x:FieldModifier="public"
                       x:Name="ViewModeComboBox"
                       ItemsSource="{x:Bind Cls:ViewModeController.SelectionSource}"
                       VerticalAlignment="Stretch"/>

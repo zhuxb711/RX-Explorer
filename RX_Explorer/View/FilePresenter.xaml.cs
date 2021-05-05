@@ -58,18 +58,32 @@ namespace RX_Explorer
 
         private readonly ListViewHeaderController ListViewDetailHeader = new ListViewHeaderController();
 
-        private FileControl Container
+        private WeakReference<FileControl> WeakToFileControl;
+
+        public FileControl Container
         {
             get
             {
-                if (WeakToFileControl.TryGetTarget(out FileControl Instance))
+                if (WeakToFileControl != null)
                 {
-                    return Instance;
+                    if (WeakToFileControl.TryGetTarget(out FileControl Instance))
+                    {
+                        return Instance;
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
                 else
                 {
                     return null;
                 }
+            }
+            set
+            {
+                WeakToFileControl = new WeakReference<FileControl>(value);
+                AreaWatcher.SetTreeView(value.FolderTree);
             }
         }
 
@@ -78,24 +92,6 @@ namespace RX_Explorer
         public int RecordIndex { get; set; }
 
         private StorageAreaWatcher AreaWatcher;
-
-        private WeakReference<FileControl> weakToFileControl;
-        public WeakReference<FileControl> WeakToFileControl
-        {
-            get
-            {
-                return weakToFileControl;
-            }
-            set
-            {
-                if (value != null && value.TryGetTarget(out FileControl Control))
-                {
-                    AreaWatcher.SetTreeView(Control.FolderTree);
-                }
-
-                weakToFileControl = value;
-            }
-        }
 
         private SemaphoreSlim EnterLock;
         private SemaphoreSlim CollectionChangeLock;
@@ -165,17 +161,21 @@ namespace RX_Explorer
                 {
                     Container.UpdateAddressButton(value.Path);
 
-                    Container.GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {value.Name}";
-                    Container.GoParentFolder.IsEnabled = value.Path != Path.GetPathRoot(value.Path);
-                    Container.GoBackRecord.IsEnabled = RecordIndex > 0;
-                    Container.GoForwardRecord.IsEnabled = RecordIndex < GoAndBackRecord.Count - 1;
-
-                    if (Container.WeakToTabItem.TryGetTarget(out TabViewItem Item))
+                    if (value is RootStorageFolder)
                     {
-                        Item.Header = string.IsNullOrEmpty(value.DisplayName) ? $"<{Globalization.GetString("UnknownText")}>" : value.DisplayName;
+                        Container.GoParentFolder.IsEnabled = false;
+                        AreaWatcher?.StopWatchDirectory();
+                    }
+                    else
+                    {
+                        Container.GoParentFolder.IsEnabled = value.Path.StartsWith(@"\\", StringComparison.OrdinalIgnoreCase) ? !value.Path.Equals(Path.GetPathRoot(value.Path), StringComparison.OrdinalIgnoreCase) : true;
+                        AreaWatcher?.StartWatchDirectory(value.Path);
                     }
 
-                    AreaWatcher?.StartWatchDirectory(value.Path);
+                    Container.GlobeSearch.PlaceholderText = $"{Globalization.GetString("SearchBox_PlaceholderText")} {value.DisplayName}";
+                    Container.GoBackRecord.IsEnabled = RecordIndex > 0;
+                    Container.GoForwardRecord.IsEnabled = RecordIndex < GoAndBackRecord.Count - 1;
+                    Container.CurrentTabItem.Header = string.IsNullOrEmpty(value.DisplayName) ? $"<{Globalization.GetString("UnknownText")}>" : value.DisplayName;
 
                     if (this.FindParentOfType<BladeItem>() is BladeItem Parent)
                     {
@@ -264,6 +264,7 @@ namespace RX_Explorer
             PointerPressedEventHandler = new PointerEventHandler(ViewControl_PointerPressed);
 
             AreaWatcher = new StorageAreaWatcher(FileCollection);
+
             EnterLock = new SemaphoreSlim(1, 1);
             CollectionChangeLock = new SemaphoreSlim(1, 1);
 
@@ -341,7 +342,7 @@ namespace RX_Explorer
                 && MainPage.ThisPage.NavView.SelectedItem is NavigationViewItem NavItem
                 && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
             {
-                if (Container.WeakToTabItem.TryGetTarget(out TabViewItem Tab) && (Tab.Content as Frame) == TabViewContainer.CurrentNavigationControl)
+                if ((Container.CurrentTabItem.Content as Frame) == TabViewContainer.CurrentNavigationControl)
                 {
                     CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
                     CoreVirtualKeyStates ShiftState = sender.GetKeyState(VirtualKey.Shift);
@@ -715,7 +716,7 @@ namespace RX_Explorer
             }
         }
 
-        private async Task DisplayItemsInFolderCore(string FolderPath, bool ForceRefresh = false, bool SkipNavigationRecord = false)
+        private async Task<bool> DisplayItemsInFolderCore(string FolderPath, bool ForceRefresh = false, bool SkipNavigationRecord = false)
         {
             await EnterLock.WaitAsync();
 
@@ -726,26 +727,89 @@ namespace RX_Explorer
                     throw new ArgumentNullException(nameof(FolderPath), "Parameter could not be null or empty");
                 }
 
-                if (!ForceRefresh)
+                if (!ForceRefresh && FolderPath == CurrentFolder?.Path)
                 {
-                    if (FolderPath == CurrentFolder?.Path)
-                    {
-                        return;
-                    }
+                    return false;
                 }
 
-                if (!await FileSystemStorageItemBase.CheckExistAsync(FolderPath))
+                if (FolderPath.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
                 {
-                    QueueContentDialog dialog = new QueueContentDialog
+                    CurrentFolder = RootStorageFolder.Instance;
+                    Container.ViewModeComboBox.IsEnabled = false;
+                    Container.VerticalSplitViewButton.IsEnabled = false;
+                    RootFolderControl.Visibility = Visibility.Visible;
+                    FileCollection.Clear();
+                }
+                else
+                {
+                    if (!await FileSystemStorageItemBase.CheckExistAsync(FolderPath))
                     {
-                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                        Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
-                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
-                    };
+                        QueueContentDialog dialog = new QueueContentDialog
+                        {
+                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                            Content = Globalization.GetString("QueueDialog_LocateFolderFailure_Content"),
+                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton"),
+                        };
 
-                    _ = await dialog.ShowAsync();
+                        await dialog.ShowAsync();
 
-                    return;
+                        return false;
+                    }
+
+                    Container.ViewModeComboBox.IsEnabled = true;
+                    Container.VerticalSplitViewButton.IsEnabled = true;
+                    RootFolderControl.Visibility = Visibility.Collapsed;
+
+                    CurrentFolder = await FileSystemStorageItemBase.OpenAsync(FolderPath) as FileSystemStorageFolder;
+
+                    if (Container.FolderTree.SelectedNode == null && Container.FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent)?.Path == Path.GetPathRoot(FolderPath)) is TreeViewNode RootNode)
+                    {
+                        Container.FolderTree.SelectNodeAndScrollToVertical(RootNode);
+                    }
+
+                    FileCollection.Clear();
+
+                    PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(FolderPath);
+
+                    await Container.ViewModeControl.SetCurrentViewMode(Config.Path, Config.DisplayModeIndex.GetValueOrDefault());
+
+                    List<FileSystemStorageItemBase> ChildItems = await CurrentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems);
+
+                    if (ChildItems.Count > 0)
+                    {
+                        HasFile.Visibility = Visibility.Collapsed;
+
+                        if (Config.GroupTarget != GroupTarget.None)
+                        {
+                            GroupCollection.Clear();
+
+                            foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(ChildItems, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Ascending))
+                            {
+                                GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, SortCollectionGenerator.GetSortedCollection(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
+                            }
+
+                            IsGroupedEnable = true;
+                        }
+                        else
+                        {
+                            GroupCollection.Clear();
+                            IsGroupedEnable = false;
+                        }
+
+                        foreach (FileSystemStorageItemBase SubItem in SortCollectionGenerator.GetSortedCollection(ChildItems, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()))
+                        {
+                            FileCollection.Add(SubItem);
+                        }
+                    }
+                    else
+                    {
+                        HasFile.Visibility = Visibility.Visible;
+                    }
+
+                    StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCollection.Count.ToString());
+
+                    ListViewDetailHeader.Filter.SetDataSource(FileCollection);
+                    ListViewDetailHeader.Indicator.SetIndicatorStatus(Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
                 }
 
                 if (!SkipNavigationRecord && !ForceRefresh)
@@ -759,13 +823,16 @@ namespace RX_Explorer
                     {
                         string ParentPath = Path.GetDirectoryName(FolderPath);
 
-                        if (ParentPath == GoAndBackRecord[GoAndBackRecord.Count - 1].Item1)
+                        if (!string.IsNullOrEmpty(ParentPath))
                         {
-                            GoAndBackRecord[GoAndBackRecord.Count - 1] = (ParentPath, FolderPath);
-                        }
-                        else
-                        {
-                            GoAndBackRecord[GoAndBackRecord.Count - 1] = (GoAndBackRecord[GoAndBackRecord.Count - 1].Item1, SelectedItems.Count > 1 ? string.Empty : (SelectedItem?.Path ?? string.Empty));
+                            if (ParentPath.Equals(GoAndBackRecord[GoAndBackRecord.Count - 1].Item1, StringComparison.OrdinalIgnoreCase))
+                            {
+                                GoAndBackRecord[GoAndBackRecord.Count - 1] = (ParentPath, FolderPath);
+                            }
+                            else
+                            {
+                                GoAndBackRecord[GoAndBackRecord.Count - 1] = (GoAndBackRecord[GoAndBackRecord.Count - 1].Item1, SelectedItems.Count > 1 ? string.Empty : ((SelectedItem?.Path) ?? string.Empty));
+                            }
                         }
                     }
 
@@ -774,59 +841,7 @@ namespace RX_Explorer
                     RecordIndex = GoAndBackRecord.Count - 1;
                 }
 
-                if (await FileSystemStorageItemBase.OpenAsync(FolderPath) is FileSystemStorageFolder Folder)
-                {
-                    CurrentFolder = Folder;
-                }
-
-                if (Container.FolderTree.SelectedNode == null && Container.FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent)?.Path == Path.GetPathRoot(FolderPath)) is TreeViewNode RootNode)
-                {
-                    Container.FolderTree.SelectNodeAndScrollToVertical(RootNode);
-                }
-
-                FileCollection.Clear();
-
-                PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(FolderPath);
-
-                await Container.ViewModeControl.SetCurrentViewMode(Config.Path, Config.DisplayModeIndex.GetValueOrDefault());
-
-                List<FileSystemStorageItemBase> ChildItems = await CurrentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems);
-
-                if (ChildItems.Count > 0)
-                {
-                    HasFile.Visibility = Visibility.Collapsed;
-
-                    if (Config.GroupTarget != GroupTarget.None)
-                    {
-                        GroupCollection.Clear();
-
-                        foreach (FileSystemStorageGroupItem GroupItem in GroupCollectionGenerator.GetGroupedCollection(ChildItems, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Ascending))
-                        {
-                            GroupCollection.Add(new FileSystemStorageGroupItem(GroupItem.Key, SortCollectionGenerator.GetSortedCollection(GroupItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault())));
-                        }
-
-                        IsGroupedEnable = true;
-                    }
-                    else
-                    {
-                        GroupCollection.Clear();
-                        IsGroupedEnable = false;
-                    }
-
-                    foreach (FileSystemStorageItemBase SubItem in SortCollectionGenerator.GetSortedCollection(ChildItems, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()))
-                    {
-                        FileCollection.Add(SubItem);
-                    }
-                }
-                else
-                {
-                    HasFile.Visibility = Visibility.Visible;
-                }
-
-                StatusTips.Text = Globalization.GetString("FilePresenterBottomStatusTip_TotalItem").Replace("{ItemNum}", FileCollection.Count.ToString());
-
-                ListViewDetailHeader.Filter.SetDataSource(FileCollection);
-                ListViewDetailHeader.Indicator.SetIndicatorStatus(Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
+                return true;
             }
             finally
             {
@@ -834,7 +849,7 @@ namespace RX_Explorer
             }
         }
 
-        public Task DisplayItemsInFolder(FileSystemStorageFolder Folder, bool ForceRefresh = false, bool SkipNavigationRecord = false)
+        public Task<bool> DisplayItemsInFolder(FileSystemStorageFolder Folder, bool ForceRefresh = false, bool SkipNavigationRecord = false)
         {
             if (Folder == null)
             {
@@ -844,7 +859,7 @@ namespace RX_Explorer
             return DisplayItemsInFolderCore(Folder.Path, ForceRefresh, SkipNavigationRecord);
         }
 
-        public Task DisplayItemsInFolder(string FolderPath, bool ForceRefresh = false, bool SkipNavigationRecord = false)
+        public Task<bool> DisplayItemsInFolder(string FolderPath, bool ForceRefresh = false, bool SkipNavigationRecord = false)
         {
             return DisplayItemsInFolderCore(FolderPath, ForceRefresh, SkipNavigationRecord);
         }
@@ -4851,6 +4866,11 @@ namespace RX_Explorer
             CloseAllFlyout();
 
             await GroupCollectionGenerator.SavePathGroupStateAsync(CurrentFolder.Path, GroupTarget.None, GroupDirection.Ascending);
+        }
+
+        private async void RootFolderControl_EnterActionRequested(object sender, string Path)
+        {
+            await DisplayItemsInFolder(Path);
         }
     }
 }

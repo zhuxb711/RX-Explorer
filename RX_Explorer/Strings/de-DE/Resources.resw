@@ -646,15 +646,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="SettingLike.Text" xml:space="preserve">
     <value>Diese App bewerten</value>
   </data>
-  <data name="SettingOpenLeftArea.Header" xml:space="preserve">
-    <value>Sitenleiste</value>
-  </data>
-  <data name="SettingOpenLeftArea.OffContent" xml:space="preserve">
-    <value>Verstecken</value>
-  </data>
-  <data name="SettingOpenLeftArea.OnContent" xml:space="preserve">
-    <value>Zeigen</value>
-  </data>
   <data name="SettingOther.Text" xml:space="preserve">
     <value>Andere</value>
   </data>
