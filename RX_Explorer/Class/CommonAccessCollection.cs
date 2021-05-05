@@ -68,8 +68,6 @@ namespace RX_Explorer.Class
                                 HotWebList.Add(Item.Value);
                             }
                         }
-                        QuickStartList.Add(new QuickStartItem());
-                        HotWebList.Add(new QuickStartItem());
                     }
                 }
                 finally

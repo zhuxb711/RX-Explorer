@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
@@ -80,12 +79,6 @@ namespace RX_Explorer.Class
 
             this.DisplayName = DisplayName;
             this.RelativePath = RelativePath;
-        }
-
-        public QuickStartItem()
-        {
-            Type = QuickStartType.AddButton;
-            Image = new BitmapImage(new Uri("ms-appx:///Assets/AddImage.png"));
         }
     }
 }
