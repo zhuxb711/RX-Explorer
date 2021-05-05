@@ -11,59 +11,6 @@
       RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}">
 
     <Page.Resources>
-        <muxc:CommandBarFlyout x:Name="AppFlyout"
-                               Placement="RightEdgeAlignedTop">
-            <muxc:CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="Edit"
-                              Label="编辑"
-                              x:Uid="AppEdit"
-                              Name="AppEdit"
-                              Click="AppEdit_Click" />
-                <AppBarButton Icon="Delete"
-                              Name="AppDelete"
-                              x:Uid="AppDelete"
-                              Label="删除"
-                              Click="AppDelete_Click" />
-            </muxc:CommandBarFlyout.SecondaryCommands>
-        </muxc:CommandBarFlyout>
-
-        <muxc:CommandBarFlyout x:Name="WebFlyout"
-                               Placement="RightEdgeAlignedTop">
-            <muxc:CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="Edit"
-                              Label="编辑"
-                              x:Uid="AppEdit"
-                              Name="WebEdit"
-                              Click="WebEdit_Click" />
-                <AppBarButton Icon="Delete"
-                              Name="WebDelete"
-                              x:Uid="AppDelete"
-                              Label="删除"
-                              Click="WebDelete_Click" />
-            </muxc:CommandBarFlyout.SecondaryCommands>
-        </muxc:CommandBarFlyout>
-
-        <muxc:CommandBarFlyout x:Name="AppEmptyFlyout"
-                               Placement="RightEdgeAlignedTop">
-            <muxc:CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="Add"
-                              Label="添加"
-                              x:Uid="QuickStartAddButton"
-                              x:Name="AddQuickStartApp"
-                              Click="AddQuickStartApp_Click" />
-            </muxc:CommandBarFlyout.SecondaryCommands>
-        </muxc:CommandBarFlyout>
-
-        <muxc:CommandBarFlyout x:Name="WebEmptyFlyout"
-                               Placement="RightEdgeAlignedTop">
-            <muxc:CommandBarFlyout.SecondaryCommands>
-                <AppBarButton Icon="Add"
-                              Label="添加"
-                              x:Uid="QuickStartAddButton"
-                              x:Name="AddQuickStartWeb"
-                              Click="AddQuickStartWeb_Click" />
-            </muxc:CommandBarFlyout.SecondaryCommands>
-        </muxc:CommandBarFlyout>
         <Cls:InverseBooleanConverter x:Key="InverseConverter" />
         <muxc:TeachingTip x:Name="PinTip"
                           x:Uid="PinTip"
@@ -180,132 +127,6 @@
                            Text="此功能需要Win10 2004以上版本"/>
             </Grid>
         </muxc:TeachingTip>
-        <muxc:TeachingTip x:Name="QuickStartTip"
-                          PreferredPlacement="Bottom"
-                          IsLightDismissEnabled="True"
-                          Target="{x:Bind QuickStartNav}">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="50" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="50" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-                <StackPanel>
-                    <TextBlock Text="应用"
-                           Margin="0,5,5,5"
-                           FontSize="18" />
-                    <Line X1="5"
-                      Y1="0"
-                      X2="260"
-                      Y2="0"
-                      StrokeThickness="2"
-                      Stroke="Gray" />
-                </StackPanel>
-                <GridView Name="QuickStartGridView"
-                      ItemsSource="{x:Bind Cls:CommonAccessCollection.QuickStartList}"
-                      AllowFocusOnInteraction="False"
-                      SelectionMode="None"
-                      IsItemClickEnabled="True"
-                      IsDoubleTapEnabled="False"
-                      PreviewKeyDown="GridView_PreviewKeyDown"
-                      IsRightTapEnabled="True"
-                      ItemClick="QuickStartGridView_ItemClick"
-                      RightTapped="QuickStartGridView_RightTapped"
-                      Grid.Row="1"
-                      Padding="5"
-                      CanReorderItems="True"
-                      CanDragItems="True"
-                      IsHoldingEnabled="True"
-                      AllowDrop="True"
-                      DragItemsCompleted="QuickStartGridView_DragItemsCompleted"
-                      Holding="QuickStartGridView_Holding"
-                      ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
-                    <GridView.ItemTemplate>
-                        <DataTemplate x:DataType="Cls:QuickStartItem">
-                            <StackPanel Orientation="Vertical"
-                                    Padding="5,10,5,5">
-                                <Image HorizontalAlignment="Center"
-                                   Height="40"
-                                   Width="40"
-                                   Source="{x:Bind Image,Mode=OneWay}"
-                                   Stretch="Uniform" />
-                                <TextBlock Width="75"
-                                       FontSize="12"
-                                       Margin="0,5,0,0"
-                                       TextTrimming="CharacterEllipsis"
-                                       HorizontalTextAlignment="Center"
-                                       Text="{x:Bind DisplayName,Mode=OneWay}" />
-                            </StackPanel>
-                        </DataTemplate>
-                    </GridView.ItemTemplate>
-                    <GridView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <ItemsWrapGrid MaximumRowsOrColumns="3"
-                                       Orientation="Horizontal"
-                                       HorizontalAlignment="Stretch" />
-                        </ItemsPanelTemplate>
-                    </GridView.ItemsPanel>
-                </GridView>
-                <StackPanel Grid.Row="2">
-                    <TextBlock Text="网站"
-                           x:Uid="HotWebTitle"
-                           Margin="5"
-                           FontSize="18" />
-                    <Line X1="5"
-                      Y1="0"
-                      X2="260"
-                      Y2="0"
-                      StrokeThickness="2"
-                      Stroke="Gray" />
-                </StackPanel>
-                <GridView Name="WebGridView"
-                      ItemsSource="{x:Bind Cls:CommonAccessCollection.HotWebList}"
-                      SelectionMode="None"
-                      IsItemClickEnabled="True"
-                      IsDoubleTapEnabled="False"
-                      IsRightTapEnabled="True"
-                      IsHoldingEnabled="True"
-                      AllowFocusOnInteraction="False"
-                      Holding="QuickStartGridView_Holding"
-                      ItemClick="QuickStartGridView_ItemClick"
-                      RightTapped="QuickStartGridView_RightTapped"
-                      Grid.Row="3"
-                      CanDragItems="True"
-                      DragItemsCompleted="WebGridView_DragItemsCompleted"
-                      CanReorderItems="True"
-                      PreviewKeyDown="GridView_PreviewKeyDown"
-                      AllowDrop="True"
-                      Padding="5"
-                      ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
-                    <GridView.ItemTemplate>
-                        <DataTemplate x:DataType="Cls:QuickStartItem">
-                            <StackPanel Orientation="Vertical"
-                                    Padding="5,10,5,5">
-                                <Image HorizontalAlignment="Center"
-                                   Height="40"
-                                   Width="40"
-                                   Source="{x:Bind Image,Mode=OneWay}"
-                                   Stretch="Uniform" />
-                                <TextBlock Width="75"
-                                       FontSize="12"
-                                       Margin="0,5,0,0"
-                                       TextTrimming="CharacterEllipsis"
-                                       HorizontalTextAlignment="Center"
-                                       Text="{x:Bind DisplayName,Mode=OneWay}" />
-                            </StackPanel>
-                        </DataTemplate>
-                    </GridView.ItemTemplate>
-                    <GridView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <ItemsWrapGrid MaximumRowsOrColumns="3"
-                                       Orientation="Horizontal"
-                                       HorizontalAlignment="Stretch" />
-                        </ItemsPanelTemplate>
-                    </GridView.ItemsPanel>
-                </GridView>
-            </Grid>
-        </muxc:TeachingTip>
     </Page.Resources>
 
     <Grid>
@@ -349,7 +170,6 @@
                              BackRequested="NavView_BackRequested"
                              x:FieldModifier="public"
                              ItemInvoked="NavView_ItemInvoked"
-                             IsBackButtonVisible="Collapsed"
                              SelectionFollowsFocus="Disabled">
             <muxc:NavigationView.MenuItems>
                 <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_ThisPC_Label')}"
@@ -388,14 +208,6 @@
                     <muxc:NavigationViewItem.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets"
                                   Glyph="&#xE702;" />
-                    </muxc:NavigationViewItem.Icon>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem x:Name="QuickStartNav"
-                                         Content="快速启动"
-                                         PointerPressed="SymbolIcon_PointerPressed"
-                                         SelectsOnInvoked="False">
-                    <muxc:NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="AllApps" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
             </muxc:NavigationView.MenuItems>

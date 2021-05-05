@@ -178,9 +178,9 @@
           x:FieldModifier="public"
           PointerPressed="Grid_PointerPressed">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition MaxWidth="0"
+            <ColumnDefinition MaxWidth="300"
                               x:Name="LeftSideCol"
-                              x:FieldModifier="public" Width="Auto" />
+                              x:FieldModifier="public" />
             <ColumnDefinition Width="5*" />
         </Grid.ColumnDefinitions>
         <Grid Margin="10,4,10,10">
