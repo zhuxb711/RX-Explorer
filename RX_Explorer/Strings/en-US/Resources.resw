@@ -348,8 +348,8 @@
   <data name="HasFile.Text" xml:space="preserve">
     <value>Empty</value>
   </data>
-  <data name="HotWebTitle.Text" xml:space="preserve">
-    <value>Popular Websites</value>
+  <data name="WebLinkTitle.Text" xml:space="preserve">
+    <value>Websites</value>
   </data>
   <data name="LibraryCancelButton.Label" xml:space="preserve">
     <value>Unpin</value>
@@ -511,7 +511,7 @@
     <value>Protocal Reference</value>
   </data>
   <data name="QuickStartTitle.Text" xml:space="preserve">
-    <value>Quick Start</value>
+    <value>Application</value>
   </data>
   <data name="RateTip.ActionButtonContent" xml:space="preserve">
     <value>Rate now</value>

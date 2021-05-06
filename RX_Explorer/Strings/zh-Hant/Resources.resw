@@ -243,9 +243,6 @@
   <data name="HasFile.Text" xml:space="preserve">
     <value>空白</value>
   </data>
-  <data name="HotWebTitle.Text" xml:space="preserve">
-    <value>熱門網站</value>
-  </data>
   <data name="LibraryCancelButton.Label" xml:space="preserve">
     <value>取消釘選</value>
   </data>
@@ -400,7 +397,7 @@
     <value>協議參考</value>
   </data>
   <data name="QuickStartTitle.Text" xml:space="preserve">
-    <value>快速啟動</value>
+    <value>應用</value>
   </data>
   <data name="RateTip.ActionButtonContent" xml:space="preserve">
     <value>立即評分</value>
@@ -3019,5 +3016,8 @@
   </data>
   <data name="MainPage_QuickStart_Label" xml:space="preserve">
     <value>快速啟動</value>
+  </data>
+  <data name="WebLinkTitle.Text" xml:space="preserve">
+    <value>網站</value>
   </data>
 </root>

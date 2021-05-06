@@ -69,6 +69,9 @@ namespace RX_Explorer.Class
                                 WebLinkList.Add(Item.Value);
                             }
                         }
+
+                        QuickStartList.Add(new QuickStartItem());
+                        WebLinkList.Add(new QuickStartItem());
                     }
                 }
                 catch (Exception ex)

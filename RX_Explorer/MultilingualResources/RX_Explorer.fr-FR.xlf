@@ -302,10 +302,6 @@
           <source>Empty</source>
           <target state="translated">Vide</target>
         </trans-unit>
-        <trans-unit id="HotWebTitle.Text" translate="yes" xml:space="preserve">
-          <source>Popular Websites</source>
-          <target state="translated">Sites populaires</target>
-        </trans-unit>
         <trans-unit id="LibraryCancelButton.Label" translate="yes" xml:space="preserve">
           <source>Unpin</source>
           <target state="translated">Détacher</target>
@@ -511,8 +507,8 @@
           <target state="translated">Référence du protocole</target>
         </trans-unit>
         <trans-unit id="QuickStartTitle.Text" translate="yes" xml:space="preserve">
-          <source>Quick Start</source>
-          <target state="translated">Démarrage rapide</target>
+          <source>Application</source>
+          <target state="translated">Application</target>
         </trans-unit>
         <trans-unit id="RateTip.ActionButtonContent" translate="yes" xml:space="preserve">
           <source>Rate now</source>
@@ -4007,6 +4003,10 @@ Les noms non valides incluent
         <trans-unit id="MainPage_QuickStart_Label" translate="yes" xml:space="preserve">
           <source>Quick start</source>
           <target state="translated">Démarrage rapide</target>
+        </trans-unit>
+        <trans-unit id="WebLinkTitle.Text" translate="yes" xml:space="preserve">
+          <source>Websites</source>
+          <target state="translated">Sites Internet</target>
         </trans-unit>
       </group>
     </body>

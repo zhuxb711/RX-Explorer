@@ -243,9 +243,6 @@
   <data name="HasFile.Text" xml:space="preserve">
     <value>Leer</value>
   </data>
-  <data name="HotWebTitle.Text" xml:space="preserve">
-    <value>Beliebte Websiten</value>
-  </data>
   <data name="LibraryCancelButton.Label" xml:space="preserve">
     <value>Losheften</value>
   </data>
@@ -406,7 +403,7 @@
     <value>Protokollreferenz</value>
   </data>
   <data name="QuickStartTitle.Text" xml:space="preserve">
-    <value>Schneller Start</value>
+    <value>Anwendung</value>
   </data>
   <data name="RateTip.ActionButtonContent" xml:space="preserve">
     <value>Jetzt bewerten</value>
@@ -3019,5 +3016,8 @@ Inkorrekte Namen sind
   </data>
   <data name="MainPage_QuickStart_Label" xml:space="preserve">
     <value>Schnellstart</value>
+  </data>
+  <data name="WebLinkTitle.Text" xml:space="preserve">
+    <value>Webseiten</value>
   </data>
 </root>

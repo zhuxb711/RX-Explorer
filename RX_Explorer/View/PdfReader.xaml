@@ -7,6 +7,7 @@
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:controls1="using:Microsoft.UI.Xaml.Controls"
       xmlns:Brush="using:Microsoft.Toolkit.Uwp.UI.Media"
+      xmlns:Cls="using:RX_Explorer.Class"
       mc:Ignorable="d"
       NavigationCacheMode="Enabled"
       Background="Transparent">
@@ -59,8 +60,7 @@
                 <TextBlock FontSize="16"
                            VerticalAlignment="Center"
                            TextAlignment="Center"
-                           x:Uid="TextViewerLoading"
-                           Text="正在加载..."/>
+                           Text="{x:Bind Cls:Globalization.GetString('Progress_Tip_Loading')}"/>
                 <controls1:ProgressBar IsIndeterminate="True"
                                        Width="180"
                                        Name="ProBar"

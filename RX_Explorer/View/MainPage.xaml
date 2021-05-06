@@ -66,7 +66,41 @@
         </muxc:CommandBarFlyout>
         
         <Cls:InverseBooleanConverter x:Key="InverseConverter" />
-        
+
+        <Cls:QuickStartDataTemplateSelector x:Key="QuickStartDataTemplateSelector"
+                                            NormalButtonTemplate="{StaticResource NormalButtonTemplate}"
+                                            AddButtonTemplate="{StaticResource AddButtonTemplate}" />
+
+        <DataTemplate x:DataType="Cls:QuickStartItem"
+                      x:Key="NormalButtonTemplate">
+            <StackPanel Orientation="Vertical"
+                        Padding="5,10,5,5">
+                <Image HorizontalAlignment="Center"
+                       Height="40"
+                       Width="40"
+                       Source="{x:Bind Image,Mode=OneWay}"
+                       Stretch="Uniform" />
+                <TextBlock Width="75"
+                           FontSize="12"
+                           Margin="0,5,0,0"
+                           TextTrimming="CharacterEllipsis"
+                           HorizontalTextAlignment="Center"
+                           Text="{x:Bind DisplayName,Mode=OneWay}" />
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate x:DataType="Cls:QuickStartItem"
+                      x:Key="AddButtonTemplate">
+            <StackPanel Orientation="Vertical"
+                        Padding="5">
+                <Image HorizontalAlignment="Center"
+                       Height="50"
+                       Width="50"
+                       Source="{x:Bind Image,Mode=OneWay}"
+                       Stretch="Uniform" />
+            </StackPanel>
+        </DataTemplate>
+
         <muxc:TeachingTip x:Name="PinTip"
                           x:Uid="PinTip"
                           Grid.Row="1"
@@ -184,135 +218,95 @@
         </muxc:TeachingTip>
         <muxc:TeachingTip x:Name="QuickStartTip"
                           PreferredPlacement="Bottom"
-                          Title="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}"
                           IsLightDismissEnabled="True"
+                          Title="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}"
                           Target="{x:Bind QuickStartNav}">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition Height="10"/>
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-                <StackPanel>
-                    <TextBlock Text="应用"
-                               Margin="10,5"
-                               FontSize="16" />
-                    <Border Background="Gray"
-                            Height="2" 
-                            Margin="10,0"
-                            HorizontalAlignment="Stretch"/>
-                    <GridView Name="QuickStartGridView"
-                              AllowFocusOnInteraction="False"
-                              SelectionMode="Single"
-                              IsItemClickEnabled="True"
-                              IsDoubleTapEnabled="False"
-                              PreviewKeyDown="QuickStart_PreviewKeyDown"
-                              IsRightTapEnabled="True"
-                              ItemClick="QuickStart_ItemClick"
-                              RightTapped="QuickStart_RightTapped"
-                              Padding="10"
-                              CanReorderItems="True"
-                              CanDragItems="True"
-                              IsHoldingEnabled="True"
-                              AllowDrop="True"
-                              DragItemsCompleted="QuickStart_DragItemsCompleted"
-                              Holding="QuickStart_Holding"
-                              ItemsSource="{x:Bind Cls:CommonAccessCollection.QuickStartList}"
-                              ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
-                        <GridView.ItemTemplate>
-                            <DataTemplate x:DataType="Cls:QuickStartItem">
-                                <StackPanel Orientation="Vertical"
-                                            Padding="5,10,5,5">
-                                    <Image HorizontalAlignment="Center"
-                                           Height="40"
-                                           Width="40"
-                                           Source="{x:Bind Image,Mode=OneWay}"
-                                           Stretch="Uniform" />
-                                    <TextBlock Width="75"
-                                               FontSize="12"
-                                               Margin="0,5,0,0"
-                                               TextTrimming="CharacterEllipsis"
-                                               HorizontalTextAlignment="Center"
-                                               Text="{x:Bind DisplayName,Mode=OneWay}" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </GridView.ItemTemplate>
-                        <GridView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="Padding"
-                                        Value="0" />
-                            </Style>
-                        </GridView.ItemContainerStyle>
-                        <GridView.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <ItemsWrapGrid MaximumRowsOrColumns="3"
-                                               Orientation="Horizontal"
-                                               HorizontalAlignment="Stretch" />
-                            </ItemsPanelTemplate>
-                        </GridView.ItemsPanel>
-                    </GridView>
-                </StackPanel>
-                <StackPanel Grid.Row="2">
-                    <TextBlock Text="网站"
-                               x:Uid="HotWebTitle"
-                               Margin="10,5"
-                               FontSize="16" />
-                    <Border Background="Gray"
-                            Height="2"
-                            Margin="10,0"
-                            HorizontalAlignment="Stretch" />
-                    <GridView Name="WebGridView"
-                              SelectionMode="Single"
-                              IsItemClickEnabled="True"
-                              IsDoubleTapEnabled="False"
-                              IsRightTapEnabled="True"
-                              IsHoldingEnabled="True"
-                              AllowFocusOnInteraction="False"
-                              Holding="QuickStart_Holding"
-                              ItemClick="QuickStart_ItemClick"
-                              RightTapped="QuickStart_RightTapped"
-                              CanDragItems="True"
-                              DragItemsCompleted="QuickStart_DragItemsCompleted"
-                              CanReorderItems="True"
-                              PreviewKeyDown="QuickStart_PreviewKeyDown"
-                              AllowDrop="True"
-                              Padding="10"
-                              ItemsSource="{x:Bind Cls:CommonAccessCollection.WebLinkList}"
-                              ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
-                        <GridView.ItemTemplate>
-                            <DataTemplate x:DataType="Cls:QuickStartItem">
-                                <StackPanel Orientation="Vertical"
-                                            Padding="5,10,5,5">
-                                    <Image HorizontalAlignment="Center"
-                                           Height="40"
-                                           Width="40"
-                                           Source="{x:Bind Image,Mode=OneWay}"
-                                           Stretch="Uniform" />
-                                    <TextBlock Width="75"
-                                               FontSize="12"
-                                               Margin="0,5,0,0"
-                                               TextTrimming="CharacterEllipsis"
-                                               HorizontalTextAlignment="Center"
-                                               Text="{x:Bind DisplayName,Mode=OneWay}" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </GridView.ItemTemplate>
-                        <GridView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="Padding"
-                                        Value="0"/>
-                            </Style>
-                        </GridView.ItemContainerStyle>
-                        <GridView.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <ItemsWrapGrid MaximumRowsOrColumns="3"
-                                               Orientation="Horizontal"
-                                               HorizontalAlignment="Stretch" />
-                            </ItemsPanelTemplate>
-                        </GridView.ItemsPanel>
-                    </GridView>
-                </StackPanel>
-            </Grid>
+            <StackPanel>
+                <TextBlock Text="应用"
+                           Margin="5"
+                           FontSize="16"
+                           x:Uid="QuickStartTitle" />
+                <Border Background="Gray"
+                        Height="2"
+                        Margin="5,0"
+                        HorizontalAlignment="Stretch" />
+                <GridView Name="QuickStartGridView"
+                          AllowFocusOnInteraction="False"
+                          SelectionMode="None"
+                          IsItemClickEnabled="True"
+                          IsDoubleTapEnabled="False"
+                          PreviewKeyDown="QuickStart_PreviewKeyDown"
+                          IsRightTapEnabled="True"
+                          ItemClick="QuickStart_ItemClick"
+                          RightTapped="QuickStart_RightTapped"
+                          Padding="5"
+                          CanReorderItems="True"
+                          CanDragItems="True"
+                          IsHoldingEnabled="True"
+                          AllowDrop="True"
+                          DragItemsStarting="QuickStart_DragItemsStarting"
+                          DragItemsCompleted="QuickStart_DragItemsCompleted"
+                          Holding="QuickStart_Holding"
+                          ItemTemplateSelector="{StaticResource QuickStartDataTemplateSelector}"
+                          ItemsSource="{x:Bind Cls:CommonAccessCollection.QuickStartList}"
+                          ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
+                    <GridView.ItemContainerStyle>
+                        <Style TargetType="GridViewItem">
+                            <Setter Property="Padding"
+                                    Value="0" />
+                        </Style>
+                    </GridView.ItemContainerStyle>
+                    <GridView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsWrapGrid MaximumRowsOrColumns="3"
+                                           Orientation="Horizontal"
+                                           HorizontalAlignment="Stretch" />
+                        </ItemsPanelTemplate>
+                    </GridView.ItemsPanel>
+                </GridView>
+                <TextBlock Text="网站"
+                           x:Uid="WebLinkTitle"
+                           Margin="5,15,5,5"
+                           FontSize="16" />
+                <Border Background="Gray"
+                        Height="2"
+                        Margin="5,0"
+                        HorizontalAlignment="Stretch" />
+                <GridView Name="WebGridView"
+                          SelectionMode="None"
+                          IsItemClickEnabled="True"
+                          IsDoubleTapEnabled="False"
+                          IsRightTapEnabled="True"
+                          IsHoldingEnabled="True"
+                          AllowFocusOnInteraction="False"
+                          Holding="QuickStart_Holding"
+                          ItemClick="QuickStart_ItemClick"
+                          RightTapped="QuickStart_RightTapped"
+                          CanDragItems="True"
+                          DragItemsStarting="QuickStart_DragItemsStarting"
+                          DragItemsCompleted="QuickStart_DragItemsCompleted"
+                          CanReorderItems="True"
+                          PreviewKeyDown="QuickStart_PreviewKeyDown"
+                          AllowDrop="True"
+                          Padding="5"
+                          ItemTemplateSelector="{StaticResource QuickStartDataTemplateSelector}"
+                          ItemsSource="{x:Bind Cls:CommonAccessCollection.WebLinkList}"
+                          ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
+                    <GridView.ItemContainerStyle>
+                        <Style TargetType="GridViewItem">
+                            <Setter Property="Padding"
+                                    Value="0" />
+                        </Style>
+                    </GridView.ItemContainerStyle>
+                    <GridView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsWrapGrid MaximumRowsOrColumns="3"
+                                           Orientation="Horizontal"
+                                           HorizontalAlignment="Stretch" />
+                        </ItemsPanelTemplate>
+                    </GridView.ItemsPanel>
+                </GridView>
+            </StackPanel>
         </muxc:TeachingTip>
     </Page.Resources>
 

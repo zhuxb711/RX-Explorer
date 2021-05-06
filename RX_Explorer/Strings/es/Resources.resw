@@ -243,9 +243,6 @@
   <data name="HasFile.Text" xml:space="preserve">
     <value>Vaciar</value>
   </data>
-  <data name="HotWebTitle.Text" xml:space="preserve">
-    <value>Webs populares</value>
-  </data>
   <data name="LibraryCancelButton.Label" xml:space="preserve">
     <value>Desanclar</value>
   </data>
@@ -406,7 +403,7 @@
     <value>Referencia protocolaria</value>
   </data>
   <data name="QuickStartTitle.Text" xml:space="preserve">
-    <value>Inicio rápido</value>
+    <value>Aplicación</value>
   </data>
   <data name="RateTip.ActionButtonContent" xml:space="preserve">
     <value>Valorar ahora</value>
@@ -3019,5 +3016,8 @@ Las denominaciones no válidas son:
   </data>
   <data name="MainPage_QuickStart_Label" xml:space="preserve">
     <value>Inicio rápido</value>
+  </data>
+  <data name="WebLinkTitle.Text" xml:space="preserve">
+    <value>Sitios web</value>
   </data>
 </root>

@@ -314,10 +314,6 @@
           <source>Empty</source>
           <target state="translated" state-qualifier="tm-suggestion">空白</target>
         </trans-unit>
-        <trans-unit id="HotWebTitle.Text" translate="yes" xml:space="preserve">
-          <source>Popular Websites</source>
-          <target state="translated">熱門網站</target>
-        </trans-unit>
         <trans-unit id="LibraryCancelButton.Label" translate="yes" xml:space="preserve">
           <source>Unpin</source>
           <target state="translated">取消釘選</target>
@@ -523,8 +519,8 @@
           <target state="translated">協議參考</target>
         </trans-unit>
         <trans-unit id="QuickStartTitle.Text" translate="yes" xml:space="preserve">
-          <source>Quick Start</source>
-          <target state="translated" state-qualifier="tm-suggestion">快速啟動</target>
+          <source>Application</source>
+          <target state="translated">應用</target>
         </trans-unit>
         <trans-unit id="RateTip.ActionButtonContent" translate="yes" xml:space="preserve">
           <source>Rate now</source>
@@ -4007,6 +4003,10 @@ Invalid names include
         <trans-unit id="MainPage_QuickStart_Label" translate="yes" xml:space="preserve">
           <source>Quick start</source>
           <target state="translated">快速啟動</target>
+        </trans-unit>
+        <trans-unit id="WebLinkTitle.Text" translate="yes" xml:space="preserve">
+          <source>Websites</source>
+          <target state="translated">網站</target>
         </trans-unit>
       </group>
     </body>

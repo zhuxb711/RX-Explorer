@@ -234,9 +234,6 @@
   <data name="HasFile.Text" xml:space="preserve">
     <value>无内容</value>
   </data>
-  <data name="HotWebTitle.Text" xml:space="preserve">
-    <value>热门网站</value>
-  </data>
   <data name="LibraryCancelButton.Label" xml:space="preserve">
     <value>取消固定</value>
   </data>
@@ -391,7 +388,7 @@
     <value>协议参考</value>
   </data>
   <data name="QuickStartTitle.Text" xml:space="preserve">
-    <value>快速启动</value>
+    <value>应用</value>
   </data>
   <data name="RateTip.ActionButtonContent" xml:space="preserve">
     <value>现在评价</value>
@@ -3019,5 +3016,8 @@
   </data>
   <data name="MainPage_QuickStart_Label" xml:space="preserve">
     <value>快速启动</value>
+  </data>
+  <data name="WebLinkTitle.Text" xml:space="preserve">
+    <value>网站</value>
   </data>
 </root>
