@@ -342,7 +342,10 @@ namespace RX_Explorer
                     await CreateNewTabAsync(MainPage.ThisPage.ActivatePathArray);
                 }
 
-                List<Task> LoadTaskList = new List<Task>(2);
+                List<Task> LoadTaskList = new List<Task>(3)
+                {
+                    CommonAccessCollection.LoadQuickStartItemsAsync()
+                };
 
                 if (SettingControl.LibraryExpanderIsExpand)
                 {

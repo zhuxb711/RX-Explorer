@@ -94,8 +94,8 @@ namespace RX_Explorer.Dialog
         {
             ContentDialogButtonClickDeferral Deferral = args.GetDeferral();
 
-            if ((Type == QuickStartType.Application && MainPage.ThisPage.QuickStartGridView.Items.Cast<QuickStartItem>().Any((Item) => Item.DisplayName == DisplayName.Text))
-                || (Type == QuickStartType.WebSite && MainPage.ThisPage.WebGridView.Items.Cast<QuickStartItem>().Any((Item) => Item.DisplayName == DisplayName.Text)))
+            if ((Type == QuickStartType.Application && CommonAccessCollection.QuickStartList.Any((Item) => Item.DisplayName == DisplayName.Text))
+                || (Type == QuickStartType.WebSite && CommonAccessCollection.WebLinkList.Any((Item) => Item.DisplayName == DisplayName.Text)))
             {
                 ExistTip.IsOpen = true;
                 args.Cancel = true;
@@ -155,7 +155,7 @@ namespace RX_Explorer.Dialog
                                 {
                                     StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.OpenIfExists), DisplayName.Text + Path.GetExtension(ImageFile.Path), NameCollisionOption.GenerateUniqueName);
 
-                                    MainPage.ThisPage.QuickStartGridView.Items.Add(new QuickStartItem(Icon.Source as BitmapImage, Protocol.Text, QuickStartType.Application, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text));
+                                    CommonAccessCollection.QuickStartList.Add(new QuickStartItem(Icon.Source as BitmapImage, Protocol.Text, QuickStartType.Application, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text));
 
                                     await SQLite.Current.SetQuickStartItemAsync(DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application);
                                 }
@@ -187,7 +187,7 @@ namespace RX_Explorer.Dialog
                                         {
                                             StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("QuickStartImage", CreationCollisionOption.OpenIfExists), DisplayName.Text + Path.GetExtension(ImageFile.Path), NameCollisionOption.GenerateUniqueName);
 
-                                            MainPage.ThisPage.QuickStartGridView.Items.Add(new QuickStartItem(Icon.Source as BitmapImage, Protocol.Text, QuickStartType.Application, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text));
+                                            CommonAccessCollection.QuickStartList.Add(new QuickStartItem(Icon.Source as BitmapImage, Protocol.Text, QuickStartType.Application, $"QuickStartImage\\{NewFile.Name}", DisplayName.Text));
 
                                             await SQLite.Current.SetQuickStartItemAsync(DisplayName.Text, $"QuickStartImage\\{NewFile.Name}", Protocol.Text, QuickStartType.Application);
                                         }
@@ -235,7 +235,7 @@ namespace RX_Explorer.Dialog
                                 {
                                     StorageFile NewFile = await ImageFile.CopyAsync(await ApplicationData.Current.LocalFolder.CreateFolderAsync("HotWebImage", CreationCollisionOption.OpenIfExists), DisplayName.Text + Path.GetExtension(ImageFile.Path), NameCollisionOption.GenerateUniqueName);
 
-                                    MainPage.ThisPage.WebGridView.Items.Add(new QuickStartItem(Icon.Source as BitmapImage, Protocol.Text, QuickStartType.WebSite, $"HotWebImage\\{NewFile.Name}", DisplayName.Text));
+                                    CommonAccessCollection.WebLinkList.Add(new QuickStartItem(Icon.Source as BitmapImage, Protocol.Text, QuickStartType.WebSite, $"HotWebImage\\{NewFile.Name}", DisplayName.Text));
 
                                     await SQLite.Current.SetQuickStartItemAsync(DisplayName.Text, $"HotWebImage\\{NewFile.Name}", Protocol.Text, QuickStartType.WebSite);
                                 }

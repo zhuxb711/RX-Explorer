@@ -2326,15 +2326,6 @@ namespace RX_Explorer
                 EverythingEngineIncludeRegex.IsChecked = false;
             }
 
-            if (ApplicationData.Current.LocalSettings.Values.TryGetValue("EverythingEngineSearchGloble", out object EverythingSearchGloble))
-            {
-                EverythingEngineSearchGloble.IsChecked = Convert.ToBoolean(EverythingSearchGloble);
-            }
-            else
-            {
-                EverythingEngineSearchGloble.IsChecked = false;
-            }
-
             if (ApplicationData.Current.LocalSettings.Values.TryGetValue("BuiltInEngineIgnoreCase", out object BuiltInIgnoreCase))
             {
                 BuiltInEngineIgnoreCase.IsChecked = Convert.ToBoolean(BuiltInIgnoreCase);
@@ -2353,13 +2344,35 @@ namespace RX_Explorer
                 BuiltInEngineIncludeRegex.IsChecked = false;
             }
 
-            if (ApplicationData.Current.LocalSettings.Values.TryGetValue("BuiltInSearchAllSubFolders", out object BuiltInSearchSubFolders))
+            if (CurrentPresenter.CurrentFolder is RootStorageFolder)
             {
-                BuiltInSearchAllSubFolders.IsChecked = Convert.ToBoolean(BuiltInSearchSubFolders);
+                BuiltInSearchAllSubFolders.IsEnabled = false;
+                BuiltInSearchAllSubFolders.IsChecked = true;
+                EverythingEngineSearchGloble.IsEnabled = false;
+                EverythingEngineSearchGloble.IsChecked = true;
             }
             else
             {
-                BuiltInSearchAllSubFolders.IsChecked = false;
+                BuiltInSearchAllSubFolders.IsEnabled = true;
+                EverythingEngineSearchGloble.IsEnabled = true;
+
+                if (ApplicationData.Current.LocalSettings.Values.TryGetValue("EverythingEngineSearchGloble", out object EverythingSearchGloble))
+                {
+                    EverythingEngineSearchGloble.IsChecked = Convert.ToBoolean(EverythingSearchGloble);
+                }
+                else
+                {
+                    EverythingEngineSearchGloble.IsChecked = false;
+                }
+
+                if (ApplicationData.Current.LocalSettings.Values.TryGetValue("BuiltInSearchAllSubFolders", out object BuiltInSearchSubFolders))
+                {
+                    BuiltInSearchAllSubFolders.IsChecked = Convert.ToBoolean(BuiltInSearchSubFolders);
+                }
+                else
+                {
+                    BuiltInSearchAllSubFolders.IsChecked = false;
+                }
             }
         }
 

@@ -108,7 +108,7 @@ namespace RX_Explorer.Class
 
         }
 
-        public async Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItem = false, bool IncludeSystemItem = false, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder)
+        public virtual async Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItem = false, bool IncludeSystemItem = false, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder)
         {
             if (WIN_Native_API.CheckLocationAvailability(Path))
             {
@@ -146,7 +146,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<ulong> GetFolderSizeAsync(CancellationToken CancelToken = default)
+        public virtual async Task<ulong> GetFolderSizeAsync(CancellationToken CancelToken = default)
         {
             if (WIN_Native_API.CheckLocationAvailability(Path))
             {
@@ -211,7 +211,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<(uint, uint)> GetFolderAndFileNumAsync(CancellationToken CancelToken = default)
+        public virtual async Task<(uint, uint)> GetFolderAndFileNumAsync(CancellationToken CancelToken = default)
         {
             if (WIN_Native_API.CheckLocationAvailability(Path))
             {
@@ -283,7 +283,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async IAsyncEnumerable<FileSystemStorageItemBase> SearchAsync(string SearchWord, bool SearchInSubFolders = false, bool IncludeHiddenItem = false, bool IncludeSystemItem = false, bool IsRegexExpresstion = false, bool IgnoreCase = true, [EnumeratorCancellation] CancellationToken CancelToken = default)
+        public virtual async IAsyncEnumerable<FileSystemStorageItemBase> SearchAsync(string SearchWord, bool SearchInSubFolders = false, bool IncludeHiddenItem = false, bool IncludeSystemItem = false, bool IsRegexExpresstion = false, bool IgnoreCase = true, [EnumeratorCancellation] CancellationToken CancelToken = default)
         {
             if (WIN_Native_API.CheckLocationAvailability(Path))
             {
@@ -352,7 +352,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<List<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems, bool IncludeSystemItem, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder)
+        public virtual async Task<List<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems, bool IncludeSystemItem, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder)
         {
             if (WIN_Native_API.CheckLocationAvailability(Path))
             {

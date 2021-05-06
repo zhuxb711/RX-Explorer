@@ -2382,18 +2382,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Translate</source>
           <target state="translated">Traduire</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_FolderRepeat_CloseButton" translate="yes" xml:space="preserve">
-          <source>Save copy</source>
-          <target state="translated">Enregistrer la copie</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_FolderRepeat_Content" translate="yes" xml:space="preserve">
-          <source>A folder with the same name already exists in the target folder:</source>
-          <target state="translated">Un dossier du même nom existe déjà dans le dossier cible:</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_FolderRepeat_PrimaryButton" translate="yes" xml:space="preserve">
-          <source>Merge folder</source>
-          <target state="translated">Dossier de fusion</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_RenameExist_Content" translate="yes" xml:space="preserve">
           <source>A file with the same name already exists, whether to rename it automatically?</source>
           <target state="translated">Un fichier du même nom existe déjà, que ce soit pour le renommer automatiquement?</target>
@@ -4015,6 +4003,10 @@ Les noms non valides incluent
         <trans-unit id="EverythingQuestionDownloadLink" translate="yes" xml:space="preserve">
           <source>Download Everything</source>
           <target state="translated">Téléchargez "Everything"</target>
+        </trans-unit>
+        <trans-unit id="MainPage_QuickStart_Label" translate="yes" xml:space="preserve">
+          <source>Quick start</source>
+          <target state="translated">Démarrage rapide</target>
         </trans-unit>
       </group>
     </body>

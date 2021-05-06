@@ -1964,15 +1964,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="FeedBackTranslateButton.Label" xml:space="preserve">
     <value>Translate</value>
   </data>
-  <data name="QueueDialog_FolderRepeat_CloseButton" xml:space="preserve">
-    <value>Save copy</value>
-  </data>
-  <data name="QueueDialog_FolderRepeat_Content" xml:space="preserve">
-    <value>A folder with the same name already exists in the target folder:</value>
-  </data>
-  <data name="QueueDialog_FolderRepeat_PrimaryButton" xml:space="preserve">
-    <value>Merge folder</value>
-  </data>
   <data name="QueueDialog_RenameExist_Content" xml:space="preserve">
     <value>A file with the same name already exists, whether to rename it automatically?</value>
   </data>
@@ -3130,5 +3121,8 @@ Invalid names include
   </data>
   <data name="EverythingQuestionDownloadLink" xml:space="preserve">
     <value>Download Everything</value>
+  </data>
+  <data name="MainPage_QuickStart_Label" xml:space="preserve">
+    <value>Quick start</value>
   </data>
 </root>

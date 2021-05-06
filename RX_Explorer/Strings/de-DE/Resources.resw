@@ -1859,15 +1859,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="FeedBackTranslateButton.Label" xml:space="preserve">
     <value>Übersetzen</value>
   </data>
-  <data name="QueueDialog_FolderRepeat_CloseButton" xml:space="preserve">
-    <value>Kopie Speichern</value>
-  </data>
-  <data name="QueueDialog_FolderRepeat_Content" xml:space="preserve">
-    <value>Ein Ordner existiert mit dem selben Namen im Zielordner bereits:</value>
-  </data>
-  <data name="QueueDialog_FolderRepeat_PrimaryButton" xml:space="preserve">
-    <value>Ordner zusammenführen</value>
-  </data>
   <data name="QueueDialog_RenameExist_Content" xml:space="preserve">
     <value>Eine Datei mit dem selben Namen existiert bereits. Soll sie automatisch umbenannt werden?</value>
   </data>
@@ -3025,5 +3016,8 @@ Inkorrekte Namen sind
   </data>
   <data name="EverythingQuestionDownloadLink" xml:space="preserve">
     <value>Laden Sie "Everything" herunter</value>
+  </data>
+  <data name="MainPage_QuickStart_Label" xml:space="preserve">
+    <value>Schnellstart</value>
   </data>
 </root>

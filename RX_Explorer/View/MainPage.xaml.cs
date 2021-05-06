@@ -365,8 +365,6 @@ namespace RX_Explorer
 
                 await ShowReleaseLogDialogAsync();
 
-                await LoadQuickStartItemsAsync();
-
                 await RegisterBackgroundTaskAsync();
 
                 switch (Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.LaunchCount)
@@ -582,28 +580,6 @@ namespace RX_Explorer
             }
         }
 
-        private async Task LoadQuickStartItemsAsync()
-        {
-            try
-            {
-                foreach (KeyValuePair<QuickStartType, QuickStartItem> Item in await SQLite.Current.GetQuickStartItemAsync())
-                {
-                    if (Item.Key == QuickStartType.Application)
-                    {
-                        QuickStartGridView.Items.Add(Item.Value);
-                    }
-                    else
-                    {
-                        WebGridView.Items.Add(Item.Value);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex);
-            }
-        }
-
         private void RequestRateApplication()
         {
             RateTip.ActionButtonClick += async (s, e) =>
@@ -718,9 +694,12 @@ namespace RX_Explorer
                     {
                         Nav.Navigate(typeof(RecycleBin), null, new DrillInNavigationTransitionInfo());
                     }
-                    else if (InvokeString == "快速启动")
+                    else if (InvokeString == Globalization.GetString("MainPage_QuickStart_Label"))
                     {
-                        QuickStartTip.IsOpen = true;
+                        if (!QuickStartTip.IsOpen)
+                        {
+                            QuickStartTip.IsOpen = true;
+                        }
                     }
                     else
                     {

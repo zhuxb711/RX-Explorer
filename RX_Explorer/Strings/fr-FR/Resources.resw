@@ -1804,15 +1804,6 @@
   <data name="FeedBackTranslateButton.Label" xml:space="preserve">
     <value>Traduire</value>
   </data>
-  <data name="QueueDialog_FolderRepeat_CloseButton" xml:space="preserve">
-    <value>Enregistrer la copie</value>
-  </data>
-  <data name="QueueDialog_FolderRepeat_Content" xml:space="preserve">
-    <value>Un dossier du même nom existe déjà dans le dossier cible:</value>
-  </data>
-  <data name="QueueDialog_FolderRepeat_PrimaryButton" xml:space="preserve">
-    <value>Dossier de fusion</value>
-  </data>
   <data name="QueueDialog_RenameExist_Content" xml:space="preserve">
     <value>Un fichier du même nom existe déjà, que ce soit pour le renommer automatiquement?</value>
   </data>
@@ -3025,5 +3016,8 @@ Les noms non valides incluent
   </data>
   <data name="EverythingQuestionDownloadLink" xml:space="preserve">
     <value>Téléchargez "Everything"</value>
+  </data>
+  <data name="MainPage_QuickStart_Label" xml:space="preserve">
+    <value>Démarrage rapide</value>
   </data>
 </root>

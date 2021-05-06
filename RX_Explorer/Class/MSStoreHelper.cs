@@ -16,8 +16,6 @@ namespace RX_Explorer.Class
 
         public static MSStoreHelper Current => Instance ??= new MSStoreHelper();
 
-        private bool HasVerifiedLicense;
-
         public async Task<bool> CheckPurchaseStatusAsync()
         {
             try
@@ -27,41 +25,32 @@ namespace RX_Explorer.Class
                     return true;
                 }
 
-                if (HasVerifiedLicense && ApplicationData.Current.LocalSettings.Values.ContainsKey("LicenseGrant"))
+                StoreAppLicense License = GetLicenseTask == null ? await Store.GetAppLicenseAsync() : await GetLicenseTask.ConfigureAwait(false);
+
+                if (License.AddOnLicenses.Any((Item) => Item.Value.InAppOfferToken == "Donation"))
                 {
-                    return Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["LicenseGrant"]);
+                    ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
+                    return true;
                 }
                 else
                 {
-                    HasVerifiedLicense = true;
-
-                    StoreAppLicense License = GetLicenseTask == null ? await Store.GetAppLicenseAsync() : await GetLicenseTask.ConfigureAwait(false);
-
-                    if (License.AddOnLicenses.Any((Item) => Item.Value.InAppOfferToken == "Donation"))
+                    if (License.IsActive)
                     {
-                        ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
-                        return true;
-                    }
-                    else
-                    {
-                        if (License.IsActive)
-                        {
-                            if (License.IsTrial)
-                            {
-                                ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
-                                return false;
-                            }
-                            else
-                            {
-                                ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
-                                return true;
-                            }
-                        }
-                        else
+                        if (License.IsTrial)
                         {
                             ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
                             return false;
                         }
+                        else
+                        {
+                            ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
+                        return false;
                     }
                 }
             }

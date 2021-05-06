@@ -2382,18 +2382,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Translate</source>
           <target state="translated">翻译</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_FolderRepeat_CloseButton" translate="yes" xml:space="preserve">
-          <source>Save copy</source>
-          <target state="translated">保存副本</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_FolderRepeat_Content" translate="yes" xml:space="preserve">
-          <source>A folder with the same name already exists in the target folder:</source>
-          <target state="translated">目标文件夹已存在相同名称的文件夹:</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_FolderRepeat_PrimaryButton" translate="yes" xml:space="preserve">
-          <source>Merge folder</source>
-          <target state="translated">合并文件夹</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_RenameExist_Content" translate="yes" xml:space="preserve">
           <source>A file with the same name already exists, whether to rename it automatically?</source>
           <target state="translated">已存在同名文件，是否自动重命名?</target>
@@ -4015,6 +4003,10 @@ Invalid names include
         <trans-unit id="EverythingQuestionDownloadLink" translate="yes" xml:space="preserve">
           <source>Download Everything</source>
           <target state="translated">下载"Everything"</target>
+        </trans-unit>
+        <trans-unit id="MainPage_QuickStart_Label" translate="yes" xml:space="preserve">
+          <source>Quick start</source>
+          <target state="translated">快速启动</target>
         </trans-unit>
       </group>
     </body>

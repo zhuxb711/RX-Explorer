@@ -44,6 +44,7 @@
                           AllowDropTabs="True"
                           AllowDrop="True"
                           CanDragTabs="True"
+                          x:FieldModifier="public"
                           RightTapped="TabViewControl_RightTapped"
                           PointerWheelChanged="TabViewControl_PointerWheelChanged"
                           TabStripDragOver="TabViewControl_TabStripDragOver"

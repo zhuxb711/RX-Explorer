@@ -1859,15 +1859,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="FeedBackTranslateButton.Label" xml:space="preserve">
     <value>Traducir</value>
   </data>
-  <data name="QueueDialog_FolderRepeat_CloseButton" xml:space="preserve">
-    <value>Guardar copia</value>
-  </data>
-  <data name="QueueDialog_FolderRepeat_Content" xml:space="preserve">
-    <value>Ya existe una carpeta con el mismo nombre en la carpeta de destino:</value>
-  </data>
-  <data name="QueueDialog_FolderRepeat_PrimaryButton" xml:space="preserve">
-    <value>Fusionar carpeta</value>
-  </data>
   <data name="QueueDialog_RenameExist_Content" xml:space="preserve">
     <value>Ya existe un archivo con el mismo nombre; ¿deseas renombrarlo automáticamente?</value>
   </data>
@@ -3025,5 +3016,8 @@ Las denominaciones no válidas son:
   </data>
   <data name="EverythingQuestionDownloadLink" xml:space="preserve">
     <value>Descarga "Everything"</value>
+  </data>
+  <data name="MainPage_QuickStart_Label" xml:space="preserve">
+    <value>Inicio rápido</value>
   </data>
 </root>

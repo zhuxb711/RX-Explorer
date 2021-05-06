@@ -184,7 +184,7 @@
         </muxc:TeachingTip>
         <muxc:TeachingTip x:Name="QuickStartTip"
                           PreferredPlacement="Bottom"
-                          Title="快速启动"
+                          Title="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}"
                           IsLightDismissEnabled="True"
                           Target="{x:Bind QuickStartNav}">
             <Grid>
@@ -195,11 +195,11 @@
                 </Grid.RowDefinitions>
                 <StackPanel>
                     <TextBlock Text="应用"
-                               Margin="5"
+                               Margin="10,5"
                                FontSize="16" />
                     <Border Background="Gray"
                             Height="2" 
-                            Margin="5,0"
+                            Margin="10,0"
                             HorizontalAlignment="Stretch"/>
                     <GridView Name="QuickStartGridView"
                               AllowFocusOnInteraction="False"
@@ -210,14 +210,14 @@
                               IsRightTapEnabled="True"
                               ItemClick="QuickStart_ItemClick"
                               RightTapped="QuickStart_RightTapped"
-                              Padding="5"
+                              Padding="10"
                               CanReorderItems="True"
                               CanDragItems="True"
                               IsHoldingEnabled="True"
                               AllowDrop="True"
-                              x:FieldModifier="public"
                               DragItemsCompleted="QuickStart_DragItemsCompleted"
                               Holding="QuickStart_Holding"
+                              ItemsSource="{x:Bind Cls:CommonAccessCollection.QuickStartList}"
                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
                         <GridView.ItemTemplate>
                             <DataTemplate x:DataType="Cls:QuickStartItem">
@@ -255,11 +255,11 @@
                 <StackPanel Grid.Row="2">
                     <TextBlock Text="网站"
                                x:Uid="HotWebTitle"
-                               Margin="5"
+                               Margin="10,5"
                                FontSize="16" />
                     <Border Background="Gray"
                             Height="2"
-                            Margin="5,0"
+                            Margin="10,0"
                             HorizontalAlignment="Stretch" />
                     <GridView Name="WebGridView"
                               SelectionMode="Single"
@@ -276,8 +276,8 @@
                               CanReorderItems="True"
                               PreviewKeyDown="QuickStart_PreviewKeyDown"
                               AllowDrop="True"
-                              Padding="5"
-                              x:FieldModifier="public"
+                              Padding="10"
+                              ItemsSource="{x:Bind Cls:CommonAccessCollection.WebLinkList}"
                               ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
                         <GridView.ItemTemplate>
                             <DataTemplate x:DataType="Cls:QuickStartItem">
@@ -398,7 +398,7 @@
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
                 <muxc:NavigationViewItem x:Name="QuickStartNav"
-                                         Content="快速启动"
+                                         Content="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}"
                                          SelectsOnInvoked="False">
                     <muxc:NavigationViewItem.Icon>
                         <SymbolIcon Symbol="AllApps" />

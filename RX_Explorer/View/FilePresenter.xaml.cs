@@ -482,17 +482,16 @@ namespace RX_Explorer
                                 {
                                     CloseAllFlyout();
 
-                                    if (SelectedItem != null)
+                                    if (SelectedItem is FileSystemStorageFolder)
                                     {
-                                        if (SelectedItem is FileSystemStorageFolder)
-                                        {
-                                            await TabViewContainer.ThisPage.CreateNewTabAsync(SelectedItem.Path);
-                                        }
+                                        await TabViewContainer.ThisPage.CreateNewTabAsync(SelectedItem.Path);
                                     }
                                     else
                                     {
                                         await TabViewContainer.ThisPage.CreateNewTabAsync();
                                     }
+
+                                    TabViewContainer.ThisPage.TabViewControl.SelectedIndex = TabViewContainer.ThisPage.TabCollection.Count - 1;
 
                                     break;
                                 }

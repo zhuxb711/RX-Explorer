@@ -21,6 +21,9 @@ namespace RX_Explorer.Class
     {
         public static ObservableCollection<DriveDataBase> DriveList { get; } = new ObservableCollection<DriveDataBase>();
         public static ObservableCollection<LibraryFolder> LibraryFolderList { get; } = new ObservableCollection<LibraryFolder>();
+        public static ObservableCollection<QuickStartItem> QuickStartList { get; } = new ObservableCollection<QuickStartItem>();
+        public static ObservableCollection<QuickStartItem> WebLinkList { get; } = new ObservableCollection<QuickStartItem>();
+
 
         private static readonly DeviceWatcher PortalDeviceWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
 
@@ -39,8 +42,45 @@ namespace RX_Explorer.Class
 
         public static bool IsDriveLoaded { get; private set; }
 
+        public static bool IsQuickStartLoaded { get; private set; }
+
         private static int LoadDriveLockResource;
         private static int LoadLibraryLockResource;
+        private static int LoadQuickStartLockResource;
+
+        public static async Task LoadQuickStartItemsAsync()
+        {
+            if (Interlocked.Exchange(ref LoadQuickStartLockResource, 1) == 0)
+            {
+                try
+                {
+                    if (!IsQuickStartLoaded)
+                    {
+                        IsQuickStartLoaded = true;
+
+                        foreach (KeyValuePair<QuickStartType, QuickStartItem> Item in await SQLite.Current.GetQuickStartItemAsync())
+                        {
+                            if (Item.Key == QuickStartType.Application)
+                            {
+                                QuickStartList.Add(Item.Value);
+                            }
+                            else
+                            {
+                                WebLinkList.Add(Item.Value);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex);
+                }
+                finally
+                {
+                    _ = Interlocked.Exchange(ref LoadQuickStartLockResource, 0);
+                }
+            }
+        }
 
         public static async Task LoadLibraryFoldersAsync()
         {

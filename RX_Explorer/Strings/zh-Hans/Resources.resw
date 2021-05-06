@@ -1804,15 +1804,6 @@
   <data name="FeedBackTranslateButton.Label" xml:space="preserve">
     <value>翻译</value>
   </data>
-  <data name="QueueDialog_FolderRepeat_CloseButton" xml:space="preserve">
-    <value>保存副本</value>
-  </data>
-  <data name="QueueDialog_FolderRepeat_Content" xml:space="preserve">
-    <value>目标文件夹已存在相同名称的文件夹:</value>
-  </data>
-  <data name="QueueDialog_FolderRepeat_PrimaryButton" xml:space="preserve">
-    <value>合并文件夹</value>
-  </data>
   <data name="QueueDialog_RenameExist_Content" xml:space="preserve">
     <value>已存在同名文件，是否自动重命名?</value>
   </data>
@@ -3025,5 +3016,8 @@
   </data>
   <data name="EverythingQuestionDownloadLink" xml:space="preserve">
     <value>下载"Everything"</value>
+  </data>
+  <data name="MainPage_QuickStart_Label" xml:space="preserve">
+    <value>快速启动</value>
   </data>
 </root>

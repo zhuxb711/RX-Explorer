@@ -2455,18 +2455,6 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <source>Translate</source>
           <target state="translated">Traducir</target>
         </trans-unit>
-        <trans-unit id="QueueDialog_FolderRepeat_CloseButton" translate="yes" xml:space="preserve">
-          <source>Save copy</source>
-          <target state="translated">Guardar copia</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_FolderRepeat_Content" translate="yes" xml:space="preserve">
-          <source>A folder with the same name already exists in the target folder:</source>
-          <target state="translated">Ya existe una carpeta con el mismo nombre en la carpeta de destino:</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_FolderRepeat_PrimaryButton" translate="yes" xml:space="preserve">
-          <source>Merge folder</source>
-          <target state="translated">Fusionar carpeta</target>
-        </trans-unit>
         <trans-unit id="QueueDialog_RenameExist_Content" translate="yes" xml:space="preserve">
           <source>A file with the same name already exists, whether to rename it automatically?</source>
           <target state="translated">Ya existe un archivo con el mismo nombre; ¿deseas renombrarlo automáticamente?</target>
@@ -4013,6 +4001,10 @@ Las denominaciones no válidas son:
         <trans-unit id="EverythingQuestionDownloadLink" translate="yes" xml:space="preserve">
           <source>Download Everything</source>
           <target state="translated">Descarga "Everything"</target>
+        </trans-unit>
+        <trans-unit id="MainPage_QuickStart_Label" translate="yes" xml:space="preserve">
+          <source>Quick start</source>
+          <target state="translated">Inicio rápido</target>
         </trans-unit>
       </group>
     </body>
