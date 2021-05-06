@@ -1257,12 +1257,12 @@ namespace FullTrustProcess
                             string DestinationPath = Convert.ToString(args.Request.Message["DestinationPath"]);
                             string Guid = Convert.ToString(args.Request.Message["Guid"]);
 
-                            List<KeyValuePair<string, string>> SourcePathList = JsonSerializer.Deserialize<List<KeyValuePair<string, string>>>(SourcePathJson);
+                            List<string> SourcePathList = JsonSerializer.Deserialize<List<string>>(SourcePathJson);
                             List<string> OperationRecordList = new List<string>();
 
                             int Progress = 0;
 
-                            if (SourcePathList.All((Item) => Directory.Exists(Item.Key) || File.Exists(Item.Key)))
+                            if (SourcePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                             {
                                 if (StorageController.CheckPermission(FileSystemRights.Modify, DestinationPath))
                                 {
@@ -1355,14 +1355,14 @@ namespace FullTrustProcess
                             string DestinationPath = Convert.ToString(args.Request.Message["DestinationPath"]);
                             string Guid = Convert.ToString(args.Request.Message["Guid"]);
 
-                            List<KeyValuePair<string, string>> SourcePathList = JsonSerializer.Deserialize<List<KeyValuePair<string, string>>>(SourcePathJson);
+                            List<string> SourcePathList = JsonSerializer.Deserialize<List<string>>(SourcePathJson);
                             List<string> OperationRecordList = new List<string>();
 
                             int Progress = 0;
 
-                            if (SourcePathList.All((Item) => Directory.Exists(Item.Key) || File.Exists(Item.Key)))
+                            if (SourcePathList.All((Item) => Directory.Exists(Item) || File.Exists(Item)))
                             {
-                                if (SourcePathList.Any((Item) => StorageController.CheckOccupied(Item.Key)))
+                                if (SourcePathList.Any((Item) => StorageController.CheckOccupied(Item)))
                                 {
                                     Value.Add("Error_Capture", "An error occurred while moving the folder");
                                 }

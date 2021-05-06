@@ -303,6 +303,7 @@ namespace FullTrustProcess
                                 | ShellFileOperations.OperationFlags.NoConfirmation
                                 | ShellFileOperations.OperationFlags.RecycleOnDelete
                                 | ShellFileOperations.OperationFlags.RequireElevation
+                                | ShellFileOperations.OperationFlags.WantNukeWarning
                 })
                 {
                     Operation.UpdateProgress += Progress;
@@ -330,7 +331,7 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool Copy(IEnumerable<KeyValuePair<string, string>> Source, string DestinationPath, ProgressChangedEventHandler Progress, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostCopyEvent)
+        public static bool Copy(IEnumerable<string> SourcePath, string DestinationPath, ProgressChangedEventHandler Progress, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostCopyEvent)
         {
             try
             {
@@ -339,31 +340,26 @@ namespace FullTrustProcess
                     _ = Directory.CreateDirectory(DestinationPath);
                 }
 
-                ShellFileOperations.OperationFlags Options = Source.All((Item) => Path.GetDirectoryName(Item.Key) == DestinationPath)
-                                                             ? ShellFileOperations.OperationFlags.AddUndoRecord
-                                                             | ShellFileOperations.OperationFlags.NoConfirmMkDir
-                                                             | ShellFileOperations.OperationFlags.Silent
-                                                             | ShellFileOperations.OperationFlags.RenameOnCollision
-                                                             | ShellFileOperations.OperationFlags.RequireElevation
-
-                                                             : ShellFileOperations.OperationFlags.AddUndoRecord
-                                                             | ShellFileOperations.OperationFlags.NoConfirmMkDir
-                                                             | ShellFileOperations.OperationFlags.Silent
-                                                             | ShellFileOperations.OperationFlags.RequireElevation;
 
                 using (ShellFileOperations Operation = new ShellFileOperations
                 {
-                    Options = Options
+                    Options = ShellFileOperations.OperationFlags.AddUndoRecord
+                              | ShellFileOperations.OperationFlags.NoConfirmMkDir
+                              | ShellFileOperations.OperationFlags.Silent
+                              | ShellFileOperations.OperationFlags.RenameOnCollision
+                              | ShellFileOperations.OperationFlags.RequireElevation
                 })
                 {
                     Operation.UpdateProgress += Progress;
                     Operation.PostCopyItem += PostCopyEvent;
 
-                    foreach (KeyValuePair<string, string> SourceInfo in Source)
+                    foreach (string Source in SourcePath)
                     {
-                        ShellItem SourceItem = new ShellItem(SourceInfo.Key);
-                        ShellFolder DestItem = new ShellFolder(DestinationPath);
-                        Operation.QueueCopyOperation(SourceItem, DestItem, string.IsNullOrEmpty(SourceInfo.Value) ? null : SourceInfo.Value);
+                        using (ShellItem SourceItem = new ShellItem(Source))
+                        using (ShellFolder DestItem = new ShellFolder(DestinationPath))
+                        {
+                            Operation.QueueCopyOperation(SourceItem, DestItem);
+                        }
                     }
 
                     Operation.PerformOperations();
@@ -381,7 +377,7 @@ namespace FullTrustProcess
             }
         }
 
-        public static bool Move(IEnumerable<KeyValuePair<string, string>> Source, string DestinationPath, ProgressChangedEventHandler Progress, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostMoveEvent)
+        public static bool Move(IEnumerable<string> SourcePath, string DestinationPath, ProgressChangedEventHandler Progress, EventHandler<ShellFileOperations.ShellFileOpEventArgs> PostMoveEvent)
         {
             try
             {
@@ -396,17 +392,18 @@ namespace FullTrustProcess
                                 | ShellFileOperations.OperationFlags.NoConfirmMkDir
                                 | ShellFileOperations.OperationFlags.Silent
                                 | ShellFileOperations.OperationFlags.RequireElevation
+                                | ShellFileOperations.OperationFlags.RenameOnCollision
                 })
                 {
                     Operation.UpdateProgress += Progress;
                     Operation.PostMoveItem += PostMoveEvent;
 
-                    foreach (KeyValuePair<string, string> SourceInfo in Source)
+                    foreach (string Source in SourcePath)
                     {
-                        using (ShellItem SourceItem = new ShellItem(SourceInfo.Key))
+                        using (ShellItem SourceItem = new ShellItem(Source))
                         using (ShellFolder DestItem = new ShellFolder(DestinationPath))
                         {
-                            Operation.QueueMoveOperation(SourceItem, DestItem, string.IsNullOrEmpty(SourceInfo.Value) ? null : SourceInfo.Value);
+                            Operation.QueueMoveOperation(SourceItem, DestItem);
                         }
                     }
 

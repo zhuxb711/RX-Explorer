@@ -273,7 +273,10 @@ namespace RX_Explorer.Class
                                 {
                                     Exclusive.Controller.CopyAsync(Model.FromPath, Model.ToPath, ProgressHandler: (s, e) =>
                                     {
-                                        Model.UpdateProgress(e.ProgressPercentage);
+                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            Model.UpdateProgress(e.ProgressPercentage);
+                                        }).AsTask().Wait();
                                     }).Wait();
                                 }
                             }
@@ -311,7 +314,10 @@ namespace RX_Explorer.Class
                                 {
                                     Exclusive.Controller.MoveAsync(Model.FromPath, Model.ToPath, ProgressHandler: (s, e) =>
                                     {
-                                        Model.UpdateProgress(e.ProgressPercentage);
+                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            Model.UpdateProgress(e.ProgressPercentage);
+                                        }).AsTask().Wait();
                                     }).Wait();
                                 }
                             }
@@ -356,7 +362,10 @@ namespace RX_Explorer.Class
                                 {
                                     Exclusive.Controller.DeleteAsync(DeleteModel.FromPath, DeleteModel.IsPermanentDelete, ProgressHandler: (s, e) =>
                                     {
-                                        Model.UpdateProgress(e.ProgressPercentage);
+                                        CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                        {
+                                            Model.UpdateProgress(e.ProgressPercentage);
+                                        }).AsTask().Wait();
                                     }).Wait();
                                 }
                             }
@@ -405,7 +414,10 @@ namespace RX_Explorer.Class
                                             {
                                                 Exclusive.Controller.DeleteAsync(Model.FromPath, true, true, (s, e) =>
                                                 {
-                                                    Model.UpdateProgress(e.ProgressPercentage);
+                                                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                    {
+                                                        Model.UpdateProgress(e.ProgressPercentage);
+                                                    }).AsTask().Wait();
                                                 }).Wait();
 
                                                 break;
@@ -414,7 +426,10 @@ namespace RX_Explorer.Class
                                             {
                                                 Exclusive.Controller.MoveAsync(Model.FromPath, Model.ToPath, true, (s, e) =>
                                                 {
-                                                    Model.UpdateProgress(e.ProgressPercentage);
+                                                    CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                                                    {
+                                                        Model.UpdateProgress(e.ProgressPercentage);
+                                                    }).AsTask().Wait();
                                                 }).Wait();
 
                                                 break;

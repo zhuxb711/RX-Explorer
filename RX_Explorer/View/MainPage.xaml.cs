@@ -368,6 +368,8 @@ namespace RX_Explorer
                 {
                     case 5:
                     case 20:
+                    case 25:
+                    case 30:
                         {
                             await PurchaseApplicationAsync();
                             break;
