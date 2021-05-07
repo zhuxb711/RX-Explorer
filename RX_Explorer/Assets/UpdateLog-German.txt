@@ -1,4 +1,37 @@
 ﻿*****
+###Was ist neu in Ver.6.4.4.0
+
+#####Funktionsaktualisierung
+
+>#####Unterstützung für die Funktion "Gruppierung" hinzugefügt
+
+#####UI-Update
+
+>#####Update der Hauptschnittstelle (danke @silentmoooon) [PR #212](https://github.com/zhuxb711/RX-Explorer/pull/212)
+
+>>#####Verschieben Sie "Schnellstart" nach oben
+
+>>#####"Dieser PC" als Teil des Ordners
+
+>#####Wenn Sie nun WIN+E öffnen, muss der Popup-Dialog auf 5 Sekunden warten, um fortzufahren. Bitte lesen Sie die Anweisungen sorgfältig durch
+
+>#####Bietet einen Download-Link für die Everything Search Engine
+
+#####Fehlerbehebung
+
+>#####Das Problem wurde behoben, dass die Startgeschwindigkeit in einigen Fällen sehr langsam ist
+
+>#####Das Problem wurde behoben, das beim Kopieren und Verschieben in einigen Fällen zum Absturz führen konnte
+
+>#####Es wurde das Problem behoben, dass die Tastenkombination WIN+T ungültig ist, wenn die Datei ausgewählt wird
+
+>#####Es wurde das Problem behoben, dass Dateien nicht direkt von 7Zip und anderer Software auf RX gezogen und dort abgelegt werden können
+
+>#####Das Problem der falschen Datenposition in der Rückgängig-Aufgabe wurde behoben
+
+>#####Einige Übersetzungsprobleme wurden behoben
+
+*****
 ###Was ist neu in Ver.6.4.0.0
 
 #####Funktionsaktualisierung

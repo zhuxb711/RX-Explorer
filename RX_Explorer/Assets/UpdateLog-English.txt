@@ -1,4 +1,37 @@
 ﻿*****
+###What's new in Ver.6.4.4.0
+
+#####Feature update
+
+>#####Added support for "Grouping" function
+
+#####UI update
+
+>#####Main interface update (thanks @silentmoooon) [PR #212](https://github.com/zhuxb711/RX-Explorer/pull/212)
+
+>>#####Move "Quick Start" to the top
+
+>>#####"This PC" as part of the folder
+
+>#####Now when opening WIN+E, the pop-up dialog must wait for 5s to continue, please read the instructions carefully
+
+>#####Provides a download link for the Everything Search Engine
+
+#####Bug fix
+
+>#####Fixed the problem that the startup speed is very slow in some cases
+
+>#####Fixed the problem that might be crash when copying and moving in some cases
+
+>#####Fixed the problem that the Ctrl+T shortcut key is invalid when the file is selected
+
+>#####Fixed the problem that files cannot be directly dragged and dropped from 7Zip and other software to RX
+
+>#####Fixed the problem of incorrect data location in the undo task
+
+>#####Fixed some translation problems
+
+*****
 ###What's new in Ver.6.4.0.0
 
 #####Feature update

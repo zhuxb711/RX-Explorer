@@ -1,4 +1,37 @@
 ﻿*****
+###Quoi de neuf dans la version 6.4.4.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Ajout de la prise en charge de la fonction "Regroupement"
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Mise à jour de l'interface principale (merci @silentmoooon) [PR #212](https://github.com/zhuxb711/RX-Explorer/pull/212)
+
+>>#####Déplacer "Quick Start" vers le haut
+
+>>#####"Ce PC" dans le cadre du dossier
+
+>#####Maintenant, lors de l'ouverture de WIN+E, la boîte de dialogue contextuelle doit attendre 5 secondes pour continuer, veuillez lire attentivement les instructions
+
+>#####Fournit un lien de téléchargement pour le moteur de recherche Everything
+
+#####Correction d'un bug
+
+>#####Correction du problème que la vitesse de démarrage est très lente dans certains cas
+
+>#####Correction du problème qui pouvait se produire lors de la copie et du déplacement dans certains cas
+
+>#####Correction du problème que la touche de raccourci Ctrl+T n'est pas valide lorsque le fichier est sélectionné
+
+>#####Correction du problème selon lequel les fichiers ne peuvent pas être directement glissés et déposés de 7Zip et d'autres logiciels vers RX
+
+>#####Correction du problème d'emplacement incorrect des données dans la tâche d'annulation
+
+>#####Correction de quelques problèmes de traduction
+
+*****
 ###Quoi de neuf dans la version 6.4.0.0
 
 #####Mise à jour des fonctionnalités

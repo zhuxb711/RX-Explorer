@@ -1,4 +1,37 @@
 ﻿*****
+###Novedades de la versión 6.4.4.0
+
+#####Actualización de funciones
+
+>#####Soporte agregado para la función "Agrupación"
+
+#####Actualización de la interfaz de usuario
+
+>#####Actualización de la interfaz principal (gracias @silentmoooon) [PR #212](https://github.com/zhuxb711/RX-Explorer/pull/212)
+
+>>#####Mover "Inicio rápido" a la parte superior
+
+>>#####"Esta PC" como parte de la carpeta
+
+>#####Ahora, al abrir WIN+E, el cuadro de diálogo emergente debe esperar 5 segundos para continuar, lee las instrucciones detenidamente
+
+>#####Proporciona un enlace de descarga para el motor de búsqueda de Everything
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que la velocidad de inicio es muy lenta en algunos casos
+
+>#####Se solucionó el problema que podría bloquearse al copiar y mover en algunos casos
+
+>#####Se solucionó el problema de que la tecla de método abreviado Ctrl+T no es válida cuando se selecciona el archivo
+
+>#####Se solucionó el problema de que los archivos no se pueden arrastrar y soltar directamente desde 7Zip y otro software a RX
+
+>#####Se solucionó el problema de la ubicación incorrecta de los datos en la tarea de deshacer
+
+>#####Se corrigieron algunos problemas de traducción
+
+*****
 ###Novedades de la versión 6.4.0.0
 
 #####Actualización de funciones
