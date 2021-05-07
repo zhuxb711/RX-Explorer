@@ -158,7 +158,7 @@ namespace RX_Explorer
 
             try
             {
-                if (FolderTree.RootNodes.FirstOrDefault((Node) => ((Node.Content as TreeViewNodeContent)?.Path.Equals(args.Data.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()) is TreeViewNode Node)
+                if (FolderTree.RootNodes.FirstOrDefault((Node) => ((Node.Content as TreeViewNodeContent)?.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()) is TreeViewNode Node)
                 {
                     FolderTree.RootNodes.Remove(Node);
                     FolderTree.SelectedNode = FolderTree.RootNodes.LastOrDefault();
@@ -185,41 +185,34 @@ namespace RX_Explorer
 
             try
             {
-                if (!string.IsNullOrWhiteSpace(args.Data.Path))
+                if (!string.IsNullOrWhiteSpace(args.StorageItem.Path))
                 {
-                    if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => !Content.Path.Equals(args.Data.Path, StringComparison.OrdinalIgnoreCase)))
+                    if (FolderTree.RootNodes.Select((Node) => Node.Content as TreeViewNodeContent).All((Content) => !Content.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)))
                     {
-                        if (await FileSystemStorageItemBase.CreateFromStorageItemAsync(args.Data.DriveFolder) is FileSystemStorageFolder DeviceFolder)
+                        bool HasAnyFolder = await args.StorageItem.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder);
+
+                        TreeViewNode RootNode;
+
+                        if (await args.StorageItem.GetStorageItemAsync() is StorageFolder Folder)
                         {
-                            if (args.Data.DriveType == DriveType.Network)
+                            RootNode = new TreeViewNode
                             {
-                                await Task.Run(() => DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder)).ContinueWith((task) =>
-                                 {
-                                     TreeViewNode RootNode = new TreeViewNode
-                                     {
-                                         Content = new TreeViewNodeContent(args.Data.DriveFolder),
-                                         IsExpanded = false,
-                                         HasUnrealizedChildren = task.Result
-                                     };
-
-                                     FolderTree.RootNodes.Add(RootNode);
-                                     FolderTree.UpdateLayout();
-                                 }, TaskScheduler.FromCurrentSynchronizationContext());
-                            }
-                            else
-                            {
-                                bool HasAnyFolder = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder);
-
-                                TreeViewNode RootNode = new TreeViewNode
-                                {
-                                    Content = new TreeViewNodeContent(args.Data.DriveFolder),
-                                    IsExpanded = false,
-                                    HasUnrealizedChildren = HasAnyFolder
-                                };
-
-                                FolderTree.RootNodes.Add(RootNode);
-                            }
+                                Content = new TreeViewNodeContent(Folder),
+                                IsExpanded = false,
+                                HasUnrealizedChildren = HasAnyFolder
+                            };
                         }
+                        else
+                        {
+                            RootNode = new TreeViewNode
+                            {
+                                Content = new TreeViewNodeContent(args.StorageItem.Path),
+                                IsExpanded = false,
+                                HasUnrealizedChildren = HasAnyFolder
+                            };
+                        }
+
+                        FolderTree.RootNodes.Add(RootNode);
                     }
 
                     if (FolderTree.RootNodes.FirstOrDefault() is TreeViewNode Node)
@@ -314,11 +307,12 @@ namespace RX_Explorer
 
                     if (AddressButtonList.Count == 0)
                     {
-                        if (string.IsNullOrEmpty(RootPath))
+                        if (!Path.StartsWith(@"\\"))
                         {
                             AddressButtonList.Add(new AddressBlock(RootStorageFolder.Instance.Path, RootStorageFolder.Instance.DisplayName));
                         }
-                        else
+
+                        if (!string.IsNullOrEmpty(RootPath))
                         {
                             AddressButtonList.Add(new AddressBlock(RootPath, (await StorageFolder.GetFolderFromPathAsync(RootPath)).DisplayName));
 
@@ -328,6 +322,13 @@ namespace RX_Explorer
                             {
                                 AddressButtonList.Add(new AddressBlock(Analysis.NextFullPath()));
                             }
+                        }
+                    }
+                    else if (Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase) && AddressButtonList.First().Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
+                    {
+                        foreach (AddressBlock Block in AddressButtonList.Skip(1))
+                        {
+                            Block.SetAsGrayBlock();
                         }
                     }
                     else
@@ -401,6 +402,13 @@ namespace RX_Explorer
                                         {
                                             GrayBlock.SetAsNormalBlock();
                                         }
+                                    }
+                                }
+                                else if (LastPath.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    foreach (AddressBlock GrayBlock in AddressButtonList.Skip(1).Take(CurrentSplit.Length))
+                                    {
+                                        GrayBlock.SetAsNormalBlock();
                                     }
                                 }
                             }
@@ -482,7 +490,6 @@ namespace RX_Explorer
                             }
                         }
                     }
-
                 }
                 catch (Exception ex)
                 {
@@ -653,24 +660,27 @@ namespace RX_Explorer
             {
                 try
                 {
-                    List<string> StorageItemPath = WIN_Native_API.GetStorageItems(Content.Path, SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder).Select((Item) => Item.Path).ToList();
-
-                    await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                    if (await FileSystemStorageItemBase.OpenAsync(Content.Path) is FileSystemStorageFolder Folder)
                     {
-                        for (int i = 0; i < StorageItemPath.Count && Node.IsExpanded && Node.CanTraceToRootNode(FolderTree.RootNodes.FirstOrDefault((RootNode) => (RootNode.Content as TreeViewNodeContent).Path == Path.GetPathRoot(Content.Path))); i++)
-                        {
-                            if (await FileSystemStorageItemBase.OpenAsync(StorageItemPath[i]) is FileSystemStorageFolder DeviceFolder)
-                            {
-                                TreeViewNode NewNode = new TreeViewNode
-                                {
-                                    Content = new TreeViewNodeContent(StorageItemPath[i]),
-                                    HasUnrealizedChildren = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder)
-                                };
+                        List<FileSystemStorageItemBase> StorageItemPath = await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder);
 
-                                Node.Children.Add(NewNode);
+                        await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                        {
+                            for (int i = 0; i < StorageItemPath.Count && Node.IsExpanded && Node.CanTraceToRootNode(FolderTree.RootNodes.FirstOrDefault((RootNode) => (RootNode.Content as TreeViewNodeContent).Path == Path.GetPathRoot(Content.Path))); i++)
+                            {
+                                if (StorageItemPath[i] is FileSystemStorageFolder DeviceFolder)
+                                {
+                                    TreeViewNode NewNode = new TreeViewNode
+                                    {
+                                        Content = new TreeViewNodeContent(DeviceFolder.Path),
+                                        HasUnrealizedChildren = await DeviceFolder.CheckContainsAnyItemAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder)
+                                    };
+
+                                    Node.Children.Add(NewNode);
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -1716,21 +1726,22 @@ namespace RX_Explorer
 
             if (Btn.DataContext is AddressBlock Block)
             {
-                List<string> ItemList = WIN_Native_API.GetStorageItems(Block.Path, SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder).Select((Item) => Item.Path).ToList();
-
-                foreach (string Path in ItemList)
+                if (await FileSystemStorageItemBase.OpenAsync(Block.Path) is FileSystemStorageFolder Folder)
                 {
-                    AddressExtentionList.Add(new AddressBlock(Path));
-                }
+                    foreach (FileSystemStorageFolder SubFolder in await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder))
+                    {
+                        AddressExtentionList.Add(new AddressBlock(SubFolder.Path));
+                    }
 
-                if (AddressExtentionList.Count > 0 && Btn.Content is FrameworkElement DropDownElement)
-                {
-                    Vector2 RotationCenter = new Vector2(Convert.ToSingle(DropDownElement.ActualWidth * 0.45), Convert.ToSingle(DropDownElement.ActualHeight * 0.57));
+                    if (AddressExtentionList.Count > 0 && Btn.Content is FrameworkElement DropDownElement)
+                    {
+                        Vector2 RotationCenter = new Vector2(Convert.ToSingle(DropDownElement.ActualWidth * 0.45), Convert.ToSingle(DropDownElement.ActualHeight * 0.57));
 
-                    await AnimationBuilder.Create().CenterPoint(RotationCenter, RotationCenter).RotationInDegrees(90, duration: TimeSpan.FromMilliseconds(150)).StartAsync(DropDownElement);
+                        await AnimationBuilder.Create().CenterPoint(RotationCenter, RotationCenter).RotationInDegrees(90, duration: TimeSpan.FromMilliseconds(150)).StartAsync(DropDownElement);
 
-                    FlyoutBase.SetAttachedFlyout(Btn, AddressExtentionFlyout);
-                    FlyoutBase.ShowAttachedFlyout(Btn);
+                        FlyoutBase.SetAttachedFlyout(Btn, AddressExtentionFlyout);
+                        FlyoutBase.ShowAttachedFlyout(Btn);
+                    }
                 }
             }
         }
@@ -2597,6 +2608,11 @@ namespace RX_Explorer
                 AddressSuggestionList.Remove(Item);
                 await SQLite.Current.DeletePathHistoryAsync(Item.Path);
             }
+        }
+
+        private void GoHome_Click(object sender, RoutedEventArgs e)
+        {
+            CurrentPresenter.DisplayItemsInFolder(RootStorageFolder.Instance);
         }
     }
 }

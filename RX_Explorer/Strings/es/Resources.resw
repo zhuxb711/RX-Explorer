@@ -1286,9 +1286,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="MainPage_PageDictionary_SecureArea_Label" xml:space="preserve">
     <value>Área de seguridad</value>
   </data>
-  <data name="MainPage_PageDictionary_ThisPC_Label" xml:space="preserve">
-    <value>Este PC</value>
-  </data>
   <data name="Operate_Text_BluetoothShare" xml:space="preserve">
     <value>Bluetooth</value>
   </data>
@@ -3015,9 +3012,21 @@ Las denominaciones no válidas son:
     <value>Descarga "Everything"</value>
   </data>
   <data name="MainPage_QuickStart_Label" xml:space="preserve">
-    <value>Inicio rápido</value>
+    <value>Inicio Rápido</value>
   </data>
   <data name="WebLinkTitle.Text" xml:space="preserve">
     <value>Sitios web</value>
+  </data>
+  <data name="Operate_Text_Grouping" xml:space="preserve">
+    <value>Agrupamiento</value>
+  </data>
+  <data name="FileControlHomeButton" xml:space="preserve">
+    <value>De vuelta a casa</value>
+  </data>
+  <data name="MainPage_PageDictionary_Home_Label" xml:space="preserve">
+    <value>Pagina de inicio</value>
+  </data>
+  <data name="RootStorageFolderDisplayName" xml:space="preserve">
+    <value>Esta PC</value>
   </data>
 </root>

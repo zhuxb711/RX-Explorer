@@ -1653,10 +1653,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Security Area</source>
           <target state="translated">加密庫</target>
         </trans-unit>
-        <trans-unit id="MainPage_PageDictionary_ThisPC_Label" translate="yes" xml:space="preserve">
-          <source>This PC</source>
-          <target state="translated">我的電腦</target>
-        </trans-unit>
         <trans-unit id="Operate_Text_BluetoothShare" translate="yes" xml:space="preserve">
           <source>Bluetooth</source>
           <target state="translated" state-qualifier="tm-suggestion">藍牙</target>
@@ -4001,12 +3997,28 @@ Invalid names include
           <target state="translated">下載"Everything"</target>
         </trans-unit>
         <trans-unit id="MainPage_QuickStart_Label" translate="yes" xml:space="preserve">
-          <source>Quick start</source>
+          <source>Quick Start</source>
           <target state="translated">快速啟動</target>
         </trans-unit>
         <trans-unit id="WebLinkTitle.Text" translate="yes" xml:space="preserve">
           <source>Websites</source>
           <target state="translated">網站</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Grouping" translate="yes" xml:space="preserve">
+          <source>Grouping</source>
+          <target state="translated">分組</target>
+        </trans-unit>
+        <trans-unit id="FileControlHomeButton" translate="yes" xml:space="preserve">
+          <source>Back to Home</source>
+          <target state="translated">回到首頁</target>
+        </trans-unit>
+        <trans-unit id="MainPage_PageDictionary_Home_Label" translate="yes" xml:space="preserve">
+          <source>Home Page</source>
+          <target state="translated">主页</target>
+        </trans-unit>
+        <trans-unit id="RootStorageFolderDisplayName" translate="yes" xml:space="preserve">
+          <source>This PC</source>
+          <target state="translated">這台電腦</target>
         </trans-unit>
       </group>
     </body>

@@ -344,8 +344,8 @@ namespace RX_Explorer
             {
                 PageDictionary = new Dictionary<Type, string>()
                 {
-                    {typeof(TabViewContainer),Globalization.GetString("MainPage_PageDictionary_ThisPC_Label") },
-                    {typeof(FileControl),Globalization.GetString("MainPage_PageDictionary_ThisPC_Label") },
+                    {typeof(TabViewContainer),Globalization.GetString("MainPage_PageDictionary_Home_Label") },
+                    {typeof(FileControl),Globalization.GetString("MainPage_PageDictionary_Home_Label") },
                     {typeof(SecureArea),Globalization.GetString("MainPage_PageDictionary_SecureArea_Label") },
                     {typeof(RecycleBin),Globalization.GetString("MainPage_PageDictionary_RecycleBin_Label") }
                 };
@@ -515,7 +515,7 @@ namespace RX_Explorer
                 Item.IsSelected = true;
             }
 
-            if (PageDictionary[e.SourcePageType] == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
+            if (PageDictionary[e.SourcePageType] == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
             {
                 NavView.IsBackEnabled = (TabViewContainer.CurrentNavigationControl?.CanGoBack).GetValueOrDefault();
             }
@@ -683,7 +683,7 @@ namespace RX_Explorer
 
                     string InvokeString = args.InvokedItem.ToString();
 
-                    if (InvokeString == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
+                    if (InvokeString == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
                     {
                         Nav.Navigate(typeof(TabViewContainer), null, new DrillInNavigationTransitionInfo());
                     }

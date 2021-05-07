@@ -317,7 +317,7 @@ namespace RX_Explorer
                 && args.KeyStatus.IsMenuKeyDown
                 && Container.Frame.CurrentSourcePageType == typeof(FileControl)
                 && MainPage.ThisPage.NavView.SelectedItem is NavigationViewItem NavItem
-                && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
+                && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
             {
                 switch (args.VirtualKey)
                 {
@@ -340,7 +340,7 @@ namespace RX_Explorer
             if (Container.CurrentPresenter == this
                 && Container.Frame.CurrentSourcePageType == typeof(FileControl)
                 && MainPage.ThisPage.NavView.SelectedItem is NavigationViewItem NavItem
-                && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_ThisPC_Label"))
+                && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
             {
                 if ((Container.CurrentTabItem.Content as Frame) == TabViewContainer.CurrentNavigationControl)
                 {
@@ -490,8 +490,6 @@ namespace RX_Explorer
                                     {
                                         await TabViewContainer.ThisPage.CreateNewTabAsync();
                                     }
-
-                                    TabViewContainer.ThisPage.TabViewControl.SelectedIndex = TabViewContainer.ThisPage.TabCollection.Count - 1;
 
                                     break;
                                 }

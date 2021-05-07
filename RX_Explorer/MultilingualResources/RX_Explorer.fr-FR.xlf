@@ -1637,10 +1637,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Security Area</source>
           <target state="translated">Espace Sécurisé</target>
         </trans-unit>
-        <trans-unit id="MainPage_PageDictionary_ThisPC_Label" translate="yes" xml:space="preserve">
-          <source>This PC</source>
-          <target state="translated">Ce PC</target>
-        </trans-unit>
         <trans-unit id="Operate_Text_BluetoothShare" translate="yes" xml:space="preserve">
           <source>Bluetooth</source>
           <target state="translated">Bluetooth</target>
@@ -4001,12 +3997,28 @@ Les noms non valides incluent
           <target state="translated">Téléchargez "Everything"</target>
         </trans-unit>
         <trans-unit id="MainPage_QuickStart_Label" translate="yes" xml:space="preserve">
-          <source>Quick start</source>
-          <target state="translated">Démarrage rapide</target>
+          <source>Quick Start</source>
+          <target state="translated">Démarrage Rapide</target>
         </trans-unit>
         <trans-unit id="WebLinkTitle.Text" translate="yes" xml:space="preserve">
           <source>Websites</source>
           <target state="translated">Sites Internet</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Grouping" translate="yes" xml:space="preserve">
+          <source>Grouping</source>
+          <target state="translated">Regroupement</target>
+        </trans-unit>
+        <trans-unit id="FileControlHomeButton" translate="yes" xml:space="preserve">
+          <source>Back to Home</source>
+          <target state="translated">Retour à l'accueil</target>
+        </trans-unit>
+        <trans-unit id="MainPage_PageDictionary_Home_Label" translate="yes" xml:space="preserve">
+          <source>Home Page</source>
+          <target state="translated">Page d'accueil</target>
+        </trans-unit>
+        <trans-unit id="RootStorageFolderDisplayName" translate="yes" xml:space="preserve">
+          <source>This PC</source>
+          <target state="translated">Ce PC</target>
         </trans-unit>
       </group>
     </body>

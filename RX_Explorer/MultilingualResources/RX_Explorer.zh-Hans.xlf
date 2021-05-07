@@ -1637,10 +1637,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Security Area</source>
           <target state="translated">安全域</target>
         </trans-unit>
-        <trans-unit id="MainPage_PageDictionary_ThisPC_Label" translate="yes" xml:space="preserve">
-          <source>This PC</source>
-          <target state="translated">这台电脑</target>
-        </trans-unit>
         <trans-unit id="Operate_Text_BluetoothShare" translate="yes" xml:space="preserve">
           <source>Bluetooth</source>
           <target state="translated">蓝牙</target>
@@ -4001,12 +3997,28 @@ Invalid names include
           <target state="translated">下载"Everything"</target>
         </trans-unit>
         <trans-unit id="MainPage_QuickStart_Label" translate="yes" xml:space="preserve">
-          <source>Quick start</source>
+          <source>Quick Start</source>
           <target state="translated">快速启动</target>
         </trans-unit>
         <trans-unit id="WebLinkTitle.Text" translate="yes" xml:space="preserve">
           <source>Websites</source>
           <target state="translated">网站</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Grouping" translate="yes" xml:space="preserve">
+          <source>Grouping</source>
+          <target state="translated">分组</target>
+        </trans-unit>
+        <trans-unit id="FileControlHomeButton" translate="yes" xml:space="preserve">
+          <source>Back to Home</source>
+          <target state="translated">回到主页</target>
+        </trans-unit>
+        <trans-unit id="MainPage_PageDictionary_Home_Label" translate="yes" xml:space="preserve">
+          <source>Home Page</source>
+          <target state="translated">主页</target>
+        </trans-unit>
+        <trans-unit id="RootStorageFolderDisplayName" translate="yes" xml:space="preserve">
+          <source>This PC</source>
+          <target state="translated">这台电脑</target>
         </trans-unit>
       </group>
     </body>

@@ -1286,9 +1286,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="MainPage_PageDictionary_SecureArea_Label" xml:space="preserve">
     <value>Sicherheitsbereich</value>
   </data>
-  <data name="MainPage_PageDictionary_ThisPC_Label" xml:space="preserve">
-    <value>Dieser PC</value>
-  </data>
   <data name="Operate_Text_BluetoothShare" xml:space="preserve">
     <value>Bluetooth</value>
   </data>
@@ -3019,5 +3016,17 @@ Inkorrekte Namen sind
   </data>
   <data name="WebLinkTitle.Text" xml:space="preserve">
     <value>Webseiten</value>
+  </data>
+  <data name="Operate_Text_Grouping" xml:space="preserve">
+    <value>Gruppierung</value>
+  </data>
+  <data name="FileControlHomeButton" xml:space="preserve">
+    <value>Zurück nach Hause</value>
+  </data>
+  <data name="MainPage_PageDictionary_Home_Label" xml:space="preserve">
+    <value>Startseite</value>
+  </data>
+  <data name="RootStorageFolderDisplayName" xml:space="preserve">
+    <value>Dieser PC</value>
   </data>
 </root>

@@ -27,7 +27,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return Globalization.GetString("MainPage_PageDictionary_ThisPC_Label");
+                return Globalization.GetString("RootStorageFolderDisplayName");
             }
         }
 
@@ -35,7 +35,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return Globalization.GetString("MainPage_PageDictionary_ThisPC_Label");
+                return Name;
             }
         }
 

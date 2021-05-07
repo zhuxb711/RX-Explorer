@@ -28,23 +28,23 @@ using TabViewItem = Microsoft.UI.Xaml.Controls.TabViewItem;
 
 namespace RX_Explorer
 {
-    public sealed partial class ThisPC : Page
+    public sealed partial class Home : Page
     {
         private WeakReference<TabViewItem> WeakToTabItem;
 
         public event EventHandler<string> EnterActionRequested;
 
-        public ThisPC()
+        public Home()
         {
             InitializeComponent();
 
             LibraryExpander.IsExpanded = SettingControl.LibraryExpanderIsExpand;
             DeviceExpander.IsExpanded = SettingControl.DeviceExpanderIsExpand;
 
-            Loaded += ThisPC_Loaded;
+            Loaded += Home_Loaded;
         }
 
-        private void ThisPC_Loaded(object sender, RoutedEventArgs e)
+        private void Home_Loaded(object sender, RoutedEventArgs e)
         {
             LibraryExpander.IsExpanded = SettingControl.LibraryExpanderIsExpand;
             DeviceExpander.IsExpanded = SettingControl.DeviceExpanderIsExpand;
@@ -58,7 +58,7 @@ namespace RX_Explorer
 
                 if (WeakToTabItem.TryGetTarget(out TabViewItem Tab))
                 {
-                    Tab.Header = Globalization.GetString("MainPage_PageDictionary_ThisPC_Label");
+                    Tab.Header = Globalization.GetString("MainPage_PageDictionary_Home_Label");
                 }
             }
         }
@@ -516,7 +516,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabCollection.Where((Tab) => (Tab.Content as Frame).CurrentSourcePageType != typeof(ThisPC) && Tab.Tag is FileControl Control && Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder?.Path).Equals(Item.Path, StringComparison.OrdinalIgnoreCase)).ToArray())
+                    foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabCollection.Where((Tab) => (Tab.Content as Frame).CurrentSourcePageType != typeof(Home) && Tab.Tag is FileControl Control && Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder?.Path).Equals(Item.Path, StringComparison.OrdinalIgnoreCase)).ToArray())
                     {
                         await TabViewContainer.ThisPage.CleanUpAndRemoveTabItem(Tab);
                     }

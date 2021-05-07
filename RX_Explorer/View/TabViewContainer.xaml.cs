@@ -30,7 +30,7 @@ namespace RX_Explorer
     {
         public static Frame CurrentNavigationControl { get; private set; }
 
-        public readonly ObservableCollection<TabViewItem> TabCollection = new ObservableCollection<TabViewItem>();
+        public ObservableCollection<TabViewItem> TabCollection { get; private set; } = new ObservableCollection<TabViewItem>();
 
         public static TabViewContainer ThisPage { get; private set; }
 
@@ -39,6 +39,7 @@ namespace RX_Explorer
         public TabViewContainer()
         {
             InitializeComponent();
+
             ThisPage = this;
             Loaded += TabViewContainer_Loaded;
             Application.Current.Suspending += Current_Suspending;
@@ -137,7 +138,7 @@ namespace RX_Explorer
                         }
                 }
 
-                if (CurrentNavigationControl?.Content is ThisPC PC)
+                if (CurrentNavigationControl?.Content is Home PC)
                 {
                     switch (args.VirtualKey)
                     {
@@ -269,6 +270,8 @@ namespace RX_Explorer
                 {
                     TabCollection.Add(await CreateNewTabCoreAsync(PathArray));
                 }
+
+                TabViewControl.SelectedItem = TabCollection.LastOrDefault();
             }
             catch (Exception ex)
             {
@@ -282,6 +285,7 @@ namespace RX_Explorer
             try
             {
                 TabCollection.Add(await CreateNewTabCoreAsync(PathArray));
+                TabViewControl.SelectedItem = TabCollection.LastOrDefault();
             }
             catch (Exception ex)
             {
@@ -297,6 +301,7 @@ namespace RX_Explorer
             try
             {
                 TabCollection.Insert(Index, await CreateNewTabCoreAsync(PathArray));
+                TabViewControl.SelectedIndex = Index;
             }
             catch (Exception ex)
             {
@@ -311,11 +316,24 @@ namespace RX_Explorer
             {
                 List<string[]> PathList = new List<string[]>();
 
-                foreach (FileControl Control in TabCollection.Select((Tab) => Tab.Tag as FileControl))
+                foreach (TabViewItem Item in TabCollection)
                 {
-                    if (Control != null)
+                    if (Item.Tag is FileControl Control)
                     {
-                        PathList.Add(Control.BladeViewer.Items.Cast<BladeItem>().Select((Blade) => (Blade.Content as FilePresenter)?.CurrentFolder?.Path).ToArray());
+                        if (Control.BladeViewer.Items.Count == 0)
+                        {
+                            if (Item.Content is Frame frame && frame.Tag is string[] InitPathArray)
+                            {
+                                PathList.Add(InitPathArray);
+                            }
+                        }
+                        else
+                        {
+                            PathList.Add(Control.BladeViewer.Items.Cast<BladeItem>()
+                                                                  .Select((Blade) => (Blade.Content as FilePresenter)?.CurrentFolder?.Path)
+                                                                  .Select((Path) => Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase) ? string.Empty : Path)
+                                                                  .ToArray());
+                        }
                     }
                     else
                     {
@@ -414,6 +432,8 @@ namespace RX_Explorer
                 Item.Header = Path.GetFileName(ValidPathArray.Last());
             }
 
+            frame.Tag = ValidPathArray.ToArray();
+
             if (AnimationController.Current.IsEnableAnimation)
             {
                 frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, string[]>(Item, ValidPathArray.ToArray()), new DrillInNavigationTransitionInfo());
@@ -499,10 +519,13 @@ namespace RX_Explorer
 
             if (TabViewControl.SelectedItem is TabViewItem Item)
             {
-                CurrentNavigationControl = Item.Content as Frame;
-                CurrentNavigationControl.Navigated += Nav_Navigated;
+                if (Item.Content is Frame ContentFrame)
+                {
+                    CurrentNavigationControl = ContentFrame;
+                    CurrentNavigationControl.Navigated += Nav_Navigated;
+                }
 
-                if (CurrentNavigationControl.Content is ThisPC)
+                if (CurrentNavigationControl.Content is Home)
                 {
                     TaskBarController.SetText(null);
                 }
@@ -536,9 +559,9 @@ namespace RX_Explorer
 
             if (args.Tab.Content is Frame frame)
             {
-                if (frame.Content is ThisPC)
+                if (frame.Content is Home)
                 {
-                    ItemElement.InnerText = "ThisPC||";
+                    ItemElement.InnerText = "Home||";
                 }
                 else
                 {
@@ -570,7 +593,7 @@ namespace RX_Explorer
             {
                 if (args.Tab.Content is Frame frame)
                 {
-                    if (frame.Content is ThisPC)
+                    if (frame.Content is Home)
                     {
                         await CleanUpAndRemoveTabItem(args.Tab);
                         await Launcher.LaunchUriAsync(new Uri($"rx-explorer:"));
@@ -671,7 +694,7 @@ namespace RX_Explorer
 
                             switch (Split[0])
                             {
-                                case "ThisPC":
+                                case "Home":
                                     {
                                         await CreateNewTabAsync(InsertIndex);
                                         break;

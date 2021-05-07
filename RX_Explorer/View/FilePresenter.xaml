@@ -786,7 +786,7 @@
                         </MenuFlyout>
                     </AppBarButton.Flyout>
                 </AppBarButton>
-                <AppBarButton Label="分组"
+                <AppBarButton Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Grouping')}"
                               MinWidth="250">
                     <AppBarButton.Icon>
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -1793,7 +1793,7 @@
                             Background="{StaticResource ElementAcrylicBrush}" />
             </StackPanel>
         </Grid>
-        <local:ThisPC HorizontalAlignment="Stretch"
+        <local:Home HorizontalAlignment="Stretch"
                       VerticalAlignment="Stretch"
                       x:Name="RootFolderControl"
                       EnterActionRequested="RootFolderControl_EnterActionRequested"/>

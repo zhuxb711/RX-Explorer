@@ -1240,9 +1240,6 @@
   <data name="MainPage_PageDictionary_SecureArea_Label" xml:space="preserve">
     <value>安全域</value>
   </data>
-  <data name="MainPage_PageDictionary_ThisPC_Label" xml:space="preserve">
-    <value>这台电脑</value>
-  </data>
   <data name="Operate_Text_BluetoothShare" xml:space="preserve">
     <value>蓝牙</value>
   </data>
@@ -3019,5 +3016,17 @@
   </data>
   <data name="WebLinkTitle.Text" xml:space="preserve">
     <value>网站</value>
+  </data>
+  <data name="Operate_Text_Grouping" xml:space="preserve">
+    <value>分组</value>
+  </data>
+  <data name="FileControlHomeButton" xml:space="preserve">
+    <value>回到主页</value>
+  </data>
+  <data name="MainPage_PageDictionary_Home_Label" xml:space="preserve">
+    <value>主页</value>
+  </data>
+  <data name="RootStorageFolderDisplayName" xml:space="preserve">
+    <value>这台电脑</value>
   </data>
 </root>

@@ -1394,9 +1394,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="MainPage_PageDictionary_SecureArea_Label" xml:space="preserve">
     <value>Security Area</value>
   </data>
-  <data name="MainPage_PageDictionary_ThisPC_Label" xml:space="preserve">
-    <value>This PC</value>
-  </data>
   <data name="Operate_Text_BluetoothShare" xml:space="preserve">
     <value>Bluetooth</value>
   </data>
@@ -3123,6 +3120,18 @@ Invalid names include
     <value>Download Everything</value>
   </data>
   <data name="MainPage_QuickStart_Label" xml:space="preserve">
-    <value>Quick start</value>
+    <value>Quick Start</value>
+  </data>
+  <data name="Operate_Text_Grouping" xml:space="preserve">
+    <value>Grouping</value>
+  </data>
+  <data name="FileControlHomeButton" xml:space="preserve">
+    <value>Back to Home</value>
+  </data>
+  <data name="MainPage_PageDictionary_Home_Label" xml:space="preserve">
+    <value>Home Page</value>
+  </data>
+  <data name="RootStorageFolderDisplayName" xml:space="preserve">
+    <value>This PC</value>
   </data>
 </root>

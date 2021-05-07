@@ -1240,9 +1240,6 @@
   <data name="MainPage_PageDictionary_SecureArea_Label" xml:space="preserve">
     <value>Espace Sécurisé</value>
   </data>
-  <data name="MainPage_PageDictionary_ThisPC_Label" xml:space="preserve">
-    <value>Ce PC</value>
-  </data>
   <data name="Operate_Text_BluetoothShare" xml:space="preserve">
     <value>Bluetooth</value>
   </data>
@@ -3015,9 +3012,21 @@ Les noms non valides incluent
     <value>Téléchargez "Everything"</value>
   </data>
   <data name="MainPage_QuickStart_Label" xml:space="preserve">
-    <value>Démarrage rapide</value>
+    <value>Démarrage Rapide</value>
   </data>
   <data name="WebLinkTitle.Text" xml:space="preserve">
     <value>Sites Internet</value>
+  </data>
+  <data name="Operate_Text_Grouping" xml:space="preserve">
+    <value>Regroupement</value>
+  </data>
+  <data name="FileControlHomeButton" xml:space="preserve">
+    <value>Retour à l'accueil</value>
+  </data>
+  <data name="MainPage_PageDictionary_Home_Label" xml:space="preserve">
+    <value>Page d'accueil</value>
+  </data>
+  <data name="RootStorageFolderDisplayName" xml:space="preserve">
+    <value>Ce PC</value>
   </data>
 </root>
