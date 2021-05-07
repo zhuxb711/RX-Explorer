@@ -55,7 +55,6 @@
                 <TextBlock Name="ProgressInfo"
                            FontSize="16"
                            Text="{x:Bind Cls:Globalization.GetString('Progress_Tip_Loading')}"
-                           x:Uid="TextViewerLoading"
                            VerticalAlignment="Center"
                            TextAlignment="Center" />
                 <muxc:ProgressBar IsIndeterminate="True"

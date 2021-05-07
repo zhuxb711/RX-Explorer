@@ -213,14 +213,6 @@
                                x:Uid="SettingBasicText" />
 
                     <ToggleSwitch Margin="0,20,0,0"
-                                  Header="侧边栏"
-                                  OnContent="启用"
-                                  OffContent="隐藏"
-                                  x:Name="OpenLeftArea"
-                                  x:Uid="SettingOpenLeftArea"
-                                  Toggled="OpenLeftArea_Toggled" />
-
-                    <ToggleSwitch Margin="0,20,0,0"
                                   Header="文件夹目录树"
                                   OnContent="启用"
                                   OffContent="隐藏"

@@ -88,9 +88,9 @@ namespace RX_Explorer
             AppInstanceIdContainer.RegisterId(AppInstanceIdContainer.CurrentId);
         }
 
-        protected override void OnWindowCreated(WindowCreatedEventArgs args)
+        protected async override void OnWindowCreated(WindowCreatedEventArgs args)
         {
-            MSStoreHelper.Current.PreLoadAppLicense();
+            await MSStoreHelper.Current.InitializeAsync();
         }
 
         private void App_Suspending(object sender, SuspendingEventArgs e)

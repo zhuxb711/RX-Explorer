@@ -302,10 +302,6 @@
           <source>Empty</source>
           <target state="translated">无内容</target>
         </trans-unit>
-        <trans-unit id="HotWebTitle.Text" translate="yes" xml:space="preserve">
-          <source>Popular Websites</source>
-          <target state="translated">热门网站</target>
-        </trans-unit>
         <trans-unit id="LibraryCancelButton.Label" translate="yes" xml:space="preserve">
           <source>Unpin</source>
           <target state="translated">取消固定</target>
@@ -511,8 +507,8 @@
           <target state="translated">协议参考</target>
         </trans-unit>
         <trans-unit id="QuickStartTitle.Text" translate="yes" xml:space="preserve">
-          <source>Quick Start</source>
-          <target state="translated">快速启动</target>
+          <source>Application</source>
+          <target state="translated">应用</target>
         </trans-unit>
         <trans-unit id="RateTip.ActionButtonContent" translate="yes" xml:space="preserve">
           <source>Rate now</source>
@@ -831,18 +827,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
         <trans-unit id="SettingLike.Text" translate="yes" xml:space="preserve">
           <source>Rate the app</source>
           <target state="translated">给App点赞</target>
-        </trans-unit>
-        <trans-unit id="SettingOpenLeftArea.Header" translate="yes" xml:space="preserve">
-          <source>Sidebar</source>
-          <target state="translated">侧边栏</target>
-        </trans-unit>
-        <trans-unit id="SettingOpenLeftArea.OffContent" translate="yes" xml:space="preserve">
-          <source>Hide</source>
-          <target state="translated">隐藏</target>
-        </trans-unit>
-        <trans-unit id="SettingOpenLeftArea.OnContent" translate="yes" xml:space="preserve">
-          <source>Show</source>
-          <target state="translated">启用</target>
         </trans-unit>
         <trans-unit id="SettingOther.Text" translate="yes" xml:space="preserve">
           <source>Other</source>
@@ -1653,10 +1637,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Security Area</source>
           <target state="translated">安全域</target>
         </trans-unit>
-        <trans-unit id="MainPage_PageDictionary_ThisPC_Label" translate="yes" xml:space="preserve">
-          <source>This PC</source>
-          <target state="translated">这台电脑</target>
-        </trans-unit>
         <trans-unit id="Operate_Text_BluetoothShare" translate="yes" xml:space="preserve">
           <source>Bluetooth</source>
           <target state="translated">蓝牙</target>
@@ -2393,18 +2373,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
         <trans-unit id="FeedBackTranslateButton.Label" translate="yes" xml:space="preserve">
           <source>Translate</source>
           <target state="translated">翻译</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_FolderRepeat_CloseButton" translate="yes" xml:space="preserve">
-          <source>Save copy</source>
-          <target state="translated">保存副本</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_FolderRepeat_Content" translate="yes" xml:space="preserve">
-          <source>A folder with the same name already exists in the target folder:</source>
-          <target state="translated">目标文件夹已存在相同名称的文件夹:</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_FolderRepeat_PrimaryButton" translate="yes" xml:space="preserve">
-          <source>Merge folder</source>
-          <target state="translated">合并文件夹</target>
         </trans-unit>
         <trans-unit id="QueueDialog_RenameExist_Content" translate="yes" xml:space="preserve">
           <source>A file with the same name already exists, whether to rename it automatically?</source>
@@ -4027,6 +3995,30 @@ Invalid names include
         <trans-unit id="EverythingQuestionDownloadLink" translate="yes" xml:space="preserve">
           <source>Download Everything</source>
           <target state="translated">下载"Everything"</target>
+        </trans-unit>
+        <trans-unit id="MainPage_QuickStart_Label" translate="yes" xml:space="preserve">
+          <source>Quick Start</source>
+          <target state="translated">快速启动</target>
+        </trans-unit>
+        <trans-unit id="WebLinkTitle.Text" translate="yes" xml:space="preserve">
+          <source>Websites</source>
+          <target state="translated">网站</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Grouping" translate="yes" xml:space="preserve">
+          <source>Grouping</source>
+          <target state="translated">分组</target>
+        </trans-unit>
+        <trans-unit id="FileControlHomeButton" translate="yes" xml:space="preserve">
+          <source>Back to Home</source>
+          <target state="translated">回到主页</target>
+        </trans-unit>
+        <trans-unit id="MainPage_PageDictionary_Home_Label" translate="yes" xml:space="preserve">
+          <source>Home Page</source>
+          <target state="translated">主页</target>
+        </trans-unit>
+        <trans-unit id="RootStorageFolderDisplayName" translate="yes" xml:space="preserve">
+          <source>This PC</source>
+          <target state="translated">这台电脑</target>
         </trans-unit>
       </group>
     </body>

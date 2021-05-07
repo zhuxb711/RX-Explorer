@@ -140,6 +140,7 @@
                 <ColumnDefinition Width="35" />
                 <ColumnDefinition Width="35" />
                 <ColumnDefinition Width="35" />
+                <ColumnDefinition Width="35" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="80" />
                 <ColumnDefinition Width="150" />
@@ -196,11 +197,26 @@
                     <SymbolIcon Symbol="Up" />
                 </Viewbox>
             </Button>
+            <Button HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    x:Uid="FileControlHomeButton"
+                    Grid.Column="3"
+                    x:Name="GoHome"
+                    CornerRadius="0"
+                    Click="GoHome_Click"
+                    Style="{ThemeResource ButtonRevealStyle}"
+                    ToolTipService.ToolTip="回到主页"
+                    AllowFocusWhenDisabled="True"
+                    Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}">
+                <Viewbox>
+                    <SymbolIcon Symbol="Home" />
+                </Viewbox>
+            </Button>
             <AutoSuggestBox Style="{ThemeResource CustomAutoSuggestBoxStyle}"
                             ItemsSource="{x:Bind AddressSuggestionList}"
-                            Grid.Column="3"
+                            Grid.Column="4"
                             Grid.ColumnSpan="2"
-                            Margin="5,0,0,0"
+                            Margin="3,0,0,0"
                             VerticalAlignment="Stretch"
                             Name="AddressBox"
                             UpdateTextOnSelect="False"
@@ -249,8 +265,8 @@
                       ScrollViewer.VerticalScrollBarVisibility="Hidden"
                       ScrollViewer.VerticalScrollMode="Disabled"
                       HorizontalAlignment="Left"
-                      Grid.Column="3"
-                      Margin="5,0,0,0"
+                      Grid.Column="4"
+                      Margin="3,0,0,0"
                       Padding="5,0,0,0"
                       SelectionMode="None"
                       x:Name="AddressButtonContainer"
@@ -319,10 +335,11 @@
                     </Style>
                 </ListView.ItemContainerStyle>
             </ListView>
-            <Button Grid.Column="7"
+            <Button Grid.Column="8"
                     HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Center"
                     CornerRadius="0"
+                    Margin="3,0"
                     Padding="2,0,0,0"
                     BorderBrush="{ThemeResource TextControlBorderBrush}"
                     Style="{ThemeResource ButtonRevealStyle}"
@@ -330,6 +347,7 @@
                     Click="VerticalSplitViewButton_Click"
                     x:Name="VerticalSplitViewButton"
                     x:Uid="VerticalSplitViewButton"
+                    x:FieldModifier="public"
                     ToolTipService.ToolTip="创建新的垂直拆分视图">
                 <Viewbox>
                     <FontIcon FontFamily="Segoe MDL2 Assets"
@@ -337,11 +355,13 @@
                 </Viewbox>
             </Button>
 
-            <ComboBox Grid.Column="5"
-                      Margin="5,0,5,0"
+            <ComboBox Grid.Column="6"
+                      Margin="3,0"
                       HorizontalAlignment="Stretch"
                       CornerRadius="0"
+                      x:FieldModifier="public"
                       x:Name="ViewModeComboBox"
+                      IsEnabled="False"
                       ItemsSource="{x:Bind Cls:ViewModeController.SelectionSource}"
                       VerticalAlignment="Stretch"/>
             
@@ -350,14 +370,13 @@
                             PlaceholderText="搜索..."
                             Name="GlobeSearch"
                             x:FieldModifier="public"
-                            Grid.Column="6"
+                            Grid.Column="7"
                             VerticalAlignment="Stretch"
                             GotFocus="GlobeSearch_GotFocus"
                             LostFocus="GlobeSearch_LostFocus"
                             QuerySubmitted="GlobeSearch_QuerySubmitted"
                             TextChanged="GlobeSearch_TextChanged"
-                            UpdateTextOnSelect="True"
-                            Margin="0,0,5,0">
+                            UpdateTextOnSelect="True">
                 <FlyoutBase.AttachedFlyout>
                     <Flyout x:Name="SearchEngineFlyout"
                             Placement="BottomEdgeAlignedRight"

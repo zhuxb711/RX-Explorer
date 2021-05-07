@@ -314,10 +314,6 @@
           <source>Empty</source>
           <target state="translated">Leer</target>
         </trans-unit>
-        <trans-unit id="HotWebTitle.Text" translate="yes" xml:space="preserve">
-          <source>Popular Websites</source>
-          <target state="translated">Beliebte Websiten</target>
-        </trans-unit>
         <trans-unit id="LibraryCancelButton.Label" translate="yes" xml:space="preserve">
           <source>Unpin</source>
           <target state="translated">Losheften</target>
@@ -531,8 +527,8 @@
           <target state="translated">Protokollreferenz</target>
         </trans-unit>
         <trans-unit id="QuickStartTitle.Text" translate="yes" xml:space="preserve">
-          <source>Quick Start</source>
-          <target state="translated">Schneller Start</target>
+          <source>Application</source>
+          <target state="translated">Anwendung</target>
         </trans-unit>
         <trans-unit id="RateTip.ActionButtonContent" translate="yes" xml:space="preserve">
           <source>Rate now</source>
@@ -851,18 +847,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
         <trans-unit id="SettingLike.Text" translate="yes" xml:space="preserve">
           <source>Rate the app</source>
           <target state="translated">Diese App bewerten</target>
-        </trans-unit>
-        <trans-unit id="SettingOpenLeftArea.Header" translate="yes" xml:space="preserve">
-          <source>Sidebar</source>
-          <target state="translated">Sitenleiste</target>
-        </trans-unit>
-        <trans-unit id="SettingOpenLeftArea.OffContent" translate="yes" xml:space="preserve">
-          <source>Hide</source>
-          <target state="translated">Verstecken</target>
-        </trans-unit>
-        <trans-unit id="SettingOpenLeftArea.OnContent" translate="yes" xml:space="preserve">
-          <source>Show</source>
-          <target state="translated">Zeigen</target>
         </trans-unit>
         <trans-unit id="SettingOther.Text" translate="yes" xml:space="preserve">
           <source>Other</source>
@@ -1714,10 +1698,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <source>Security Area</source>
           <target state="translated">Sicherheitsbereich</target>
         </trans-unit>
-        <trans-unit id="MainPage_PageDictionary_ThisPC_Label" translate="yes" xml:space="preserve">
-          <source>This PC</source>
-          <target state="translated">Dieser PC</target>
-        </trans-unit>
         <trans-unit id="Operate_Text_BluetoothShare" translate="yes" xml:space="preserve">
           <source>Bluetooth</source>
           <target state="translated">Bluetooth</target>
@@ -2466,18 +2446,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
         <trans-unit id="FeedBackTranslateButton.Label" translate="yes" xml:space="preserve">
           <source>Translate</source>
           <target state="translated">Übersetzen</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_FolderRepeat_CloseButton" translate="yes" xml:space="preserve">
-          <source>Save copy</source>
-          <target state="translated">Kopie Speichern</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_FolderRepeat_Content" translate="yes" xml:space="preserve">
-          <source>A folder with the same name already exists in the target folder:</source>
-          <target state="translated">Ein Ordner existiert mit dem selben Namen im Zielordner bereits:</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_FolderRepeat_PrimaryButton" translate="yes" xml:space="preserve">
-          <source>Merge folder</source>
-          <target state="translated">Ordner zusammenführen</target>
         </trans-unit>
         <trans-unit id="QueueDialog_RenameExist_Content" translate="yes" xml:space="preserve">
           <source>A file with the same name already exists, whether to rename it automatically?</source>
@@ -4025,6 +3993,30 @@ Inkorrekte Namen sind
         <trans-unit id="EverythingQuestionDownloadLink" translate="yes" xml:space="preserve">
           <source>Download Everything</source>
           <target state="translated">Laden Sie "Everything" herunter</target>
+        </trans-unit>
+        <trans-unit id="MainPage_QuickStart_Label" translate="yes" xml:space="preserve">
+          <source>Quick Start</source>
+          <target state="translated">Schnellstart</target>
+        </trans-unit>
+        <trans-unit id="WebLinkTitle.Text" translate="yes" xml:space="preserve">
+          <source>Websites</source>
+          <target state="translated">Webseiten</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Grouping" translate="yes" xml:space="preserve">
+          <source>Grouping</source>
+          <target state="translated">Gruppierung</target>
+        </trans-unit>
+        <trans-unit id="FileControlHomeButton" translate="yes" xml:space="preserve">
+          <source>Back to Home</source>
+          <target state="translated">Zurück nach Hause</target>
+        </trans-unit>
+        <trans-unit id="MainPage_PageDictionary_Home_Label" translate="yes" xml:space="preserve">
+          <source>Home Page</source>
+          <target state="translated">Startseite</target>
+        </trans-unit>
+        <trans-unit id="RootStorageFolderDisplayName" translate="yes" xml:space="preserve">
+          <source>This PC</source>
+          <target state="translated">Dieser PC</target>
         </trans-unit>
       </group>
     </body>

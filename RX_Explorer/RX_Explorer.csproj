@@ -193,6 +193,7 @@
     <Compile Include="Class\InstalledApplication.cs" />
     <Compile Include="Class\QueueTaskController.cs" />
     <Compile Include="Class\RecycleStorageFolder.cs" />
+    <Compile Include="Class\RootStorageFolder.cs" />
     <Compile Include="Class\UrlStorageFile.cs" />
     <Compile Include="Class\WslDriveData.cs" />
     <Compile Include="CustomControl\AppBarButtonWithImage.xaml.cs">
@@ -349,8 +350,8 @@
     <Compile Include="View\TabViewContainer.xaml.cs">
       <DependentUpon>TabViewContainer.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\ThisPC.xaml.cs">
-      <DependentUpon>ThisPC.xaml</DependentUpon>
+    <Compile Include="View\Home.xaml.cs">
+      <DependentUpon>Home.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\SearchPage.xaml.cs">
       <DependentUpon>SearchPage.xaml</DependentUpon>
@@ -672,7 +673,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\ThisPC.xaml">
+    <Page Include="View\Home.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

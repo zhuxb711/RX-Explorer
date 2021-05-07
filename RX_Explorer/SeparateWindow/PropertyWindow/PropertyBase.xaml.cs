@@ -168,7 +168,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 AttributeDic.Add(new KeyValuePair<ModifyAttributeAction, System.IO.FileAttributes>(StorageItem is IHiddenStorageItem ? ModifyAttributeAction.Remove : ModifyAttributeAction.Add, System.IO.FileAttributes.Hidden));
             }
 
-            Task ShowLoadingTask = Task.Delay(1500).ContinueWith((_) =>
+            Task ShowLoadingTask = Task.Delay(2000).ContinueWith((_) =>
             {
                 LoadingControl.IsLoading = true;
             }, TaskScheduler.FromCurrentSynchronizationContext());

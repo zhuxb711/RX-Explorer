@@ -22,7 +22,8 @@ namespace RX_Explorer.Class
         public static ObservableCollection<DriveDataBase> DriveList { get; } = new ObservableCollection<DriveDataBase>();
         public static ObservableCollection<LibraryFolder> LibraryFolderList { get; } = new ObservableCollection<LibraryFolder>();
         public static ObservableCollection<QuickStartItem> QuickStartList { get; } = new ObservableCollection<QuickStartItem>();
-        public static ObservableCollection<QuickStartItem> HotWebList { get; } = new ObservableCollection<QuickStartItem>();
+        public static ObservableCollection<QuickStartItem> WebLinkList { get; } = new ObservableCollection<QuickStartItem>();
+
 
         private static readonly DeviceWatcher PortalDeviceWatcher = DeviceInformation.CreateWatcher(DeviceClass.PortableStorageDevice);
 
@@ -39,13 +40,13 @@ namespace RX_Explorer.Class
 
         public static bool IsLibaryLoaded { get; private set; }
 
-        public static bool IsQuickStartLoaded { get; private set; }
-
         public static bool IsDriveLoaded { get; private set; }
 
-        private static int LoadQuickStartLockResource;
+        public static bool IsQuickStartLoaded { get; private set; }
+
         private static int LoadDriveLockResource;
         private static int LoadLibraryLockResource;
+        private static int LoadQuickStartLockResource;
 
         public static async Task LoadQuickStartItemsAsync()
         {
@@ -65,10 +66,17 @@ namespace RX_Explorer.Class
                             }
                             else
                             {
-                                HotWebList.Add(Item.Value);
+                                WebLinkList.Add(Item.Value);
                             }
                         }
+
+                        QuickStartList.Add(new QuickStartItem());
+                        WebLinkList.Add(new QuickStartItem());
                     }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex);
                 }
                 finally
                 {
@@ -459,7 +467,7 @@ namespace RX_Explorer.Class
 
         private async static void HardDeviceList_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async() =>
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
             {
                 switch (e.Action)
                 {
@@ -469,7 +477,7 @@ namespace RX_Explorer.Class
                             {
                                 foreach (DriveDataBase Drive in e.NewItems)
                                 {
-                                    await DriveAdded.InvokeAsync(null, new DriveChangeDeferredEventArgs(Drive));
+                                    await DriveAdded.InvokeAsync(null, await DriveChangeDeferredEventArgs.CreateAsync(Drive));
                                 }
                             }
                             break;
@@ -480,7 +488,7 @@ namespace RX_Explorer.Class
                             {
                                 foreach (DriveDataBase Drive in e.OldItems)
                                 {
-                                    await DriveRemoved.InvokeAsync(null, new DriveChangeDeferredEventArgs(Drive));
+                                    await DriveRemoved.InvokeAsync(null, await DriveChangeDeferredEventArgs.CreateAsync(Drive));
                                 }
                             }
 
@@ -552,11 +560,17 @@ namespace RX_Explorer.Class
 
         public sealed class DriveChangeDeferredEventArgs : DeferredEventArgs
         {
-            public DriveDataBase Data { get; }
+            public FileSystemStorageFolder StorageItem { get; }
 
-            public DriveChangeDeferredEventArgs(DriveDataBase Data)
+            public static async Task<DriveChangeDeferredEventArgs> CreateAsync(DriveDataBase Data)
             {
-                this.Data = Data;
+                FileSystemStorageItemBase Item = await FileSystemStorageItemBase.CreateFromStorageItemAsync(Data.DriveFolder);
+                return new DriveChangeDeferredEventArgs(Item as FileSystemStorageFolder);
+            }
+
+            private DriveChangeDeferredEventArgs(FileSystemStorageFolder StorageItem)
+            {
+                this.StorageItem = StorageItem;
             }
         }
     }

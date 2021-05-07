@@ -234,9 +234,6 @@
   <data name="HasFile.Text" xml:space="preserve">
     <value>Vide</value>
   </data>
-  <data name="HotWebTitle.Text" xml:space="preserve">
-    <value>Sites populaires</value>
-  </data>
   <data name="LibraryCancelButton.Label" xml:space="preserve">
     <value>Détacher</value>
   </data>
@@ -391,7 +388,7 @@
     <value>Référence du protocole</value>
   </data>
   <data name="QuickStartTitle.Text" xml:space="preserve">
-    <value>Démarrage rapide</value>
+    <value>Application</value>
   </data>
   <data name="RateTip.ActionButtonContent" xml:space="preserve">
     <value>Évaluez maintenant</value>
@@ -630,15 +627,6 @@
   </data>
   <data name="SettingLike.Text" xml:space="preserve">
     <value>Évaluez l'application</value>
-  </data>
-  <data name="SettingOpenLeftArea.Header" xml:space="preserve">
-    <value>Barre latérale d'accueil</value>
-  </data>
-  <data name="SettingOpenLeftArea.OffContent" xml:space="preserve">
-    <value>Cacher</value>
-  </data>
-  <data name="SettingOpenLeftArea.OnContent" xml:space="preserve">
-    <value>Afficher</value>
   </data>
   <data name="SettingOther.Text" xml:space="preserve">
     <value>Autre</value>
@@ -1252,9 +1240,6 @@
   <data name="MainPage_PageDictionary_SecureArea_Label" xml:space="preserve">
     <value>Espace Sécurisé</value>
   </data>
-  <data name="MainPage_PageDictionary_ThisPC_Label" xml:space="preserve">
-    <value>Ce PC</value>
-  </data>
   <data name="Operate_Text_BluetoothShare" xml:space="preserve">
     <value>Bluetooth</value>
   </data>
@@ -1812,15 +1797,6 @@
   </data>
   <data name="FeedBackTranslateButton.Label" xml:space="preserve">
     <value>Traduire</value>
-  </data>
-  <data name="QueueDialog_FolderRepeat_CloseButton" xml:space="preserve">
-    <value>Enregistrer la copie</value>
-  </data>
-  <data name="QueueDialog_FolderRepeat_Content" xml:space="preserve">
-    <value>Un dossier du même nom existe déjà dans le dossier cible:</value>
-  </data>
-  <data name="QueueDialog_FolderRepeat_PrimaryButton" xml:space="preserve">
-    <value>Dossier de fusion</value>
   </data>
   <data name="QueueDialog_RenameExist_Content" xml:space="preserve">
     <value>Un fichier du même nom existe déjà, que ce soit pour le renommer automatiquement?</value>
@@ -3034,5 +3010,23 @@ Les noms non valides incluent
   </data>
   <data name="EverythingQuestionDownloadLink" xml:space="preserve">
     <value>Téléchargez "Everything"</value>
+  </data>
+  <data name="MainPage_QuickStart_Label" xml:space="preserve">
+    <value>Démarrage Rapide</value>
+  </data>
+  <data name="WebLinkTitle.Text" xml:space="preserve">
+    <value>Sites Internet</value>
+  </data>
+  <data name="Operate_Text_Grouping" xml:space="preserve">
+    <value>Regroupement</value>
+  </data>
+  <data name="FileControlHomeButton" xml:space="preserve">
+    <value>Retour à l'accueil</value>
+  </data>
+  <data name="MainPage_PageDictionary_Home_Label" xml:space="preserve">
+    <value>Page d'accueil</value>
+  </data>
+  <data name="RootStorageFolderDisplayName" xml:space="preserve">
+    <value>Ce PC</value>
   </data>
 </root>

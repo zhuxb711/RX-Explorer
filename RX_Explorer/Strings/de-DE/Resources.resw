@@ -243,9 +243,6 @@
   <data name="HasFile.Text" xml:space="preserve">
     <value>Leer</value>
   </data>
-  <data name="HotWebTitle.Text" xml:space="preserve">
-    <value>Beliebte Websiten</value>
-  </data>
   <data name="LibraryCancelButton.Label" xml:space="preserve">
     <value>Losheften</value>
   </data>
@@ -406,7 +403,7 @@
     <value>Protokollreferenz</value>
   </data>
   <data name="QuickStartTitle.Text" xml:space="preserve">
-    <value>Schneller Start</value>
+    <value>Anwendung</value>
   </data>
   <data name="RateTip.ActionButtonContent" xml:space="preserve">
     <value>Jetzt bewerten</value>
@@ -645,15 +642,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="SettingLike.Text" xml:space="preserve">
     <value>Diese App bewerten</value>
-  </data>
-  <data name="SettingOpenLeftArea.Header" xml:space="preserve">
-    <value>Sitenleiste</value>
-  </data>
-  <data name="SettingOpenLeftArea.OffContent" xml:space="preserve">
-    <value>Verstecken</value>
-  </data>
-  <data name="SettingOpenLeftArea.OnContent" xml:space="preserve">
-    <value>Zeigen</value>
   </data>
   <data name="SettingOther.Text" xml:space="preserve">
     <value>Andere</value>
@@ -1298,9 +1286,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="MainPage_PageDictionary_SecureArea_Label" xml:space="preserve">
     <value>Sicherheitsbereich</value>
   </data>
-  <data name="MainPage_PageDictionary_ThisPC_Label" xml:space="preserve">
-    <value>Dieser PC</value>
-  </data>
   <data name="Operate_Text_BluetoothShare" xml:space="preserve">
     <value>Bluetooth</value>
   </data>
@@ -1867,15 +1852,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="FeedBackTranslateButton.Label" xml:space="preserve">
     <value>Übersetzen</value>
-  </data>
-  <data name="QueueDialog_FolderRepeat_CloseButton" xml:space="preserve">
-    <value>Kopie Speichern</value>
-  </data>
-  <data name="QueueDialog_FolderRepeat_Content" xml:space="preserve">
-    <value>Ein Ordner existiert mit dem selben Namen im Zielordner bereits:</value>
-  </data>
-  <data name="QueueDialog_FolderRepeat_PrimaryButton" xml:space="preserve">
-    <value>Ordner zusammenführen</value>
   </data>
   <data name="QueueDialog_RenameExist_Content" xml:space="preserve">
     <value>Eine Datei mit dem selben Namen existiert bereits. Soll sie automatisch umbenannt werden?</value>
@@ -3034,5 +3010,23 @@ Inkorrekte Namen sind
   </data>
   <data name="EverythingQuestionDownloadLink" xml:space="preserve">
     <value>Laden Sie "Everything" herunter</value>
+  </data>
+  <data name="MainPage_QuickStart_Label" xml:space="preserve">
+    <value>Schnellstart</value>
+  </data>
+  <data name="WebLinkTitle.Text" xml:space="preserve">
+    <value>Webseiten</value>
+  </data>
+  <data name="Operate_Text_Grouping" xml:space="preserve">
+    <value>Gruppierung</value>
+  </data>
+  <data name="FileControlHomeButton" xml:space="preserve">
+    <value>Zurück nach Hause</value>
+  </data>
+  <data name="MainPage_PageDictionary_Home_Label" xml:space="preserve">
+    <value>Startseite</value>
+  </data>
+  <data name="RootStorageFolderDisplayName" xml:space="preserve">
+    <value>Dieser PC</value>
   </data>
 </root>

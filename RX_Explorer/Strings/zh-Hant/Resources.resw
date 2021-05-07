@@ -243,9 +243,6 @@
   <data name="HasFile.Text" xml:space="preserve">
     <value>空白</value>
   </data>
-  <data name="HotWebTitle.Text" xml:space="preserve">
-    <value>熱門網站</value>
-  </data>
   <data name="LibraryCancelButton.Label" xml:space="preserve">
     <value>取消釘選</value>
   </data>
@@ -400,7 +397,7 @@
     <value>協議參考</value>
   </data>
   <data name="QuickStartTitle.Text" xml:space="preserve">
-    <value>快速啟動</value>
+    <value>應用</value>
   </data>
   <data name="RateTip.ActionButtonContent" xml:space="preserve">
     <value>立即評分</value>
@@ -639,15 +636,6 @@
   </data>
   <data name="SettingLike.Text" xml:space="preserve">
     <value>為應用程式評分</value>
-  </data>
-  <data name="SettingOpenLeftArea.Header" xml:space="preserve">
-    <value>側邊欄</value>
-  </data>
-  <data name="SettingOpenLeftArea.OffContent" xml:space="preserve">
-    <value>隱藏視窗</value>
-  </data>
-  <data name="SettingOpenLeftArea.OnContent" xml:space="preserve">
-    <value>顯示</value>
   </data>
   <data name="SettingOther.Text" xml:space="preserve">
     <value>其他</value>
@@ -1264,9 +1252,6 @@
   <data name="MainPage_PageDictionary_SecureArea_Label" xml:space="preserve">
     <value>加密庫</value>
   </data>
-  <data name="MainPage_PageDictionary_ThisPC_Label" xml:space="preserve">
-    <value>我的電腦</value>
-  </data>
   <data name="Operate_Text_BluetoothShare" xml:space="preserve">
     <value>藍牙</value>
   </data>
@@ -1815,15 +1800,6 @@
   </data>
   <data name="FeedBackTranslateButton.Label" xml:space="preserve">
     <value>翻譯</value>
-  </data>
-  <data name="QueueDialog_FolderRepeat_CloseButton" xml:space="preserve">
-    <value>儲存複本</value>
-  </data>
-  <data name="QueueDialog_FolderRepeat_Content" xml:space="preserve">
-    <value>此目的地已包含一個具有相同名稱的資料夾：</value>
-  </data>
-  <data name="QueueDialog_FolderRepeat_PrimaryButton" xml:space="preserve">
-    <value>合併資料夾</value>
   </data>
   <data name="QueueDialog_RenameExist_Content" xml:space="preserve">
     <value>此位置已經有同名的檔案,是否自動重新命名?</value>
@@ -3034,5 +3010,23 @@
   </data>
   <data name="EverythingQuestionDownloadLink" xml:space="preserve">
     <value>下載"Everything"</value>
+  </data>
+  <data name="MainPage_QuickStart_Label" xml:space="preserve">
+    <value>快速啟動</value>
+  </data>
+  <data name="WebLinkTitle.Text" xml:space="preserve">
+    <value>網站</value>
+  </data>
+  <data name="Operate_Text_Grouping" xml:space="preserve">
+    <value>分組</value>
+  </data>
+  <data name="FileControlHomeButton" xml:space="preserve">
+    <value>回到首頁</value>
+  </data>
+  <data name="MainPage_PageDictionary_Home_Label" xml:space="preserve">
+    <value>主页</value>
+  </data>
+  <data name="RootStorageFolderDisplayName" xml:space="preserve">
+    <value>這台電腦</value>
   </data>
 </root>

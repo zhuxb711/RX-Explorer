@@ -257,6 +257,8 @@ namespace RX_Explorer.Class
         /// 网站区域的快速启动项
         /// </summary>
         WebSite = 2,
+
+        AddButton = 4
     }
 
     /// <summary>

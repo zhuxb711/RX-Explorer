@@ -75,9 +75,9 @@ namespace RX_Explorer.Class
         }
 
 
-        public static void EnqueueRemoteCopyOpeartion(string ToPath, EventHandler OnCompleted = null)
+        public static void EnqueueRemoteCopyOpeartion(string ToPath, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null)
         {
-            OperationListRemoteModel RemoteCopyModel = new OperationListRemoteModel(ToPath, OnCompleted);
+            OperationListRemoteModel RemoteCopyModel = new OperationListRemoteModel(ToPath, OnCompleted, OnErrorHappended, OnCancelled);
 
             ListItemSource.Insert(0, RemoteCopyModel);
             OpeartionQueue.Enqueue(RemoteCopyModel);
@@ -93,44 +93,44 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static void EnqueueCopyOpeartion(string FromPath, string ToPath, EventHandler OnCompleted = null)
+        public static void EnqueueCopyOpeartion(string FromPath, string ToPath, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null)
         {
-            EnqueueCopyOpeartion(new string[] { FromPath }, ToPath, OnCompleted);
+            EnqueueCopyOpeartion(new string[] { FromPath }, ToPath, OnCompleted, OnErrorHappended, OnCancelled);
         }
 
-        public static void EnqueueCopyOpeartion(IEnumerable<string> FromPath, string ToPath, EventHandler OnCompleted = null)
+        public static void EnqueueCopyOpeartion(IEnumerable<string> FromPath, string ToPath, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null)
         {
-            EnqueueModelCore(new OperationListCopyModel(FromPath.ToArray(), ToPath, OnCompleted));
+            EnqueueModelCore(new OperationListCopyModel(FromPath.ToArray(), ToPath, OnCompleted, OnErrorHappended, OnCancelled));
         }
 
-        public static void EnqueueMoveOpeartion(string FromPath, string ToPath, EventHandler OnCompleted = null)
+        public static void EnqueueMoveOpeartion(string FromPath, string ToPath, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null)
         {
-            EnqueueMoveOpeartion(new string[] { FromPath }, ToPath, OnCompleted);
+            EnqueueMoveOpeartion(new string[] { FromPath }, ToPath, OnCompleted, OnErrorHappended, OnCancelled);
         }
 
-        public static void EnqueueMoveOpeartion(IEnumerable<string> FromPath, string ToPath, EventHandler OnCompleted = null)
+        public static void EnqueueMoveOpeartion(IEnumerable<string> FromPath, string ToPath, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null)
         {
-            EnqueueModelCore(new OperationListMoveModel(FromPath.ToArray(), ToPath, OnCompleted));
+            EnqueueModelCore(new OperationListMoveModel(FromPath.ToArray(), ToPath, OnCompleted, OnErrorHappended, OnCancelled));
         }
 
-        public static void EnqueueDeleteOpeartion(string DeleteFrom, bool IsPermanentDelete, EventHandler OnCompleted = null)
+        public static void EnqueueDeleteOpeartion(string DeleteFrom, bool IsPermanentDelete, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null)
         {
-            EnqueueDeleteOpeartion(new string[] { DeleteFrom }, IsPermanentDelete, OnCompleted);
+            EnqueueDeleteOpeartion(new string[] { DeleteFrom }, IsPermanentDelete, OnCompleted, OnErrorHappended, OnCancelled);
         }
 
-        public static void EnqueueDeleteOpeartion(IEnumerable<string> DeleteFrom, bool IsPermanentDelete, EventHandler OnCompleted = null)
+        public static void EnqueueDeleteOpeartion(IEnumerable<string> DeleteFrom, bool IsPermanentDelete, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null)
         {
-            EnqueueModelCore(new OperationListDeleteModel(DeleteFrom.ToArray(), IsPermanentDelete, OnCompleted));
+            EnqueueModelCore(new OperationListDeleteModel(DeleteFrom.ToArray(), IsPermanentDelete, OnCompleted, OnErrorHappended, OnCancelled));
         }
 
-        public static void EnqueueCompressionOpeartion(CompressionType Type, CompressionAlgorithm TarType, CompressionLevel Level, string FromPath, string ToPath = null, EventHandler OnCompleted = null)
+        public static void EnqueueCompressionOpeartion(CompressionType Type, CompressionAlgorithm TarType, CompressionLevel Level, string FromPath, string ToPath = null, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null)
         {
-            EnqueueCompressionOpeartion(Type, TarType, Level, new string[] { FromPath }, ToPath, OnCompleted);
+            EnqueueCompressionOpeartion(Type, TarType, Level, new string[] { FromPath }, ToPath, OnCompleted, OnErrorHappended, OnCancelled);
         }
 
-        public static void EnqueueCompressionOpeartion(CompressionType Type, CompressionAlgorithm TarType, CompressionLevel Level, IEnumerable<string> FromPath, string ToPath = null, EventHandler OnCompleted = null)
+        public static void EnqueueCompressionOpeartion(CompressionType Type, CompressionAlgorithm TarType, CompressionLevel Level, IEnumerable<string> FromPath, string ToPath = null, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null)
         {
-            EnqueueModelCore(new OperationListCompressionModel(Type, TarType, Level, FromPath.ToArray(), ToPath, OnCompleted));
+            EnqueueModelCore(new OperationListCompressionModel(Type, TarType, Level, FromPath.ToArray(), ToPath, OnCompleted, OnErrorHappended, OnCancelled));
         }
 
         /// <summary>
@@ -141,24 +141,24 @@ namespace RX_Explorer.Class
         /// <param name="NewFolder">是否解压到独立文件夹</param>
         /// <param name="Encoding"></param>
         /// <param name="OnCompleted"></param>
-        public static void EnqueueDecompressionOpeartion(string FromPath, string ToPath, bool NewFolder, Encoding Encoding = null, EventHandler OnCompleted = null)
+        public static void EnqueueDecompressionOpeartion(string FromPath, string ToPath, bool NewFolder, Encoding Encoding = null, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null)
         {
-            EnqueueDecompressionOpeartion(new string[] { FromPath }, ToPath, NewFolder, Encoding, OnCompleted);
+            EnqueueDecompressionOpeartion(new string[] { FromPath }, ToPath, NewFolder, Encoding, OnCompleted, OnErrorHappended, OnCancelled);
         }
 
-        public static void EnqueueDecompressionOpeartion(IEnumerable<string> FromPath, string ToPath, bool ShouldCreateNewFolder, Encoding Encoding = null, EventHandler OnCompleted = null)
+        public static void EnqueueDecompressionOpeartion(IEnumerable<string> FromPath, string ToPath, bool ShouldCreateNewFolder, Encoding Encoding = null, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null)
         {
-            EnqueueModelCore(new OperationListDecompressionModel(FromPath.ToArray(), ToPath, ShouldCreateNewFolder, Encoding, OnCompleted));
+            EnqueueModelCore(new OperationListDecompressionModel(FromPath.ToArray(), ToPath, ShouldCreateNewFolder, Encoding, OnCompleted, OnErrorHappended, OnCancelled));
         }
 
-        public static void EnqueueUndoOpeartion(OperationKind UndoKind, string FromPath, string ToPath = null, EventHandler OnCompleted = null)
+        public static void EnqueueUndoOpeartion(OperationKind UndoKind, string FromPath, string ToPath = null, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null)
         {
-            EnqueueUndoOpeartion(UndoKind, new string[] { FromPath }, ToPath, OnCompleted);
+            EnqueueUndoOpeartion(UndoKind, new string[] { FromPath }, ToPath, OnCompleted, OnErrorHappended, OnCancelled);
         }
 
-        public static void EnqueueUndoOpeartion(OperationKind UndoKind, IEnumerable<string> FromPath, string ToPath = null, EventHandler OnCompleted = null)
+        public static void EnqueueUndoOpeartion(OperationKind UndoKind, IEnumerable<string> FromPath, string ToPath = null, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null)
         {
-            EnqueueModelCore(new OperationListUndoModel(UndoKind, FromPath.ToArray(), ToPath, OnCompleted));
+            EnqueueModelCore(new OperationListUndoModel(UndoKind, FromPath.ToArray(), ToPath, OnCompleted, OnErrorHappended, OnCancelled));
         }
 
         private static void EnqueueModelCore(OperationListBaseModel Model)

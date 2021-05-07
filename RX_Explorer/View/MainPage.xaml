@@ -11,7 +11,96 @@
       RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme,Mode=OneWay}">
 
     <Page.Resources>
+        <muxc:CommandBarFlyout x:Name="AppFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="Edit"
+                              Label="编辑"
+                              x:Uid="AppEdit"
+                              Name="AppEdit"
+                              Click="QuickStartItemEdit_Click" />
+                <AppBarButton Icon="Delete"
+                              Name="AppDelete"
+                              x:Uid="AppDelete"
+                              Label="删除"
+                              Click="QuickStartItemDelete_Click" />
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
+
+        <muxc:CommandBarFlyout x:Name="WebFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="Edit"
+                              Label="编辑"
+                              x:Uid="AppEdit"
+                              Name="WebEdit"
+                              Click="QuickStartItemEdit_Click" />
+                <AppBarButton Icon="Delete"
+                              Name="WebDelete"
+                              x:Uid="AppDelete"
+                              Label="删除"
+                              Click="QuickStartItemDelete_Click" />
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
+
+        <muxc:CommandBarFlyout x:Name="AppEmptyFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="Add"
+                              Label="添加"
+                              x:Uid="QuickStartAddButton"
+                              x:Name="AddQuickStartApp"
+                              Click="AddQuickStartItem_Click" />
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
+
+        <muxc:CommandBarFlyout x:Name="WebEmptyFlyout"
+                               Placement="RightEdgeAlignedTop">
+            <muxc:CommandBarFlyout.SecondaryCommands>
+                <AppBarButton Icon="Add"
+                              Label="添加"
+                              x:Uid="QuickStartAddButton"
+                              x:Name="AddQuickStartWeb"
+                              Click="AddQuickStartItem_Click" />
+            </muxc:CommandBarFlyout.SecondaryCommands>
+        </muxc:CommandBarFlyout>
+        
         <Cls:InverseBooleanConverter x:Key="InverseConverter" />
+
+        <Cls:QuickStartDataTemplateSelector x:Key="QuickStartDataTemplateSelector"
+                                            NormalButtonTemplate="{StaticResource NormalButtonTemplate}"
+                                            AddButtonTemplate="{StaticResource AddButtonTemplate}" />
+
+        <DataTemplate x:DataType="Cls:QuickStartItem"
+                      x:Key="NormalButtonTemplate">
+            <StackPanel Orientation="Vertical"
+                        Padding="5,10,5,5">
+                <Image HorizontalAlignment="Center"
+                       Height="40"
+                       Width="40"
+                       Source="{x:Bind Image,Mode=OneWay}"
+                       Stretch="Uniform" />
+                <TextBlock Width="75"
+                           FontSize="12"
+                           Margin="0,5,0,0"
+                           TextTrimming="CharacterEllipsis"
+                           HorizontalTextAlignment="Center"
+                           Text="{x:Bind DisplayName,Mode=OneWay}" />
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate x:DataType="Cls:QuickStartItem"
+                      x:Key="AddButtonTemplate">
+            <StackPanel Orientation="Vertical"
+                        Padding="5">
+                <Image HorizontalAlignment="Center"
+                       Height="50"
+                       Width="50"
+                       Source="{x:Bind Image,Mode=OneWay}"
+                       Stretch="Uniform" />
+            </StackPanel>
+        </DataTemplate>
+
         <muxc:TeachingTip x:Name="PinTip"
                           x:Uid="PinTip"
                           Grid.Row="1"
@@ -127,6 +216,98 @@
                            Text="此功能需要Win10 2004以上版本"/>
             </Grid>
         </muxc:TeachingTip>
+        <muxc:TeachingTip x:Name="QuickStartTip"
+                          PreferredPlacement="Bottom"
+                          IsLightDismissEnabled="True"
+                          Title="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}"
+                          Target="{x:Bind QuickStartNav}">
+            <StackPanel>
+                <TextBlock Text="应用"
+                           Margin="5"
+                           FontSize="16"
+                           x:Uid="QuickStartTitle" />
+                <Border Background="Gray"
+                        Height="2"
+                        Margin="5,0"
+                        HorizontalAlignment="Stretch" />
+                <GridView Name="QuickStartGridView"
+                          AllowFocusOnInteraction="False"
+                          SelectionMode="None"
+                          IsItemClickEnabled="True"
+                          IsDoubleTapEnabled="False"
+                          PreviewKeyDown="QuickStart_PreviewKeyDown"
+                          IsRightTapEnabled="True"
+                          ItemClick="QuickStart_ItemClick"
+                          RightTapped="QuickStart_RightTapped"
+                          Padding="5"
+                          CanReorderItems="True"
+                          CanDragItems="True"
+                          IsHoldingEnabled="True"
+                          AllowDrop="True"
+                          DragItemsStarting="QuickStart_DragItemsStarting"
+                          DragItemsCompleted="QuickStart_DragItemsCompleted"
+                          Holding="QuickStart_Holding"
+                          ItemTemplateSelector="{StaticResource QuickStartDataTemplateSelector}"
+                          ItemsSource="{x:Bind Cls:CommonAccessCollection.QuickStartList}"
+                          ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
+                    <GridView.ItemContainerStyle>
+                        <Style TargetType="GridViewItem">
+                            <Setter Property="Padding"
+                                    Value="0" />
+                        </Style>
+                    </GridView.ItemContainerStyle>
+                    <GridView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsWrapGrid MaximumRowsOrColumns="3"
+                                           Orientation="Horizontal"
+                                           HorizontalAlignment="Stretch" />
+                        </ItemsPanelTemplate>
+                    </GridView.ItemsPanel>
+                </GridView>
+                <TextBlock Text="网站"
+                           x:Uid="WebLinkTitle"
+                           Margin="5,15,5,5"
+                           FontSize="16" />
+                <Border Background="Gray"
+                        Height="2"
+                        Margin="5,0"
+                        HorizontalAlignment="Stretch" />
+                <GridView Name="WebGridView"
+                          SelectionMode="None"
+                          IsItemClickEnabled="True"
+                          IsDoubleTapEnabled="False"
+                          IsRightTapEnabled="True"
+                          IsHoldingEnabled="True"
+                          AllowFocusOnInteraction="False"
+                          Holding="QuickStart_Holding"
+                          ItemClick="QuickStart_ItemClick"
+                          RightTapped="QuickStart_RightTapped"
+                          CanDragItems="True"
+                          DragItemsStarting="QuickStart_DragItemsStarting"
+                          DragItemsCompleted="QuickStart_DragItemsCompleted"
+                          CanReorderItems="True"
+                          PreviewKeyDown="QuickStart_PreviewKeyDown"
+                          AllowDrop="True"
+                          Padding="5"
+                          ItemTemplateSelector="{StaticResource QuickStartDataTemplateSelector}"
+                          ItemsSource="{x:Bind Cls:CommonAccessCollection.WebLinkList}"
+                          ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.QuickStartTransitions,Mode=OneWay}">
+                    <GridView.ItemContainerStyle>
+                        <Style TargetType="GridViewItem">
+                            <Setter Property="Padding"
+                                    Value="0" />
+                        </Style>
+                    </GridView.ItemContainerStyle>
+                    <GridView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsWrapGrid MaximumRowsOrColumns="3"
+                                           Orientation="Horizontal"
+                                           HorizontalAlignment="Stretch" />
+                        </ItemsPanelTemplate>
+                    </GridView.ItemsPanel>
+                </GridView>
+            </StackPanel>
+        </muxc:TeachingTip>
     </Page.Resources>
 
     <Grid>
@@ -172,24 +353,28 @@
                              ItemInvoked="NavView_ItemInvoked"
                              SelectionFollowsFocus="Disabled">
             <muxc:NavigationView.MenuItems>
-                <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_ThisPC_Label')}"
-                                         x:Uid="ThisPC"
+                <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_Home_Label')}"
                                          IsSelected="True">
                     <muxc:NavigationViewItem.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets"
                                   Glyph="&#xE8CC;" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_RecycleBin_Label')}"
-                                         x:Uid="RecycleBin">
+                <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_RecycleBin_Label')}">
                     <muxc:NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xED10;" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_SecureArea_Label')}"
-                                         x:Uid="SecureArea">
+                <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_SecureArea_Label')}">
                     <muxc:NavigationViewItem.Icon>
                         <SymbolIcon Symbol="ProtectedDocument" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem x:Name="QuickStartNav"
+                                         Content="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}"
+                                         SelectsOnInvoked="False">
+                    <muxc:NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="AllApps" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
                 <muxc:NavigationViewItem x:Name="BluetoothAudio"
@@ -197,7 +382,7 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="蓝牙音频"
                                    x:Uid="BluetoothAudio" />
-                        <Viewbox Margin="10,4,0,0"
+                        <Viewbox Margin="10,3,0,0"
                                  Height="15"
                                  VerticalAlignment="Center">
                             <FontIcon Glyph="&#xE9CE;"

@@ -314,10 +314,6 @@
           <source>Empty</source>
           <target state="translated">Vaciar</target>
         </trans-unit>
-        <trans-unit id="HotWebTitle.Text" translate="yes" xml:space="preserve">
-          <source>Popular Websites</source>
-          <target state="translated">Webs populares</target>
-        </trans-unit>
         <trans-unit id="LibraryCancelButton.Label" translate="yes" xml:space="preserve">
           <source>Unpin</source>
           <target state="translated">Desanclar</target>
@@ -531,8 +527,8 @@
           <target state="translated">Referencia protocolaria</target>
         </trans-unit>
         <trans-unit id="QuickStartTitle.Text" translate="yes" xml:space="preserve">
-          <source>Quick Start</source>
-          <target state="translated">Inicio rápido</target>
+          <source>Application</source>
+          <target state="translated">Aplicación</target>
         </trans-unit>
         <trans-unit id="RateTip.ActionButtonContent" translate="yes" xml:space="preserve">
           <source>Rate now</source>
@@ -851,18 +847,6 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
         <trans-unit id="SettingLike.Text" translate="yes" xml:space="preserve">
           <source>Rate the app</source>
           <target state="translated">Valorar aplicación</target>
-        </trans-unit>
-        <trans-unit id="SettingOpenLeftArea.Header" translate="yes" xml:space="preserve">
-          <source>Sidebar</source>
-          <target state="translated">Barra lateral</target>
-        </trans-unit>
-        <trans-unit id="SettingOpenLeftArea.OffContent" translate="yes" xml:space="preserve">
-          <source>Hide</source>
-          <target state="translated">Ocultar</target>
-        </trans-unit>
-        <trans-unit id="SettingOpenLeftArea.OnContent" translate="yes" xml:space="preserve">
-          <source>Show</source>
-          <target state="translated">Mostrar</target>
         </trans-unit>
         <trans-unit id="SettingOther.Text" translate="yes" xml:space="preserve">
           <source>Other</source>
@@ -1714,10 +1698,6 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <source>Security Area</source>
           <target state="translated">Área de seguridad</target>
         </trans-unit>
-        <trans-unit id="MainPage_PageDictionary_ThisPC_Label" translate="yes" xml:space="preserve">
-          <source>This PC</source>
-          <target state="translated">Este PC</target>
-        </trans-unit>
         <trans-unit id="Operate_Text_BluetoothShare" translate="yes" xml:space="preserve">
           <source>Bluetooth</source>
           <target state="translated">Bluetooth</target>
@@ -2466,18 +2446,6 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
         <trans-unit id="FeedBackTranslateButton.Label" translate="yes" xml:space="preserve">
           <source>Translate</source>
           <target state="translated">Traducir</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_FolderRepeat_CloseButton" translate="yes" xml:space="preserve">
-          <source>Save copy</source>
-          <target state="translated">Guardar copia</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_FolderRepeat_Content" translate="yes" xml:space="preserve">
-          <source>A folder with the same name already exists in the target folder:</source>
-          <target state="translated">Ya existe una carpeta con el mismo nombre en la carpeta de destino:</target>
-        </trans-unit>
-        <trans-unit id="QueueDialog_FolderRepeat_PrimaryButton" translate="yes" xml:space="preserve">
-          <source>Merge folder</source>
-          <target state="translated">Fusionar carpeta</target>
         </trans-unit>
         <trans-unit id="QueueDialog_RenameExist_Content" translate="yes" xml:space="preserve">
           <source>A file with the same name already exists, whether to rename it automatically?</source>
@@ -4025,6 +3993,30 @@ Las denominaciones no válidas son:
         <trans-unit id="EverythingQuestionDownloadLink" translate="yes" xml:space="preserve">
           <source>Download Everything</source>
           <target state="translated">Descarga "Everything"</target>
+        </trans-unit>
+        <trans-unit id="MainPage_QuickStart_Label" translate="yes" xml:space="preserve">
+          <source>Quick Start</source>
+          <target state="translated">Inicio Rápido</target>
+        </trans-unit>
+        <trans-unit id="WebLinkTitle.Text" translate="yes" xml:space="preserve">
+          <source>Websites</source>
+          <target state="translated">Sitios web</target>
+        </trans-unit>
+        <trans-unit id="Operate_Text_Grouping" translate="yes" xml:space="preserve">
+          <source>Grouping</source>
+          <target state="translated">Agrupamiento</target>
+        </trans-unit>
+        <trans-unit id="FileControlHomeButton" translate="yes" xml:space="preserve">
+          <source>Back to Home</source>
+          <target state="translated">De vuelta a casa</target>
+        </trans-unit>
+        <trans-unit id="MainPage_PageDictionary_Home_Label" translate="yes" xml:space="preserve">
+          <source>Home Page</source>
+          <target state="translated">Pagina de inicio</target>
+        </trans-unit>
+        <trans-unit id="RootStorageFolderDisplayName" translate="yes" xml:space="preserve">
+          <source>This PC</source>
+          <target state="translated">Esta PC</target>
         </trans-unit>
       </group>
     </body>

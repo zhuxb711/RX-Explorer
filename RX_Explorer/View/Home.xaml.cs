@@ -28,33 +28,24 @@ using TabViewItem = Microsoft.UI.Xaml.Controls.TabViewItem;
 
 namespace RX_Explorer
 {
-    public sealed partial class ThisPC : Page
+    public sealed partial class Home : Page
     {
         private WeakReference<TabViewItem> WeakToTabItem;
 
-        private QuickStartItem CurrentSelectedItem;
+        public event EventHandler<string> EnterActionRequested;
 
-        public ThisPC()
+        public Home()
         {
             InitializeComponent();
 
             LibraryExpander.IsExpanded = SettingControl.LibraryExpanderIsExpand;
             DeviceExpander.IsExpanded = SettingControl.DeviceExpanderIsExpand;
 
-            Loaded += ThisPC_Loaded;
+            Loaded += Home_Loaded;
         }
 
-        private void ThisPC_Loaded(object sender, RoutedEventArgs e)
+        private void Home_Loaded(object sender, RoutedEventArgs e)
         {
-            if (SettingControl.IsQuickStartExpanded)
-            {
-                LeftSideCol.Width = new GridLength(2.5, GridUnitType.Star);
-            }
-            else
-            {
-                LeftSideCol.Width = new GridLength(0);
-            }
-
             LibraryExpander.IsExpanded = SettingControl.LibraryExpanderIsExpand;
             DeviceExpander.IsExpanded = SettingControl.DeviceExpanderIsExpand;
         }
@@ -67,7 +58,7 @@ namespace RX_Explorer
 
                 if (WeakToTabItem.TryGetTarget(out TabViewItem Tab))
                 {
-                    Tab.Header = Globalization.GetString("MainPage_PageDictionary_ThisPC_Label");
+                    Tab.Header = Globalization.GetString("MainPage_PageDictionary_Home_Label");
                 }
             }
         }
@@ -233,14 +224,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    if (AnimationController.Current.IsEnableAnimation)
-                    {
-                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string[]>(WeakToTabItem, new string[] { Folder.Path }), new DrillInNavigationTransitionInfo());
-                    }
-                    else
-                    {
-                        Frame.Navigate(typeof(FileControl), new Tuple<WeakReference<TabViewItem>, string[]>(WeakToTabItem, new string[] { Folder.Path }), new SuppressNavigationTransitionInfo());
-                    }
+                    EnterActionRequested?.Invoke(this, Folder.Path);
                 }
             }
             catch (Exception ex)
@@ -267,173 +251,6 @@ namespace RX_Explorer
             {
                 await OpenTargetFolder(Library.Folder).ConfigureAwait(false);
             }
-        }
-
-        private async void QuickStartGridView_ItemClick(object sender, ItemClickEventArgs e)
-        {
-            if (e.ClickedItem is QuickStartItem Item)
-            {
-                if ((sender as GridView).Name == nameof(QuickStartGridView))
-                {
-                    if (Uri.TryCreate(Item.Protocol, UriKind.Absolute, out Uri Ur))
-                    {
-                        if (Ur.IsFile)
-                        {
-                            if (await FileSystemStorageItemBase.CheckExistAsync(Item.Protocol))
-                            {
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                                {
-                                    try
-                                    {
-                                        if (Path.GetExtension(Item.Protocol).ToLower() == ".msc")
-                                        {
-                                            if (!await Exclusive.Controller.RunAsync("powershell.exe", string.Empty, WindowState.Normal, false, true, false, "-Command", Item.Protocol))
-                                            {
-                                                QueueContentDialog Dialog = new QueueContentDialog
-                                                {
-                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                };
-
-                                                await Dialog.ShowAsync();
-                                            }
-                                        }
-                                        else
-                                        {
-                                            if (!await Exclusive.Controller.RunAsync(Item.Protocol, Path.GetDirectoryName(Item.Protocol)))
-                                            {
-                                                QueueContentDialog Dialog = new QueueContentDialog
-                                                {
-                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                };
-
-                                                await Dialog.ShowAsync();
-                                            }
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        LogTracer.Log(ex, "Could not execute program in quick start");
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_ApplicationNotFound_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-                                await Dialog.ShowAsync();
-                            }
-                        }
-                        else
-                        {
-                            await Launcher.LaunchUriAsync(Ur);
-                        }
-                    }
-                    else
-                    {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                        {
-                            if (!await Exclusive.Controller.LaunchUWPLnkAsync(Item.Protocol))
-                            {
-                                QueueContentDialog Dialog = new QueueContentDialog
-                                {
-                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                    Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
-                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                };
-
-                                await Dialog.ShowAsync();
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    await Launcher.LaunchUriAsync(new Uri(Item.Protocol));
-                }
-            }
-        }
-
-        private async void AppDelete_Click(object sender, RoutedEventArgs e)
-        {
-            if (CurrentSelectedItem != null)
-            {
-                CommonAccessCollection.QuickStartList.Remove(CurrentSelectedItem);
-                await SQLite.Current.DeleteQuickStartItemAsync(CurrentSelectedItem).ConfigureAwait(false);
-            }
-        }
-
-        private async void AppEdit_Click(object sender, RoutedEventArgs e)
-        {
-            if (CurrentSelectedItem != null)
-            {
-                QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(CurrentSelectedItem);
-                await dialog.ShowAsync();
-            }
-        }
-
-        private async void WebEdit_Click(object sender, RoutedEventArgs e)
-        {
-            if (CurrentSelectedItem != null)
-            {
-                QuickStartModifiedDialog dialog = new QuickStartModifiedDialog(CurrentSelectedItem);
-                await dialog.ShowAsync();
-            }
-        }
-
-        private async void WebDelete_Click(object sender, RoutedEventArgs e)
-        {
-            if (CurrentSelectedItem != null)
-            {
-                CommonAccessCollection.HotWebList.Remove(CurrentSelectedItem);
-                await SQLite.Current.DeleteQuickStartItemAsync(CurrentSelectedItem).ConfigureAwait(false);
-            }
-        }
-
-        private void QuickStartGridView_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
-        {
-            if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
-            {
-                if ((sender as GridView).Name == nameof(QuickStartGridView))
-                {
-                    if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
-                    {
-                        CurrentSelectedItem = Item;
-
-                        QuickStartGridView.ContextFlyout = AppFlyout;
-                    }
-                    else
-                    {
-                        QuickStartGridView.ContextFlyout = AppEmptyFlyout;
-                    }
-                }
-                else
-                {
-                    if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
-                    {
-                        CurrentSelectedItem = Item;
-
-                        WebGridView.ContextFlyout = WebFlyout;
-                    }
-                    else
-                    {
-                        WebGridView.ContextFlyout = WebEmptyFlyout;
-                    }
-                }
-            }
-        }
-
-        private async void Attribute_Click(object sender, RoutedEventArgs e)
-        {
-            DeviceInfoDialog Dialog = new DeviceInfoDialog(DeviceGrid.SelectedItem as DriveDataBase);
-            await Dialog.ShowAsync();
         }
 
         private void DeviceGrid_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
@@ -631,37 +448,10 @@ namespace RX_Explorer
             }
         }
 
-        private void QuickStartGridView_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
+        private async void Attribute_Click(object sender, RoutedEventArgs e)
         {
-            if (e.HoldingState == HoldingState.Started)
-            {
-                if ((sender as GridView).Name == nameof(QuickStartGridView))
-                {
-                    if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
-                    {
-                        CurrentSelectedItem = Item;
-
-                        QuickStartGridView.ContextFlyout = AppFlyout;
-                    }
-                    else
-                    {
-                        QuickStartGridView.ContextFlyout = AppEmptyFlyout;
-                    }
-                }
-                else
-                {
-                    if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
-                    {
-                        CurrentSelectedItem = Item;
-
-                        WebGridView.ContextFlyout = WebFlyout;
-                    }
-                    else
-                    {
-                        WebGridView.ContextFlyout = WebEmptyFlyout;
-                    }
-                }
-            }
+            DeviceInfoDialog Dialog = new DeviceInfoDialog(DeviceGrid.SelectedItem as DriveDataBase);
+            await Dialog.ShowAsync();
         }
 
         private void LibraryGrid_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
@@ -726,7 +516,7 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabCollection.Where((Tab) => (Tab.Content as Frame).CurrentSourcePageType != typeof(ThisPC) && Tab.Tag is FileControl Control && Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder?.Path).Equals(Item.Path, StringComparison.OrdinalIgnoreCase)).ToArray())
+                    foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabCollection.Where((Tab) => (Tab.Content as Frame).CurrentSourcePageType != typeof(Home) && Tab.Tag is FileControl Control && Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder?.Path).Equals(Item.Path, StringComparison.OrdinalIgnoreCase)).ToArray())
                     {
                         await TabViewContainer.ThisPage.CleanUpAndRemoveTabItem(Tab);
                     }
@@ -771,36 +561,6 @@ namespace RX_Explorer
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Toast notification could not be sent");
-            }
-        }
-
-        private async void AddQuickStartWeb_Click(object sender, RoutedEventArgs e)
-        {
-            await new QuickStartModifiedDialog(QuickStartType.WebSite).ShowAsync();
-        }
-
-        private async void AddQuickStartApp_Click(object sender, RoutedEventArgs e)
-        {
-            await new QuickStartModifiedDialog(QuickStartType.Application).ShowAsync();
-        }
-
-        private async void WebGridView_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
-        {
-            await SQLite.Current.DeleteQuickStartItemAsync(QuickStartType.WebSite);
-
-            foreach (QuickStartItem Item in CommonAccessCollection.HotWebList)
-            {
-                await SQLite.Current.SetQuickStartItemAsync(Item.DisplayName, Item.RelativePath, Item.Protocol, QuickStartType.WebSite);
-            }
-        }
-
-        private async void QuickStartGridView_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
-        {
-            await SQLite.Current.DeleteQuickStartItemAsync(QuickStartType.Application);
-
-            foreach (QuickStartItem Item in CommonAccessCollection.QuickStartList)
-            {
-                await SQLite.Current.SetQuickStartItemAsync(Item.DisplayName, Item.RelativePath, Item.Protocol, QuickStartType.Application);
             }
         }
 
@@ -849,14 +609,6 @@ namespace RX_Explorer
             if (DeviceGrid.SelectedItem is DriveDataBase Drive)
             {
                 await OpenTargetDriveAsync(Drive);
-            }
-        }
-
-        private void GridView_PreviewKeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
-        {
-            if (e.Key == VirtualKey.Space)
-            {
-                e.Handled = true;
             }
         }
 

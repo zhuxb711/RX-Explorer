@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Services.Store;
 using Windows.Storage;
@@ -10,58 +11,54 @@ namespace RX_Explorer.Class
     {
         private static MSStoreHelper Instance;
 
-        private readonly StoreContext Store;
+        private StoreContext Store;
 
         private Task<StoreAppLicense> GetLicenseTask;
 
-        public static MSStoreHelper Current => Instance ??= new MSStoreHelper();
+        private readonly ManualResetEvent InitLocker;
 
-        private bool HasVerifiedLicense;
+        public static MSStoreHelper Current => Instance ??= new MSStoreHelper();
 
         public async Task<bool> CheckPurchaseStatusAsync()
         {
             try
             {
+                await Task.Run(() =>
+                {
+                    InitLocker.WaitOne();
+                });
+
                 if (ApplicationData.Current.LocalSettings.Values.TryGetValue("LicenseGrant", out object GrantState) && Convert.ToBoolean(GrantState))
                 {
                     return true;
                 }
 
-                if (HasVerifiedLicense && ApplicationData.Current.LocalSettings.Values.ContainsKey("LicenseGrant"))
+                StoreAppLicense License = GetLicenseTask == null ? await Store.GetAppLicenseAsync() : await GetLicenseTask.ConfigureAwait(false);
+
+                if (License.AddOnLicenses.Any((Item) => Item.Value.InAppOfferToken == "Donation"))
                 {
-                    return Convert.ToBoolean(ApplicationData.Current.LocalSettings.Values["LicenseGrant"]);
+                    ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
+                    return true;
                 }
                 else
                 {
-                    HasVerifiedLicense = true;
-
-                    StoreAppLicense License = GetLicenseTask == null ? await Store.GetAppLicenseAsync() : await GetLicenseTask.ConfigureAwait(false);
-
-                    if (License.AddOnLicenses.Any((Item) => Item.Value.InAppOfferToken == "Donation"))
+                    if (License.IsActive)
                     {
-                        ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
-                        return true;
-                    }
-                    else
-                    {
-                        if (License.IsActive)
-                        {
-                            if (License.IsTrial)
-                            {
-                                ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
-                                return false;
-                            }
-                            else
-                            {
-                                ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
-                                return true;
-                            }
-                        }
-                        else
+                        if (License.IsTrial)
                         {
                             ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
                             return false;
                         }
+                        else
+                        {
+                            ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
+                        return false;
                     }
                 }
             }
@@ -76,6 +73,11 @@ namespace RX_Explorer.Class
         {
             try
             {
+                await Task.Run(() =>
+                {
+                    InitLocker.WaitOne();
+                });
+
                 StoreProductResult ProductResult = await Store.GetStoreProductForCurrentAppAsync();
 
                 if (ProductResult.ExtendedError == null)
@@ -113,7 +115,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public void PreLoadAppLicense()
+        private void PreLoadAppLicense()
         {
             if (ApplicationData.Current.LocalSettings.Values.TryGetValue("LicenseGrant", out object GrantState))
             {
@@ -128,10 +130,22 @@ namespace RX_Explorer.Class
             }
         }
 
+        public Task InitializeAsync()
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                Store = StoreContext.GetDefault();
+                Store.OfflineLicensesChanged += Store_OfflineLicensesChanged;
+
+                PreLoadAppLicense();
+
+                InitLocker.Set();
+            }, TaskCreationOptions.LongRunning);
+        }
+
         private MSStoreHelper()
         {
-            Store = StoreContext.GetDefault();
-            Store.OfflineLicensesChanged += Store_OfflineLicensesChanged;
+            InitLocker = new ManualResetEvent(false);
         }
 
         private async void Store_OfflineLicensesChanged(StoreContext sender, object args)

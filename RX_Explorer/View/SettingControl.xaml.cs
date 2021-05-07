@@ -145,25 +145,6 @@ namespace RX_Explorer
             }
         }
 
-        public static bool IsQuickStartExpanded
-        {
-            get
-            {
-                if (ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] is bool Enable)
-                {
-                    return Enable;
-                }
-                else
-                {
-                    return true;
-                }
-            }
-            private set
-            {
-                ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] = value;
-            }
-        }
-
         public static LoadMode ContentLoadMode
         {
             get
@@ -679,11 +660,6 @@ namespace RX_Explorer
                 {
                     ApplicationData.Current.LocalSettings.Values["UIDisplayMode"] = 0;
                     UIMode.SelectedIndex = 0;
-                }
-
-                if (ApplicationData.Current.LocalSettings.Values["IsLeftAreaOpen"] is bool Enable)
-                {
-                    OpenLeftArea.IsOn = Enable;
                 }
 
                 if (ApplicationData.Current.LocalSettings.Values["IsDoubleClickEnable"] is bool IsDoubleClick)
@@ -1403,23 +1379,6 @@ namespace RX_Explorer
         private void FeedBackQuestion_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             FeedBackTip.IsOpen = true;
-        }
-
-        private async void OpenLeftArea_Toggled(object sender, RoutedEventArgs e)
-        {
-            IsQuickStartExpanded = OpenLeftArea.IsOn;
-
-            if (TabViewContainer.CurrentNavigationControl?.Content is ThisPC PC)
-            {
-                PC.LeftSideCol.Width = OpenLeftArea.IsOn ? new GridLength(2.5, GridUnitType.Star) : new GridLength(0);
-            }
-
-            if (OpenLeftArea.IsOn)
-            {
-                await CommonAccessCollection.LoadQuickStartItemsAsync();
-            }
-
-            ApplicationData.Current.SignalDataChanged();
         }
 
         private void AcrylicMode_Checked(object sender, RoutedEventArgs e)
