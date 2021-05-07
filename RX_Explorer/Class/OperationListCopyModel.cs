@@ -12,7 +12,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public OperationListCopyModel(string[] FromPath, string ToPath, EventHandler OnCompleted = null) : base(FromPath, ToPath, OnCompleted)
+        public OperationListCopyModel(string[] FromPath, string ToPath, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null) : base(FromPath, ToPath, OnCompleted, OnErrorHappended, OnCancelled)
         {
 
         }

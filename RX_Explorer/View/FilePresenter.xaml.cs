@@ -1218,8 +1218,6 @@ namespace RX_Explorer
 
                     _ = await Dialog.ShowAsync();
                 }
-
-                await Container.LoadingActivation(false).ConfigureAwait(false);
             }
         }
 
@@ -3211,6 +3209,8 @@ namespace RX_Explorer
 
             try
             {
+                e.Handled = true;
+
                 List<string> PathList = new List<string>();
 
                 if (e.DataView.Contains(StandardDataFormats.StorageItems))
@@ -3245,13 +3245,31 @@ namespace RX_Explorer
                         {
                             case DataPackageOperation.Copy:
                                 {
-                                    QueueTaskController.EnqueueCopyOpeartion(PathList, Item.Path);
+                                    TaskCompletionSource<bool> CompletionSource = new TaskCompletionSource<bool>();
+
+                                    void OnFinished(object s, EventArgs e)
+                                    {
+                                        CompletionSource.SetResult(true);
+                                    }
+
+                                    QueueTaskController.EnqueueCopyOpeartion(PathList, Item.Path, OnFinished, OnFinished, OnFinished);
+
+                                    await CompletionSource.Task;
 
                                     break;
                                 }
                             case DataPackageOperation.Move:
                                 {
-                                    QueueTaskController.EnqueueMoveOpeartion(PathList, Item.Path);
+                                    TaskCompletionSource<bool> CompletionSource = new TaskCompletionSource<bool>();
+
+                                    void OnFinished(object s, EventArgs e)
+                                    {
+                                        CompletionSource.SetResult(true);
+                                    }
+
+                                    QueueTaskController.EnqueueMoveOpeartion(PathList, Item.Path, OnFinished, OnFinished, OnFinished);
+
+                                    await CompletionSource.Task;
 
                                     break;
                                 }
@@ -3279,7 +3297,6 @@ namespace RX_Explorer
             }
             finally
             {
-                e.Handled = true;
                 Deferral.Complete();
             }
         }
@@ -3548,6 +3565,8 @@ namespace RX_Explorer
 
             try
             {
+                e.Handled = true;
+
                 List<string> PathList = new List<string>();
 
                 if (e.DataView.Contains(StandardDataFormats.StorageItems))
@@ -3580,7 +3599,16 @@ namespace RX_Explorer
                     {
                         case DataPackageOperation.Copy:
                             {
-                                QueueTaskController.EnqueueCopyOpeartion(PathList, CurrentFolder.Path);
+                                TaskCompletionSource<bool> CompletionSource = new TaskCompletionSource<bool>();
+
+                                void OnFinished(object s, EventArgs e)
+                                {
+                                    CompletionSource.SetResult(true);
+                                }
+
+                                QueueTaskController.EnqueueCopyOpeartion(PathList, CurrentFolder.Path, OnFinished, OnFinished, OnFinished);
+
+                                await CompletionSource.Task;
 
                                 break;
                             }
@@ -3588,7 +3616,16 @@ namespace RX_Explorer
                             {
                                 if (PathList.All((Item) => Path.GetDirectoryName(Item) != CurrentFolder.Path))
                                 {
-                                    QueueTaskController.EnqueueMoveOpeartion(PathList, CurrentFolder.Path);
+                                    TaskCompletionSource<bool> CompletionSource = new TaskCompletionSource<bool>();
+
+                                    void OnFinished(object s, EventArgs e)
+                                    {
+                                        CompletionSource.SetResult(true);
+                                    }
+
+                                    QueueTaskController.EnqueueMoveOpeartion(PathList, CurrentFolder.Path, OnFinished, OnFinished, OnFinished);
+
+                                    await CompletionSource.Task;
                                 }
 
                                 break;
@@ -3613,8 +3650,6 @@ namespace RX_Explorer
             }
             finally
             {
-                await Container.LoadingActivation(false);
-                e.Handled = true;
                 Deferral.Complete();
             }
         }

@@ -1861,7 +1861,6 @@ namespace RX_Explorer
                 finally
                 {
                     e.Handled = true;
-                    await LoadingActivation(false);
                 }
             }
         }

@@ -362,17 +362,13 @@ namespace RX_Explorer
 
                 List<Task> LoadTaskList = new List<Task>(3)
                 {
-                    CommonAccessCollection.LoadQuickStartItemsAsync()
+                    CommonAccessCollection.LoadQuickStartItemsAsync(),
+                    CommonAccessCollection.LoadDriveAsync()
                 };
 
                 if (SettingControl.LibraryExpanderIsExpand)
                 {
                     LoadTaskList.Add(CommonAccessCollection.LoadLibraryFoldersAsync());
-                }
-
-                if (SettingControl.DeviceExpanderIsExpand)
-                {
-                    LoadTaskList.Add(CommonAccessCollection.LoadDriveAsync());
                 }
 
                 await Task.WhenAll(LoadTaskList).ConfigureAwait(false);

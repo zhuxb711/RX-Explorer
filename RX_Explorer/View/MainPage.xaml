@@ -370,12 +370,19 @@
                         <SymbolIcon Symbol="ProtectedDocument" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem x:Name="QuickStartNav"
+                                         Content="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}"
+                                         SelectsOnInvoked="False">
+                    <muxc:NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="AllApps" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
                 <muxc:NavigationViewItem x:Name="BluetoothAudio"
                                          SelectsOnInvoked="False">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="蓝牙音频"
                                    x:Uid="BluetoothAudio" />
-                        <Viewbox Margin="10,4,0,0"
+                        <Viewbox Margin="10,3,0,0"
                                  Height="15"
                                  VerticalAlignment="Center">
                             <FontIcon Glyph="&#xE9CE;"
@@ -386,13 +393,6 @@
                     <muxc:NavigationViewItem.Icon>
                         <FontIcon FontFamily="Segoe MDL2 Assets"
                                   Glyph="&#xE702;" />
-                    </muxc:NavigationViewItem.Icon>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem x:Name="QuickStartNav"
-                                         Content="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}"
-                                         SelectsOnInvoked="False">
-                    <muxc:NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="AllApps" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
             </muxc:NavigationView.MenuItems>

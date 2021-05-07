@@ -22,7 +22,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public OperationListDeleteModel(string[] DeleteFrom, bool IsPermanentDelete, EventHandler OnCompleted = null) : base(DeleteFrom, null, OnCompleted)
+        public OperationListDeleteModel(string[] DeleteFrom, bool IsPermanentDelete, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null) : base(DeleteFrom, null, OnCompleted, OnErrorHappended, OnCancelled)
         {
             this.IsPermanentDelete = IsPermanentDelete;
         }

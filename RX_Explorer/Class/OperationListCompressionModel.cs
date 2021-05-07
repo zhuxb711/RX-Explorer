@@ -18,7 +18,7 @@ namespace RX_Explorer.Class
 
         public CompressionLevel Level { get; }
 
-        public OperationListCompressionModel(CompressionType Type, CompressionAlgorithm Algorithm, CompressionLevel Level, string[] FromPath, string ToPath, EventHandler OnCompleted = null) : base(FromPath, ToPath, OnCompleted)
+        public OperationListCompressionModel(CompressionType Type, CompressionAlgorithm Algorithm, CompressionLevel Level, string[] FromPath, string ToPath, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null) : base(FromPath, ToPath, OnCompleted, OnErrorHappended, OnCancelled)
         {
             this.Type = Type;
             this.Algorithm = Algorithm;

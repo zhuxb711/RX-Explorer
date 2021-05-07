@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace RX_Explorer.Class
 {
@@ -12,9 +13,46 @@ namespace RX_Explorer.Class
             }
         }
 
+        public override string FromPathText
+        {
+            get
+            {
+                if (UndoOperationKind == OperationKind.Delete)
+                {
+                    return string.Empty;
+                }
+                else
+                {
+                    return base.FromPathText;
+                }
+            }
+        }
+
+        public override string ToPathText
+        {
+            get
+            {
+                if (UndoOperationKind == OperationKind.Delete)
+                {
+                    if (FromPath.Length > 5)
+                    {
+                        return $"{Globalization.GetString("TaskList_To_Label")}: {Environment.NewLine}{string.Join(Environment.NewLine, FromPath.Take(5))}{Environment.NewLine}({FromPath.Length - 5} {Globalization.GetString("TaskList_More_Items")})...";
+                    }
+                    else
+                    {
+                        return $"{Globalization.GetString("TaskList_To_Label")}: {Environment.NewLine}{string.Join(Environment.NewLine, FromPath)}";
+                    }
+                }
+                else
+                {
+                    return base.ToPathText;
+                }
+            }
+        }
+
         public OperationKind UndoOperationKind { get; }
 
-        public OperationListUndoModel(OperationKind UndoOperationKind, string[] FromPath, string ToPath = null, EventHandler OnCompleted = null) : base(FromPath, ToPath, OnCompleted)
+        public OperationListUndoModel(OperationKind UndoOperationKind, string[] FromPath, string ToPath = null, EventHandler OnCompleted = null, EventHandler OnErrorHappended = null, EventHandler OnCancelled = null) : base(FromPath, ToPath, OnCompleted, OnErrorHappended, OnCancelled)
         {
             if (UndoOperationKind == OperationKind.Move && string.IsNullOrWhiteSpace(ToPath))
             {
