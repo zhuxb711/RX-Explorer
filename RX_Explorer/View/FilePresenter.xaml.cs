@@ -236,19 +236,38 @@ namespace RX_Explorer
 
         public FileSystemStorageItemBase SelectedItem
         {
-            get => ItemPresenter.SelectedItem as FileSystemStorageItemBase;
+            get
+            {
+                return ItemPresenter?.SelectedItem as FileSystemStorageItemBase;
+            }
             set
             {
-                ItemPresenter.SelectedItem = value;
-
-                if (value != null)
+                if (ItemPresenter != null)
                 {
-                    (ItemPresenter.ContainerFromItem(value) as SelectorItem)?.Focus(FocusState.Programmatic);
+                    ItemPresenter.SelectedItem = value;
+
+                    if (value != null)
+                    {
+                        (ItemPresenter.ContainerFromItem(value) as SelectorItem)?.Focus(FocusState.Programmatic);
+                    }
                 }
             }
         }
 
-        public List<FileSystemStorageItemBase> SelectedItems => ItemPresenter.SelectedItems.Select((Item) => Item as FileSystemStorageItemBase).ToList();
+        public List<FileSystemStorageItemBase> SelectedItems
+        {
+            get
+            {
+                if (ItemPresenter != null)
+                {
+                    return ItemPresenter.SelectedItems.Select((Item) => Item as FileSystemStorageItemBase).ToList();
+                }
+                else
+                {
+                    return new List<FileSystemStorageItemBase>(0);
+                }
+            }
+        }
 
         public FilePresenter()
         {
@@ -729,6 +748,35 @@ namespace RX_Explorer
                     return false;
                 }
 
+                if (!SkipNavigationRecord && !ForceRefresh)
+                {
+                    if (GoAndBackRecord.Count > 0)
+                    {
+                        if (RecordIndex != GoAndBackRecord.Count - 1)
+                        {
+                            GoAndBackRecord.RemoveRange(RecordIndex + 1, GoAndBackRecord.Count - RecordIndex - 1);
+                        }
+
+                        string ParentPath = Path.GetDirectoryName(FolderPath);
+
+                        if (!string.IsNullOrEmpty(ParentPath))
+                        {
+                            if (ParentPath.Equals(GoAndBackRecord[GoAndBackRecord.Count - 1].Item1, StringComparison.OrdinalIgnoreCase))
+                            {
+                                GoAndBackRecord[GoAndBackRecord.Count - 1] = (ParentPath, FolderPath);
+                            }
+                            else
+                            {
+                                GoAndBackRecord[GoAndBackRecord.Count - 1] = (GoAndBackRecord[GoAndBackRecord.Count - 1].Item1, SelectedItems.Count > 1 ? string.Empty : ((SelectedItem?.Path) ?? string.Empty));
+                            }
+                        }
+                    }
+
+                    GoAndBackRecord.Add((FolderPath, string.Empty));
+
+                    RecordIndex = GoAndBackRecord.Count - 1;
+                }
+
                 if (FolderPath.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
                 {
                     CurrentFolder = RootStorageFolder.Instance;
@@ -807,35 +855,6 @@ namespace RX_Explorer
 
                     ListViewDetailHeader.Filter.SetDataSource(FileCollection);
                     ListViewDetailHeader.Indicator.SetIndicatorStatus(Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
-                }
-
-                if (!SkipNavigationRecord && !ForceRefresh)
-                {
-                    if (RecordIndex != GoAndBackRecord.Count - 1 && GoAndBackRecord.Count != 0)
-                    {
-                        GoAndBackRecord.RemoveRange(RecordIndex + 1, GoAndBackRecord.Count - RecordIndex - 1);
-                    }
-
-                    if (GoAndBackRecord.Count > 0)
-                    {
-                        string ParentPath = Path.GetDirectoryName(FolderPath);
-
-                        if (!string.IsNullOrEmpty(ParentPath))
-                        {
-                            if (ParentPath.Equals(GoAndBackRecord[GoAndBackRecord.Count - 1].Item1, StringComparison.OrdinalIgnoreCase))
-                            {
-                                GoAndBackRecord[GoAndBackRecord.Count - 1] = (ParentPath, FolderPath);
-                            }
-                            else
-                            {
-                                GoAndBackRecord[GoAndBackRecord.Count - 1] = (GoAndBackRecord[GoAndBackRecord.Count - 1].Item1, SelectedItems.Count > 1 ? string.Empty : ((SelectedItem?.Path) ?? string.Empty));
-                            }
-                        }
-                    }
-
-                    GoAndBackRecord.Add((FolderPath, string.Empty));
-
-                    RecordIndex = GoAndBackRecord.Count - 1;
                 }
 
                 return true;
