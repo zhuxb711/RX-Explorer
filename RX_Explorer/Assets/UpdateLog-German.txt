@@ -1,4 +1,11 @@
 ﻿*****
+###Was ist neu in Ver.6.4.5.0
+
+#####Fehlerbehebung
+
+>#####Das schwerwiegende Problem, das den Absturz verursacht hat, wurde behoben
+
+*****
 ###Was ist neu in Ver.6.4.4.0
 
 #####Funktionsaktualisierung

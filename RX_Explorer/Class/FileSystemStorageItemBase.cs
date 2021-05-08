@@ -13,21 +13,6 @@ using ColorHelper = Microsoft.Toolkit.Uwp.Helpers.ColorHelper;
 
 namespace RX_Explorer.Class
 {
-    public abstract class FileSystemStorageItemBase<T> : FileSystemStorageItemBase where T : IStorageItem
-    {
-        protected T StorageItem { get; set; }
-
-        protected FileSystemStorageItemBase(T Item) : base(Item.Path)
-        {
-            StorageItem = Item;
-        }
-
-        protected FileSystemStorageItemBase(string Path, WIN_Native_API.WIN32_FIND_DATA Data) : base(Path, Data)
-        {
-
-        }
-    }
-
     /// <summary>
     /// 提供对设备中的存储对象的描述
     /// </summary>

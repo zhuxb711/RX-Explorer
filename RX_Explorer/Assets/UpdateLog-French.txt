@@ -1,4 +1,11 @@
 ﻿*****
+###Quoi de neuf dans la version 6.4.5.0
+
+#####Correction d'un bug
+
+>#####Correction du problème grave qui a causé le crash
+
+*****
 ###Quoi de neuf dans la version 6.4.4.0
 
 #####Mise à jour des fonctionnalités

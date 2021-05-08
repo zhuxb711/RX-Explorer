@@ -18,7 +18,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public class FileSystemStorageFile : FileSystemStorageItemBase<StorageFile>, ICryptable
+    public class FileSystemStorageFile : FileSystemStorageItemBase, ICryptable
     {
         public override string Name
         {
@@ -96,7 +96,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return InnerThumbnail ??= new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? Const_File_White_Image_Uri : Const_File_Black_Image_Uri);
+                return InnerThumbnail ?? new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? Const_File_White_Image_Uri : Const_File_Black_Image_Uri);
             }
             protected set
             {
@@ -107,11 +107,10 @@ namespace RX_Explorer.Class
             }
         }
 
-        private readonly StorageFile TempStorageItem;
+        protected StorageFile StorageItem { get; set; }
 
-        protected FileSystemStorageFile(StorageFile Item, DateTimeOffset ModifiedTime, ulong Size) : base(Item)
+        protected FileSystemStorageFile(StorageFile Item, DateTimeOffset ModifiedTime, ulong Size) : base(Item.Path)
         {
-            TempStorageItem = Item;
             CreationTimeRaw = Item.DateCreated;
             ModifiedTimeRaw = ModifiedTime;
             SizeRaw = Size;
@@ -172,14 +171,14 @@ namespace RX_Explorer.Class
 
         protected override bool CheckIfPropertiesLoaded()
         {
-            return StorageItem != null;
+            return StorageItem != null && InnerThumbnail != null;
         }
 
         public async override Task<IStorageItem> GetStorageItemAsync()
         {
             try
             {
-                return StorageItem ??= (TempStorageItem ?? await StorageFile.GetFileFromPathAsync(Path));
+                return StorageItem ??= await StorageFile.GetFileFromPathAsync(Path);
             }
             catch (Exception ex)
             {

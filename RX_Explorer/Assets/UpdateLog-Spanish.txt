@@ -1,4 +1,11 @@
 ﻿*****
+###Novedades de la versión 6.4.5.0
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema grave que causó el bloqueo
+
+*****
 ###Novedades de la versión 6.4.4.0
 
 #####Actualización de funciones

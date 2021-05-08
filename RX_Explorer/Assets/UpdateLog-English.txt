@@ -1,4 +1,11 @@
 ﻿*****
+###What's new in Ver.6.4.5.0
+
+#####Bug fix
+
+>#####Fixed the serious problem that caused the crash
+
+*****
 ###What's new in Ver.6.4.4.0
 
 #####Feature update

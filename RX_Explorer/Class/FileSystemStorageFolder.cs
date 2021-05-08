@@ -12,7 +12,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
-    public class FileSystemStorageFolder : FileSystemStorageItemBase<StorageFolder>
+    public class FileSystemStorageFolder : FileSystemStorageItemBase
     {
         public override string Name
         {
@@ -83,7 +83,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return InnerThumbnail ??= new BitmapImage(Const_Folder_Image_Uri);
+                return InnerThumbnail ?? new BitmapImage(Const_Folder_Image_Uri);
             }
             protected set
             {
@@ -94,11 +94,10 @@ namespace RX_Explorer.Class
             }
         }
 
-        private readonly StorageFolder TempStorageItem;
+        protected StorageFolder StorageItem { get; set; }
 
-        protected FileSystemStorageFolder(StorageFolder Item, DateTimeOffset ModifiedTime) : base(Item)
+        protected FileSystemStorageFolder(StorageFolder Item, DateTimeOffset ModifiedTime) : base(Item.Path)
         {
-            TempStorageItem = Item;
             CreationTimeRaw = Item.DateCreated;
             ModifiedTimeRaw = ModifiedTime;
         }
@@ -432,14 +431,14 @@ namespace RX_Explorer.Class
 
         protected override bool CheckIfPropertiesLoaded()
         {
-            return StorageItem != null;
+            return StorageItem != null && InnerThumbnail != null;
         }
 
         public override async Task<IStorageItem> GetStorageItemAsync()
         {
             try
             {
-                return StorageItem ??= (TempStorageItem ?? await StorageFolder.GetFolderFromPathAsync(Path));
+                return StorageItem ??= await StorageFolder.GetFolderFromPathAsync(Path);
             }
             catch (Exception ex)
             {
