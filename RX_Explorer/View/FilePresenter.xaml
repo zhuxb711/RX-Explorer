@@ -11,7 +11,6 @@
       xmlns:Custom="using:RX_Explorer.CustomControl"
       xmlns:local="using:RX_Explorer"
       mc:Ignorable="d"
-      NavigationCacheMode="Required"
       Background="Transparent">
 
     <Page.Resources>
@@ -1778,10 +1777,11 @@
                 <TextBlock x:Name="StatusTips"
                            x:FieldModifier="public"
                            FontSize="14"
-                           Margin="10,0,0,0"
+                           Margin="5,0,0,0"
                            TextTrimming="CharacterEllipsis"
                            VerticalAlignment="Center" />
                 <Border Height="3"
+                        Margin="0,2,0,0"
                         HorizontalAlignment="Stretch"
                         x:FieldModifier="public"
                         x:Name="FocusIndicator" />

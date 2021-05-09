@@ -805,6 +805,8 @@ namespace RX_Explorer
                     Container.VerticalSplitViewButton.IsEnabled = true;
                     RootFolderControl.Visibility = Visibility.Collapsed;
 
+                    await SQLite.Current.SetPathHistoryAsync(FolderPath);
+
                     CurrentFolder = await FileSystemStorageItemBase.OpenAsync(FolderPath) as FileSystemStorageFolder;
 
                     if (Container.FolderTree.SelectedNode == null && Container.FolderTree.RootNodes.FirstOrDefault((Node) => (Node.Content as TreeViewNodeContent)?.Path == Path.GetPathRoot(FolderPath)) is TreeViewNode RootNode)

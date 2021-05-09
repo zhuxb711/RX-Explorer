@@ -1,18 +1,15 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
+using Microsoft.Toolkit.Uwp.UI.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using RX_Explorer.SeparateWindow.PropertyWindow;
-using ShareClassLibrary;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Storage;
-using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
-using Windows.System;
 using Windows.UI;
 using Windows.UI.Input;
 using Windows.UI.Notifications;
@@ -516,9 +513,21 @@ namespace RX_Explorer
                 }
                 else
                 {
-                    foreach (TabViewItem Tab in TabViewContainer.ThisPage.TabCollection.Where((Tab) => (Tab.Content as Frame).CurrentSourcePageType != typeof(Home) && Tab.Tag is FileControl Control && Path.GetPathRoot(Control.CurrentPresenter.CurrentFolder?.Path).Equals(Item.Path, StringComparison.OrdinalIgnoreCase)).ToArray())
+                    foreach ((TabViewItem Tab, BladeItem[] Blades) in TabViewContainer.ThisPage.TabCollection.Where((Tab) => Tab.Tag is FileControl)
+                                                                                                             .Select((Tab) => (Tab, (Tab.Tag as FileControl).BladeViewer.Items.Cast<BladeItem>().ToArray())).ToArray())
                     {
-                        await TabViewContainer.ThisPage.CleanUpAndRemoveTabItem(Tab);
+                        if (Blades.Select((BItem) => (BItem.Content as FilePresenter)?.CurrentFolder?.Path)
+                                  .All((BladePath) => Item.Path.Equals(Path.GetPathRoot(BladePath), StringComparison.OrdinalIgnoreCase)))
+                        {
+                            await TabViewContainer.ThisPage.CleanUpAndRemoveTabItem(Tab);
+                        }
+                        else
+                        {
+                            foreach (BladeItem BItem in Blades.Where((BItem) => Item.Path.Equals(Path.GetPathRoot((BItem.Content as FilePresenter)?.CurrentFolder?.Path))))
+                            {
+                                await (Tab.Tag as FileControl).CloseBladeAsync(BItem);
+                            }
+                        }
                     }
 
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
@@ -535,7 +544,7 @@ namespace RX_Explorer
                                 Content = Globalization.GetString("QueueContentDialog_UnableToEject_Content"),
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
-                            
+
                             await Dialog.ShowAsync().ConfigureAwait(false);
                         }
                     }

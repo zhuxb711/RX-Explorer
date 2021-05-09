@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using Vanara.PInvoke;
 
@@ -11,50 +10,10 @@ namespace FullTrustProcess
 {
     public static class USBController
     {
-        [DllImport("setupapi.dll")]
-        private static extern int CM_Get_Parent(
-            ref uint pdnDevInst,
-            uint dnDevInst,
-            int ulFlags);
-
-        [DllImport("setupapi.dll", CharSet = CharSet.Unicode)]
-        private static extern int CM_Request_Device_Eject(
-            uint dnDevInst,
-            out PNP_VETO_TYPE pVetoType,
-            StringBuilder pszVetoName,
-            int ulNameLength,
-            int ulFlags);
-
-        [DllImport("setupapi.dll", EntryPoint = "CM_Request_Device_Eject", CharSet = CharSet.Unicode)]
-        private static extern int CM_Request_Device_Eject_NoUi(
-            uint dnDevInst,
-            IntPtr pVetoType,
-            StringBuilder pszVetoName,
-            int ulNameLength,
-            int ulFlags);
-
-        private enum PNP_VETO_TYPE
-        {
-            PNP_VetoTypeUnknown = 0,
-            PNP_VetoLegacyDevice = 1,
-            PNP_VetoPendingClose = 2,
-            PNP_VetoWindowsApp = 3,
-            PNP_VetoWindowsService = 4,
-            PNP_VetoOutstandingOpen = 5,
-            PNP_VetoDevice = 6,
-            PNP_VetoDriver = 7,
-            PNP_VetoIllegalDeviceRequest = 8,
-            PNP_VetoInsufficientPower = 9,
-            PNP_VetoNonDisableable = 10,
-            PNP_VetoLegacyDriver = 11,
-            PNP_VetoInsufficientRights = 12
-        }
-
         private const string GUID_DEVINTERFACE_VOLUME = "53f5630d-b6bf-11d0-94f2-00a0c91efb8b";
         private const string GUID_DEVINTERFACE_DISK = "53f56307-b6bf-11d0-94f2-00a0c91efb8b";
         private const string GUID_DEVINTERFACE_FLOPPY = "53f56311-b6bf-11d0-94f2-00a0c91efb8b";
         private const string GUID_DEVINTERFACE_CDROM = "53f56308-b6bf-11d0-94f2-00a0c91efb8b";
-        private const int CR_SUCCESS = 0;
 
         private static int GetDeviceNumber(HFILE DeviceHandle)
         {
@@ -218,19 +177,17 @@ namespace FullTrustProcess
                         return false;
                     }
 
-                    uint DevInstParent = 0;
-
-                    if (CM_Get_Parent(ref DevInstParent, DevInst, 0) == CR_SUCCESS)
+                    if (CfgMgr32.CM_Get_Parent(out uint DevInstParent, DevInst) == CfgMgr32.CONFIGRET.CR_SUCCESS)
                     {
                         for (int i = 0; i < 5; i++)
                         {
-                            if (CM_Request_Device_Eject(DevInstParent, out PNP_VETO_TYPE Result, null, 0, 0) == CR_SUCCESS)
+                            if (CfgMgr32.CM_Request_Device_Eject(DevInstParent, out CfgMgr32.PNP_VETO_TYPE Result, null, 0) == CfgMgr32.CONFIGRET.CR_SUCCESS)
                             {
                                 return true;
                             }
                             else
                             {
-                                Debug.WriteLine($"Could not reject the USB device, PNP_VETO reason: {Enum.GetName(typeof(PNP_VETO_TYPE), Result)}");
+                                Debug.WriteLine($"Could not reject the USB device, PNP_VETO reason: {Enum.GetName(typeof(CfgMgr32.PNP_VETO_TYPE), Result)}");
                             }
 
                             Thread.Sleep(300);

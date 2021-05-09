@@ -351,11 +351,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual async Task<List<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems, bool IncludeSystemItem, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder)
+        public virtual async Task<List<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems, bool IncludeSystemItem, uint MaxNumLimit = uint.MaxValue, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder)
         {
             if (WIN_Native_API.CheckLocationAvailability(Path))
             {
-                return WIN_Native_API.GetStorageItems(Path, IncludeHiddenItems, IncludeSystemItem, Filter);
+                return WIN_Native_API.GetStorageItems(Path, IncludeHiddenItems, IncludeSystemItem, MaxNumLimit, Filter);
             }
             else
             {
@@ -385,6 +385,11 @@ namespace RX_Explorer.Class
                             {
                                 foreach (IStorageItem Item in ReadOnlyItemList.Where((Item) => (Item.IsOfType(StorageItemTypes.Folder) && Filter.HasFlag(ItemFilters.Folder)) || (Item.IsOfType(StorageItemTypes.File) && Filter.HasFlag(ItemFilters.File))))
                                 {
+                                    if (Result.Count >= MaxNumLimit)
+                                    {
+                                        return Result;
+                                    }
+
                                     if (Item is StorageFolder SubFolder)
                                     {
                                         Result.Add(new FileSystemStorageFolder(SubFolder, await SubFolder.GetModifiedTimeAsync()));

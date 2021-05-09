@@ -984,7 +984,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static List<FileSystemStorageItemBase> GetStorageItems(string FolderPath, bool IncludeHiddenItem, bool IncludeSystemItem, ItemFilters Filter)
+        public static List<FileSystemStorageItemBase> GetStorageItems(string FolderPath, bool IncludeHiddenItem, bool IncludeSystemItem, uint MaxNumLimit, ItemFilters Filter)
         {
             if (string.IsNullOrWhiteSpace(FolderPath))
             {
@@ -1050,7 +1050,7 @@ namespace RX_Explorer.Class
                             }
                         }
                     }
-                    while (FindNextFile(Ptr, out Data));
+                    while (FindNextFile(Ptr, out Data) && Result.Count < MaxNumLimit);
 
                     return Result;
                 }

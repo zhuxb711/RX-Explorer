@@ -152,30 +152,18 @@ namespace RX_Explorer
             Loaded += FileControl_Loaded;
         }
 
-        private async void CommonAccessCollection_DriveRemoved(object sender, CommonAccessCollection.DriveChangeDeferredEventArgs args)
+        private void CommonAccessCollection_DriveRemoved(object sender, CommonAccessCollection.DriveChangeDeferredEventArgs args)
         {
-            EventDeferral Deferral = args.GetDeferral();
-
             try
             {
                 if (FolderTree.RootNodes.FirstOrDefault((Node) => ((Node.Content as TreeViewNodeContent)?.Path.Equals(args.StorageItem.Path, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()) is TreeViewNode Node)
                 {
                     FolderTree.RootNodes.Remove(Node);
-                    FolderTree.SelectedNode = FolderTree.RootNodes.LastOrDefault();
-
-                    if (FolderTree.SelectedNode?.Content is TreeViewNodeContent Content && CurrentPresenter != null)
-                    {
-                        await CurrentPresenter.DisplayItemsInFolder(Content.Path).ConfigureAwait(false);
-                    }
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "An exception was threw in DriveRemoved");
-            }
-            finally
-            {
-                Deferral.Complete();
             }
         }
 
@@ -662,7 +650,7 @@ namespace RX_Explorer
                 {
                     if (await FileSystemStorageItemBase.OpenAsync(Content.Path) is FileSystemStorageFolder Folder)
                     {
-                        List<FileSystemStorageItemBase> StorageItemPath = await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder);
+                        List<FileSystemStorageItemBase> StorageItemPath = await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, Filter: ItemFilters.Folder);
 
                         await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                         {
@@ -1281,11 +1269,6 @@ namespace RX_Explorer
                     if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath1) is FileSystemStorageItemBase Item)
                     {
                         await CurrentPresenter.EnterSelectedItemAsync(Item);
-
-                        if (Item is FileSystemStorageFolder)
-                        {
-                            await SQLite.Current.SetPathHistoryAsync(Item.Path);
-                        }
                     }
 
                     return;
@@ -1295,11 +1278,6 @@ namespace RX_Explorer
                     if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath2) is FileSystemStorageItemBase Item)
                     {
                         await CurrentPresenter.EnterSelectedItemAsync(Item);
-
-                        if (Item is FileSystemStorageFolder)
-                        {
-                            await SQLite.Current.SetPathHistoryAsync(Item.Path);
-                        }
                     }
 
                     return;
@@ -1309,11 +1287,6 @@ namespace RX_Explorer
                     if (await FileSystemStorageItemBase.OpenAsync(ProtentialPath3) is FileSystemStorageItemBase Item)
                     {
                         await CurrentPresenter.EnterSelectedItemAsync(Item);
-
-                        if (Item is FileSystemStorageFolder)
-                        {
-                            await SQLite.Current.SetPathHistoryAsync(Item.Path);
-                        }
                     }
 
                     return;
@@ -1419,8 +1392,6 @@ namespace RX_Explorer
 
                             await CurrentPresenter.DisplayItemsInFolder(Item.Path);
 
-                            await SQLite.Current.SetPathHistoryAsync(Item.Path);
-
                             await JumpListController.Current.AddItemAsync(JumpListGroup.Recent, Item.Path);
                         }
                     }
@@ -1484,7 +1455,7 @@ namespace RX_Explorer
 
                                     if (string.IsNullOrEmpty(FileName))
                                     {
-                                        foreach (string Path in (await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems)).Take(20).Select((It) => It.Path))
+                                        foreach (string Path in (await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, 20)).Select((It) => It.Path))
                                         {
                                             AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Collapsed));
                                         }
@@ -1653,7 +1624,8 @@ namespace RX_Explorer
 
             if (string.IsNullOrEmpty(AddressBox.Text))
             {
-                AddressBox.Text = CurrentPresenter?.CurrentFolder?.Path ?? string.Empty;
+                string CurrentPath = CurrentPresenter?.CurrentFolder?.Path;
+                AddressBox.Text = (string.IsNullOrWhiteSpace(CurrentPath) || (RootStorageFolder.Instance.Path.Equals(CurrentPath, StringComparison.OrdinalIgnoreCase)) ? string.Empty : CurrentPath);
             }
 
             AddressButtonContainer.Visibility = Visibility.Collapsed;
@@ -1701,7 +1673,6 @@ namespace RX_Explorer
                     if (!Block.Path.StartsWith(@"\") || Block.Path.Split(@"\", StringSplitOptions.RemoveEmptyEntries).Length > 1)
                     {
                         await CurrentPresenter.DisplayItemsInFolder(Block.Path);
-                        await SQLite.Current.SetPathHistoryAsync(Block.Path);
                     }
                 }
                 catch
@@ -1728,7 +1699,7 @@ namespace RX_Explorer
             {
                 if (await FileSystemStorageItemBase.OpenAsync(Block.Path) is FileSystemStorageFolder Folder)
                 {
-                    foreach (FileSystemStorageFolder SubFolder in await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, ItemFilters.Folder))
+                    foreach (FileSystemStorageFolder SubFolder in await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, Filter: ItemFilters.Folder))
                     {
                         AddressExtentionList.Add(new AddressBlock(SubFolder.Path));
                     }
@@ -2486,18 +2457,18 @@ namespace RX_Explorer
             }
         }
 
-        private async void BladeViewer_BladeClosed(object sender, BladeItem e)
+        public async Task CloseBladeAsync(BladeItem Item)
         {
-            if (e.Content is FilePresenter Presenter)
+            if (Item.Content is FilePresenter Presenter)
             {
                 Presenter.Dispose();
 
-                e.RemoveHandler(PointerPressedEvent, BladePointerPressedEventHandler);
-                e.Expanded -= Blade_Expanded;
-                e.Content = null;
+                Item.RemoveHandler(PointerPressedEvent, BladePointerPressedEventHandler);
+                Item.Expanded -= Blade_Expanded;
+                Item.Content = null;
             }
 
-            BladeViewer.Items.Remove(e);
+            BladeViewer.Items.Remove(Item);
 
             await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
             {
@@ -2515,6 +2486,12 @@ namespace RX_Explorer
                     }
                 }
             });
+
+        }
+
+        private async void BladeViewer_BladeClosed(object sender, BladeItem e)
+        {
+            await CloseBladeAsync(e);
         }
 
         private void BladeViewer_SizeChanged(object sender, SizeChangedEventArgs e)

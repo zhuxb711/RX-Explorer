@@ -64,7 +64,7 @@ namespace RX_Explorer.Class
             return Task.FromResult(((uint)0, (uint)0));
         }
 
-        public override Task<List<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems, bool IncludeSystemItem, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder)
+        public override Task<List<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems, bool IncludeSystemItem, uint MaxNumLimit = uint.MaxValue, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder)
         {
             return Task.FromResult(new List<FileSystemStorageItemBase>(0));
         }

@@ -932,7 +932,7 @@ namespace RX_Explorer
 
                         try
                         {
-                            foreach (FileSystemStorageFile Item in await SecureFolder.GetChildItemsAsync(false, false, ItemFilters.File))
+                            foreach (FileSystemStorageFile Item in await SecureFolder.GetChildItemsAsync(false, false, Filter: ItemFilters.File))
                             {
                                 if (await Item.DecryptAsync(Dialog.ExportFolder.Path, FileEncryptionAesKey) is FileSystemStorageItemBase)
                                 {
