@@ -1764,31 +1764,7 @@ namespace RX_Explorer
             {
                 try
                 {
-                    List<string> PathList = new List<string>();
-
-                    if (e.DataView.Contains(StandardDataFormats.StorageItems))
-                    {
-                        IReadOnlyList<IStorageItem> ItemList = await e.DataView.GetStorageItemsAsync();
-                        PathList.AddRange(ItemList.Select((Item) => Item.Path));
-                    }
-
-                    if (e.DataView.Contains(StandardDataFormats.Text))
-                    {
-                        string XmlText = await e.DataView.GetTextAsync();
-
-                        if (XmlText.Contains("RX-Explorer"))
-                        {
-                            XmlDocument Document = new XmlDocument();
-                            Document.LoadXml(XmlText);
-
-                            IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
-
-                            if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
-                            {
-                                PathList.AddRange(Document.SelectNodes("/RX-Explorer/Item").Select((Node) => Node.InnerText));
-                            }
-                        }
-                    }
+                    IReadOnlyList<string> PathList = await e.DataView.GetAsPathListAsync();
 
                     if (PathList.Count > 0)
                     {
@@ -1844,7 +1820,7 @@ namespace RX_Explorer
             {
                 if (e.OriginalSource is Button Btn)
                 {
-                    if (e.DataView.Contains(StandardDataFormats.StorageItems))
+                    if(await e.DataView.CheckIfContainsAvailableDataAsync())
                     {
                         if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                         {
@@ -1859,40 +1835,6 @@ namespace RX_Explorer
 
                         e.DragUIOverride.IsContentVisible = true;
                         e.DragUIOverride.IsCaptionVisible = true;
-                    }
-                    else if (e.DataView.Contains(StandardDataFormats.Text))
-                    {
-                        string XmlText = await e.DataView.GetTextAsync();
-
-                        if (XmlText.Contains("RX-Explorer"))
-                        {
-                            XmlDocument Document = new XmlDocument();
-                            Document.LoadXml(XmlText);
-
-                            IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
-
-                            if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
-                            {
-                                if (e.Modifiers.HasFlag(DragDropModifiers.Control))
-                                {
-                                    e.AcceptedOperation = DataPackageOperation.Copy;
-                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {Btn.Content}";
-                                }
-                                else
-                                {
-                                    e.AcceptedOperation = DataPackageOperation.Move;
-                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {Btn.Content}";
-                                }
-                            }
-                            else
-                            {
-                                e.AcceptedOperation = DataPackageOperation.None;
-                            }
-                        }
-                        else
-                        {
-                            e.AcceptedOperation = DataPackageOperation.None;
-                        }
                     }
                     else
                     {
@@ -1994,38 +1936,7 @@ namespace RX_Explorer
                     RightTabFlyout.Hide();
 
                     Clipboard.Clear();
-
-                    DataPackage Package = new DataPackage
-                    {
-                        RequestedOperation = DataPackageOperation.Move
-                    };
-
-                    if (CurrentPresenter.CurrentFolder is IUnsupportedStorageItem)
-                    {
-                        XmlDocument Document = new XmlDocument();
-
-                        XmlElement RootElemnt = Document.CreateElement("RX-Explorer");
-                        Document.AppendChild(RootElemnt);
-
-                        XmlElement KindElement = Document.CreateElement("Kind");
-                        KindElement.InnerText = "RX-Explorer-TransferNotStorageItem";
-                        RootElemnt.AppendChild(KindElement);
-
-                        XmlElement InnerElement = Document.CreateElement("Item");
-                        InnerElement.InnerText = CurrentPresenter.CurrentFolder.Path;
-                        RootElemnt.AppendChild(InnerElement);
-
-                        Package.SetText(Document.GetXml());
-                    }
-                    else
-                    {
-                        if (await CurrentPresenter.CurrentFolder.GetStorageItemAsync() is IStorageItem Item)
-                        {
-                            Package.SetStorageItems(new IStorageItem[] { Item }, false);
-                        }
-                    }
-
-                    Clipboard.SetContent(Package);
+                    Clipboard.SetContent(await new FileSystemStorageItemBase[] { CurrentPresenter.CurrentFolder }.GetAsDataPackageAsync(DataPackageOperation.Move));
                 }
                 catch
                 {
@@ -2049,38 +1960,7 @@ namespace RX_Explorer
                     RightTabFlyout.Hide();
 
                     Clipboard.Clear();
-
-                    DataPackage Package = new DataPackage
-                    {
-                        RequestedOperation = DataPackageOperation.Copy
-                    };
-
-                    if (CurrentPresenter.CurrentFolder is IUnsupportedStorageItem)
-                    {
-                        XmlDocument Document = new XmlDocument();
-
-                        XmlElement RootElemnt = Document.CreateElement("RX-Explorer");
-                        Document.AppendChild(RootElemnt);
-
-                        XmlElement KindElement = Document.CreateElement("Kind");
-                        KindElement.InnerText = "RX-Explorer-TransferNotStorageItem";
-                        RootElemnt.AppendChild(KindElement);
-
-                        XmlElement InnerElement = Document.CreateElement("Item");
-                        InnerElement.InnerText = CurrentPresenter.CurrentFolder.Path;
-                        RootElemnt.AppendChild(InnerElement);
-
-                        Package.SetText(Document.GetXml());
-                    }
-                    else
-                    {
-                        if (await CurrentPresenter.CurrentFolder.GetStorageItemAsync() is IStorageItem Item)
-                        {
-                            Package.SetStorageItems(new IStorageItem[] { Item }, false);
-                        }
-                    }
-
-                    Clipboard.SetContent(Package);
+                    Clipboard.SetContent(await new FileSystemStorageItemBase[] { CurrentPresenter.CurrentFolder }.GetAsDataPackageAsync(DataPackageOperation.Copy));
                 }
                 catch
                 {

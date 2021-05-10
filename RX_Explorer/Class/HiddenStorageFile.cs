@@ -58,7 +58,7 @@ namespace RX_Explorer.Class
 
         public HiddenStorageFile(string Path, WIN_Native_API.WIN32_FIND_DATA Data) : base(Path, Data)
         {
-            base.SetThumbnailOpacity(ThumbnailStatus.ReduceOpacity);
+            base.SetThumbnailOpacity(ThumbnailStatus.ReducedOpacity);
         }
     }
 }

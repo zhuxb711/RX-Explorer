@@ -407,7 +407,7 @@ namespace RX_Explorer.Class
                         }
                         break;
                     }
-                case ThumbnailStatus.ReduceOpacity:
+                case ThumbnailStatus.ReducedOpacity:
                     {
                         if (ThumbnailOpacity != 0.5)
                         {

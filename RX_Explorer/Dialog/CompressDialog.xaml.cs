@@ -14,7 +14,7 @@ namespace RX_Explorer.Dialog
         /// </summary>
         public string FileName { get; private set; }
 
-        private readonly string SuggestName;
+        private readonly FileSystemStorageItemBase OriginItem;
 
         private static readonly IReadOnlyDictionary<CompressionAlgorithm, string> AlgorithmExtensionMap = new Dictionary<CompressionAlgorithm, string>
         {
@@ -32,16 +32,16 @@ namespace RX_Explorer.Dialog
 
         public CompressionType Type { get; private set; }
 
-        public CompressDialog(bool ShouldDisplayGzip, string SuggestName)
+        public CompressDialog(FileSystemStorageItemBase OriginItem)
         {
             InitializeComponent();
 
-            this.SuggestName = SuggestName;
+            this.OriginItem = OriginItem;
 
-            Initialize(ShouldDisplayGzip);
+            Initialize(OriginItem is FileSystemStorageFile);
         }
 
-        public CompressDialog(bool ShouldDisplayGzip) : this(ShouldDisplayGzip, null)
+        public CompressDialog() : this(null)
         {
 
         }
@@ -132,7 +132,7 @@ namespace RX_Explorer.Dialog
             {
                 case 0:
                     {
-                        FName.Text = $"{(string.IsNullOrEmpty(SuggestName) ? Globalization.GetString("Compression_Admin_Name_Text") : Path.GetFileNameWithoutExtension(SuggestName))}.zip";
+                        FName.Text = $"{(OriginItem == null ? Globalization.GetString("Compression_Admin_Name_Text") : (OriginItem is FileSystemStorageFile ? Path.GetFileNameWithoutExtension(OriginItem.Name) : OriginItem.Name))}.zip";
                         Type = CompressionType.Zip;
                         CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Visible;
                         CAlgorithm.Visibility = Windows.UI.Xaml.Visibility.Visible;
@@ -145,7 +145,7 @@ namespace RX_Explorer.Dialog
                     }
                 case 1:
                     {
-                        FName.Text = $"{(string.IsNullOrEmpty(SuggestName) ? Globalization.GetString("Compression_Admin_Name_Text") : Path.GetFileNameWithoutExtension(SuggestName))}.tar";
+                        FName.Text = $"{(OriginItem == null ? Globalization.GetString("Compression_Admin_Name_Text") : (OriginItem is FileSystemStorageFile ? Path.GetFileNameWithoutExtension(OriginItem.Name) : OriginItem.Name))}.tar";
                         Type = CompressionType.Tar;
                         CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
                         CAlgorithm.Visibility = Windows.UI.Xaml.Visibility.Visible;
@@ -159,7 +159,7 @@ namespace RX_Explorer.Dialog
                     }
                 case 2:
                     {
-                        FName.Text = $"{(string.IsNullOrEmpty(SuggestName) ? Globalization.GetString("Compression_Admin_Name_Text") : SuggestName)}.gz";
+                        FName.Text = $"{(OriginItem == null ? Globalization.GetString("Compression_Admin_Name_Text") : OriginItem.Name)}.gz";
                         Type = CompressionType.Gzip;
                         CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Visible;
                         CAlgorithm.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
@@ -168,7 +168,7 @@ namespace RX_Explorer.Dialog
                     }
                 case 3:
                     {
-                        FName.Text = $"{(string.IsNullOrEmpty(SuggestName) ? Globalization.GetString("Compression_Admin_Name_Text") : SuggestName)}.bz2";
+                        FName.Text = $"{(OriginItem == null ? Globalization.GetString("Compression_Admin_Name_Text") : OriginItem.Name)}.bz2";
                         Type = CompressionType.BZip2;
                         CompressLevel.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
                         CAlgorithm.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
@@ -205,7 +205,7 @@ namespace RX_Explorer.Dialog
                         {
                             CompressLevel.IsEnabled = true;
                             CompressLevel.Visibility = Algorithm == CompressionAlgorithm.GZip ? Windows.UI.Xaml.Visibility.Visible : Windows.UI.Xaml.Visibility.Collapsed;
-                            FName.Text = $"{(string.IsNullOrEmpty(SuggestName) ? Globalization.GetString("Compression_Admin_Name_Text") : Path.GetFileNameWithoutExtension(SuggestName))}.tar{AlgorithmExtensionMap[Algorithm].ToLower()}";
+                            FName.Text = $"{(OriginItem == null ? Globalization.GetString("Compression_Admin_Name_Text") : (OriginItem is FileSystemStorageFile ? Path.GetFileNameWithoutExtension(OriginItem.Name) : OriginItem.Name))}.tar{AlgorithmExtensionMap[Algorithm].ToLower()}";
                             break;
                         }
                 }

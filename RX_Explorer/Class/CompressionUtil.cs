@@ -247,6 +247,8 @@ namespace RX_Explorer.Class
                 {
                     GZipStream.SetLevel((int)Level);
                     GZipStream.IsStreamOwner = false;
+                    GZipStream.FileName = Source.Name;
+
                     await SourceFileStream.CopyToAsync(GZipStream, ProgressHandler: ProgressHandler).ConfigureAwait(false);
                 }
             }
@@ -256,11 +258,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task ExtractGZipAsync(string Source, string NewZipPath, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task ExtractGZipAsync(string Source, string NewDirectoryPath, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (await FileSystemStorageItemBase.OpenAsync(Source) is FileSystemStorageFile File)
             {
-                await ExtractGZipAsync(File, NewZipPath, ProgressHandler);
+                await ExtractGZipAsync(File, NewDirectoryPath, ProgressHandler);
             }
             else
             {
@@ -268,21 +270,44 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task ExtractGZipAsync(FileSystemStorageFile Source, string NewFilePath, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task ExtractGZipAsync(FileSystemStorageFile Source, string NewDirectoryPath, ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (await FileSystemStorageItemBase.CreateAsync(NewFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
+            using (FileStream SourceFileStream = await Source.GetFileStreamFromFileAsync(AccessMode.Exclusive))
             {
-                using (FileStream SourceFileStream = await Source.GetFileStreamFromFileAsync(AccessMode.Exclusive))
-                using (FileStream NewFileStrem = await NewFile.GetFileStreamFromFileAsync(AccessMode.Write))
+                string NewFilePath = Path.Combine(NewDirectoryPath, Path.GetFileNameWithoutExtension(Source.Path));
+
                 using (GZipInputStream GZipStream = new GZipInputStream(SourceFileStream))
                 {
                     GZipStream.IsStreamOwner = false;
-                    await GZipStream.CopyToAsync(NewFileStrem, ProgressHandler: ProgressHandler).ConfigureAwait(false);
+
+                    await GZipStream.ReadAsync(new byte[128], 0, 128);
+
+                    string GZipInnerFileName = GZipStream.GetFilename();
+
+                    if (!string.IsNullOrEmpty(GZipInnerFileName))
+                    {
+                        NewFilePath = Path.Combine(NewDirectoryPath, GZipInnerFileName);
+                    }
                 }
-            }
-            else
-            {
-                throw new UnauthorizedAccessException();
+
+                SourceFileStream.Seek(0, SeekOrigin.Begin);
+
+                using (GZipInputStream GZipStream = new GZipInputStream(SourceFileStream))
+                {
+                    GZipStream.IsStreamOwner = false;
+
+                    if (await FileSystemStorageItemBase.CreateAsync(NewFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
+                    {
+                        using (FileStream NewFileStrem = await NewFile.GetFileStreamFromFileAsync(AccessMode.Write))
+                        {
+                            await GZipStream.CopyToAsync(NewFileStrem, ProgressHandler: ProgressHandler).ConfigureAwait(false);
+                        }
+                    }
+                    else
+                    {
+                        throw new UnauthorizedAccessException();
+                    }
+                }
             }
         }
 
@@ -760,7 +785,7 @@ namespace RX_Explorer.Class
 
                 if (File.Name.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) && !File.Name.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase))
                 {
-                    await ExtractGZipAsync(File, Path.Combine(DestPath, Path.GetFileNameWithoutExtension(File.Name)), (s, e) =>
+                    await ExtractGZipAsync(File, DestPath, (s, e) =>
                     {
                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.SizeRaw)) * 100d / TotalSize), null));
                     });

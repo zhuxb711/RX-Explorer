@@ -13,7 +13,6 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Background;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Data.Xml.Dom;
 using Windows.Devices.Enumeration;
 using Windows.Foundation;
 using Windows.Media.Audio;
@@ -240,27 +239,7 @@ namespace RX_Explorer
 
                     if (Package.Properties.PackageFamilyName == Windows.ApplicationModel.Package.Current.Id.FamilyName)
                     {
-                        if (Package.Contains(StandardDataFormats.StorageItems))
-                        {
-                            ShouldKeepClipboardTipShow = true;
-                        }
-                        else if (Package.Contains(StandardDataFormats.Text))
-                        {
-                            string XmlText = await Package.GetTextAsync();
-
-                            if (XmlText.Contains("RX-Explorer"))
-                            {
-                                XmlDocument Document = new XmlDocument();
-                                Document.LoadXml(XmlText);
-
-                                IXmlNode KindNode = Document.SelectSingleNode("/RX-Explorer/Kind");
-
-                                if (KindNode?.InnerText == "RX-Explorer-TransferNotStorageItem")
-                                {
-                                    ShouldKeepClipboardTipShow = true;
-                                }
-                            }
-                        }
+                        ShouldKeepClipboardTipShow = await Package.CheckIfContainsAvailableDataAsync();
                     }
                 }
                 catch
