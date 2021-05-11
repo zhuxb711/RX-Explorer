@@ -252,6 +252,8 @@ namespace RX_Explorer
 
         private int BlurChangeLock;
 
+        private int LightChangeLock;
+
         private int UpdateUILock;
 
         private int LocalSettingLock;
@@ -303,7 +305,10 @@ namespace RX_Explorer
 
                 SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfi_AlwaysPopup"));
                 SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfi_UseBuildInAsDefault"));
-                SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfi_UseEverythingAsDefault"));
+                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                {
+                    SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfi_UseEverythingAsDefault"));
+                }
 
                 foreach (TerminalProfile Profile in await SQLite.Current.GetAllTerminalProfile())
                 {
@@ -621,8 +626,11 @@ namespace RX_Explorer
                 HideProtectedSystemItems.Unchecked -= HideProtectedSystemItems_Unchecked;
 
                 LanguageComboBox.SelectedIndex = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["LanguageOverride"]);
+                
                 BackgroundBlurSlider1.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
                 BackgroundBlurSlider2.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
+                BackgroundLightSlider1.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"]);
+                BackgroundLightSlider2.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"]);
 
                 switch ((await StartupTask.GetAsync("RXExplorer")).State)
                 {
@@ -701,7 +709,15 @@ namespace RX_Explorer
 
                 if (ApplicationData.Current.LocalSettings.Values["SearchEngineFlyoutMode"] is int FlyoutModeIndex)
                 {
-                    SearchEngineConfig.SelectedIndex = FlyoutModeIndex;
+                    if(FlyoutModeIndex > SearchEngineConfig.Items.Count - 1)
+                    {
+                        SearchEngineConfig.SelectedIndex = 0;
+                        ApplicationData.Current.LocalSettings.Values["SearchEngineFlyoutMode"] = 0;
+                    }
+                    else
+                    {
+                        SearchEngineConfig.SelectedIndex = FlyoutModeIndex;
+                    }
                 }
                 else
                 {
@@ -1040,7 +1056,8 @@ namespace RX_Explorer
                             SolidColor_Black.IsChecked = null;
                             PreventFallBack.IsChecked = null;
                             CustomFontColor.IsEnabled = false;
-                            MainPage.ThisPage.BackgroundBlur.Amount = 0;
+                            MainPage.ThisPage.BackgroundBlur.BlurAmount = 0;
+                            MainPage.ThisPage.BackgroundBlur.TintOpacity = 0;
 
                             BackgroundController.Current.IsCompositionAcrylicEnabled = false;
                             BackgroundController.Current.SwitchTo(BackgroundBrushType.Acrylic);
@@ -1062,7 +1079,8 @@ namespace RX_Explorer
                             PreventFallBack.IsChecked = null;
                             BingPictureMode.IsChecked = null;
                             CustomFontColor.IsEnabled = false;
-                            MainPage.ThisPage.BackgroundBlur.Amount = 0;
+                            MainPage.ThisPage.BackgroundBlur.BlurAmount = 0;
+                            MainPage.ThisPage.BackgroundBlur.TintOpacity = 0;
 
                             BackgroundController.Current.IsCompositionAcrylicEnabled = false;
 
@@ -1254,7 +1272,7 @@ namespace RX_Explorer
             string Title = string.Empty;
             string Suggestion = string.Empty;
 
-            Retry:
+        Retry:
             FeedBackDialog Dialog;
 
             if (string.IsNullOrEmpty(Title) && string.IsNullOrEmpty(Suggestion))
@@ -1321,7 +1339,7 @@ namespace RX_Explorer
 
             Retry:
                 FeedBackDialog Dialog = new FeedBackDialog(Title, Suggestion);
-                
+
                 if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
                 {
                     using (MySQL SQL = new MySQL())
@@ -1338,7 +1356,7 @@ namespace RX_Explorer
                                 Content = Globalization.GetString("QueueDialog_FeedBackNetworkError_Content"),
                                 CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                             };
-                            
+
                             await dialog.ShowAsync();
 
                             Title = Dialog.TitleName;
@@ -1391,7 +1409,8 @@ namespace RX_Explorer
                 BackgroundBlurSliderArea1.Visibility = Visibility.Collapsed;
                 BackgroundBlurSliderArea2.Visibility = Visibility.Collapsed;
 
-                MainPage.ThisPage.BackgroundBlur.Amount = 0;
+                MainPage.ThisPage.BackgroundBlur.BlurAmount = 0;
+                MainPage.ThisPage.BackgroundBlur.TintOpacity = 0;
 
                 ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.Acrylic);
 
@@ -1473,7 +1492,8 @@ namespace RX_Explorer
 
                 BackgroundController.Current.IsCompositionAcrylicEnabled = false;
 
-                MainPage.ThisPage.BackgroundBlur.Amount = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]) / 5;
+                MainPage.ThisPage.BackgroundBlur.BlurAmount = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]) / 10;
+                MainPage.ThisPage.BackgroundBlur.TintOpacity = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"]) / 200;
 
                 if (PictureList.Count == 0)
                 {
@@ -1569,7 +1589,8 @@ namespace RX_Explorer
                 GetBingPhotoState.Visibility = Visibility.Visible;
                 BackgroundBlurSliderArea1.Visibility = Visibility.Visible;
                 BackgroundBlurSliderArea2.Visibility = Visibility.Collapsed;
-                MainPage.ThisPage.BackgroundBlur.Amount = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]) / 5;
+                MainPage.ThisPage.BackgroundBlur.BlurAmount = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]) / 10;
+                MainPage.ThisPage.BackgroundBlur.TintOpacity = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"]) / 200;
 
                 BackgroundController.Current.IsCompositionAcrylicEnabled = false;
 
@@ -2297,7 +2318,7 @@ namespace RX_Explorer
             {
                 try
                 {
-                    MainPage.ThisPage.BackgroundBlur.Amount = e.NewValue / 5;
+                    MainPage.ThisPage.BackgroundBlur.BlurAmount = e.NewValue / 10;
                     ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"] = Convert.ToSingle(e.NewValue);
                 }
                 catch (Exception ex)
@@ -2709,6 +2730,27 @@ namespace RX_Explorer
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "Could not export restore file");
+            }
+        }
+
+        private void BackgroundLightSlider_ValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        {
+            if (Interlocked.Exchange(ref LightChangeLock, 1) == 0)
+            {
+                try
+                {
+                    MainPage.ThisPage.BackgroundBlur.TintOpacity = e.NewValue / 200;
+                    ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"] = Convert.ToSingle(e.NewValue);
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Change BackgroundLight failed");
+                }
+                finally
+                {
+                    ApplicationData.Current.SignalDataChanged();
+                    _ = Interlocked.Exchange(ref LightChangeLock, 0);
+                }
             }
         }
     }

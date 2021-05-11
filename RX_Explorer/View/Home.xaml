@@ -7,7 +7,6 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-      xmlns:Sys="using:System"
       mc:Ignorable="d"
       NavigationCacheMode="Required"
       Background="Transparent">
@@ -18,6 +17,7 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="Add"
                               Label="添加"
+                              MinWidth="160"
                               x:Uid="QuickStartAddButton"
                               x:Name="AddLibraryButton"
                               Click="AddLibraryButton_Click" />
@@ -29,12 +29,19 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow"
                               Label="打开"
+                              MinWidth="160"
                               x:Uid="LibraryOpenButton"
                               Click="OpenLibrary_Click"
-                              x:Name="OpenLibrary" />
+                              x:Name="OpenLibrary">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="Enter"
+                                             IsEnabled="False"/>
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
                 <AppBarButton Name="RemovePin"
                               x:Uid="LibraryCancelButton"
                               Label="取消固定"
+                              MinWidth="160"
                               Icon="UnPin"
                               Click="RemovePin_Click">
                 </AppBarButton>
@@ -52,9 +59,16 @@
                 <AppBarButton Icon="Refresh"
                               Label="{x:Bind Cls:Globalization.GetString('Operate_Text_Refresh')}"
                               x:Name="Refresh"
-                              Click="Refresh_Click" />
+                              MinWidth="160"
+                              Click="Refresh_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="F5"
+                                             IsEnabled="False"/>
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
                 <AppBarButton Icon="Add"
                               Label="添加驱动器"
+                              MinWidth="160"
                               x:Uid="AddDevice"
                               x:Name="AddDevice"
                               Click="AddDevice_Click" />
@@ -66,12 +80,19 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow"
                               Label="打开"
+                              MinWidth="160"
                               x:Uid="OpenDevice"
                               x:Name="OpenDevice"
-                              Click="OpenDevice_Click" />
+                              Click="OpenDevice_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="Enter"
+                                             IsEnabled="False" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Label="属性"
+                              MinWidth="160"
                               x:Uid="DeviceAttribute"
                               x:Name="Attribute"
                               Click="Attribute_Click" />
@@ -83,10 +104,17 @@
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="BackToWindow"
                               Label="打开"
+                              MinWidth="160"
                               x:Uid="OpenDevice"
-                              Click="OpenDevice_Click" />
+                              Click="OpenDevice_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="Enter"
+                                             IsEnabled="False" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton Label="弹出"
+                              MinWidth="160"
                               x:Uid="EjectUSB"
                               Name="EjectButton"
                               Click="EjectButton_Click">
@@ -98,6 +126,7 @@
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"
                               Label="属性"
+                              MinWidth="160"
                               x:Uid="DeviceAttribute"
                               Click="Attribute_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
@@ -107,6 +136,7 @@
                                Placement="RightEdgeAlignedTop">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Label="解锁"
+                              MinWidth="160"
                               Name="UnlockBitlocker"
                               x:Uid="UnlockBitlocker"
                               Click="UnlockBitlocker_Click">

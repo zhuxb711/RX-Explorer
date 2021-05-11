@@ -25,7 +25,7 @@ namespace RX_Explorer.Class
 
         public double ThresholdBorderThickness { get; } = 30;
 
-        private volatile bool AllowProcess;
+        public bool IsEnabled { get; private set; }
 
         private ListViewBase View;
 
@@ -95,12 +95,12 @@ namespace RX_Explorer.Class
 
         public void Enable()
         {
-            AllowProcess = true;
+            IsEnabled = true;
         }
 
         public void Disable()
         {
-            AllowProcess = false;
+            IsEnabled = false;
 
             AbsItemLocationRecord.Clear();
 
@@ -114,7 +114,7 @@ namespace RX_Explorer.Class
 
         private void View_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
-            if (AllowProcess && e.Pointer.PointerDeviceType == PointerDeviceType.Mouse && e.GetCurrentPoint(View).Properties.IsLeftButtonPressed)
+            if (IsEnabled && e.Pointer.PointerDeviceType == PointerDeviceType.Mouse && e.GetCurrentPoint(View).Properties.IsLeftButtonPressed)
             {
                 if (Interlocked.Exchange(ref Locker, 1) == 0)
                 {
@@ -207,7 +207,7 @@ namespace RX_Explorer.Class
 
                 AbsStartPoint = new Point(CurrentPoint.X + (InnerScrollView?.HorizontalOffset).GetValueOrDefault(), CurrentPoint.Y + (InnerScrollView?.VerticalOffset).GetValueOrDefault());
 
-                if (AllowProcess)
+                if (IsEnabled)
                 {
                     View.CapturePointer(e.Pointer);
                 }
@@ -280,7 +280,7 @@ namespace RX_Explorer.Class
 
         private void DrawRectangleInCanvas(Point StartPoint, Point EndPoint)
         {
-            if (AllowProcess)
+            if (IsEnabled)
             {
                 if (StartPoint.X <= EndPoint.X)
                 {

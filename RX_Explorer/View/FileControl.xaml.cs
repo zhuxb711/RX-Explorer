@@ -3,7 +3,6 @@ using Microsoft.Toolkit.Uwp.UI.Animations;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
-using RX_Explorer.Interface;
 using RX_Explorer.SeparateWindow.PropertyWindow;
 using ShareClassLibrary;
 using System;
@@ -17,7 +16,6 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.DataTransfer.DragDrop;
-using Windows.Data.Xml.Dom;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.System;
@@ -1106,26 +1104,34 @@ namespace RX_Explorer
             {
                 case SearchEngineFlyoutMode.UseBuildInEngineAsDefault:
                     {
-                        if (AnimationController.Current.IsEnableAnimation)
+                        (bool IgnoreCase, bool UseRegexExpression, bool DeepSearch) = LoadSearchConfiguration(SearchCategory.BuiltInEngine);
+
+                        Frame.Navigate(typeof(SearchPage), new Tuple<FileControl, SearchOptions>(this, new SearchOptions
                         {
-                            Frame.Navigate(typeof(SearchPage), new Tuple<WeakReference<FileControl>, SearchCategory, bool?, bool?, bool?, uint?>(new WeakReference<FileControl>(this), SearchCategory.BuiltInEngine_Shallow, true, false, null, null), new DrillInNavigationTransitionInfo());
-                        }
-                        else
-                        {
-                            Frame.Navigate(typeof(SearchPage), new Tuple<WeakReference<FileControl>, SearchCategory, bool?, bool?, bool?, uint?>(new WeakReference<FileControl>(this), SearchCategory.BuiltInEngine_Shallow, true, false, null, null), new SuppressNavigationTransitionInfo());
-                        }
+                            SearchFolder = CurrentPresenter.CurrentFolder,
+                            IgnoreCase = IgnoreCase,
+                            UseRegexExpression = UseRegexExpression,
+                            DeepSearch = CurrentPresenter.CurrentFolder is RootStorageFolder || DeepSearch,
+                            SearchText = GlobeSearch.Text,
+                            EngineCategory = SearchCategory.BuiltInEngine
+                        }), AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
+
                         break;
                     }
                 case SearchEngineFlyoutMode.UseEverythingEngineAsDefault when SearchInEverythingEngine.IsEnabled:
                     {
-                        if (AnimationController.Current.IsEnableAnimation)
+                        (bool IgnoreCase, bool UseRegexExpression, bool DeepSearch) = LoadSearchConfiguration(SearchCategory.EverythingEngine);
+
+                        Frame.Navigate(typeof(SearchPage), new Tuple<FileControl, SearchOptions>(this, new SearchOptions
                         {
-                            Frame.Navigate(typeof(SearchPage), new Tuple<WeakReference<FileControl>, SearchCategory, bool?, bool?, bool?, uint?>(new WeakReference<FileControl>(this), SearchCategory.EverythingEngine, true, false, false, 100), new DrillInNavigationTransitionInfo());
-                        }
-                        else
-                        {
-                            Frame.Navigate(typeof(SearchPage), new Tuple<WeakReference<FileControl>, SearchCategory, bool?, bool?, bool?, uint?>(new WeakReference<FileControl>(this), SearchCategory.EverythingEngine, true, false, false, 100), new SuppressNavigationTransitionInfo());
-                        }
+                            SearchFolder = CurrentPresenter.CurrentFolder,
+                            IgnoreCase = IgnoreCase,
+                            UseRegexExpression = UseRegexExpression,
+                            DeepSearch = CurrentPresenter.CurrentFolder is RootStorageFolder || DeepSearch,
+                            SearchText = GlobeSearch.Text,
+                            EngineCategory = SearchCategory.EverythingEngine
+                        }), AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
+
                         break;
                     }
                 default:
@@ -1762,27 +1768,49 @@ namespace RX_Explorer
 
             if (Btn.DataContext is AddressBlock Block)
             {
+                DragOperationDeferral Deferral = e.GetDeferral();
+
                 try
                 {
+                    DelayEnterCancel?.Cancel();
+
+                    e.Handled = true;
+
                     IReadOnlyList<string> PathList = await e.DataView.GetAsPathListAsync();
 
                     if (PathList.Count > 0)
                     {
-                        StorageFolder TargetFolder = await StorageFolder.GetFolderFromPathAsync(Block.Path);
-
                         switch (e.AcceptedOperation)
                         {
                             case DataPackageOperation.Copy:
                                 {
-                                    QueueTaskController.EnqueueCopyOpeartion(PathList, TargetFolder.Path);
+                                    TaskCompletionSource<bool> CompletionSource = new TaskCompletionSource<bool>();
+
+                                    void OnFinished(object s, EventArgs e)
+                                    {
+                                        CompletionSource.SetResult(true);
+                                    }
+
+                                    QueueTaskController.EnqueueCopyOpeartion(PathList, Block.Path, OnFinished, OnFinished, OnFinished);
+
+                                    await CompletionSource.Task;
 
                                     break;
                                 }
                             case DataPackageOperation.Move:
                                 {
-                                    if (PathList.All((Item) => Path.GetDirectoryName(Item) != Block.Path))
+                                    if (PathList.All((Item) => Path.GetDirectoryName(Item).Equals(Block.Path, StringComparison.OrdinalIgnoreCase)))
                                     {
-                                        QueueTaskController.EnqueueMoveOpeartion(PathList, TargetFolder.Path);
+                                        TaskCompletionSource<bool> CompletionSource = new TaskCompletionSource<bool>();
+
+                                        void OnFinished(object s, EventArgs e)
+                                        {
+                                            CompletionSource.SetResult(true);
+                                        }
+
+                                        QueueTaskController.EnqueueMoveOpeartion(PathList, Block.Path, OnFinished, OnFinished, OnFinished);
+
+                                        await CompletionSource.Task;
                                     }
 
                                     break;
@@ -1807,7 +1835,7 @@ namespace RX_Explorer
                 }
                 finally
                 {
-                    e.Handled = true;
+                    Deferral.Complete();
                 }
             }
         }
@@ -1820,17 +1848,17 @@ namespace RX_Explorer
             {
                 if (e.OriginalSource is Button Btn)
                 {
-                    if(await e.DataView.CheckIfContainsAvailableDataAsync())
+                    if (await e.DataView.CheckIfContainsAvailableDataAsync())
                     {
                         if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                         {
                             e.AcceptedOperation = DataPackageOperation.Move;
-                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {Btn.Content}";
+                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Btn.Content}\"";
                         }
                         else
                         {
                             e.AcceptedOperation = DataPackageOperation.Copy;
-                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {Btn.Content}";
+                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Btn.Content}\"";
                         }
 
                         e.DragUIOverride.IsContentVisible = true;
@@ -1997,25 +2025,29 @@ namespace RX_Explorer
 
             if (SearchInDefaultEngine.IsChecked.GetValueOrDefault())
             {
-                if (AnimationController.Current.IsEnableAnimation)
+                Frame.Navigate(typeof(SearchPage), new Tuple<FileControl, SearchOptions>(this, new SearchOptions
                 {
-                    Frame.Navigate(typeof(SearchPage), new Tuple<WeakReference<FileControl>, SearchCategory, bool?, bool?, bool?, uint?>(new WeakReference<FileControl>(this), BuiltInSearchAllSubFolders.IsChecked.GetValueOrDefault() ? SearchCategory.BuiltInEngine_Deep : SearchCategory.BuiltInEngine_Shallow, BuiltInEngineIgnoreCase.IsChecked, BuiltInEngineIncludeRegex.IsChecked, null, null), new DrillInNavigationTransitionInfo());
-                }
-                else
-                {
-                    Frame.Navigate(typeof(SearchPage), new Tuple<WeakReference<FileControl>, SearchCategory, bool?, bool?, bool?, uint?>(new WeakReference<FileControl>(this), BuiltInSearchAllSubFolders.IsChecked.GetValueOrDefault() ? SearchCategory.BuiltInEngine_Deep : SearchCategory.BuiltInEngine_Shallow, BuiltInEngineIgnoreCase.IsChecked, BuiltInEngineIncludeRegex.IsChecked, null, null), new SuppressNavigationTransitionInfo());
-                }
+                    SearchFolder = CurrentPresenter.CurrentFolder,
+                    IgnoreCase = BuiltInEngineIgnoreCase.IsChecked.GetValueOrDefault(),
+                    UseRegexExpression = BuiltInEngineIncludeRegex.IsChecked.GetValueOrDefault(),
+                    DeepSearch = BuiltInSearchAllSubFolders.IsChecked.GetValueOrDefault(),
+                    SearchText = GlobeSearch.Text,
+                    NumLimit = Convert.ToUInt32(EverythingEngineResultLimit.SelectedItem),
+                    EngineCategory = SearchCategory.BuiltInEngine
+                }), AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
             }
             else
             {
-                if (AnimationController.Current.IsEnableAnimation)
+                Frame.Navigate(typeof(SearchPage), new Tuple<FileControl, SearchOptions>(this, new SearchOptions
                 {
-                    Frame.Navigate(typeof(SearchPage), new Tuple<WeakReference<FileControl>, SearchCategory, bool?, bool?, bool?, uint?>(new WeakReference<FileControl>(this), SearchCategory.EverythingEngine, EverythingEngineIgnoreCase.IsChecked, EverythingEngineIncludeRegex.IsChecked, EverythingEngineSearchGloble.IsChecked, Convert.ToUInt32(EverythingEngineResultLimit.SelectedItem)), new DrillInNavigationTransitionInfo());
-                }
-                else
-                {
-                    Frame.Navigate(typeof(SearchPage), new Tuple<WeakReference<FileControl>, SearchCategory, bool?, bool?, bool?, uint?>(new WeakReference<FileControl>(this), SearchCategory.EverythingEngine, EverythingEngineIgnoreCase.IsChecked, EverythingEngineIncludeRegex.IsChecked, EverythingEngineSearchGloble.IsChecked, Convert.ToUInt32(EverythingEngineResultLimit.SelectedItem)), new SuppressNavigationTransitionInfo());
-                }
+                    SearchFolder = CurrentPresenter.CurrentFolder,
+                    IgnoreCase = EverythingEngineIgnoreCase.IsChecked.GetValueOrDefault(),
+                    UseRegexExpression = EverythingEngineIncludeRegex.IsChecked.GetValueOrDefault(),
+                    DeepSearch = EverythingEngineSearchGloble.IsChecked.GetValueOrDefault(),
+                    SearchText = GlobeSearch.Text,
+                    NumLimit = Convert.ToUInt32(EverythingEngineResultLimit.SelectedItem),
+                    EngineCategory = SearchCategory.EverythingEngine
+                }), AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
             }
         }
 
@@ -2128,12 +2160,12 @@ namespace RX_Explorer
                 {
                     case "SearchInDefaultEngine":
                         {
-                            ApplicationData.Current.LocalSettings.Values["SearchEngineChoice"] = "Default";
+                            ApplicationData.Current.LocalSettings.Values["DefaultSearchEngine"] = Enum.GetName(typeof(SearchCategory), SearchCategory.BuiltInEngine);
                             break;
                         }
                     case "SearchInEverythingEngine":
                         {
-                            ApplicationData.Current.LocalSettings.Values["SearchEngineChoice"] = "Everything";
+                            ApplicationData.Current.LocalSettings.Values["DefaultSearchEngine"] = Enum.GetName(typeof(SearchCategory), SearchCategory.EverythingEngine);
                             break;
                         }
                 }
@@ -2142,67 +2174,40 @@ namespace RX_Explorer
 
         private void SearchEngineFlyout_Opening(object sender, object e)
         {
-            if (ApplicationData.Current.LocalSettings.Values.TryGetValue("SearchEngineChoice", out object Choice))
+            if (ApplicationData.Current.LocalSettings.Values.TryGetValue("DefaultSearchEngine", out object Choice))
             {
-                if (Convert.ToString(Choice) == "Default")
+                switch (Enum.Parse<SearchCategory>(Convert.ToString(Choice)))
                 {
-                    SearchInDefaultEngine.IsChecked = true;
-                    SearchInEverythingEngine.IsChecked = false;
-                }
-                else
-                {
-                    if (SearchInEverythingEngine.IsEnabled)
-                    {
-                        SearchInEverythingEngine.IsChecked = true;
-                        SearchInDefaultEngine.IsChecked = false;
-                    }
-                    else
-                    {
-                        SearchInDefaultEngine.IsChecked = true;
-                        SearchInEverythingEngine.IsChecked = false;
-                    }
+                    case SearchCategory.BuiltInEngine:
+                        {
+                            SearchInDefaultEngine.IsChecked = true;
+                            SearchInEverythingEngine.IsChecked = false;
+                            (BuiltInEngineIgnoreCase.IsChecked, BuiltInEngineIncludeRegex.IsChecked, BuiltInSearchAllSubFolders.IsChecked) = LoadSearchConfiguration(SearchCategory.BuiltInEngine);
+                            break;
+                        }
+                    case SearchCategory.EverythingEngine:
+                        {
+                            if (SearchInEverythingEngine.IsEnabled)
+                            {
+                                SearchInEverythingEngine.IsChecked = true;
+                                SearchInDefaultEngine.IsChecked = false;
+                                (EverythingEngineIgnoreCase.IsChecked, EverythingEngineIncludeRegex.IsChecked, EverythingEngineSearchGloble.IsChecked) = LoadSearchConfiguration(SearchCategory.EverythingEngine);
+                            }
+                            else
+                            {
+                                SearchInDefaultEngine.IsChecked = true;
+                                SearchInEverythingEngine.IsChecked = false;
+                                (BuiltInEngineIgnoreCase.IsChecked, BuiltInEngineIncludeRegex.IsChecked, BuiltInSearchAllSubFolders.IsChecked) = LoadSearchConfiguration(SearchCategory.BuiltInEngine);
+                            }
+                            break;
+                        }
                 }
             }
             else
             {
                 SearchInDefaultEngine.IsChecked = true;
                 SearchInEverythingEngine.IsChecked = false;
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values.TryGetValue("EverythingEngineIgnoreCase", out object EverythingIgnoreCase))
-            {
-                EverythingEngineIgnoreCase.IsChecked = Convert.ToBoolean(EverythingIgnoreCase);
-            }
-            else
-            {
-                EverythingEngineIgnoreCase.IsChecked = true;
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values.TryGetValue("EverythingEngineIncludeRegex", out object EverythingIncludeRegex))
-            {
-                EverythingEngineIncludeRegex.IsChecked = Convert.ToBoolean(EverythingIncludeRegex);
-            }
-            else
-            {
-                EverythingEngineIncludeRegex.IsChecked = false;
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values.TryGetValue("BuiltInEngineIgnoreCase", out object BuiltInIgnoreCase))
-            {
-                BuiltInEngineIgnoreCase.IsChecked = Convert.ToBoolean(BuiltInIgnoreCase);
-            }
-            else
-            {
-                BuiltInEngineIgnoreCase.IsChecked = true;
-            }
-
-            if (ApplicationData.Current.LocalSettings.Values.TryGetValue("BuiltInEngineIncludeRegex", out object BuiltInIncludeRegex))
-            {
-                BuiltInEngineIncludeRegex.IsChecked = Convert.ToBoolean(BuiltInIncludeRegex);
-            }
-            else
-            {
-                BuiltInEngineIncludeRegex.IsChecked = false;
+                (BuiltInEngineIgnoreCase.IsChecked, BuiltInEngineIncludeRegex.IsChecked, BuiltInSearchAllSubFolders.IsChecked) = LoadSearchConfiguration(SearchCategory.BuiltInEngine);
             }
 
             if (CurrentPresenter.CurrentFolder is RootStorageFolder)
@@ -2216,25 +2221,80 @@ namespace RX_Explorer
             {
                 BuiltInSearchAllSubFolders.IsEnabled = true;
                 EverythingEngineSearchGloble.IsEnabled = true;
-
-                if (ApplicationData.Current.LocalSettings.Values.TryGetValue("EverythingEngineSearchGloble", out object EverythingSearchGloble))
-                {
-                    EverythingEngineSearchGloble.IsChecked = Convert.ToBoolean(EverythingSearchGloble);
-                }
-                else
-                {
-                    EverythingEngineSearchGloble.IsChecked = false;
-                }
-
-                if (ApplicationData.Current.LocalSettings.Values.TryGetValue("BuiltInSearchAllSubFolders", out object BuiltInSearchSubFolders))
-                {
-                    BuiltInSearchAllSubFolders.IsChecked = Convert.ToBoolean(BuiltInSearchSubFolders);
-                }
-                else
-                {
-                    BuiltInSearchAllSubFolders.IsChecked = false;
-                }
             }
+        }
+
+        private (bool, bool, bool) LoadSearchConfiguration(SearchCategory Category)
+        {
+            bool IgnoreCase = false, IncludeRegex = false, DeepSearch = false;
+
+            switch (Category)
+            {
+                case SearchCategory.BuiltInEngine:
+                    {
+                        if (ApplicationData.Current.LocalSettings.Values.TryGetValue("BuiltInEngineIgnoreCase", out object BuiltInIgnoreCase))
+                        {
+                            IgnoreCase = Convert.ToBoolean(BuiltInIgnoreCase);
+                        }
+                        else
+                        {
+                            IgnoreCase = true;
+                        }
+
+                        if (ApplicationData.Current.LocalSettings.Values.TryGetValue("BuiltInEngineIncludeRegex", out object BuiltInIncludeRegex))
+                        {
+                            IncludeRegex = Convert.ToBoolean(BuiltInIncludeRegex);
+                        }
+                        else
+                        {
+                            IncludeRegex = false;
+                        }
+
+                        if (ApplicationData.Current.LocalSettings.Values.TryGetValue("BuiltInSearchAllSubFolders", out object BuiltInSearchSubFolders))
+                        {
+                            DeepSearch = Convert.ToBoolean(BuiltInSearchSubFolders);
+                        }
+                        else
+                        {
+                            DeepSearch = false;
+                        }
+
+                        break;
+                    }
+                case SearchCategory.EverythingEngine:
+                    {
+                        if (ApplicationData.Current.LocalSettings.Values.TryGetValue("EverythingEngineIgnoreCase", out object EverythingIgnoreCase))
+                        {
+                            IgnoreCase = Convert.ToBoolean(EverythingIgnoreCase);
+                        }
+                        else
+                        {
+                            IgnoreCase = true;
+                        }
+
+                        if (ApplicationData.Current.LocalSettings.Values.TryGetValue("EverythingEngineIncludeRegex", out object EverythingIncludeRegex))
+                        {
+                            IncludeRegex = Convert.ToBoolean(EverythingIncludeRegex);
+                        }
+                        else
+                        {
+                            IncludeRegex = false;
+                        }
+
+                        if (ApplicationData.Current.LocalSettings.Values.TryGetValue("EverythingEngineSearchGloble", out object EverythingSearchGloble))
+                        {
+                            DeepSearch = Convert.ToBoolean(EverythingSearchGloble);
+                        }
+                        else
+                        {
+                            DeepSearch = false;
+                        }
+
+                        break;
+                    }
+            }
+
+            return (IgnoreCase, IncludeRegex, DeepSearch);
         }
 
         public async Task CreateNewBladeAsync(string FolderPath)
@@ -2329,10 +2389,21 @@ namespace RX_Explorer
             {
                 CurrentPresenter = Presenter;
 
-                if (!string.IsNullOrEmpty(CurrentPresenter.CurrentFolder?.Path))
+                string Path = CurrentPresenter.CurrentFolder?.Path;
+
+                if (!string.IsNullOrEmpty(Path))
                 {
-                    PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentPresenter.CurrentFolder.Path);
-                    await ViewModeControl.SetCurrentViewMode(Config.Path, Config.DisplayModeIndex.GetValueOrDefault());
+                    if(Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
+                    {
+                        ViewModeComboBox.IsEnabled = false;
+                    }
+                    else
+                    {
+                        ViewModeComboBox.IsEnabled = true;
+
+                        PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentPresenter.CurrentFolder.Path);
+                        await ViewModeControl.SetCurrentViewMode(Config.Path, Config.DisplayModeIndex.GetValueOrDefault());
+                    }
                 }
             }
         }
@@ -2407,7 +2478,7 @@ namespace RX_Explorer
                 DelayEnterCancel?.Dispose();
                 DelayEnterCancel = new CancellationTokenSource();
 
-                Task.Delay(1500).ContinueWith((task, obj) =>
+                Task.Delay(1800).ContinueWith((task, obj) =>
                 {
                     try
                     {

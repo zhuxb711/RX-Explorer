@@ -19,7 +19,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Media.Animation;
-using Windows.UI.Xaml.Navigation;
 using ProgressBar = Microsoft.UI.Xaml.Controls.ProgressBar;
 using TabViewItem = Microsoft.UI.Xaml.Controls.TabViewItem;
 
@@ -27,8 +26,6 @@ namespace RX_Explorer
 {
     public sealed partial class Home : Page
     {
-        private WeakReference<TabViewItem> WeakToTabItem;
-
         public event EventHandler<string> EnterActionRequested;
 
         public Home()
@@ -45,19 +42,6 @@ namespace RX_Explorer
         {
             LibraryExpander.IsExpanded = SettingControl.LibraryExpanderIsExpand;
             DeviceExpander.IsExpanded = SettingControl.DeviceExpanderIsExpand;
-        }
-
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            if (e?.Parameter is WeakReference<TabViewItem> Parameters)
-            {
-                WeakToTabItem = Parameters;
-
-                if (WeakToTabItem.TryGetTarget(out TabViewItem Tab))
-                {
-                    Tab.Header = Globalization.GetString("MainPage_PageDictionary_Home_Label");
-                }
-            }
         }
 
         private void DeviceGrid_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
@@ -376,7 +360,7 @@ namespace RX_Explorer
             }
         }
 
-        public async void Refresh_Click(object sender, RoutedEventArgs e)
+        private async void Refresh_Click(object sender, RoutedEventArgs e)
         {
             await CommonAccessCollection.LoadDriveAsync(true);
         }

@@ -130,7 +130,6 @@ namespace RX_Explorer
                             if (TabViewControl.SelectedItem is TabViewItem Tab)
                             {
                                 args.Handled = true;
-
                                 await CleanUpAndRemoveTabItem(Tab);
                             }
 
@@ -138,41 +137,38 @@ namespace RX_Explorer
                         }
                 }
 
-                if (CurrentNavigationControl?.Content is Home PC)
+                if (CurrentNavigationControl?.Content is FileControl Control && Control.CurrentPresenter?.CurrentFolder is RootStorageFolder)
                 {
+                    Home HomeControl = Control.CurrentPresenter.RootFolderControl;
+
                     switch (args.VirtualKey)
                     {
-                        case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                            {
-                                await CreateNewTabAsync();
-                                args.Handled = true;
-
-                                break;
-                            }
                         case VirtualKey.Space when SettingControl.IsQuicklookEnable:
                             {
+                                args.Handled = true;
+
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                 {
                                     if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                                     {
-                                        if (PC.DeviceGrid.SelectedItem is DriveDataBase Device && !string.IsNullOrEmpty(Device.Path))
+                                        if (HomeControl.DeviceGrid.SelectedItem is DriveDataBase Device && !string.IsNullOrEmpty(Device.Path))
                                         {
                                             await Exclusive.Controller.ViewWithQuicklookAsync(Device.Path);
                                         }
-                                        else if (PC.LibraryGrid.SelectedItem is LibraryFolder Library && !string.IsNullOrEmpty(Library.Folder.Path))
+                                        else if (HomeControl.LibraryGrid.SelectedItem is LibraryFolder Library && !string.IsNullOrEmpty(Library.Folder.Path))
                                         {
                                             await Exclusive.Controller.ViewWithQuicklookAsync(Library.Folder.Path);
                                         }
                                     }
                                 }
 
-                                args.Handled = true;
-
                                 break;
                             }
                         case VirtualKey.Enter:
                             {
-                                if (PC.DeviceGrid.SelectedItem is DriveDataBase Device)
+                                args.Handled = true;
+
+                                if (HomeControl.DeviceGrid.SelectedItem is DriveDataBase Device)
                                 {
                                     if (string.IsNullOrEmpty(Device.Path))
                                     {
@@ -187,26 +183,28 @@ namespace RX_Explorer
                                     }
                                     else
                                     {
-                                        await PC.OpenTargetFolder(Device.DriveFolder);
+                                        await HomeControl.OpenTargetFolder(Device.DriveFolder);
                                     }
-
-                                    args.Handled = true;
                                 }
-                                else if (PC.LibraryGrid.SelectedItem is LibraryFolder Library)
+                                else if (HomeControl.LibraryGrid.SelectedItem is LibraryFolder Library)
                                 {
-                                    await PC.OpenTargetFolder(Library.Folder);
-
                                     args.Handled = true;
+
+                                    await HomeControl.OpenTargetFolder(Library.Folder);
                                 }
 
                                 break;
                             }
                         case VirtualKey.F5:
                             {
-                                PC.Refresh_Click(null, null);
-
                                 args.Handled = true;
-
+                                await CommonAccessCollection.LoadDriveAsync(true);
+                                break;
+                            }
+                        case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                args.Handled = true;
+                                await CreateNewTabAsync();
                                 break;
                             }
                     }

@@ -3134,4 +3134,11 @@ Invalid names include
   <data name="RootStorageFolderDisplayName" xml:space="preserve">
     <value>This PC</value>
   </data>
+  <data name="Drag_Tip_RunWith" xml:space="preserve">
+    <value>Run with {Placeholder}</value>
+    <comment>Please adjust the position of {Placeholder} according to the word order of the corresponding language. Do not remove {Placeholder}</comment>
+  </data>
+  <data name="SettingPageBackgroundLightSlider.Header" xml:space="preserve">
+    <value>Adjust background brightness</value>
+  </data>
 </root>

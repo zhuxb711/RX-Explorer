@@ -473,7 +473,6 @@
                                               FontSize="13"
                                               SelectedIndex="0"
                                               MinWidth="150">
-                                        <x:String>100</x:String>
                                         <x:String>300</x:String>
                                         <x:String>500</x:String>
                                         <x:String>1000</x:String>

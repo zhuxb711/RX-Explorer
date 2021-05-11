@@ -4018,6 +4018,15 @@ Las denominaciones no válidas son:
           <source>This PC</source>
           <target state="translated">Esta PC</target>
         </trans-unit>
+        <trans-unit id="Drag_Tip_RunWith" translate="yes" xml:space="preserve">
+          <source>Run with {Placeholder}</source>
+          <target state="translated">Ejecutar con {Placeholder}</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please adjust the position of {Placeholder} according to the word order of the corresponding language. Do not remove {Placeholder}</note>
+        </trans-unit>
+        <trans-unit id="SettingPageBackgroundLightSlider.Header" translate="yes" xml:space="preserve">
+          <source>Adjust background brightness</source>
+          <target state="translated">Ajustar el brillo del fondo</target>
+        </trans-unit>
       </group>
     </body>
   </file>

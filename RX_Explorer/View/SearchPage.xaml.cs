@@ -1,4 +1,5 @@
 ﻿using RX_Explorer.Class;
+using RX_Explorer.Dialog;
 using RX_Explorer.SeparateWindow.PropertyWindow;
 using ShareClassLibrary;
 using System;
@@ -15,11 +16,14 @@ using Windows.Storage;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Core;
+using Windows.UI.Input;
 using Windows.UI.WindowManagement;
 using Windows.UI.WindowManagement.Preview;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Hosting;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 using Package = Windows.ApplicationModel.Package;
@@ -31,6 +35,9 @@ namespace RX_Explorer
         private readonly ObservableCollection<FileSystemStorageItemBase> SearchResult = new ObservableCollection<FileSystemStorageItemBase>();
         private WeakReference<FileControl> WeakToFileControl;
         private CancellationTokenSource Cancellation;
+        private ListViewBaseSelectionExtention SelectionExtention;
+        private readonly PointerEventHandler PointerPressedEventHandler;
+
         private readonly Dictionary<SortTarget, SortDirection> SortMap = new Dictionary<SortTarget, SortDirection>
         {
             {SortTarget.Name,SortDirection.Ascending },
@@ -44,25 +51,35 @@ namespace RX_Explorer
         public SearchPage()
         {
             InitializeComponent();
+            PointerPressedEventHandler = new PointerEventHandler(ViewControl_PointerPressed);
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e?.Parameter is Tuple<WeakReference<FileControl>, SearchCategory, bool?, bool?, bool?, uint?> Parameters)
+            if (e?.Parameter is Tuple<FileControl, SearchOptions> Parameters)
             {
                 CoreWindow.GetForCurrentThread().KeyDown += SearchPage_KeyDown;
 
+                SearchResultList.AddHandler(PointerPressedEvent, PointerPressedEventHandler, true);
+                SelectionExtention = new ListViewBaseSelectionExtention(SearchResultList, DrawRectangle);
+
                 if (e.NavigationMode == NavigationMode.New)
                 {
-                    WeakToFileControl = Parameters.Item1;
-                    await Initialize(Parameters.Item2, Parameters.Item3.GetValueOrDefault(), Parameters.Item4.GetValueOrDefault(), Parameters.Item5.GetValueOrDefault(), Parameters.Item6.GetValueOrDefault()).ConfigureAwait(false);
+                    WeakToFileControl = new WeakReference<FileControl>(Parameters.Item1);
+                    await Initialize(Parameters.Item2).ConfigureAwait(false);
                 }
             }
         }
 
+        private void CloseAllFlyout()
+        {
+            SingleCommandFlyout.Hide();
+            MixCommandFlyout.Hide();
+        }
+
         private void SearchPage_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
-            SearchCommandFlyout.Hide();
+            CloseAllFlyout();
 
             CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
 
@@ -73,10 +90,31 @@ namespace RX_Explorer
                         Location_Click(null, null);
                         break;
                     }
+                case VirtualKey.A when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                    {
+                        SearchResultList.SelectAll();
+                        break;
+                    }
+                case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                    {
+                        Copy_Click(null, null);
+                        break;
+                    }
+                case VirtualKey.X when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                    {
+                        Cut_Click(null, null);
+                        break;
+                    }
+                case VirtualKey.Delete:
+                case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                    {
+                        Delete_Click(null, null);
+                        break;
+                    }
             }
         }
 
-        private async Task Initialize(SearchCategory Category, bool IngoreCase, bool IncludeRegex, bool GlobleSearch, uint MaxCount)
+        private async Task Initialize(SearchOptions Options)
         {
             HasItem.Visibility = Visibility.Collapsed;
 
@@ -84,65 +122,58 @@ namespace RX_Explorer
             {
                 Cancellation = new CancellationTokenSource();
 
-                if (WeakToFileControl.TryGetTarget(out FileControl Control))
+                SearchStatus.Text = Globalization.GetString("SearchProcessingText");
+                SearchStatusBar.Visibility = Visibility.Visible;
+
+                switch (Options.EngineCategory)
                 {
-                    string SearchTarget = Control.GlobeSearch.Text;
-                    FileSystemStorageFolder CurrentFolder = Control.CurrentPresenter.CurrentFolder;
-
-                    SearchStatus.Text = Globalization.GetString("SearchProcessingText");
-                    SearchStatusBar.Visibility = Visibility.Visible;
-
-                    switch (Category)
-                    {
-                        case SearchCategory.BuiltInEngine_Deep:
-                        case SearchCategory.BuiltInEngine_Shallow:
+                    case SearchCategory.BuiltInEngine:
+                        {
+                            await foreach (FileSystemStorageItemBase Item in Options.SearchFolder.SearchAsync(Options.SearchText, Options.DeepSearch, SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, Options.UseRegexExpression, Options.IgnoreCase, Cancellation.Token))
                             {
-                                await foreach (FileSystemStorageItemBase Item in CurrentFolder.SearchAsync(SearchTarget, Category == SearchCategory.BuiltInEngine_Deep, SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, IncludeRegex, IngoreCase, Cancellation.Token))
+                                if (Cancellation.IsCancellationRequested)
                                 {
-                                    if (Cancellation.IsCancellationRequested)
-                                    {
-                                        HasItem.Visibility = Visibility.Visible;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        SearchResult.Insert(SortCollectionGenerator.SearchInsertLocation(SearchResult, Item, SortTarget.Name, SortDirection.Ascending), Item);
-                                    }
+                                    HasItem.Visibility = Visibility.Visible;
+                                    break;
                                 }
+                                else
+                                {
+                                    SearchResult.Insert(SortCollectionGenerator.SearchInsertLocation(SearchResult, Item, SortTarget.Name, SortDirection.Ascending), Item);
+                                }
+                            }
 
-                                if (SearchResult.Count == 0)
+                            if (SearchResult.Count == 0)
+                            {
+                                HasItem.Visibility = Visibility.Visible;
+                            }
+
+                            break;
+                        }
+                    case SearchCategory.EverythingEngine:
+                        {
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                            {
+                                IReadOnlyList<FileSystemStorageItemBase> SearchItems = await Exclusive.Controller.SearchByEverythingAsync(Options.DeepSearch ? string.Empty : Options.SearchFolder.Path, Options.SearchText, Options.UseRegexExpression, Options.IgnoreCase, Options.NumLimit);
+
+                                if (SearchItems.Count == 0)
                                 {
                                     HasItem.Visibility = Visibility.Visible;
                                 }
-
-                                break;
-                            }
-                        case SearchCategory.EverythingEngine:
-                            {
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                else
                                 {
-                                    IReadOnlyList<FileSystemStorageItemBase> SearchItems = await Exclusive.Controller.SearchByEverythingAsync(GlobleSearch ? string.Empty : CurrentFolder.Path, SearchTarget, IncludeRegex, IngoreCase, MaxCount);
-
-                                    if (SearchItems.Count == 0)
+                                    foreach (FileSystemStorageItemBase Item in SortCollectionGenerator.GetSortedCollection(SearchItems, SortTarget.Name, SortDirection.Ascending))
                                     {
-                                        HasItem.Visibility = Visibility.Visible;
-                                    }
-                                    else
-                                    {
-                                        foreach (FileSystemStorageItemBase Item in SortCollectionGenerator.GetSortedCollection(SearchItems, SortTarget.Name, SortDirection.Ascending))
-                                        {
-                                            SearchResult.Add(Item);
-                                        }
+                                        SearchResult.Add(Item);
                                     }
                                 }
-
-                                break;
                             }
-                    }
 
-                    SearchStatus.Text = Globalization.GetString("SearchCompletedText");
-                    SearchStatusBar.Visibility = Visibility.Collapsed;
+                            break;
+                        }
                 }
+
+                SearchStatus.Text = Globalization.GetString("SearchCompletedText");
+                SearchStatusBar.Visibility = Visibility.Collapsed;
             }
             catch (Exception ex)
             {
@@ -160,9 +191,58 @@ namespace RX_Explorer
             CoreWindow.GetForCurrentThread().KeyDown -= SearchPage_KeyDown;
             Cancellation?.Cancel();
 
+            SearchResultList.RemoveHandler(PointerPressedEvent, PointerPressedEventHandler);
+
+            SelectionExtention.Dispose();
+            SelectionExtention = null;
+
             if (e.NavigationMode == NavigationMode.Back)
             {
                 SearchResult.Clear();
+            }
+        }
+
+        private void ViewControl_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
+            {
+                PointerPoint PointerInfo = e.GetCurrentPoint(null);
+
+                if ((e.OriginalSource as FrameworkElement).FindParentOfType<SelectorItem>() != null)
+                {
+                    if (e.KeyModifiers == VirtualKeyModifiers.None && SearchResultList.SelectionMode != ListViewSelectionMode.Multiple)
+                    {
+                        if (SearchResultList.SelectedItems.Contains(Item))
+                        {
+                            SelectionExtention.Disable();
+                        }
+                        else
+                        {
+                            if (PointerInfo.Properties.IsLeftButtonPressed)
+                            {
+                                SearchResultList.SelectedItem = Item;
+                            }
+
+                            if (e.OriginalSource is ListViewItemPresenter || (e.OriginalSource is TextBlock Block && Block.Name == "EmptyTextblock"))
+                            {
+                                SelectionExtention.Enable();
+                            }
+                            else
+                            {
+                                SelectionExtention.Disable();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        SelectionExtention.Disable();
+                    }
+                }
+            }
+            else
+            {
+                SearchResultList.SelectedItem = null;
+                SelectionExtention.Enable();
             }
         }
 
@@ -225,14 +305,21 @@ namespace RX_Explorer
             }
         }
 
-        private void SearchResultList_RightTapped(object sender, Windows.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        private void SearchResultList_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
             if (e.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
                 if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
                 {
-                    SearchResultList.ContextFlyout = SearchCommandFlyout;
-                    SearchResultList.SelectedItem = Context;
+                    if (SearchResultList.SelectedItems.Count > 1 && SearchResultList.SelectedItems.Contains(Context))
+                    {
+                        SearchResultList.ContextFlyout = MixCommandFlyout;
+                    }
+                    else
+                    {
+                        SearchResultList.ContextFlyout = SingleCommandFlyout;
+                        SearchResultList.SelectedItem = Context;
+                    }
                 }
                 else
                 {
@@ -253,18 +340,25 @@ namespace RX_Explorer
             }
         }
 
-        private void SearchResultList_Holding(object sender, Windows.UI.Xaml.Input.HoldingRoutedEventArgs e)
+        private void SearchResultList_Holding(object sender, HoldingRoutedEventArgs e)
         {
-            if (e.HoldingState == Windows.UI.Input.HoldingState.Started)
+            if (e.HoldingState == HoldingState.Started)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
+                if (SearchResultList.SelectedItems.Count > 1)
                 {
-                    SearchResultList.ContextFlyout = SearchCommandFlyout;
-                    SearchResultList.SelectedItem = Context;
+                    SearchResultList.ContextFlyout = MixCommandFlyout;
                 }
                 else
                 {
-                    SearchResultList.ContextFlyout = null;
+                    if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Context)
+                    {
+                        SearchResultList.ContextFlyout = SingleCommandFlyout;
+                        SearchResultList.SelectedItem = Context;
+                    }
+                    else
+                    {
+                        SearchResultList.ContextFlyout = null;
+                    }
                 }
 
                 e.Handled = true;
@@ -781,9 +875,125 @@ namespace RX_Explorer
 
         private async void Open_Click(object sender, RoutedEventArgs e)
         {
+            CloseAllFlyout();
+
             if (SearchResultList.SelectedItem is FileSystemStorageItemBase Item)
             {
                 await LaunchSelectedItem(Item);
+            }
+        }
+
+        private async void Copy_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            if (SearchResultList.SelectedItems.Count > 0)
+            {
+                try
+                {
+                    Clipboard.Clear();
+                    Clipboard.SetContent(await SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().GetAsDataPackageAsync(DataPackageOperation.Copy));
+                }
+                catch
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync().ConfigureAwait(false);
+                }
+            }
+        }
+
+        private async void Cut_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            if (SearchResultList.SelectedItems.Count > 0)
+            {
+                try
+                {
+                    Clipboard.Clear();
+                    Clipboard.SetContent(await SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().GetAsDataPackageAsync(DataPackageOperation.Move));
+                }
+                catch
+                {
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync().ConfigureAwait(false);
+                }
+            }
+        }
+
+        private async void Delete_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            if (SearchResultList.SelectedItems.Count > 0)
+            {
+                string[] PathList = SearchResultList.SelectedItems.Cast<FileSystemStorageItemBase>().Select((Item) => Item.Path).ToArray();
+
+                bool ExecuteDelete = false;
+
+                if (ApplicationData.Current.LocalSettings.Values["DeleteConfirmSwitch"] is bool DeleteConfirm)
+                {
+                    if (DeleteConfirm)
+                    {
+                        DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFiles_Content"));
+
+                        if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
+                        {
+                            ExecuteDelete = true;
+                        }
+                    }
+                    else
+                    {
+                        ExecuteDelete = true;
+                    }
+                }
+                else
+                {
+                    DeleteDialog QueueContenDialog = new DeleteDialog(Globalization.GetString("QueueDialog_DeleteFiles_Content"));
+
+                    if (await QueueContenDialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        ExecuteDelete = true;
+                    }
+                }
+
+                bool PermanentDelete = Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down);
+
+                if (ApplicationData.Current.LocalSettings.Values["AvoidRecycleBin"] is bool IsAvoidRecycleBin)
+                {
+                    PermanentDelete |= IsAvoidRecycleBin;
+                }
+
+                if (ExecuteDelete)
+                {
+                    QueueTaskController.EnqueueDeleteOpeartion(PathList, PermanentDelete);
+                }
+            }
+        }
+
+        private void MuiltSelect_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            if (SearchResultList.SelectionMode == ListViewSelectionMode.Extended)
+            {
+                SearchResultList.SelectionMode = ListViewSelectionMode.Multiple;
+            }
+            else
+            {
+                SearchResultList.SelectionMode = ListViewSelectionMode.Extended;
             }
         }
     }

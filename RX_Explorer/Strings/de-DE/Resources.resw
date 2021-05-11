@@ -3029,4 +3029,11 @@ Inkorrekte Namen sind
   <data name="RootStorageFolderDisplayName" xml:space="preserve">
     <value>Dieser PC</value>
   </data>
+  <data name="Drag_Tip_RunWith" xml:space="preserve">
+    <value>Mit {Placeholder} ausführen</value>
+    <comment>Please adjust the position of {Placeholder} according to the word order of the corresponding language. Do not remove {Placeholder}</comment>
+  </data>
+  <data name="SettingPageBackgroundLightSlider.Header" xml:space="preserve">
+    <value>Passen Sie die Hintergrundhelligkeit an</value>
+  </data>
 </root>

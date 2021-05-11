@@ -17,14 +17,11 @@ namespace RX_Explorer.Class
         {
             get
             {
-                if (UndoOperationKind == OperationKind.Delete)
+                return UndoOperationKind switch
                 {
-                    return string.Empty;
-                }
-                else
-                {
-                    return base.FromPathText;
-                }
+                    OperationKind.Delete => string.Empty,
+                    _ => base.FromPathText
+                };
             }
         }
 
@@ -32,20 +29,27 @@ namespace RX_Explorer.Class
         {
             get
             {
-                if (UndoOperationKind == OperationKind.Delete)
+                switch (UndoOperationKind)
                 {
-                    if (FromPath.Length > 5)
-                    {
-                        return $"{Globalization.GetString("TaskList_To_Label")}: {Environment.NewLine}{string.Join(Environment.NewLine, FromPath.Take(5))}{Environment.NewLine}({FromPath.Length - 5} {Globalization.GetString("TaskList_More_Items")})...";
-                    }
-                    else
-                    {
-                        return $"{Globalization.GetString("TaskList_To_Label")}: {Environment.NewLine}{string.Join(Environment.NewLine, FromPath)}";
-                    }
-                }
-                else
-                {
-                    return base.ToPathText;
+                    case OperationKind.Delete:
+                        {
+                            if (FromPath.Length > 5)
+                            {
+                                return $"{Globalization.GetString("TaskList_To_Label")}: {Environment.NewLine}{string.Join(Environment.NewLine, FromPath.Take(5))}{Environment.NewLine}({FromPath.Length - 5} {Globalization.GetString("TaskList_More_Items")})...";
+                            }
+                            else
+                            {
+                                return $"{Globalization.GetString("TaskList_To_Label")}: {Environment.NewLine}{string.Join(Environment.NewLine, FromPath)}";
+                            }
+                        }
+                    case OperationKind.Copy:
+                        {
+                            return string.Empty;
+                        }
+                    default:
+                        {
+                            return base.ToPathText;
+                        }
                 }
             }
         }

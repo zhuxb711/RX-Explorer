@@ -115,19 +115,43 @@ namespace RX_Explorer
                     case BackgroundBrushType.BingPicture:
                     case BackgroundBrushType.Picture:
                         {
-                            BackgroundBlur.Amount = BlurValue / 5;
+                            BackgroundBlur.BlurAmount = BlurValue / 10;
                             break;
                         }
                     default:
                         {
-                            BackgroundBlur.Amount = 0;
+                            BackgroundBlur.BlurAmount = 0;
                             break;
                         }
                 }
             }
             else
             {
+                BackgroundBlur.BlurAmount = 0;
                 ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"] = 0d;
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"] is float LightValue)
+            {
+                switch (BackgroundController.Current.CurrentType)
+                {
+                    case BackgroundBrushType.BingPicture:
+                    case BackgroundBrushType.Picture:
+                        {
+                            BackgroundBlur.TintOpacity = LightValue / 200;
+                            break;
+                        }
+                    default:
+                        {
+                            BackgroundBlur.TintOpacity = 0;
+                            break;
+                        }
+                }
+            }
+            else
+            {
+                BackgroundBlur.TintOpacity = 0;
+                ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"] = 0d;
             }
 
             if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("DefaultTerminal"))

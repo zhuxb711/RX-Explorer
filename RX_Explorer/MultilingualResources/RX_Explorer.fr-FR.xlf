@@ -4020,6 +4020,15 @@ Les noms non valides incluent
           <source>This PC</source>
           <target state="translated">Ce PC</target>
         </trans-unit>
+        <trans-unit id="Drag_Tip_RunWith" translate="yes" xml:space="preserve">
+          <source>Run with {Placeholder}</source>
+          <target state="translated">Exécuter avec {Placeholder}</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please adjust the position of {Placeholder} according to the word order of the corresponding language. Do not remove {Placeholder}</note>
+        </trans-unit>
+        <trans-unit id="SettingPageBackgroundLightSlider.Header" translate="yes" xml:space="preserve">
+          <source>Adjust background brightness</source>
+          <target state="translated">Ajuster la luminosité de l'arrière-plan</target>
+        </trans-unit>
       </group>
     </body>
   </file>

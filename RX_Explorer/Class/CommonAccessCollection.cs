@@ -324,6 +324,11 @@ namespace RX_Explorer.Class
                     {
                         IsDriveLoaded = true;
 
+                        if (IsRefresh)
+                        {
+                            DriveList.Clear();
+                        }
+
                         foreach (DriveInfo Drive in DriveInfo.GetDrives().Where((Drives) => Drives.DriveType == DriveType.Fixed || Drives.DriveType == DriveType.Removable || Drives.DriveType == DriveType.Network)
                                                                          .Where((NewItem) => DriveList.All((Item) => !Item.Path.Equals(NewItem.RootDirectory.FullName, StringComparison.OrdinalIgnoreCase))))
                         {

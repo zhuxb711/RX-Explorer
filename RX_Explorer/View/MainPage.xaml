@@ -316,19 +316,20 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.RowSpan="2"
-              Name="CompositorAcrylicBackground"
-              Visibility="{x:Bind Cls:BackgroundController.Current.IsCompositionAcrylicEnabled, Mode=OneWay}"/>
+        <Border Grid.RowSpan="2"
+                Name="CompositorAcrylicBackground"
+                Visibility="{x:Bind Cls:BackgroundController.Current.IsCompositionAcrylicEnabled, Mode=OneWay}" />
 
-        <Grid Grid.RowSpan="2"
-              Name="NormalAcrylicBackground"
-              Visibility="{x:Bind Cls:BackgroundController.Current.IsCompositionAcrylicEnabled, Mode=OneWay, Converter={StaticResource InverseConverter}}"
-              Background="{x:Bind Cls:BackgroundController.Current.BackgroundBrush, Mode=OneWay}" />
+        <Border Grid.RowSpan="2"
+                Name="NormalAcrylicBackground"
+                Visibility="{x:Bind Cls:BackgroundController.Current.IsCompositionAcrylicEnabled, Mode=OneWay, Converter={StaticResource InverseConverter}}"
+                Background="{x:Bind Cls:BackgroundController.Current.BackgroundBrush, Mode=OneWay}" />
 
         <Grid Grid.RowSpan="2">
             <Grid.Background>
-                <media:BackdropBlurBrush x:Name="BackgroundBlur"
-                                         x:FieldModifier="public" />
+                <media:AcrylicBrush x:Name="BackgroundBlur"
+                                    x:FieldModifier="public"
+                                    TintColor="Black"/>
             </Grid.Background>
         </Grid>
         

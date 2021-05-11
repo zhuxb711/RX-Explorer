@@ -5,7 +5,6 @@ using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
-using RX_Explorer.Interface;
 using RX_Explorer.SeparateWindow.PropertyWindow;
 using ShareClassLibrary;
 using System;
@@ -21,7 +20,6 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.ApplicationModel.DataTransfer.DragDrop;
-using Windows.Data.Xml.Dom;
 using Windows.Devices.Input;
 using Windows.Devices.Radios;
 using Windows.Foundation;
@@ -97,6 +95,7 @@ namespace RX_Explorer
         private SemaphoreSlim CollectionChangeLock;
 
         private readonly PointerEventHandler PointerPressedEventHandler;
+        private readonly PointerEventHandler PointerReleasedEventHandler;
 
         private ListViewBase itemPresenter;
 
@@ -107,9 +106,11 @@ namespace RX_Explorer
             {
                 if (value != itemPresenter)
                 {
+                    itemPresenter?.RemoveHandler(PointerReleasedEvent, PointerReleasedEventHandler);
                     itemPresenter?.RemoveHandler(PointerPressedEvent, PointerPressedEventHandler);
                     itemPresenter = value;
                     itemPresenter.AddHandler(PointerPressedEvent, PointerPressedEventHandler, true);
+                    itemPresenter.AddHandler(PointerReleasedEvent, PointerReleasedEventHandler, true);
 
                     SelectionExtention?.Dispose();
                     SelectionExtention = new ListViewBaseSelectionExtention(itemPresenter, DrawRectangle);
@@ -197,6 +198,7 @@ namespace RX_Explorer
         private CancellationTokenSource DelayRenameCancel;
         private CancellationTokenSource DelayEnterCancel;
         private CancellationTokenSource DelaySelectionCancel;
+        private CancellationTokenSource DelayDragCancel;
         private int CurrentViewModeIndex = -1;
         private bool GroupedEnable;
 
@@ -281,6 +283,7 @@ namespace RX_Explorer
             ListViewDetailHeader.Filter.RefreshListRequested += Filter_RefreshListRequested;
 
             PointerPressedEventHandler = new PointerEventHandler(ViewControl_PointerPressed);
+            PointerReleasedEventHandler = new PointerEventHandler(ViewControl_PointerReleased);
 
             AreaWatcher = new StorageAreaWatcher(FileCollection);
 
@@ -357,187 +360,186 @@ namespace RX_Explorer
         private async void FilePresenter_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
             if (Container.CurrentPresenter == this
+                && CurrentFolder is not RootStorageFolder
                 && Container.Frame.CurrentSourcePageType == typeof(FileControl)
+                && Container.Frame == TabViewContainer.CurrentNavigationControl
                 && MainPage.ThisPage.NavView.SelectedItem is NavigationViewItem NavItem
                 && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
             {
-                if ((Container.CurrentTabItem.Content as Frame) == TabViewContainer.CurrentNavigationControl)
+                CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
+                CoreVirtualKeyStates ShiftState = sender.GetKeyState(VirtualKey.Shift);
+
+                if (!QueueContentDialog.IsRunningOrWaiting && !Container.BlockKeyboardShortCutInput)
                 {
-                    CoreVirtualKeyStates CtrlState = sender.GetKeyState(VirtualKey.Control);
-                    CoreVirtualKeyStates ShiftState = sender.GetKeyState(VirtualKey.Shift);
+                    args.Handled = true;
 
-                    if (!QueueContentDialog.IsRunningOrWaiting && !Container.BlockKeyboardShortCutInput)
+                    if (!CtrlState.HasFlag(CoreVirtualKeyStates.Down) && !ShiftState.HasFlag(CoreVirtualKeyStates.Down))
                     {
-                        args.Handled = true;
+                        NavigateToStorageItem(args.VirtualKey);
+                    }
 
-                        if (!CtrlState.HasFlag(CoreVirtualKeyStates.Down) && !ShiftState.HasFlag(CoreVirtualKeyStates.Down))
-                        {
-                            NavigateToStorageItem(args.VirtualKey);
-                        }
-
-                        switch (args.VirtualKey)
-                        {
-                            case VirtualKey.Space when SettingControl.IsQuicklookEnable:
+                    switch (args.VirtualKey)
+                    {
+                        case VirtualKey.Space when SettingControl.IsQuicklookEnable:
+                            {
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                 {
-                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                    if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
                                     {
-                                        if (await Exclusive.Controller.CheckIfQuicklookIsAvaliableAsync())
-                                        {
-                                            string ViewPathWithQuicklook;
+                                        string ViewPathWithQuicklook;
 
-                                            if (string.IsNullOrEmpty(SelectedItem?.Path))
+                                        if (string.IsNullOrEmpty(SelectedItem?.Path))
+                                        {
+                                            if (!string.IsNullOrEmpty(CurrentFolder?.Path))
                                             {
-                                                if (!string.IsNullOrEmpty(CurrentFolder?.Path))
-                                                {
-                                                    ViewPathWithQuicklook = CurrentFolder.Path;
-                                                }
-                                                else
-                                                {
-                                                    break;
-                                                }
+                                                ViewPathWithQuicklook = CurrentFolder.Path;
                                             }
                                             else
                                             {
-                                                ViewPathWithQuicklook = SelectedItem.Path;
+                                                break;
                                             }
-
-                                            await Exclusive.Controller.ViewWithQuicklookAsync(ViewPathWithQuicklook).ConfigureAwait(false);
                                         }
+                                        else
+                                        {
+                                            ViewPathWithQuicklook = SelectedItem.Path;
+                                        }
+
+                                        await Exclusive.Controller.ViewWithQuicklookAsync(ViewPathWithQuicklook).ConfigureAwait(false);
                                     }
+                                }
 
-                                    break;
-                                }
-                            case VirtualKey.F2:
-                                {
-                                    Rename_Click(null, null);
-                                    break;
-                                }
-                            case VirtualKey.F5:
-                                {
-                                    Refresh_Click(null, null);
-                                    break;
-                                }
-                            case VirtualKey.Enter when SelectedItems.Count == 1 && SelectedItem is FileSystemStorageItemBase Item:
-                                {
-                                    await EnterSelectedItemAsync(Item).ConfigureAwait(false);
-                                    break;
-                                }
-                            case VirtualKey.Back:
-                                {
-                                    Container.GoBackRecord_Click(null, null);
-                                    break;
-                                }
-                            case VirtualKey.L when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                                {
-                                    Container.AddressBox.Focus(FocusState.Programmatic);
-                                    break;
-                                }
-                            case VirtualKey.V when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                                {
-                                    Paste_Click(null, null);
-                                    break;
-                                }
-                            case VirtualKey.A when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItem == null:
-                                {
-                                    ItemPresenter.SelectAll();
-                                    break;
-                                }
-                            case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && ShiftState.HasFlag(CoreVirtualKeyStates.Down):
-                                {
-                                    Clipboard.Clear();
+                                break;
+                            }
+                        case VirtualKey.F2:
+                            {
+                                Rename_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.F5:
+                            {
+                                Refresh_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.Enter when SelectedItems.Count == 1 && SelectedItem is FileSystemStorageItemBase Item:
+                            {
+                                await EnterSelectedItemAsync(Item).ConfigureAwait(false);
+                                break;
+                            }
+                        case VirtualKey.Back:
+                            {
+                                Container.GoBackRecord_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.L when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                Container.AddressBox.Focus(FocusState.Programmatic);
+                                break;
+                            }
+                        case VirtualKey.V when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                Paste_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.A when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItem == null:
+                            {
+                                ItemPresenter.SelectAll();
+                                break;
+                            }
+                        case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && ShiftState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                Clipboard.Clear();
 
-                                    DataPackage Package = new DataPackage
-                                    {
-                                        RequestedOperation = DataPackageOperation.Copy
-                                    };
+                                DataPackage Package = new DataPackage
+                                {
+                                    RequestedOperation = DataPackageOperation.Copy
+                                };
 
-                                    Package.SetText(SelectedItem?.Path ?? CurrentFolder?.Path ?? string.Empty);
+                                Package.SetText(SelectedItem?.Path ?? CurrentFolder?.Path ?? string.Empty);
 
-                                    Clipboard.SetContent(Package);
-                                    break;
-                                }
-                            case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                                {
-                                    Copy_Click(null, null);
-                                    break;
-                                }
-                            case VirtualKey.X when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                                {
-                                    Cut_Click(null, null);
-                                    break;
-                                }
-                            case VirtualKey.Delete:
-                            case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                                {
-                                    Delete_Click(null, null);
-                                    break;
-                                }
-                            case VirtualKey.F when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                                {
-                                    Container.GlobeSearch.Focus(FocusState.Programmatic);
-                                    break;
-                                }
-                            case VirtualKey.N when ShiftState.HasFlag(CoreVirtualKeyStates.Down) && CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                                {
-                                    CreateFolder_Click(null, null);
-                                    break;
-                                }
-                            case VirtualKey.Z when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && OperationRecorder.Current.Count > 0:
-                                {
-                                    await Ctrl_Z_Click().ConfigureAwait(false);
-                                    break;
-                                }
-                            case VirtualKey.E when ShiftState.HasFlag(CoreVirtualKeyStates.Down) && CurrentFolder != null:
-                                {
-                                    _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
-                                    break;
-                                }
-                            case VirtualKey.T when ShiftState.HasFlag(CoreVirtualKeyStates.Down):
-                                {
-                                    OpenInTerminal_Click(null, null);
-                                    break;
-                                }
-                            case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
-                                {
-                                    CloseAllFlyout();
+                                Clipboard.SetContent(Package);
+                                break;
+                            }
+                        case VirtualKey.C when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                Copy_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.X when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                Cut_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.Delete:
+                        case VirtualKey.D when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                Delete_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.F when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                Container.GlobeSearch.Focus(FocusState.Programmatic);
+                                break;
+                            }
+                        case VirtualKey.N when ShiftState.HasFlag(CoreVirtualKeyStates.Down) && CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                CreateFolder_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.Z when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && OperationRecorder.Current.Count > 0:
+                            {
+                                await Ctrl_Z_Click().ConfigureAwait(false);
+                                break;
+                            }
+                        case VirtualKey.E when ShiftState.HasFlag(CoreVirtualKeyStates.Down) && CurrentFolder != null:
+                            {
+                                _ = await Launcher.LaunchFolderPathAsync(CurrentFolder.Path);
+                                break;
+                            }
+                        case VirtualKey.T when ShiftState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                OpenInTerminal_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.T when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                CloseAllFlyout();
 
-                                    if (SelectedItem is FileSystemStorageFolder)
-                                    {
-                                        await TabViewContainer.ThisPage.CreateNewTabAsync(SelectedItem.Path);
-                                    }
-                                    else
-                                    {
-                                        await TabViewContainer.ThisPage.CreateNewTabAsync();
-                                    }
+                                if (SelectedItem is FileSystemStorageFolder)
+                                {
+                                    await TabViewContainer.ThisPage.CreateNewTabAsync(SelectedItem.Path);
+                                }
+                                else
+                                {
+                                    await TabViewContainer.ThisPage.CreateNewTabAsync();
+                                }
 
-                                    break;
-                                }
-                            case VirtualKey.Q when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                                break;
+                            }
+                        case VirtualKey.Q when CtrlState.HasFlag(CoreVirtualKeyStates.Down):
+                            {
+                                OpenFolderInNewWindow_Click(null, null);
+                                break;
+                            }
+                        case VirtualKey.Up:
+                        case VirtualKey.Down:
+                            {
+                                if (SelectedItem == null)
                                 {
-                                    OpenFolderInNewWindow_Click(null, null);
-                                    break;
+                                    SelectedItem = FileCollection.FirstOrDefault();
                                 }
-                            case VirtualKey.Up:
-                            case VirtualKey.Down:
-                                {
-                                    if (SelectedItem == null)
-                                    {
-                                        SelectedItem = FileCollection.FirstOrDefault();
-                                    }
 
-                                    break;
-                                }
-                            case VirtualKey.B when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItem != null:
-                                {
-                                    await Container.CreateNewBladeAsync(SelectedItem.Path);
-                                    break;
-                                }
-                            default:
-                                {
-                                    args.Handled = false;
-                                    break;
-                                }
-                        }
+                                break;
+                            }
+                        case VirtualKey.B when CtrlState.HasFlag(CoreVirtualKeyStates.Down) && SelectedItem != null:
+                            {
+                                await Container.CreateNewBladeAsync(SelectedItem.Path);
+                                break;
+                            }
+                        default:
+                            {
+                                args.Handled = false;
+                                break;
+                            }
                     }
                 }
             }
@@ -781,7 +783,6 @@ namespace RX_Explorer
                 {
                     CurrentFolder = RootStorageFolder.Instance;
                     Container.ViewModeComboBox.IsEnabled = false;
-                    Container.VerticalSplitViewButton.IsEnabled = false;
                     RootFolderControl.Visibility = Visibility.Visible;
                     FileCollection.Clear();
                 }
@@ -802,7 +803,6 @@ namespace RX_Explorer
                     }
 
                     Container.ViewModeComboBox.IsEnabled = true;
-                    Container.VerticalSplitViewButton.IsEnabled = true;
                     RootFolderControl.Visibility = Visibility.Collapsed;
 
                     await SQLite.Current.SetPathHistoryAsync(FolderPath);
@@ -1246,7 +1246,7 @@ namespace RX_Explorer
                         Content = Globalization.GetString("QueueDialog_UnableAccessClipboard_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
-                    
+
                     await Dialog.ShowAsync().ConfigureAwait(false);
                 }
             }
@@ -1530,16 +1530,6 @@ namespace RX_Explorer
         {
             DelayRenameCancel?.Cancel();
 
-            foreach (SelectorItem RemovedItem in e.RemovedItems.Select((Item) => ItemPresenter.ContainerFromItem(Item)).OfType<SelectorItem>())
-            {
-                RemovedItem.CanDrag = false;
-            }
-
-            foreach (SelectorItem SelectedItem in e.AddedItems.Select((Item) => ItemPresenter.ContainerFromItem(Item)).OfType<SelectorItem>())
-            {
-                SelectedItem.CanDrag = true;
-            }
-
             if (SelectedItem is FileSystemStorageFile File)
             {
                 FileEdit.IsEnabled = false;
@@ -1634,6 +1624,11 @@ namespace RX_Explorer
             }
         }
 
+        private void ViewControl_PointerReleased(object sender, PointerRoutedEventArgs e)
+        {
+            DelayDragCancel?.Cancel();
+        }
+
         private void ViewControl_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
@@ -1646,36 +1641,53 @@ namespace RX_Explorer
                     SelectedItem = Item;
                     _ = TabViewContainer.ThisPage.CreateNewTabAsync(null, Item.Path);
                 }
-                else if ((e.OriginalSource as FrameworkElement).FindParentOfType<SelectorItem>() != null)
+                else if ((e.OriginalSource as FrameworkElement).FindParentOfType<SelectorItem>() is SelectorItem SItem)
                 {
-                    if (ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple)
+                    if (e.KeyModifiers == VirtualKeyModifiers.None && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple)
                     {
-                        if (e.KeyModifiers == VirtualKeyModifiers.None)
+                        if (SelectedItems.Contains(Item))
                         {
-                            if (SelectedItems.Contains(Item))
-                            {
-                                SelectionExtention.Disable();
-                            }
-                            else
-                            {
-                                if (PointerInfo.Properties.IsLeftButtonPressed)
-                                {
-                                    SelectedItem = Item;
-                                }
+                            SelectionExtention.Disable();
 
-                                if (e.OriginalSource is Grid || (e.OriginalSource is TextBlock Block && Block.Name == "EmptyTextblock"))
+                            DelayDragCancel?.Cancel();
+                            DelayDragCancel?.Dispose();
+                            DelayDragCancel = new CancellationTokenSource();
+
+                            Task.Delay(300).ContinueWith((task, input) =>
+                            {
+                                if (input is (CancellationTokenSource Cancel, UIElement Item, PointerPoint Point) && !Cancel.IsCancellationRequested)
                                 {
-                                    SelectionExtention.Enable();
+                                    _ = Item.StartDragAsync(Point);
                                 }
-                                else
-                                {
-                                    SelectionExtention.Disable();
-                                }
-                            }
+                            }, (DelayDragCancel, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
                         }
                         else
                         {
-                            SelectionExtention.Disable();
+                            if (PointerInfo.Properties.IsLeftButtonPressed)
+                            {
+                                SelectedItem = Item;
+                            }
+
+                            if (e.OriginalSource is Grid || (e.OriginalSource is TextBlock Block && Block.Name == "EmptyTextblock"))
+                            {
+                                SelectionExtention.Enable();
+                            }
+                            else
+                            {
+                                SelectionExtention.Disable();
+
+                                DelayDragCancel?.Cancel();
+                                DelayDragCancel?.Dispose();
+                                DelayDragCancel = new CancellationTokenSource();
+
+                                Task.Delay(300).ContinueWith((task, input) =>
+                                {
+                                    if (input is (CancellationTokenSource Cancel, UIElement Item, PointerPoint Point) && !Cancel.IsCancellationRequested)
+                                    {
+                                        _ = Item.StartDragAsync(Point);
+                                    }
+                                }, (DelayDragCancel, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
+                            }
                         }
                     }
                     else
@@ -2292,7 +2304,7 @@ namespace RX_Explorer
             {
                 DataPackageView Package = Clipboard.GetContent();
 
-                if(await Package.CheckIfContainsAvailableDataAsync())
+                if (await Package.CheckIfContainsAvailableDataAsync())
                 {
                     Paste.IsEnabled = true;
                 }
@@ -2996,12 +3008,12 @@ namespace RX_Explorer
                     if (e.Modifiers.HasFlag(DragDropModifiers.Control))
                     {
                         e.AcceptedOperation = DataPackageOperation.Move;
-                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {CurrentFolder.Name}";
+                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{CurrentFolder.Name}\"";
                     }
                     else
                     {
                         e.AcceptedOperation = DataPackageOperation.Copy;
-                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {CurrentFolder.Name}";
+                        e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{CurrentFolder.Name}\"";
                     }
 
                     e.DragUIOverride.IsContentVisible = true;
@@ -3028,47 +3040,73 @@ namespace RX_Explorer
 
             try
             {
+                DelayEnterCancel?.Cancel();
+
                 e.Handled = true;
 
                 IReadOnlyList<string> PathList = await e.DataView.GetAsPathListAsync();
 
                 if (PathList.Count > 0)
                 {
-                    if ((sender as SelectorItem).Content is FileSystemStorageItemBase Item)
+                    switch ((sender as SelectorItem).Content)
                     {
-                        switch (e.AcceptedOperation)
-                        {
-                            case DataPackageOperation.Copy:
+                        case FileSystemStorageFolder Folder:
+                            {
+                                switch (e.AcceptedOperation)
                                 {
-                                    TaskCompletionSource<bool> CompletionSource = new TaskCompletionSource<bool>();
+                                    case DataPackageOperation.Copy:
+                                        {
+                                            TaskCompletionSource<bool> CompletionSource = new TaskCompletionSource<bool>();
 
-                                    void OnFinished(object s, EventArgs e)
-                                    {
-                                        CompletionSource.SetResult(true);
-                                    }
+                                            void OnFinished(object s, EventArgs e)
+                                            {
+                                                CompletionSource.SetResult(true);
+                                            }
 
-                                    QueueTaskController.EnqueueCopyOpeartion(PathList, Item.Path, OnFinished, OnFinished, OnFinished);
+                                            QueueTaskController.EnqueueCopyOpeartion(PathList, Folder.Path, OnFinished, OnFinished, OnFinished);
 
-                                    await CompletionSource.Task;
+                                            await CompletionSource.Task;
 
-                                    break;
+                                            break;
+                                        }
+                                    case DataPackageOperation.Move:
+                                        {
+                                            TaskCompletionSource<bool> CompletionSource = new TaskCompletionSource<bool>();
+
+                                            void OnFinished(object s, EventArgs e)
+                                            {
+                                                CompletionSource.SetResult(true);
+                                            }
+
+                                            QueueTaskController.EnqueueMoveOpeartion(PathList, Folder.Path, OnFinished, OnFinished, OnFinished);
+
+                                            await CompletionSource.Task;
+
+                                            break;
+                                        }
                                 }
-                            case DataPackageOperation.Move:
+
+                                break;
+                            }
+                        case FileSystemStorageFile File when File.Type.Equals(".exe", StringComparison.OrdinalIgnoreCase):
+                            {
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                 {
-                                    TaskCompletionSource<bool> CompletionSource = new TaskCompletionSource<bool>();
-
-                                    void OnFinished(object s, EventArgs e)
+                                    if (!await Exclusive.Controller.RunAsync(File.Path, Path.GetDirectoryName(File.Path), WindowState.Normal, Parameters: PathList.ToArray()))
                                     {
-                                        CompletionSource.SetResult(true);
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_LaunchFailed_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                        };
+
+                                        await Dialog.ShowAsync();
                                     }
-
-                                    QueueTaskController.EnqueueMoveOpeartion(PathList, Item.Path, OnFinished, OnFinished, OnFinished);
-
-                                    await CompletionSource.Task;
-
-                                    break;
                                 }
-                        }
+
+                                break;
+                            }
                     }
                 }
             }
@@ -3100,6 +3138,8 @@ namespace RX_Explorer
         {
             if (args.InRecycleQueue)
             {
+                args.ItemContainer.AllowDrop = false;
+
                 args.ItemContainer.DragStarting -= ItemContainer_DragStarting;
                 args.ItemContainer.Drop -= ItemContainer_Drop;
                 args.ItemContainer.DragOver -= ItemContainer_DragOver;
@@ -3107,20 +3147,20 @@ namespace RX_Explorer
                 args.ItemContainer.PointerExited -= ItemContainer_PointerExited;
                 args.ItemContainer.DragEnter -= ItemContainer_DragEnter;
                 args.ItemContainer.PointerCanceled -= ItemContainer_PointerCanceled;
+                args.ItemContainer.DragLeave -= ItemContainer_DragLeave;
             }
             else
             {
-                args.ItemContainer.UseSystemFocusVisuals = false;
+                args.ItemContainer.AllowDrop = true;
 
                 if (args.Item is FileSystemStorageFolder)
                 {
-                    args.ItemContainer.AllowDrop = true;
-                    args.ItemContainer.Drop += ItemContainer_Drop;
-                    args.ItemContainer.DragOver += ItemContainer_DragOver;
                     args.ItemContainer.DragEnter += ItemContainer_DragEnter;
                     args.ItemContainer.DragLeave += ItemContainer_DragLeave;
                 }
 
+                args.ItemContainer.Drop += ItemContainer_Drop;
+                args.ItemContainer.DragOver += ItemContainer_DragOver;
                 args.ItemContainer.DragStarting += ItemContainer_DragStarting;
                 args.ItemContainer.PointerEntered += ItemContainer_PointerEntered;
                 args.ItemContainer.PointerExited += ItemContainer_PointerExited;
@@ -3149,7 +3189,7 @@ namespace RX_Explorer
                 DelayEnterCancel?.Dispose();
                 DelayEnterCancel = new CancellationTokenSource();
 
-                Task.Delay(1500).ContinueWith((task, input) =>
+                Task.Delay(1800).ContinueWith((task, input) =>
                 {
                     try
                     {
@@ -3198,36 +3238,61 @@ namespace RX_Explorer
 
         private async void ItemContainer_DragOver(object sender, DragEventArgs e)
         {
-            var Deferral = e.GetDeferral();
+            DragOperationDeferral Deferral = e.GetDeferral();
 
             try
             {
-                if ((sender as SelectorItem)?.Content is FileSystemStorageFolder Item)
+                switch ((sender as SelectorItem)?.Content)
                 {
-                    if(await e.DataView.CheckIfContainsAvailableDataAsync())
-                    {
-                        if (e.Modifiers.HasFlag(DragDropModifiers.Control))
+                    case FileSystemStorageFolder Folder:
                         {
-                            e.AcceptedOperation = DataPackageOperation.Move;
-                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} {Item.Name}";
-                        }
-                        else
-                        {
-                            e.AcceptedOperation = DataPackageOperation.Copy;
-                            e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} {Item.Name}";
-                        }
+                            if (await e.DataView.CheckIfContainsAvailableDataAsync())
+                            {
+                                if (e.Modifiers.HasFlag(DragDropModifiers.Control))
+                                {
+                                    e.AcceptedOperation = DataPackageOperation.Move;
+                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_MoveTo")} \"{Folder.Name}\"";
+                                }
+                                else
+                                {
+                                    e.AcceptedOperation = DataPackageOperation.Copy;
+                                    e.DragUIOverride.Caption = $"{Globalization.GetString("Drag_Tip_CopyTo")} \"{Folder.Name}\"";
+                                }
 
-                        e.DragUIOverride.IsContentVisible = true;
-                        e.DragUIOverride.IsCaptionVisible = true;
-                    }
-                    else
-                    {
-                        e.AcceptedOperation = DataPackageOperation.None;
-                    }
-                }
-                else
-                {
-                    e.AcceptedOperation = DataPackageOperation.None;
+                                e.DragUIOverride.IsContentVisible = true;
+                                e.DragUIOverride.IsCaptionVisible = true;
+                                e.Handled = true;
+                            }
+                            else
+                            {
+                                e.AcceptedOperation = DataPackageOperation.None;
+                            }
+
+                            break;
+                        }
+                    case FileSystemStorageFile File when File.Type.Equals(".exe", StringComparison.OrdinalIgnoreCase):
+                        {
+                            if (await e.DataView.CheckIfContainsAvailableDataAsync())
+                            {
+                                e.AcceptedOperation = DataPackageOperation.Link;
+                                e.DragUIOverride.Caption = Globalization.GetString("Drag_Tip_RunWith").Replace("{Placeholder}", $"\"{File.Name}\"");
+
+                                e.DragUIOverride.IsContentVisible = true;
+                                e.DragUIOverride.IsCaptionVisible = true;
+                                e.Handled = true;
+                            }
+                            else
+                            {
+                                e.AcceptedOperation = DataPackageOperation.None;
+                            }
+
+                            break;
+                        }
+                    default:
+                        {
+                            e.AcceptedOperation = DataPackageOperation.None;
+                            break;
+                        }
                 }
             }
             catch (Exception ex)
@@ -3237,7 +3302,6 @@ namespace RX_Explorer
             finally
             {
                 Deferral.Complete();
-                e.Handled = true;
             }
         }
 
@@ -4436,6 +4500,7 @@ namespace RX_Explorer
             DelayRenameCancel?.Dispose();
             DelayEnterCancel?.Dispose();
             DelaySelectionCancel?.Dispose();
+            DelayDragCancel?.Dispose();
             EnterLock?.Dispose();
             CollectionChangeLock?.Dispose();
 
@@ -4445,6 +4510,7 @@ namespace RX_Explorer
             DelayRenameCancel = null;
             DelayEnterCancel = null;
             DelaySelectionCancel = null;
+            DelayDragCancel = null;
             EnterLock = null;
             CollectionChangeLock = null;
 
