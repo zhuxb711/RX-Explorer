@@ -3060,7 +3060,7 @@ namespace RX_Explorer
 
                                             void OnFinished(object s, EventArgs e)
                                             {
-                                                CompletionSource.SetResult(true);
+                                                CompletionSource.TrySetResult(true);
                                             }
 
                                             QueueTaskController.EnqueueCopyOpeartion(PathList, Folder.Path, OnFinished, OnFinished, OnFinished);
@@ -3075,7 +3075,7 @@ namespace RX_Explorer
 
                                             void OnFinished(object s, EventArgs e)
                                             {
-                                                CompletionSource.SetResult(true);
+                                                CompletionSource.TrySetResult(true);
                                             }
 
                                             QueueTaskController.EnqueueMoveOpeartion(PathList, Folder.Path, OnFinished, OnFinished, OnFinished);
@@ -3151,12 +3151,20 @@ namespace RX_Explorer
             }
             else
             {
-                args.ItemContainer.AllowDrop = true;
-
-                if (args.Item is FileSystemStorageFolder)
+                switch (args.Item)
                 {
-                    args.ItemContainer.DragEnter += ItemContainer_DragEnter;
-                    args.ItemContainer.DragLeave += ItemContainer_DragLeave;
+                    case FileSystemStorageFolder:
+                        {
+                            args.ItemContainer.AllowDrop = true;
+                            args.ItemContainer.DragEnter += ItemContainer_DragEnter;
+                            args.ItemContainer.DragLeave += ItemContainer_DragLeave;
+                            break;
+                        }
+                    case FileSystemStorageFile File when File.Type.Equals(".exe", StringComparison.OrdinalIgnoreCase):
+                        {
+                            args.ItemContainer.AllowDrop = true;
+                            break;
+                        }
                 }
 
                 args.ItemContainer.Drop += ItemContainer_Drop;
@@ -3363,7 +3371,7 @@ namespace RX_Explorer
 
                                 void OnFinished(object s, EventArgs e)
                                 {
-                                    CompletionSource.SetResult(true);
+                                    CompletionSource.TrySetResult(true);
                                 }
 
                                 QueueTaskController.EnqueueCopyOpeartion(PathList, CurrentFolder.Path, OnFinished, OnFinished, OnFinished);
@@ -3380,7 +3388,7 @@ namespace RX_Explorer
 
                                     void OnFinished(object s, EventArgs e)
                                     {
-                                        CompletionSource.SetResult(true);
+                                        CompletionSource.TrySetResult(true);
                                     }
 
                                     QueueTaskController.EnqueueMoveOpeartion(PathList, CurrentFolder.Path, OnFinished, OnFinished, OnFinished);

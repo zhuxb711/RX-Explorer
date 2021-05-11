@@ -1079,8 +1079,16 @@ namespace RX_Explorer
                 {
                     if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
                     {
-                        QuickStartGridView.Tag = Item;
-                        QuickStartGridView.ContextFlyout = AppFlyout;
+                        if (Item.Type == QuickStartType.AddButton)
+                        {
+                            QuickStartGridView.Tag = null;
+                            QuickStartGridView.ContextFlyout = null;
+                        }
+                        else
+                        {
+                            QuickStartGridView.Tag = Item;
+                            QuickStartGridView.ContextFlyout = AppFlyout;
+                        }
                     }
                     else
                     {
@@ -1092,8 +1100,16 @@ namespace RX_Explorer
                 {
                     if ((e.OriginalSource as FrameworkElement)?.DataContext is QuickStartItem Item)
                     {
-                        WebGridView.Tag = Item;
-                        WebGridView.ContextFlyout = WebFlyout;
+                        if (Item.Type == QuickStartType.AddButton)
+                        {
+                            WebGridView.Tag = null;
+                            WebGridView.ContextFlyout = null;
+                        }
+                        else
+                        {
+                            WebGridView.Tag = Item;
+                            WebGridView.ContextFlyout = WebFlyout;
+                        }
                     }
                     else
                     {

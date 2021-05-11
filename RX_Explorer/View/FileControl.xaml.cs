@@ -1788,7 +1788,7 @@ namespace RX_Explorer
 
                                     void OnFinished(object s, EventArgs e)
                                     {
-                                        CompletionSource.SetResult(true);
+                                        CompletionSource.TrySetResult(true);
                                     }
 
                                     QueueTaskController.EnqueueCopyOpeartion(PathList, Block.Path, OnFinished, OnFinished, OnFinished);
@@ -1805,7 +1805,7 @@ namespace RX_Explorer
 
                                         void OnFinished(object s, EventArgs e)
                                         {
-                                            CompletionSource.SetResult(true);
+                                            CompletionSource.TrySetResult(true);
                                         }
 
                                         QueueTaskController.EnqueueMoveOpeartion(PathList, Block.Path, OnFinished, OnFinished, OnFinished);
