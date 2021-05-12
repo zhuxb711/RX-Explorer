@@ -359,32 +359,56 @@ namespace RX_Explorer.Dialog
                             }
                             else
                             {
-                                if ((await Launcher.FindUriSchemeHandlersAsync(Result.Scheme)).ToList().FirstOrDefault() is AppInfo App)
+                                if ((await Launcher.FindUriSchemeHandlersAsync(Result.Scheme)).FirstOrDefault() is AppInfo App)
                                 {
                                     DisplayName.Text = App.DisplayInfo.DisplayName;
 
                                     StorageFile FileThumbnail = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("FileThumbnail.png", CreationCollisionOption.ReplaceExisting);
 
-                                    using (IRandomAccessStreamWithContentType LogoStream = await App.DisplayInfo.GetLogo(new Windows.Foundation.Size(120, 120)).OpenReadAsync())
+                                    try
                                     {
-                                        BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(LogoStream);
-                                        using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
-                                        using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
-                                        using (InMemoryRandomAccessStream ResizeBitmapStream = new InMemoryRandomAccessStream())
+                                        using (IRandomAccessStreamWithContentType LogoStream = await App.DisplayInfo.GetLogo(new Windows.Foundation.Size(120, 120)).OpenReadAsync())
                                         {
-                                            BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, ResizeBitmapStream);
-                                            Encoder.SetSoftwareBitmap(ResizeBitmap);
-                                            await Encoder.FlushAsync();
+                                            BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(LogoStream);
+                                            using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
+                                            using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
+                                            using (InMemoryRandomAccessStream ResizeBitmapStream = new InMemoryRandomAccessStream())
+                                            {
+                                                BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, ResizeBitmapStream);
+                                                Encoder.SetSoftwareBitmap(ResizeBitmap);
+                                                await Encoder.FlushAsync();
 
-                                            BitmapImage Source = new BitmapImage();
-                                            Icon.Source = Source;
-                                            await Source.SetSourceAsync(ResizeBitmapStream);
+                                                BitmapImage Source = new BitmapImage();
+                                                Icon.Source = Source;
+                                                await Source.SetSourceAsync(ResizeBitmapStream);
 
-                                            ResizeBitmapStream.Seek(0);
+                                                ResizeBitmapStream.Seek(0);
 
+                                                using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync())
+                                                {
+                                                    await ResizeBitmapStream.AsStreamForRead().CopyToAsync(FileStream);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    catch
+                                    {
+                                        Uri PageUri = AppThemeController.Current.Theme == ElementTheme.Dark ? new Uri("ms-appx:///Assets/Page_Solid_White.png") : new Uri("ms-appx:///Assets/Page_Solid_Black.png");
+
+                                        StorageFile PageFile = await StorageFile.GetFileFromApplicationUriAsync(PageUri);
+
+                                        using (IRandomAccessStream PageStream = await PageFile.OpenAsync(FileAccessMode.Read))
+                                        {
+                                            BitmapImage Image = new BitmapImage();
+                                            Icon.Source = Image;
+                                            await Image.SetSourceAsync(PageStream);
+
+                                            PageStream.Seek(0);
+
+                                            using (Stream TransformStream = PageStream.AsStreamForRead())
                                             using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync())
                                             {
-                                                await ResizeBitmapStream.AsStreamForRead().CopyToAsync(FileStream);
+                                                await TransformStream.CopyToAsync(FileStream);
                                             }
                                         }
                                     }
@@ -427,6 +451,27 @@ namespace RX_Explorer.Dialog
                                                 using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync())
                                                 {
                                                     await ResizeBitmapStream.AsStreamForRead().CopyToAsync(FileStream);
+                                                }
+                                            }
+                                        }
+                                        catch
+                                        {
+                                            Uri PageUri = AppThemeController.Current.Theme == ElementTheme.Dark ? new Uri("ms-appx:///Assets/Page_Solid_White.png") : new Uri("ms-appx:///Assets/Page_Solid_Black.png");
+
+                                            StorageFile PageFile = await StorageFile.GetFileFromApplicationUriAsync(PageUri);
+
+                                            using (IRandomAccessStream PageStream = await PageFile.OpenAsync(FileAccessMode.Read))
+                                            {
+                                                BitmapImage Image = new BitmapImage();
+                                                Icon.Source = Image;
+                                                await Image.SetSourceAsync(PageStream);
+
+                                                PageStream.Seek(0);
+
+                                                using (Stream TransformStream = PageStream.AsStreamForRead())
+                                                using (Stream FileStream = await FileThumbnail.OpenStreamForWriteAsync())
+                                                {
+                                                    await TransformStream.CopyToAsync(FileStream);
                                                 }
                                             }
                                         }

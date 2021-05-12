@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI.Core;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
@@ -104,7 +105,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        if (!await Exclusive.Controller.LaunchUWPLnkAsync(LinkTargetPath))
+                        if (!await Exclusive.Controller.LaunchUWPFromPfnAsync(LinkTargetPath))
                         {
                             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                             {
@@ -162,7 +163,9 @@ namespace RX_Explorer.Class
                 {
                     using (MemoryStream IconStream = new MemoryStream(RawData.IconData))
                     {
-                        await Thumbnail.SetSourceAsync(IconStream.AsRandomAccessStream());
+                        BitmapImage Image = new BitmapImage();
+                        await Image.SetSourceAsync(IconStream.AsRandomAccessStream());
+                        Thumbnail = Image;
                     }
                 }
 

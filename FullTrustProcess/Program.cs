@@ -115,6 +115,61 @@ namespace FullTrustProcess
             {
                 switch (args.Request.Message["ExecuteType"])
                 {
+                    case "Execute_LaunchUWP":
+                        {
+                            string[] PathArray = JsonSerializer.Deserialize<string[]>(Convert.ToString(args.Request.Message["LaunchPathArray"]));
+
+                            if (args.Request.Message.TryGetValue("PackageFamilyName", out object PFN))
+                            {
+                                ValueSet Value = new ValueSet();
+
+                                string PackageFamilyName = Convert.ToString(PFN);
+
+                                if (string.IsNullOrEmpty(PackageFamilyName))
+                                {
+                                    Value.Add("Error", "PackageFamilyName could not empty");
+                                }
+                                else
+                                {
+                                    if (await Helper.LaunchApplicationFromPackageFamilyName(PackageFamilyName, PathArray))
+                                    {
+                                        Value.Add("Success", string.Empty);
+                                    }
+                                    else
+                                    {
+                                        Value.Add("Error", "Could not launch the UWP");
+                                    }
+                                }
+
+                                await args.Request.SendResponseAsync(Value);
+                            }
+                            else if (args.Request.Message.TryGetValue("AppUserModelId", out object AUMID))
+                            {
+                                ValueSet Value = new ValueSet();
+
+                                string AppUserModelId = Convert.ToString(AUMID);
+
+                                if (string.IsNullOrEmpty(AppUserModelId))
+                                {
+                                    Value.Add("Error", "AppUserModelId could not empty");
+                                }
+                                else
+                                {
+                                    if (await Helper.LaunchApplicationFromAUMID(AppUserModelId, PathArray))
+                                    {
+                                        Value.Add("Success", string.Empty);
+                                    }
+                                    else
+                                    {
+                                        Value.Add("Error", "Could not launch the UWP");
+                                    }
+                                }
+
+                                await args.Request.SendResponseAsync(Value);
+                            }
+
+                            break;
+                        }
                     case "Execute_GetDocumentProperties":
                         {
                             string ExecutePath = Convert.ToString(args.Request.Message["ExecutePath"]);
@@ -558,19 +613,6 @@ namespace FullTrustProcess
                             ValueSet Value = new ValueSet
                             {
                                 {"Success", Helper.CheckIfPackageFamilyNameExist(PFN) }
-                            };
-
-                            await args.Request.SendResponseAsync(Value);
-
-                            break;
-                        }
-                    case "Execute_LaunchUWPLnkFile":
-                        {
-                            string PFN = Convert.ToString(args.Request.Message["PackageFamilyName"]);
-
-                            ValueSet Value = new ValueSet
-                            {
-                                {"Success", await Helper.LaunchApplicationFromPackageFamilyName(PFN) }
                             };
 
                             await args.Request.SendResponseAsync(Value);

@@ -383,7 +383,7 @@ namespace RX_Explorer
 
                 await RegisterBackgroundTaskAsync();
 
-                switch (Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.LaunchCount)
+                switch (SystemInformation.Instance.LaunchCount)
                 {
                     case 5:
                     case 20:
@@ -413,7 +413,7 @@ namespace RX_Explorer
 
         private async Task ShowReleaseLogDialogAsync()
         {
-            if (Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.IsAppUpdated || Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.IsFirstRun)
+            if (SystemInformation.Instance.IsAppUpdated || SystemInformation.Instance.IsFirstRun)
             {
                 WhatIsNew Dialog = new WhatIsNew();
                 await Dialog.ShowAsync();
@@ -603,7 +603,7 @@ namespace RX_Explorer
             RateTip.ActionButtonClick += async (s, e) =>
             {
                 s.IsOpen = false;
-                await Microsoft.Toolkit.Uwp.Helpers.SystemInformation.LaunchStoreForReviewAsync();
+                await SystemInformation.LaunchStoreForReviewAsync();
             };
 
             RateTip.CloseButtonClick += (s, e) =>
@@ -982,7 +982,7 @@ namespace RX_Explorer
                         {
                             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
-                                if (!await Exclusive.Controller.LaunchUWPLnkAsync(Item.Protocol))
+                                if (!await Exclusive.Controller.LaunchUWPFromPfnAsync(Item.Protocol))
                                 {
                                     QueueContentDialog Dialog = new QueueContentDialog
                                     {

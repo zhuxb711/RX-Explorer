@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.System;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
@@ -66,7 +67,9 @@ namespace RX_Explorer.Class
                 {
                     using (MemoryStream IconStream = new MemoryStream(RawData.IconData))
                     {
-                        await Thumbnail.SetSourceAsync(IconStream.AsRandomAccessStream());
+                        BitmapImage Image = new BitmapImage();
+                        await Image.SetSourceAsync(IconStream.AsRandomAccessStream());
+                        Thumbnail = Image;
                     }
                 }
             }

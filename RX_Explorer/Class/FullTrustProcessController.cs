@@ -99,9 +99,9 @@ namespace RX_Explorer.Class
 
         private const string ExecuteType_GetInstalledApplication = "Execute_GetInstalledApplication";
 
-        private const string ExecuteType_LaunchUWPLnkFile = "Execute_LaunchUWPLnkFile";
-
         private const string ExecuteType_GetDocumentProperties = "Execute_GetDocumentProperties";
+
+        private const string ExecuteType_LaunchUWP = "Execute_LaunchUWP";
 
         private readonly static Thread DispatcherThread = new Thread(DispatcherMethod)
         {
@@ -699,7 +699,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<bool> LaunchUWPLnkAsync(string PackageFamilyName)
+        public async Task<bool> LaunchUWPFromAUMIDAsync(string AppUserModelId, params string[] PathArray)
         {
             try
             {
@@ -709,8 +709,9 @@ namespace RX_Explorer.Class
                 {
                     ValueSet Value = new ValueSet
                     {
-                        {"ExecuteType", ExecuteType_LaunchUWPLnkFile},
-                        {"PackageFamilyName", PackageFamilyName }
+                        {"ExecuteType", ExecuteType_LaunchUWP},
+                        {"AppUserModelId", AppUserModelId },
+                        {"LaunchPathArray", JsonSerializer.Serialize(PathArray)}
                     };
 
                     AppServiceResponse Response = await Connection.SendMessageAsync(Value);
@@ -719,13 +720,13 @@ namespace RX_Explorer.Class
                     {
                         if (Response.Message.TryGetValue("Success", out object Result))
                         {
-                            return Convert.ToBoolean(Result);
+                            return true;
                         }
                         else
                         {
                             if (Response.Message.TryGetValue("Error", out object ErrorMessage))
                             {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(LaunchUWPLnkAsync)}, message: {ErrorMessage}");
+                                LogTracer.Log($"An unexpected error was threw in {nameof(LaunchUWPFromAUMIDAsync)}, message: {ErrorMessage}");
                             }
 
                             return false;
@@ -733,19 +734,75 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        LogTracer.Log($"AppServiceResponse in {nameof(LaunchUWPLnkAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        LogTracer.Log($"AppServiceResponse in {nameof(LaunchUWPFromAUMIDAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         return false;
                     }
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(LaunchUWPLnkAsync)}: Failed to connect AppService ");
+                    LogTracer.Log($"{nameof(LaunchUWPFromAUMIDAsync)}: Failed to connect AppService ");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{ nameof(LaunchUWPLnkAsync)} throw an error");
+                LogTracer.Log(ex, $"{ nameof(LaunchUWPFromAUMIDAsync)} throw an error");
+                return false;
+            }
+            finally
+            {
+                IsAnyActionExcutingInCurrentController = false;
+            }
+        }
+
+        public async Task<bool> LaunchUWPFromPfnAsync(string PackageFamilyName, params string[] PathArray)
+        {
+            try
+            {
+                IsAnyActionExcutingInCurrentController = true;
+
+                if (await ConnectRemoteAsync())
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExecuteType", ExecuteType_LaunchUWP},
+                        {"PackageFamilyName", PackageFamilyName },
+                        {"LaunchPathArray", JsonSerializer.Serialize(PathArray)}
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Success", out object Result))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(LaunchUWPFromPfnAsync)}, message: {ErrorMessage}");
+                            }
+
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"AppServiceResponse in {nameof(LaunchUWPFromPfnAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        return false;
+                    }
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(LaunchUWPFromPfnAsync)}: Failed to connect AppService ");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{ nameof(LaunchUWPFromPfnAsync)} throw an error");
                 return false;
             }
             finally

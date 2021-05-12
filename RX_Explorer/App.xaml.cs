@@ -89,15 +89,15 @@ namespace RX_Explorer
             AppInstanceIdContainer.RegisterId(AppInstanceIdContainer.CurrentId);
         }
 
-        protected async override void OnWindowCreated(WindowCreatedEventArgs args)
-        {
-            await MSStoreHelper.Current.InitializeAsync();
-        }
-
         private void App_Suspending(object sender, SuspendingEventArgs e)
         {
             SQLite.Current.Dispose();
             AppInstanceIdContainer.UngisterId(AppInstanceIdContainer.CurrentId);
+        }
+
+        protected override void OnWindowCreated(WindowCreatedEventArgs args)
+        {
+            MSStoreHelper.Current.PreLoadStoreData();
         }
 
         private void CurrentDomain_UnhandledException(object sender, System.UnhandledExceptionEventArgs e)

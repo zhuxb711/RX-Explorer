@@ -136,7 +136,66 @@ namespace FullTrustProcess
             return Manager.FindPackagesForUserWithPackageTypes(string.Empty, PackageFamilyName, PackageTypes.Main).Any();
         }
 
-        public static async Task<bool> LaunchApplicationFromPackageFamilyName(string PackageFamilyName)
+        public static Task<bool> LaunchApplicationFromAUMID(string AppUserModelId, params string[] PathArray)
+        {
+            if (PathArray.Length > 0)
+            {
+                return CreateSTATask(() =>
+                {
+                    List<ShellItem> SItemList = new List<ShellItem>(PathArray.Length);
+
+                    try
+                    {
+                        Shell32.IApplicationActivationManager Manager = new Shell32.ApplicationActivationManager() as Shell32.IApplicationActivationManager;
+
+                        foreach (string Path in PathArray)
+                        {
+                            SItemList.Add(new ShellItem(Path));
+                        }
+
+                        using (ShellItemArray ItemArray = new ShellItemArray(SItemList))
+                        {
+                            Manager.ActivateForFile(AppUserModelId, ItemArray.IShellItemArray, "Open", out _);
+                        }
+
+                        return true;
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                    finally
+                    {
+                        SItemList.ForEach((Item) => Item.Dispose());
+                    }
+                });
+            }
+            else
+            {
+                return LaunchApplicationFromAUMID(AppUserModelId);
+            }
+        }
+
+        public static Task<bool> LaunchApplicationFromAUMID(string AppUserModelId)
+        {
+            return CreateSTATask(() =>
+            {
+                try
+                {
+                    Shell32.IApplicationActivationManager Manager = new Shell32.ApplicationActivationManager() as Shell32.IApplicationActivationManager;
+
+                    Manager.ActivateApplication(AppUserModelId, null, Shell32.ACTIVATEOPTIONS.AO_NONE, out _);
+
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            });
+        }
+
+        public static async Task<bool> LaunchApplicationFromPackageFamilyName(string PackageFamilyName, params string[] PathArray)
         {
             PackageManager Manager = new PackageManager();
 
@@ -144,9 +203,23 @@ namespace FullTrustProcess
             {
                 foreach (AppListEntry Entry in await Pack.GetAppListEntriesAsync())
                 {
-                    if (await Entry.LaunchAsync())
+                    if (PathArray.Length > 0)
                     {
-                        return true;
+                        if (!string.IsNullOrEmpty(Entry.AppUserModelId))
+                        {
+                            return await LaunchApplicationFromAUMID(Entry.AppUserModelId, PathArray);
+                        }
+                    }
+                    else
+                    {
+                        if (await Entry.LaunchAsync())
+                        {
+                            return true;
+                        }
+                        else if (!string.IsNullOrEmpty(Entry.AppUserModelId))
+                        {
+                            return await LaunchApplicationFromAUMID(Entry.AppUserModelId);
+                        }
                     }
                 }
 

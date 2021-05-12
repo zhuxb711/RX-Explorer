@@ -993,15 +993,18 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
                 if (TabViewContainer.ThisPage.TabCollection.LastOrDefault()?.Tag is FileControl Control)
                 {
-                    while (Control.CurrentPresenter == null)
+                    do
                     {
                         await Task.Delay(500);
                     }
+                    while (Control.CurrentPresenter?.CurrentFolder == null);
+
+                    await Task.Delay(500);
 
                     if (Control.CurrentPresenter.FileCollection.FirstOrDefault((SItem) => SItem.Path == Link.LinkTargetPath) is FileSystemStorageItemBase Target)
                     {
-                        Control.CurrentPresenter.ItemPresenter.ScrollIntoView(Target);
                         Control.CurrentPresenter.SelectedItem = Target;
+                        Control.CurrentPresenter.ItemPresenter.ScrollIntoView(Target);
                     }
                 }
             }

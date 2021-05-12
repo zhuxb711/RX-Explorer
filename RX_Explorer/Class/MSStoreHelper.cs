@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.Services.Store;
 using Windows.Storage;
@@ -12,10 +11,10 @@ namespace RX_Explorer.Class
         private static MSStoreHelper Instance;
 
         private StoreContext Store;
+        private StoreAppLicense License;
+        private StoreProductResult ProductResult;
 
-        private Task<StoreAppLicense> GetLicenseTask;
-
-        private readonly ManualResetEvent InitLocker;
+        private Task PreLoadTask;
 
         public static MSStoreHelper Current => Instance ??= new MSStoreHelper();
 
@@ -23,17 +22,17 @@ namespace RX_Explorer.Class
         {
             try
             {
-                await Task.Run(() =>
-                {
-                    InitLocker.WaitOne();
-                });
-
                 if (ApplicationData.Current.LocalSettings.Values.TryGetValue("LicenseGrant", out object GrantState) && Convert.ToBoolean(GrantState))
                 {
                     return true;
                 }
 
-                StoreAppLicense License = GetLicenseTask == null ? await Store.GetAppLicenseAsync() : await GetLicenseTask.ConfigureAwait(false);
+                if (PreLoadTask == null)
+                {
+                    PreLoadStoreData();
+                }
+
+                await PreLoadTask;
 
                 if (License.AddOnLicenses.Any((Item) => Item.Value.InAppOfferToken == "Donation"))
                 {
@@ -73,12 +72,12 @@ namespace RX_Explorer.Class
         {
             try
             {
-                await Task.Run(() =>
+                if (PreLoadTask == null)
                 {
-                    InitLocker.WaitOne();
-                });
+                    PreLoadStoreData();
+                }
 
-                StoreProductResult ProductResult = await Store.GetStoreProductForCurrentAppAsync();
+                await PreLoadTask;
 
                 if (ProductResult.ExtendedError == null)
                 {
@@ -115,37 +114,39 @@ namespace RX_Explorer.Class
             }
         }
 
-        private void PreLoadAppLicense()
+        public void PreLoadStoreData()
         {
-            if (ApplicationData.Current.LocalSettings.Values.TryGetValue("LicenseGrant", out object GrantState))
+            PreLoadTask = Task.Factory.StartNew(() =>
             {
-                if (!Convert.ToBoolean(GrantState))
+                try
                 {
-                    GetLicenseTask = Store.GetAppLicenseAsync().AsTask();
+                    Store = StoreContext.GetDefault();
+                    Store.OfflineLicensesChanged += Store_OfflineLicensesChanged;
+
+                    if (ApplicationData.Current.LocalSettings.Values.TryGetValue("LicenseGrant", out object GrantState))
+                    {
+                        if (!Convert.ToBoolean(GrantState))
+                        {
+                            License = Store.GetAppLicenseAsync().AsTask().Result;
+                        }
+                    }
+                    else
+                    {
+                        License = Store.GetAppLicenseAsync().AsTask().Result;
+                    }
+
+                    ProductResult = Store.GetStoreProductForCurrentAppAsync().AsTask().Result;
                 }
-            }
-            else
-            {
-                GetLicenseTask = Store.GetAppLicenseAsync().AsTask();
-            }
-        }
-
-        public Task InitializeAsync()
-        {
-            return Task.Factory.StartNew(() =>
-            {
-                Store = StoreContext.GetDefault();
-                Store.OfflineLicensesChanged += Store_OfflineLicensesChanged;
-
-                PreLoadAppLicense();
-
-                InitLocker.Set();
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Could not load MSStore data");
+                }
             }, TaskCreationOptions.LongRunning);
         }
 
         private MSStoreHelper()
         {
-            InitLocker = new ManualResetEvent(false);
+
         }
 
         private async void Store_OfflineLicensesChanged(StoreContext sender, object args)

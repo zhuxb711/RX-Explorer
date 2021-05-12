@@ -2601,19 +2601,33 @@ namespace RX_Explorer
                                                         {
                                                             if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { TargetApplicationPackageFamilyName = Info.PackageFamilyName, DisplayApplicationPicker = false }))
                                                             {
-                                                                await OpenFileWithProgramPicker(File);
+                                                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                                                {
+                                                                    if (!await Exclusive.Controller.LaunchUWPFromAUMIDAsync(Info.AppUserModelId, File.Path))
+                                                                    {
+                                                                        LogTracer.Log("Launch UWP failed and fall back to open ProgramPickerDialog");
+
+                                                                        await OpenFileWithProgramPicker(File);
+                                                                    }
+                                                                }
                                                             }
                                                         }
                                                         else
                                                         {
-                                                            QueueContentDialog Dialog = new QueueContentDialog
+                                                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                                                             {
-                                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                                Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
-                                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                            };
+                                                                if (!await Exclusive.Controller.LaunchUWPFromAUMIDAsync(Info.AppUserModelId, File.Path))
+                                                                {
+                                                                    QueueContentDialog Dialog = new QueueContentDialog
+                                                                    {
+                                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                                        Content = Globalization.GetString("QueueDialog_UnableAccessFile_Content"),
+                                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                                    };
 
-                                                            _ = await Dialog.ShowAsync();
+                                                                    await Dialog.ShowAsync();
+                                                                }
+                                                            }
                                                         }
                                                     }
                                                     else
@@ -2710,20 +2724,42 @@ namespace RX_Explorer
                     {
                         if (!await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { TargetApplicationPackageFamilyName = Dialog.SelectedProgram.Path, DisplayApplicationPicker = false }))
                         {
-                            QueueContentDialog Dialog1 = new QueueContentDialog
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
-                                Title = Globalization.GetString("Common_Dialog_TipTitle"),
-                                Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
-                                PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
-                                CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
-                            };
-
-                            if (await Dialog1.ShowAsync() == ContentDialogResult.Primary)
-                            {
-                                if (!await Launcher.LaunchFileAsync(InnerFile))
+                                if (!await Exclusive.Controller.LaunchUWPFromPfnAsync(Dialog.SelectedProgram.Path, File.Path))
                                 {
-                                    await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { DisplayApplicationPicker = true });
+                                    QueueContentDialog Dialog1 = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                        Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
+                                        PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                    };
+
+                                    if (await Dialog1.ShowAsync() == ContentDialogResult.Primary)
+                                    {
+                                        if (!await Launcher.LaunchFileAsync(InnerFile))
+                                        {
+                                            await Launcher.LaunchFileAsync(InnerFile, new LauncherOptions { DisplayApplicationPicker = true });
+                                        }
+                                    }
                                 }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                        {
+                            if (!await Exclusive.Controller.LaunchUWPFromPfnAsync(Dialog.SelectedProgram.Path, File.Path))
+                            {
+                                QueueContentDialog Dialog1 = new QueueContentDialog
+                                {
+                                    Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                    Content = Globalization.GetString("QueueDialog_OpenFailure_Content"),
+                                    PrimaryButtonText = Globalization.GetString("QueueDialog_OpenFailure_PrimaryButton"),
+                                    CloseButtonText = Globalization.GetString("Common_Dialog_CancelButton")
+                                };
                             }
                         }
                     }
