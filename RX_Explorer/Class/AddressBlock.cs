@@ -44,8 +44,8 @@ namespace RX_Explorer.Class
                         return FileName;
                     }
                 }
-                else 
-                { 
+                else
+                {
                     return InnerDisplayName;
                 }
             }
@@ -67,18 +67,19 @@ namespace RX_Explorer.Class
             ForegroundColor = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
         }
 
-        public void ThemeChanged(FrameworkElement element, object obj)
-        {
-            if (BlockType == AddressBlockType.Normal)
-            {
-                ForegroundColor = new SolidColorBrush(AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
-            }
-        }
-
         public AddressBlock(string Path, string DisplayName = null)
         {
             this.Path = Path;
             InnerDisplayName = DisplayName;
+            AppThemeController.Current.ThemeChanged += Current_ThemeChanged;
+        }
+
+        private void Current_ThemeChanged(object sender, ElementTheme Theme)
+        {
+            if (BlockType == AddressBlockType.Normal)
+            {
+                ForegroundColor = new SolidColorBrush(Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
+            }
         }
     }
 }

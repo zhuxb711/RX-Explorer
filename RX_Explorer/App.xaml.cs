@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.Notifications;
+﻿using Microsoft.Toolkit.Uwp.Helpers;
+using Microsoft.Toolkit.Uwp.Notifications;
 using RX_Explorer.Class;
 using System;
 using System.Collections.Generic;
@@ -155,11 +156,12 @@ namespace RX_Explorer
 
         protected override async void OnLaunched(LaunchActivatedEventArgs e)
         {
-            Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.TrackAppUse(e);
+            SystemInformation.Instance.TrackAppUse(e);
 
             ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
             TitleBar.ButtonBackgroundColor = Colors.Transparent;
             TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+            TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : "#1E1E1E".ToColor();
 
             CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
 
@@ -244,6 +246,7 @@ namespace RX_Explorer
             ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
             TitleBar.ButtonBackgroundColor = Colors.Transparent;
             TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+            TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : "#1E1E1E".ToColor();
 
             CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
 
@@ -337,6 +340,7 @@ namespace RX_Explorer
                 ApplicationViewTitleBar TitleBar = ApplicationView.GetForCurrentView().TitleBar;
                 TitleBar.ButtonBackgroundColor = Colors.Transparent;
                 TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+                TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : "#1E1E1E".ToColor();
 
                 CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
 

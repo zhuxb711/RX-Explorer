@@ -284,8 +284,7 @@
                 </ListView.ItemsPanel>
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="Cls:AddressBlock">
-                        <StackPanel Orientation="Horizontal"
-                                    ActualThemeChanged="{x:Bind ThemeChanged}">
+                        <StackPanel Orientation="Horizontal">
                             <Button Content="{x:Bind DisplayName}"
                                     Foreground="{x:Bind ForegroundColor, Mode=OneWay}"
                                     VerticalAlignment="Stretch"

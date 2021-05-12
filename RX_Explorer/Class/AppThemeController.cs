@@ -1,11 +1,8 @@
-﻿using Microsoft.Toolkit.Uwp.Helpers;
-using System;
+﻿using System;
 using System.ComponentModel;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
-using Windows.UI;
 using Windows.UI.Core;
-using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 
 namespace RX_Explorer.Class
@@ -13,7 +10,7 @@ namespace RX_Explorer.Class
     /// <summary>
     /// 提供对字体颜色的切换功能
     /// </summary>
-    public sealed class AppThemeController : INotifyPropertyChanged
+    public sealed class AppThemeController : WeakEventImplement<ElementTheme>, INotifyPropertyChanged
     {
         /// <summary>
         /// 指示当前应用的主题色
@@ -30,12 +27,11 @@ namespace RX_Explorer.Class
                 {
                     theme = value;
 
-                    UpdateTitleBarButton();
-
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Theme)));
 
-                    ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] = Enum.GetName(typeof(ElementTheme), value);
+                    InvokeWeakEvent(null, value);
 
+                    ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] = Enum.GetName(typeof(ElementTheme), value);
                     ApplicationData.Current.SignalDataChanged();
                 }
             }
@@ -45,7 +41,19 @@ namespace RX_Explorer.Class
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private volatile static AppThemeController Instance;
+        public event EventHandler<ElementTheme> ThemeChanged
+        {
+            add
+            {
+                WeakEventBase += value;
+            }
+            remove
+            {
+                WeakEventBase -= value;
+            }
+        }
+
+        private static AppThemeController Instance;
 
         private static readonly object Locker = new object();
 
@@ -84,20 +92,6 @@ namespace RX_Explorer.Class
             {
                 Theme = Enum.Parse<ElementTheme>(Convert.ToString(ApplicationData.Current.LocalSettings.Values["AppFontColorMode"]));
             });
-        }
-
-        private void UpdateTitleBarButton()
-        {
-            ApplicationViewTitleBar titleBar = ApplicationView.GetForCurrentView().TitleBar;
-
-            if (Theme == ElementTheme.Dark)
-            {
-                titleBar.ButtonForegroundColor = Colors.White;
-            }
-            else
-            {
-                titleBar.ButtonForegroundColor = "#1E1E1E".ToColor();
-            }
         }
     }
 }

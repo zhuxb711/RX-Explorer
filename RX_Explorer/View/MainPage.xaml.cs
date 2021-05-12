@@ -1,4 +1,5 @@
 ﻿using AnimationEffectProvider;
+using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.Notifications;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
@@ -24,12 +25,14 @@ using Windows.Storage.Streams;
 using Windows.System;
 using Windows.System.Power;
 using Windows.System.Profile;
+using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Core.Preview;
 using Windows.UI.Input;
 using Windows.UI.Notifications;
 using Windows.UI.Shell;
 using Windows.UI.StartScreen;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
@@ -68,6 +71,7 @@ namespace RX_Explorer
             Application.Current.LeavingBackground += Current_LeavingBackground;
             SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += MainPage_CloseRequested;
             SystemNavigationManager.GetForCurrentView().BackRequested += MainPage_BackRequested;
+            AppThemeController.Current.ThemeChanged += Current_ThemeChanged;
 
             BackgroundController.Current.SetAcrylicEffectPresenter(CompositorAcrylicBackground);
 
@@ -83,6 +87,14 @@ namespace RX_Explorer
                 EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, Parameter);
                 EntranceEffectProvider.PrepareEntranceEffect();
             }
+        }
+
+        private async void Current_ThemeChanged(object sender, ElementTheme Theme)
+        {
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+            {
+                ApplicationView.GetForCurrentView().TitleBar.ButtonForegroundColor = Theme == ElementTheme.Dark ? Colors.White : "#1E1E1E".ToColor();
+            });
         }
 
         private async void Current_DataChanged(ApplicationData sender, object args)

@@ -196,6 +196,7 @@
     <Compile Include="Class\RootStorageFolder.cs" />
     <Compile Include="Class\SearchOptions.cs" />
     <Compile Include="Class\UrlStorageFile.cs" />
+    <Compile Include="Class\WeakEventImplement.cs" />
     <Compile Include="Class\WslDriveData.cs" />
     <Compile Include="CustomControl\AppBarButtonWithImage.xaml.cs">
       <DependentUpon>AppBarButtonWithImage.xaml</DependentUpon>
@@ -743,7 +744,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Data.Sqlite.Core">
-      <Version>5.0.5</Version>
+      <Version>5.0.6</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Net.Compilers.Toolset">
       <Version>3.9.0</Version>
@@ -800,6 +801,9 @@
     </PackageReference>
     <PackageReference Include="TagLib.Portable">
       <Version>1.0.4</Version>
+    </PackageReference>
+    <PackageReference Include="ThomasLevesque.WeakEvent">
+      <Version>4.1.0</Version>
     </PackageReference>
     <PackageReference Include="ZXing.Net">
       <Version>0.16.6</Version>
