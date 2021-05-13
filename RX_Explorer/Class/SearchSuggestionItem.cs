@@ -9,14 +9,11 @@ namespace RX_Explorer.Class
 {
     public sealed class SearchSuggestionItem
     {
-        public Visibility CloseButtonVisibility { get; }
-
         public string Text { get; }
 
-        public SearchSuggestionItem(string Text, Visibility CloseButtonVisibility)
+        public SearchSuggestionItem(string Text)
         {
             this.Text = Text;
-            this.CloseButtonVisibility = CloseButtonVisibility;
         }
     }
 }

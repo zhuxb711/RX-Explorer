@@ -95,11 +95,6 @@ namespace RX_Explorer
             AppInstanceIdContainer.UngisterId(AppInstanceIdContainer.CurrentId);
         }
 
-        protected override void OnWindowCreated(WindowCreatedEventArgs args)
-        {
-            MSStoreHelper.Current.PreLoadStoreData();
-        }
-
         private void CurrentDomain_UnhandledException(object sender, System.UnhandledExceptionEventArgs e)
         {
             if (!e.IsTerminating && e.ExceptionObject is Exception ex)

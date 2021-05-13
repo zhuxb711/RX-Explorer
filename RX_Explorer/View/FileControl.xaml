@@ -375,7 +375,7 @@
                             LostFocus="GlobeSearch_LostFocus"
                             QuerySubmitted="GlobeSearch_QuerySubmitted"
                             TextChanged="GlobeSearch_TextChanged"
-                            UpdateTextOnSelect="True"
+                            UpdateTextOnSelect="False"
                             ItemsSource="{x:Bind SearchSuggestionList}">
                 <AutoSuggestBox.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
@@ -396,7 +396,6 @@
                             <Border Height="20"
                                     Width="20"
                                     Padding="5"
-                                    Visibility="{x:Bind CloseButtonVisibility}"
                                     RelativePanel.AlignRightWithPanel="True"
                                     x:Name="SearchSelectionDelete"
                                     RelativePanel.AlignVerticalCenterWithPanel="True"

@@ -185,27 +185,15 @@ namespace RX_Explorer
 
         private async Task<bool> CheckAccessAuthority()
         {
-            string UserProfilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-
-            if (!string.IsNullOrEmpty(UserProfilePath))
+            try
             {
-                if (await FileSystemStorageItemBase.OpenAsync(UserProfilePath) is not null)
-                {
-                    return true;
-                }
+                await StorageFolder.GetFolderFromPathAsync(Environment.GetLogicalDrives().FirstOrDefault());
+                return true;
             }
-
-            string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-
-            if (!string.IsNullOrEmpty(DesktopPath))
+            catch
             {
-                if (await FileSystemStorageItemBase.OpenAsync(DesktopPath) is not null)
-                {
-                    return true;
-                }
+                return false;
             }
-
-            return await FileSystemStorageItemBase.OpenAsync(Environment.GetLogicalDrives().FirstOrDefault()) is not null;
         }
 
         private async void CloseButton_Click(object sender, RoutedEventArgs e)

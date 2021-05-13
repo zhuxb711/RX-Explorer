@@ -1077,18 +1077,16 @@ namespace RX_Explorer
 
         private async void GlobeSearch_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            string QueryText;
-
             if (args.ChosenSuggestion is SearchSuggestionItem SuggestItem)
             {
-                QueryText = SuggestItem.Text;
+                sender.Text = SuggestItem.Text;
             }
             else
             {
-                QueryText = args.QueryText;
+                sender.Text = args.QueryText;
             }
 
-            if (string.IsNullOrWhiteSpace(QueryText))
+            if (string.IsNullOrWhiteSpace(sender.Text))
             {
                 return;
             }
@@ -1124,7 +1122,7 @@ namespace RX_Explorer
                             IgnoreCase = IgnoreCase,
                             UseRegexExpression = UseRegexExpression,
                             DeepSearch = CurrentPresenter.CurrentFolder is RootStorageFolder || DeepSearch,
-                            SearchText = QueryText,
+                            SearchText = sender.Text,
                             EngineCategory = SearchCategory.BuiltInEngine
                         }), AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
 
@@ -1140,7 +1138,7 @@ namespace RX_Explorer
                             IgnoreCase = IgnoreCase,
                             UseRegexExpression = UseRegexExpression,
                             DeepSearch = CurrentPresenter.CurrentFolder is RootStorageFolder || DeepSearch,
-                            SearchText = QueryText,
+                            SearchText = sender.Text,
                             EngineCategory = SearchCategory.EverythingEngine
                         }), AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
 
@@ -1170,7 +1168,7 @@ namespace RX_Explorer
 
                             foreach (string Text in await SQLite.Current.GetRelatedSearchHistoryAsync(sender.Text))
                             {
-                                SearchSuggestionList.Add(new SearchSuggestionItem(Text, string.IsNullOrWhiteSpace(sender.Text) ? Visibility.Visible : Visibility.Collapsed));
+                                SearchSuggestionList.Add(new SearchSuggestionItem(Text));
                             }
                         }
                     }
@@ -1197,7 +1195,7 @@ namespace RX_Explorer
 
             foreach (string Text in await SQLite.Current.GetRelatedSearchHistoryAsync(GlobeSearch.Text))
             {
-                SearchSuggestionList.Add(new SearchSuggestionItem(Text, Visibility.Visible));
+                SearchSuggestionList.Add(new SearchSuggestionItem(Text));
             }
         }
 

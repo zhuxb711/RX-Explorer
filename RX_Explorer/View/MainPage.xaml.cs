@@ -73,6 +73,8 @@ namespace RX_Explorer
             SystemNavigationManager.GetForCurrentView().BackRequested += MainPage_BackRequested;
             AppThemeController.Current.ThemeChanged += Current_ThemeChanged;
 
+            MSStoreHelper.Current.PreLoadStoreData();
+
             BackgroundController.Current.SetAcrylicEffectPresenter(CompositorAcrylicBackground);
 
             if (Package.Current.IsDevelopmentMode)
