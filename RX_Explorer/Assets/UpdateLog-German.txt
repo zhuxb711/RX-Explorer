@@ -1,4 +1,65 @@
 ﻿*****
+###Was ist neu in Ver.6.5.0.0
+
+#####Funktionsaktualisierung
+
+>#####Jetzt können Sie die Datei per Drag & Drop auf die exe-Datei ziehen und freigeben. Verwenden Sie dann die exe-Datei, um die gezogene Datei zu öffnen
+
+>#####Funktion zur Einstellung der Hintergrundhelligkeit hinzugefügt, die mit dem Hintergrundunschärfeeffekt verwendet werden kann
+
+>#####Die Suchseitenfunktion umfassend verstärken, unterstützt jetzt Mehrfachauswahl, Kopieren, Ausschneiden, Löschen, Feldauswahl und andere Vorgänge
+
+>#####Es wurde eine neue Methode zum Starten anderer UWP-Software hinzugefügt, wodurch die Wahrscheinlichkeit verringert wurde, dass andere UWP-Software nicht gestartet werden kann
+
+#####UI-Update
+
+>#####Probleme mit der Benutzeroberfläche im Zusammenhang mit dem Rückgängigmachen von Aufgaben wurden behoben
+
+>#####Die Logik für Drag & Drop wurde aktualisiert. Jetzt können Sie Drag & Drop ohne Vorauswahl von Dateien durchführen
+
+>#####Das Verhalten beim Auswerfen des USB-Laufwerks wurde aktualisiert
+
+>#####Beim Dekomprimieren einer GZip-Datei wird zuerst eine neue Datei gemäß dem darin gespeicherten ursprünglichen Dateinamen erstellt
+
+>#####Suchverlauf löschen ist jetzt erlaubt
+
+>#####Beschleunigt das Einstellen der Seitenanimation
+
+#####Leistungsverbesserung
+
+>#####Verbessern Sie die Geschwindigkeit beim Dekomprimieren von BZip-Dateien
+
+>#####Die Geschwindigkeit beim Start wurde verbessert
+
+>#####In einigen Fällen wurde die Geschwindigkeit der Aufzählung von Dateien verbessert
+
+#####Fehlerbehebung
+
+>#####Das Problem, dass das Aktualisieren der Laufwerksliste ungültig ist, wurde behoben
+
+>#####Es wurde das Problem behoben, dass die Suchaufgabe in einigen Fällen nicht korrekt ausgeführt werden konnte
+
+>#####Es wurde das Problem behoben, dass Dateien in einen Ordner gezogen und dort abgelegt und dann sofort in den entsprechenden Ordner eingegeben wurden
+
+>#####Das Problem mit ungültigen Tastenkombinationen in der Position "Dieser Computer" wurde behoben
+
+>#####Es wurde das Problem behoben, dass der Pfad "dieses Computers" falsch angezeigt wurde.
+
+>#####Das Problem, dass der Ordner mit "." im Namen wurde abgeschnitten, wenn er im Dialogfeld mit den Komprimierungsoptionen angezeigt wurde
+
+>#####Das Problem der automatischen Eingabe des Stammverzeichnisses des letzten Laufwerksbuchstabens nach dem Auswerfen des USB-Geräts wurde behoben
+
+>#####Das Problem, dass das Wechseln von Systemthemen zu einem Absturz führen kann, wurde behoben
+
+>#####Es wurde ein Problem behoben, das beim Entfernen von Aufgaben aus der Aufgabenliste zu einem Absturz führen konnte
+
+>#####Es wurde das Problem behoben, dass die Schaltfläche "Hinzufügen" im Rechtsklick-Schnellstartbereich einen Absturz verursachen konnte
+
+>#####Das Problem wurde behoben, das in einigen Fällen beim Hinzufügen von Software zum Schnellstartbereich abstürzen konnte
+
+>#####Es wurde das Problem behoben, dass die intelligente Eingabeaufforderung nach dem Löschen des gesamten Inhalts in der Adressleiste und der Suchleiste nicht angezeigt wird
+
+*****
 ###Was ist neu in Ver.6.4.5.0
 
 #####Fehlerbehebung

@@ -1,4 +1,65 @@
 ﻿*****
+###Quoi de neuf dans la version 6.5.0.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Maintenant, vous pouvez faire glisser et déposer le fichier sur le fichier exe et le libérer, puis utiliser le fichier exe pour ouvrir le fichier glissé
+
+>#####Ajout de la fonction de réglage de la luminosité de l'arrière-plan, qui peut être utilisée avec un effet de flou d'arrière-plan
+
+>#####Renforce complètement la fonction de page de recherche, prend désormais en charge la sélection multiple, la copie, la coupe, la suppression, la sélection de boîte et d'autres opérations
+
+>#####Ajout d'une nouvelle façon de démarrer d'autres logiciels UWP, réduisant la probabilité de ne pas pouvoir démarrer d'autres logiciels UWP
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Correction des problèmes d'interface utilisateur liés aux tâches d'annulation
+
+>#####Mise à jour de la logique du glisser-déposer, maintenant vous pouvez glisser-déposer sans présélectionner les fichiers
+
+>#####Mise à jour du comportement lors de l'éjection de la clé USB
+
+>#####Lors de la décompression d'un fichier GZip, un nouveau fichier sera d'abord créé en fonction du nom de fichier d'origine enregistré à l'intérieur
+
+>#####Supprimer l'historique des recherches est désormais autorisé
+
+>#####Accélère l'animation de la page de configuration
+
+#####Amélioration des performances
+
+>#####Améliorez la vitesse de décompression des fichiers BZip
+
+>#####Amélioration de la vitesse au démarrage
+
+>#####Amélioration de la vitesse d'énumération des fichiers dans certains cas
+
+#####Correction d'un bug
+
+>#####Correction du problème d'actualisation de la liste des lecteurs non valide
+
+>#####Correction du problème selon lequel la tâche de recherche ne peut pas être effectuée correctement dans certains cas
+
+>#####Correction du problème de glisser-déposer des fichiers dans un dossier, puis d'entrer immédiatement dans le dossier correspondant
+
+>#####Correction du problème des touches de raccourci non valides en position "cet ordinateur"
+
+>#####Correction du problème d'affichage incorrect du chemin de "cet ordinateur"
+
+>#####Correction du problème que le dossier avec "." dans le nom a été tronqué lors de l'affichage dans la boîte de dialogue des options de compression
+
+>#####Correction du problème de saisie automatique du répertoire racine de la dernière lettre de lecteur après l'éjection du périphérique USB
+
+>#####Correction du problème selon lequel le changement de thème système pouvait provoquer un plantage
+
+>#####Correction d'un problème qui pouvait provoquer un plantage lors de la suppression de tâches de la liste des tâches
+
+>#####Correction du problème selon lequel le bouton "Ajouter" dans la zone de lancement rapide du clic droit pouvait provoquer un plantage
+
+>#####Correction du problème qui pouvait se bloquer lors de l'ajout d'un logiciel à la zone de démarrage rapide dans certains cas
+
+>#####Correction du problème selon lequel l'invite intelligente ne s'affichera pas après la suppression de tout le contenu de la barre d'adresse et de la barre de recherche
+
+*****
 ###Quoi de neuf dans la version 6.4.5.0
 
 #####Correction d'un bug

@@ -14,11 +14,11 @@ namespace RX_Explorer.Class
 {
     public sealed class BingPictureDownloader
     {
-        public static async Task<StorageFile> GetBingPictureAsync()
+        public static async Task<FileSystemStorageFile> GetBingPictureAsync()
         {
             string Path = await GetDailyPhotoPath().ConfigureAwait(false);
 
-            if ((await ApplicationData.Current.LocalFolder.TryGetItemAsync("BingDailyPicture.jpg")) is StorageFile ExistFile)
+            if (await FileSystemStorageItemBase.OpenAsync(System.IO.Path.Combine(ApplicationData.Current.LocalFolder.Path, "BingDailyPicture.jpg")) is FileSystemStorageFile ExistFile)
             {
                 try
                 {
@@ -27,44 +27,49 @@ namespace RX_Explorer.Class
                         return ExistFile;
                     }
 
-                    if (await CheckIfNeedToUpdate().ConfigureAwait(false))
+                    if (await CheckIfNeedToUpdate())
                     {
-                        StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync($"BingDailyPicture_Cache_[{DateTime.Now:yyyy-MM-dd HH-mm-ss}].jpg", CreationCollisionOption.GenerateUniqueName);
-
-                        using (Stream TempFileStream = (await TempFile.OpenAsync(FileAccessMode.ReadWrite)).AsStream())
+                        if (await FileSystemStorageItemBase.CreateAsync(System.IO.Path.Combine(ApplicationData.Current.TemporaryFolder.Path, $"BingDailyPicture_Cache_[{DateTime.Now:yyyy-MM-dd HH-mm-ss}].jpg"), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TempFile)
                         {
-                            HttpWebRequest Request = WebRequest.CreateHttp(new Uri($"https://www.bing.com{Path}"));
-                            Request.Timeout = 10000;
-                            Request.ReadWriteTimeout = 10000;
-
-                            using (WebResponse Response = await Request.GetResponseAsync().ConfigureAwait(false))
-                            using (Stream ResponseStream = Response.GetResponseStream())
+                            using (FileStream TempFileStream = await TempFile.GetFileStreamFromFileAsync(AccessMode.ReadWrite))
                             {
-                                await ResponseStream.CopyToAsync(TempFileStream).ConfigureAwait(false);
-                            }
+                                HttpWebRequest Request = WebRequest.CreateHttp(new Uri($"https://www.bing.com{Path}"));
+                                Request.Timeout = 10000;
+                                Request.ReadWriteTimeout = 10000;
 
-                            using (Stream FileStream = await ExistFile.OpenStreamForReadAsync().ConfigureAwait(false))
-                            using (MD5 MD5Alg1 = MD5.Create())
-                            using (MD5 MD5Alg2 = MD5.Create())
-                            {
-                                Task<string> CalTask1 = MD5Alg1.GetHashAsync(FileStream);
-                                Task<string> CalTask2 = MD5Alg2.GetHashAsync(TempFileStream);
-
-                                string[] ResultArray = await Task.WhenAll(CalTask1, CalTask2).ConfigureAwait(false);
-
-                                if (ResultArray[0] == ResultArray[1])
+                                using (WebResponse Response = await Request.GetResponseAsync())
+                                using (Stream ResponseStream = Response.GetResponseStream())
                                 {
-                                    return ExistFile;
+                                    await ResponseStream.CopyToAsync(TempFileStream);
+                                }
+
+                                using (Stream FileStream = await ExistFile.GetFileStreamFromFileAsync(AccessMode.Read))
+                                using (MD5 MD5Alg1 = MD5.Create())
+                                using (MD5 MD5Alg2 = MD5.Create())
+                                {
+                                    Task<string> CalTask1 = MD5Alg1.GetHashAsync(FileStream);
+                                    Task<string> CalTask2 = MD5Alg2.GetHashAsync(TempFileStream);
+
+                                    string[] ResultArray = await Task.WhenAll(CalTask1, CalTask2);
+
+                                    if (ResultArray[0] == ResultArray[1])
+                                    {
+                                        return ExistFile;
+                                    }
+                                }
+
+                                TempFileStream.Seek(0, SeekOrigin.Begin);
+
+                                using (StorageStreamTransaction Transaction = await ExistFile.GetTransactionStreamFromFileAsync())
+                                {
+                                    await TempFileStream.CopyToAsync(Transaction.Stream.AsStreamForWrite());
+                                    await Transaction.CommitAsync();
                                 }
                             }
-
-                            TempFileStream.Seek(0, SeekOrigin.Begin);
-
-                            using (StorageStreamTransaction Transaction = await ExistFile.OpenTransactedWriteAsync())
-                            {
-                                await TempFileStream.CopyToAsync(Transaction.Stream.AsStreamForWrite()).ConfigureAwait(false);
-                                await Transaction.CommitAsync();
-                            }
+                        }
+                        else
+                        {
+                            LogTracer.Log($"Could not create temp file as needed in {nameof(GetBingPictureAsync)}");
                         }
 
                         return ExistFile;
@@ -89,30 +94,42 @@ namespace RX_Explorer.Class
                         return null;
                     }
 
-                    StorageFile TempFile = await ApplicationData.Current.TemporaryFolder.CreateFileAsync($"BingDailyPicture_Cache_[{DateTime.Now:yyyy-MM-dd HH-mm-ss}].jpg", CreationCollisionOption.GenerateUniqueName);
-
-                    using (Stream TempFileStream = (await TempFile.OpenAsync(FileAccessMode.ReadWrite)).AsStream())
+                    if (await FileSystemStorageItemBase.CreateAsync(System.IO.Path.Combine(ApplicationData.Current.TemporaryFolder.Path, $"BingDailyPicture_Cache_[{DateTime.Now:yyyy-MM-dd HH-mm-ss}].jpg"), StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile TempFile)
                     {
-                        HttpWebRequest Request = WebRequest.CreateHttp(new Uri($"https://www.bing.com{Path}"));
-                        Request.Timeout = 10000;
-                        Request.ReadWriteTimeout = 10000;
-
-                        using (WebResponse Response = await Request.GetResponseAsync().ConfigureAwait(false))
-                        using (Stream ResponseStream = Response.GetResponseStream())
+                        using (Stream TempFileStream = await TempFile.GetFileStreamFromFileAsync(AccessMode.ReadWrite))
                         {
-                            await ResponseStream.CopyToAsync(TempFileStream).ConfigureAwait(false);
+                            HttpWebRequest Request = WebRequest.CreateHttp(new Uri($"https://www.bing.com{Path}"));
+                            Request.Timeout = 10000;
+                            Request.ReadWriteTimeout = 10000;
+
+                            using (WebResponse Response = await Request.GetResponseAsync())
+                            using (Stream ResponseStream = Response.GetResponseStream())
+                            {
+                                await ResponseStream.CopyToAsync(TempFileStream);
+                            }
+
+                            if (await FileSystemStorageItemBase.CreateAsync(System.IO.Path.Combine(ApplicationData.Current.LocalFolder.Path, "BingDailyPicture.jpg"), StorageItemTypes.File, CreateOption.ReplaceExisting) is FileSystemStorageFile BingDailyPictureFile)
+                            {
+                                using (StorageStreamTransaction Transaction = await BingDailyPictureFile.GetTransactionStreamFromFileAsync())
+                                {
+                                    TempFileStream.Seek(0, SeekOrigin.Begin);
+                                    await TempFileStream.CopyToAsync(Transaction.Stream.AsStreamForWrite());
+                                    await Transaction.CommitAsync();
+                                }
+
+                                return BingDailyPictureFile;
+                            }
+                            else
+                            {
+                                LogTracer.Log($"Could not create BingPicture file as needed in {nameof(GetBingPictureAsync)}");
+                                return null;
+                            }
                         }
-
-                        StorageFile BingDailyPictureFile = await ApplicationData.Current.LocalFolder.CreateFileAsync("BingDailyPicture.jpg", CreationCollisionOption.ReplaceExisting);
-
-                        using (StorageStreamTransaction Transaction = await BingDailyPictureFile.OpenTransactedWriteAsync())
-                        {
-                            TempFileStream.Seek(0, SeekOrigin.Begin);
-                            await TempFileStream.CopyToAsync(Transaction.Stream.AsStreamForWrite()).ConfigureAwait(false);
-                            await Transaction.CommitAsync();
-                        }
-
-                        return BingDailyPictureFile;
+                    }
+                    else
+                    {
+                        LogTracer.Log($"Could not create temp file as needed in {nameof(GetBingPictureAsync)}");
+                        return null;
                     }
                 }
                 catch (Exception ex)
@@ -131,11 +148,11 @@ namespace RX_Explorer.Class
                 Request.Timeout = 5000;
                 Request.ReadWriteTimeout = 5000;
 
-                using (WebResponse Response = await Request.GetResponseAsync().ConfigureAwait(false))
+                using (WebResponse Response = await Request.GetResponseAsync())
                 using (Stream ResponseStream = Response.GetResponseStream())
                 using (StreamReader Reader = new StreamReader(ResponseStream))
                 {
-                    string XmlString = await Reader.ReadToEndAsync().ConfigureAwait(false);
+                    string XmlString = await Reader.ReadToEndAsync();
 
                     XmlDocument Document = new XmlDocument();
                     Document.LoadXml(XmlString);
@@ -161,16 +178,23 @@ namespace RX_Explorer.Class
         {
             try
             {
-                IEnumerable<StorageFile> AllPreviousPictureList = (await ApplicationData.Current.TemporaryFolder.GetFilesAsync()).Where((Item) => Item.Name.StartsWith("BingDailyPicture_Cache"));
-
-                if (AllPreviousPictureList.All((Item) => DateTime.TryParseExact(Regex.Match(Item.Name, @"(?<=\[)(.+)(?=\])").Value, "yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime LastUpdateDate) && LastUpdateDate < DateTime.Now.Date))
+                if (await FileSystemStorageItemBase.OpenAsync(ApplicationData.Current.TemporaryFolder.Path) is FileSystemStorageFolder TempFolder)
                 {
-                    foreach (StorageFile ToDelete in AllPreviousPictureList)
-                    {
-                        await ToDelete.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                    }
+                    IEnumerable<FileSystemStorageItemBase> AllPreviousPictureList = await TempFolder.GetChildItemsAsync(false, false, Filter: ItemFilters.File, AdvanceFilter: (Name) => Name.StartsWith("BingDailyPicture_Cache", StringComparison.OrdinalIgnoreCase));
 
-                    return true;
+                    if (AllPreviousPictureList.All((Item) => DateTime.TryParseExact(Regex.Match(Item.Name, @"(?<=\[)(.+)(?=\])").Value, "yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out DateTime LastUpdateDate) && LastUpdateDate < DateTime.Now.Date))
+                    {
+                        foreach (FileSystemStorageItemBase ToDelete in AllPreviousPictureList)
+                        {
+                            await ToDelete.DeleteAsync(true);
+                        }
+
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 else
                 {

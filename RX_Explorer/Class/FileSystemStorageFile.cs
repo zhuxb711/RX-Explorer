@@ -155,6 +155,11 @@ namespace RX_Explorer.Class
             return await FileRandomAccessStream.OpenAsync(Path, Mode, StorageOpenOptions.AllowReadersAndWriters, FileOpenDisposition.OpenExisting);
         }
 
+        public virtual async Task<StorageStreamTransaction> GetTransactionStreamFromFileAsync()
+        {
+            return await FileRandomAccessStream.OpenTransactedWriteAsync(Path, StorageOpenOptions.AllowReadersAndWriters, FileOpenDisposition.OpenExisting);
+        }
+
         protected override async Task LoadMorePropertiesCore(bool ForceUpdate)
         {
             if (await GetStorageItemAsync() is StorageFile File)

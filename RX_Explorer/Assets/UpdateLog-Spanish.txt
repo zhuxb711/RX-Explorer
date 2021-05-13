@@ -1,4 +1,65 @@
 ﻿*****
+###Novedades de la versión 6.5.0.0
+
+#####Actualización de funciones
+
+>#####Ahora puedes arrastrar y soltar el archivo en el archivo exe y soltarlo, luego usa el archivo exe para abrir el archivo arrastrado
+
+>#####Función de ajuste de brillo de fondo agregada, que se puede usar con efecto de desenfoque de fondo
+
+>#####Fortalece completamente la función de la página de búsqueda, ahora admite selección múltiple, copia, corte, eliminación, selección de cuadro y otras operaciones
+
+>#####Se agregó una nueva forma de iniciar otro software para UWP, lo que reduce la probabilidad de no poder iniciar otro software para UWP
+
+#####Actualización de la interfaz de usuario
+
+>#####Problemas de IU corregidos relacionados con tareas de deshacer
+
+>#####Se actualizó la lógica de arrastrar y soltar, ahora puedes arrastrar y soltar sin preseleccionar archivos
+
+>#####Se actualizó el comportamiento al expulsar la unidad USB
+
+>#####Al descomprimir un archivo GZip, primero se creará un nuevo archivo de acuerdo con el nombre del archivo original guardado en él.
+
+>#####Eliminar el historial de búsqueda ahora está permitido
+
+>#####Acelera la configuración de la animación de la página
+
+#####Mejora del rendimiento
+
+>#####Mejora la velocidad de descompresión de archivos BZip
+
+>#####Mejorada la velocidad al inicio
+
+>#####Mejorada la velocidad de enumeración de archivos en algunos casos
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que la actualización de la lista de unidades no es válida
+
+>#####Se solucionó el problema de que la tarea de búsqueda no se puede realizar correctamente en algunos casos
+
+>#####Se solucionó el problema de arrastrar y soltar archivos en una carpeta y luego ingresar inmediatamente a la carpeta correspondiente
+
+>#####Se solucionó el problema de las teclas de método abreviado no válidas en la posición "esta computadora"
+
+>#####Se solucionó el problema de mostrar incorrectamente la ruta de "esta computadora"
+
+>#####Se solucionó el problema de que la carpeta con "." en el nombre se truncó cuando se muestra en el cuadro de diálogo de opciones de compresión
+
+>#####Se solucionó el problema de ingresar automáticamente al directorio raíz de la última letra de unidad después de expulsar el dispositivo USB
+
+>#####Se solucionó el problema de que cambiar los temas del sistema puede causar un bloqueo
+
+>#####Se solucionó un problema que podía causar un bloqueo al eliminar tareas de la lista de tareas
+
+>#####Se solucionó el problema de que el botón "Agregar" en el área de inicio rápido del clic derecho podía causar un bloqueo
+
+>#####Se solucionó el problema que podía fallar al agregar software al área de inicio rápido en algunos casos
+
+>#####Se solucionó el problema de que el mensaje inteligente no apareciera después de eliminar todo el contenido en la barra de direcciones y la barra de búsqueda
+
+*****
 ###Novedades de la versión 6.4.5.0
 
 #####Arreglo del fallo

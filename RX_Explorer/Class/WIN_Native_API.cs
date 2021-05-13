@@ -984,7 +984,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static List<FileSystemStorageItemBase> GetStorageItems(string FolderPath, bool IncludeHiddenItem, bool IncludeSystemItem, uint MaxNumLimit, ItemFilters Filter)
+        public static IReadOnlyList<FileSystemStorageItemBase> GetStorageItems(string FolderPath, bool IncludeHiddenItem, bool IncludeSystemItem, uint MaxNumLimit, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder, Func<string, bool> AdvanceFilter = null)
         {
             if (string.IsNullOrWhiteSpace(FolderPath))
             {
@@ -1003,6 +1003,11 @@ namespace RX_Explorer.Class
                     {
                         if (Data.cFileName != "." && Data.cFileName != "..")
                         {
+                            if (AdvanceFilter != null && !AdvanceFilter(Data.cFileName))
+                            {
+                                continue;
+                            }
+
                             FileAttributes Attribute = (FileAttributes)Data.dwFileAttributes;
 
                             if ((IncludeHiddenItem || !Attribute.HasFlag(FileAttributes.Hidden)) && (IncludeSystemItem || !Attribute.HasFlag(FileAttributes.System)))
@@ -1142,7 +1147,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static List<FileSystemStorageItemBase> GetStorageItemInBatch(params string[] PathArray)
+        public static IReadOnlyList<FileSystemStorageItemBase> GetStorageItemInBatch(params string[] PathArray)
         {
             if (PathArray.Length == 0 || PathArray.Any((Item) => string.IsNullOrWhiteSpace(Item)))
             {

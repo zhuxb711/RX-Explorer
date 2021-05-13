@@ -192,19 +192,6 @@ namespace MaintenanceTask
 
                 try
                 {
-                    //Clear history for addressbar and keep only 25 items
-                    using (SqliteCommand Command = new SqliteCommand("Delete From PathHistory Where rowid > 25", Connection))
-                    {
-                        await Command.ExecuteNonQueryAsync();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"An exception was threw in {nameof(UpdateSQLiteDatabaseTask)}, message: {ex.Message}");
-                }
-
-                try
-                {
                     bool HasIsDefaultColumn = false;
                     bool HasIsRecommandColumn = false;
 

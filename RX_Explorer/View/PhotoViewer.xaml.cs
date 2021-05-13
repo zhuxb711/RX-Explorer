@@ -64,7 +64,11 @@ namespace RX_Explorer
 
                 if (await FileSystemStorageItemBase.OpenAsync(Path.GetDirectoryName(SelectedPhotoFile.Path)) is FileSystemStorageFolder Item)
                 {
-                    FileSystemStorageFile[] PictureFileList = (await Item.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, Filter: ItemFilters.File)).OfType<FileSystemStorageFile>().Where((Item) => Item.Type.Equals(".png", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Item.Type.Equals(".bmp", StringComparison.OrdinalIgnoreCase)).ToArray();
+                    FileSystemStorageFile[] PictureFileList = (await Item.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, Filter: ItemFilters.File, AdvanceFilter: (Name) =>
+                    {
+                        string Extension = Path.GetExtension(Name);
+                        return Extension.Equals(".png", StringComparison.OrdinalIgnoreCase) || Extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || Extension.Equals(".bmp", StringComparison.OrdinalIgnoreCase);
+                    })).Cast<FileSystemStorageFile>().ToArray();
 
                     if (PictureFileList.Length == 0)
                     {

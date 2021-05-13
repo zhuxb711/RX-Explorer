@@ -43,15 +43,15 @@ namespace RX_Explorer
 {
     public sealed partial class FileControl : Page, IDisposable
     {
-        private int TextChangeLockResource;
+        private int AddressTextChangeLockResource;
+
+        private int SearchTextChangeLockResource;
 
         private int AddressButtonLockResource;
 
         private int NavigateLockResource;
 
         private int CreateBladeLockResource;
-
-        private string AddressBoxTextBackup;
 
         private readonly PointerEventHandler BladePointerPressedEventHandler;
 
@@ -113,6 +113,7 @@ namespace RX_Explorer
         private readonly ObservableCollection<AddressBlock> AddressButtonList = new ObservableCollection<AddressBlock>();
         private readonly ObservableCollection<AddressBlock> AddressExtentionList = new ObservableCollection<AddressBlock>();
         private readonly ObservableCollection<AddressSuggestionItem> AddressSuggestionList = new ObservableCollection<AddressSuggestionItem>();
+        private readonly ObservableCollection<SearchSuggestionItem> SearchSuggestionList = new ObservableCollection<SearchSuggestionItem>();
 
         private WeakReference<TabViewItem> WeakToTabViewItem;
         public TabViewItem CurrentTabItem
@@ -648,7 +649,7 @@ namespace RX_Explorer
                 {
                     if (await FileSystemStorageItemBase.OpenAsync(Content.Path) is FileSystemStorageFolder Folder)
                     {
-                        List<FileSystemStorageItemBase> StorageItemPath = await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, Filter: ItemFilters.Folder);
+                        IReadOnlyList<FileSystemStorageItemBase> StorageItemPath = await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, Filter: ItemFilters.Folder);
 
                         await Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
                         {
@@ -1076,7 +1077,18 @@ namespace RX_Explorer
 
         private async void GlobeSearch_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            if (string.IsNullOrWhiteSpace(args.QueryText))
+            string QueryText;
+
+            if (args.ChosenSuggestion is SearchSuggestionItem SuggestItem)
+            {
+                QueryText = SuggestItem.Text;
+            }
+            else
+            {
+                QueryText = args.QueryText;
+            }
+
+            if (string.IsNullOrWhiteSpace(QueryText))
             {
                 return;
             }
@@ -1112,7 +1124,7 @@ namespace RX_Explorer
                             IgnoreCase = IgnoreCase,
                             UseRegexExpression = UseRegexExpression,
                             DeepSearch = CurrentPresenter.CurrentFolder is RootStorageFolder || DeepSearch,
-                            SearchText = GlobeSearch.Text,
+                            SearchText = QueryText,
                             EngineCategory = SearchCategory.BuiltInEngine
                         }), AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
 
@@ -1128,7 +1140,7 @@ namespace RX_Explorer
                             IgnoreCase = IgnoreCase,
                             UseRegexExpression = UseRegexExpression,
                             DeepSearch = CurrentPresenter.CurrentFolder is RootStorageFolder || DeepSearch,
-                            SearchText = GlobeSearch.Text,
+                            SearchText = QueryText,
                             EngineCategory = SearchCategory.EverythingEngine
                         }), AnimationController.Current.IsEnableAnimation ? new DrillInNavigationTransitionInfo() : new SuppressNavigationTransitionInfo());
 
@@ -1146,11 +1158,31 @@ namespace RX_Explorer
 
         private async void GlobeSearch_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
-            if (!string.IsNullOrWhiteSpace(sender.Text))
+            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+                if (Interlocked.Exchange(ref SearchTextChangeLockResource, 1) == 0)
                 {
-                    sender.ItemsSource = await SQLite.Current.GetRelatedSearchHistoryAsync(sender.Text);
+                    try
+                    {
+                        if (args.CheckCurrent())
+                        {
+                            SearchSuggestionList.Clear();
+
+                            foreach (string Text in await SQLite.Current.GetRelatedSearchHistoryAsync(sender.Text))
+                            {
+                                SearchSuggestionList.Add(new SearchSuggestionItem(Text, string.IsNullOrWhiteSpace(sender.Text) ? Visibility.Visible : Visibility.Collapsed));
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        SearchSuggestionList.Clear();
+                        LogTracer.Log(ex, "Could not load search history");
+                    }
+                    finally
+                    {
+                        _ = Interlocked.Exchange(ref SearchTextChangeLockResource, 0);
+                    }
                 }
             }
         }
@@ -1159,9 +1191,13 @@ namespace RX_Explorer
         {
             BlockKeyboardShortCutInput = true;
 
-            if (string.IsNullOrEmpty(GlobeSearch.Text))
+            GlobeSearch.FindChildOfType<TextBox>()?.SelectAll();
+
+            SearchSuggestionList.Clear();
+
+            foreach (string Text in await SQLite.Current.GetRelatedSearchHistoryAsync(GlobeSearch.Text))
             {
-                GlobeSearch.ItemsSource = await SQLite.Current.GetRelatedSearchHistoryAsync(string.Empty);
+                SearchSuggestionList.Add(new SearchSuggestionItem(Text, Visibility.Visible));
             }
         }
 
@@ -1182,10 +1218,10 @@ namespace RX_Explorer
             }
             else
             {
-                QueryText = AddressBoxTextBackup;
+                QueryText = Convert.ToString(sender.Tag);
             }
 
-            if (string.IsNullOrEmpty(QueryText))
+            if (string.IsNullOrWhiteSpace(QueryText))
             {
                 return;
             }
@@ -1440,54 +1476,67 @@ namespace RX_Explorer
 
         private async void AddressBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
-            AddressBoxTextBackup = sender.Text;
+            sender.Tag = sender.Text;
 
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                if (Path.IsPathRooted(sender.Text) && CommonAccessCollection.DriveList.Any((Drive) => Drive.Path.Equals(Path.GetPathRoot(sender.Text), StringComparison.OrdinalIgnoreCase)))
+                if (Interlocked.Exchange(ref AddressTextChangeLockResource, 1) == 0)
                 {
-                    if (Interlocked.Exchange(ref TextChangeLockResource, 1) == 0)
+                    try
                     {
-                        try
+                        if (args.CheckCurrent())
                         {
-                            if (args.CheckCurrent())
+                            if (string.IsNullOrWhiteSpace(sender.Text))
                             {
-                                string DirectoryPath = Path.GetPathRoot(sender.Text) == sender.Text ? sender.Text : Path.GetDirectoryName(sender.Text);
-                                string FileName = Path.GetFileName(sender.Text);
+                                AddressSuggestionList.Clear();
 
-                                if (await FileSystemStorageItemBase.OpenAsync(DirectoryPath) is FileSystemStorageFolder Folder)
+                                foreach (string Path in await SQLite.Current.GetRelatedPathHistoryAsync())
                                 {
-                                    AddressSuggestionList.Clear();
+                                    AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Visible));
+                                }
+                            }
+                            else
+                            {
+                                if (Path.IsPathRooted(sender.Text) && CommonAccessCollection.DriveList.Any((Drive) => Drive.Path.Equals(Path.GetPathRoot(sender.Text), StringComparison.OrdinalIgnoreCase)))
+                                {
+                                    string DirectoryPath = Path.GetPathRoot(sender.Text) == sender.Text ? sender.Text : Path.GetDirectoryName(sender.Text);
+                                    string FileName = Path.GetFileName(sender.Text);
 
-                                    if (string.IsNullOrEmpty(FileName))
+                                    if (await FileSystemStorageItemBase.OpenAsync(DirectoryPath) is FileSystemStorageFolder Folder)
                                     {
-                                        foreach (string Path in (await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, 20)).Select((It) => It.Path))
+                                        AddressSuggestionList.Clear();
+
+                                        if (string.IsNullOrEmpty(FileName))
                                         {
-                                            AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Collapsed));
+                                            foreach (string Path in (await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, 20)).Select((It) => It.Path))
+                                            {
+                                                AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Collapsed));
+                                            }
+                                        }
+                                        else
+                                        {
+                                            foreach (string Path in (await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, 20, AdvanceFilter: (Name) => Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase))).Select((It) => It.Path))
+                                            {
+                                                AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Collapsed));
+                                            }
                                         }
                                     }
                                     else
                                     {
-                                        foreach (string Path in (await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems)).Where((Item) => Item.Name.StartsWith(FileName, StringComparison.OrdinalIgnoreCase)).Take(20).Select((It) => It.Path))
-                                        {
-                                            AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Collapsed));
-                                        }
+                                        AddressSuggestionList.Clear();
                                     }
-                                }
-                                else
-                                {
-                                    AddressSuggestionList.Clear();
                                 }
                             }
                         }
-                        catch (Exception)
-                        {
-                            AddressSuggestionList.Clear();
-                        }
-                        finally
-                        {
-                            _ = Interlocked.Exchange(ref TextChangeLockResource, 0);
-                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        AddressSuggestionList.Clear();
+                        LogTracer.Log(ex, "Could not load address history");
+                    }
+                    finally
+                    {
+                        _ = Interlocked.Exchange(ref AddressTextChangeLockResource, 0);
                     }
                 }
             }
@@ -2393,7 +2442,7 @@ namespace RX_Explorer
 
                 if (!string.IsNullOrEmpty(Path))
                 {
-                    if(Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
+                    if (Path.Equals(RootStorageFolder.Instance.Path, StringComparison.OrdinalIgnoreCase))
                     {
                         ViewModeComboBox.IsEnabled = false;
                     }
@@ -2540,6 +2589,17 @@ namespace RX_Explorer
         private void GoHome_Click(object sender, RoutedEventArgs e)
         {
             CurrentPresenter.DisplayItemsInFolder(RootStorageFolder.Instance);
+        }
+
+        private async void SearchSelectionDelete_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            e.Handled = true;
+
+            if ((sender as FrameworkElement)?.DataContext is SearchSuggestionItem Item)
+            {
+                SearchSuggestionList.Remove(Item);
+                await SQLite.Current.DeleteSearchHistoryAsync(Item.Text);
+            }
         }
     }
 }

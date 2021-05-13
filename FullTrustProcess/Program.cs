@@ -799,7 +799,7 @@ namespace FullTrustProcess
                                 {
                                     string UrlPath = Item.Properties.GetPropertyString(Ole32.PROPERTYKEY.System.Link.TargetUrl);
 
-                                    using (Image IconImage = Item.GetImage(new Size(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit | ShellItemGetImageOptions.ScaleUp))
+                                    using (Image IconImage = Item.GetImage(new Size(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit))
                                     using (MemoryStream IconStream = new MemoryStream())
                                     using (Bitmap TempBitmap = new Bitmap(IconImage))
                                     {
@@ -848,7 +848,7 @@ namespace FullTrustProcess
                                         }
 
                                         using (ShellItem Item = new ShellItem(ActualPath))
-                                        using (Image IconImage = Item.GetImage(new Size(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit | ShellItemGetImageOptions.ScaleUp))
+                                        using (Image IconImage = Item.GetImage(new Size(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit))
                                         using (MemoryStream IconStream = new MemoryStream())
                                         {
                                             Bitmap TempBitmap = new Bitmap(IconImage);
@@ -900,7 +900,7 @@ namespace FullTrustProcess
                                                 ActualPath = ActualPath.Replace($"%{Var.Value}%", Environment.GetEnvironmentVariable(Var.Value));
                                             }
 
-                                            using (Image IconImage = Link.GetImage(new Size(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit | ShellItemGetImageOptions.ScaleUp))
+                                            using (Image IconImage = Link.GetImage(new Size(150, 150), ShellItemGetImageOptions.BiggerSizeOk | ShellItemGetImageOptions.ResizeToFit))
                                             using (MemoryStream IconStream = new MemoryStream())
                                             using (Bitmap TempBitmap = new Bitmap(IconImage))
                                             {

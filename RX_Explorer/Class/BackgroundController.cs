@@ -2,7 +2,9 @@
 using Microsoft.Toolkit.Uwp.Helpers;
 using System;
 using System.ComponentModel;
+using System.IO;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -332,7 +334,7 @@ namespace RX_Explorer.Class
             });
         }
 
-        public async Task Initialize()
+        public async Task InitializeAsync()
         {
             if (!IsInitialized)
             {
@@ -348,20 +350,27 @@ namespace RX_Explorer.Class
                                 {
                                     BitmapImage Bitmap = new BitmapImage();
 
-                                    StorageFile ImageFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(UriString));
-
-                                    using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
-                                    {
-                                        await Bitmap.SetSourceAsync(Stream);
-                                    }
-
                                     PictureBackgroundBrush.ImageSource = Bitmap;
 
-                                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
+                                    string PicturePath = Path.Combine(Package.Current.InstalledPath, UriString.Replace("ms-appx:///", string.Empty).Replace("/", @"\"));
+
+                                    if (await FileSystemStorageItemBase.OpenAsync(PicturePath) is FileSystemStorageFile File)
+                                    {
+                                        using (IRandomAccessStream Stream = await File.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
+                                        {
+                                            await Bitmap.SetSourceAsync(Stream);
+                                        }
+
+                                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
+                                    }
+                                    else
+                                    {
+                                        LogTracer.Log($"PicturePath is \"{PicturePath}\" but could not found, {nameof(BackgroundController.InitializeAsync)} is not finished");
+                                    }
                                 }
                                 else
                                 {
-                                    LogTracer.Log("UriString is empty, BackgroundController.Initialize is not finished");
+                                    LogTracer.Log($"PicturePath is empty, {nameof(BackgroundController.InitializeAsync)} is not finished");
                                 }
 
                                 break;
@@ -369,16 +378,16 @@ namespace RX_Explorer.Class
 
                         case BackgroundBrushType.BingPicture:
                             {
-                                BitmapImage Bitmap = new BitmapImage();
-
-                                if (await BingPictureDownloader.GetBingPictureAsync() is StorageFile ImageFile)
+                                if (await BingPictureDownloader.GetBingPictureAsync() is FileSystemStorageFile ImageFile)
                                 {
-                                    using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
+                                    BitmapImage Bitmap = new BitmapImage();
+
+                                    BingPictureBursh.ImageSource = Bitmap;
+
+                                    using (IRandomAccessStream Stream = await ImageFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
                                     {
                                         await Bitmap.SetSourceAsync(Stream);
                                     }
-
-                                    BingPictureBursh.ImageSource = Bitmap;
 
                                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
                                 }

@@ -1,4 +1,65 @@
 ﻿*****
+###What's new in Ver.6.5.0.0
+
+#####Feature update
+
+>#####Now you can drag and drop the file onto the exe file and release it, then use the exe file to open the dragged file
+
+>#####Added background brightness adjustment function, which can be used with background blur effect
+
+>#####Comprehensively strengthen the search page function, now supports multiple selection, copy, cut, delete, box selection and other operations
+
+>#####Added a new way to start other UWP software, reducing the probability of not being able to start other UWP software
+
+#####UI update
+
+>#####Corrected UI issues related to undo tasks
+
+>#####Updated the logic of drag and drop, now you can drag and drop without pre-selecting files
+
+>#####Updated the behavior when ejecting the USB drive
+
+>#####When decompressing a GZip file, a new file will be created first according to the original file name saved inside it
+
+>#####Delete search history is now allowed
+
+>#####Speeds up setting page animation
+
+#####Performance improvement
+
+>#####Improve the speed of decompressing BZip files
+
+>#####Improved the speed at startup
+
+>#####Improved the speed of enumerating files in some cases
+
+#####Bug fix
+
+>#####Fixed the problem that refreshing the drive list is invalid
+
+>#####Fixed the problem that the search task cannot be performed correctly in some cases
+
+>#####Fixed the problem of dragging and dropping files to a folder and then immediately entering the corresponding folder
+
+>#####Fixed the problem of invalid shortcut keys when in the "this computer" position
+
+>#####Fixed the problem of incorrectly displaying the path of "this computer"
+
+>#####Fixed the problem that the folder with "." in the name was truncated when displayed in the compression options dialog
+
+>#####Fixed the problem of automatically entering the root directory of the last drive letter after ejecting the USB device
+
+>#####Fixed the problem that switching system themes may cause a crash
+
+>#####Fixed an issue that could cause a crash when removing tasks from the task list
+
+>#####Fixed the problem that the "Add" button in the right-click quick launch area may cause a crash
+
+>#####Fixed the problem that may crash when adding software to the quick start area in some cases
+
+>#####Fixed the problem that the smart prompt will not pop up after deleting all the content in the address bar and search bar
+
+*****
 ###What's new in Ver.6.4.5.0
 
 #####Bug fix

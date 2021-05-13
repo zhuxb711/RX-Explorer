@@ -246,12 +246,12 @@
                             <Border Height="20"
                                     Width="20"
                                     Padding="5"
+                                    Visibility="{x:Bind CloseButtonVisibility}"
                                     RelativePanel.AlignRightWithPanel="True"
                                     x:Name="AddressBarSelectionDelete"
                                     RelativePanel.AlignVerticalCenterWithPanel="True"
                                     PointerPressed="AddressBarSelectionDelete_PointerPressed">
-                                <Viewbox ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Delete')}"
-                                         Visibility="{x:Bind CloseButtonVisibility}">
+                                <Viewbox ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Delete')}">
                                     <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                               Glyph="&#xE8BB;" />
                                 </Viewbox>
@@ -375,7 +375,40 @@
                             LostFocus="GlobeSearch_LostFocus"
                             QuerySubmitted="GlobeSearch_QuerySubmitted"
                             TextChanged="GlobeSearch_TextChanged"
-                            UpdateTextOnSelect="True">
+                            UpdateTextOnSelect="True"
+                            ItemsSource="{x:Bind SearchSuggestionList}">
+                <AutoSuggestBox.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment"
+                                Value="Stretch" />
+                    </Style>
+                </AutoSuggestBox.ItemContainerStyle>
+                <AutoSuggestBox.ItemTemplate>
+                    <DataTemplate x:DataType="Cls:SearchSuggestionItem">
+                        <RelativePanel HorizontalAlignment="Stretch"
+                                       Padding="0,0,5,0">
+                            <TextBlock Text="{x:Bind Text}"
+                                       ToolTipService.ToolTip="{x:Bind Text}"
+                                       RelativePanel.AlignLeftWithPanel="True"
+                                       RelativePanel.AlignVerticalCenterWithPanel="True"
+                                       RelativePanel.LeftOf="SearchSelectionDelete"
+                                       TextTrimming="CharacterEllipsis" />
+                            <Border Height="20"
+                                    Width="20"
+                                    Padding="5"
+                                    Visibility="{x:Bind CloseButtonVisibility}"
+                                    RelativePanel.AlignRightWithPanel="True"
+                                    x:Name="SearchSelectionDelete"
+                                    RelativePanel.AlignVerticalCenterWithPanel="True"
+                                    PointerPressed="SearchSelectionDelete_PointerPressed">
+                                <Viewbox ToolTipService.ToolTip="{x:Bind Cls:Globalization.GetString('Operate_Text_Delete')}">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                              Glyph="&#xE8BB;" />
+                                </Viewbox>
+                            </Border>
+                        </RelativePanel>
+                    </DataTemplate>
+                </AutoSuggestBox.ItemTemplate>
                 <FlyoutBase.AttachedFlyout>
                     <Flyout x:Name="SearchEngineFlyout"
                             Placement="BottomEdgeAlignedRight"

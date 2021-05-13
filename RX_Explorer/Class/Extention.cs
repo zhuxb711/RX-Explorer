@@ -376,23 +376,20 @@ namespace RX_Explorer.Class
                                 {
                                     async void ClickHandler(object sender, RoutedEventArgs args)
                                     {
-                                        if (sender is FrameworkElement Btn)
+                                        if (sender is FrameworkElement Btn && Btn.Tag is ContextMenuItem MenuItem)
                                         {
-                                            if (Btn.Tag is ContextMenuItem MenuItem)
+                                            Flyout.Hide();
+
+                                            if (!await MenuItem.InvokeAsync())
                                             {
-                                                Flyout.Hide();
-
-                                                if (!await MenuItem.InvokeAsync())
+                                                QueueContentDialog Dialog = new QueueContentDialog
                                                 {
-                                                    QueueContentDialog Dialog = new QueueContentDialog
-                                                    {
-                                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                        Content = Globalization.GetString("QueueDialog_InvokeContextMenuError_Content"),
-                                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                                    };
+                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_InvokeContextMenuError_Content"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                };
 
-                                                    await Dialog.ShowAsync();
-                                                }
+                                                await Dialog.ShowAsync();
                                             }
                                         }
                                     }
@@ -1077,9 +1074,9 @@ namespace RX_Explorer.Class
                             }
                     }
 
-                    bool IsSuccess = await Task.Run(() => SpinWait.SpinUntil(() => GetThumbnailTask.IsCompleted, 3000));
+                    await Task.WhenAny(GetThumbnailTask, Task.Delay(3000));
 
-                    if (IsSuccess)
+                    if (GetThumbnailTask.IsCompleted)
                     {
                         using (StorageItemThumbnail Thumbnail = GetThumbnailTask.Result)
                         {
@@ -1167,9 +1164,9 @@ namespace RX_Explorer.Class
                             }
                     }
 
-                    bool IsSuccess = await Task.Run(() => SpinWait.SpinUntil(() => GetThumbnailTask.IsCompleted, 2000));
+                    await Task.WhenAny(GetThumbnailTask, Task.Delay(3000));
 
-                    if (IsSuccess)
+                    if (GetThumbnailTask.IsCompleted)
                     {
                         using (StorageItemThumbnail Thumbnail = GetThumbnailTask.Result)
                         {
@@ -1183,8 +1180,20 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        _ = GetThumbnailTask.ContinueWith((task) => task.Result?.Dispose(), TaskScheduler.Default);
+                        _ = GetThumbnailTask.ContinueWith((task) =>
+                        {
+                            try
+                            {
+                                task.Result?.Dispose();
+                            }
+                            catch
+                            {
+
+                            }
+                        }, TaskScheduler.Default);
+
                         Cancellation.Cancel();
+
                         return null;
                     }
                 }

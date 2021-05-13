@@ -351,11 +351,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual async Task<List<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems, bool IncludeSystemItem, uint MaxNumLimit = uint.MaxValue, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder)
+        public virtual async Task<IReadOnlyList<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems, bool IncludeSystemItem, uint MaxNumLimit = uint.MaxValue, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder, Func<string, bool> AdvanceFilter = null)
         {
             if (WIN_Native_API.CheckLocationAvailability(Path))
             {
-                return WIN_Native_API.GetStorageItems(Path, IncludeHiddenItems, IncludeSystemItem, MaxNumLimit, Filter);
+                return WIN_Native_API.GetStorageItems(Path, IncludeHiddenItems, IncludeSystemItem, MaxNumLimit, Filter, AdvanceFilter);
             }
             else
             {
@@ -388,6 +388,11 @@ namespace RX_Explorer.Class
                                     if (Result.Count >= MaxNumLimit)
                                     {
                                         return Result;
+                                    }
+
+                                    if (AdvanceFilter != null && !AdvanceFilter(Item.Name))
+                                    {
+                                        continue;
                                     }
 
                                     if (Item is StorageFolder SubFolder)

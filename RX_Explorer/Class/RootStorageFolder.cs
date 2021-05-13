@@ -64,9 +64,9 @@ namespace RX_Explorer.Class
             return Task.FromResult(((uint)0, (uint)0));
         }
 
-        public override Task<List<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems, bool IncludeSystemItem, uint MaxNumLimit = uint.MaxValue, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder)
+        public override Task<IReadOnlyList<FileSystemStorageItemBase>> GetChildItemsAsync(bool IncludeHiddenItems, bool IncludeSystemItem, uint MaxNumLimit = uint.MaxValue, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder, Func<string, bool> AdvanceFilter = null)
         {
-            return Task.FromResult(new List<FileSystemStorageItemBase>(0));
+            return Task.FromResult<IReadOnlyList<FileSystemStorageItemBase>>(new List<FileSystemStorageItemBase>(0));
         }
 
         public override Task<bool> CheckContainsAnyItemAsync(bool IncludeHiddenItem = false, bool IncludeSystemItem = false, ItemFilters Filter = ItemFilters.File | ItemFilters.Folder)

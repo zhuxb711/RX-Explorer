@@ -191,7 +191,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<List<TerminalProfile>> GetAllTerminalProfile()
+        public async Task<IReadOnlyList<TerminalProfile>> GetAllTerminalProfile()
         {
             List<TerminalProfile> Result = new List<TerminalProfile>();
 
@@ -441,7 +441,7 @@ namespace RX_Explorer.Class
         /// 获取背景图片的Uri信息
         /// </summary>
         /// <returns></returns>
-        public async Task<List<Uri>> GetBackgroundPictureAsync()
+        public async Task<IReadOnlyList<Uri>> GetBackgroundPictureAsync()
         {
             List<Uri> list = new List<Uri>();
 
@@ -482,7 +482,7 @@ namespace RX_Explorer.Class
         /// 获取文件夹和库区域内用户自定义的文件夹路径
         /// </summary>
         /// <returns></returns>
-        public async Task<List<(string, LibraryType)>> GetLibraryPathAsync()
+        public async Task<IReadOnlyList<(string, LibraryType)>> GetLibraryPathAsync()
         {
             List<(string, LibraryType)> list = new List<(string, LibraryType)>();
 
@@ -762,7 +762,7 @@ namespace RX_Explorer.Class
         /// 获取所有快速启动项
         /// </summary>
         /// <returns></returns>
-        public async Task<List<KeyValuePair<QuickStartType, QuickStartItem>>> GetQuickStartItemAsync()
+        public async Task<IReadOnlyList<KeyValuePair<QuickStartType, QuickStartItem>>> GetQuickStartItemAsync()
         {
             List<Tuple<string, string, string>> ErrorList = new List<Tuple<string, string, string>>();
             List<KeyValuePair<QuickStartType, QuickStartItem>> Result = new List<KeyValuePair<QuickStartType, QuickStartItem>>();
@@ -829,11 +829,11 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="Target">搜索内容</param>
         /// <returns></returns>
-        public async Task<List<string>> GetRelatedSearchHistoryAsync(string Target)
+        public async Task<IReadOnlyList<string>> GetRelatedSearchHistoryAsync(string Target)
         {
             List<string> HistoryList = new List<string>();
 
-            using (SqliteCommand Command = new SqliteCommand("Select * From SearchHistory Where SearchText Like @Target Order By rowid Desc", Connection))
+            using (SqliteCommand Command = new SqliteCommand("Select * From SearchHistory Where SearchText Like @Target Order By rowid Desc Limit 0,25", Connection))
             {
                 Command.Parameters.AddWithValue("@Target", $"%{Target}%");
 
@@ -846,6 +846,15 @@ namespace RX_Explorer.Class
 
                     return HistoryList;
                 }
+            }
+        }
+
+        public async Task DeleteSearchHistoryAsync(string RecordText)
+        {
+            using (SqliteCommand Command = new SqliteCommand("Delete From SearchHistory Where SearchText = @RecordText", Connection))
+            {
+                Command.Parameters.AddWithValue("@RecordText", RecordText);
+                await Command.ExecuteNonQueryAsync();
             }
         }
 

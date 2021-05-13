@@ -40,7 +40,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public override Task DeleteAsync(bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
+        public override Task DeleteAsync(bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null)
         {
             return DeleteAsync();
         }

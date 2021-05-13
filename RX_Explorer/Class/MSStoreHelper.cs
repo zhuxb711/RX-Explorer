@@ -34,31 +34,38 @@ namespace RX_Explorer.Class
 
                 await PreLoadTask;
 
-                if (License.AddOnLicenses.Any((Item) => Item.Value.InAppOfferToken == "Donation"))
+                if (License != null)
                 {
-                    ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
-                    return true;
-                }
-                else
-                {
-                    if (License.IsActive)
+                    if (License.AddOnLicenses.Any((Item) => Item.Value.InAppOfferToken == "Donation"))
                     {
-                        if (License.IsTrial)
+                        ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
+                        return true;
+                    }
+                    else
+                    {
+                        if (License.IsActive)
+                        {
+                            if (License.IsTrial)
+                            {
+                                ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
+                                return false;
+                            }
+                            else
+                            {
+                                ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
+                                return true;
+                            }
+                        }
+                        else
                         {
                             ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
                             return false;
                         }
-                        else
-                        {
-                            ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = true;
-                            return true;
-                        }
                     }
-                    else
-                    {
-                        ApplicationData.Current.LocalSettings.Values["LicenseGrant"] = false;
-                        return false;
-                    }
+                }
+                else
+                {
+                    return false;
                 }
             }
             catch (Exception ex)
@@ -79,7 +86,7 @@ namespace RX_Explorer.Class
 
                 await PreLoadTask;
 
-                if (ProductResult.ExtendedError == null)
+                if (ProductResult != null && ProductResult.ExtendedError == null)
                 {
                     if (ProductResult.Product != null)
                     {

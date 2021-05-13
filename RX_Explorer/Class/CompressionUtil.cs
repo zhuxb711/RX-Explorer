@@ -153,7 +153,7 @@ namespace RX_Explorer.Class
 
         private static async Task ZipFolderCore(FileSystemStorageFolder Folder, ZipOutputStream OutputStream, string BaseFolderName, CompressionAlgorithm Algorithm, ByteReadChangedEventHandler ByteReadHandler = null)
         {
-            List<FileSystemStorageItemBase> ItemList = await Folder.GetChildItemsAsync(true, true).ConfigureAwait(false);
+            IReadOnlyList<FileSystemStorageItemBase> ItemList = await Folder.GetChildItemsAsync(true, true).ConfigureAwait(false);
 
             if (ItemList.Count == 0)
             {
@@ -677,7 +677,7 @@ namespace RX_Explorer.Class
 
         private static async Task TarFolderCore(FileSystemStorageFolder Folder, TarOutputStream OutputStream, string BaseFolderName, ByteReadChangedEventHandler ByteReadHandler = null)
         {
-            List<FileSystemStorageItemBase> ItemList = await Folder.GetChildItemsAsync(true, true).ConfigureAwait(false);
+            IReadOnlyList<FileSystemStorageItemBase> ItemList = await Folder.GetChildItemsAsync(true, true).ConfigureAwait(false);
 
             if (ItemList.Count == 0)
             {

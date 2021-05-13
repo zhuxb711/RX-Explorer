@@ -820,7 +820,7 @@ namespace RX_Explorer
 
                     await Container.ViewModeControl.SetCurrentViewMode(Config.Path, Config.DisplayModeIndex.GetValueOrDefault());
 
-                    List<FileSystemStorageItemBase> ChildItems = await CurrentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems);
+                    IReadOnlyList<FileSystemStorageItemBase> ChildItems = await CurrentFolder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems);
 
                     if (ChildItems.Count > 0)
                     {

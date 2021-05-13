@@ -488,9 +488,9 @@ namespace RX_Explorer
                         {
                             Scroll.ChangeView(null, 0, null, true);
 
-                            ActivateAnimation(Gr, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(200), 200, false);
-                            ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(400), 250, false);
-                            ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(400), 250, false);
+                            ActivateAnimation(Gr, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 200, false);
+                            ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 250, false);
+                            ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 250, false);
                         }
 
                         if (PictureMode.IsChecked.GetValueOrDefault() && PictureGirdView.SelectedItem != null)
@@ -540,9 +540,9 @@ namespace RX_Explorer
 
                         if (AnimationController.Current.IsEnableAnimation)
                         {
-                            ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(200), 250, true);
-                            ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(200), 250, true);
-                            ActivateAnimation(Gr, TimeSpan.FromMilliseconds(800), TimeSpan.FromMilliseconds(400), 200, true);
+                            ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 250, true);
+                            ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 250, true);
+                            ActivateAnimation(Gr, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 200, true);
                         }
                     });
 
@@ -1596,11 +1596,11 @@ namespace RX_Explorer
 
                 bool DetectBrightnessNeeded = await BingPictureDownloader.CheckIfNeedToUpdate();
 
-                if (await BingPictureDownloader.GetBingPictureAsync() is StorageFile File)
+                if (await BingPictureDownloader.GetBingPictureAsync() is FileSystemStorageFile File)
                 {
                     ApplicationData.Current.LocalSettings.Values["CustomUISubMode"] = Enum.GetName(typeof(BackgroundBrushType), BackgroundBrushType.BingPicture);
 
-                    using (IRandomAccessStream FileStream = await File.OpenAsync(FileAccessMode.Read))
+                    using (IRandomAccessStream FileStream = await File.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
                     {
                         BitmapImage Bitmap = new BitmapImage();
 

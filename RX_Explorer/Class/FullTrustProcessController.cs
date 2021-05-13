@@ -2121,7 +2121,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task DeleteAsync(IEnumerable<string> Source, bool PermanentDelete, bool IsUndoOperation = false, ProgressChangedEventHandler ProgressHandler = null)
+        public async Task DeleteAsync(IEnumerable<string> Source, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null)
         {
             try
             {
@@ -2156,7 +2156,7 @@ namespace RX_Explorer.Class
                     {
                         if (MessageTask.Result.Message.ContainsKey("Success"))
                         {
-                            if (!IsUndoOperation && MessageTask.Result.Message.TryGetValue("OperationRecord", out object value))
+                            if (!PermanentDelete && MessageTask.Result.Message.TryGetValue("OperationRecord", out object value))
                             {
                                 OperationRecorder.Current.Push(JsonSerializer.Deserialize<List<string>>(Convert.ToString(value)));
                             }
@@ -2205,14 +2205,14 @@ namespace RX_Explorer.Class
             }
         }
 
-        public Task DeleteAsync(string Source, bool PermanentDelete, bool IsUndoOperation = false, ProgressChangedEventHandler ProgressHandler = null)
+        public Task DeleteAsync(string Source, bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (Source == null)
             {
                 throw new ArgumentNullException(nameof(Source), "Parameter could not be null");
             }
 
-            return DeleteAsync(new string[1] { Source }, PermanentDelete, IsUndoOperation, ProgressHandler);
+            return DeleteAsync(new string[1] { Source }, PermanentDelete, ProgressHandler);
         }
 
         public async Task MoveAsync(IEnumerable<string> Source, string DestinationPath, bool IsUndoOperation = false, ProgressChangedEventHandler ProgressHandler = null)

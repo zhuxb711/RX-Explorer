@@ -49,13 +49,13 @@ namespace RX_Explorer.Class
         public static async Task<LibraryFolder> CreateAsync(string Path, LibraryType Type)
         {
             StorageFolder PinFolder = await StorageFolder.GetFolderFromPathAsync(Path);
-            BitmapImage Thumbnail = await PinFolder.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem);
+            BitmapImage Thumbnail = await PinFolder.GetThumbnailBitmapAsync(ThumbnailMode.ListView);
             return new LibraryFolder(PinFolder, Thumbnail, Type);
         }
 
         public static async Task<LibraryFolder> CreateAsync(StorageFolder Folder, LibraryType Type)
         {
-            BitmapImage Thumbnail = await Folder.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem);
+            BitmapImage Thumbnail = await Folder.GetThumbnailBitmapAsync(ThumbnailMode.ListView);
             return new LibraryFolder(Folder, Thumbnail, Type);
         }
 

@@ -490,30 +490,30 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual async Task MoveAsync(string DirectoryPath, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
+        public virtual async Task MoveAsync(string DirectoryPath, ProgressChangedEventHandler ProgressHandler = null)
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                await Exclusive.Controller.MoveAsync(Path, DirectoryPath, IsUndoOperation, ProgressHandler);
+                await Exclusive.Controller.MoveAsync(Path, DirectoryPath, false, ProgressHandler);
             }
         }
 
-        public virtual Task MoveAsync(FileSystemStorageFolder Directory, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
+        public virtual Task MoveAsync(FileSystemStorageFolder Directory, ProgressChangedEventHandler ProgressHandler = null)
         {
-            return MoveAsync(Directory.Path, ProgressHandler, IsUndoOperation);
+            return MoveAsync(Directory.Path, ProgressHandler);
         }
 
-        public virtual async Task CopyAsync(string DirectoryPath, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
+        public virtual async Task CopyAsync(string DirectoryPath, ProgressChangedEventHandler ProgressHandler = null)
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                await Exclusive.Controller.CopyAsync(Path, DirectoryPath, IsUndoOperation, ProgressHandler);
+                await Exclusive.Controller.CopyAsync(Path, DirectoryPath, false, ProgressHandler);
             }
         }
 
-        public virtual Task CopyAsync(FileSystemStorageFolder Directory, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
+        public virtual Task CopyAsync(FileSystemStorageFolder Directory, ProgressChangedEventHandler ProgressHandler = null)
         {
-            return CopyAsync(Directory.Path, ProgressHandler, IsUndoOperation);
+            return CopyAsync(Directory.Path, ProgressHandler);
         }
 
         public async virtual Task<string> RenameAsync(string DesireName)
@@ -526,11 +526,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        public virtual async Task DeleteAsync(bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null, bool IsUndoOperation = false)
+        public virtual async Task DeleteAsync(bool PermanentDelete, ProgressChangedEventHandler ProgressHandler = null)
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                await Exclusive.Controller.DeleteAsync(Path, PermanentDelete, IsUndoOperation, ProgressHandler);
+                await Exclusive.Controller.DeleteAsync(Path, PermanentDelete, ProgressHandler);
             }
         }
 

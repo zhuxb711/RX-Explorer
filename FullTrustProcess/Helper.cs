@@ -146,19 +146,24 @@ namespace FullTrustProcess
 
                     try
                     {
-                        Shell32.IApplicationActivationManager Manager = new Shell32.ApplicationActivationManager() as Shell32.IApplicationActivationManager;
-
-                        foreach (string Path in PathArray)
+                        if (new Shell32.ApplicationActivationManager() is Shell32.IApplicationActivationManager Manager)
                         {
-                            SItemList.Add(new ShellItem(Path));
-                        }
+                            foreach (string Path in PathArray)
+                            {
+                                SItemList.Add(new ShellItem(Path));
+                            }
 
-                        using (ShellItemArray ItemArray = new ShellItemArray(SItemList))
+                            using (ShellItemArray ItemArray = new ShellItemArray(SItemList))
+                            {
+                                Manager.ActivateForFile(AppUserModelId, ItemArray.IShellItemArray, "Open", out _);
+                            }
+
+                            return true;
+                        }
+                        else
                         {
-                            Manager.ActivateForFile(AppUserModelId, ItemArray.IShellItemArray, "Open", out _);
+                            return false;
                         }
-
-                        return true;
                     }
                     catch
                     {
@@ -182,11 +187,15 @@ namespace FullTrustProcess
             {
                 try
                 {
-                    Shell32.IApplicationActivationManager Manager = new Shell32.ApplicationActivationManager() as Shell32.IApplicationActivationManager;
-
-                    Manager.ActivateApplication(AppUserModelId, null, Shell32.ACTIVATEOPTIONS.AO_NONE, out _);
-
-                    return true;
+                    if (new Shell32.ApplicationActivationManager() is Shell32.IApplicationActivationManager Manager)
+                    {
+                        Manager.ActivateApplication(AppUserModelId, null, Shell32.ACTIVATEOPTIONS.AO_NONE, out _);
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 catch
                 {

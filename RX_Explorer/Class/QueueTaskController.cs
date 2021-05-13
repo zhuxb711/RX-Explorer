@@ -360,7 +360,7 @@ namespace RX_Explorer.Class
                             {
                                 using (FullTrustProcessController.ExclusiveUsage Exclusive = FullTrustProcessController.GetAvailableController().Result)
                                 {
-                                    Exclusive.Controller.DeleteAsync(DeleteModel.FromPath, DeleteModel.IsPermanentDelete, ProgressHandler: (s, e) =>
+                                    Exclusive.Controller.DeleteAsync(DeleteModel.FromPath, DeleteModel.IsPermanentDelete, (s, e) =>
                                     {
                                         CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                         {
@@ -412,7 +412,7 @@ namespace RX_Explorer.Class
                                     {
                                         case OperationKind.Copy:
                                             {
-                                                Exclusive.Controller.DeleteAsync(Model.FromPath, true, true, (s, e) =>
+                                                Exclusive.Controller.DeleteAsync(Model.FromPath, true, (s, e) =>
                                                 {
                                                     CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                                     {
