@@ -130,18 +130,7 @@ namespace RX_Explorer.Class
                     Store = StoreContext.GetDefault();
                     Store.OfflineLicensesChanged += Store_OfflineLicensesChanged;
 
-                    if (ApplicationData.Current.LocalSettings.Values.TryGetValue("LicenseGrant", out object GrantState))
-                    {
-                        if (!Convert.ToBoolean(GrantState))
-                        {
-                            License = Store.GetAppLicenseAsync().AsTask().Result;
-                        }
-                    }
-                    else
-                    {
-                        License = Store.GetAppLicenseAsync().AsTask().Result;
-                    }
-
+                    License = Store.GetAppLicenseAsync().AsTask().Result;
                     ProductResult = Store.GetStoreProductForCurrentAppAsync().AsTask().Result;
                 }
                 catch (Exception ex)

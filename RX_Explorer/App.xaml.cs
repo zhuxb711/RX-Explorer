@@ -97,6 +97,8 @@ namespace RX_Explorer
 
         private void CurrentDomain_UnhandledException(object sender, System.UnhandledExceptionEventArgs e)
         {
+            SQLite.Current.Dispose();
+
             if (!e.IsTerminating && e.ExceptionObject is Exception ex)
             {
                 LogTracer.LeadToBlueScreen(ex);
@@ -145,6 +147,8 @@ namespace RX_Explorer
 
         private void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
         {
+            SQLite.Current.Dispose();
+
             LogTracer.LeadToBlueScreen(e.Exception);
             e.Handled = true;
         }

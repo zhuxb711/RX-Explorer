@@ -367,13 +367,17 @@ namespace RX_Explorer.Class
                     Connection.RequestReceived += Connection_RequestReceived;
                     Connection.ServiceClosed += Connection_ServiceClosed;
 
-                    if ((await Connection.OpenAsync()) == AppServiceConnectionStatus.Success)
+                    AppServiceConnectionStatus Status = await Connection.OpenAsync();
+
+                    if (Status == AppServiceConnectionStatus.Success)
                     {
                         //Do not remove this delay, leave some time for "Identity" call from AppService
                         await Task.Delay(500).ConfigureAwait(false);
                     }
                     else
                     {
+                        Dispose();
+                        LogTracer.Log($"Connect to AppService failed, reason: \"{Enum.GetName(typeof(AppServiceResponseStatus), Status)}\". Dispose this instance");
                         return IsConnected = false;
                     }
                 }
@@ -398,16 +402,10 @@ namespace RX_Explorer.Class
                             await Task.Delay(500).ConfigureAwait(false);
                         }
                     }
-                    else
-                    {
-                        return IsConnected = false;
-                    }
                 }
 
-                LogTracer.Log("Connect to FullTrustProcess failed after retrying 3 times. Dispose this instance");
-
                 Dispose();
-
+                LogTracer.Log("Connect to FullTrustProcess failed after retrying 3 times. Dispose this instance");
                 return IsConnected = false;
             }
             catch (Exception ex)

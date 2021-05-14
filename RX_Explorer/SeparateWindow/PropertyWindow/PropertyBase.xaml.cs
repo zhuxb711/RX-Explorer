@@ -13,15 +13,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
+using Windows.Devices.Input;
 using Windows.Foundation;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
 using Windows.System;
+using Windows.UI.Input;
 using Windows.UI.WindowManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.SeparateWindow.PropertyWindow
@@ -54,9 +57,20 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         private CancellationTokenSource SHA256Cancellation;
         private int ConfirmButtonLockResource;
 
+        private readonly PointerEventHandler PointerPressedHandler;
+        private readonly PointerEventHandler PointerReleasedHandler;
+        private readonly PointerEventHandler PointerCanceledHandler;
+        private readonly PointerEventHandler PointerMovedHandler;
+
+
         public PropertyBase(AppWindow Window, FileSystemStorageItemBase StorageItem)
         {
             InitializeComponent();
+
+            LocationScrollViewer.AddHandler(PointerPressedEvent, PointerPressedHandler = new PointerEventHandler(LocationScrollViewer_PointerPressed), true);
+            LocationScrollViewer.AddHandler(PointerReleasedEvent, PointerReleasedHandler = new PointerEventHandler(LocationScrollViewer_PointerReleased), true);
+            LocationScrollViewer.AddHandler(PointerCanceledEvent, PointerCanceledHandler = new PointerEventHandler(LocationScrollViewer_PointerCanceled), true);
+            LocationScrollViewer.AddHandler(PointerMovedEvent, PointerMovedHandler = new PointerEventHandler(LocationScrollViewer_PointerMoved), true);
 
             this.Window = Window;
             this.StorageItem = StorageItem;
@@ -135,6 +149,11 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             Md5Cancellation?.Cancel();
             SHA1Cancellation?.Cancel();
             SHA256Cancellation?.Cancel();
+
+            LocationScrollViewer.RemoveHandler(PointerPressedEvent, PointerPressedHandler);
+            LocationScrollViewer.RemoveHandler(PointerReleasedEvent, PointerReleasedHandler);
+            LocationScrollViewer.RemoveHandler(PointerCanceledEvent, PointerCanceledHandler);
+            LocationScrollViewer.RemoveHandler(PointerMovedEvent, PointerMovedHandler);
         }
 
         private async Task SaveConfiguration()
@@ -757,14 +776,14 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             }
             else if (StorageItem is FileSystemStorageFile File)
             {
-                StorageItemName.Text = StorageItem.Name;
+                StorageItemName.Text = File.Name;
                 ReadonlyAttribute.IsChecked = File.IsReadOnly;
 
-                string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(StorageItem.Type);
+                string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(File.Type);
 
                 if (string.IsNullOrEmpty(AdminExecutablePath) || AdminExecutablePath == Package.Current.Id.FamilyName)
                 {
-                    switch (StorageItem.Type.ToLower())
+                    switch (File.Type.ToLower())
                     {
                         case ".jpg":
                         case ".png":
@@ -814,8 +833,33 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                             }
                         default:
                             {
-                                OpenWithContent.Text = Globalization.GetString("OpenWithEmptyText");
-                                OpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
+                                try
+                                {
+                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                    {
+                                        AdminExecutablePath = await Exclusive.Controller.GetDefaultAssociationFromPathAsync(File.Path);
+
+                                        StorageFile OpenProgramFile = await StorageFile.GetFileFromPathAsync(AdminExecutablePath);
+                                        OpenWithImage.Source = await OpenProgramFile.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem);
+
+                                        IDictionary<string, object> PropertiesDictionary = await OpenProgramFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" });
+
+                                        if (PropertiesDictionary.TryGetValue("System.FileDescription", out object DescriptionRaw))
+                                        {
+                                            OpenWithContent.Text = Convert.ToString(DescriptionRaw);
+                                        }
+                                        else
+                                        {
+                                            OpenWithContent.Text = OpenProgramFile.DisplayName;
+                                        }
+                                    }
+                                }
+                                catch
+                                {
+                                    OpenWithContent.Text = Globalization.GetString("OpenWithEmptyText");
+                                    OpenWithImage.Source = new BitmapImage(new Uri(AppThemeController.Current.Theme == ElementTheme.Dark ? "ms-appx:///Assets/Page_Solid_White.png" : "ms-appx:///Assets/Page_Solid_Black.png"));
+                                }
+
                                 break;
                             }
                     }
@@ -1016,6 +1060,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             {
                 if (StorageItem is FileSystemStorageFile File)
                 {
+                    CalculateMd5.IsEnabled = false;
                     MD5TextBox.Text = Globalization.GetString("HashPlaceHolderText");
                     Md5Cancellation = new CancellationTokenSource();
 
@@ -1048,6 +1093,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         {
             if (StorageItem is FileSystemStorageFile File)
             {
+                CalculateSHA1.IsEnabled = false;
                 SHA1TextBox.Text = Globalization.GetString("HashPlaceHolderText");
                 SHA1Cancellation = new CancellationTokenSource();
 
@@ -1079,6 +1125,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         {
             if (StorageItem is FileSystemStorageFile File)
             {
+                CalculateSHA256.IsEnabled = false;
                 SHA256TextBox.Text = Globalization.GetString("HashPlaceHolderText");
                 SHA256Cancellation = new CancellationTokenSource();
 
@@ -1160,6 +1207,56 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                     UnlockProgressRing.Visibility = Visibility.Collapsed;
                     UnlockText.Visibility = Visibility.Visible;
                 }
+            }
+        }
+
+        private void LocationScrollViewer_PointerMoved(object sender, PointerRoutedEventArgs e)
+        {
+            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+            {
+                PointerPoint Pointer = e.GetCurrentPoint(LocationScrollViewer);
+
+                if (Pointer.Properties.IsLeftButtonPressed)
+                {
+                    double XOffset = Math.Max(Pointer.Position.X, 0);
+                    double HorizontalRightScrollThreshold = LocationScrollViewer.ActualWidth - 30;
+                    double HorizontalLeftScrollThreshold = 30;
+
+                    if (XOffset > HorizontalRightScrollThreshold)
+                    {
+                        LocationScrollViewer.ChangeView(LocationScrollViewer.HorizontalOffset + XOffset - HorizontalRightScrollThreshold, null, null);
+                    }
+                    else if (XOffset < HorizontalLeftScrollThreshold)
+                    {
+                        LocationScrollViewer.ChangeView(LocationScrollViewer.HorizontalOffset + XOffset - HorizontalLeftScrollThreshold, null, null);
+                    }
+                }
+            }
+        }
+
+        private void LocationScrollViewer_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            PointerPoint Pointer = e.GetCurrentPoint(LocationScrollViewer);
+
+            if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse && Pointer.Properties.IsLeftButtonPressed)
+            {
+                LocationScrollViewer.CapturePointer(e.Pointer);
+            }
+        }
+
+        private void LocationScrollViewer_PointerReleased(object sender, PointerRoutedEventArgs e)
+        {
+            if ((LocationScrollViewer.PointerCaptures?.Any()).GetValueOrDefault())
+            {
+                LocationScrollViewer.ReleasePointerCaptures();
+            }
+        }
+
+        private void LocationScrollViewer_PointerCanceled(object sender, PointerRoutedEventArgs e)
+        {
+            if ((LocationScrollViewer.PointerCaptures?.Any()).GetValueOrDefault())
+            {
+                LocationScrollViewer.ReleasePointerCaptures();
             }
         }
     }

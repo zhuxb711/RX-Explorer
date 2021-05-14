@@ -13,6 +13,8 @@
 
 #####Mise à jour de l'interface utilisateur
 
+>#####Ajout d'un conseil de progression de chargement dans la corbeille
+
 >#####Correction des problèmes d'interface utilisateur liés aux tâches d'annulation
 
 >#####Mise à jour de la logique du glisser-déposer, maintenant vous pouvez glisser-déposer sans présélectionner les fichiers
@@ -58,6 +60,10 @@
 >#####Correction du problème qui pouvait se bloquer lors de l'ajout d'un logiciel à la zone de démarrage rapide dans certains cas
 
 >#####Correction du problème selon lequel l'invite intelligente ne s'affichera pas après la suppression de tout le contenu de la barre d'adresse et de la barre de recherche
+
+>#####Correction du problème de vérification du hachage des images Bing
+
+>#####Correction du problème que la fenêtre des propriétés ne suit pas les paramètres du thème
 
 *****
 ###Quoi de neuf dans la version 6.4.5.0

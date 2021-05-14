@@ -1844,6 +1844,7 @@ namespace RX_Explorer
             NewWindow.PersistedStateId = "Properties";
             NewWindow.Title = Globalization.GetString("Properties_Window_Title");
             NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+            NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
             NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
             NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
@@ -2067,6 +2068,7 @@ namespace RX_Explorer
             NewWindow.PersistedStateId = "Properties";
             NewWindow.Title = Globalization.GetString("Properties_Window_Title");
             NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+            NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
             NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
             NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
@@ -2185,6 +2187,7 @@ namespace RX_Explorer
                     NewWindow.PersistedStateId = "Properties";
                     NewWindow.Title = Globalization.GetString("Properties_Window_Title");
                     NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+                    NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
                     NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
                     NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 

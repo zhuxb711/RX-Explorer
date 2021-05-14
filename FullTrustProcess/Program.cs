@@ -59,12 +59,19 @@ namespace FullTrustProcess
                 {
                     AliveCheckTimer = new Timer(AliveCheck, null, 10000, 10000);
 
-                    //Loading the menu in advance can speed up the re-generation speed and ensure the stability of the number of menu items
-                    string TempFolderPath = Environment.GetEnvironmentVariable("TMP");
-
-                    if (Directory.Exists(TempFolderPath))
+                    try
                     {
-                        await ContextMenu.FetchContextMenuItemsAsync(TempFolderPath, true);
+                        //Loading the menu in advance can speed up the re-generation speed and ensure the stability of the number of menu items
+                        string TempFolderPath = Environment.GetEnvironmentVariable("TMP");
+
+                        if (Directory.Exists(TempFolderPath))
+                        {
+                            await ContextMenu.FetchContextMenuItemsAsync(TempFolderPath, true);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Load menu in advance threw an exception, message: {ex.Message}");
                     }
                 }
                 else
@@ -74,9 +81,9 @@ namespace FullTrustProcess
 
                 ExitLocker.WaitOne();
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Debug.WriteLine($"FullTrustProcess出现异常，错误信息{e.Message}");
+                Debug.WriteLine($"FullTrustProcess threw an exception, message: {ex.Message}");
             }
             finally
             {
@@ -86,10 +93,7 @@ namespace FullTrustProcess
 
                 try
                 {
-                    PipeServers.Values.ToList().ForEach((Item) =>
-                    {
-                        Item.Dispose();
-                    });
+                    PipeServers.Values.ToList().ForEach((Item) => Item.Dispose());
                 }
                 catch
                 {
@@ -97,8 +101,6 @@ namespace FullTrustProcess
                 }
 
                 PipeServers.Clear();
-
-                Environment.Exit(0);
             }
         }
 
@@ -1921,9 +1923,16 @@ namespace FullTrustProcess
 
         private static void AliveCheck(object state)
         {
-            if ((ExplorerProcess?.HasExited).GetValueOrDefault())
+            try
             {
-                ExitLocker.Set();
+                if ((ExplorerProcess?.HasExited).GetValueOrDefault())
+                {
+                    ExitLocker.Set();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"{nameof(AliveCheck)} threw an exception, message: {ex.Message}");
             }
         }
     }

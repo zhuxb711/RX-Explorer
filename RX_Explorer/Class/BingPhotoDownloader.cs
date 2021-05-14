@@ -43,8 +43,6 @@ namespace RX_Explorer.Class
                                     await ResponseStream.CopyToAsync(TempFileStream);
                                 }
 
-                                TempFileStream.Seek(0, SeekOrigin.Begin);
-
                                 using (Stream FileStream = await ExistFile.GetFileStreamFromFileAsync(AccessMode.Read))
                                 using (MD5 MD5Alg1 = MD5.Create())
                                 using (MD5 MD5Alg2 = MD5.Create())

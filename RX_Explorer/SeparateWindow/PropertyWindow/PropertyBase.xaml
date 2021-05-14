@@ -13,12 +13,13 @@
       mc:Ignorable="d"
       d:DesignHeight="600"
       d:DesignWidth="400"
+      RequestedTheme="{x:Bind Cls:AppThemeController.Current.Theme, Mode=OneWay}"
       Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}">
 
     <Page.Resources>
         <CollectionViewSource x:Name="ContactsCVS"
-                              IsSourceGrouped="True" 
-                              Source="{x:Bind PropertiesCollection}"/>
+                              IsSourceGrouped="True"
+                              Source="{x:Bind PropertiesCollection}" />
         <DataTemplate x:Key="LabelTemplate">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -53,20 +54,20 @@
             </Grid>
         </DataTemplate>
 
-        <Cls:EmptyTextFiliterConverter x:Key="EmptyTextConverter"/>
+        <Cls:EmptyTextFiliterConverter x:Key="EmptyTextConverter" />
 
         <Cls:RatingValueConverter x:Key="RatingConverter" />
 
         <Cls:RatingControlDataTemplateSelector x:Key="DetailListDataTemplateSelector"
                                                Label="{StaticResource LabelTemplate}"
-                                               Rating="{StaticResource RatingTemplate}"/>
+                                               Rating="{StaticResource RatingTemplate}" />
     </Page.Resources>
-    
+
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="32"/>
+            <RowDefinition Height="32" />
             <RowDefinition />
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="50" />
         </Grid.RowDefinitions>
         <RelativePanel Padding="12,0"
                        HorizontalAlignment="Left"
@@ -75,11 +76,11 @@
             <TextBlock RelativePanel.AlignLeftWithPanel="True"
                        RelativePanel.LeftOf="PropertiesTitleRight"
                        TextTrimming="CharacterEllipsis"
-                       Name="PropertiesTitleLeft"/>
+                       Name="PropertiesTitleLeft" />
             <TextBlock Text="{x:Bind Cls:Globalization.GetString('Properties_Window_Title')}"
                        x:Name="PropertiesTitleRight"
                        RelativePanel.AlignRightWithPanel="True"
-                       Padding="10,0"/>
+                       Padding="10,0" />
         </RelativePanel>
         <Pivot Grid.Row="1"
                Name="PivotControl">
@@ -99,7 +100,7 @@
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="50" />
-                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="20" />
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
                             <Image Stretch="Uniform"
@@ -119,7 +120,7 @@
                                 <RowDefinition Height="35" />
                                 <RowDefinition Height="35" />
                                 <RowDefinition Height="10" />
-                                <RowDefinition Height="50" />
+                                <RowDefinition Height="35" />
                                 <RowDefinition Height="35" />
                                 <RowDefinition Height="35" />
                                 <RowDefinition Height="10" />
@@ -209,7 +210,8 @@
                                            IsTextSelectionEnabled="True"
                                            RelativePanel.AlignVerticalCenterWithPanel="True"
                                            FontSize="14"
-                                           Margin="8,0,0,0"
+                                           Margin="8,0"
+                                           ToolTipService.ToolTip="{x:Bind OpenWithContent.Text,Mode=OneWay}"
                                            TextTrimming="CharacterEllipsis" />
                                 <Button RelativePanel.AlignRightWithPanel="True"
                                         RelativePanel.AlignVerticalCenterWithPanel="True"
@@ -218,18 +220,22 @@
                                         Content="Change"
                                         x:Uid="Properties_General_Change"
                                         MinWidth="80"
-                                        Padding="5,0" />
+                                        Padding="4,1" />
                             </RelativePanel>
-                            <TextBlock Name="LocationContent"
-                                       FontSize="14"
-                                       VerticalAlignment="Center"
-                                       Grid.Row="4"
-                                       Grid.Column="1"
-                                       Padding="2,0,0,0"
-                                       TextWrapping="Wrap"
-                                       TextTrimming="CharacterEllipsis"
-                                       ToolTipService.ToolTip="{x:Bind LocationContent.Text, Mode=OneWay}"
-                                       IsTextSelectionEnabled="True" />
+                            <ScrollViewer Grid.Row="4"
+                                          Grid.Column="1"
+                                          VerticalAlignment="Center"
+                                          Padding="2,0,0,0"
+                                          HorizontalScrollMode="Enabled"
+                                          VerticalScrollBarVisibility="Disabled"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          Name="LocationScrollViewer">
+                                <TextBlock Name="LocationContent"
+                                           FontSize="14"
+                                           VerticalAlignment="Center"
+                                           ToolTipService.ToolTip="{x:Bind LocationContent.Text, Mode=OneWay}"
+                                           IsTextSelectionEnabled="True" />
+                            </ScrollViewer>
                             <TextBlock Name="SizeContent"
                                        FontSize="14"
                                        VerticalAlignment="Center"
@@ -286,8 +292,8 @@
             <PivotItem>
                 <PivotItem.Header>
                     <TextBlock Text="Shortcut"
-                               FontSize="18" 
-                               Name="ShortcutTab"/>
+                               FontSize="18"
+                               Name="ShortcutTab" />
                 </PivotItem.Header>
                 <ScrollViewer Padding="5,10"
                               VerticalScrollBarVisibility="Hidden">
@@ -299,7 +305,7 @@
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="50" />
-                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="20" />
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
                             <Image Stretch="Uniform"
@@ -328,11 +334,11 @@
                                        FontSize="14"
                                        TextTrimming="CharacterEllipsis"
                                        Grid.Row="1"
-                                       VerticalAlignment="Center"/>
+                                       VerticalAlignment="Center" />
                             <TextBox VerticalAlignment="Center"
                                      Grid.Row="1"
                                      Grid.Column="1"
-                                     Name="ShortcutUrlContent"/>
+                                     Name="ShortcutUrlContent" />
                         </Grid>
                         <Grid Grid.Row="1"
                               Name="LinkArea"
@@ -470,8 +476,8 @@
             <PivotItem>
                 <PivotItem.Header>
                     <TextBlock Text="Details"
-                               FontSize="18" 
-                               Name="DetailsTab"/>
+                               FontSize="18"
+                               Name="DetailsTab" />
                 </PivotItem.Header>
                 <SemanticZoom>
                     <SemanticZoom.ZoomedInView>
@@ -510,7 +516,7 @@
                                 <DataTemplate x:DataType="Data:ICollectionViewGroup">
                                     <TextBlock Text="{x:Bind Group.(Cls:PropertiesGroupItem.Key)}"
                                                Style="{StaticResource SubtitleTextBlockStyle}"
-                                               TextTrimming="CharacterEllipsis"/>
+                                               TextTrimming="CharacterEllipsis" />
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>
@@ -521,7 +527,7 @@
                 <PivotItem.Header>
                     <TextBlock Text="Tools"
                                FontSize="18"
-                               Name="ToolsTab"/>
+                               Name="ToolsTab" />
                 </PivotItem.Header>
                 <StackPanel Padding="5,10">
                     <RelativePanel>
@@ -535,17 +541,17 @@
                                         x:Name="UnlockFlyout">
                                     <StackPanel MaxWidth="320">
                                         <TextBlock Text="您要如何解除占用?"
-                                                   x:Uid="Properties_Tools_UnlockFlyout_Text1"/>
+                                                   x:Uid="Properties_Tools_UnlockFlyout_Text1" />
                                         <TextBlock Text="点击&quot;请求关闭应用&quot;将通知正在使用此文件的应用退出，应用可以保存所有数据"
                                                    TextWrapping="WrapWholeWords"
                                                    x:Uid="Properties_Tools_UnlockFlyout_Text2"
                                                    Margin="0,10,0,0"
-                                                   FontSize="12"/>
+                                                   FontSize="12" />
                                         <TextBlock Text="点击&quot;强制终止应用&quot;将立即退出应用，所有未保存的数据都将丢失"
                                                    TextWrapping="WrapWholeWords"
                                                    x:Uid="Properties_Tools_UnlockFlyout_Text3"
                                                    Margin="0,5,0,0"
-                                                   FontSize="12"/>
+                                                   FontSize="12" />
                                         <Grid Margin="0,10,0,0">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition />
@@ -556,14 +562,14 @@
                                                     x:Uid="Properties_Tools_UnlockFlyout_CloseNormal"
                                                     Name="CloseNormal"
                                                     Click="Unlock_Click"
-                                                    Margin="0,0,5,0"/>
+                                                    Margin="0,0,5,0" />
                                             <Button Content="强制终止应用"
                                                     Grid.Column="1"
                                                     Margin="5,0,0,0"
                                                     Name="CloseForce"
                                                     x:Uid="Properties_Tools_UnlockFlyout_CloseForce"
                                                     Click="Unlock_Click"
-                                                    HorizontalAlignment="Stretch"/>
+                                                    HorizontalAlignment="Stretch" />
                                         </Grid>
                                     </StackPanel>
                                 </Flyout>
@@ -575,7 +581,7 @@
                                            Name="UnlockProgressRing"
                                            Visibility="Collapsed"
                                            RelativePanel.AlignVerticalCenterWithPanel="True"
-                                           RelativePanel.RightOf="Unlock"/>
+                                           RelativePanel.RightOf="Unlock" />
                         <TextBlock VerticalAlignment="Center"
                                    Name="UnlockText"
                                    TextWrapping="WrapWholeWords"
@@ -585,7 +591,7 @@
                                    Visibility="Collapsed"
                                    RelativePanel.RightOf="UnlockProgressRing"
                                    RelativePanel.AlignRightWithPanel="True"
-                                   RelativePanel.AlignVerticalCenterWithPanel="True"/>
+                                   RelativePanel.AlignVerticalCenterWithPanel="True" />
                     </RelativePanel>
                     <Border Height="2"
                             Margin="0,20,0,10"
@@ -593,8 +599,8 @@
                             Background="{ThemeResource MenuFlyoutSeparatorThemeBrush}" />
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition MinWidth="100"/>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition MinWidth="100" />
                         </Grid.ColumnDefinitions>
                         <TextBox IsSpellCheckEnabled="False"
                                  IsReadOnly="True"
@@ -602,14 +608,14 @@
                                  Header="MD5"
                                  Name="MD5TextBox"
                                  Margin="0,10,5,0"
-                                 HorizontalAlignment="Stretch"/>
+                                 HorizontalAlignment="Stretch" />
                         <Button Margin="5,0,0,0"
                                 Grid.Column="1"
                                 x:Uid="Properties_Tools_CalculateButton"
                                 Content="Calculate"
                                 VerticalAlignment="Bottom"
                                 Name="CalculateMd5"
-                                Click="CalculateMd5_Click"/>
+                                Click="CalculateMd5_Click" />
                     </Grid>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -649,7 +655,7 @@
                                 Content="Calculate"
                                 x:Uid="Properties_Tools_CalculateButton"
                                 VerticalAlignment="Bottom"
-                                Click="CalculateSHA256_Click"/>
+                                Click="CalculateSHA256_Click" />
                     </Grid>
                 </StackPanel>
             </PivotItem>
@@ -663,12 +669,12 @@
                     Background="{ThemeResource SystemAccentColor}"
                     Width="120"
                     Name="ConfirmButton"
-                    Click="ConfirmButton_Click"/>
-            <Button Content="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}" 
+                    Click="ConfirmButton_Click" />
+            <Button Content="{x:Bind Cls:Globalization.GetString('Common_Dialog_CancelButton')}"
                     Margin="10,0,0,0"
                     Width="120"
                     Name="CancelButton"
-                    Click="CancelButton_Click"/>
+                    Click="CancelButton_Click" />
         </StackPanel>
 
         <controls:Loading x:Name="LoadingControl"
@@ -683,7 +689,7 @@
                 <TextBlock Text="Applying"
                            FontSize="16"
                            x:Uid="Properties_Loading_Text"
-                           HorizontalAlignment="Center"/>
+                           HorizontalAlignment="Center" />
                 <muxc:ProgressBar IsIndeterminate="True"
                                   Width="180"
                                   Margin="0,10,0,0" />

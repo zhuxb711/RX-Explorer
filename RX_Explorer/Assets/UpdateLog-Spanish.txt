@@ -13,6 +13,8 @@
 
 #####Actualización de la interfaz de usuario
 
+>#####Se agregó una sugerencia de progreso de carga a la Papelera de reciclaje
+
 >#####Problemas de IU corregidos relacionados con tareas de deshacer
 
 >#####Se actualizó la lógica de arrastrar y soltar, ahora puedes arrastrar y soltar sin preseleccionar archivos
@@ -58,6 +60,10 @@
 >#####Se solucionó el problema que podía fallar al agregar software al área de inicio rápido en algunos casos
 
 >#####Se solucionó el problema de que el mensaje inteligente no apareciera después de eliminar todo el contenido en la barra de direcciones y la barra de búsqueda
+
+>#####Se solucionó el problema de verificación de hash de las imágenes de Bing
+
+>#####Se solucionó el problema de que la ventana de propiedades no sigue la configuración del tema
 
 *****
 ###Novedades de la versión 6.4.5.0

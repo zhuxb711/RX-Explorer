@@ -1285,6 +1285,11 @@ namespace RX_Explorer.Class
                 return builder.ToString();
             });
 
+            if (InputStream.CanSeek)
+            {
+                InputStream.Seek(0, SeekOrigin.Begin);
+            }
+
             if ((InputStream.Length >> 30) >= 2)
             {
                 return Task.Factory.StartNew(ComputeFunction, Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);

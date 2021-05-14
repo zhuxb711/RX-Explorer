@@ -13,6 +13,8 @@
 
 #####UI update
 
+>#####Added a loading progress tip to the Recycle bin
+
 >#####Corrected UI issues related to undo tasks
 
 >#####Updated the logic of drag and drop, now you can drag and drop without pre-selecting files
@@ -58,6 +60,10 @@
 >#####Fixed the problem that may crash when adding software to the quick start area in some cases
 
 >#####Fixed the problem that the smart prompt will not pop up after deleting all the content in the address bar and search bar
+
+>#####Fixed the hash check problem of Bing pictures
+
+>#####Fixed the problem that the properties window does not follow the theme settings
 
 *****
 ###What's new in Ver.6.4.5.0

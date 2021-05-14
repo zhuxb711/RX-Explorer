@@ -1048,6 +1048,7 @@ namespace RX_Explorer
                     NewWindow.PersistedStateId = "Properties";
                     NewWindow.Title = Globalization.GetString("Properties_Window_Title");
                     NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+                    NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
                     NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
                     NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
@@ -1065,6 +1066,7 @@ namespace RX_Explorer
                 NewWindow.PersistedStateId = "Properties";
                 NewWindow.Title = Globalization.GetString("Properties_Window_Title");
                 NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+                NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
                 NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
                 NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
@@ -1151,7 +1153,7 @@ namespace RX_Explorer
                     }
             }
 
-            await SQLite.Current.SetSearchHistoryAsync(args.QueryText).ConfigureAwait(false);
+            await SQLite.Current.SetSearchHistoryAsync(sender.Text).ConfigureAwait(false);
         }
 
         private async void GlobeSearch_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)

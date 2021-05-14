@@ -13,6 +13,8 @@
 
 #####UI-Update
 
+>#####Dem Papierkorb wurde ein Tipp zum Ladevorgang hinzugefügt
+
 >#####Probleme mit der Benutzeroberfläche im Zusammenhang mit dem Rückgängigmachen von Aufgaben wurden behoben
 
 >#####Die Logik für Drag & Drop wurde aktualisiert. Jetzt können Sie Drag & Drop ohne Vorauswahl von Dateien durchführen
@@ -58,6 +60,10 @@
 >#####Das Problem wurde behoben, das in einigen Fällen beim Hinzufügen von Software zum Schnellstartbereich abstürzen konnte
 
 >#####Es wurde das Problem behoben, dass die intelligente Eingabeaufforderung nach dem Löschen des gesamten Inhalts in der Adressleiste und der Suchleiste nicht angezeigt wird
+
+>#####Das Hash-Check-Problem von Bing-Bildern wurde behoben
+
+>#####Es wurde das Problem behoben, dass das Eigenschaftenfenster nicht den Designeinstellungen folgt
 
 *****
 ###Was ist neu in Ver.6.4.5.0

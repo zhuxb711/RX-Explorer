@@ -87,6 +87,8 @@ namespace RX_Explorer.View
             CoreWindow.GetForCurrentThread().KeyDown += RecycleBin_KeyDown;
             SelectionExtention = new ListViewBaseSelectionExtention(ListViewControl, DrawRectangle);
 
+            await ActivateLoading(true, Globalization.GetString("Progress_Tip_Loading"));
+
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
                 IReadOnlyList<IRecycleStorageItem> Result = await Exclusive.Controller.GetRecycleBinItemsAsync();
@@ -107,6 +109,8 @@ namespace RX_Explorer.View
                 HasFile.Visibility = Visibility.Collapsed;
                 ClearRecycleBin.IsEnabled = true;
             }
+
+            await ActivateLoading(false);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -220,6 +224,7 @@ namespace RX_Explorer.View
                 NewWindow.PersistedStateId = "Properties";
                 NewWindow.Title = Globalization.GetString("Properties_Window_Title");
                 NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+                NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
                 NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
                 NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
@@ -481,6 +486,7 @@ namespace RX_Explorer.View
                 NewWindow.PersistedStateId = "Properties";
                 NewWindow.Title = Globalization.GetString("Properties_Window_Title");
                 NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+                NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
                 NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
                 NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
