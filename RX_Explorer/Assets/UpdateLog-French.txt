@@ -1,5 +1,5 @@
 ﻿*****
-###Quoi de neuf dans la version 6.5.0.0
+###Quoi de neuf dans la version 6.5.1.0
 
 #####Mise à jour des fonctionnalités
 
