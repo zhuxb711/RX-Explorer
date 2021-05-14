@@ -6,7 +6,9 @@ namespace RX_Explorer.Class
 {
     public class GroupItemBase<TKey, TElement> : ObservableCollection<TElement>, IGrouping<TKey, TElement>
     {
-        public TKey Key { get; set; }
+        public TKey Key { get; }
+
+        public virtual string Description { get; }
 
         public GroupItemBase(TKey Key, IEnumerable<TElement> Items)
         {

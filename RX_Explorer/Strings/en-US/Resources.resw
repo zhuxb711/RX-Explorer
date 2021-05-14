@@ -2078,7 +2078,7 @@ Invalid names include
     <value>The folder is already occupied and cannot be renamed</value>
   </data>
   <data name="Operate_Text_Sort" xml:space="preserve">
-    <value>Sort</value>
+    <value>Sort by</value>
   </data>
   <data name="Operate_Text_SortDirection_Asc" xml:space="preserve">
     <value>Ascending</value>
@@ -3123,7 +3123,7 @@ Invalid names include
     <value>Quick Start</value>
   </data>
   <data name="Operate_Text_Grouping" xml:space="preserve">
-    <value>Grouping</value>
+    <value>Group by</value>
   </data>
   <data name="FileControlHomeButton" xml:space="preserve">
     <value>Back to Home</value>
@@ -3140,5 +3140,9 @@ Invalid names include
   </data>
   <data name="SettingPageBackgroundLightSlider.Header" xml:space="preserve">
     <value>Adjust background brightness</value>
+  </data>
+  <data name="Items_Description" xml:space="preserve">
+    <value>items</value>
+    <comment>Please translate this content according to the word order of the corresponding language. Usage Example: 10 items. Format: {Number} items</comment>
   </data>
 </root>

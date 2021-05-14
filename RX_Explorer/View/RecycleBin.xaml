@@ -96,11 +96,9 @@
                   Holding="ListViewControl_Holding"
                   DoubleTapped="ListViewControl_DoubleTapped"
                   ShowsScrollingPlaceholders="False"
+                  Style="{StaticResource ListViewStyleWithFixedHeader}"
                   ItemsSource="{x:Bind FileCollection}"
                   ItemContainerTransitions="{x:Bind Cls:AnimationController.Current.RepositionTransitions,Mode=OneWay}">
-            <Interactivity:Interaction.Behaviors>
-                <Behaviors:StickyHeaderBehavior />
-            </Interactivity:Interaction.Behaviors>
             <ListView.Header>
                 <Grid Height="35">
                     <Grid.ColumnDefinitions>

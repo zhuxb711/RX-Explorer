@@ -2606,8 +2606,8 @@ Inkorrekte Namen sind
           <target state="translated">Ordner wird bereits verwendet und kann nicht umbenannt werden</target>
         </trans-unit>
         <trans-unit id="Operate_Text_Sort" translate="yes" xml:space="preserve">
-          <source>Sort</source>
-          <target state="translated">Sortieren</target>
+          <source>Sort by</source>
+          <target state="translated">Sortiere nach</target>
         </trans-unit>
         <trans-unit id="Operate_Text_SortDirection_Asc" translate="yes" xml:space="preserve">
           <source>Ascending</source>
@@ -4003,8 +4003,8 @@ Inkorrekte Namen sind
           <target state="translated">Webseiten</target>
         </trans-unit>
         <trans-unit id="Operate_Text_Grouping" translate="yes" xml:space="preserve">
-          <source>Grouping</source>
-          <target state="translated">Gruppierung</target>
+          <source>Group by</source>
+          <target state="translated">Gruppiere nach</target>
         </trans-unit>
         <trans-unit id="FileControlHomeButton" translate="yes" xml:space="preserve">
           <source>Back to Home</source>
@@ -4026,6 +4026,11 @@ Inkorrekte Namen sind
         <trans-unit id="SettingPageBackgroundLightSlider.Header" translate="yes" xml:space="preserve">
           <source>Adjust background brightness</source>
           <target state="translated">Passen Sie die Hintergrundhelligkeit an</target>
+        </trans-unit>
+        <trans-unit id="Items_Description" translate="yes" xml:space="preserve">
+          <source>items</source>
+          <target state="translated">Artikel</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please translate this content according to the word order of the corresponding language. Usage Example: 10 items. Format: {Number} items</note>
         </trans-unit>
       </group>
     </body>

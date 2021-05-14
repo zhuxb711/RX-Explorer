@@ -2602,8 +2602,8 @@ Las denominaciones no válidas son:
           <target state="translated">La carpeta ya está ocupada y no se puede renombrar.</target>
         </trans-unit>
         <trans-unit id="Operate_Text_Sort" translate="yes" xml:space="preserve">
-          <source>Sort</source>
-          <target state="translated">Ordenar</target>
+          <source>Sort by</source>
+          <target state="translated">Ordenar por</target>
         </trans-unit>
         <trans-unit id="Operate_Text_SortDirection_Asc" translate="yes" xml:space="preserve">
           <source>Ascending</source>
@@ -4003,8 +4003,8 @@ Las denominaciones no válidas son:
           <target state="translated">Sitios web</target>
         </trans-unit>
         <trans-unit id="Operate_Text_Grouping" translate="yes" xml:space="preserve">
-          <source>Grouping</source>
-          <target state="translated">Agrupamiento</target>
+          <source>Group by</source>
+          <target state="translated">Agrupar por</target>
         </trans-unit>
         <trans-unit id="FileControlHomeButton" translate="yes" xml:space="preserve">
           <source>Back to Home</source>
@@ -4026,6 +4026,11 @@ Las denominaciones no válidas son:
         <trans-unit id="SettingPageBackgroundLightSlider.Header" translate="yes" xml:space="preserve">
           <source>Adjust background brightness</source>
           <target state="translated">Ajustar el brillo del fondo</target>
+        </trans-unit>
+        <trans-unit id="Items_Description" translate="yes" xml:space="preserve">
+          <source>items</source>
+          <target state="translated">elementos</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please translate this content according to the word order of the corresponding language. Usage Example: 10 items. Format: {Number} items</note>
         </trans-unit>
       </group>
     </body>

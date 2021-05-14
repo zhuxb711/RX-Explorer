@@ -1970,7 +1970,7 @@ Inkorrekte Namen sind
     <value>Ordner wird bereits verwendet und kann nicht umbenannt werden</value>
   </data>
   <data name="Operate_Text_Sort" xml:space="preserve">
-    <value>Sortieren</value>
+    <value>Sortiere nach</value>
   </data>
   <data name="Operate_Text_SortDirection_Asc" xml:space="preserve">
     <value>Aufsteigend</value>
@@ -3018,7 +3018,7 @@ Inkorrekte Namen sind
     <value>Webseiten</value>
   </data>
   <data name="Operate_Text_Grouping" xml:space="preserve">
-    <value>Gruppierung</value>
+    <value>Gruppiere nach</value>
   </data>
   <data name="FileControlHomeButton" xml:space="preserve">
     <value>Zurück nach Hause</value>
@@ -3035,5 +3035,9 @@ Inkorrekte Namen sind
   </data>
   <data name="SettingPageBackgroundLightSlider.Header" xml:space="preserve">
     <value>Passen Sie die Hintergrundhelligkeit an</value>
+  </data>
+  <data name="Items_Description" xml:space="preserve">
+    <value>Artikel</value>
+    <comment>Please translate this content according to the word order of the corresponding language. Usage Example: 10 items. Format: {Number} items</comment>
   </data>
 </root>

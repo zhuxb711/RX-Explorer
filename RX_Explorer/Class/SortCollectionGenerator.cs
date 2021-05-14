@@ -91,15 +91,15 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(SearchTarget), "Argument could not be null");
             }
 
-            IEnumerable<T> FilteredCollection = null;
+            List<T> FilteredCollection = null;
 
             if (SearchTarget is FileSystemStorageFile)
             {
-                FilteredCollection = InputCollection.Where((Item) => Item is FileSystemStorageFile);
+                FilteredCollection = InputCollection.Where((Item) => Item is FileSystemStorageFile).ToList();
             }
             else if (SearchTarget is FileSystemStorageFolder)
             {
-                FilteredCollection = InputCollection.Where((Item) => Item is FileSystemStorageFolder);
+                FilteredCollection = InputCollection.Where((Item) => Item is FileSystemStorageFolder).ToList();
             }
             else
             {
@@ -110,9 +110,13 @@ namespace RX_Explorer.Class
             {
                 case SortTarget.Name:
                     {
+                        FilteredCollection.Add(SearchTarget);
+
+                        IEnumerable<(int Index, T Item)> SortedCollection = FilteredCollection.OrderByLikeFileSystem((Item) => Item.Name, Direction).Select((Item, Index) => (Index, Item));
+
                         if (Direction == SortDirection.Ascending)
                         {
-                            (int Index, T Item) SearchResult = FilteredCollection.Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Name, SearchTarget.Name, StringComparison.OrdinalIgnoreCase) > 0);
+                            (int Index, T Item) SearchResult = SortedCollection.FirstOrDefault((Value) => string.Compare(Value.Item.Name, SearchTarget.Name, StringComparison.Ordinal) > 0);
 
                             if (SearchResult.Item == null)
                             {
@@ -129,32 +133,41 @@ namespace RX_Explorer.Class
                             {
                                 if (SearchTarget is FileSystemStorageFile)
                                 {
-                                    return SearchResult.Index + InputCollection.Count((Item) => Item is FileSystemStorageFolder);
+                                    return SearchResult.Index + InputCollection.Count((Item) => Item is FileSystemStorageFolder) + 1;
                                 }
                                 else
                                 {
-                                    return SearchResult.Index;
+                                    return SearchResult.Index + 1;
                                 }
                             }
                         }
                         else
                         {
                             //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
-                            int Index = FilteredCollection.Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Name, SearchTarget.Name, StringComparison.OrdinalIgnoreCase) < 0).Index;
+                            (int Index, T Item) SearchResult = SortedCollection.FirstOrDefault((Value) => string.Compare(Value.Item.Name, SearchTarget.Name, StringComparison.Ordinal) < 0);
 
                             if (SearchTarget is FileSystemStorageFolder)
                             {
-                                Index += InputCollection.Count((Item) => Item is FileSystemStorageFile);
+                                SearchResult.Index += InputCollection.Count((Item) => Item is FileSystemStorageFile);
                             }
 
-                            return Index;
+                            if (SearchResult.Item != null)
+                            {
+                                SearchResult.Index += 2;
+                            }
+
+                            return SearchResult.Index;
                         }
                     }
                 case SortTarget.Type:
                     {
+                        FilteredCollection.Add(SearchTarget);
+
+                        IEnumerable<(int Index, T Item)> SortedCollection = FilteredCollection.OrderByLikeFileSystem((Item) => Item.Type, Direction).Select((Item, Index) => (Index, Item));
+
                         if (Direction == SortDirection.Ascending)
                         {
-                            (int Index, T Item) SearchResult = FilteredCollection.Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Type, SearchTarget.Type, StringComparison.OrdinalIgnoreCase) > 0);
+                            (int Index, T Item) SearchResult = SortedCollection.FirstOrDefault((Value) => string.Compare(Value.Item.Type, SearchTarget.Type, StringComparison.Ordinal) > 0);
 
                             if (SearchResult.Item == null)
                             {
@@ -171,25 +184,30 @@ namespace RX_Explorer.Class
                             {
                                 if (SearchTarget is FileSystemStorageFile)
                                 {
-                                    return SearchResult.Index + InputCollection.Count((Item) => Item is FileSystemStorageFolder);
+                                    return SearchResult.Index + InputCollection.Count((Item) => Item is FileSystemStorageFolder) + 1;
                                 }
                                 else
                                 {
-                                    return SearchResult.Index;
+                                    return SearchResult.Index + 1;
                                 }
                             }
                         }
                         else
                         {
                             //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
-                            int Index = FilteredCollection.Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => string.Compare(Value.Item.Type, SearchTarget.Type, StringComparison.OrdinalIgnoreCase) < 0).Index;
+                            (int Index, T Item) SearchResult = SortedCollection.FirstOrDefault((Value) => string.Compare(Value.Item.Type, SearchTarget.Type, StringComparison.Ordinal) < 0);
 
                             if (SearchTarget is FileSystemStorageFolder)
                             {
-                                Index += InputCollection.Count((Item) => Item is FileSystemStorageFile);
+                                SearchResult.Index += InputCollection.Count((Item) => Item is FileSystemStorageFile);
                             }
 
-                            return Index;
+                            if (SearchResult.Item != null)
+                            {
+                                SearchResult.Index += 2;
+                            }
+
+                            return SearchResult.Index;
                         }
                     }
                 case SortTarget.ModifiedTime:

@@ -767,9 +767,6 @@
     <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Animations">
       <Version>7.0.2</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Behaviors">
-      <Version>7.0.2</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Controls">
       <Version>7.0.2</Version>
     </PackageReference>

@@ -1915,7 +1915,7 @@
     <value>該文件已被佔用，無法重命名</value>
   </data>
   <data name="Operate_Text_Sort" xml:space="preserve">
-    <value>排序</value>
+    <value>排序方式</value>
   </data>
   <data name="Operate_Text_SortTarget_Name" xml:space="preserve">
     <value>名稱</value>
@@ -3018,7 +3018,7 @@
     <value>網站</value>
   </data>
   <data name="Operate_Text_Grouping" xml:space="preserve">
-    <value>分組</value>
+    <value>分組依據</value>
   </data>
   <data name="FileControlHomeButton" xml:space="preserve">
     <value>回到首頁</value>
@@ -3035,5 +3035,9 @@
   </data>
   <data name="SettingPageBackgroundLightSlider.Header" xml:space="preserve">
     <value>調整背景亮度</value>
+  </data>
+  <data name="Items_Description" xml:space="preserve">
+    <value>個項目</value>
+    <comment>Please translate this content according to the word order of the corresponding language. Usage Example: 10 items. Format: {Number} items</comment>
   </data>
 </root>

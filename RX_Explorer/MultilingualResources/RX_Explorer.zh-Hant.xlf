@@ -2533,8 +2533,8 @@ Invalid names include
           <target state="translated">該文件已被佔用，無法重命名</target>
         </trans-unit>
         <trans-unit id="Operate_Text_Sort" translate="yes" xml:space="preserve">
-          <source>Sort</source>
-          <target state="translated">排序</target>
+          <source>Sort by</source>
+          <target state="translated">排序方式</target>
         </trans-unit>
         <trans-unit id="Operate_Text_SortTarget_Name" translate="yes" xml:space="preserve">
           <source>Name</source>
@@ -4005,8 +4005,8 @@ Invalid names include
           <target state="translated">網站</target>
         </trans-unit>
         <trans-unit id="Operate_Text_Grouping" translate="yes" xml:space="preserve">
-          <source>Grouping</source>
-          <target state="translated">分組</target>
+          <source>Group by</source>
+          <target state="translated">分組依據</target>
         </trans-unit>
         <trans-unit id="FileControlHomeButton" translate="yes" xml:space="preserve">
           <source>Back to Home</source>
@@ -4028,6 +4028,11 @@ Invalid names include
         <trans-unit id="SettingPageBackgroundLightSlider.Header" translate="yes" xml:space="preserve">
           <source>Adjust background brightness</source>
           <target state="translated">調整背景亮度</target>
+        </trans-unit>
+        <trans-unit id="Items_Description" translate="yes" xml:space="preserve">
+          <source>items</source>
+          <target state="translated">個項目</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please translate this content according to the word order of the corresponding language. Usage Example: 10 items. Format: {Number} items</note>
         </trans-unit>
       </group>
     </body>

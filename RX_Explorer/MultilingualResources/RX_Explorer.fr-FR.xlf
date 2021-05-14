@@ -2533,8 +2533,8 @@ Les noms non valides incluent
           <target state="translated">Le fichier est déjà occupé et ne peut pas être renommé</target>
         </trans-unit>
         <trans-unit id="Operate_Text_Sort" translate="yes" xml:space="preserve">
-          <source>Sort</source>
-          <target state="translated">Trier</target>
+          <source>Sort by</source>
+          <target state="translated">Trier par</target>
         </trans-unit>
         <trans-unit id="Operate_Text_SortTarget_Name" translate="yes" xml:space="preserve">
           <source>Name</source>
@@ -4005,8 +4005,8 @@ Les noms non valides incluent
           <target state="translated">Sites Internet</target>
         </trans-unit>
         <trans-unit id="Operate_Text_Grouping" translate="yes" xml:space="preserve">
-          <source>Grouping</source>
-          <target state="translated">Regroupement</target>
+          <source>Group by</source>
+          <target state="translated">Grouper par</target>
         </trans-unit>
         <trans-unit id="FileControlHomeButton" translate="yes" xml:space="preserve">
           <source>Back to Home</source>
@@ -4028,6 +4028,11 @@ Les noms non valides incluent
         <trans-unit id="SettingPageBackgroundLightSlider.Header" translate="yes" xml:space="preserve">
           <source>Adjust background brightness</source>
           <target state="translated">Ajuster la luminosité de l'arrière-plan</target>
+        </trans-unit>
+        <trans-unit id="Items_Description" translate="yes" xml:space="preserve">
+          <source>items</source>
+          <target state="translated">éléments</target>
+          <note from="MultilingualBuild" annotates="source" priority="2">Please translate this content according to the word order of the corresponding language. Usage Example: 10 items. Format: {Number} items</note>
         </trans-unit>
       </group>
     </body>

@@ -341,11 +341,11 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task ExtractBZip2Async(string Source, string NewZipPath, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task ExtractBZip2Async(string Source, string NewDirectoryPath, ProgressChangedEventHandler ProgressHandler = null)
         {
             if (await FileSystemStorageItemBase.OpenAsync(Source) is FileSystemStorageFile File)
             {
-                await ExtractBZip2Async(File, NewZipPath, ProgressHandler);
+                await ExtractBZip2Async(File, NewDirectoryPath, ProgressHandler);
             }
             else
             {
@@ -353,9 +353,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task ExtractBZip2Async(FileSystemStorageFile Source, string NewFilePath, ProgressChangedEventHandler ProgressHandler = null)
+        public static async Task ExtractBZip2Async(FileSystemStorageFile Source, string NewDirectoryPath, ProgressChangedEventHandler ProgressHandler = null)
         {
-            if (await FileSystemStorageItemBase.CreateAsync(NewFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
+            if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(NewDirectoryPath, Path.GetFileNameWithoutExtension(Source.Name)), StorageItemTypes.File, CreateOption.GenerateUniqueName).ConfigureAwait(false) is FileSystemStorageFile NewFile)
             {
                 using (FileStream SourceFileStream = await Source.GetFileStreamFromFileAsync(AccessMode.Exclusive).ConfigureAwait(false))
                 using (FileStream NewFileStrem = await NewFile.GetFileStreamFromFileAsync(AccessMode.Write))
@@ -795,7 +795,7 @@ namespace RX_Explorer.Class
                 }
                 else if (File.Name.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase) && !File.Name.EndsWith(".tar.bz2", StringComparison.OrdinalIgnoreCase))
                 {
-                    await ExtractBZip2Async(File, Path.Combine(DestPath, Path.GetFileNameWithoutExtension(File.Name)), (s, e) =>
+                    await ExtractBZip2Async(File, DestPath, (s, e) =>
                     {
                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.SizeRaw)) * 100d / TotalSize), null));
                     });
@@ -858,10 +858,10 @@ namespace RX_Explorer.Class
                                     {
                                         await EntryStream.CopyToAsync(OutputStream, Reader.Entry.Size, (s, e) =>
                                         {
-                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * File.SizeRaw)) * 100d / TotalSize), null));
+                                            ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32((CurrentPosition + Convert.ToUInt64(e.ProgressPercentage / 100d * Reader.Entry.CompressedSize)) * 100d / TotalSize), null));
                                         });
 
-                                        CurrentPosition += Convert.ToUInt64(File.SizeRaw);
+                                        CurrentPosition += Convert.ToUInt64(Reader.Entry.CompressedSize);
                                         ProgressHandler?.Invoke(null, new ProgressChangedEventArgs(Convert.ToInt32(CurrentPosition * 100d / TotalSize), null));
                                     }
                                 }
@@ -884,7 +884,7 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            throw new UnauthorizedAccessException();
+                            throw new UnauthorizedAccessException("Could not create folder");
                         }
                     }
                 default:
@@ -895,7 +895,7 @@ namespace RX_Explorer.Class
                         }
                         else
                         {
-                            throw new UnauthorizedAccessException();
+                            throw new UnauthorizedAccessException("Could not create folder");
                         }
                     }
             }

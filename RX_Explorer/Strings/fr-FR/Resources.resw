@@ -1915,7 +1915,7 @@ Les noms non valides incluent
     <value>Le fichier est déjà occupé et ne peut pas être renommé</value>
   </data>
   <data name="Operate_Text_Sort" xml:space="preserve">
-    <value>Trier</value>
+    <value>Trier par</value>
   </data>
   <data name="Operate_Text_SortTarget_Name" xml:space="preserve">
     <value>Nom</value>
@@ -3018,7 +3018,7 @@ Les noms non valides incluent
     <value>Sites Internet</value>
   </data>
   <data name="Operate_Text_Grouping" xml:space="preserve">
-    <value>Regroupement</value>
+    <value>Grouper par</value>
   </data>
   <data name="FileControlHomeButton" xml:space="preserve">
     <value>Retour à l'accueil</value>
@@ -3035,5 +3035,9 @@ Les noms non valides incluent
   </data>
   <data name="SettingPageBackgroundLightSlider.Header" xml:space="preserve">
     <value>Ajuster la luminosité de l'arrière-plan</value>
+  </data>
+  <data name="Items_Description" xml:space="preserve">
+    <value>éléments</value>
+    <comment>Please translate this content according to the word order of the corresponding language. Usage Example: 10 items. Format: {Number} items</comment>
   </data>
 </root>

@@ -5,8 +5,6 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-      xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
-      xmlns:Behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
       mc:Ignorable="d"
       NavigationCacheMode="Required"
       Background="Transparent">
@@ -137,6 +135,7 @@
                   Name="SearchResultList"
                   x:FieldModifier="public"
                   ItemsSource="{x:Bind SearchResult}"
+                  Style="{StaticResource ListViewStyleWithFixedHeader}"
                   IsHoldingEnabled="True"
                   IsDoubleTapEnabled="True"
                   DoubleTapped="SearchResultList_DoubleTapped"
@@ -145,9 +144,6 @@
                   ContainerContentChanging="SearchResultList_ContainerContentChanging"
                   Holding="SearchResultList_Holding"
                   RightTapped="SearchResultList_RightTapped">
-            <Interactivity:Interaction.Behaviors>
-                <Behaviors:StickyHeaderBehavior />
-            </Interactivity:Interaction.Behaviors>
             <ListView.Header>
                 <Grid Height="35">
                     <Grid.ColumnDefinitions>

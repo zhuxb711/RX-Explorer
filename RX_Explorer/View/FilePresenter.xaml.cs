@@ -117,9 +117,9 @@ namespace RX_Explorer
 
                     if (itemPresenter is GridView)
                     {
-                        if (ListViewControl != null)
+                        if (ListViewSemantic != null)
                         {
-                            ListViewControl.Visibility = Visibility.Collapsed;
+                            ListViewSemantic.Visibility = Visibility.Collapsed;
                             ListCollectionVS.Source = null;
                         }
 
@@ -128,13 +128,13 @@ namespace RX_Explorer
                             GridCollectionVS.Source = IsGroupedEnable ? GroupCollection : FileCollection;
                         }
 
-                        GridViewControl.Visibility = Visibility.Visible;
+                        GridViewSemantic.Visibility = Visibility.Visible;
                     }
                     else
                     {
-                        if (GridViewControl != null)
+                        if (GridViewSemantic != null)
                         {
-                            GridViewControl.Visibility = Visibility.Collapsed;
+                            GridViewSemantic.Visibility = Visibility.Collapsed;
                             GridCollectionVS.Source = null;
                         }
 
@@ -143,7 +143,7 @@ namespace RX_Explorer
                             ListCollectionVS.Source = IsGroupedEnable ? GroupCollection : FileCollection;
                         }
 
-                        ListViewControl.Visibility = Visibility.Visible;
+                        ListViewSemantic.Visibility = Visibility.Visible;
                     }
                 }
             }
@@ -559,7 +559,9 @@ namespace RX_Explorer
                     {
                         case 0:
                             {
-                                ItemPresenter = FindName("GridViewControl") as ListViewBase;
+                                FindName("GridViewSemantic");
+
+                                ItemPresenter = GridViewControl;
 
                                 GridViewControl.ItemTemplate = GridViewTileDataTemplate;
                                 GridViewControl.ItemsPanel = HorizontalGridViewPanel;
@@ -584,12 +586,15 @@ namespace RX_Explorer
                             }
                         case 1:
                             {
-                                ItemPresenter = FindName("ListViewControl") as ListViewBase;
+                                FindName("ListViewSemantic");
+                                ItemPresenter = ListViewControl;
                                 break;
                             }
                         case 2:
                             {
-                                ItemPresenter = FindName("GridViewControl") as ListViewBase;
+                                FindName("GridViewSemantic");
+
+                                ItemPresenter = GridViewControl;
 
                                 GridViewControl.ItemTemplate = GridViewListDataTemplate;
                                 GridViewControl.ItemsPanel = VerticalGridViewPanel;
@@ -614,7 +619,9 @@ namespace RX_Explorer
                             }
                         case 3:
                             {
-                                ItemPresenter = FindName("GridViewControl") as ListViewBase;
+                                FindName("GridViewSemantic");
+
+                                ItemPresenter = GridViewControl;
 
                                 GridViewControl.ItemTemplate = GridViewLargeImageDataTemplate;
                                 GridViewControl.ItemsPanel = HorizontalGridViewPanel;
@@ -639,7 +646,9 @@ namespace RX_Explorer
                             }
                         case 4:
                             {
-                                ItemPresenter = FindName("GridViewControl") as ListViewBase;
+                                FindName("GridViewSemantic");
+
+                                ItemPresenter = GridViewControl;
 
                                 GridViewControl.ItemTemplate = GridViewMediumImageDataTemplate;
                                 GridViewControl.ItemsPanel = HorizontalGridViewPanel;
@@ -664,7 +673,9 @@ namespace RX_Explorer
                             }
                         case 5:
                             {
-                                ItemPresenter = FindName("GridViewControl") as ListViewBase;
+                                FindName("GridViewSemantic");
+
+                                ItemPresenter = GridViewControl;
 
                                 GridViewControl.ItemTemplate = GridViewSmallImageDataTemplate;
                                 GridViewControl.ItemsPanel = HorizontalGridViewPanel;
