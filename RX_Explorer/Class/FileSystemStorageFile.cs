@@ -20,14 +20,6 @@ namespace RX_Explorer.Class
 {
     public class FileSystemStorageFile : FileSystemStorageItemBase, ICryptable
     {
-        public override string Name
-        {
-            get
-            {
-                return (StorageItem?.Name) ?? System.IO.Path.GetFileName(Path);
-            }
-        }
-
         public override string DisplayName
         {
             get
@@ -49,14 +41,6 @@ namespace RX_Explorer.Class
             get
             {
                 return (StorageItem?.DisplayType) ?? Type;
-            }
-        }
-
-        public override string Type
-        {
-            get
-            {
-                return (StorageItem?.FileType) ?? System.IO.Path.GetExtension(Name).ToUpper();
             }
         }
 

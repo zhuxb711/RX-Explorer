@@ -18,7 +18,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return (StorageItem?.Name) ?? (System.IO.Path.GetPathRoot(Path) == Path ? Path : System.IO.Path.GetFileName(Path));
+                return System.IO.Path.GetPathRoot(Path) == Path ? Path : System.IO.Path.GetFileName(Path);
             }
         }
 

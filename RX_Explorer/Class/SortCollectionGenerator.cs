@@ -36,40 +36,62 @@ namespace RX_Explorer.Class
                 case SortTarget.Name:
                     {
                         return Direction == SortDirection.Ascending
-                            ? FolderList.OrderByLikeFileSystem((Item) => Item.Name, Direction).Concat(FileList.OrderByLikeFileSystem((Item) => Item.Name, Direction))
-                            : FileList.OrderByLikeFileSystem((Item) => Item.Name, Direction).Concat(FolderList.OrderByLikeFileSystem((Item) => Item.Name, Direction));
+                                            ? FolderList.OrderByLikeFileSystem((Item) => Item.Name, Direction)
+                                                        .Concat(FileList.OrderByLikeFileSystem((Item) => Item.Name, Direction))
+                                            : FileList.OrderByLikeFileSystem((Item) => Item.Name, Direction)
+                                                      .Concat(FolderList.OrderByLikeFileSystem((Item) => Item.Name, Direction));
                     }
                 case SortTarget.Type:
                     {
                         return Direction == SortDirection.Ascending
-                            ? FolderList.OrderByLikeFileSystem((Item) => Item.Type, Direction).Concat(FileList.OrderByLikeFileSystem((Item) => Item.Type, Direction))
-                            : FileList.OrderByLikeFileSystem((Item) => Item.Type, Direction).Concat(FolderList.OrderByLikeFileSystem((Item) => Item.Type, Direction));
+                                            ? FolderList.OrderBy((Item) => Item.Type)
+                                                        .Concat(FileList.OrderBy((Item) => Item.Type))
+                                                        .GroupBy((Item) => Item.Type)
+                                                        .Select((Group) => Group.OrderByLikeFileSystem((Item) => Item.Name, Direction))
+                                                        .SelectMany((Array) => Array)
+                                            : FolderList.OrderByDescending((Item) => Item.Type)
+                                                        .Concat(FileList.OrderByDescending((Item) => Item.Type))
+                                                        .GroupBy((Item) => Item.Type)
+                                                        .Select((Group) => Group.OrderByLikeFileSystem((Item) => Item.Name, Direction))
+                                                        .SelectMany((Array) => Array);
                     }
                 case SortTarget.ModifiedTime:
                     {
                         return Direction == SortDirection.Ascending
-                            ? FolderList.OrderBy((Item) => Item.ModifiedTimeRaw).Concat(FileList.OrderBy((Item) => Item.ModifiedTimeRaw))
-                            : FileList.OrderByDescending((Item) => Item.ModifiedTimeRaw).Concat(FolderList.OrderByDescending((Item) => Item.ModifiedTimeRaw));
+                                            ? FolderList.OrderBy((Item) => Item.ModifiedTimeRaw)
+                                                        .Concat(FileList.OrderBy((Item) => Item.ModifiedTimeRaw))
+                                            : FileList.OrderByDescending((Item) => Item.ModifiedTimeRaw)
+                                                      .Concat(FolderList.OrderByDescending((Item) => Item.ModifiedTimeRaw));
                     }
                 case SortTarget.Size:
                     {
                         return Direction == SortDirection.Ascending
-                            ? FolderList.OrderBy((Item) => Item.SizeRaw).Concat(FileList.OrderBy((Item) => Item.SizeRaw))
-                            : FileList.OrderByDescending((Item) => Item.SizeRaw).Concat(FolderList.OrderByDescending((Item) => Item.SizeRaw));
+                                            ? FolderList.OrderByLikeFileSystem((Item) => Item.Name, SortDirection.Ascending)
+                                                        .Concat(FileList.OrderBy((Item) => Item.SizeRaw))
+                                            : FileList.OrderByDescending((Item) => Item.SizeRaw)
+                                                      .Concat(FolderList.OrderByLikeFileSystem((Item) => Item.Name, SortDirection.Ascending));
                     }
                 case SortTarget.Path:
                     {
                         return Direction == SortDirection.Ascending
-                            ? FolderList.OrderBy((Item) => Item.Path).Concat(FileList.OrderBy((Item) => Item.SizeRaw))
-                            : FileList.OrderByDescending((Item) => Item.Path).Concat(FolderList.OrderByDescending((Item) => Item.SizeRaw));
+                                            ? FolderList.OrderBy((Item) => Item.Path)
+                                                        .Concat(FileList.OrderBy((Item) => Item.SizeRaw))
+                                            : FileList.OrderByDescending((Item) => Item.Path)
+                                                      .Concat(FolderList.OrderByDescending((Item) => Item.SizeRaw));
                     }
                 default:
                     {
                         if (typeof(T) == typeof(IRecycleStorageItem))
                         {
                             return Direction == SortDirection.Ascending
-                                ? FolderList.OfType<IRecycleStorageItem>().OrderBy((Item) => Item.OriginPath).Concat(FileList.OfType<IRecycleStorageItem>().OrderBy((Item) => Item.OriginPath)).OfType<T>()
-                                : FolderList.OfType<IRecycleStorageItem>().OrderByDescending((Item) => Item.OriginPath).Concat(FileList.OfType<IRecycleStorageItem>().OrderByDescending((Item) => Item.OriginPath)).OfType<T>();
+                                                ? FolderList.OfType<IRecycleStorageItem>()
+                                                            .OrderBy((Item) => Item.OriginPath)
+                                                            .Concat(FileList.OfType<IRecycleStorageItem>().OrderBy((Item) => Item.OriginPath))
+                                                            .OfType<T>()
+                                                : FolderList.OfType<IRecycleStorageItem>()
+                                                            .OrderByDescending((Item) => Item.OriginPath)
+                                                            .Concat(FileList.OfType<IRecycleStorageItem>().OrderByDescending((Item) => Item.OriginPath))
+                                                            .OfType<T>();
                         }
                         else
                         {
@@ -91,15 +113,15 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(SearchTarget), "Argument could not be null");
             }
 
-            List<T> FilteredCollection = null;
+            IEnumerable<T> FilteredCollection = null;
 
             if (SearchTarget is FileSystemStorageFile)
             {
-                FilteredCollection = InputCollection.Where((Item) => Item is FileSystemStorageFile).ToList();
+                FilteredCollection = InputCollection.Where((Item) => Item is FileSystemStorageFile);
             }
             else if (SearchTarget is FileSystemStorageFolder)
             {
-                FilteredCollection = InputCollection.Where((Item) => Item is FileSystemStorageFolder).ToList();
+                FilteredCollection = InputCollection.Where((Item) => Item is FileSystemStorageFolder);
             }
             else
             {
@@ -110,111 +132,68 @@ namespace RX_Explorer.Class
             {
                 case SortTarget.Name:
                     {
-                        FilteredCollection.Add(SearchTarget);
+                        List<T> FilteredCollectionCopy = new List<T>(FilteredCollection)
+                        {
+                            SearchTarget
+                        };
 
-                        IEnumerable<(int Index, T Item)> SortedCollection = FilteredCollection.OrderByLikeFileSystem((Item) => Item.Name, Direction).Select((Item, Index) => (Index, Item));
+                        int Index = FilteredCollectionCopy.OrderByLikeFileSystem((Item) => Item.Name, Direction)
+                                                          .Select((Item, Index) => (Index, Item))
+                                                          .First((Value) => Value.Item.Equals(SearchTarget)).Index;
 
                         if (Direction == SortDirection.Ascending)
                         {
-                            (int Index, T Item) SearchResult = SortedCollection.FirstOrDefault((Value) => string.Compare(Value.Item.Name, SearchTarget.Name, StringComparison.Ordinal) > 0);
-
-                            if (SearchResult.Item == null)
+                            if (SearchTarget is FileSystemStorageFile)
                             {
-                                if (SearchTarget is FileSystemStorageFile)
-                                {
-                                    return InputCollection.Count;
-                                }
-                                else
-                                {
-                                    return InputCollection.Count((Item) => Item is FileSystemStorageFolder);
-                                }
-                            }
-                            else
-                            {
-                                if (SearchTarget is FileSystemStorageFile)
-                                {
-                                    return SearchResult.Index + InputCollection.Count((Item) => Item is FileSystemStorageFolder) + 1;
-                                }
-                                else
-                                {
-                                    return SearchResult.Index + 1;
-                                }
+                                Index += InputCollection.Count((Item) => Item is FileSystemStorageFolder);
                             }
                         }
                         else
                         {
-                            //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
-                            (int Index, T Item) SearchResult = SortedCollection.FirstOrDefault((Value) => string.Compare(Value.Item.Name, SearchTarget.Name, StringComparison.Ordinal) < 0);
-
                             if (SearchTarget is FileSystemStorageFolder)
                             {
-                                SearchResult.Index += InputCollection.Count((Item) => Item is FileSystemStorageFile);
+                                Index += InputCollection.Count((Item) => Item is FileSystemStorageFile);
                             }
-
-                            if (SearchResult.Item != null)
-                            {
-                                SearchResult.Index += 2;
-                            }
-
-                            return SearchResult.Index;
                         }
+
+                        return Index;
                     }
                 case SortTarget.Type:
                     {
-                        FilteredCollection.Add(SearchTarget);
-
-                        IEnumerable<(int Index, T Item)> SortedCollection = FilteredCollection.OrderByLikeFileSystem((Item) => Item.Type, Direction).Select((Item, Index) => (Index, Item));
+                        List<T> InputCollectionCopy = new List<T>(InputCollection)
+                        {
+                            SearchTarget
+                        };
 
                         if (Direction == SortDirection.Ascending)
                         {
-                            (int Index, T Item) SearchResult = SortedCollection.FirstOrDefault((Value) => string.Compare(Value.Item.Type, SearchTarget.Type, StringComparison.Ordinal) > 0);
-
-                            if (SearchResult.Item == null)
-                            {
-                                if (SearchTarget is FileSystemStorageFile)
-                                {
-                                    return InputCollection.Count;
-                                }
-                                else
-                                {
-                                    return InputCollection.Count((Item) => Item is FileSystemStorageFolder);
-                                }
-                            }
-                            else
-                            {
-                                if (SearchTarget is FileSystemStorageFile)
-                                {
-                                    return SearchResult.Index + InputCollection.Count((Item) => Item is FileSystemStorageFolder) + 1;
-                                }
-                                else
-                                {
-                                    return SearchResult.Index + 1;
-                                }
-                            }
+                            return InputCollectionCopy.Where((Item) => Item is FileSystemStorageFolder)
+                                                      .OrderBy((Item) => Item.Type)
+                                                      .Concat(InputCollectionCopy.Where((Item) => Item is FileSystemStorageFile).OrderBy((Item) => Item.Type))
+                                                      .GroupBy((Item) => Item.Type)
+                                                      .Select((Group) => Group.OrderByLikeFileSystem((Item) => Item.Name, Direction))
+                                                      .SelectMany((Array) => Array)
+                                                      .Select((Item, Index) => (Index, Item))
+                                                      .First((Value) => Value.Item.Equals(SearchTarget)).Index;
                         }
                         else
                         {
-                            //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
-                            (int Index, T Item) SearchResult = SortedCollection.FirstOrDefault((Value) => string.Compare(Value.Item.Type, SearchTarget.Type, StringComparison.Ordinal) < 0);
-
-                            if (SearchTarget is FileSystemStorageFolder)
-                            {
-                                SearchResult.Index += InputCollection.Count((Item) => Item is FileSystemStorageFile);
-                            }
-
-                            if (SearchResult.Item != null)
-                            {
-                                SearchResult.Index += 2;
-                            }
-
-                            return SearchResult.Index;
+                            return InputCollectionCopy.Where((Item) => Item is FileSystemStorageFolder)
+                                                      .OrderByDescending((Item) => Item.Type)
+                                                      .Concat(InputCollectionCopy.Where((Item) => Item is FileSystemStorageFile).OrderByDescending((Item) => Item.Type))
+                                                      .GroupBy((Item) => Item.Type)
+                                                      .Select((Group) => Group.OrderByLikeFileSystem((Item) => Item.Name, Direction))
+                                                      .SelectMany((Array) => Array)
+                                                      .Select((Item, Index) => (Index, Item))
+                                                      .First((Value) => Value.Item.Equals(SearchTarget)).Index;
                         }
                     }
                 case SortTarget.ModifiedTime:
                     {
                         if (Direction == SortDirection.Ascending)
                         {
-                            (int Index, T Item) SearchResult = FilteredCollection.Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => DateTimeOffset.Compare(Value.Item.ModifiedTimeRaw, SearchTarget.ModifiedTimeRaw) > 0);
+                            (int Index, T Item) SearchResult = FilteredCollection.Select((Item, Index) => (Index, Item))
+                                                                                 .FirstOrDefault((Value) => DateTimeOffset.Compare(Value.Item.ModifiedTimeRaw, SearchTarget.ModifiedTimeRaw) > 0);
 
                             if (SearchResult.Item == null)
                             {
@@ -242,7 +221,8 @@ namespace RX_Explorer.Class
                         else
                         {
                             //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
-                            int Index = FilteredCollection.Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => DateTimeOffset.Compare(Value.Item.ModifiedTimeRaw, SearchTarget.ModifiedTimeRaw) < 0).Index;
+                            int Index = FilteredCollection.Select((Item, Index) => (Index, Item))
+                                                          .FirstOrDefault((Value) => DateTimeOffset.Compare(Value.Item.ModifiedTimeRaw, SearchTarget.ModifiedTimeRaw) < 0).Index;
 
                             if (SearchTarget is FileSystemStorageFolder)
                             {
@@ -254,44 +234,45 @@ namespace RX_Explorer.Class
                     }
                 case SortTarget.Size:
                     {
-                        if (Direction == SortDirection.Ascending)
+                        if (SearchTarget is FileSystemStorageFolder)
                         {
-                            (int Index, T Item) SearchResult = FilteredCollection.Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.SizeRaw.CompareTo(SearchTarget.SizeRaw) > 0);
-
-                            if (SearchResult.Item == null)
+                            List<T> FilteredCollectionCopy = new List<T>(FilteredCollection)
                             {
-                                if (SearchTarget is FileSystemStorageFile)
-                                {
-                                    return InputCollection.Count;
-                                }
-                                else
-                                {
-                                    return InputCollection.Count((Item) => Item is FileSystemStorageFolder);
-                                }
-                            }
-                            else
-                            {
-                                if (SearchTarget is FileSystemStorageFile)
-                                {
-                                    return SearchResult.Index + InputCollection.Count((Item) => Item is FileSystemStorageFolder);
-                                }
-                                else
-                                {
-                                    return SearchResult.Index;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            //未找到任何匹配的项目时，FirstOrDefault返回元组的默认值，而int的默认值刚好契合此处需要返回0的要求，因此无需像SortDirection.Ascending一样进行额外处理
-                            int Index = FilteredCollection.Select((Item, Index) => (Index, Item)).FirstOrDefault((Value) => Value.Item.SizeRaw.CompareTo(SearchTarget.SizeRaw) < 0).Index;
+                                SearchTarget
+                            };
 
-                            if (SearchTarget is FileSystemStorageFolder)
+                            int Index = FilteredCollectionCopy.OrderByLikeFileSystem((Item) => Item.Name, SortDirection.Ascending)
+                                                              .Select((Item, Index) => (Index, Item))
+                                                              .First((Value) => Value.Item.Equals(SearchTarget)).Index;
+
+                            if (Direction == SortDirection.Descending)
                             {
                                 Index += InputCollection.Count((Item) => Item is FileSystemStorageFile);
                             }
 
                             return Index;
+                        }
+                        else
+                        {
+                            if (Direction == SortDirection.Ascending)
+                            {
+                                (int Index, T Item) SearchResult = FilteredCollection.Select((Item, Index) => (Index, Item))
+                                                                                     .FirstOrDefault((Value) => Value.Item.SizeRaw.CompareTo(SearchTarget.SizeRaw) > 0);
+
+                                if (SearchResult.Item == null)
+                                {
+                                    return InputCollection.Count;
+                                }
+                                else
+                                {
+                                    return SearchResult.Index + InputCollection.Count((Item) => Item is FileSystemStorageFolder);
+                                }
+                            }
+                            else
+                            {
+                                return FilteredCollection.Select((Item, Index) => (Index, Item))
+                                                         .FirstOrDefault((Value) => Value.Item.SizeRaw.CompareTo(SearchTarget.SizeRaw) < 0).Index;
+                            }
                         }
                     }
                 default:
