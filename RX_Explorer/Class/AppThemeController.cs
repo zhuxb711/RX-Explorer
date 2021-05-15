@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using WeakEvent;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI.Core;
@@ -10,7 +11,7 @@ namespace RX_Explorer.Class
     /// <summary>
     /// 提供对字体颜色的切换功能
     /// </summary>
-    public sealed class AppThemeController : WeakEventImplement<ElementTheme>, INotifyPropertyChanged
+    public sealed class AppThemeController : INotifyPropertyChanged
     {
         /// <summary>
         /// 指示当前应用的主题色
@@ -29,7 +30,7 @@ namespace RX_Explorer.Class
 
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Theme)));
 
-                    InvokeWeakEvent(null, value);
+                    WeakEventCore.Raise(null, value);
 
                     ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] = Enum.GetName(typeof(ElementTheme), value);
                     ApplicationData.Current.SignalDataChanged();
@@ -45,13 +46,15 @@ namespace RX_Explorer.Class
         {
             add
             {
-                WeakEventBase += value;
+                WeakEventCore.Subscribe(value);
             }
             remove
             {
-                WeakEventBase -= value;
+                WeakEventCore.Unsubscribe(value);
             }
         }
+
+        private readonly WeakEventSource<ElementTheme> WeakEventCore;
 
         private static AppThemeController Instance;
 
@@ -73,6 +76,8 @@ namespace RX_Explorer.Class
         /// </summary>
         private AppThemeController()
         {
+            WeakEventCore = new WeakEventSource<ElementTheme>();
+
             ApplicationData.Current.DataChanged += Current_DataChanged;
 
             if (ApplicationData.Current.LocalSettings.Values["AppFontColorMode"] is string Mode)

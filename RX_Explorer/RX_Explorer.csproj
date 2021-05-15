@@ -198,7 +198,6 @@
     <Compile Include="Class\SearchOptions.cs" />
     <Compile Include="Class\SearchSuggestionItem.cs" />
     <Compile Include="Class\UrlStorageFile.cs" />
-    <Compile Include="Class\WeakEventImplement.cs" />
     <Compile Include="Class\WslDriveData.cs" />
     <Compile Include="CustomControl\AppBarButtonWithImage.xaml.cs">
       <DependentUpon>AppBarButtonWithImage.xaml</DependentUpon>
