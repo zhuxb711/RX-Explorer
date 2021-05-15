@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using Windows.UI;
 using Windows.UI.Xaml;
@@ -6,7 +7,7 @@ using Windows.UI.Xaml.Media;
 
 namespace RX_Explorer.Class
 {
-    public sealed class AddressBlock : INotifyPropertyChanged
+    public sealed class AddressBlock : INotifyPropertyChanged, IDisposable
     {
         public string Path { get; }
 
@@ -80,6 +81,17 @@ namespace RX_Explorer.Class
             {
                 ForegroundColor = new SolidColorBrush(Theme == ElementTheme.Dark ? Colors.White : Colors.Black);
             }
+        }
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+            AppThemeController.Current.ThemeChanged -= Current_ThemeChanged;
+        }
+
+        ~AddressBlock()
+        {
+            Dispose();
         }
     }
 }

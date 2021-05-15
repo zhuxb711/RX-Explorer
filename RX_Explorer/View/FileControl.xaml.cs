@@ -110,8 +110,8 @@ namespace RX_Explorer
             }
         }
 
-        private readonly ObservableCollection<AddressBlock> AddressButtonList = new ObservableCollection<AddressBlock>();
-        private readonly ObservableCollection<AddressBlock> AddressExtentionList = new ObservableCollection<AddressBlock>();
+        private readonly DisposableObservableCollection<AddressBlock> AddressButtonList = new DisposableObservableCollection<AddressBlock>();
+        private readonly DisposableObservableCollection<AddressBlock> AddressExtentionList = new DisposableObservableCollection<AddressBlock>();
         private readonly ObservableCollection<AddressSuggestionItem> AddressSuggestionList = new ObservableCollection<AddressSuggestionItem>();
         private readonly ObservableCollection<SearchSuggestionItem> SearchSuggestionList = new ObservableCollection<SearchSuggestionItem>();
 
