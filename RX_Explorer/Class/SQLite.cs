@@ -314,11 +314,11 @@ namespace RX_Explorer.Class
                 Connection = Connection
             })
             {
-                StringBuilder PathBuilder = new StringBuilder("Delete From ProgramPicker Where FileType = @FileType;");
+                StringBuilder PathBuilder = new StringBuilder("Update ProgramPicker Set IsDefault = 'False' Where FileType = @FileType;");
 
                 for (int i = 0; i < AssociationList.Length; i++)
                 {
-                    PathBuilder.Append($"Insert Into ProgramPicker Values (@FileType, @ExecutablePath_{i}, @IsDefault_{i}, @IsRecommanded_{i});");
+                    PathBuilder.Append($"Insert Or Replace Into ProgramPicker Values (@FileType, @ExecutablePath_{i}, @IsDefault_{i}, @IsRecommanded_{i});");
 
                     Command.Parameters.AddWithValue($"@ExecutablePath_{i}", AssociationList[i].ExecutablePath);
                     Command.Parameters.AddWithValue($"@IsRecommanded_{i}", Convert.ToString(AssociationList[i].IsRecommanded));
