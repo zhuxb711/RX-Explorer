@@ -4034,6 +4034,18 @@ Les noms non valides incluent
           <target state="translated">éléments</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please translate this content according to the word order of the corresponding language. Usage Example: 10 items. Format: {Number} items</note>
         </trans-unit>
+        <trans-unit id="QueueDialog_ImportConfigurationDataIncorrect_Content" translate="yes" xml:space="preserve">
+          <source>Data verification failed, the configuration file cannot be imported</source>
+          <target state="translated">La vérification des données a échoué, le fichier de configuration ne peut pas être importé</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ImportConfigurationFailed_Content" translate="yes" xml:space="preserve">
+          <source>Failed to import configuration with unexpected error</source>
+          <target state="translated">Échec de l'importation de la configuration avec une erreur inattendue</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ImportConfigurationSuccess_Content" translate="yes" xml:space="preserve">
+          <source>Successfully imported configuration</source>
+          <target state="translated">Configuration importée avec succès</target>
+        </trans-unit>
       </group>
     </body>
   </file>

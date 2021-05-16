@@ -471,7 +471,7 @@ namespace RX_Explorer
         {
             if (IsAnimating)
             {
-                await Task.Run(() => SpinWait.SpinUntil(() => !IsAnimating, 3000)).ConfigureAwait(false);
+                await Task.Run(() => SpinWait.SpinUntil(() => !IsAnimating, 2000));
             }
 
             if (!IsOpened)
@@ -480,24 +480,21 @@ namespace RX_Explorer
                 {
                     IsAnimating = true;
 
-                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    Visibility = Visibility.Visible;
+
+                    if (AnimationController.Current.IsEnableAnimation)
                     {
-                        Visibility = Visibility.Visible;
+                        Scroll.ChangeView(null, 0, null, true);
 
-                        if (AnimationController.Current.IsEnableAnimation)
-                        {
-                            Scroll.ChangeView(null, 0, null, true);
+                        ActivateAnimation(Gr, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 200, false);
+                        ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 250, false);
+                        ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 250, false);
+                    }
 
-                            ActivateAnimation(Gr, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 200, false);
-                            ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 250, false);
-                            ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 250, false);
-                        }
-
-                        if (PictureMode.IsChecked.GetValueOrDefault() && PictureGirdView.SelectedItem != null)
-                        {
-                            PictureGirdView.ScrollIntoViewSmoothly(PictureGirdView.SelectedItem, ScrollIntoViewAlignment.Leading);
-                        }
-                    });
+                    if (PictureMode.IsChecked.GetValueOrDefault() && PictureGirdView.SelectedItem != null)
+                    {
+                        PictureGirdView.ScrollIntoViewSmoothly(PictureGirdView.SelectedItem, ScrollIntoViewAlignment.Leading);
+                    }
 
                     using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                     {
@@ -506,7 +503,7 @@ namespace RX_Explorer
 
                     if (AnimationController.Current.IsEnableAnimation)
                     {
-                        await Task.Delay(1500).ConfigureAwait(false);
+                        await Task.Delay(800);
                     }
                 }
                 catch (Exception ex)
@@ -525,7 +522,7 @@ namespace RX_Explorer
         {
             if (IsAnimating)
             {
-                await Task.Run(() => SpinWait.SpinUntil(() => !IsAnimating, 3000)).ConfigureAwait(false);
+                await Task.Run(() => SpinWait.SpinUntil(() => !IsAnimating, 2000));
             }
 
             if (IsOpened)
@@ -534,21 +531,18 @@ namespace RX_Explorer
                 {
                     IsAnimating = true;
 
-                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                    {
-                        (TabViewContainer.CurrentNavigationControl.Content as Page).Focus(FocusState.Programmatic);
-
-                        if (AnimationController.Current.IsEnableAnimation)
-                        {
-                            ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 250, true);
-                            ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 250, true);
-                            ActivateAnimation(Gr, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 200, true);
-                        }
-                    });
+                    (TabViewContainer.CurrentNavigationControl.Content as Control).Focus(FocusState.Programmatic);
 
                     if (AnimationController.Current.IsEnableAnimation)
                     {
-                        await Task.Delay(1500).ConfigureAwait(false);
+                        ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 250, true);
+                        ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 250, true);
+                        ActivateAnimation(Gr, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 200, true);
+                    }
+
+                    if (AnimationController.Current.IsEnableAnimation)
+                    {
+                        await Task.Delay(800);
                     }
                 }
                 catch (Exception ex)
@@ -557,11 +551,7 @@ namespace RX_Explorer
                 }
                 finally
                 {
-                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                    {
-                        Visibility = Visibility.Collapsed;
-                    });
-
+                    Visibility = Visibility.Collapsed;
                     IsAnimating = false;
                     IsOpened = false;
                 }
@@ -626,7 +616,7 @@ namespace RX_Explorer
                 HideProtectedSystemItems.Unchecked -= HideProtectedSystemItems_Unchecked;
 
                 LanguageComboBox.SelectedIndex = Convert.ToInt32(ApplicationData.Current.LocalSettings.Values["LanguageOverride"]);
-                
+
                 BackgroundBlurSlider1.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
                 BackgroundBlurSlider2.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundBlurValue"]);
                 BackgroundLightSlider1.Value = Convert.ToSingle(ApplicationData.Current.LocalSettings.Values["BackgroundLightValue"]);
@@ -709,7 +699,7 @@ namespace RX_Explorer
 
                 if (ApplicationData.Current.LocalSettings.Values["SearchEngineFlyoutMode"] is int FlyoutModeIndex)
                 {
-                    if(FlyoutModeIndex > SearchEngineConfig.Items.Count - 1)
+                    if (FlyoutModeIndex > SearchEngineConfig.Items.Count - 1)
                     {
                         SearchEngineConfig.SelectedIndex = 0;
                         ApplicationData.Current.LocalSettings.Values["SearchEngineFlyoutMode"] = 0;
@@ -2433,64 +2423,199 @@ namespace RX_Explorer
 
             if (await Picker.PickSingleFileAsync() is StorageFile ImportFile)
             {
-                string JsonContent = await FileIO.ReadTextAsync(ImportFile, UnicodeEncoding.Utf16LE);
-
-                if (JsonSerializer.Deserialize<Dictionary<string, string>>(JsonContent) is Dictionary<string, string> Dic)
+                try
                 {
-                    if (Dic.TryGetValue("Identitifier", out string Id) && Id == "RX_Explorer_Export_Configuration" && Dic.TryGetValue("Configuration", out string Config) && Dic.TryGetValue("Hash", out string Hash))
+                    string JsonContent = await FileIO.ReadTextAsync(ImportFile, UnicodeEncoding.Utf16LE);
+
+                    if (JsonSerializer.Deserialize<Dictionary<string, string>>(JsonContent) is Dictionary<string, string> Dic)
                     {
-                        using (MD5 MD5Alg = MD5.Create())
+                        if (Dic.TryGetValue("Identitifier", out string Id)
+                            && Id == "RX_Explorer_Export_Configuration"
+                            && Dic.TryGetValue("Configuration", out string Configuration)
+                            && Dic.TryGetValue("ConfigHash", out string ConfigHash)
+                            && Dic.TryGetValue("Database", out string Database)
+                            && Dic.TryGetValue("DatabaseHash", out string DatabaseHash))
                         {
-                            if (MD5Alg.GetHash(Config) == Hash)
+                            using (MD5 MD5Alg = MD5.Create())
                             {
-                                if (JsonSerializer.Deserialize<KeyValuePair<string, JsonElement>[]>(Config) is KeyValuePair<string, JsonElement>[] Configuration)
+                                string ConfigDecryptedString = await Configuration.DecryptAsync(Package.Current.Id.FamilyName);
+
+                                if (MD5Alg.GetHash(ConfigDecryptedString).Equals(ConfigHash, StringComparison.OrdinalIgnoreCase))
                                 {
-                                    ApplicationData.Current.LocalSettings.Values.Clear();
-
-                                    foreach (KeyValuePair<string, JsonElement> Pair in Configuration)
+                                    if (JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(ConfigDecryptedString) is Dictionary<string, JsonElement> ConfigDic)
                                     {
-                                        switch (Pair.Value.ValueKind)
+                                        ApplicationData.Current.LocalSettings.Values.Clear();
+
+                                        foreach (KeyValuePair<string, JsonElement> Pair in ConfigDic)
                                         {
-                                            case JsonValueKind.Number:
-                                                {
-                                                    if (Pair.Value.TryGetInt32(out int INT32))
+                                            switch (Pair.Value.ValueKind)
+                                            {
+                                                case JsonValueKind.Number:
                                                     {
-                                                        ApplicationData.Current.LocalSettings.Values[Pair.Key] = INT32;
-                                                    }
-                                                    else if (Pair.Value.TryGetInt64(out long INT64))
-                                                    {
-                                                        ApplicationData.Current.LocalSettings.Values[Pair.Key] = INT64;
-                                                    }
-                                                    else if (Pair.Value.TryGetSingle(out float FL32))
-                                                    {
-                                                        ApplicationData.Current.LocalSettings.Values[Pair.Key] = FL32;
-                                                    }
-                                                    else if (Pair.Value.TryGetDouble(out double FL64))
-                                                    {
-                                                        ApplicationData.Current.LocalSettings.Values[Pair.Key] = FL64;
-                                                    }
+                                                        if (Pair.Value.TryGetInt32(out int INT32))
+                                                        {
+                                                            ApplicationData.Current.LocalSettings.Values[Pair.Key] = INT32;
+                                                        }
+                                                        else if (Pair.Value.TryGetInt64(out long INT64))
+                                                        {
+                                                            ApplicationData.Current.LocalSettings.Values[Pair.Key] = INT64;
+                                                        }
+                                                        else if (Pair.Value.TryGetSingle(out float FL32))
+                                                        {
+                                                            ApplicationData.Current.LocalSettings.Values[Pair.Key] = FL32;
+                                                        }
+                                                        else if (Pair.Value.TryGetDouble(out double FL64))
+                                                        {
+                                                            ApplicationData.Current.LocalSettings.Values[Pair.Key] = FL64;
+                                                        }
 
-                                                    break;
-                                                }
-                                            case JsonValueKind.String:
-                                                {
-                                                    ApplicationData.Current.LocalSettings.Values[Pair.Key] = Pair.Value.GetString();
-                                                    break;
-                                                }
-                                            case JsonValueKind.True:
-                                            case JsonValueKind.False:
-                                                {
-                                                    ApplicationData.Current.LocalSettings.Values[Pair.Key] = Pair.Value.GetBoolean();
-                                                    break;
-                                                }
+                                                        break;
+                                                    }
+                                                case JsonValueKind.String:
+                                                    {
+                                                        ApplicationData.Current.LocalSettings.Values[Pair.Key] = Pair.Value.GetString();
+                                                        break;
+                                                    }
+                                                case JsonValueKind.True:
+                                                case JsonValueKind.False:
+                                                    {
+                                                        ApplicationData.Current.LocalSettings.Values[Pair.Key] = Pair.Value.GetBoolean();
+                                                        break;
+                                                    }
+                                            }
                                         }
-                                    }
 
-                                    ApplicationData.Current.SignalDataChanged();
+                                        ApplicationData.Current.SignalDataChanged();
+                                    }
+                                }
+                                else
+                                {
+                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_ImportConfigurationDataIncorrect_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+
+                                    await Dialog.ShowAsync();
+                                }
+
+                                string DatabaseDecryptedString = await Database.DecryptAsync(Package.Current.Id.FamilyName);
+
+                                if (MD5Alg.GetHash(DatabaseDecryptedString).Equals(DatabaseHash, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    if (JsonSerializer.Deserialize<Dictionary<string, string>>(DatabaseDecryptedString) is Dictionary<string, string> DatabaseDic)
+                                    {
+                                        List<(string TableName, IEnumerable<object[]> Data)> DatabaseFormattedArray = new List<(string TableName, IEnumerable<object[]> Data)>(DatabaseDic.Count);
+
+                                        foreach (KeyValuePair<string, string> TableDic in DatabaseDic)
+                                        {
+                                            if (JsonSerializer.Deserialize<IReadOnlyList<JsonElement[]>>(TableDic.Value) is IReadOnlyList<JsonElement[]> RowData)
+                                            {
+                                                List<object[]> RowFormattedArray = new List<object[]>(RowData.Count);
+
+                                                foreach (JsonElement[] Data in RowData)
+                                                {
+                                                    object[] ColumnFormattedArray = new object[Data.Length];
+
+                                                    for (int Index = 0; Index < Data.Length; Index++)
+                                                    {
+                                                        JsonElement InnerElement = Data[Index];
+
+                                                        switch (InnerElement.ValueKind)
+                                                        {
+                                                            case JsonValueKind.Number:
+                                                                {
+                                                                    if (InnerElement.TryGetInt32(out int INT32))
+                                                                    {
+                                                                        ColumnFormattedArray[Index] = INT32;
+                                                                    }
+                                                                    else if (InnerElement.TryGetInt64(out long INT64))
+                                                                    {
+                                                                        ColumnFormattedArray[Index] = INT64;
+                                                                    }
+                                                                    else if (InnerElement.TryGetSingle(out float FL32))
+                                                                    {
+                                                                        ColumnFormattedArray[Index] = FL32;
+                                                                    }
+                                                                    else if (InnerElement.TryGetDouble(out double FL64))
+                                                                    {
+                                                                        ColumnFormattedArray[Index] = FL64;
+                                                                    }
+
+                                                                    break;
+                                                                }
+                                                            case JsonValueKind.String:
+                                                                {
+                                                                    ColumnFormattedArray[Index] = InnerElement.GetString();
+                                                                    break;
+                                                                }
+                                                            case JsonValueKind.True:
+                                                            case JsonValueKind.False:
+                                                                {
+                                                                    ColumnFormattedArray[Index] = InnerElement.GetBoolean();
+                                                                    break;
+                                                                }
+                                                        }
+                                                    }
+
+                                                    RowFormattedArray.Add(ColumnFormattedArray);
+                                                }
+
+                                                DatabaseFormattedArray.Add((TableDic.Key, RowFormattedArray));
+                                            }
+                                        }
+
+                                        await SQLite.Current.ImportDataAsync(DatabaseFormattedArray);
+
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_ImportConfigurationSuccess_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                        };
+
+                                        await Dialog.ShowAsync();
+                                    }
+                                }
+                                else
+                                {
+                                    QueueContentDialog Dialog = new QueueContentDialog
+                                    {
+                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                        Content = Globalization.GetString("QueueDialog_ImportConfigurationDataIncorrect_Content"),
+                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                    };
+
+                                    await Dialog.ShowAsync();
                                 }
                             }
                         }
+                        else
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_ImportConfigurationDataIncorrect_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            await Dialog.ShowAsync();
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Import configuration function threw an exception");
+
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_ImportConfigurationFailed_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
                 }
             }
         }
@@ -2500,26 +2625,35 @@ namespace RX_Explorer
             FileSavePicker Picker = new FileSavePicker
             {
                 SuggestedStartLocation = PickerLocationId.Desktop,
-                SuggestedFileName = "RX_Configuration.json"
+                SuggestedFileName = "RX_Configuration"
             };
 
             Picker.FileTypeChoices.Add("JSON", new List<string> { ".json" });
 
             if (await Picker.PickSaveFileAsync() is StorageFile SaveFile)
             {
-                string Configuration = JsonSerializer.Serialize(ApplicationData.Current.LocalSettings.Values.ToArray());
+                Dictionary<string, string> DataBaseDic = new Dictionary<string, string>();
+
+                await foreach ((string TableName, IReadOnlyList<object[]> Data) in SQLite.Current.ExportDataAsync())
+                {
+                    DataBaseDic.Add(TableName, JsonSerializer.Serialize(Data));
+                }
+
+                string DatabaseString = JsonSerializer.Serialize(DataBaseDic);
+                string ConfigurationString = JsonSerializer.Serialize(new Dictionary<string, object>(ApplicationData.Current.LocalSettings.Values.ToArray()));
 
                 using (MD5 MD5Alg = MD5.Create())
                 {
-                    Dictionary<string, string> Dic = new Dictionary<string, string>
+                    Dictionary<string, string> BaseDic = new Dictionary<string, string>
                     {
                         { "Identitifier", "RX_Explorer_Export_Configuration" },
-                        { "Configuration", Configuration },
-                        { "Hash", MD5Alg.GetHash(Configuration) }
+                        { "Configuration",  await ConfigurationString.EncryptAsync(Package.Current.Id.FamilyName)},
+                        { "ConfigHash", MD5Alg.GetHash(ConfigurationString) },
+                        { "Database", await DatabaseString.EncryptAsync(Package.Current.Id.FamilyName) },
+                        { "DatabaseHash", MD5Alg.GetHash(DatabaseString)}
                     };
 
-                    string JsonContent = JsonSerializer.Serialize(Dic);
-                    await FileIO.WriteTextAsync(SaveFile, JsonContent, UnicodeEncoding.Utf16LE);
+                    await FileIO.WriteTextAsync(SaveFile, JsonSerializer.Serialize(BaseDic), UnicodeEncoding.Utf16LE);
                 }
             }
         }

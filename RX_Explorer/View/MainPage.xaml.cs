@@ -95,7 +95,7 @@ namespace RX_Explorer
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
             {
-                ApplicationView.GetForCurrentView().TitleBar.ButtonForegroundColor = Theme == ElementTheme.Dark ? Colors.White : "#1E1E1E".ToColor();
+                ApplicationView.GetForCurrentView().TitleBar.ButtonForegroundColor = Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
             });
         }
 

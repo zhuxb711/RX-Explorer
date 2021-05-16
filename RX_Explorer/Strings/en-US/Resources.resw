@@ -3145,4 +3145,13 @@ Invalid names include
     <value>items</value>
     <comment>Please translate this content according to the word order of the corresponding language. Usage Example: 10 items. Format: {Number} items</comment>
   </data>
+  <data name="QueueDialog_ImportConfigurationDataIncorrect_Content" xml:space="preserve">
+    <value>Data verification failed, the configuration file cannot be imported</value>
+  </data>
+  <data name="QueueDialog_ImportConfigurationFailed_Content" xml:space="preserve">
+    <value>Failed to import configuration with unexpected error</value>
+  </data>
+  <data name="QueueDialog_ImportConfigurationSuccess_Content" xml:space="preserve">
+    <value>Successfully imported configuration</value>
+  </data>
 </root>

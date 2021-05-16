@@ -268,230 +268,6 @@
                                    Visibility="Collapsed" />
                     </StackPanel>
 
-                    <TextBlock Text="高级"
-                               x:Uid="SettingAdvance"
-                               FontSize="22"
-                               Margin="0,30,0,0" />
-
-                    <ToggleSwitch Header="随系统自动启动"
-                                  OnContent="启用"
-                                  OffContent="禁用"
-                                  Name="AutoBoot"
-                                  x:Uid="AutoBootOnStartup"
-                                  Margin="0,20,0,0" />
-
-                    <StackPanel Margin="0,20,0,0">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="QuickLook预览"
-                                       x:Uid="QuicklookHeader" />
-                            <Viewbox Margin="10,0,0,0"
-                                     Height="15"
-                                     VerticalAlignment="Bottom">
-                                <FontIcon Glyph="&#xE9CE;"
-                                          Name="QuicklookQuestion"
-                                          Tapped="QuicklookQuestion_Tapped" />
-                            </Viewbox>
-                        </StackPanel>
-                        <ToggleSwitch OnContent="启用"
-                                      OffContent="禁用"
-                                      x:Uid="EnableQuicklook"
-                                      Name="EnableQuicklook"
-                                      Toggled="EnableQuicklook_Toggled" />
-                    </StackPanel>
-
-                    <StackPanel Orientation="Horizontal"
-                                Margin="0,20,0,0">
-                        <ToggleSwitch Header="使用[Win+E]激活该应用"
-                                      Name="UseWinAndEActivate"
-                                      OnContent="启用"
-                                      OffContent="禁用"
-                                      x:Uid="UseWinAndEActivate" />
-                        <Viewbox Margin="10,3,0,0"
-                                 Height="15"
-                                 VerticalAlignment="Top">
-                            <FontIcon Glyph="&#xE9CE;"
-                                      Name="WIN_E_Question"
-                                      PointerPressed="WIN_E_Question_PointerPressed" />
-                        </Viewbox>
-                    </StackPanel>
-
-                    <StackPanel Orientation="Horizontal"
-                                Name="AlwaysLaunchNewArea"
-                                Visibility="{x:Bind UseWinAndEActivate.IsOn, Mode=OneWay}">
-                        <Line X1="15"
-                              X2="15"
-                              Y1="3"
-                              Y2="29"
-                              StrokeThickness="3"
-                              Stroke="Gray" />
-                        <CheckBox Content="激活时始终启动新的进程"
-                                  Margin="20,0,0,0"
-                                  x:Uid="SettingPageAlwaysLaunchNew"
-                                  Name="AlwaysLaunchNew"
-                                  Checked="AlwaysLaunchNew_Checked"
-                                  Unchecked="AlwaysLaunchNew_Unchecked" />
-                    </StackPanel>
-
-                    <ToggleSwitch Header="扩展右键菜单"
-                                  Margin="0,20,0,0"
-                                  x:Uid="SettingPageContextMenuExt"
-                                  Name="ContextMenuExtSwitch"
-                                  Toggled="ContextMenuExtSwitch_Toggled"
-                                  OnContent="启用"
-                                  OffContent="禁用"/>
-
-                    <ToggleSwitch Header="弹出删除确认提示框"
-                                  Margin="0,20,0,0"
-                                  Name="DeleteConfirmSwitch"
-                                  x:Uid="DeleteConfirmSwitch"
-                                  Toggled="DeleteConfirmSwitch_Toggled"
-                                  OnContent="启用"
-                                  OffContent="禁用" />
-
-                    <StackPanel Orientation="Horizontal"
-                                Name="DeleteConfirmArea">
-                        <Line X1="15"
-                              X2="15"
-                              Y1="3"
-                              Y2="29"
-                              StrokeThickness="3"
-                              Stroke="Gray" />
-                        <CheckBox Margin="20,0,0,0"
-                                  Name="AvoidRecycleBin"
-                                  Checked="AvoidRecycleBin_Checked"
-                                  Unchecked="AvoidRecycleBin_Unchecked">
-                            <StackPanel Orientation="Horizontal"
-                                        Padding="0,1,0,0">
-                                <Viewbox Height="16"
-                                         Margin="0,1,0,0"
-                                         VerticalAlignment="Center">
-                                    <FontIcon FontFamily="Segoe MDL2 Assets"
-                                              Glyph="&#xE7BA;"
-                                              Foreground="Yellow" />
-                                </Viewbox>
-                                <TextBlock Text="绕过回收站并永久删除"
-                                           Margin="5,0,0,0"
-                                           x:Uid="AvoidRecycleBin"/>
-                            </StackPanel>
-                        </CheckBox>
-                    </StackPanel>
-
-                    <ComboBox Header="搜索引擎配置"
-                              Margin="0,20,0,0"
-                              MinWidth="150"
-                              x:Uid="SettingPageSearchEngineConfig"
-                              Name="SearchEngineConfig"
-                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"/>
-
-                    <ComboBox Header="图标加载模式"
-                              Margin="0,20,0,0"
-                              MinWidth="150"
-                              x:Uid="FileLoadMode"
-                              Name="FileLoadMode"
-                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
-
-                    <StackPanel Orientation="Horizontal"
-                                Margin="0,20,0,0">
-                        <ComboBox Header="默认终端应用"
-                                  Name="DefaultTerminal"
-                                  x:Uid="DefaultTerminal"
-                                  MinWidth="150"
-                                  Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
-                        <Viewbox VerticalAlignment="Bottom"
-                                 Margin="10,0,0,8"
-                                 Width="15">
-                            <SymbolIcon Symbol="Edit"
-                                        Foreground="{ThemeResource SystemAccentColor}"
-                                        x:Name="ModifyTerminal"
-                                        Tapped="ModifyTerminal_Tapped" />
-                        </Viewbox>
-                    </StackPanel>
-
-                    <TextBlock Text="启动时"
-                               FontSize="22"
-                               Margin="0,30,0,0"
-                               x:Uid="SettingStartup"/>
-
-                    <StackPanel Margin="0,10,0,0">
-                        <RadioButton Content="打开新标签页"
-                                     Margin="0,5,0,0"
-                                     x:Uid="SettingStartupWithNewTab"
-                                     Name="StartupWithNewTab"
-                                     Checked="StartupWithNewTab_Checked"/>
-                        <RadioButton Content="恢复上次打开的标签页"
-                                     Margin="0,5,0,0"
-                                     x:Uid="SettingStartupWithLastTab"
-                                     Name="StartupWithLastTab"
-                                     Checked="StartupWithLastTab_Checked"/>
-                        <RadioButton Content="打开一个或多个指定标签页"
-                                     Margin="0,5,0,0"
-                                     x:Uid="SettingStartupWithSpecificTab"
-                                     Name="StartupSpecificTab"
-                                     Checked="StartupSpecificTab_Checked"/>
-                        <ListView MinWidth="250"
-                                  Margin="29,5,0,0"
-                                  Visibility="{x:Bind StartupSpecificTab.IsChecked, Mode=OneWay}"
-                                  x:Name="SpecificTabListView"
-                                  SelectionMode="None"
-                                  Loaded="SpecificTabListView_Loaded">
-                            <ListView.Header>
-                                <Grid Padding="0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="25"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="指定文件夹"
-                                               x:Uid="SpecificTabListViewHeader"
-                                               VerticalAlignment="Center" />
-                                    <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                                            Style="{ThemeResource ButtonRevealStyle}"
-                                            VerticalAlignment="Center"
-                                            Padding="5"
-                                            Height="25"
-                                            Width="25"
-                                            Grid.Column="1"
-                                            Name="AddSpecificTab"
-                                            Click="AddSpecificTab_Click">
-                                        <Viewbox>
-                                            <SymbolIcon Symbol="Add" />
-                                        </Viewbox>
-                                    </Button>
-                                </Grid>
-                            </ListView.Header>
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="HorizontalContentAlignment"
-                                            Value="Stretch" />
-                                    <Setter Property="Padding"
-                                            Value="10,0,0,0" />
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="60"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Text="{Binding}"
-                                                   ToolTipService.ToolTip="{Binding}"
-                                                   IsTextSelectionEnabled="True"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   VerticalAlignment="Center"/>
-                                        <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
-                                                Style="{ThemeResource ButtonRevealStyle}"
-                                                Content="删除"
-                                                x:Uid="SpecificTabListViewDelete"
-                                                Grid.Column="1"
-                                                HorizontalAlignment="Stretch"
-                                                Name="DeleteSpecificTabButton"
-                                                Click="DeleteSpecificTabButton_Click"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </StackPanel>
-
                     <TextBlock Text="个性化"
                                x:Uid="SettingPersonalize"
                                FontSize="22"
@@ -789,7 +565,230 @@
                                 </StackPanel>
                             </StackPanel>
                         </StackPanel>
+                    </StackPanel>
 
+                    <TextBlock Text="高级"
+                               x:Uid="SettingAdvance"
+                               FontSize="22"
+                               Margin="0,30,0,0" />
+
+                    <ToggleSwitch Header="随系统自动启动"
+                                  OnContent="启用"
+                                  OffContent="禁用"
+                                  Name="AutoBoot"
+                                  x:Uid="AutoBootOnStartup"
+                                  Margin="0,20,0,0" />
+
+                    <StackPanel Margin="0,20,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="QuickLook预览"
+                                       x:Uid="QuicklookHeader" />
+                            <Viewbox Margin="10,0,0,0"
+                                     Height="15"
+                                     VerticalAlignment="Bottom">
+                                <FontIcon Glyph="&#xE9CE;"
+                                          Name="QuicklookQuestion"
+                                          Tapped="QuicklookQuestion_Tapped" />
+                            </Viewbox>
+                        </StackPanel>
+                        <ToggleSwitch OnContent="启用"
+                                      OffContent="禁用"
+                                      x:Uid="EnableQuicklook"
+                                      Name="EnableQuicklook"
+                                      Toggled="EnableQuicklook_Toggled" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal"
+                                Margin="0,20,0,0">
+                        <ToggleSwitch Header="使用[Win+E]激活该应用"
+                                      Name="UseWinAndEActivate"
+                                      OnContent="启用"
+                                      OffContent="禁用"
+                                      x:Uid="UseWinAndEActivate" />
+                        <Viewbox Margin="10,3,0,0"
+                                 Height="15"
+                                 VerticalAlignment="Top">
+                            <FontIcon Glyph="&#xE9CE;"
+                                      Name="WIN_E_Question"
+                                      PointerPressed="WIN_E_Question_PointerPressed" />
+                        </Viewbox>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal"
+                                Name="AlwaysLaunchNewArea"
+                                Visibility="{x:Bind UseWinAndEActivate.IsOn, Mode=OneWay}">
+                        <Line X1="15"
+                              X2="15"
+                              Y1="3"
+                              Y2="29"
+                              StrokeThickness="3"
+                              Stroke="Gray" />
+                        <CheckBox Content="激活时始终启动新的进程"
+                                  Margin="20,0,0,0"
+                                  x:Uid="SettingPageAlwaysLaunchNew"
+                                  Name="AlwaysLaunchNew"
+                                  Checked="AlwaysLaunchNew_Checked"
+                                  Unchecked="AlwaysLaunchNew_Unchecked" />
+                    </StackPanel>
+
+                    <ToggleSwitch Header="扩展右键菜单"
+                                  Margin="0,20,0,0"
+                                  x:Uid="SettingPageContextMenuExt"
+                                  Name="ContextMenuExtSwitch"
+                                  Toggled="ContextMenuExtSwitch_Toggled"
+                                  OnContent="启用"
+                                  OffContent="禁用"/>
+
+                    <ToggleSwitch Header="弹出删除确认提示框"
+                                  Margin="0,20,0,0"
+                                  Name="DeleteConfirmSwitch"
+                                  x:Uid="DeleteConfirmSwitch"
+                                  Toggled="DeleteConfirmSwitch_Toggled"
+                                  OnContent="启用"
+                                  OffContent="禁用" />
+
+                    <StackPanel Orientation="Horizontal"
+                                Name="DeleteConfirmArea">
+                        <Line X1="15"
+                              X2="15"
+                              Y1="3"
+                              Y2="29"
+                              StrokeThickness="3"
+                              Stroke="Gray" />
+                        <CheckBox Margin="20,0,0,0"
+                                  Name="AvoidRecycleBin"
+                                  Checked="AvoidRecycleBin_Checked"
+                                  Unchecked="AvoidRecycleBin_Unchecked">
+                            <StackPanel Orientation="Horizontal"
+                                        Padding="0,1,0,0">
+                                <Viewbox Height="16"
+                                         Margin="0,1,0,0"
+                                         VerticalAlignment="Center">
+                                    <FontIcon FontFamily="Segoe MDL2 Assets"
+                                              Glyph="&#xE7BA;"
+                                              Foreground="Yellow" />
+                                </Viewbox>
+                                <TextBlock Text="绕过回收站并永久删除"
+                                           Margin="5,0,0,0"
+                                           x:Uid="AvoidRecycleBin"/>
+                            </StackPanel>
+                        </CheckBox>
+                    </StackPanel>
+
+                    <ComboBox Header="搜索引擎配置"
+                              Margin="0,20,0,0"
+                              MinWidth="150"
+                              x:Uid="SettingPageSearchEngineConfig"
+                              Name="SearchEngineConfig"
+                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}"/>
+
+                    <ComboBox Header="图标加载模式"
+                              Margin="0,20,0,0"
+                              MinWidth="150"
+                              x:Uid="FileLoadMode"
+                              Name="FileLoadMode"
+                              Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
+
+                    <StackPanel Orientation="Horizontal"
+                                Margin="0,20,0,0">
+                        <ComboBox Header="默认终端应用"
+                                  Name="DefaultTerminal"
+                                  x:Uid="DefaultTerminal"
+                                  MinWidth="150"
+                                  Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
+                        <Viewbox VerticalAlignment="Bottom"
+                                 Margin="10,0,0,8"
+                                 Width="15">
+                            <SymbolIcon Symbol="Edit"
+                                        Foreground="{ThemeResource SystemAccentColor}"
+                                        x:Name="ModifyTerminal"
+                                        Tapped="ModifyTerminal_Tapped" />
+                        </Viewbox>
+                    </StackPanel>
+
+                    <TextBlock Text="启动时"
+                               FontSize="22"
+                               Margin="0,30,0,0"
+                               x:Uid="SettingStartup"/>
+
+                    <StackPanel Margin="0,10,0,0">
+                        <RadioButton Content="打开新标签页"
+                                     Margin="0,5,0,0"
+                                     x:Uid="SettingStartupWithNewTab"
+                                     Name="StartupWithNewTab"
+                                     Checked="StartupWithNewTab_Checked"/>
+                        <RadioButton Content="恢复上次打开的标签页"
+                                     Margin="0,5,0,0"
+                                     x:Uid="SettingStartupWithLastTab"
+                                     Name="StartupWithLastTab"
+                                     Checked="StartupWithLastTab_Checked"/>
+                        <RadioButton Content="打开一个或多个指定标签页"
+                                     Margin="0,5,0,0"
+                                     x:Uid="SettingStartupWithSpecificTab"
+                                     Name="StartupSpecificTab"
+                                     Checked="StartupSpecificTab_Checked"/>
+                        <ListView MinWidth="250"
+                                  Margin="29,5,0,0"
+                                  Visibility="{x:Bind StartupSpecificTab.IsChecked, Mode=OneWay}"
+                                  x:Name="SpecificTabListView"
+                                  SelectionMode="None"
+                                  Loaded="SpecificTabListView_Loaded">
+                            <ListView.Header>
+                                <Grid Padding="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="25"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="指定文件夹"
+                                               x:Uid="SpecificTabListViewHeader"
+                                               VerticalAlignment="Center" />
+                                    <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                            Style="{ThemeResource ButtonRevealStyle}"
+                                            VerticalAlignment="Center"
+                                            Padding="5"
+                                            Height="25"
+                                            Width="25"
+                                            Grid.Column="1"
+                                            Name="AddSpecificTab"
+                                            Click="AddSpecificTab_Click">
+                                        <Viewbox>
+                                            <SymbolIcon Symbol="Add" />
+                                        </Viewbox>
+                                    </Button>
+                                </Grid>
+                            </ListView.Header>
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment"
+                                            Value="Stretch" />
+                                    <Setter Property="Padding"
+                                            Value="10,0,0,0" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="60"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding}"
+                                                   ToolTipService.ToolTip="{Binding}"
+                                                   IsTextSelectionEnabled="True"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center"/>
+                                        <Button Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                                Style="{ThemeResource ButtonRevealStyle}"
+                                                Content="删除"
+                                                x:Uid="SpecificTabListViewDelete"
+                                                Grid.Column="1"
+                                                HorizontalAlignment="Stretch"
+                                                Name="DeleteSpecificTabButton"
+                                                Click="DeleteSpecificTabButton_Click"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
                     </StackPanel>
 
                     <TextBlock Text="恢复"

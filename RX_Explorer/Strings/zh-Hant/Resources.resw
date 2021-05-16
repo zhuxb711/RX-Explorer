@@ -3040,4 +3040,13 @@
     <value>個項目</value>
     <comment>Please translate this content according to the word order of the corresponding language. Usage Example: 10 items. Format: {Number} items</comment>
   </data>
+  <data name="QueueDialog_ImportConfigurationDataIncorrect_Content" xml:space="preserve">
+    <value>數據驗證失敗，無法導入配置文件</value>
+  </data>
+  <data name="QueueDialog_ImportConfigurationFailed_Content" xml:space="preserve">
+    <value>導入配置失敗，出現意外錯誤</value>
+  </data>
+  <data name="QueueDialog_ImportConfigurationSuccess_Content" xml:space="preserve">
+    <value>成功導入配置</value>
+  </data>
 </root>

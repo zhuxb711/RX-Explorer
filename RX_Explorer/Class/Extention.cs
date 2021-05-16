@@ -44,6 +44,19 @@ namespace RX_Explorer.Class
     {
         private static int ContextMenuLockResource;
 
+        public static string EscapeSQLQuery(this string Input)
+        {
+            return Input.Replace("/", "//")
+                        .Replace("'", "''")
+                        .Replace("[", "/[")
+                        .Replace("]", "/]")
+                        .Replace("%", "/%")
+                        .Replace("&", "/&")
+                        .Replace("_", "/_")
+                        .Replace("(", "/(")
+                        .Replace(")", "/)");
+        }
+
         public static async Task<bool> CheckIfContainsAvailableDataAsync(this DataPackageView View)
         {
             if (View.Contains(StandardDataFormats.StorageItems))
@@ -845,20 +858,19 @@ namespace RX_Explorer.Class
                     {
                         using (ICryptoTransform Encryptor = AES.CreateEncryptor())
                         using (CryptoStream TransformStream = new CryptoStream(EncryptStream, Encryptor, CryptoStreamMode.Write))
+                        using (StreamWriter Writer = new StreamWriter(TransformStream))
                         {
-                            using (StreamWriter Writer = new StreamWriter(TransformStream))
-                            {
-                                await Writer.WriteAsync(OriginText).ConfigureAwait(false);
-                            }
+                            await Writer.WriteAsync(OriginText).ConfigureAwait(false);
                         }
 
                         return Convert.ToBase64String(EncryptStream.ToArray());
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return null;
+                LogTracer.Log(ex, "Could not encrypt the string");
+                return string.Empty;
             }
         }
 
@@ -904,9 +916,10 @@ namespace RX_Explorer.Class
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return null;
+                LogTracer.Log(ex, "Could not decrypt the string");
+                return string.Empty;
             }
         }
 

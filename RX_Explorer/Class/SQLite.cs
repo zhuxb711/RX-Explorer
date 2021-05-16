@@ -3,6 +3,7 @@ using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -868,6 +869,93 @@ namespace RX_Explorer.Class
             using (SqliteCommand Command = new SqliteCommand($"Delete From {TableName}", Connection))
             {
                 await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+            }
+        }
+
+        public async IAsyncEnumerable<(string, IReadOnlyList<object[]>)> ExportDataAsync()
+        {
+            List<string> TableNameArray = new List<string>();
+
+            using (SqliteCommand Command = new SqliteCommand("Select name From sqlite_master Where type='table' Order By name", Connection))
+            using (SqliteDataReader Reader = await Command.ExecuteReaderAsync())
+            {
+                while (Reader.Read())
+                {
+                    TableNameArray.Add(Convert.ToString(Reader[0]));
+                }
+            }
+
+            foreach (string TableName in TableNameArray)
+            {
+                using (SqliteCommand SubCommand = new SqliteCommand($"Select * From {TableName}", Connection))
+                using (SqliteDataReader SubReader = await SubCommand.ExecuteReaderAsync())
+                {
+                    List<object[]> TableData = new List<object[]>();
+
+                    while (SubReader.Read())
+                    {
+                        object[] ColumnData = new object[SubReader.FieldCount];
+
+                        for (int Index = 0; Index < SubReader.FieldCount; Index++)
+                        {
+                            ColumnData[Index] = SubReader[Index];
+                        }
+
+                        TableData.Add(ColumnData);
+                    }
+
+                    yield return (TableName, TableData);
+                }
+            }
+        }
+
+        public async Task ImportDataAsync(IEnumerable<(string TableName, IEnumerable<object[]> Data)> InputData)
+        {
+            if (InputData.Any())
+            {
+                StringBuilder DeleteCommandBuilder = new StringBuilder();
+
+                foreach (string TableName in InputData.Select((Item) => Item.TableName))
+                {
+                    DeleteCommandBuilder.Append($"Delete From {TableName};");
+                }
+
+                using (SqliteCommand Command = new SqliteCommand(DeleteCommandBuilder.ToString(), Connection))
+                {
+                    await Command.ExecuteNonQueryAsync();
+                }
+
+                StringBuilder InsertCommandBuilder = new StringBuilder();
+
+                foreach ((string TableName, IEnumerable<object[]> Data) in InputData)
+                {
+                    foreach (object[] RowData in Data.Where((Row) => Row.Length > 0))
+                    {
+                        for (int i = 0; i < RowData.Length; i++)
+                        {
+                            switch (RowData[i])
+                            {
+                                case string DataString:
+                                    {
+                                        RowData[i] = $"'{DataString.EscapeSQLQuery()}'";
+                                        break;
+                                    }
+                                case bool DataBool:
+                                    {
+                                        RowData[i] = Convert.ToBoolean(DataBool);
+                                        break;
+                                    }
+                            }
+                        }
+
+                        InsertCommandBuilder.Append($"Insert Into {TableName} Values ({string.Join(", ", RowData)});");
+                    }
+                }
+
+                using (SqliteCommand Command = new SqliteCommand(InsertCommandBuilder.ToString(), Connection))
+                {
+                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                }
             }
         }
 

@@ -3040,4 +3040,13 @@ Inkorrekte Namen sind
     <value>Artikel</value>
     <comment>Please translate this content according to the word order of the corresponding language. Usage Example: 10 items. Format: {Number} items</comment>
   </data>
+  <data name="QueueDialog_ImportConfigurationDataIncorrect_Content" xml:space="preserve">
+    <value>Datenüberprüfung fehlgeschlagen, die Konfigurationsdatei kann nicht importiert werden</value>
+  </data>
+  <data name="QueueDialog_ImportConfigurationFailed_Content" xml:space="preserve">
+    <value>Fehler beim Importieren der Konfiguration mit unerwartetem Fehler</value>
+  </data>
+  <data name="QueueDialog_ImportConfigurationSuccess_Content" xml:space="preserve">
+    <value>Konfiguration erfolgreich importiert</value>
+  </data>
 </root>

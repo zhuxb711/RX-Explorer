@@ -4032,6 +4032,18 @@ Inkorrekte Namen sind
           <target state="translated">Artikel</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please translate this content according to the word order of the corresponding language. Usage Example: 10 items. Format: {Number} items</note>
         </trans-unit>
+        <trans-unit id="QueueDialog_ImportConfigurationDataIncorrect_Content" translate="yes" xml:space="preserve">
+          <source>Data verification failed, the configuration file cannot be imported</source>
+          <target state="translated">Datenüberprüfung fehlgeschlagen, die Konfigurationsdatei kann nicht importiert werden</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ImportConfigurationFailed_Content" translate="yes" xml:space="preserve">
+          <source>Failed to import configuration with unexpected error</source>
+          <target state="translated">Fehler beim Importieren der Konfiguration mit unerwartetem Fehler</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ImportConfigurationSuccess_Content" translate="yes" xml:space="preserve">
+          <source>Successfully imported configuration</source>
+          <target state="translated">Konfiguration erfolgreich importiert</target>
+        </trans-unit>
       </group>
     </body>
   </file>

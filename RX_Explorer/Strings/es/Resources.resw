@@ -3040,4 +3040,13 @@ Las denominaciones no válidas son:
     <value>elementos</value>
     <comment>Please translate this content according to the word order of the corresponding language. Usage Example: 10 items. Format: {Number} items</comment>
   </data>
+  <data name="QueueDialog_ImportConfigurationDataIncorrect_Content" xml:space="preserve">
+    <value>La verificación de datos falló, el archivo de configuración no se puede importar</value>
+  </data>
+  <data name="QueueDialog_ImportConfigurationFailed_Content" xml:space="preserve">
+    <value>No se pudo importar la configuración con un error inesperado</value>
+  </data>
+  <data name="QueueDialog_ImportConfigurationSuccess_Content" xml:space="preserve">
+    <value>Configuración importada correctamente</value>
+  </data>
 </root>
