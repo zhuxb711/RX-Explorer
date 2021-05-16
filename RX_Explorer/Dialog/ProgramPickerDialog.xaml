@@ -27,7 +27,7 @@
                     <Image Stretch="Uniform"
                            Height="40"
                            Width="40"
-                           Source="{x:Bind Thumbnuil}" />
+                           Source="{x:Bind Thumbnuil, Mode=OneWay}" />
                 </Border>
                 <StackPanel Margin="10,0,0,0"
                             RelativePanel.AlignRightWithPanel="True"

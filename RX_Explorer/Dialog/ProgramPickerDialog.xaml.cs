@@ -61,32 +61,10 @@ namespace RX_Explorer.Dialog
 
                     foreach (AppInfo Info in AppInfoList)
                     {
-                        try
-                        {
-                            using (IRandomAccessStreamWithContentType LogoStream = await Info.DisplayInfo.GetLogo(new Windows.Foundation.Size(128, 128)).OpenReadAsync())
-                            {
-                                BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(LogoStream);
-
-                                using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
-                                using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
-                                using (InMemoryRandomAccessStream Stream = new InMemoryRandomAccessStream())
-                                {
-                                    BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, Stream);
-
-                                    Encoder.SetSoftwareBitmap(ResizeBitmap);
-                                    await Encoder.FlushAsync();
-
-                                    BitmapImage Image = new BitmapImage();
-                                    await Image.SetSourceAsync(Stream);
-
-                                    RecommandList.Add(new ProgramPickerItem(Image, Info.DisplayInfo.DisplayName, Info.DisplayInfo.Description, Info.PackageFamilyName));
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            LogTracer.Log(ex, "An exception was threw when getting or processing App Logo");
-                        }
+                        RecommandList.Add(new ProgramPickerItem(async () => await Info.DisplayInfo.GetLogo(new Windows.Foundation.Size(128, 128)).OpenReadAsync(),
+                            Info.DisplayInfo.DisplayName,
+                            Info.DisplayInfo.Description,
+                            Info.PackageFamilyName));
                     }
                 }
             }
@@ -112,43 +90,14 @@ namespace RX_Explorer.Dialog
                             ExtraAppName = Convert.ToString(DescriptionRaw);
                         }
 
-                        if (await ExecuteFile.GetThumbnailRawStreamAsync() is IRandomAccessStream ThumbnailStream)
+                        var programItem = new ProgramPickerItem(() => ExecuteFile.GetThumbnailRawStreamAsync(), string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path);
+                        if (Package.IsRecommanded)
                         {
-                            using (ThumbnailStream)
-                            {
-                                BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(ThumbnailStream);
-                                using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
-                                using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
-                                using (InMemoryRandomAccessStream ResizeBitmapStream = new InMemoryRandomAccessStream())
-                                {
-                                    BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, ResizeBitmapStream);
-                                    Encoder.SetSoftwareBitmap(ResizeBitmap);
-                                    await Encoder.FlushAsync();
-
-                                    BitmapImage ThumbnailBitmap = new BitmapImage();
-                                    await ThumbnailBitmap.SetSourceAsync(ResizeBitmapStream);
-
-                                    if (Package.IsRecommanded)
-                                    {
-                                        RecommandList.Add(new ProgramPickerItem(ThumbnailBitmap, string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path));
-                                    }
-                                    else
-                                    {
-                                        NotRecommandList.Add(new ProgramPickerItem(ThumbnailBitmap, string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path));
-                                    }
-                                }
-                            }
+                            RecommandList.Add(programItem);
                         }
                         else
                         {
-                            if (Package.IsRecommanded)
-                            {
-                                RecommandList.Add(new ProgramPickerItem(new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? new Uri("ms-appx:///Assets/Page_Solid_White.png") : new Uri("ms-appx:///Assets/Page_Solid_Black.png")), string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path));
-                            }
-                            else
-                            {
-                                NotRecommandList.Add(new ProgramPickerItem(new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? new Uri("ms-appx:///Assets/Page_Solid_White.png") : new Uri("ms-appx:///Assets/Page_Solid_Black.png")), string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path));
-                            }
+                            NotRecommandList.Add(programItem);
                         }
                     }
                     else
@@ -173,7 +122,7 @@ namespace RX_Explorer.Dialog
                 }
             }
 
-            if(!string.IsNullOrEmpty(AdminExecutablePath))
+            if (!string.IsNullOrEmpty(AdminExecutablePath))
             {
                 if (RecommandList.FirstOrDefault((Item) => Item.Path.Equals(AdminExecutablePath, StringComparison.OrdinalIgnoreCase)) is ProgramPickerItem RecommandItem)
                 {
