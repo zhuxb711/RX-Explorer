@@ -1,26 +1,22 @@
-﻿using ComputerVision;
-using RX_Explorer.Class;
+﻿using RX_Explorer.Class;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.ApplicationModel;
-using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Pickers;
-using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Dialog
 {
     public sealed partial class ProgramPickerDialog : QueueContentDialog
     {
         private readonly ObservableCollection<ProgramPickerItem> ProgramCollection = new ObservableCollection<ProgramPickerItem>();
-        private readonly List<ProgramPickerItem> NotRecommandList = new List<ProgramPickerItem>();
 
         private readonly FileSystemStorageFile OpenFile;
 
@@ -48,56 +44,49 @@ namespace RX_Explorer.Dialog
             LoadingText.Visibility = Visibility.Visible;
             WholeArea.Visibility = Visibility.Collapsed;
 
-            List<ProgramPickerItem> RecommandList = new List<ProgramPickerItem>();
+            List<Task<ProgramPickerItem>> RecommandLoadTaskList = new List<Task<ProgramPickerItem>>();
+            List<Task<ProgramPickerItem>> NotRecommandLoadTaskList = new List<Task<ProgramPickerItem>>();
 
-            try
+                                string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(OpenFile.Type);
+
+            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                try
                 {
+                    if (string.IsNullOrEmpty(AdminExecutablePath))
+                    {
+                        AdminExecutablePath = await Exclusive.Controller.GetDefaultAssociationFromPathAsync(OpenFile.Path);
+                    }
+
                     IReadOnlyList<AssociationPackage> AssocList = await Exclusive.Controller.GetAssociationFromPathAsync(OpenFile.Path);
                     IReadOnlyList<AppInfo> AppInfoList = await Launcher.FindFileHandlersAsync(OpenFile.Type);
 
                     await SQLite.Current.UpdateProgramPickerRecordAsync(OpenFile.Type, AssocList.Concat(AppInfoList.Select((Info) => new AssociationPackage(OpenFile.Type, Info.PackageFamilyName, true))).ToArray());
 
-                    foreach (AppInfo Info in AppInfoList)
+                    foreach (AppInfo App in AppInfoList)
                     {
-                        RecommandList.Add(new ProgramPickerItem(async () => await Info.DisplayInfo.GetLogo(new Windows.Foundation.Size(128, 128)).OpenReadAsync(),
-                            Info.DisplayInfo.DisplayName,
-                            Info.DisplayInfo.Description,
-                            Info.PackageFamilyName));
+                        RecommandLoadTaskList.Add(ProgramPickerItem.CreateAsync(App));
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex, "An exception was threw when fetching association data");
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "An exception was threw when fetching association data");
+                }
             }
 
             foreach (AssociationPackage Package in await SQLite.Current.GetProgramPickerRecordAsync(OpenFile.Type, false))
             {
                 try
                 {
-                    if (await FileSystemStorageItemBase.CheckExistAsync(Package.ExecutablePath))
+                    if (await FileSystemStorageItemBase.OpenAsync(Package.ExecutablePath) is FileSystemStorageFile File)
                     {
-                        StorageFile ExecuteFile = await StorageFile.GetFileFromPathAsync(Package.ExecutablePath);
-
-                        IDictionary<string, object> PropertiesDictionary = await ExecuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" });
-
-                        string ExtraAppName = string.Empty;
-
-                        if (PropertiesDictionary.TryGetValue("System.FileDescription", out object DescriptionRaw))
-                        {
-                            ExtraAppName = Convert.ToString(DescriptionRaw);
-                        }
-
-                        var programItem = new ProgramPickerItem(() => ExecuteFile.GetThumbnailRawStreamAsync(), string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path);
                         if (Package.IsRecommanded)
                         {
-                            RecommandList.Add(programItem);
+                            RecommandLoadTaskList.Add(ProgramPickerItem.CreateAsync(File));
                         }
                         else
                         {
-                            NotRecommandList.Add(programItem);
+                            NotRecommandLoadTaskList.Add(ProgramPickerItem.CreateAsync(File));
                         }
                     }
                     else
@@ -111,16 +100,10 @@ namespace RX_Explorer.Dialog
                 }
             }
 
+            List<ProgramPickerItem> RecommandList = new List<ProgramPickerItem>(await Task.WhenAll(RecommandLoadTaskList));
+            List<ProgramPickerItem> NotRecommandList = new List<ProgramPickerItem>(await Task.WhenAll(NotRecommandLoadTaskList));
 
-            string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(OpenFile.Type);
-
-            if (string.IsNullOrEmpty(AdminExecutablePath))
-            {
-                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                {
-                    AdminExecutablePath = await Exclusive.Controller.GetDefaultAssociationFromPathAsync(OpenFile.Path);
-                }
-            }
+            CurrentUseProgramList.Tag = NotRecommandList;
 
             if (!string.IsNullOrEmpty(AdminExecutablePath))
             {
@@ -167,7 +150,7 @@ namespace RX_Explorer.Dialog
                             Title1.Text = Globalization.GetString("ProgramPicker_Dialog_Title_1");
                             Title2.Text = Globalization.GetString("ProgramPicker_Dialog_Title_2");
 
-                            CurrentUseProgramList.Items.Add(new ProgramPickerItem(new BitmapImage(new Uri("ms-appx:///Assets/RX-icon.png")), Globalization.GetString("ProgramPicker_Dialog_BuiltInViewer"), Globalization.GetString("ProgramPicker_Dialog_BuiltInViewer_Description"), Package.Current.Id.FamilyName));
+                            CurrentUseProgramList.Items.Add(ProgramPickerItem.InnerViewer);
                             CurrentUseProgramList.SelectedIndex = 0;
                             break;
                         }
@@ -209,7 +192,7 @@ namespace RX_Explorer.Dialog
                     case ".pdf":
                     case ".exe":
                         {
-                            ProgramCollection.Add(new ProgramPickerItem(new BitmapImage(new Uri("ms-appx:///Assets/RX-icon.png")), Globalization.GetString("ProgramPicker_Dialog_BuiltInViewer"), Globalization.GetString("ProgramPicker_Dialog_BuiltInViewer_Description"), Package.Current.Id.FamilyName));
+                            ProgramCollection.Add(ProgramPickerItem.InnerViewer);
                             break;
                         }
                 }
@@ -218,20 +201,13 @@ namespace RX_Explorer.Dialog
             if (RecommandList.Count == 0)
             {
                 ShowMore.Visibility = Visibility.Collapsed;
-
-                foreach (ProgramPickerItem Item in NotRecommandList)
-                {
-                    ProgramCollection.Add(Item);
-                }
-
                 OtherProgramList.MaxHeight = 300;
+
+                ProgramCollection.AddRange(NotRecommandList);
             }
             else
             {
-                foreach (ProgramPickerItem Item in RecommandList)
-                {
-                    ProgramCollection.Add(Item);
-                }
+                ProgramCollection.AddRange(RecommandList);
             }
 
             if (CurrentUseProgramList.SelectedIndex == -1)
@@ -270,36 +246,7 @@ namespace RX_Explorer.Dialog
 
             if ((await Picker.PickSingleFileAsync()) is StorageFile ExecuteFile)
             {
-                IDictionary<string, object> PropertiesDictionary = await ExecuteFile.Properties.RetrievePropertiesAsync(new string[] { "System.FileDescription" });
-
-                string ExtraAppName = string.Empty;
-
-                if (PropertiesDictionary.TryGetValue("System.FileDescription", out object Description))
-                {
-                    ExtraAppName = Convert.ToString(Description);
-                }
-
-                if (await ExecuteFile.GetThumbnailRawStreamAsync() is IRandomAccessStream ThumbnailStream)
-                {
-                    BitmapDecoder Decoder = await BitmapDecoder.CreateAsync(ThumbnailStream);
-                    using (SoftwareBitmap SBitmap = await Decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied))
-                    using (SoftwareBitmap ResizeBitmap = ComputerVisionProvider.ResizeToActual(SBitmap))
-                    using (InMemoryRandomAccessStream ResizeBitmapStream = new InMemoryRandomAccessStream())
-                    {
-                        BitmapEncoder Encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, ResizeBitmapStream);
-                        Encoder.SetSoftwareBitmap(ResizeBitmap);
-                        await Encoder.FlushAsync();
-
-                        BitmapImage ThumbnailBitmap = new BitmapImage();
-                        await ThumbnailBitmap.SetSourceAsync(ResizeBitmapStream);
-
-                        ProgramCollection.Insert(0, new ProgramPickerItem(ThumbnailBitmap, string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path));
-                    }
-                }
-                else
-                {
-                    ProgramCollection.Insert(0, new ProgramPickerItem(new BitmapImage(AppThemeController.Current.Theme == ElementTheme.Dark ? new Uri("ms-appx:///Assets/Page_Solid_White.png") : new Uri("ms-appx:///Assets/Page_Solid_Black.png")), string.IsNullOrEmpty(ExtraAppName) ? ExecuteFile.DisplayName : ExtraAppName, Globalization.GetString("Application_Admin_Name"), ExecuteFile.Path));
-                }
+                ProgramCollection.Insert(0, await ProgramPickerItem.CreateAsync(ExecuteFile));
 
                 OtherProgramList.SelectedIndex = 0;
 
@@ -343,14 +290,13 @@ namespace RX_Explorer.Dialog
 
         private void ShowMore_Click(object sender, RoutedEventArgs e)
         {
-            ShowMore.Visibility = Visibility.Collapsed;
-
-            foreach (ProgramPickerItem Item in NotRecommandList)
+            if (CurrentUseProgramList.Tag is List<ProgramPickerItem> NotRecommandList)
             {
-                ProgramCollection.Add(Item);
-            }
+                ShowMore.Visibility = Visibility.Collapsed;
+                OtherProgramList.MaxHeight = 300;
 
-            OtherProgramList.MaxHeight = 300;
+                ProgramCollection.AddRange(NotRecommandList);
+            }
         }
     }
 }

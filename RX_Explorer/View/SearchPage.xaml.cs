@@ -161,10 +161,7 @@ namespace RX_Explorer
                                 }
                                 else
                                 {
-                                    foreach (FileSystemStorageItemBase Item in SortCollectionGenerator.GetSortedCollection(SearchItems, SortTarget.Name, SortDirection.Ascending))
-                                    {
-                                        SearchResult.Add(Item);
-                                    }
+                                    SearchResult.AddRange(SortCollectionGenerator.GetSortedCollection(SearchItems, SortTarget.Name, SortDirection.Ascending));
                                 }
                             }
 

@@ -854,10 +854,7 @@ namespace RX_Explorer
                             IsGroupedEnable = false;
                         }
 
-                        foreach (FileSystemStorageItemBase SubItem in SortCollectionGenerator.GetSortedCollection(ChildItems, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()))
-                        {
-                            FileCollection.Add(SubItem);
-                        }
+                        FileCollection.AddRange(SortCollectionGenerator.GetSortedCollection(ChildItems, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()));
                     }
                     else
                     {
