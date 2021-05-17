@@ -2561,7 +2561,8 @@ namespace RX_Explorer
                                             }
                                         }
 
-                                        await SQLite.Current.ImportDataAsync(DatabaseFormattedArray);
+                                        SQLite.Current.ImportData(DatabaseFormattedArray);
+
                                         await CommonAccessCollection.LoadLibraryFoldersAsync(true);
 
                                         ApplicationData.Current.SignalDataChanged();
@@ -2639,39 +2640,46 @@ namespace RX_Explorer
 
         private async void ExportConfiguration_Click(object sender, RoutedEventArgs e)
         {
-            FileSavePicker Picker = new FileSavePicker
+            try
             {
-                SuggestedStartLocation = PickerLocationId.Desktop,
-                SuggestedFileName = "RX_Configuration"
-            };
-
-            Picker.FileTypeChoices.Add("JSON", new List<string> { ".json" });
-
-            if (await Picker.PickSaveFileAsync() is StorageFile SaveFile)
-            {
-                Dictionary<string, string> DataBaseDic = new Dictionary<string, string>();
-
-                await foreach ((string TableName, IReadOnlyList<object[]> Data) in SQLite.Current.ExportDataAsync())
+                FileSavePicker Picker = new FileSavePicker
                 {
-                    DataBaseDic.Add(TableName, JsonSerializer.Serialize(Data));
-                }
+                    SuggestedStartLocation = PickerLocationId.Desktop,
+                    SuggestedFileName = "RX_Configuration"
+                };
 
-                string DatabaseString = JsonSerializer.Serialize(DataBaseDic);
-                string ConfigurationString = JsonSerializer.Serialize(new Dictionary<string, object>(ApplicationData.Current.LocalSettings.Values.ToArray()));
+                Picker.FileTypeChoices.Add("JSON", new List<string> { ".json" });
 
-                using (MD5 MD5Alg = MD5.Create())
+                if (await Picker.PickSaveFileAsync() is StorageFile SaveFile)
                 {
-                    Dictionary<string, string> BaseDic = new Dictionary<string, string>
+                    Dictionary<string, string> DataBaseDic = new Dictionary<string, string>();
+
+                    foreach ((string TableName, IReadOnlyList<object[]> Data) in SQLite.Current.ExportData())
                     {
-                        { "Identitifier", "RX_Explorer_Export_Configuration" },
-                        { "Configuration",  await ConfigurationString.EncryptAsync(Package.Current.Id.FamilyName)},
-                        { "ConfigHash", MD5Alg.GetHash(ConfigurationString) },
-                        { "Database", await DatabaseString.EncryptAsync(Package.Current.Id.FamilyName) },
-                        { "DatabaseHash", MD5Alg.GetHash(DatabaseString)}
-                    };
+                        DataBaseDic.Add(TableName, JsonSerializer.Serialize(Data));
+                    }
 
-                    await FileIO.WriteTextAsync(SaveFile, JsonSerializer.Serialize(BaseDic), UnicodeEncoding.Utf16LE);
+                    string DatabaseString = JsonSerializer.Serialize(DataBaseDic);
+                    string ConfigurationString = JsonSerializer.Serialize(new Dictionary<string, object>(ApplicationData.Current.LocalSettings.Values.ToArray()));
+
+                    using (MD5 MD5Alg = MD5.Create())
+                    {
+                        Dictionary<string, string> BaseDic = new Dictionary<string, string>
+                        {
+                            { "Identitifier", "RX_Explorer_Export_Configuration" },
+                            { "Configuration",  await ConfigurationString.EncryptAsync(Package.Current.Id.FamilyName)},
+                            { "ConfigHash", MD5Alg.GetHash(ConfigurationString) },
+                            { "Database", await DatabaseString.EncryptAsync(Package.Current.Id.FamilyName) },
+                            { "DatabaseHash", MD5Alg.GetHash(DatabaseString)}
+                        };
+
+                        await FileIO.WriteTextAsync(SaveFile, JsonSerializer.Serialize(BaseDic), UnicodeEncoding.Utf16LE);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex);
             }
         }
 

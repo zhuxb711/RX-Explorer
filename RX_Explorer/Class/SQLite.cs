@@ -855,12 +855,14 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async IAsyncEnumerable<(string, IReadOnlyList<object[]>)> ExportDataAsync()
+        public IReadOnlyList<(string, IReadOnlyList<object[]>)> ExportData()
         {
             List<string> TableNameArray = new List<string>();
 
-            using (SqliteCommand Command = new SqliteCommand("Select name From sqlite_master Where type='table' Order By name", Connection))
-            using (SqliteDataReader Reader = await Command.ExecuteReaderAsync())
+            using SqliteTransaction Transaction = Connection.BeginTransaction();
+
+            using (SqliteCommand Command = new SqliteCommand("Select name From sqlite_master Where type='table' Order By name", Connection, Transaction))
+            using (SqliteDataReader Reader = Command.ExecuteReader())
             {
                 while (Reader.Read())
                 {
@@ -868,10 +870,12 @@ namespace RX_Explorer.Class
                 }
             }
 
+            List<(string, IReadOnlyList<object[]>)> Result = new List<(string, IReadOnlyList<object[]>)>();
+
             foreach (string TableName in TableNameArray)
             {
-                using (SqliteCommand SubCommand = new SqliteCommand($"Select * From {TableName}", Connection))
-                using (SqliteDataReader SubReader = await SubCommand.ExecuteReaderAsync())
+                using (SqliteCommand SubCommand = new SqliteCommand($"Select * From {TableName}", Connection, Transaction))
+                using (SqliteDataReader SubReader = SubCommand.ExecuteReader())
                 {
                     List<object[]> TableData = new List<object[]>();
 
@@ -887,15 +891,21 @@ namespace RX_Explorer.Class
                         TableData.Add(ColumnData);
                     }
 
-                    yield return (TableName, TableData);
+                    Result.Add((TableName, TableData));
                 }
             }
+
+            Transaction.Commit();
+
+            return Result;
         }
 
-        public async Task ImportDataAsync(IEnumerable<(string TableName, IEnumerable<object[]> Data)> InputData)
+        public void ImportData(IEnumerable<(string TableName, IEnumerable<object[]> Data)> InputData)
         {
             if (InputData.Any())
             {
+                using SqliteTransaction Transaction = Connection.BeginTransaction();
+
                 StringBuilder DeleteCommandBuilder = new StringBuilder();
 
                 foreach (string TableName in InputData.Select((Item) => Item.TableName))
@@ -903,9 +913,9 @@ namespace RX_Explorer.Class
                     DeleteCommandBuilder.Append($"Delete From {TableName};");
                 }
 
-                using (SqliteCommand Command = new SqliteCommand(DeleteCommandBuilder.ToString(), Connection))
+                using (SqliteCommand Command = new SqliteCommand(DeleteCommandBuilder.ToString(), Connection, Transaction))
                 {
-                    await Command.ExecuteNonQueryAsync();
+                    Command.ExecuteNonQuery();
                 }
 
                 StringBuilder InsertCommandBuilder = new StringBuilder();
@@ -935,10 +945,12 @@ namespace RX_Explorer.Class
                     }
                 }
 
-                using (SqliteCommand Command = new SqliteCommand(InsertCommandBuilder.ToString(), Connection))
+                using (SqliteCommand Command = new SqliteCommand(InsertCommandBuilder.ToString(), Connection, Transaction))
                 {
-                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    Command.ExecuteNonQuery();
                 }
+
+                Transaction.Commit();
             }
         }
 
