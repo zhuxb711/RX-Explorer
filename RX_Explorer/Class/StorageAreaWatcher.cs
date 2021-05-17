@@ -55,7 +55,7 @@ namespace RX_Explorer.Class
                         {
                             if (await FileSystemStorageItemBase.OpenAsync(Path) is FileSystemStorageItemBase ModifiedItem)
                             {
-                                PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentLocation);
+                                PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentLocation);
 
                                 if (CurrentCollection.FirstOrDefault((Item) => Item.Path.Equals(Path, StringComparison.OrdinalIgnoreCase)) is FileSystemStorageItemBase OldItem)
                                 {
@@ -157,7 +157,7 @@ namespace RX_Explorer.Class
 
                                         if (CurrentCollection.Any())
                                         {
-                                            PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentLocation);
+                                            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentLocation);
 
                                             int Index = SortCollectionGenerator.SearchInsertLocation(CurrentCollection, Item, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
 
@@ -263,7 +263,7 @@ namespace RX_Explorer.Class
                                     {
                                         if (CurrentCollection.Any())
                                         {
-                                            PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentLocation);
+                                            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentLocation);
 
                                             int Index = SortCollectionGenerator.SearchInsertLocation(CurrentCollection, NewItem, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault());
 

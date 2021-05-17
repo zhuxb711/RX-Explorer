@@ -330,7 +330,7 @@ namespace RX_Explorer
             if (LibraryGrid.SelectedItem is LibraryFolder Library)
             {
                 CommonAccessCollection.LibraryFolderList.Remove(Library);
-                await SQLite.Current.DeleteLibraryAsync(Library.Folder.Path).ConfigureAwait(false);
+                SQLite.Current.DeleteLibrary(Library.Folder.Path);
                 await JumpListController.Current.RemoveItem(JumpListGroup.Library, Library.Folder).ConfigureAwait(false);
             }
         }
@@ -558,13 +558,13 @@ namespace RX_Explorer
             }
         }
 
-        private async void LibraryGrid_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
+        private void LibraryGrid_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
         {
-            await SQLite.Current.ClearTableAsync("Library");
+            SQLite.Current.ClearTable("Library");
 
             foreach (LibraryFolder Item in CommonAccessCollection.LibraryFolderList)
             {
-                await SQLite.Current.SetLibraryPathAsync(Item.Folder.Path, Item.Type);
+                SQLite.Current.SetLibraryPath(Item.Folder.Path, Item.Type);
             }
         }
 
@@ -587,12 +587,13 @@ namespace RX_Explorer
                         Content = Globalization.GetString("QueueDialog_RepeatAddToHomePage_Content"),
                         CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                     };
+
                     await dialog.ShowAsync();
                 }
                 else
                 {
                     CommonAccessCollection.LibraryFolderList.Add(await LibraryFolder.CreateAsync(Folder, LibraryType.UserCustom));
-                    await SQLite.Current.SetLibraryPathAsync(Folder.Path, LibraryType.UserCustom).ConfigureAwait(false);
+                    SQLite.Current.SetLibraryPath(Folder.Path, LibraryType.UserCustom);
                     await JumpListController.Current.AddItemAsync(JumpListGroup.Library, Folder.Path).ConfigureAwait(false);
                 }
             }

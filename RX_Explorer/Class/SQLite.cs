@@ -4,10 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using Windows.Storage;
-using Windows.Storage.Streams;
-using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Class
 {
@@ -90,94 +87,94 @@ namespace RX_Explorer.Class
                 ApplicationData.Current.LocalSettings.Values["DatabaseInit"] = true;
             }
 
-            using (SqliteCommand CreateTable = new SqliteCommand(Builder.ToString(), Connection))
-            {
-                CreateTable.ExecuteNonQuery();
-            }
+            using SqliteTransaction Transaction = Connection.BeginTransaction();
+            using SqliteCommand CreateTable = new SqliteCommand(Builder.ToString(), Connection, Transaction);
+
+            CreateTable.ExecuteNonQuery();
+
+            Transaction.Commit();
         }
 
-        public async Task SetPathConfigurationAsync(PathConfiguration Configuration)
+        public void SetPathConfiguration(PathConfiguration Configuration)
         {
-            using (SqliteCommand Command = new SqliteCommand
+            using SqliteCommand Command = new SqliteCommand
             {
                 Connection = Connection
-            })
+            };
+
+            List<string> ValueLeft = new List<string>(4)
             {
-                List<string> ValueLeft = new List<string>(4)
-                {
-                    "Path"
-                };
+                "Path"
+            };
 
-                List<string> ValueRight = new List<string>(4)
-                {
-                    "@Path"
-                };
+            List<string> ValueRight = new List<string>(4)
+            {
+                "@Path"
+            };
 
-                List<string> UpdatePart = new List<string>(4)
-                {
-                    "Path = @Path"
-                };
+            List<string> UpdatePart = new List<string>(4)
+            {
+                "Path = @Path"
+            };
 
-                Command.Parameters.AddWithValue("@Path", Configuration.Path);
+            Command.Parameters.AddWithValue("@Path", Configuration.Path);
 
-                if (Configuration.DisplayModeIndex != null)
-                {
-                    ValueLeft.Add("DisplayMode");
-                    ValueRight.Add("@DisplayMode");
-                    UpdatePart.Add("DisplayMode = @DisplayMode");
+            if (Configuration.DisplayModeIndex != null)
+            {
+                ValueLeft.Add("DisplayMode");
+                ValueRight.Add("@DisplayMode");
+                UpdatePart.Add("DisplayMode = @DisplayMode");
 
-                    Command.Parameters.AddWithValue("@DisplayMode", Configuration.DisplayModeIndex);
-                }
-
-                if (Configuration.SortTarget != null)
-                {
-                    ValueLeft.Add("SortColumn");
-                    ValueRight.Add("@SortColumn");
-                    UpdatePart.Add("SortColumn = @SortColumn");
-
-                    Command.Parameters.AddWithValue("@SortColumn", Enum.GetName(typeof(SortTarget), Configuration.SortTarget));
-                }
-
-                if (Configuration.SortDirection != null)
-                {
-                    ValueLeft.Add("SortDirection");
-                    ValueRight.Add("@SortDirection");
-                    UpdatePart.Add("SortDirection = @SortDirection");
-
-                    Command.Parameters.AddWithValue("@SortDirection", Enum.GetName(typeof(SortDirection), Configuration.SortDirection));
-                }
-
-                if (Configuration.GroupTarget != null)
-                {
-                    ValueLeft.Add("GroupColumn");
-                    ValueRight.Add("@GroupColumn");
-                    UpdatePart.Add("GroupColumn = @GroupColumn");
-
-                    Command.Parameters.AddWithValue("@GroupColumn", Enum.GetName(typeof(GroupTarget), Configuration.GroupTarget));
-                }
-
-                if (Configuration.GroupDirection != null)
-                {
-                    ValueLeft.Add("GroupDirection");
-                    ValueRight.Add("@GroupDirection");
-                    UpdatePart.Add("GroupDirection = @GroupDirection");
-
-                    Command.Parameters.AddWithValue("@GroupDirection", Enum.GetName(typeof(GroupDirection), Configuration.GroupDirection));
-                }
-
-                Command.CommandText = $"Insert Into PathConfiguration ({string.Join(", ", ValueLeft)}) Values ({string.Join(", ", ValueRight)}) On Conflict (Path) Do Update Set {string.Join(", ", UpdatePart)} Where Path = @Path";
-
-                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.Parameters.AddWithValue("@DisplayMode", Configuration.DisplayModeIndex);
             }
+
+            if (Configuration.SortTarget != null)
+            {
+                ValueLeft.Add("SortColumn");
+                ValueRight.Add("@SortColumn");
+                UpdatePart.Add("SortColumn = @SortColumn");
+
+                Command.Parameters.AddWithValue("@SortColumn", Enum.GetName(typeof(SortTarget), Configuration.SortTarget));
+            }
+
+            if (Configuration.SortDirection != null)
+            {
+                ValueLeft.Add("SortDirection");
+                ValueRight.Add("@SortDirection");
+                UpdatePart.Add("SortDirection = @SortDirection");
+
+                Command.Parameters.AddWithValue("@SortDirection", Enum.GetName(typeof(SortDirection), Configuration.SortDirection));
+            }
+
+            if (Configuration.GroupTarget != null)
+            {
+                ValueLeft.Add("GroupColumn");
+                ValueRight.Add("@GroupColumn");
+                UpdatePart.Add("GroupColumn = @GroupColumn");
+
+                Command.Parameters.AddWithValue("@GroupColumn", Enum.GetName(typeof(GroupTarget), Configuration.GroupTarget));
+            }
+
+            if (Configuration.GroupDirection != null)
+            {
+                ValueLeft.Add("GroupDirection");
+                ValueRight.Add("@GroupDirection");
+                UpdatePart.Add("GroupDirection = @GroupDirection");
+
+                Command.Parameters.AddWithValue("@GroupDirection", Enum.GetName(typeof(GroupDirection), Configuration.GroupDirection));
+            }
+
+            Command.CommandText = $"Insert Into PathConfiguration ({string.Join(", ", ValueLeft)}) Values ({string.Join(", ", ValueRight)}) On Conflict (Path) Do Update Set {string.Join(", ", UpdatePart)} Where Path = @Path";
+            Command.ExecuteNonQuery();
         }
 
-        public async Task<PathConfiguration> GetPathConfigurationAsync(string Path)
+        public PathConfiguration GetPathConfiguration(string Path)
         {
             using (SqliteCommand Command = new SqliteCommand("Select * From PathConfiguration Where Path = @Path", Connection))
             {
                 Command.Parameters.AddWithValue("@Path", Path);
 
-                using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
+                using (SqliteDataReader Reader = Command.ExecuteReader())
                 {
                     if (Reader.Read())
                     {
@@ -191,12 +188,12 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<IReadOnlyList<TerminalProfile>> GetAllTerminalProfile()
+        public IReadOnlyList<TerminalProfile> GetAllTerminalProfile()
         {
             List<TerminalProfile> Result = new List<TerminalProfile>();
 
             using (SqliteCommand Command = new SqliteCommand("Select * From TerminalProfile", Connection))
-            using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
+            using (SqliteDataReader Reader = Command.ExecuteReader())
             {
                 while (Reader.Read())
                 {
@@ -207,27 +204,26 @@ namespace RX_Explorer.Class
             return Result;
         }
 
-        public async Task<TerminalProfile> GetTerminalProfileByName(string Name)
+        public TerminalProfile GetTerminalProfileByName(string Name)
         {
-            using (SqliteCommand Command = new SqliteCommand("Select * From TerminalProfile Where Name = @Name", Connection))
-            {
-                Command.Parameters.AddWithValue("@Name", Name);
+            using SqliteCommand Command = new SqliteCommand("Select * From TerminalProfile Where Name = @Name", Connection);
 
-                using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
+            Command.Parameters.AddWithValue("@Name", Name);
+
+            using (SqliteDataReader Reader = Command.ExecuteReader())
+            {
+                if (Reader.Read())
                 {
-                    if (Reader.Read())
-                    {
-                        return new TerminalProfile(Reader[0].ToString(), Reader[1].ToString(), Reader[2].ToString(), Convert.ToBoolean(Reader[3]));
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                    return new TerminalProfile(Reader[0].ToString(), Reader[1].ToString(), Reader[2].ToString(), Convert.ToBoolean(Reader[3]));
+                }
+                else
+                {
+                    return null;
                 }
             }
         }
 
-        public async Task DeleteTerminalProfile(TerminalProfile Profile)
+        public void DeleteTerminalProfile(TerminalProfile Profile)
         {
             if (Profile == null)
             {
@@ -237,11 +233,11 @@ namespace RX_Explorer.Class
             using (SqliteCommand Command = new SqliteCommand("Delete From TerminalProfile Where Name = @Name", Connection))
             {
                 Command.Parameters.AddWithValue("@Name", Profile.Name);
-                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.ExecuteNonQuery();
             }
         }
 
-        public async Task SetOrModifyTerminalProfile(TerminalProfile Profile)
+        public void SetOrModifyTerminalProfile(TerminalProfile Profile)
         {
             if (Profile == null)
             {
@@ -250,68 +246,75 @@ namespace RX_Explorer.Class
 
             int Count = 0;
 
-            using (SqliteCommand Command = new SqliteCommand("Select Count(*) From TerminalProfile Where Name = @Name", Connection))
+            using SqliteTransaction Transaction = Connection.BeginTransaction();
+            using (SqliteCommand Command = new SqliteCommand("Select Count(*) From TerminalProfile Where Name = @Name", Connection, Transaction))
             {
                 Command.Parameters.AddWithValue("@Name", Profile.Name);
-                Count = Convert.ToInt32(await Command.ExecuteScalarAsync().ConfigureAwait(false));
+                Count = Convert.ToInt32(Command.ExecuteScalar());
             }
 
             if (Count > 0)
             {
-                using (SqliteCommand UpdateCommand = new SqliteCommand("Update TerminalProfile Set Path = @Path, Argument = @Argument, RunAsAdmin = @RunAsAdmin Where Name = @Name", Connection))
+                using (SqliteCommand UpdateCommand = new SqliteCommand("Update TerminalProfile Set Path = @Path, Argument = @Argument, RunAsAdmin = @RunAsAdmin Where Name = @Name", Connection, Transaction))
                 {
                     UpdateCommand.Parameters.AddWithValue("@Name", Profile.Name);
                     UpdateCommand.Parameters.AddWithValue("@Path", Profile.Path);
                     UpdateCommand.Parameters.AddWithValue("@Argument", Profile.Argument);
                     UpdateCommand.Parameters.AddWithValue("@RunAsAdmin", Convert.ToString(Profile.RunAsAdmin));
-                    await UpdateCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    UpdateCommand.ExecuteNonQuery();
                 }
             }
             else
             {
-                using (SqliteCommand AddCommand = new SqliteCommand("Insert Into TerminalProfile Values (@Name,@Path,@Argument,@RunAsAdmin)", Connection))
+                using (SqliteCommand AddCommand = new SqliteCommand("Insert Into TerminalProfile Values (@Name,@Path,@Argument,@RunAsAdmin)", Connection, Transaction))
                 {
                     AddCommand.Parameters.AddWithValue("@Name", Profile.Name);
                     AddCommand.Parameters.AddWithValue("@Path", Profile.Path);
                     AddCommand.Parameters.AddWithValue("@Argument", Profile.Argument);
                     AddCommand.Parameters.AddWithValue("@RunAsAdmin", Convert.ToString(Profile.RunAsAdmin));
-                    await AddCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    AddCommand.ExecuteNonQuery();
                 }
             }
 
+            Transaction.Commit();
         }
 
-        public async Task SetProgramPickerRecordAsync(params AssociationPackage[] Packages)
+        public void SetProgramPickerRecord(params AssociationPackage[] Packages)
         {
-            using (SqliteCommand Command = new SqliteCommand
-            {
-                Connection = Connection
-            })
-            {
-                StringBuilder AddPathBuilder = new StringBuilder();
-
-                for (int i = 0; i < Packages.Length; i++)
-                {
-                    AddPathBuilder.Append($"Insert Or Ignore Into ProgramPicker Values (@Extension_{i}, @ExecutablePath_{i}, 'False', @IsRecommanded_{i});");
-
-                    Command.Parameters.AddWithValue($"@Extension_{i}", Packages[i].Extension.ToLower());
-                    Command.Parameters.AddWithValue($"@ExecutablePath_{i}", Packages[i].ExecutablePath);
-                    Command.Parameters.AddWithValue($"@IsRecommanded_{i}", Convert.ToString(Packages[i].IsRecommanded));
-                }
-
-                Command.CommandText = AddPathBuilder.ToString();
-
-                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
-            }
-        }
-
-        public async Task UpdateProgramPickerRecordAsync(string Extension, params AssociationPackage[] AssociationList)
-        {
-            string DefaultPath = await GetDefaultProgramPickerRecordAsync(Extension);
-
+            using SqliteTransaction Transaction = Connection.BeginTransaction();
             using SqliteCommand Command = new SqliteCommand
             {
-                Connection = Connection
+                Connection = Connection,
+                Transaction = Transaction
+            };
+
+            StringBuilder AddPathBuilder = new StringBuilder();
+
+            for (int i = 0; i < Packages.Length; i++)
+            {
+                AddPathBuilder.Append($"Insert Or Ignore Into ProgramPicker Values (@Extension_{i}, @ExecutablePath_{i}, 'False', @IsRecommanded_{i});");
+
+                Command.Parameters.AddWithValue($"@Extension_{i}", Packages[i].Extension.ToLower());
+                Command.Parameters.AddWithValue($"@ExecutablePath_{i}", Packages[i].ExecutablePath);
+                Command.Parameters.AddWithValue($"@IsRecommanded_{i}", Convert.ToString(Packages[i].IsRecommanded));
+            }
+
+            Command.CommandText = AddPathBuilder.ToString();
+            Command.ExecuteNonQuery();
+
+            Transaction.Commit();
+        }
+
+        public void UpdateProgramPickerRecord(string Extension, params AssociationPackage[] AssociationList)
+        {
+            string DefaultPath = GetDefaultProgramPickerRecord(Extension);
+
+            using SqliteTransaction Transaction = Connection.BeginTransaction();
+            
+            using SqliteCommand Command = new SqliteCommand
+            {
+                Connection = Connection,
+                Transaction = Transaction
             };
 
             StringBuilder PathBuilder = new StringBuilder("Update ProgramPicker Set IsDefault = 'False' Where FileType = @FileType;");
@@ -335,40 +338,41 @@ namespace RX_Explorer.Class
 
             Command.Parameters.AddWithValue("@FileType", Extension.ToLower());
             Command.CommandText = PathBuilder.ToString();
+            Command.ExecuteNonQuery();
 
-            var transaction = Connection.BeginTransaction();
-
-            await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
-
-            transaction.Commit();
+            Transaction.Commit();
         }
 
-        public async Task<string> GetDefaultProgramPickerRecordAsync(string Extension)
+        public string GetDefaultProgramPickerRecord(string Extension)
         {
             using (SqliteCommand Command = new SqliteCommand("Select Path From ProgramPicker Where FileType = @FileType And IsDefault = 'True'", Connection))
             {
                 Command.Parameters.AddWithValue("@FileType", Extension.ToLower());
-                return Convert.ToString(await Command.ExecuteScalarAsync().ConfigureAwait(false));
+                return Convert.ToString(Command.ExecuteScalar());
             }
         }
 
-        public async Task SetDefaultProgramPickerRecordAsync(string Extension, string Path)
+        public void SetDefaultProgramPickerRecord(string Extension, string Path)
         {
-            using (SqliteCommand Command = new SqliteCommand("Update ProgramPicker Set IsDefault = 'False' Where FileType = @FileType", Connection))
+            using SqliteTransaction Transaction = Connection.BeginTransaction();
+
+            using (SqliteCommand Command = new SqliteCommand("Update ProgramPicker Set IsDefault = 'False' Where FileType = @FileType", Connection, Transaction))
             {
                 Command.Parameters.AddWithValue("@FileType", Extension.ToLower());
-                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.ExecuteNonQuery();
             }
 
-            using (SqliteCommand Command = new SqliteCommand("Update ProgramPicker Set IsDefault = 'True' Where FileType = @FileType And Path = @Path", Connection))
+            using (SqliteCommand Command = new SqliteCommand("Update ProgramPicker Set IsDefault = 'True' Where FileType = @FileType And Path = @Path", Connection, Transaction))
             {
                 Command.Parameters.AddWithValue("@FileType", Extension.ToLower());
                 Command.Parameters.AddWithValue("@Path", Path);
-                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.ExecuteNonQuery();
             }
+
+            Transaction.Commit();
         }
 
-        public async Task<IReadOnlyList<AssociationPackage>> GetProgramPickerRecordAsync(string Extension, bool IncludeUWPApplication)
+        public IReadOnlyList<AssociationPackage> GetProgramPickerRecord(string Extension, bool IncludeUWPApplication)
         {
             try
             {
@@ -378,7 +382,7 @@ namespace RX_Explorer.Class
                 {
                     Command.Parameters.AddWithValue("@FileType", Extension.ToLower());
 
-                    using (SqliteDataReader Reader = await Command.ExecuteReaderAsync().ConfigureAwait(false))
+                    using (SqliteDataReader Reader = Command.ExecuteReader())
                     {
                         while (Reader.Read())
                         {
@@ -409,13 +413,13 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task DeleteProgramPickerRecordAsync(AssociationPackage Package)
+        public void DeleteProgramPickerRecord(AssociationPackage Package)
         {
             using (SqliteCommand Command = new SqliteCommand("Delete From ProgramPicker Where FileType = @FileType And Path = @Path", Connection))
             {
                 Command.Parameters.AddWithValue("@FileType", Package.Extension.ToLower());
                 Command.Parameters.AddWithValue("@Path", Package.ExecutablePath);
-                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.ExecuteNonQuery();
             }
         }
 
@@ -424,14 +428,14 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="uri">图片Uri</param>
         /// <returns></returns>
-        public async Task SetBackgroundPictureAsync(Uri uri)
+        public void SetBackgroundPicture(Uri uri)
         {
             if (uri != null)
             {
                 using (SqliteCommand Command = new SqliteCommand("Insert Into BackgroundPicture Values (@FileName)", Connection))
                 {
                     Command.Parameters.AddWithValue("@FileName", uri.ToString());
-                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    Command.ExecuteNonQuery();
                 }
             }
             else
@@ -444,12 +448,12 @@ namespace RX_Explorer.Class
         /// 获取背景图片的Uri信息
         /// </summary>
         /// <returns></returns>
-        public async Task<IReadOnlyList<Uri>> GetBackgroundPictureAsync()
+        public IReadOnlyList<Uri> GetBackgroundPicture()
         {
             List<Uri> list = new List<Uri>();
 
             using (SqliteCommand Command = new SqliteCommand("Select * From BackgroundPicture", Connection))
-            using (SqliteDataReader Query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
+            using (SqliteDataReader Query = Command.ExecuteReader())
             {
                 while (Query.Read())
                 {
@@ -465,14 +469,14 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="uri">图片Uri</param>
         /// <returns></returns>
-        public async Task DeleteBackgroundPictureAsync(Uri uri)
+        public void DeleteBackgroundPicture(Uri uri)
         {
             if (uri != null)
             {
                 using (SqliteCommand Command = new SqliteCommand("Delete From BackgroundPicture Where FileName=@FileName", Connection))
                 {
                     Command.Parameters.AddWithValue("@FileName", uri.ToString());
-                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    Command.ExecuteNonQuery();
                 }
             }
             else
@@ -485,12 +489,12 @@ namespace RX_Explorer.Class
         /// 获取文件夹和库区域内用户自定义的文件夹路径
         /// </summary>
         /// <returns></returns>
-        public async Task<IReadOnlyList<(string, LibraryType)>> GetLibraryPathAsync()
+        public IReadOnlyList<(string, LibraryType)> GetLibraryPath()
         {
             List<(string, LibraryType)> list = new List<(string, LibraryType)>();
 
             using (SqliteCommand Command = new SqliteCommand("Select * From Library", Connection))
-            using (SqliteDataReader Query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
+            using (SqliteDataReader Query = Command.ExecuteReader())
             {
                 while (Query.Read())
                 {
@@ -506,12 +510,12 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="Path">文件路径</param>
         /// <returns></returns>
-        public async Task DeleteFileColorAsync(string Path)
+        public void DeleteFileColor(string Path)
         {
             using (SqliteCommand Command = new SqliteCommand("Delete From FileColor Where Path = @Path", Connection))
             {
                 Command.Parameters.AddWithValue("@Path", Path);
-                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.ExecuteNonQuery();
             }
         }
 
@@ -521,13 +525,13 @@ namespace RX_Explorer.Class
         /// <param name="Path">文件路径</param>
         /// <param name="Color">颜色</param>
         /// <returns></returns>
-        public async Task SetFileColorAsync(string Path, string Color)
+        public void SetFileColor(string Path, string Color)
         {
             using (SqliteCommand Command = new SqliteCommand("Insert Or Replace Into FileColor Values (@Path, @Color)", Connection))
             {
                 Command.Parameters.AddWithValue("@Path", Path);
                 Command.Parameters.AddWithValue("@Color", Color);
-                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.ExecuteNonQuery();
             }
         }
 
@@ -535,12 +539,12 @@ namespace RX_Explorer.Class
         /// 获取所有文件颜色
         /// </summary>
         /// <returns></returns>
-        public async Task<string> GetFileColorAsync(string Path)
+        public string GetFileColor(string Path)
         {
             using (SqliteCommand Command = new SqliteCommand("Select Color From FileColor Where Path = @Path", Connection))
             {
                 Command.Parameters.AddWithValue("@Path", Path);
-                return Convert.ToString(await Command.ExecuteScalarAsync());
+                return Convert.ToString(Command.ExecuteScalar());
             }
         }
 
@@ -549,12 +553,12 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="Path">自定义文件夹的路径</param>
         /// <returns></returns>
-        public async Task DeleteLibraryAsync(string Path)
+        public void DeleteLibrary(string Path)
         {
             using (SqliteCommand Command = new SqliteCommand("Delete From Library Where Path = @Path", Connection))
             {
                 Command.Parameters.AddWithValue("@Path", Path);
-                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.ExecuteNonQuery();
             }
         }
 
@@ -563,21 +567,21 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="Path">输入的文件路径</param>
         /// <returns></returns>
-        public async Task SetPathHistoryAsync(string Path)
+        public void SetPathHistory(string Path)
         {
             using (SqliteCommand Command = new SqliteCommand("Insert Or Replace Into PathHistory Values (@Para)", Connection))
             {
                 Command.Parameters.AddWithValue("@Para", Path);
-                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.ExecuteNonQuery();
             }
         }
 
-        public async Task DeletePathHistoryAsync(string Path)
+        public void DeletePathHistory(string Path)
         {
             using (SqliteCommand Command = new SqliteCommand("Delete From PathHistory Where Path = @Para", Connection))
             {
                 Command.Parameters.AddWithValue("@Para", Path);
-                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.ExecuteNonQuery();
             }
         }
 
@@ -587,12 +591,12 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="Target">输入内容</param>
         /// <returns></returns>
-        public async Task<IReadOnlyList<string>> GetRelatedPathHistoryAsync()
+        public IReadOnlyList<string> GetRelatedPathHistory()
         {
             List<string> PathList = new List<string>(25);
 
             using (SqliteCommand Command = new SqliteCommand("Select * From PathHistory Order By rowid Desc Limit 0,25", Connection))
-            using (SqliteDataReader Query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
+            using (SqliteDataReader Query = Command.ExecuteReader())
             {
                 while (Query.Read())
                 {
@@ -608,23 +612,23 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="Path">文件夹路径</param>
         /// <returns></returns>
-        public async Task SetLibraryPathAsync(string Path, LibraryType Type)
+        public void SetLibraryPath(string Path, LibraryType Type)
         {
             using (SqliteCommand Command = new SqliteCommand("Insert Or Ignore Into Library Values (@Path,@Type)", Connection))
             {
                 Command.Parameters.AddWithValue("@Path", Path);
                 Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(LibraryType), Type));
-                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.ExecuteNonQuery();
             }
         }
 
-        public async Task UpdateLibraryAsync(string NewPath, LibraryType Type)
+        public void UpdateLibrary(string NewPath, LibraryType Type)
         {
             using (SqliteCommand Command = new SqliteCommand("Update Library Set Path=@NewPath Where Type=@Type", Connection))
             {
                 Command.Parameters.AddWithValue("@NewPath", NewPath);
                 Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(LibraryType), Type));
-                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.ExecuteNonQuery();
             }
         }
 
@@ -633,12 +637,12 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="SearchText">搜索内容</param>
         /// <returns></returns>
-        public async Task SetSearchHistoryAsync(string SearchText)
+        public void SetSearchHistory(string SearchText)
         {
             using (SqliteCommand Command = new SqliteCommand("Insert Or Ignore Into SearchHistory Values (@Para)", Connection))
             {
                 Command.Parameters.AddWithValue("@Para", SearchText);
-                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.ExecuteNonQuery();
             }
         }
 
@@ -650,7 +654,7 @@ namespace RX_Explorer.Class
         /// <param name="Protocal">使用的协议</param>
         /// <param name="Type">快速启动类型</param>
         /// <returns></returns>
-        public async Task SetQuickStartItemAsync(string Name, string FullPath, string Protocal, QuickStartType Type)
+        public void SetQuickStartItem(string Name, string FullPath, string Protocal, QuickStartType Type)
         {
             using (SqliteCommand Command = new SqliteCommand("Insert Or Ignore Into QuickStart Values (@Name,@Path,@Protocal,@Type)", Connection))
             {
@@ -658,7 +662,7 @@ namespace RX_Explorer.Class
                 Command.Parameters.AddWithValue("@Path", FullPath);
                 Command.Parameters.AddWithValue("@Protocal", Protocal);
                 Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
-                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.ExecuteNonQuery();
             }
         }
 
@@ -671,13 +675,15 @@ namespace RX_Explorer.Class
         /// <param name="Protocal">协议</param>
         /// <param name="Type">快速启动项类型</param>
         /// <returns></returns>
-        public async Task UpdateQuickStartItemAsync(string OldName, string NewName, string FullPath, string Protocal, QuickStartType Type)
+        public void UpdateQuickStartItem(string OldName, string NewName, string FullPath, string Protocal, QuickStartType Type)
         {
-            using (SqliteCommand Command = new SqliteCommand("Select Count(*) From QuickStart Where Name=@OldName", Connection))
+            using SqliteTransaction Transaction = Connection.BeginTransaction();
+
+            using (SqliteCommand Command = new SqliteCommand("Select Count(*) From QuickStart Where Name=@OldName", Connection, Transaction))
             {
                 Command.Parameters.AddWithValue("@OldName", OldName);
 
-                if (Convert.ToInt32(await Command.ExecuteScalarAsync().ConfigureAwait(false)) == 0)
+                if (Convert.ToInt32(Command.ExecuteScalar()) == 0)
                 {
                     return;
                 }
@@ -685,48 +691,54 @@ namespace RX_Explorer.Class
 
             if (FullPath != null)
             {
-                using (SqliteCommand Command = new SqliteCommand("Update QuickStart Set Name=@NewName, FullPath=@Path, Protocal=@Protocal Where Name=@OldName And Type=@Type", Connection))
+                using (SqliteCommand Command = new SqliteCommand("Update QuickStart Set Name=@NewName, FullPath=@Path, Protocal=@Protocal Where Name=@OldName And Type=@Type", Connection, Transaction))
                 {
                     Command.Parameters.AddWithValue("@OldName", OldName);
                     Command.Parameters.AddWithValue("@Path", FullPath);
                     Command.Parameters.AddWithValue("@NewName", NewName);
                     Command.Parameters.AddWithValue("@Protocal", Protocal);
                     Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
-                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    Command.ExecuteNonQuery();
                 }
             }
             else
             {
-                using (SqliteCommand Command = new SqliteCommand("Update QuickStart Set Name=@NewName, Protocal=@Protocal Where Name=@OldName And Type=@Type", Connection))
+                using (SqliteCommand Command = new SqliteCommand("Update QuickStart Set Name=@NewName, Protocal=@Protocal Where Name=@OldName And Type=@Type", Connection, Transaction))
                 {
                     Command.Parameters.AddWithValue("@OldName", OldName);
                     Command.Parameters.AddWithValue("@NewName", NewName);
                     Command.Parameters.AddWithValue("@Protocal", Protocal);
                     Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
-                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    Command.ExecuteNonQuery();
                 }
             }
+
+            Transaction.Commit();
         }
 
-        public async Task UpdateQuickStartItemAsync(string FullPath, string NewName, QuickStartType Type)
+        public void UpdateQuickStartItem(string FullPath, string NewName, QuickStartType Type)
         {
-            using (SqliteCommand Command = new SqliteCommand("Select Count(*) From QuickStart Where FullPath=@FullPath", Connection))
+            using SqliteTransaction Transaction = Connection.BeginTransaction();
+
+            using (SqliteCommand Command = new SqliteCommand("Select Count(*) From QuickStart Where FullPath=@FullPath", Connection, Transaction))
             {
                 Command.Parameters.AddWithValue("@FullPath", FullPath);
 
-                if (Convert.ToInt32(await Command.ExecuteScalarAsync().ConfigureAwait(false)) == 0)
+                if (Convert.ToInt32(Command.ExecuteScalar()) == 0)
                 {
                     return;
                 }
             }
 
-            using (SqliteCommand Command = new SqliteCommand("Update QuickStart Set Name=@NewName Where FullPath=@FullPath And Type=@Type", Connection))
+            using (SqliteCommand Command = new SqliteCommand("Update QuickStart Set Name=@NewName Where FullPath=@FullPath And Type=@Type", Connection, Transaction))
             {
                 Command.Parameters.AddWithValue("@FullPath", FullPath);
                 Command.Parameters.AddWithValue("@NewName", NewName);
                 Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
-                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.ExecuteNonQuery();
             }
+
+            Transaction.Commit();
         }
 
         /// <summary>
@@ -734,16 +746,17 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="Item">要删除的项</param>
         /// <returns></returns>
-        public async Task DeleteQuickStartItemAsync(QuickStartItem Item)
+        public void DeleteQuickStartItem(QuickStartItem Item)
         {
             if (Item != null)
             {
-                using (SqliteCommand Command = new SqliteCommand("Delete From QuickStart Where Name = @Name And FullPath = @FullPath And Type=@Type", Connection))
+                using (SqliteCommand Command = new SqliteCommand("Delete From QuickStart Where Name = @Name And Protocal = @Protocol And FullPath = @FullPath And Type=@Type", Connection))
                 {
                     Command.Parameters.AddWithValue("@Name", Item.DisplayName);
-                    Command.Parameters.AddWithValue("@FullPath", Item.RelativePath);
+                    Command.Parameters.AddWithValue("@Protocol", Item.Protocol);
+                    Command.Parameters.AddWithValue("@FullPath", Item.IconPath);
                     Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Item.Type));
-                    await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    Command.ExecuteNonQuery();
                 }
             }
             else
@@ -752,75 +765,42 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task DeleteQuickStartItemAsync(QuickStartType Type)
+        public void DeleteQuickStartItem(QuickStartType Type)
         {
             using (SqliteCommand Command = new SqliteCommand("Delete From QuickStart Where Type=@Type", Connection))
             {
                 Command.Parameters.AddWithValue("@Type", Enum.GetName(typeof(QuickStartType), Type));
-                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.ExecuteNonQuery();
             }
         }
+
+        public void DeleteQuickStartItem(string Name, string Protocol, string FullPath, string Type)
+        {
+            using (SqliteCommand Command = new SqliteCommand("Delete From QuickStart Where Name = @Name And Protocal = @Protocol And FullPath = @FullPath And Type=@Type", Connection))
+            {
+                Command.Parameters.AddWithValue("@Name", Name);
+                Command.Parameters.AddWithValue("@Protocol", Protocol);
+                Command.Parameters.AddWithValue("@FullPath", FullPath);
+                Command.Parameters.AddWithValue("@Type", Type);
+                Command.ExecuteNonQuery();
+            }
+        }
+
 
         /// <summary>
         /// 获取所有快速启动项
         /// </summary>
         /// <returns></returns>
-        public async Task<IReadOnlyList<KeyValuePair<QuickStartType, QuickStartItem>>> GetQuickStartItemAsync()
+        public IReadOnlyList<(string, string, string, string)> GetQuickStartItem()
         {
-            List<Tuple<string, string, string>> ErrorList = new List<Tuple<string, string, string>>();
-            List<KeyValuePair<QuickStartType, QuickStartItem>> Result = new List<KeyValuePair<QuickStartType, QuickStartItem>>();
+            List<(string, string, string, string)> Result = new List<(string, string, string, string)>();
 
             using (SqliteCommand Command = new SqliteCommand("Select * From QuickStart", Connection))
-            using (SqliteDataReader Reader = await Command.ExecuteReaderAsync())
+            using (SqliteDataReader Reader = Command.ExecuteReader())
             {
                 while (Reader.Read())
                 {
-                    StorageFile ImageFile = null;
-
-                    try
-                    {
-                        ImageFile = Convert.ToString(Reader[1]).StartsWith("ms-appx")
-                                                ? await StorageFile.GetFileFromApplicationUriAsync(new Uri(Reader[1].ToString()))
-                                                : await StorageFile.GetFileFromPathAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, Convert.ToString(Reader[1])));
-
-                        BitmapImage Bitmap = new BitmapImage();
-
-                        using (IRandomAccessStream Stream = await ImageFile.OpenAsync(FileAccessMode.Read))
-                        {
-                            await Bitmap.SetSourceAsync(Stream);
-                        }
-
-                        if (Enum.Parse<QuickStartType>(Reader[3].ToString()) == QuickStartType.Application)
-                        {
-                            Result.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.Application, new QuickStartItem(Bitmap, Convert.ToString(Reader[2]), QuickStartType.Application, Reader[1].ToString(), Reader[0].ToString())));
-                        }
-                        else
-                        {
-                            Result.Add(new KeyValuePair<QuickStartType, QuickStartItem>(QuickStartType.WebSite, new QuickStartItem(Bitmap, Convert.ToString(Reader[2]), QuickStartType.WebSite, Reader[1].ToString(), Reader[0].ToString())));
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, $"Could not load QuickStart item, Name: {Reader[0]}");
-
-                        ErrorList.Add(new Tuple<string, string, string>(Convert.ToString(Reader[0]), Convert.ToString(Reader[1]), Convert.ToString(Reader[3])));
-
-                        if (ImageFile != null)
-                        {
-                            await ImageFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
-                        }
-                    }
-                }
-            }
-
-            foreach (Tuple<string, string, string> ErrorItem in ErrorList)
-            {
-                using (SqliteCommand Command = new SqliteCommand("Delete From QuickStart Where Name = @Name And FullPath = @FullPath And Type=@Type", Connection))
-                {
-                    Command.Parameters.AddWithValue("@Name", ErrorItem.Item1);
-                    Command.Parameters.AddWithValue("@FullPath", ErrorItem.Item2);
-                    Command.Parameters.AddWithValue("@Type", ErrorItem.Item3);
-                    await Command.ExecuteNonQueryAsync();
+                    Result.Add((Convert.ToString(Reader[0]), Convert.ToString(Reader[1]), Convert.ToString(Reader[2]), Convert.ToString(Reader[3])));
                 }
             }
 
@@ -832,7 +812,7 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="Target">搜索内容</param>
         /// <returns></returns>
-        public async Task<IReadOnlyList<string>> GetRelatedSearchHistoryAsync(string Target)
+        public IReadOnlyList<string> GetRelatedSearchHistory(string Target)
         {
             List<string> HistoryList = new List<string>();
 
@@ -840,7 +820,7 @@ namespace RX_Explorer.Class
             {
                 Command.Parameters.AddWithValue("@Target", $"%{Target}%");
 
-                using (SqliteDataReader Query = await Command.ExecuteReaderAsync().ConfigureAwait(false))
+                using (SqliteDataReader Query = Command.ExecuteReader())
                 {
                     while (Query.Read())
                     {
@@ -852,12 +832,12 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task DeleteSearchHistoryAsync(string RecordText)
+        public void DeleteSearchHistory(string RecordText)
         {
             using (SqliteCommand Command = new SqliteCommand("Delete From SearchHistory Where SearchText = @RecordText", Connection))
             {
                 Command.Parameters.AddWithValue("@RecordText", RecordText);
-                await Command.ExecuteNonQueryAsync();
+                Command.ExecuteNonQuery();
             }
         }
 
@@ -866,11 +846,11 @@ namespace RX_Explorer.Class
         /// </summary>
         /// <param name="TableName">数据表名</param>
         /// <returns></returns>
-        public async Task ClearTableAsync(string TableName)
+        public void ClearTable(string TableName)
         {
             using (SqliteCommand Command = new SqliteCommand($"Delete From {TableName}", Connection))
             {
-                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                Command.ExecuteNonQuery();
             }
         }
 

@@ -310,7 +310,7 @@ namespace RX_Explorer
                     SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfi_UseEverythingAsDefault"));
                 }
 
-                foreach (TerminalProfile Profile in await SQLite.Current.GetAllTerminalProfile())
+                foreach (TerminalProfile Profile in SQLite.Current.GetAllTerminalProfile())
                 {
                     DefaultTerminal.Items.Add(Profile.Name);
                 }
@@ -329,7 +329,7 @@ namespace RX_Explorer
                 {
                     try
                     {
-                        IEnumerable<string> DataBase = (await SQLite.Current.GetAllTerminalProfile()).Select((Profile) => Profile.Name);
+                        IEnumerable<string> DataBase = SQLite.Current.GetAllTerminalProfile().Select((Profile) => Profile.Name);
 
                         foreach (string NewProfile in DataBase.Except(DefaultTerminal.Items).ToList())
                         {
@@ -1497,7 +1497,7 @@ namespace RX_Explorer
 
                 if (PictureList.Count == 0)
                 {
-                    foreach (Uri ImageUri in await SQLite.Current.GetBackgroundPictureAsync())
+                    foreach (Uri ImageUri in SQLite.Current.GetBackgroundPicture())
                     {
                         BitmapImage Bitmap = new BitmapImage
                         {
@@ -1519,7 +1519,7 @@ namespace RX_Explorer
                         catch (Exception ex)
                         {
                             LogTracer.Log(ex, "Error when loading background pictures, the file might lost");
-                            await SQLite.Current.DeleteBackgroundPictureAsync(ImageUri);
+                            SQLite.Current.DeleteBackgroundPicture(ImageUri);
                         }
                     }
                 }
@@ -1792,7 +1792,7 @@ namespace RX_Explorer
                 PictureGirdView.UpdateLayout();
                 PictureGirdView.SelectedItem = Picture;
 
-                await SQLite.Current.SetBackgroundPictureAsync(Picture.PictureUri).ConfigureAwait(false);
+                SQLite.Current.SetBackgroundPicture(Picture.PictureUri);
             }
         }
 
@@ -1808,7 +1808,7 @@ namespace RX_Explorer
                         await ImageFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
                     }
 
-                    await SQLite.Current.DeleteBackgroundPictureAsync(Picture.PictureUri);
+                    SQLite.Current.DeleteBackgroundPicture(Picture.PictureUri);
 
                     PictureList.Remove(Picture);
                     PictureGirdView.UpdateLayout();
@@ -2289,7 +2289,7 @@ namespace RX_Explorer
 
             if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
             {
-                IEnumerable<string> DataBase = (await SQLite.Current.GetAllTerminalProfile()).Select((Profile) => Profile.Name);
+                IEnumerable<string> DataBase = SQLite.Current.GetAllTerminalProfile().Select((Profile) => Profile.Name);
 
                 foreach (string NewProfile in DataBase.Except(DefaultTerminal.Items).ToList())
                 {

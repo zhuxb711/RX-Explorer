@@ -1153,10 +1153,10 @@ namespace RX_Explorer
                     }
             }
 
-            await SQLite.Current.SetSearchHistoryAsync(sender.Text).ConfigureAwait(false);
+            SQLite.Current.SetSearchHistory(sender.Text);
         }
 
-        private async void GlobeSearch_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        private void GlobeSearch_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
@@ -1168,7 +1168,7 @@ namespace RX_Explorer
                         {
                             SearchSuggestionList.Clear();
 
-                            foreach (string Text in await SQLite.Current.GetRelatedSearchHistoryAsync(sender.Text))
+                            foreach (string Text in SQLite.Current.GetRelatedSearchHistory(sender.Text))
                             {
                                 SearchSuggestionList.Add(new SearchSuggestionItem(Text));
                             }
@@ -1187,7 +1187,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void GlobeSearch_GotFocus(object sender, RoutedEventArgs e)
+        private void GlobeSearch_GotFocus(object sender, RoutedEventArgs e)
         {
             BlockKeyboardShortCutInput = true;
 
@@ -1195,7 +1195,7 @@ namespace RX_Explorer
 
             SearchSuggestionList.Clear();
 
-            foreach (string Text in await SQLite.Current.GetRelatedSearchHistoryAsync(GlobeSearch.Text))
+            foreach (string Text in SQLite.Current.GetRelatedSearchHistory(GlobeSearch.Text))
             {
                 SearchSuggestionList.Add(new SearchSuggestionItem(Text));
             }
@@ -1490,7 +1490,7 @@ namespace RX_Explorer
                             {
                                 AddressSuggestionList.Clear();
 
-                                foreach (string Path in await SQLite.Current.GetRelatedPathHistoryAsync())
+                                foreach (string Path in SQLite.Current.GetRelatedPathHistory())
                                 {
                                     AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Visible));
                                 }
@@ -1673,7 +1673,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void AddressBox_GotFocus(object sender, RoutedEventArgs e)
+        private void AddressBox_GotFocus(object sender, RoutedEventArgs e)
         {
             BlockKeyboardShortCutInput = true;
 
@@ -1689,7 +1689,7 @@ namespace RX_Explorer
 
             AddressSuggestionList.Clear();
 
-            foreach (string Path in await SQLite.Current.GetRelatedPathHistoryAsync())
+            foreach (string Path in SQLite.Current.GetRelatedPathHistory())
             {
                 AddressSuggestionList.Add(new AddressSuggestionItem(Path, Visibility.Visible));
             }
@@ -2450,7 +2450,7 @@ namespace RX_Explorer
                     {
                         ViewModeComboBox.IsEnabled = true;
 
-                        PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentPresenter.CurrentFolder.Path);
+                        PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentPresenter.CurrentFolder.Path);
                         await ViewModeControl.SetCurrentViewMode(Config.Path, Config.DisplayModeIndex.GetValueOrDefault());
                     }
                 }
@@ -2575,14 +2575,14 @@ namespace RX_Explorer
             }
         }
 
-        private async void AddressBarSelectionDelete_PointerPressed(object sender, PointerRoutedEventArgs e)
+        private void AddressBarSelectionDelete_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             e.Handled = true;
 
             if ((sender as FrameworkElement)?.DataContext is AddressSuggestionItem Item)
             {
                 AddressSuggestionList.Remove(Item);
-                await SQLite.Current.DeletePathHistoryAsync(Item.Path);
+                SQLite.Current.DeletePathHistory(Item.Path);
             }
         }
 
@@ -2591,14 +2591,14 @@ namespace RX_Explorer
             CurrentPresenter.DisplayItemsInFolder(RootStorageFolder.Instance);
         }
 
-        private async void SearchSelectionDelete_PointerPressed(object sender, PointerRoutedEventArgs e)
+        private void SearchSelectionDelete_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             e.Handled = true;
 
             if ((sender as FrameworkElement)?.DataContext is SearchSuggestionItem Item)
             {
                 SearchSuggestionList.Remove(Item);
-                await SQLite.Current.DeleteSearchHistoryAsync(Item.Text);
+                SQLite.Current.DeleteSearchHistory(Item.Text);
             }
         }
     }

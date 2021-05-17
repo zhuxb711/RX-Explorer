@@ -9,13 +9,13 @@ namespace RX_Explorer.Class
     {
         public static event EventHandler<GroupStateChangedEventArgs> GroupStateChanged;
 
-        public static async Task SavePathGroupStateAsync(string Path, GroupTarget Target, GroupDirection Direction)
+        public static void SavePathGroupState(string Path, GroupTarget Target, GroupDirection Direction)
         {
-            PathConfiguration CurrentConfiguration = await SQLite.Current.GetPathConfigurationAsync(Path);
+            PathConfiguration CurrentConfiguration = SQLite.Current.GetPathConfiguration(Path);
 
             if (CurrentConfiguration.GroupTarget != Target || CurrentConfiguration.GroupDirection != Direction)
             {
-                await SQLite.Current.SetPathConfigurationAsync(new PathConfiguration(Path, Target, Direction));
+                SQLite.Current.SetPathConfiguration(new PathConfiguration(Path, Target, Direction));
                 GroupStateChanged?.Invoke(null, new GroupStateChangedEventArgs(Path, Target, Direction));
             }
         }

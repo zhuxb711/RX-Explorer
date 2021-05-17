@@ -176,7 +176,7 @@ namespace RX_Explorer
                     case LaunchQuerySupportStatus.Available:
                     case LaunchQuerySupportStatus.NotSupported:
                         {
-                            await SQLite.Current.SetOrModifyTerminalProfile(new TerminalProfile("Windows Terminal", "wt.exe", "/d [CurrentLocation]", true));
+                            SQLite.Current.SetOrModifyTerminalProfile(new TerminalProfile("Windows Terminal", "wt.exe", "/d [CurrentLocation]", true));
                             break;
                         }
                 }
@@ -1013,14 +1013,14 @@ namespace RX_Explorer
             }
         }
 
-        private async void QuickStartItemDelete_Click(object sender, RoutedEventArgs e)
+        private void QuickStartItemDelete_Click(object sender, RoutedEventArgs e)
         {
             if ((sender as AppBarButton)?.Name == nameof(AppDelete))
             {
                 if (QuickStartGridView.Tag is QuickStartItem Item)
                 {
                     CommonAccessCollection.QuickStartList.Remove(Item);
-                    await SQLite.Current.DeleteQuickStartItemAsync(Item).ConfigureAwait(false);
+                    SQLite.Current.DeleteQuickStartItem(Item);
                 }
             }
             else
@@ -1028,7 +1028,7 @@ namespace RX_Explorer
                 if (WebGridView.Tag is QuickStartItem Item)
                 {
                     CommonAccessCollection.WebLinkList.Remove(Item);
-                    await SQLite.Current.DeleteQuickStartItemAsync(Item).ConfigureAwait(false);
+                    SQLite.Current.DeleteQuickStartItem(Item);
                 }
             }
         }
@@ -1063,24 +1063,24 @@ namespace RX_Explorer
             }
         }
 
-        private async void QuickStart_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
+        private void QuickStart_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
         {
             if ((sender as GridView).Name == nameof(QuickStartGridView))
             {
-                await SQLite.Current.DeleteQuickStartItemAsync(QuickStartType.Application);
+                SQLite.Current.DeleteQuickStartItem(QuickStartType.Application);
 
                 foreach (QuickStartItem Item in CommonAccessCollection.QuickStartList.Where((Item) => Item.Type != QuickStartType.AddButton))
                 {
-                    await SQLite.Current.SetQuickStartItemAsync(Item.DisplayName, Item.RelativePath, Item.Protocol, QuickStartType.Application);
+                    SQLite.Current.SetQuickStartItem(Item.DisplayName, Item.IconPath, Item.Protocol, QuickStartType.Application);
                 }
             }
             else
             {
-                await SQLite.Current.DeleteQuickStartItemAsync(QuickStartType.WebSite);
+                SQLite.Current.DeleteQuickStartItem(QuickStartType.WebSite);
 
                 foreach (QuickStartItem Item in CommonAccessCollection.WebLinkList.Where((Item) => Item.Type != QuickStartType.AddButton))
                 {
-                    await SQLite.Current.SetQuickStartItemAsync(Item.DisplayName, Item.RelativePath, Item.Protocol, QuickStartType.WebSite);
+                    SQLite.Current.SetQuickStartItem(Item.DisplayName, Item.IconPath, Item.Protocol, QuickStartType.WebSite);
                 }
             }
         }
