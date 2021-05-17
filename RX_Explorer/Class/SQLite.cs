@@ -309,35 +309,38 @@ namespace RX_Explorer.Class
         {
             string DefaultPath = await GetDefaultProgramPickerRecordAsync(Extension);
 
-            using (SqliteCommand Command = new SqliteCommand
+            using SqliteCommand Command = new SqliteCommand
             {
                 Connection = Connection
-            })
+            };
+
+            StringBuilder PathBuilder = new StringBuilder("Update ProgramPicker Set IsDefault = 'False' Where FileType = @FileType;");
+
+            for (int i = 0; i < AssociationList.Length; i++)
             {
-                StringBuilder PathBuilder = new StringBuilder("Update ProgramPicker Set IsDefault = 'False' Where FileType = @FileType;");
+                PathBuilder.Append($"Insert Or Replace Into ProgramPicker Values (@FileType, @ExecutablePath_{i}, @IsDefault_{i}, @IsRecommanded_{i});");
 
-                for (int i = 0; i < AssociationList.Length; i++)
+                Command.Parameters.AddWithValue($"@ExecutablePath_{i}", AssociationList[i].ExecutablePath);
+                Command.Parameters.AddWithValue($"@IsRecommanded_{i}", Convert.ToString(AssociationList[i].IsRecommanded));
+
+                if (AssociationList[i].ExecutablePath.Equals(DefaultPath, StringComparison.OrdinalIgnoreCase))
                 {
-                    PathBuilder.Append($"Insert Or Replace Into ProgramPicker Values (@FileType, @ExecutablePath_{i}, @IsDefault_{i}, @IsRecommanded_{i});");
-
-                    Command.Parameters.AddWithValue($"@ExecutablePath_{i}", AssociationList[i].ExecutablePath);
-                    Command.Parameters.AddWithValue($"@IsRecommanded_{i}", Convert.ToString(AssociationList[i].IsRecommanded));
-
-                    if (AssociationList[i].ExecutablePath.Equals(DefaultPath, StringComparison.OrdinalIgnoreCase))
-                    {
-                        Command.Parameters.AddWithValue($"@IsDefault_{i}", "True");
-                    }
-                    else
-                    {
-                        Command.Parameters.AddWithValue($"@IsDefault_{i}", "False");
-                    }
+                    Command.Parameters.AddWithValue($"@IsDefault_{i}", "True");
                 }
-
-                Command.Parameters.AddWithValue("@FileType", Extension.ToLower());
-                Command.CommandText = PathBuilder.ToString();
-
-                await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                else
+                {
+                    Command.Parameters.AddWithValue($"@IsDefault_{i}", "False");
+                }
             }
+
+            Command.Parameters.AddWithValue("@FileType", Extension.ToLower());
+            Command.CommandText = PathBuilder.ToString();
+
+            var transaction = Connection.BeginTransaction();
+
+            await Command.ExecuteNonQueryAsync().ConfigureAwait(false);
+
+            transaction.Commit();
         }
 
         public async Task<string> GetDefaultProgramPickerRecordAsync(string Extension)
