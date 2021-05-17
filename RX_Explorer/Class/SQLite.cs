@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using DocumentFormat.OpenXml.Office2010.CustomUI;
+using Microsoft.Data.Sqlite;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
@@ -245,63 +246,52 @@ namespace RX_Explorer.Class
                 throw new ArgumentNullException(nameof(Profile), "Argument could not be null");
             }
 
-            int Count = 0;
-
             using SqliteTransaction Transaction = Connection.BeginTransaction();
-            using (SqliteCommand Command = new SqliteCommand("Select Count(*) From TerminalProfile Where Name = @Name", Connection, Transaction))
-            {
-                Command.Parameters.AddWithValue("@Name", Profile.Name);
-                Count = Convert.ToInt32(Command.ExecuteScalar());
-            }
 
-            if (Count > 0)
-            {
-                using (SqliteCommand UpdateCommand = new SqliteCommand("Update TerminalProfile Set Path = @Path, Argument = @Argument, RunAsAdmin = @RunAsAdmin Where Name = @Name", Connection, Transaction))
-                {
-                    UpdateCommand.Parameters.AddWithValue("@Name", Profile.Name);
-                    UpdateCommand.Parameters.AddWithValue("@Path", Profile.Path);
-                    UpdateCommand.Parameters.AddWithValue("@Argument", Profile.Argument);
-                    UpdateCommand.Parameters.AddWithValue("@RunAsAdmin", Convert.ToString(Profile.RunAsAdmin));
-                    UpdateCommand.ExecuteNonQuery();
-                }
-            }
-            else
-            {
-                using (SqliteCommand AddCommand = new SqliteCommand("Insert Into TerminalProfile Values (@Name,@Path,@Argument,@RunAsAdmin)", Connection, Transaction))
-                {
-                    AddCommand.Parameters.AddWithValue("@Name", Profile.Name);
-                    AddCommand.Parameters.AddWithValue("@Path", Profile.Path);
-                    AddCommand.Parameters.AddWithValue("@Argument", Profile.Argument);
-                    AddCommand.Parameters.AddWithValue("@RunAsAdmin", Convert.ToString(Profile.RunAsAdmin));
-                    AddCommand.ExecuteNonQuery();
-                }
-            }
+            using SqliteCommand Command = new SqliteCommand("Select Count(*) From TerminalProfile Where Name = @Name", Connection, Transaction);
+
+            Command.Parameters.AddWithValue("@Name", Profile.Name);
+
+            int Count = Convert.ToInt32(Command.ExecuteScalar());
+
+            Command.CommandText = Count > 0 ?
+                "Update TerminalProfile Set Path = @Path, Argument = @Argument, RunAsAdmin = @RunAsAdmin Where Name = @Name" :
+                "Insert Into TerminalProfile Values (@Name,@Path,@Argument,@RunAsAdmin)";
+
+
+            Command.Parameters.AddWithValue("@Path", Profile.Path);
+            Command.Parameters.AddWithValue("@Argument", Profile.Argument);
+            Command.Parameters.AddWithValue("@RunAsAdmin", Convert.ToString(Profile.RunAsAdmin));
+            Command.ExecuteNonQuery();
 
             Transaction.Commit();
         }
 
         public void SetProgramPickerRecord(params AssociationPackage[] Packages)
         {
-            using SqliteTransaction Transaction = Connection.BeginTransaction();
-            using SqliteCommand Command = new SqliteCommand
+            using var Transaction = Connection.BeginTransaction();
+            using var Command = Connection.CreateCommand();
+
+            Command.CommandText = $"Insert Or Ignore Into ProgramPicker Values (@Extension, @ExecutablePath, 'False', @IsRecommanded);";
+
+            var ExtensionPara = Command.CreateParameter();
+            ExtensionPara.ParameterName = "@Extension";
+            var ExerPathPara = Command.CreateParameter();
+            ExerPathPara.ParameterName = "@ExecutablePath";
+            var IsRecommandedPara = Command.CreateParameter();
+            IsRecommandedPara.ParameterName = "@IsRecommanded";
+
+            Command.Parameters.Add(ExtensionPara);
+            Command.Parameters.Add(ExerPathPara);
+            Command.Parameters.Add(IsRecommandedPara);
+
+            foreach (var package in Packages)
             {
-                Connection = Connection,
-                Transaction = Transaction
-            };
-
-            StringBuilder AddPathBuilder = new StringBuilder();
-
-            for (int i = 0; i < Packages.Length; i++)
-            {
-                AddPathBuilder.Append($"Insert Or Ignore Into ProgramPicker Values (@Extension_{i}, @ExecutablePath_{i}, 'False', @IsRecommanded_{i});");
-
-                Command.Parameters.AddWithValue($"@Extension_{i}", Packages[i].Extension.ToLower());
-                Command.Parameters.AddWithValue($"@ExecutablePath_{i}", Packages[i].ExecutablePath);
-                Command.Parameters.AddWithValue($"@IsRecommanded_{i}", Convert.ToString(Packages[i].IsRecommanded));
+                ExtensionPara.Value = package.Extension.ToLower();
+                ExerPathPara.Value = package.ExecutablePath;
+                IsRecommandedPara.Value = package.IsRecommanded.ToString();
+                Command.ExecuteNonQuery();
             }
-
-            Command.CommandText = AddPathBuilder.ToString();
-            Command.ExecuteNonQuery();
 
             Transaction.Commit();
         }
@@ -310,36 +300,37 @@ namespace RX_Explorer.Class
         {
             string DefaultPath = GetDefaultProgramPickerRecord(Extension);
 
-            using SqliteTransaction Transaction = Connection.BeginTransaction();
-            
-            using SqliteCommand Command = new SqliteCommand
-            {
-                Connection = Connection,
-                Transaction = Transaction
-            };
+            using var Transaction = Connection.BeginTransaction();
 
-            StringBuilder PathBuilder = new StringBuilder("Update ProgramPicker Set IsDefault = 'False' Where FileType = @FileType;");
+            using var Command = Connection.CreateCommand();
+            Command.CommandText = "Update ProgramPicker Set IsDefault = 'False' Where FileType = @FileType;";
 
-            for (int i = 0; i < AssociationList.Length; i++)
-            {
-                PathBuilder.Append($"Insert Or Replace Into ProgramPicker Values (@FileType, @ExecutablePath_{i}, @IsDefault_{i}, @IsRecommanded_{i});");
+            var fileTypePara = new SqliteParameter("@FileType", Extension.ToLower());
 
-                Command.Parameters.AddWithValue($"@ExecutablePath_{i}", AssociationList[i].ExecutablePath);
-                Command.Parameters.AddWithValue($"@IsRecommanded_{i}", Convert.ToString(AssociationList[i].IsRecommanded));
-
-                if (AssociationList[i].ExecutablePath.Equals(DefaultPath, StringComparison.OrdinalIgnoreCase))
-                {
-                    Command.Parameters.AddWithValue($"@IsDefault_{i}", "True");
-                }
-                else
-                {
-                    Command.Parameters.AddWithValue($"@IsDefault_{i}", "False");
-                }
-            }
-
-            Command.Parameters.AddWithValue("@FileType", Extension.ToLower());
-            Command.CommandText = PathBuilder.ToString();
+            Command.Parameters.Add(fileTypePara);
             Command.ExecuteNonQuery();
+
+
+            Command.CommandText = $"Insert Or Replace Into ProgramPicker Values (@FileType, @ExecutablePath, @IsDefault, @IsRecommanded);";
+
+            var ExerPathPara = Command.CreateParameter();
+            ExerPathPara.ParameterName = "@ExecutablePath";
+            var IsDefaultPara = Command.CreateParameter();
+            IsDefaultPara.ParameterName = "@IsDefault";
+            var IsRecommandedPara = Command.CreateParameter();
+            IsRecommandedPara.ParameterName = "@IsRecommanded";
+
+            Command.Parameters.Add(ExerPathPara);
+            Command.Parameters.Add(IsDefaultPara);
+            Command.Parameters.Add(IsRecommandedPara);
+
+            foreach (var association in AssociationList)
+            {
+                ExerPathPara.Value = association.ExecutablePath;
+                IsDefaultPara.Value = association.ExecutablePath.Equals(DefaultPath, StringComparison.OrdinalIgnoreCase).ToString();
+                IsRecommandedPara.Value = association.IsRecommanded.ToString();
+                Command.ExecuteNonQuery();
+            }
 
             Transaction.Commit();
         }
@@ -357,18 +348,15 @@ namespace RX_Explorer.Class
         {
             using SqliteTransaction Transaction = Connection.BeginTransaction();
 
-            using (SqliteCommand Command = new SqliteCommand("Update ProgramPicker Set IsDefault = 'False' Where FileType = @FileType", Connection, Transaction))
-            {
-                Command.Parameters.AddWithValue("@FileType", Extension.ToLower());
-                Command.ExecuteNonQuery();
-            }
+            using SqliteCommand Command = new SqliteCommand("Update ProgramPicker Set IsDefault = 'False' Where FileType = @FileType", Connection, Transaction);
 
-            using (SqliteCommand Command = new SqliteCommand("Update ProgramPicker Set IsDefault = 'True' Where FileType = @FileType And Path = @Path", Connection, Transaction))
-            {
-                Command.Parameters.AddWithValue("@FileType", Extension.ToLower());
-                Command.Parameters.AddWithValue("@Path", Path);
-                Command.ExecuteNonQuery();
-            }
+            Command.Parameters.AddWithValue("@FileType", Extension.ToLower());
+            Command.ExecuteNonQuery();
+
+            Command.CommandText = "Update ProgramPicker Set IsDefault = 'True' Where FileType = @FileType And Path = @Path";
+            Command.Parameters.AddWithValue("@Path", Path);
+
+            Command.ExecuteNonQuery();
 
             Transaction.Commit();
         }
