@@ -216,12 +216,6 @@
   <data name="FeedBackListHeader.Text" xml:space="preserve">
     <value>Liste des commentaires</value>
   </data>
-  <data name="FeedBackTip.Subtitle" xml:space="preserve">
-    <value>Cette liste montre vos suggestions et commentaires à tous les autres utilisateurs. Vous pouvez aussi noter les suggestions d'autres utilisateurs. Le développeur vous écoute et priorise l'implantation des suggestions qui sont les plus attendues par la communauté. Vous pouvez seulement modifier ou supprimer les suggestions que vous publiez.</value>
-  </data>
-  <data name="FeedBackTip.Title" xml:space="preserve">
-    <value>Description de la liste</value>
-  </data>
   <data name="FileControlBackButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Retour</value>
   </data>
@@ -1825,9 +1819,6 @@
   <data name="QueueDialog_DeleteFailUnexpectError_Content" xml:space="preserve">
     <value>Une erreur s'est produite lors de la suppression du fichier, l'opération de suppression a échoué</value>
   </data>
-  <data name="LanguageRestartTip.Text" xml:space="preserve">
-    <value>(Veuillez redémarrer cette application pour que les paramètres prennent effet)</value>
-  </data>
   <data name="SettingSubmitIssueOnGithub.Content" xml:space="preserve">
     <value>Soumettre un problème sur Github</value>
   </data>
@@ -3048,5 +3039,17 @@ Les noms non valides incluent
   </data>
   <data name="QueueDialog_ImportConfigurationSuccess_Content" xml:space="preserve">
     <value>Configuration importée avec succès</value>
+  </data>
+  <data name="SystemTip_RestartContent" xml:space="preserve">
+    <value>Veuillez redémarrer l'application pour activer la nouvelle configuration. Vous pouvez également continuer à utiliser cette application, mais certaines configurations peuvent ne prendre effet qu'au prochain démarrage.</value>
+  </data>
+  <data name="SystemTip_RestartTitle" xml:space="preserve">
+    <value>Un redémarrage est requis</value>
+  </data>
+  <data name="SystemTip_FullTrustExitedContent" xml:space="preserve">
+    <value>Le processus auxiliaire s'est arrêté de manière inattendue, ce qui peut entraîner un dysfonctionnement de certaines fonctions</value>
+  </data>
+  <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
+    <value>Erreur critique</value>
   </data>
 </root>

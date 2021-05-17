@@ -290,14 +290,6 @@
           <source>Feedback list</source>
           <target state="translated">Feedbackliste</target>
         </trans-unit>
-        <trans-unit id="FeedBackTip.Subtitle" translate="yes" xml:space="preserve">
-          <source>This feedback list will show your suggestions or feedback to all users. You can also review the suggestions made by others and give you support for the suggestions that are of interest. The more support and the less objection, the higher the priority, The developer will listen to your suggestions. You can only modify or delete the suggestions you submit.</source>
-          <target state="translated">Die Feedbackliste zeigt deine Vorschläge oder Feedback von allen Benutzern. Sie können auch die Vorschläge anderer überprüfen und Sie bei den Vorschlägen unterstützen, die von Interesse sind. Je mehr Unterstützung und je weniger Einwände es gibt, desto höher ist die Priorität in der der Entwickler auf die Vorschläge hört. Sie können nur die von Ihnen gesendeten Vorschläge ändern oder löschen.</target>
-        </trans-unit>
-        <trans-unit id="FeedBackTip.Title" translate="yes" xml:space="preserve">
-          <source>Feedback description</source>
-          <target state="translated">Feedbackbeschreibung</target>
-        </trans-unit>
         <trans-unit id="FileControlBackButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Back</source>
           <target state="translated">Zurück</target>
@@ -2483,10 +2475,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <source>An error occurred while moving the file, the move operation failed</source>
           <target state="translated">Ein Fehler trat während des Verschiebens der Datei auf. Der Verschiebungsvorgang ist fehlgeschlagen.</target>
         </trans-unit>
-        <trans-unit id="LanguageRestartTip.Text" translate="yes" xml:space="preserve">
-          <source>(Please restart the app for the settings to take effect)</source>
-          <target state="translated">(Die Änderungen werden nach einem Neustart der App übernommen.)</target>
-        </trans-unit>
         <trans-unit id="SettingSubmitIssueOnGithub.Content" translate="yes" xml:space="preserve">
           <source>Submit issue on Github</source>
           <target state="translated">Problem auf Github melden</target>
@@ -4043,6 +4031,22 @@ Inkorrekte Namen sind
         <trans-unit id="QueueDialog_ImportConfigurationSuccess_Content" translate="yes" xml:space="preserve">
           <source>Successfully imported configuration</source>
           <target state="translated">Konfiguration erfolgreich importiert</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_RestartContent" translate="yes" xml:space="preserve">
+          <source>Please restart the application to activate the new configuration. You can also continue to use this app, but some configurations may not take effect until the next time you start it</source>
+          <target state="translated">Bitte starten Sie die Anwendung neu, um die neue Konfiguration zu aktivieren. Sie können diese App auch weiterhin verwenden, einige Konfigurationen werden jedoch möglicherweise erst beim nächsten Start wirksam</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_RestartTitle" translate="yes" xml:space="preserve">
+          <source>Restart is required</source>
+          <target state="translated">Neustart ist erforderlich</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_FullTrustExitedContent" translate="yes" xml:space="preserve">
+          <source>Auxiliary process exited unexpectedly, which may cause some functions will not work properly</source>
+          <target state="translated">Der Hilfsprozess wurde unerwartet beendet, was dazu führen kann, dass einige Funktionen nicht ordnungsgemäß funktionieren</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_FullTrustExitedTitle" translate="yes" xml:space="preserve">
+          <source>Critical error</source>
+          <target state="translated">Kritischer Fehler</target>
         </trans-unit>
       </group>
     </body>

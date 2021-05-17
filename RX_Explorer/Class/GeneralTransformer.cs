@@ -482,20 +482,20 @@ namespace RX_Explorer.Class
                         BindingGeneric = new ToastBindingGeneric()
                         {
                             Children =
-                        {
-                            new AdaptiveText()
                             {
-                                Text = Globalization.GetString("Merge_Toast_ProbarTitle")
-                            },
+                                new AdaptiveText()
+                                {
+                                    Text = Globalization.GetString("Merge_Toast_ProbarTitle")
+                                },
 
-                            new AdaptiveProgressBar()
-                            {
-                                Title = Globalization.GetString("Merge_Toast_ProbarTitle"),
-                                Value = new BindableProgressBarValue("ProgressValue"),
-                                ValueStringOverride = new BindableString("ProgressValueString"),
-                                Status = new BindableString("ProgressStatus")
+                                new AdaptiveProgressBar()
+                                {
+                                    Title = Globalization.GetString("Merge_Toast_ProbarTitle"),
+                                    Value = new BindableProgressBarValue("ProgressValue"),
+                                    ValueStringOverride = new BindableString("ProgressValueString"),
+                                    Status = new BindableString("ProgressStatus")
+                                }
                             }
-                        }
                         }
                     }
                 };

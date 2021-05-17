@@ -153,6 +153,8 @@ namespace RX_Explorer.Class
 
         public static event EventHandler<bool> CurrentBusyStatus;
 
+        public static event EventHandler FullTrustProcessExitedUnexpected;
+
         static FullTrustProcessController()
         {
             DispatcherThread.Start();
@@ -331,6 +333,7 @@ namespace RX_Explorer.Class
                         {
                             LogTracer.Log("FullTrustProcess exited unexpected, dispose this instance");
                             Dispose();
+                            FullTrustProcessExitedUnexpected?.Invoke(this, null);
                             break;
                         }
                 }

@@ -216,12 +216,6 @@
   <data name="FeedBackListHeader.Text" xml:space="preserve">
     <value>反馈建议清单</value>
   </data>
-  <data name="FeedBackTip.Subtitle" xml:space="preserve">
-    <value>此反馈清单将向所有使用者展示您的建议或者反馈，同样您也可以查看其他人提出的建议，并给予您感兴趣的提议一个支持，支持越多且反对越少的建议将越靠前，开发者将聆听您的建议。您只能修改或删除您提交的建议。</value>
-  </data>
-  <data name="FeedBackTip.Title" xml:space="preserve">
-    <value>反馈说明</value>
-  </data>
   <data name="FileControlBackButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>返回</value>
   </data>
@@ -1825,9 +1819,6 @@
   <data name="QueueDialog_DeleteFailUnexpectError_Content" xml:space="preserve">
     <value>删除文件时出现错误，删除操作已失败</value>
   </data>
-  <data name="LanguageRestartTip.Text" xml:space="preserve">
-    <value>(请重启本应用以使设置生效)</value>
-  </data>
   <data name="SettingSubmitIssueOnGithub.Content" xml:space="preserve">
     <value>在Github上提交Issue</value>
   </data>
@@ -3048,5 +3039,17 @@
   </data>
   <data name="QueueDialog_ImportConfigurationSuccess_Content" xml:space="preserve">
     <value>导入配置成功</value>
+  </data>
+  <data name="SystemTip_RestartContent" xml:space="preserve">
+    <value>请重启本应用以激活新配置。您亦可以继续使用本应用，但部分配置可能在下一次启动时才会生效</value>
+  </data>
+  <data name="SystemTip_RestartTitle" xml:space="preserve">
+    <value>需要重新启动</value>
+  </data>
+  <data name="SystemTip_FullTrustExitedContent" xml:space="preserve">
+    <value>辅助进程意外退出，这可能导致某些功能无法正常工作</value>
+  </data>
+  <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
+    <value>关键错误</value>
   </data>
 </root>

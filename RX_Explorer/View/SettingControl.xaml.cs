@@ -261,14 +261,10 @@ namespace RX_Explorer
         public SettingControl()
         {
             InitializeComponent();
-
-            Version.Text = string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
-
-            EmptyFeedBack.Text = Globalization.GetString("Progress_Tip_Loading");
-            PictureGirdView.ItemsSource = PictureList;
-
-            Loaded += SettingPage_Loaded;
             Loading += SettingControl_Loading;
+            ApplicationData.Current.DataChanged += Current_DataChanged;
+            PictureGirdView.ItemsSource = PictureList;
+            Version.Text = string.Format("Version: {0}.{1}.{2}.{3}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build, Package.Current.Id.Version.Revision);
         }
 
         private async void SettingControl_Loading(FrameworkElement sender, object args)
@@ -305,6 +301,7 @@ namespace RX_Explorer
 
                 SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfi_AlwaysPopup"));
                 SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfi_UseBuildInAsDefault"));
+
                 if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                 {
                     SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfi_UseEverythingAsDefault"));
@@ -316,8 +313,7 @@ namespace RX_Explorer
                 }
 
                 await ApplyLocalSetting(false);
-
-                ApplicationData.Current.DataChanged += Current_DataChanged;
+                await LoadFeedBackList();
             }
         }
 
@@ -488,7 +484,10 @@ namespace RX_Explorer
 
                         ActivateAnimation(Gr, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 200, false);
                         ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 250, false);
-                        ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 250, false);
+                        if (RightPanel != null)
+                        {
+                            ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 250, false);
+                        }
                     }
 
                     if (PictureMode.IsChecked.GetValueOrDefault() && PictureGirdView.SelectedItem != null)
@@ -535,8 +534,12 @@ namespace RX_Explorer
 
                     if (AnimationController.Current.IsEnableAnimation)
                     {
+                        if (RightPanel != null)
+                        {
+                            ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 250, true);
+                        }
+
                         ActivateAnimation(LeftPanel, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 250, true);
-                        ActivateAnimation(RightPanel, TimeSpan.FromMilliseconds(500), TimeSpan.Zero, 250, true);
                         ActivateAnimation(Gr, TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(300), 200, true);
                     }
 
@@ -741,6 +744,15 @@ namespace RX_Explorer
                     AvoidRecycleBin.IsChecked = false;
                 }
 
+                if (ApplicationData.Current.LocalSettings.Values["DisplayFeedBackList"] is bool IsDisplay)
+                {
+                    FeedBackHideButton.IsChecked = IsDisplay;
+                }
+                else
+                {
+                    FeedBackHideButton.IsChecked = true;
+                }
+
                 switch (StartupModeController.GetStartupMode())
                 {
                     case StartupMode.CreateNewTab:
@@ -833,41 +845,47 @@ namespace RX_Explorer
             ApplicationData.Current.SignalDataChanged();
         }
 
-        private async void SettingPage_Loaded(object sender, RoutedEventArgs e)
+        private async Task LoadFeedBackList()
         {
-            FindName(nameof(SubmitIssueOnGithub));
-            FindName(nameof(FeedBackList));
-
-            try
+            if (FeedBackHideButton.IsChecked.GetValueOrDefault())
             {
-                using (MySQL SQL = new MySQL())
+                FindName(nameof(RightPanel));
+
+                try
                 {
-                    await foreach (FeedBackItem FeedBackItem in SQL.GetAllFeedBackAsync())
+                    if (FeedBackCollection.Count == 0)
                     {
-                        if (FeedBackCollection.Count == 0)
+                        EmptyFeedBack.Text = Globalization.GetString("Progress_Tip_Loading");
+
+                        using (MySQL SQL = new MySQL())
                         {
+                            await foreach (FeedBackItem FeedBackItem in SQL.GetAllFeedBackAsync())
+                            {
+                                if (FeedBackCollection.Count == 0)
+                                {
+                                    EmptyFeedBackArea.Visibility = Visibility.Collapsed;
+                                    SubmitIssueOnGithub.Visibility = Visibility.Collapsed;
+                                    FeedBackList.Visibility = Visibility.Visible;
+                                }
 
-                            EmptyFeedBackArea.Visibility = Visibility.Collapsed;
-                            SubmitIssueOnGithub.Visibility = Visibility.Collapsed;
-                            FeedBackList.Visibility = Visibility.Visible;
+                                FeedBackCollection.Add(FeedBackItem);
+                            }
                         }
-
-                        FeedBackCollection.Add(FeedBackItem);
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                LogTracer.Log(ex);
-            }
-            finally
-            {
-                if (FeedBackCollection.Count == 0)
+                catch (Exception ex)
                 {
-                    EmptyFeedBack.Text = Globalization.GetString("Progress_Tip_NoFeedback");
-                    SubmitIssueOnGithub.Visibility = Visibility.Visible;
-                    EmptyFeedBackArea.Visibility = Visibility.Visible;
-                    FeedBackList.Visibility = Visibility.Collapsed;
+                    LogTracer.Log(ex);
+                }
+                finally
+                {
+                    if (FeedBackCollection.Count == 0)
+                    {
+                        EmptyFeedBack.Text = Globalization.GetString("Progress_Tip_NoFeedback");
+                        SubmitIssueOnGithub.Visibility = Visibility.Visible;
+                        EmptyFeedBackArea.Visibility = Visibility.Visible;
+                        FeedBackList.Visibility = Visibility.Collapsed;
+                    }
                 }
             }
         }
@@ -1382,11 +1400,6 @@ namespace RX_Explorer
                     }
                 }
             }
-        }
-
-        private void FeedBackQuestion_PointerPressed(object sender, PointerRoutedEventArgs e)
-        {
-            FeedBackTip.IsOpen = true;
         }
 
         private void AcrylicMode_Checked(object sender, RoutedEventArgs e)
@@ -2028,19 +2041,17 @@ namespace RX_Explorer
         {
             try
             {
-                FindName(nameof(LanguageRestartTip));
-
                 switch (LanguageComboBox.SelectedIndex)
                 {
                     case 0:
                         {
                             if (Globalization.SwitchTo(LanguageEnum.Chinese_Simplified))
                             {
-                                LanguageRestartTip.Visibility = Visibility.Visible;
+                                MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"));
                             }
                             else
                             {
-                                LanguageRestartTip.Visibility = Visibility.Collapsed;
+                                MainPage.ThisPage.HideInfoTip();
                             }
 
                             break;
@@ -2049,11 +2060,11 @@ namespace RX_Explorer
                         {
                             if (Globalization.SwitchTo(LanguageEnum.English))
                             {
-                                LanguageRestartTip.Visibility = Visibility.Visible;
+                                MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"));
                             }
                             else
                             {
-                                LanguageRestartTip.Visibility = Visibility.Collapsed;
+                                MainPage.ThisPage.HideInfoTip();
                             }
 
                             break;
@@ -2062,11 +2073,11 @@ namespace RX_Explorer
                         {
                             if (Globalization.SwitchTo(LanguageEnum.French))
                             {
-                                LanguageRestartTip.Visibility = Visibility.Visible;
+                                MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"));
                             }
                             else
                             {
-                                LanguageRestartTip.Visibility = Visibility.Collapsed;
+                                MainPage.ThisPage.HideInfoTip();
                             }
 
                             break;
@@ -2075,11 +2086,11 @@ namespace RX_Explorer
                         {
                             if (Globalization.SwitchTo(LanguageEnum.Chinese_Traditional))
                             {
-                                LanguageRestartTip.Visibility = Visibility.Visible;
+                                MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"));
                             }
                             else
                             {
-                                LanguageRestartTip.Visibility = Visibility.Collapsed;
+                                MainPage.ThisPage.HideInfoTip();
                             }
 
                             break;
@@ -2088,11 +2099,11 @@ namespace RX_Explorer
                         {
                             if (Globalization.SwitchTo(LanguageEnum.Spanish))
                             {
-                                LanguageRestartTip.Visibility = Visibility.Visible;
+                                MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"));
                             }
                             else
                             {
-                                LanguageRestartTip.Visibility = Visibility.Collapsed;
+                                MainPage.ThisPage.HideInfoTip();
                             }
 
                             break;
@@ -2101,11 +2112,11 @@ namespace RX_Explorer
                         {
                             if (Globalization.SwitchTo(LanguageEnum.German))
                             {
-                                LanguageRestartTip.Visibility = Visibility.Visible;
+                                MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"));
                             }
                             else
                             {
-                                LanguageRestartTip.Visibility = Visibility.Collapsed;
+                                MainPage.ThisPage.HideInfoTip();
                             }
 
                             break;
@@ -2442,70 +2453,54 @@ namespace RX_Explorer
 
                                 if (MD5Alg.GetHash(ConfigDecryptedString).Equals(ConfigHash, StringComparison.OrdinalIgnoreCase))
                                 {
-                                    if (JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(ConfigDecryptedString) is Dictionary<string, JsonElement> ConfigDic)
-                                    {
-                                        ApplicationData.Current.LocalSettings.Values.Clear();
+                                    Dictionary<string, JsonElement> ConfigDic = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(ConfigDecryptedString);
 
-                                        foreach (KeyValuePair<string, JsonElement> Pair in ConfigDic)
+                                    ApplicationData.Current.LocalSettings.Values.Clear();
+
+                                    foreach (KeyValuePair<string, JsonElement> Pair in ConfigDic)
+                                    {
+                                        switch (Pair.Value.ValueKind)
                                         {
-                                            switch (Pair.Value.ValueKind)
-                                            {
-                                                case JsonValueKind.Number:
+                                            case JsonValueKind.Number:
+                                                {
+                                                    if (Pair.Value.TryGetInt32(out int INT32))
                                                     {
-                                                        if (Pair.Value.TryGetInt32(out int INT32))
-                                                        {
-                                                            ApplicationData.Current.LocalSettings.Values[Pair.Key] = INT32;
-                                                        }
-                                                        else if (Pair.Value.TryGetInt64(out long INT64))
-                                                        {
-                                                            ApplicationData.Current.LocalSettings.Values[Pair.Key] = INT64;
-                                                        }
-                                                        else if (Pair.Value.TryGetSingle(out float FL32))
-                                                        {
-                                                            ApplicationData.Current.LocalSettings.Values[Pair.Key] = FL32;
-                                                        }
-                                                        else if (Pair.Value.TryGetDouble(out double FL64))
-                                                        {
-                                                            ApplicationData.Current.LocalSettings.Values[Pair.Key] = FL64;
-                                                        }
+                                                        ApplicationData.Current.LocalSettings.Values[Pair.Key] = INT32;
+                                                    }
+                                                    else if (Pair.Value.TryGetInt64(out long INT64))
+                                                    {
+                                                        ApplicationData.Current.LocalSettings.Values[Pair.Key] = INT64;
+                                                    }
+                                                    else if (Pair.Value.TryGetSingle(out float FL32))
+                                                    {
+                                                        ApplicationData.Current.LocalSettings.Values[Pair.Key] = FL32;
+                                                    }
+                                                    else if (Pair.Value.TryGetDouble(out double FL64))
+                                                    {
+                                                        ApplicationData.Current.LocalSettings.Values[Pair.Key] = FL64;
+                                                    }
 
-                                                        break;
-                                                    }
-                                                case JsonValueKind.String:
-                                                    {
-                                                        ApplicationData.Current.LocalSettings.Values[Pair.Key] = Pair.Value.GetString();
-                                                        break;
-                                                    }
-                                                case JsonValueKind.True:
-                                                case JsonValueKind.False:
-                                                    {
-                                                        ApplicationData.Current.LocalSettings.Values[Pair.Key] = Pair.Value.GetBoolean();
-                                                        break;
-                                                    }
-                                            }
+                                                    break;
+                                                }
+                                            case JsonValueKind.String:
+                                                {
+                                                    ApplicationData.Current.LocalSettings.Values[Pair.Key] = Pair.Value.GetString();
+                                                    break;
+                                                }
+                                            case JsonValueKind.True:
+                                            case JsonValueKind.False:
+                                                {
+                                                    ApplicationData.Current.LocalSettings.Values[Pair.Key] = Pair.Value.GetBoolean();
+                                                    break;
+                                                }
                                         }
-
-                                        ApplicationData.Current.SignalDataChanged();
                                     }
-                                }
-                                else
-                                {
-                                    QueueContentDialog Dialog = new QueueContentDialog
+
+                                    string DatabaseDecryptedString = await Database.DecryptAsync(Package.Current.Id.FamilyName);
+
+                                    if (MD5Alg.GetHash(DatabaseDecryptedString).Equals(DatabaseHash, StringComparison.OrdinalIgnoreCase))
                                     {
-                                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                        Content = Globalization.GetString("QueueDialog_ImportConfigurationDataIncorrect_Content"),
-                                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                    };
-
-                                    await Dialog.ShowAsync();
-                                }
-
-                                string DatabaseDecryptedString = await Database.DecryptAsync(Package.Current.Id.FamilyName);
-
-                                if (MD5Alg.GetHash(DatabaseDecryptedString).Equals(DatabaseHash, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    if (JsonSerializer.Deserialize<Dictionary<string, string>>(DatabaseDecryptedString) is Dictionary<string, string> DatabaseDic)
-                                    {
+                                        Dictionary<string, string> DatabaseDic = JsonSerializer.Deserialize<Dictionary<string, string>>(DatabaseDecryptedString);
                                         List<(string TableName, IEnumerable<object[]> Data)> DatabaseFormattedArray = new List<(string TableName, IEnumerable<object[]> Data)>(DatabaseDic.Count);
 
                                         foreach (KeyValuePair<string, string> TableDic in DatabaseDic)
@@ -2567,11 +2562,29 @@ namespace RX_Explorer
                                         }
 
                                         await SQLite.Current.ImportDataAsync(DatabaseFormattedArray);
+                                        await CommonAccessCollection.LoadLibraryFoldersAsync(true);
+
+                                        ApplicationData.Current.SignalDataChanged();
+
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_TipTitle"),
+                                            Content = Globalization.GetString("QueueDialog_ImportConfigurationSuccess_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                        };
+
+                                        await Dialog.ShowAsync();
+
+                                        MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"));
+                                    }
+                                    else
+                                    {
+                                        LogTracer.Log("Import configuration failed because database hash is incorrect");
 
                                         QueueContentDialog Dialog = new QueueContentDialog
                                         {
                                             Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                            Content = Globalization.GetString("QueueDialog_ImportConfigurationSuccess_Content"),
+                                            Content = Globalization.GetString("QueueDialog_ImportConfigurationDataIncorrect_Content"),
                                             CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
                                         };
 
@@ -2580,6 +2593,8 @@ namespace RX_Explorer
                                 }
                                 else
                                 {
+                                    LogTracer.Log("Import configuration failed because config hash is incorrect");
+
                                     QueueContentDialog Dialog = new QueueContentDialog
                                     {
                                         Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
@@ -2593,6 +2608,8 @@ namespace RX_Explorer
                         }
                         else
                         {
+                            LogTracer.Log("Import configuration failed because format is incorrect");
+
                             QueueContentDialog Dialog = new QueueContentDialog
                             {
                                 Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
@@ -2886,6 +2903,39 @@ namespace RX_Explorer
                     _ = Interlocked.Exchange(ref LightChangeLock, 0);
                 }
             }
+        }
+
+        private async void FeedBackHideButton_Checked(object sender, RoutedEventArgs e)
+        {
+            ApplicationData.Current.LocalSettings.Values["DisplayFeedBackList"] = true;
+
+            if (FeedBackHideButton.FindChildOfType<SymbolIcon>() is SymbolIcon Icon)
+            {
+                Icon.Symbol = Symbol.UnPin;
+            }
+
+            if (RightPanel == null)
+            {
+                FindName(nameof(RightPanel));
+            }
+
+            RightPanel.Visibility = Visibility.Visible;
+            ApplicationData.Current.SignalDataChanged();
+
+            await LoadFeedBackList();
+        }
+
+        private void FeedBackHideButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            ApplicationData.Current.LocalSettings.Values["DisplayFeedBackList"] = false;
+
+            if (FeedBackHideButton.FindChildOfType<SymbolIcon>() is SymbolIcon Icon)
+            {
+                Icon.Symbol = Symbol.Pin;
+            }
+
+            RightPanel.Visibility = Visibility.Collapsed;
+            ApplicationData.Current.SignalDataChanged();
         }
     }
 }

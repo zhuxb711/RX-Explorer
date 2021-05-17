@@ -225,12 +225,6 @@
   <data name="FeedBackListHeader.Text" xml:space="preserve">
     <value>Lista de comentarios</value>
   </data>
-  <data name="FeedBackTip.Subtitle" xml:space="preserve">
-    <value>Esta lista mostrará tus sugerencias o comentarios a todos los usuarios. También puedes revisar las sugerencias de otros usuarios y apoyar las que sean de tu interés. Cuanto más apoyo y menos objeciones, mayor será la prioridad. El desarrollador atenderá tus sugerencias. Solo puedes eliminar o modificar las sugerencias que hayas enviado tú.</value>
-  </data>
-  <data name="FeedBackTip.Title" xml:space="preserve">
-    <value>Descripción del comentario</value>
-  </data>
   <data name="FileControlBackButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Atrás</value>
   </data>
@@ -1880,9 +1874,6 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_MoveFailUnexpectError_Content" xml:space="preserve">
     <value>Se ha producido un error al mover el archivo; la operación ha fallado.</value>
   </data>
-  <data name="LanguageRestartTip.Text" xml:space="preserve">
-    <value>(Reinicia la aplicación para que la configuración surta efecto.)</value>
-  </data>
   <data name="SettingSubmitIssueOnGithub.Content" xml:space="preserve">
     <value>Enviar problema a Github</value>
   </data>
@@ -3048,5 +3039,17 @@ Las denominaciones no válidas son:
   </data>
   <data name="QueueDialog_ImportConfigurationSuccess_Content" xml:space="preserve">
     <value>Configuración importada correctamente</value>
+  </data>
+  <data name="SystemTip_RestartContent" xml:space="preserve">
+    <value>Reinicie la aplicación para activar la nueva configuración. También puede seguir utilizando esta aplicación, pero es posible que algunas configuraciones no surtan efecto hasta la próxima vez que la inicie.</value>
+  </data>
+  <data name="SystemTip_RestartTitle" xml:space="preserve">
+    <value>Es necesario reiniciar</value>
+  </data>
+  <data name="SystemTip_FullTrustExitedContent" xml:space="preserve">
+    <value>El proceso auxiliar salió inesperadamente, lo que puede causar que algunas funciones no funcionen correctamente</value>
+  </data>
+  <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
+    <value>Error crítico</value>
   </data>
 </root>

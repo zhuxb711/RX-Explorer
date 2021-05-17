@@ -1,6 +1,7 @@
 ﻿using AnimationEffectProvider;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.Notifications;
+using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
 using RX_Explorer.Dialog;
 using RX_Explorer.View;
@@ -72,6 +73,8 @@ namespace RX_Explorer
             SystemNavigationManagerPreview.GetForCurrentView().CloseRequested += MainPage_CloseRequested;
             SystemNavigationManager.GetForCurrentView().BackRequested += MainPage_BackRequested;
             AppThemeController.Current.ThemeChanged += Current_ThemeChanged;
+            FullTrustProcessController.FullTrustProcessExitedUnexpected += FullTrustProcessController_FullTrustProcessExitedUnexpected;
+            FullTrustProcessController.CurrentBusyStatus += FullTrustProcessController_CurrentBusyStatus;
 
             MSStoreHelper.Current.PreLoadStoreData();
 
@@ -89,6 +92,42 @@ namespace RX_Explorer
                 EntranceEffectProvider = new EntranceAnimationEffect(this, Nav, Parameter);
                 EntranceEffectProvider.PrepareEntranceEffect();
             }
+        }
+
+        private async void FullTrustProcessController_CurrentBusyStatus(object sender, bool IsBusy)
+        {
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                if (IsBusy)
+                {
+                    ShowInfoTip(InfoBarSeverity.Informational, Globalization.GetString("Common_Dialog_TipTitle"), Globalization.GetString("Progress_Tip_Busy"));
+                }
+                else
+                {
+                    HideInfoTip();
+                }
+            });
+        }
+
+        private async void FullTrustProcessController_FullTrustProcessExitedUnexpected(object sender, EventArgs e)
+        {
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                ShowInfoTip(InfoBarSeverity.Error, Globalization.GetString("SystemTip_FullTrustExitedTitle"), Globalization.GetString("SystemTip_FullTrustExitedContent"));
+            });
+        }
+
+        public void ShowInfoTip(InfoBarSeverity Severity, string Title, string Message)
+        {
+            InfoTip.Severity = Severity;
+            InfoTip.Title = Title;
+            InfoTip.Message = Message;
+            InfoTip.IsOpen = true;
+        }
+
+        public void HideInfoTip()
+        {
+            InfoTip.IsOpen = false;
         }
 
         private async void Current_ThemeChanged(object sender, ElementTheme Theme)
