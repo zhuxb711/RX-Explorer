@@ -225,12 +225,6 @@
   <data name="FeedBackListHeader.Text" xml:space="preserve">
     <value>回饋列表</value>
   </data>
-  <data name="FeedBackTip.Subtitle" xml:space="preserve">
-    <value>此回饋列表將向所有用戶顯示您的建議或回饋。 您還可以查看其他人的建議，並為感興趣的建議提供支持。 支持越多，反對越少，優先更新越高，開發人員將聽取您的建議。 您只能修改或刪除您提交的建議。</value>
-  </data>
-  <data name="FeedBackTip.Title" xml:space="preserve">
-    <value>建議說明</value>
-  </data>
   <data name="FileControlBackButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>返回</value>
   </data>
@@ -1828,9 +1822,6 @@
   <data name="QueueDialog_MoveFailUnexpectError_Content" xml:space="preserve">
     <value>移動檔案時發生錯誤，移動失敗</value>
   </data>
-  <data name="LanguageRestartTip.Text" xml:space="preserve">
-    <value>（請重新啟動應用程式以使設定生效）</value>
-  </data>
   <data name="SettingSubmitIssueOnGithub.Content" xml:space="preserve">
     <value>在Github上提交問題</value>
   </data>
@@ -3039,5 +3030,26 @@
   <data name="Items_Description" xml:space="preserve">
     <value>個項目</value>
     <comment>Please translate this content according to the word order of the corresponding language. Usage Example: 10 items. Format: {Number} items</comment>
+  </data>
+  <data name="QueueDialog_ImportConfigurationDataIncorrect_Content" xml:space="preserve">
+    <value>數據驗證失敗，無法導入配置文件</value>
+  </data>
+  <data name="QueueDialog_ImportConfigurationFailed_Content" xml:space="preserve">
+    <value>導入配置失敗，出現意外錯誤</value>
+  </data>
+  <data name="QueueDialog_ImportConfigurationSuccess_Content" xml:space="preserve">
+    <value>成功導入配置</value>
+  </data>
+  <data name="SystemTip_RestartContent" xml:space="preserve">
+    <value>請重新啟動應用程序以激活新配置。 您也可以繼續使用此應用，但某些配置可能要等到下次啟動時才能生效。</value>
+  </data>
+  <data name="SystemTip_RestartTitle" xml:space="preserve">
+    <value>需要重啟</value>
+  </data>
+  <data name="SystemTip_FullTrustExitedContent" xml:space="preserve">
+    <value>輔助進程意外退出，這可能導致某些功能無法正常工作</value>
+  </data>
+  <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
+    <value>關鍵錯誤</value>
   </data>
 </root>

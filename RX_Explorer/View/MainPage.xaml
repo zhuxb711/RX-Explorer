@@ -64,7 +64,7 @@
                               Click="AddQuickStartItem_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
-        
+
         <Cls:InverseBooleanConverter x:Key="InverseConverter" />
 
         <Cls:QuickStartDataTemplateSelector x:Key="QuickStartDataTemplateSelector"
@@ -332,7 +332,7 @@
                                     TintColor="Black"/>
             </Grid.Background>
         </Grid>
-        
+
         <Border x:Name="TitleBar"
                 Background="Transparent"
                 HorizontalAlignment="Stretch"
@@ -399,6 +399,13 @@
             </muxc:NavigationView.MenuItems>
             <muxc:NavigationView.Content>
                 <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <muxc:InfoBar IsOpen="False" 
+                                  x:Name="InfoTip"
+                                  IsClosable="True"/>
                     <Frame Name="Nav"
                            Navigating="Nav_Navigating"
                            Navigated="Nav_Navigated"
@@ -407,7 +414,8 @@
                     <local:SettingControl x:Name="SettingControl"
                                           Visibility="Collapsed"
                                           x:FieldModifier="public"
-                                          x:Load="False" />
+                                          x:Load="False"
+                                          Grid.Row="1"/>
                 </Grid>
             </muxc:NavigationView.Content>
         </muxc:NavigationView>

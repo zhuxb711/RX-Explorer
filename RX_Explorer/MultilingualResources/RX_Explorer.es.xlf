@@ -290,14 +290,6 @@
           <source>Feedback list</source>
           <target state="translated">Lista de comentarios</target>
         </trans-unit>
-        <trans-unit id="FeedBackTip.Subtitle" translate="yes" xml:space="preserve">
-          <source>This feedback list will show your suggestions or feedback to all users. You can also review the suggestions made by others and give you support for the suggestions that are of interest. The more support and the less objection, the higher the priority, The developer will listen to your suggestions. You can only modify or delete the suggestions you submit.</source>
-          <target state="translated">Esta lista mostrará tus sugerencias o comentarios a todos los usuarios. También puedes revisar las sugerencias de otros usuarios y apoyar las que sean de tu interés. Cuanto más apoyo y menos objeciones, mayor será la prioridad. El desarrollador atenderá tus sugerencias. Solo puedes eliminar o modificar las sugerencias que hayas enviado tú.</target>
-        </trans-unit>
-        <trans-unit id="FeedBackTip.Title" translate="yes" xml:space="preserve">
-          <source>Feedback description</source>
-          <target state="translated">Descripción del comentario</target>
-        </trans-unit>
         <trans-unit id="FileControlBackButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Back</source>
           <target state="translated">Atrás</target>
@@ -2483,10 +2475,6 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <source>An error occurred while moving the file, the move operation failed</source>
           <target state="translated">Se ha producido un error al mover el archivo; la operación ha fallado.</target>
         </trans-unit>
-        <trans-unit id="LanguageRestartTip.Text" translate="yes" xml:space="preserve">
-          <source>(Please restart the app for the settings to take effect)</source>
-          <target state="translated">(Reinicia la aplicación para que la configuración surta efecto.)</target>
-        </trans-unit>
         <trans-unit id="SettingSubmitIssueOnGithub.Content" translate="yes" xml:space="preserve">
           <source>Submit issue on Github</source>
           <target state="translated">Enviar problema a Github</target>
@@ -4031,6 +4019,34 @@ Las denominaciones no válidas son:
           <source>items</source>
           <target state="translated">elementos</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please translate this content according to the word order of the corresponding language. Usage Example: 10 items. Format: {Number} items</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ImportConfigurationDataIncorrect_Content" translate="yes" xml:space="preserve">
+          <source>Data verification failed, the configuration file cannot be imported</source>
+          <target state="translated">La verificación de datos falló, el archivo de configuración no se puede importar</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ImportConfigurationFailed_Content" translate="yes" xml:space="preserve">
+          <source>Failed to import configuration with unexpected error</source>
+          <target state="translated">No se pudo importar la configuración con un error inesperado</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ImportConfigurationSuccess_Content" translate="yes" xml:space="preserve">
+          <source>Successfully imported configuration</source>
+          <target state="translated">Configuración importada correctamente</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_RestartContent" translate="yes" xml:space="preserve">
+          <source>Please restart the application to activate the new configuration. You can also continue to use this app, but some configurations may not take effect until the next time you start it</source>
+          <target state="translated">Reinicie la aplicación para activar la nueva configuración. También puede seguir utilizando esta aplicación, pero es posible que algunas configuraciones no surtan efecto hasta la próxima vez que la inicie.</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_RestartTitle" translate="yes" xml:space="preserve">
+          <source>Restart is required</source>
+          <target state="translated">Es necesario reiniciar</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_FullTrustExitedContent" translate="yes" xml:space="preserve">
+          <source>Auxiliary process exited unexpectedly, which may cause some functions will not work properly</source>
+          <target state="translated">El proceso auxiliar salió inesperadamente, lo que puede causar que algunas funciones no funcionen correctamente</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_FullTrustExitedTitle" translate="yes" xml:space="preserve">
+          <source>Critical error</source>
+          <target state="translated">Error crítico</target>
         </trans-unit>
       </group>
     </body>

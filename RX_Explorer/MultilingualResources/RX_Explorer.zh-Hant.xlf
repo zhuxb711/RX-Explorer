@@ -290,14 +290,6 @@
           <source>Feedback list</source>
           <target state="translated">回饋列表</target>
         </trans-unit>
-        <trans-unit id="FeedBackTip.Subtitle" translate="yes" xml:space="preserve">
-          <source>This feedback list will show your suggestions or feedback to all users. You can also review the suggestions made by others and give you support for the suggestions that are of interest. The more support and the less objection, the higher the priority, The developer will listen to your suggestions. You can only modify or delete the suggestions you submit.</source>
-          <target state="translated">此回饋列表將向所有用戶顯示您的建議或回饋。 您還可以查看其他人的建議，並為感興趣的建議提供支持。 支持越多，反對越少，優先更新越高，開發人員將聽取您的建議。 您只能修改或刪除您提交的建議。</target>
-        </trans-unit>
-        <trans-unit id="FeedBackTip.Title" translate="yes" xml:space="preserve">
-          <source>Feedback description</source>
-          <target state="translated">建議說明</target>
-        </trans-unit>
         <trans-unit id="FileControlBackButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Back</source>
           <target state="translated" state-qualifier="tm-suggestion">返回</target>
@@ -2414,10 +2406,6 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>An error occurred while moving the file, the move operation failed</source>
           <target state="translated">移動檔案時發生錯誤，移動失敗</target>
         </trans-unit>
-        <trans-unit id="LanguageRestartTip.Text" translate="yes" xml:space="preserve">
-          <source>(Please restart the app for the settings to take effect)</source>
-          <target state="translated">（請重新啟動應用程式以使設定生效）</target>
-        </trans-unit>
         <trans-unit id="SettingSubmitIssueOnGithub.Content" translate="yes" xml:space="preserve">
           <source>Submit issue on Github</source>
           <target state="translated">在Github上提交問題</target>
@@ -4033,6 +4021,34 @@ Invalid names include
           <source>items</source>
           <target state="translated">個項目</target>
           <note from="MultilingualBuild" annotates="source" priority="2">Please translate this content according to the word order of the corresponding language. Usage Example: 10 items. Format: {Number} items</note>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ImportConfigurationDataIncorrect_Content" translate="yes" xml:space="preserve">
+          <source>Data verification failed, the configuration file cannot be imported</source>
+          <target state="translated">數據驗證失敗，無法導入配置文件</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ImportConfigurationFailed_Content" translate="yes" xml:space="preserve">
+          <source>Failed to import configuration with unexpected error</source>
+          <target state="translated">導入配置失敗，出現意外錯誤</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_ImportConfigurationSuccess_Content" translate="yes" xml:space="preserve">
+          <source>Successfully imported configuration</source>
+          <target state="translated">成功導入配置</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_RestartContent" translate="yes" xml:space="preserve">
+          <source>Please restart the application to activate the new configuration. You can also continue to use this app, but some configurations may not take effect until the next time you start it</source>
+          <target state="translated">請重新啟動應用程序以激活新配置。 您也可以繼續使用此應用，但某些配置可能要等到下次啟動時才能生效。</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_RestartTitle" translate="yes" xml:space="preserve">
+          <source>Restart is required</source>
+          <target state="translated">需要重啟</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_FullTrustExitedContent" translate="yes" xml:space="preserve">
+          <source>Auxiliary process exited unexpectedly, which may cause some functions will not work properly</source>
+          <target state="translated">輔助進程意外退出，這可能導致某些功能無法正常工作</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_FullTrustExitedTitle" translate="yes" xml:space="preserve">
+          <source>Critical error</source>
+          <target state="translated">關鍵錯誤</target>
         </trans-unit>
       </group>
     </body>

@@ -225,12 +225,6 @@
   <data name="FeedBackListHeader.Text" xml:space="preserve">
     <value>Feedbackliste</value>
   </data>
-  <data name="FeedBackTip.Subtitle" xml:space="preserve">
-    <value>Die Feedbackliste zeigt deine Vorschläge oder Feedback von allen Benutzern. Sie können auch die Vorschläge anderer überprüfen und Sie bei den Vorschlägen unterstützen, die von Interesse sind. Je mehr Unterstützung und je weniger Einwände es gibt, desto höher ist die Priorität in der der Entwickler auf die Vorschläge hört. Sie können nur die von Ihnen gesendeten Vorschläge ändern oder löschen.</value>
-  </data>
-  <data name="FeedBackTip.Title" xml:space="preserve">
-    <value>Feedbackbeschreibung</value>
-  </data>
   <data name="FileControlBackButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Zurück</value>
   </data>
@@ -1880,9 +1874,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_MoveFailUnexpectError_Content" xml:space="preserve">
     <value>Ein Fehler trat während des Verschiebens der Datei auf. Der Verschiebungsvorgang ist fehlgeschlagen.</value>
   </data>
-  <data name="LanguageRestartTip.Text" xml:space="preserve">
-    <value>(Die Änderungen werden nach einem Neustart der App übernommen.)</value>
-  </data>
   <data name="SettingSubmitIssueOnGithub.Content" xml:space="preserve">
     <value>Problem auf Github melden</value>
   </data>
@@ -3039,5 +3030,26 @@ Inkorrekte Namen sind
   <data name="Items_Description" xml:space="preserve">
     <value>Artikel</value>
     <comment>Please translate this content according to the word order of the corresponding language. Usage Example: 10 items. Format: {Number} items</comment>
+  </data>
+  <data name="QueueDialog_ImportConfigurationDataIncorrect_Content" xml:space="preserve">
+    <value>Datenüberprüfung fehlgeschlagen, die Konfigurationsdatei kann nicht importiert werden</value>
+  </data>
+  <data name="QueueDialog_ImportConfigurationFailed_Content" xml:space="preserve">
+    <value>Fehler beim Importieren der Konfiguration mit unerwartetem Fehler</value>
+  </data>
+  <data name="QueueDialog_ImportConfigurationSuccess_Content" xml:space="preserve">
+    <value>Konfiguration erfolgreich importiert</value>
+  </data>
+  <data name="SystemTip_RestartContent" xml:space="preserve">
+    <value>Bitte starten Sie die Anwendung neu, um die neue Konfiguration zu aktivieren. Sie können diese App auch weiterhin verwenden, einige Konfigurationen werden jedoch möglicherweise erst beim nächsten Start wirksam</value>
+  </data>
+  <data name="SystemTip_RestartTitle" xml:space="preserve">
+    <value>Neustart ist erforderlich</value>
+  </data>
+  <data name="SystemTip_FullTrustExitedContent" xml:space="preserve">
+    <value>Der Hilfsprozess wurde unerwartet beendet, was dazu führen kann, dass einige Funktionen nicht ordnungsgemäß funktionieren</value>
+  </data>
+  <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
+    <value>Kritischer Fehler</value>
   </data>
 </root>

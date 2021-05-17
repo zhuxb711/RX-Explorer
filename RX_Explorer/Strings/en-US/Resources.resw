@@ -330,12 +330,6 @@
   <data name="FeedBackListHeader.Text" xml:space="preserve">
     <value>Feedback list</value>
   </data>
-  <data name="FeedBackTip.Subtitle" xml:space="preserve">
-    <value>This feedback list will show your suggestions or feedback to all users. You can also review the suggestions made by others and give you support for the suggestions that are of interest. The more support and the less objection, the higher the priority, The developer will listen to your suggestions. You can only modify or delete the suggestions you submit.</value>
-  </data>
-  <data name="FeedBackTip.Title" xml:space="preserve">
-    <value>Feedback description</value>
-  </data>
   <data name="FileControlBackButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Back</value>
   </data>
@@ -1988,9 +1982,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="QueueDialog_MoveFailUnexpectError_Content" xml:space="preserve">
     <value>An error occurred while moving the file, the move operation failed</value>
   </data>
-  <data name="LanguageRestartTip.Text" xml:space="preserve">
-    <value>(Please restart the app for the settings to take effect)</value>
-  </data>
   <data name="SettingSubmitIssueOnGithub.Content" xml:space="preserve">
     <value>Submit issue on Github</value>
   </data>
@@ -3144,5 +3135,26 @@ Invalid names include
   <data name="Items_Description" xml:space="preserve">
     <value>items</value>
     <comment>Please translate this content according to the word order of the corresponding language. Usage Example: 10 items. Format: {Number} items</comment>
+  </data>
+  <data name="QueueDialog_ImportConfigurationDataIncorrect_Content" xml:space="preserve">
+    <value>Data verification failed, the configuration file cannot be imported</value>
+  </data>
+  <data name="QueueDialog_ImportConfigurationFailed_Content" xml:space="preserve">
+    <value>Failed to import configuration with unexpected error</value>
+  </data>
+  <data name="QueueDialog_ImportConfigurationSuccess_Content" xml:space="preserve">
+    <value>Successfully imported configuration</value>
+  </data>
+  <data name="SystemTip_RestartContent" xml:space="preserve">
+    <value>Please restart the application to activate the new configuration. You can also continue to use this app, but some configurations may not take effect until the next time you start it</value>
+  </data>
+  <data name="SystemTip_RestartTitle" xml:space="preserve">
+    <value>Restart is required</value>
+  </data>
+  <data name="SystemTip_FullTrustExitedContent" xml:space="preserve">
+    <value>Auxiliary process exited unexpectedly, which may cause some functions will not work properly</value>
+  </data>
+  <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
+    <value>Critical error</value>
   </data>
 </root>

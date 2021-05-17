@@ -50,15 +50,21 @@ namespace RX_Explorer.Class
         private static int LoadLibraryLockResource;
         private static int LoadQuickStartLockResource;
 
-        public static async Task LoadQuickStartItemsAsync()
+        public static async Task LoadQuickStartItemsAsync(bool IsRefresh = false)
         {
             if (Interlocked.Exchange(ref LoadQuickStartLockResource, 1) == 0)
             {
                 try
                 {
-                    if (!IsQuickStartLoaded)
+                    if (!IsQuickStartLoaded || IsRefresh)
                     {
                         IsQuickStartLoaded = true;
+
+                        if (IsRefresh)
+                        {
+                            QuickStartList.Clear();
+                            WebLinkList.Clear();
+                        }
 
                         foreach ((string Name, string IconPath, string Protocal, string Type) in SQLite.Current.GetQuickStartItem())
                         {
@@ -113,15 +119,20 @@ namespace RX_Explorer.Class
             }
         }
 
-        public static async Task LoadLibraryFoldersAsync()
+        public static async Task LoadLibraryFoldersAsync(bool IsRefresh = false)
         {
             if (Interlocked.Exchange(ref LoadLibraryLockResource, 1) == 0)
             {
                 try
                 {
-                    if (!IsLibaryLoaded)
+                    if (!IsLibaryLoaded || IsRefresh)
                     {
                         IsLibaryLoaded = true;
+
+                        if (IsRefresh)
+                        {
+                            LibraryFolderList.Clear();
+                        }
 
                         if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("IsLibraryInitialized"))
                         {
