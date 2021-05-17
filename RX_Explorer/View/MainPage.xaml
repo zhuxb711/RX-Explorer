@@ -405,7 +405,7 @@
                     </Grid.RowDefinitions>
                     <muxc:InfoBar IsOpen="False" 
                                   x:Name="InfoTip"
-                                  IsClosable="True"/>
+                                  Closed="InfoTip_Closed"/>
                     <Frame Name="Nav"
                            Navigating="Nav_Navigating"
                            Navigated="Nav_Navigated"

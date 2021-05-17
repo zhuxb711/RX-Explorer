@@ -1249,15 +1249,7 @@ Nicht erlaubte Zeichen sind \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</
           <source>Submit an issue on Github</source>
           <target state="translated">Einreichen eines Problems auf Github</target>
         </trans-unit>
-        <trans-unit id="DelayLoadNotification_Content_1" translate="yes" xml:space="preserve">
-          <source>Unable to get thumbnails of some files</source>
-          <target state="translated">Konnte nicht alle Miniaturansichten laden</target>
-        </trans-unit>
-        <trans-unit id="DelayLoadNotification_Content_2" translate="yes" xml:space="preserve">
-          <source>Please wait patiently</source>
-          <target state="translated">Bitte warten Sie geduldig</target>
-        </trans-unit>
-        <trans-unit id="DelayLoadNotification_Title" translate="yes" xml:space="preserve">
+        <trans-unit id="SystemTip_LoadFileDelayTitle" translate="yes" xml:space="preserve">
           <source>There may be a delay in loading</source>
           <target state="translated">Es kann zu einer Verzögerung beim Laden kommen</target>
         </trans-unit>
@@ -3073,10 +3065,6 @@ Inkorrekte Namen sind
           <source>Please enter a regular expression</source>
           <target state="translated">Bitte geben Sie einen regulären Ausdruck ein.</target>
         </trans-unit>
-        <trans-unit id="Progress_Tip_Busy" translate="yes" xml:space="preserve">
-          <source>Waiting for response</source>
-          <target state="translated">Auf Antwort warten...</target>
-        </trans-unit>
         <trans-unit id="QuickStartPickApp.Content" translate="yes" xml:space="preserve">
           <source>Pick an app</source>
           <target state="translated">Eine App auswählen</target>
@@ -4047,6 +4035,30 @@ Inkorrekte Namen sind
         <trans-unit id="SystemTip_FullTrustExitedTitle" translate="yes" xml:space="preserve">
           <source>Critical error</source>
           <target state="translated">Kritischer Fehler</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_FullTrustBusyTitle" translate="yes" xml:space="preserve">
+          <source>Waiting for response</source>
+          <target state="translated">Auf Rückantwort warten</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_FullTrustBusyContent" translate="yes" xml:space="preserve">
+          <source>The auxiliary process is busy and cannot respond to new requests, please wait patiently</source>
+          <target state="translated">Der Hilfsprozess ist beschäftigt und kann nicht auf neue Anfragen reagieren. Bitte warten Sie geduldig</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_LoadFileDelayContent" translate="yes" xml:space="preserve">
+          <source>Unable to get thumbnails of some files. Please wait patiently.</source>
+          <target state="translated">Es können keine Miniaturansichten einiger Dateien abgerufen werden. Bitte warte geduldig.</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_UpdateAvailableActionButton" translate="yes" xml:space="preserve">
+          <source>Update now</source>
+          <target state="translated">Jetzt aktualisieren</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_UpdateAvailableContent" translate="yes" xml:space="preserve">
+          <source>The latest update fixes some issues in the old version and provides functional enhancements</source>
+          <target state="translated">Das neueste Update behebt einige Probleme in der alten Version und bietet Funktionserweiterungen</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_UpdateAvailableTitle" translate="yes" xml:space="preserve">
+          <source>An Update is available</source>
+          <target state="translated">Eine Aktualisierung ist verfügbar</target>
         </trans-unit>
       </group>
     </body>

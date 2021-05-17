@@ -898,13 +898,7 @@
   <data name="SubmitIssueOnGithub.Content" xml:space="preserve">
     <value>Soumettre un problème sur Github</value>
   </data>
-  <data name="DelayLoadNotification_Content_1" xml:space="preserve">
-    <value>Impossible d'obtenir les vignettes de certains fichiers</value>
-  </data>
-  <data name="DelayLoadNotification_Content_2" xml:space="preserve">
-    <value>Veuillez attendre patiemment</value>
-  </data>
-  <data name="DelayLoadNotification_Title" xml:space="preserve">
+  <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
     <value>Il peut y avoir un retard dans le chargement</value>
   </data>
   <data name="FeedBackItem_SupportDescription_Negative" xml:space="preserve">
@@ -2286,9 +2280,6 @@ Les noms non valides incluent
   <data name="NameFilterCheckBox6Text.PlaceholderText" xml:space="preserve">
     <value>Veuillez saisir une expression régulière</value>
   </data>
-  <data name="Progress_Tip_Busy" xml:space="preserve">
-    <value>En attente d'une réponse</value>
-  </data>
   <data name="QuickStartPickLogo.Content" xml:space="preserve">
     <value>Icône personnalisée</value>
   </data>
@@ -3051,5 +3042,23 @@ Les noms non valides incluent
   </data>
   <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
     <value>Erreur critique</value>
+  </data>
+  <data name="SystemTip_FullTrustBusyTitle" xml:space="preserve">
+    <value>En attente d'une réponse</value>
+  </data>
+  <data name="SystemTip_FullTrustBusyContent" xml:space="preserve">
+    <value>Le processus auxiliaire est occupé et ne peut pas répondre aux nouvelles demandes, veuillez patienter</value>
+  </data>
+  <data name="SystemTip_LoadFileDelayContent" xml:space="preserve">
+    <value>Impossible d'obtenir les miniatures de certains fichiers. Veuillez patienter.</value>
+  </data>
+  <data name="SystemTip_UpdateAvailableActionButton" xml:space="preserve">
+    <value>Mettez à jour maintenant</value>
+  </data>
+  <data name="SystemTip_UpdateAvailableContent" xml:space="preserve">
+    <value>La dernière mise à jour corrige certains problèmes dans l'ancienne version et fournit des améliorations fonctionnelles</value>
+  </data>
+  <data name="SystemTip_UpdateAvailableTitle" xml:space="preserve">
+    <value>Une mise à jour est disponible</value>
   </data>
 </root>

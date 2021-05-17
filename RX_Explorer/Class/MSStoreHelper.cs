@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Services.Store;
@@ -13,8 +14,8 @@ namespace RX_Explorer.Class
         private StoreContext Store;
         private StoreAppLicense License;
         private StoreProductResult ProductResult;
-
         private Task PreLoadTask;
+        private IReadOnlyList<StorePackageUpdate> Updates;
 
         public static MSStoreHelper Current => Instance ??= new MSStoreHelper();
 
@@ -71,6 +72,25 @@ namespace RX_Explorer.Class
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"{nameof(CheckPurchaseStatusAsync)} threw an exception");
+                return false;
+            }
+        }
+
+        public async Task<bool> CheckHasUpdateAsync()
+        {
+            if (PreLoadTask == null)
+            {
+                PreLoadStoreData();
+            }
+
+            await PreLoadTask;
+
+            if (Updates != null)
+            {
+                return Updates.Any();
+            }
+            else
+            {
                 return false;
             }
         }
@@ -132,6 +152,7 @@ namespace RX_Explorer.Class
 
                     License = Store.GetAppLicenseAsync().AsTask().Result;
                     ProductResult = Store.GetStoreProductForCurrentAppAsync().AsTask().Result;
+                    Updates = Store.GetAppAndOptionalStorePackageUpdatesAsync().AsTask().Result;
                 }
                 catch (Exception ex)
                 {

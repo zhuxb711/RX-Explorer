@@ -1204,15 +1204,7 @@ Illegal characters include \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> |</s
           <source>Submit an issue on Github</source>
           <target state="translated">在Github上提交問題</target>
         </trans-unit>
-        <trans-unit id="DelayLoadNotification_Content_1" translate="yes" xml:space="preserve">
-          <source>Unable to get thumbnails of some files</source>
-          <target state="translated">無法取得某些檔案的縮圖</target>
-        </trans-unit>
-        <trans-unit id="DelayLoadNotification_Content_2" translate="yes" xml:space="preserve">
-          <source>Please wait patiently</source>
-          <target state="translated">請耐心等待</target>
-        </trans-unit>
-        <trans-unit id="DelayLoadNotification_Title" translate="yes" xml:space="preserve">
+        <trans-unit id="SystemTip_LoadFileDelayTitle" translate="yes" xml:space="preserve">
           <source>There may be a delay in loading</source>
           <target state="translated">讀取可能會延遲</target>
         </trans-unit>
@@ -3030,10 +3022,6 @@ Invalid names include
           <source>Please enter a regular expression</source>
           <target state="translated">請輸入正則表達式</target>
         </trans-unit>
-        <trans-unit id="Progress_Tip_Busy" translate="yes" xml:space="preserve">
-          <source>Waiting for response</source>
-          <target state="translated">正在等待回應</target>
-        </trans-unit>
         <trans-unit id="QuickStartPickLogo.Content" translate="yes" xml:space="preserve">
           <source>Custom icon</source>
           <target state="translated">自定義圖標</target>
@@ -4049,6 +4037,30 @@ Invalid names include
         <trans-unit id="SystemTip_FullTrustExitedTitle" translate="yes" xml:space="preserve">
           <source>Critical error</source>
           <target state="translated">關鍵錯誤</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_FullTrustBusyTitle" translate="yes" xml:space="preserve">
+          <source>Waiting for response</source>
+          <target state="translated">正在等待響應</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_FullTrustBusyContent" translate="yes" xml:space="preserve">
+          <source>The auxiliary process is busy and cannot respond to new requests, please wait patiently</source>
+          <target state="translated">輔助進程很忙，無法響應新請求，請耐心等待</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_LoadFileDelayContent" translate="yes" xml:space="preserve">
+          <source>Unable to get thumbnails of some files. Please wait patiently.</source>
+          <target state="translated">無法獲取某些文件的縮略圖。 請耐心等待。</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_UpdateAvailableActionButton" translate="yes" xml:space="preserve">
+          <source>Update now</source>
+          <target state="translated">現在更新</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_UpdateAvailableContent" translate="yes" xml:space="preserve">
+          <source>The latest update fixes some issues in the old version and provides functional enhancements</source>
+          <target state="translated">最新更新修復了舊版本中的某些問題並提供了功能增強</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_UpdateAvailableTitle" translate="yes" xml:space="preserve">
+          <source>An Update is available</source>
+          <target state="translated">有可用的更新</target>
         </trans-unit>
       </group>
     </body>

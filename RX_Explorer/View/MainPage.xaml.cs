@@ -36,6 +36,7 @@ using Windows.UI.StartScreen;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
@@ -100,7 +101,7 @@ namespace RX_Explorer
             {
                 if (IsBusy)
                 {
-                    ShowInfoTip(InfoBarSeverity.Informational, Globalization.GetString("Common_Dialog_TipTitle"), Globalization.GetString("Progress_Tip_Busy"));
+                    ShowInfoTip(InfoBarSeverity.Informational, Globalization.GetString("SystemTip_FullTrustBusyTitle"), Globalization.GetString("SystemTip_FullTrustBusyContent"));
                 }
                 else
                 {
@@ -117,11 +118,18 @@ namespace RX_Explorer
             });
         }
 
-        public void ShowInfoTip(InfoBarSeverity Severity, string Title, string Message)
+        public void ShowInfoTip(InfoBarSeverity Severity, string Title, string Message, bool Closable = true, ButtonBase ActionButton = null)
         {
             InfoTip.Severity = Severity;
             InfoTip.Title = Title;
             InfoTip.Message = Message;
+            InfoTip.IsClosable = Closable;
+
+            if (ActionButton != null)
+            {
+                InfoTip.ActionButton = ActionButton;
+            }
+
             InfoTip.IsOpen = true;
         }
 
@@ -444,6 +452,20 @@ namespace RX_Explorer
                             RequestRateApplication();
                             break;
                         }
+                }
+
+                if (await MSStoreHelper.Current.CheckHasUpdateAsync())
+                {
+                    Button ActionButton = new Button
+                    {
+                        Content = Globalization.GetString("SystemTip_UpdateAvailableActionButton")
+                    };
+                    ActionButton.Click += async (s, e) =>
+                    {
+                        await Launcher.LaunchUriAsync(new Uri("ms-windows-store://pdp/?productid=9N88QBQKF2RS"));
+                    };
+
+                    ShowInfoTip(InfoBarSeverity.Informational, Globalization.GetString("SystemTip_UpdateAvailableTitle"), Globalization.GetString("SystemTip_UpdateAvailableContent"), ActionButton: ActionButton);
                 }
             }
             catch (Exception ex)
@@ -1220,6 +1242,11 @@ namespace RX_Explorer
             {
                 e.Cancel = true;
             }
+        }
+
+        private void InfoTip_Closed(InfoBar sender, InfoBarClosedEventArgs args)
+        {
+            sender.ActionButton = null;
         }
     }
 }

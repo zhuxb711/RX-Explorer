@@ -610,6 +610,7 @@ namespace RX_Explorer
                     TreeViewDetach.Toggled -= TreeViewDetach_Toggled;
                     FileLoadMode.SelectionChanged -= FileLoadMode_SelectionChanged;
                     SearchEngineConfig.SelectionChanged -= SearchEngineConfig_SelectionChanged;
+                    LanguageComboBox.SelectionChanged -= LanguageComboBox_SelectionChanged;
                 }
 
                 DefaultTerminal.SelectionChanged -= DefaultTerminal_SelectionChanged;
@@ -803,6 +804,7 @@ namespace RX_Explorer
                     TreeViewDetach.Toggled += TreeViewDetach_Toggled;
                     FileLoadMode.SelectionChanged += FileLoadMode_SelectionChanged;
                     SearchEngineConfig.SelectionChanged += SearchEngineConfig_SelectionChanged;
+                    LanguageComboBox.SelectionChanged += LanguageComboBox_SelectionChanged;
                 }
 
                 UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
@@ -2041,13 +2043,16 @@ namespace RX_Explorer
         {
             try
             {
+                string TipTitle = Globalization.GetString("SystemTip_RestartTitle");
+                string TipContent = Globalization.GetString("SystemTip_RestartContent");
+
                 switch (LanguageComboBox.SelectedIndex)
                 {
                     case 0:
                         {
                             if (Globalization.SwitchTo(LanguageEnum.Chinese_Simplified))
                             {
-                                MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"));
+                                MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, TipTitle, TipContent, false);
                             }
                             else
                             {
@@ -2060,7 +2065,7 @@ namespace RX_Explorer
                         {
                             if (Globalization.SwitchTo(LanguageEnum.English))
                             {
-                                MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"));
+                                MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, TipTitle, TipContent, false);
                             }
                             else
                             {
@@ -2073,7 +2078,7 @@ namespace RX_Explorer
                         {
                             if (Globalization.SwitchTo(LanguageEnum.French))
                             {
-                                MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"));
+                                MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, TipTitle, TipContent, false);
                             }
                             else
                             {
@@ -2086,7 +2091,7 @@ namespace RX_Explorer
                         {
                             if (Globalization.SwitchTo(LanguageEnum.Chinese_Traditional))
                             {
-                                MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"));
+                                MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, TipTitle, TipContent, false);
                             }
                             else
                             {
@@ -2099,7 +2104,7 @@ namespace RX_Explorer
                         {
                             if (Globalization.SwitchTo(LanguageEnum.Spanish))
                             {
-                                MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"));
+                                MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, TipTitle, TipContent, false);
                             }
                             else
                             {
@@ -2112,7 +2117,7 @@ namespace RX_Explorer
                         {
                             if (Globalization.SwitchTo(LanguageEnum.German))
                             {
-                                MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"));
+                                MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, TipTitle, TipContent, false);
                             }
                             else
                             {
@@ -2575,7 +2580,7 @@ namespace RX_Explorer
 
                                         await Dialog.ShowAsync();
 
-                                        MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"));
+                                        MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_RestartTitle"), Globalization.GetString("SystemTip_RestartContent"), false);
                                     }
                                     else
                                     {

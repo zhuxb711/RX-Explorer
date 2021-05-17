@@ -898,13 +898,7 @@
   <data name="SubmitIssueOnGithub.Content" xml:space="preserve">
     <value>在Github提交issue</value>
   </data>
-  <data name="DelayLoadNotification_Content_1" xml:space="preserve">
-    <value>无法获取部分文件的缩略图</value>
-  </data>
-  <data name="DelayLoadNotification_Content_2" xml:space="preserve">
-    <value>请耐心等待</value>
-  </data>
-  <data name="DelayLoadNotification_Title" xml:space="preserve">
+  <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
     <value>加载可能存在延迟</value>
   </data>
   <data name="FeedBackItem_SupportDescription_Negative" xml:space="preserve">
@@ -2286,9 +2280,6 @@
   <data name="NameFilterCheckBox6Text.PlaceholderText" xml:space="preserve">
     <value>请输入正则表达式</value>
   </data>
-  <data name="Progress_Tip_Busy" xml:space="preserve">
-    <value>正在等待响应</value>
-  </data>
   <data name="QuickStartPickLogo.Content" xml:space="preserve">
     <value>自定义图标</value>
   </data>
@@ -3051,5 +3042,23 @@
   </data>
   <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
     <value>关键错误</value>
+  </data>
+  <data name="SystemTip_FullTrustBusyTitle" xml:space="preserve">
+    <value>正在等待响应</value>
+  </data>
+  <data name="SystemTip_FullTrustBusyContent" xml:space="preserve">
+    <value>辅助进程正忙，无法响应新的请求，请耐心等待</value>
+  </data>
+  <data name="SystemTip_LoadFileDelayContent" xml:space="preserve">
+    <value>无法加载某些文件的缩略图，请耐心等待。</value>
+  </data>
+  <data name="SystemTip_UpdateAvailableActionButton" xml:space="preserve">
+    <value>立即更新</value>
+  </data>
+  <data name="SystemTip_UpdateAvailableContent" xml:space="preserve">
+    <value>最新的更新修复了旧版本中存在的一些问题，并提供功能方面的增强</value>
+  </data>
+  <data name="SystemTip_UpdateAvailableTitle" xml:space="preserve">
+    <value>有可用的更新</value>
   </data>
 </root>

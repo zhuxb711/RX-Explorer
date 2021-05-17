@@ -247,7 +247,6 @@
                               MinWidth="150"
                               Name="LanguageComboBox"
                               x:Uid="LanguageComboBox"
-                              SelectionChanged="LanguageComboBox_SelectionChanged"
                               Background="{ThemeResource ComboBoxDisabledBackgroundThemeBrush}" />
 
                     <TextBlock Text="个性化"

@@ -1,5 +1,5 @@
 ﻿using Google.Cloud.Translation.V2;
-using Microsoft.Toolkit.Uwp.Notifications;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.Win32.SafeHandles;
 using NetworkAccess;
 using RX_Explorer.Interface;
@@ -24,7 +24,6 @@ using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
 using Windows.System;
 using Windows.UI.Core;
-using Windows.UI.Notifications;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -1121,29 +1120,7 @@ namespace RX_Explorer.Class
 
                         Cancellation.Cancel();
 
-                        try
-                        {
-                            if (ToastNotificationManager.History.GetHistory().All((Toast) => Toast.Tag != "DelayLoadNotification"))
-                            {
-                                ToastContentBuilder Builder = new ToastContentBuilder()
-                                                              .SetToastScenario(ToastScenario.Default)
-                                                              .AddToastActivationInfo("Transcode", ToastActivationType.Foreground)
-                                                              .AddText(Globalization.GetString("DelayLoadNotification_Title"))
-                                                              .AddText(Globalization.GetString("DelayLoadNotification_Content_1"))
-                                                              .AddText(Globalization.GetString("DelayLoadNotification_Content_2"));
-
-                                ToastNotification Notification = new ToastNotification(Builder.GetToastContent().GetXml())
-                                {
-                                    Tag = "DelayLoadNotification"
-                                };
-
-                                ToastNotificationManager.CreateToastNotifier().Show(Notification);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            LogTracer.Log(ex, "Toast notification could not be sent");
-                        }
+                        MainPage.ThisPage.ShowInfoTip(InfoBarSeverity.Warning, Globalization.GetString("SystemTip_LoadFileDelayTitle"), Globalization.GetString("SystemTip_LoadFileDelayContent"));
 
                         return null;
                     }

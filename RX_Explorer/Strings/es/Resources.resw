@@ -944,13 +944,7 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
   <data name="SubmitIssueOnGithub.Content" xml:space="preserve">
     <value>Enviar un problema a Github</value>
   </data>
-  <data name="DelayLoadNotification_Content_1" xml:space="preserve">
-    <value>No se han podido obtener las miniaturas de algunos archivos</value>
-  </data>
-  <data name="DelayLoadNotification_Content_2" xml:space="preserve">
-    <value>Por favor, espera.</value>
-  </data>
-  <data name="DelayLoadNotification_Title" xml:space="preserve">
+  <data name="SystemTip_LoadFileDelayTitle" xml:space="preserve">
     <value>Puede que la carga se esté demorando.</value>
   </data>
   <data name="FeedBackItem_SupportDescription_Negative" xml:space="preserve">
@@ -2317,9 +2311,6 @@ Las denominaciones no válidas son:
   <data name="NameFilterCheckBox6Text.PlaceholderText" xml:space="preserve">
     <value>Introduce una expresión regular.</value>
   </data>
-  <data name="Progress_Tip_Busy" xml:space="preserve">
-    <value>Esperando respuesta</value>
-  </data>
   <data name="QuickStartPickApp.Content" xml:space="preserve">
     <value>Elige una aplicación</value>
   </data>
@@ -3051,5 +3042,23 @@ Las denominaciones no válidas son:
   </data>
   <data name="SystemTip_FullTrustExitedTitle" xml:space="preserve">
     <value>Error crítico</value>
+  </data>
+  <data name="SystemTip_FullTrustBusyTitle" xml:space="preserve">
+    <value>Esperando una respuesta</value>
+  </data>
+  <data name="SystemTip_FullTrustBusyContent" xml:space="preserve">
+    <value>El proceso auxiliar está ocupado y no puede responder a nuevas solicitudes, espere pacientemente</value>
+  </data>
+  <data name="SystemTip_LoadFileDelayContent" xml:space="preserve">
+    <value>No se pueden obtener miniaturas de algunos archivos. Espere pacientemente.</value>
+  </data>
+  <data name="SystemTip_UpdateAvailableActionButton" xml:space="preserve">
+    <value>Actualizar ahora</value>
+  </data>
+  <data name="SystemTip_UpdateAvailableContent" xml:space="preserve">
+    <value>La última actualización corrige algunos problemas en la versión anterior y proporciona mejoras funcionales.</value>
+  </data>
+  <data name="SystemTip_UpdateAvailableTitle" xml:space="preserve">
+    <value>Hay una actualización disponible</value>
   </data>
 </root>

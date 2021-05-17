@@ -1249,15 +1249,7 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <source>Submit an issue on Github</source>
           <target state="translated">Enviar un problema a Github</target>
         </trans-unit>
-        <trans-unit id="DelayLoadNotification_Content_1" translate="yes" xml:space="preserve">
-          <source>Unable to get thumbnails of some files</source>
-          <target state="translated">No se han podido obtener las miniaturas de algunos archivos</target>
-        </trans-unit>
-        <trans-unit id="DelayLoadNotification_Content_2" translate="yes" xml:space="preserve">
-          <source>Please wait patiently</source>
-          <target state="translated">Por favor, espera.</target>
-        </trans-unit>
-        <trans-unit id="DelayLoadNotification_Title" translate="yes" xml:space="preserve">
+        <trans-unit id="SystemTip_LoadFileDelayTitle" translate="yes" xml:space="preserve">
           <source>There may be a delay in loading</source>
           <target state="translated">Puede que la carga se esté demorando.</target>
         </trans-unit>
@@ -3069,10 +3061,6 @@ Las denominaciones no válidas son:
           <source>Please enter a regular expression</source>
           <target state="translated">Introduce una expresión regular.</target>
         </trans-unit>
-        <trans-unit id="Progress_Tip_Busy" translate="yes" xml:space="preserve">
-          <source>Waiting for response</source>
-          <target state="translated">Esperando respuesta</target>
-        </trans-unit>
         <trans-unit id="QuickStartPickApp.Content" translate="yes" xml:space="preserve">
           <source>Pick an app</source>
           <target state="translated">Elige una aplicación</target>
@@ -4047,6 +4035,30 @@ Las denominaciones no válidas son:
         <trans-unit id="SystemTip_FullTrustExitedTitle" translate="yes" xml:space="preserve">
           <source>Critical error</source>
           <target state="translated">Error crítico</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_FullTrustBusyTitle" translate="yes" xml:space="preserve">
+          <source>Waiting for response</source>
+          <target state="translated">Esperando una respuesta</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_FullTrustBusyContent" translate="yes" xml:space="preserve">
+          <source>The auxiliary process is busy and cannot respond to new requests, please wait patiently</source>
+          <target state="translated">El proceso auxiliar está ocupado y no puede responder a nuevas solicitudes, espere pacientemente</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_LoadFileDelayContent" translate="yes" xml:space="preserve">
+          <source>Unable to get thumbnails of some files. Please wait patiently.</source>
+          <target state="translated">No se pueden obtener miniaturas de algunos archivos. Espere pacientemente.</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_UpdateAvailableActionButton" translate="yes" xml:space="preserve">
+          <source>Update now</source>
+          <target state="translated">Actualizar ahora</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_UpdateAvailableContent" translate="yes" xml:space="preserve">
+          <source>The latest update fixes some issues in the old version and provides functional enhancements</source>
+          <target state="translated">La última actualización corrige algunos problemas en la versión anterior y proporciona mejoras funcionales.</target>
+        </trans-unit>
+        <trans-unit id="SystemTip_UpdateAvailableTitle" translate="yes" xml:space="preserve">
+          <source>An Update is available</source>
+          <target state="translated">Hay una actualización disponible</target>
         </trans-unit>
       </group>
     </body>

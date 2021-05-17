@@ -232,7 +232,7 @@ namespace RX_Explorer.Class
                         {
                             if (CurrentRunningControllerNum > 0)
                             {
-                                if (!SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty, 5000))
+                                if (!SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty, 3000))
                                 {
                                     CurrentBusyStatus?.Invoke(null, true);
 
