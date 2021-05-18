@@ -103,6 +103,8 @@ namespace RX_Explorer.Class
 
         private const string ExecuteType_LaunchUWP = "Execute_LaunchUWP";
 
+        private const string ExecuteType_GetThumbnailSign = "Execute_GetThumbnailSign";
+
         private readonly static Thread DispatcherThread = new Thread(DispatcherMethod)
         {
             IsBackground = true,
@@ -471,6 +473,61 @@ namespace RX_Explorer.Class
             catch (Exception ex)
             {
                 LogTracer.Log(ex, $"{ nameof(GetMIMEContentType)} throw an error");
+                return string.Empty;
+            }
+            finally
+            {
+                IsAnyActionExcutingInCurrentController = false;
+            }
+        }
+
+        public async Task<string> GetThumbnailSign(string Path)
+        {
+            try
+            {
+                IsAnyActionExcutingInCurrentController = true;
+
+                if (await ConnectRemoteAsync())
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExecuteType", ExecuteType_GetThumbnailSign},
+                        {"Path", Path}
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Success", out object ThumbnailSignStr))
+                        {
+                            return Convert.ToString(ThumbnailSignStr);
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(GetDocumentProperties)}, message: {ErrorMessage}");
+                            }
+
+                            return string.Empty;
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"AppServiceResponse in {nameof(GetDocumentProperties)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        return string.Empty;
+                    }
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(GetDocumentProperties)}: Failed to connect AppService ");
+                    return string.Empty;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{ nameof(GetDocumentProperties)} throw an error");
                 return string.Empty;
             }
             finally

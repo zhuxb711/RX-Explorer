@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -419,6 +420,46 @@ namespace FullTrustProcess
             {
                 return false;
             }
+        }
+
+        public static string GetFileThumbnailSign(string path)
+        {
+            string ThumbnailSignStr = null;
+            var shfi = new Shell32.SHFILEINFO();
+            var ret = Shell32.SHGetFileInfo(
+                path,
+                0,
+                ref shfi,
+                Shell32.SHFILEINFO.Size,
+                Shell32.SHGFI.SHGFI_OVERLAYINDEX | Shell32.SHGFI.SHGFI_ICON | Shell32.SHGFI.SHGFI_SYSICONINDEX | Shell32.SHGFI.SHGFI_ICONLOCATION);
+            if (ret == IntPtr.Zero)
+            {
+                return null;
+            }
+            User32.DestroyIcon(shfi.hIcon);
+            Shell32.SHGetImageList(Shell32.SHIL.SHIL_LARGE, typeof(ComCtl32.IImageList).GUID, out var tmp);
+            using var imageList = ComCtl32.SafeHIMAGELIST.FromIImageList(tmp);
+            if (imageList.IsNull || imageList.IsInvalid)
+            {
+                return null;
+            }
+
+            var overlayIdx = shfi.iIcon >> 24;
+            if (overlayIdx != 0)
+            {
+                var overlayImage = imageList.Interface.GetOverlayImage(overlayIdx);
+                using var hOverlay = imageList.Interface.GetIcon(overlayImage, ComCtl32.IMAGELISTDRAWFLAGS.ILD_TRANSPARENT);
+                if (!hOverlay.IsNull && !hOverlay.IsInvalid)
+                {
+                    using var image = hOverlay.ToIcon().ToBitmap();
+                    byte[] bitmapData = (byte[])new ImageConverter().ConvertTo(image, typeof(byte[]));
+                    ThumbnailSignStr = Convert.ToBase64String(bitmapData, 0, bitmapData.Length);
+                }
+            }
+
+            return ThumbnailSignStr;
+            
+
         }
     }
 }

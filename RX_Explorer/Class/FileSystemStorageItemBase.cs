@@ -1,6 +1,7 @@
 ﻿using RX_Explorer.Interface;
 using System;
 using System.ComponentModel;
+using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
@@ -123,6 +124,8 @@ namespace RX_Explorer.Class
 
         public virtual BitmapImage Thumbnail { get; protected set; }
 
+        public virtual BitmapImage ThumbnailSign { get; protected set; }
+
         public virtual bool IsReadOnly { get; protected set; }
 
         public virtual bool IsSystemItem { get; protected set; }
@@ -132,6 +135,10 @@ namespace RX_Explorer.Class
         protected static readonly Uri Const_File_White_Image_Uri = new Uri("ms-appx:///Assets/Page_Solid_White.png");
 
         protected static readonly Uri Const_File_Black_Image_Uri = new Uri("ms-appx:///Assets/Page_Solid_Black.png");
+
+        protected static readonly string One_Drive_Consumer_Path = Environment.GetEnvironmentVariable("OneDriveConsumer");
+
+        protected static readonly string One_Drive_Commercial_Path = Environment.GetEnvironmentVariable("OneDriveCommercial");
 
         public static async Task<bool> CheckExistAsync(string Path)
         {
@@ -447,6 +454,58 @@ namespace RX_Explorer.Class
 
                 await LoadForegroundConfiguration();
             }
+            await LoadThumbnailSignAsync();
+            
+        }
+
+        public async Task LoadThumbnailSignAsync()
+        {
+            if (CheckNeedLoadThumbnailSign())
+            {
+                
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                {
+                    try
+                    {
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                        {
+                            string ThumbnailSignStr = await Exclusive.Controller.GetThumbnailSign(Path);
+
+                            if (!string.IsNullOrEmpty(ThumbnailSignStr))
+                            {
+                                using var ms = new MemoryStream(Convert.FromBase64String(ThumbnailSignStr));
+                                var image = new BitmapImage();
+                                await image.SetSourceAsync(ms.AsRandomAccessStream());
+                                ThumbnailSign = image;
+
+                                OnPropertyChanged(nameof(ThumbnailSign));
+                            }
+                        }
+                        
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, $"An exception was threw in {nameof(LoadThumbnailSignAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
+                    }
+                });
+                
+ 
+            }
+        }
+
+        protected bool CheckNeedLoadThumbnailSign()
+        {
+            //OneDriveConsumer  and OneDriveCommercial
+            if (!string.IsNullOrEmpty(One_Drive_Commercial_Path) &&Path.StartsWith(One_Drive_Commercial_Path, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+            if (!string.IsNullOrEmpty(One_Drive_Consumer_Path) && Path.StartsWith(One_Drive_Consumer_Path, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+            //another...
+            return false;
         }
 
         private async Task LoadForegroundConfiguration()
@@ -472,12 +531,13 @@ namespace RX_Explorer.Class
                 if (await CheckExistAsync(Path))
                 {
                     await LoadMorePropertiesCore(true);
-
+                    
                     OnPropertyChanged(nameof(Size));
                     OnPropertyChanged(nameof(Name));
                     OnPropertyChanged(nameof(ModifiedTime));
                     OnPropertyChanged(nameof(Thumbnail));
                     OnPropertyChanged(nameof(DisplayType));
+                   
                 }
                 else
                 {

@@ -1860,6 +1860,19 @@ namespace FullTrustProcess
 
                             break;
                         }
+                    case "Execute_GetThumbnailSign":
+                        {
+                            string Path = Convert.ToString(args.Request.Message["Path"]);
+
+                            ValueSet Value = new ValueSet();
+
+                            string result = StorageController.GetFileThumbnailSign(Path);
+                            Value.Add("Success", result);
+
+                            await args.Request.SendResponseAsync(Value);
+
+                            break;
+                        }
                     case "Execute_Exit":
                         {
                             ExitLocker.Set();

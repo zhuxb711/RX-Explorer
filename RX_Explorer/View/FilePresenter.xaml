@@ -933,6 +933,17 @@
                        Height="55"
                        Width="55"
                        x:Phase="1" />
+                <Image
+                    x:Name="ThumbnailSign"
+                    Margin="5,0,0,0"
+                    Width="14"
+                    Height="14"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Bottom"
+                    x:Load="True"
+                    x:Phase="1"
+                    Source="{x:Bind ThumbnailSign, Mode=OneWay}"
+                    Stretch="Uniform" />
                 <StackPanel Orientation="Vertical"
                             Grid.Column="1"
                             VerticalAlignment="Top"
@@ -988,6 +999,17 @@
                        Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
                        x:Phase="1"
                        Width="240" />
+                <Image
+                    x:Name="ThumbnailSign"
+                    Margin="50,0,0,0"
+                    Width="14"
+                    Height="14"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Bottom"
+                    x:Load="True"
+                    x:Phase="1"
+                    Source="{x:Bind ThumbnailSign, Mode=OneWay}"
+                    Stretch="Uniform" />
                 <TextBlock Text="{x:Bind Name,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            FontSize="16"
@@ -1016,6 +1038,17 @@
                        Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
                        Width="180"
                        x:Phase="1" />
+                <Image
+                    x:Name="ThumbnailSign"
+                    Margin="30,0,0,0"
+                    Width="14"
+                    Height="14"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Bottom"
+                    x:Load="True"
+                    x:Phase="1"
+                    Source="{x:Bind ThumbnailSign, Mode=OneWay}"
+                    Stretch="Uniform" />
                 <TextBlock Text="{x:Bind Name,Mode=OneWay}"
                            ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
                            FontSize="15"
@@ -1044,6 +1077,17 @@
                        Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
                        Width="120"
                        x:Phase="1" />
+                <Image
+                    x:Name="ThumbnailSign"
+                    Margin="25,0,0,0"
+                    Width="14"
+                    Height="14"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Bottom"
+                    x:Load="True"
+                    x:Phase="1"
+                    Source="{x:Bind ThumbnailSign, Mode=OneWay}"
+                    Stretch="Uniform" />
                 <TextBlock Text="{x:Bind Name,Mode=OneWay}"
                            FontSize="14"
                            ToolTipService.ToolTip="{x:Bind Name,Mode=OneWay,Converter={StaticResource EmptyTextFiliter}}"
@@ -1075,6 +1119,17 @@
                        Width="30"
                        x:Phase="1"
                        PointerPressed="GetFocus_PointerPressed" />
+                <Image
+                    x:Name="ThumbnailSign"
+                    Margin="5,0,0,0"
+                    Width="14"
+                    Height="14"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Bottom"
+                    x:Load="True"
+                    x:Phase="1"
+                    Source="{x:Bind ThumbnailSign, Mode=OneWay}"
+                    Stretch="Uniform" />
                 <TextBlock VerticalAlignment="Center"
                            HorizontalAlignment="Left"
                            FontSize="14"
@@ -1134,6 +1189,18 @@
                            Width="30"
                            x:Phase="1"
                            PointerPressed="GetFocus_PointerPressed" />
+                    <Image
+                    x:Name="ThumbnailSign"
+                    Margin="5,0,0,0"
+                    Width="16"
+                    Height="16"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Bottom"
+                    x:Load="True"
+                    x:Phase="1"
+                    Source="{x:Bind ThumbnailSign, Mode=OneWay}"
+                    Opacity="{x:Bind ThumbnailOpacity,Mode=OneWay}"
+                    Stretch="Uniform" />
                     <TextBlock VerticalAlignment="Center"
                                HorizontalAlignment="Left"
                                FontSize="14"
