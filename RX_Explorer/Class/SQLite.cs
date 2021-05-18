@@ -901,42 +901,39 @@ namespace RX_Explorer.Class
                     DeleteCommandBuilder.Append($"Delete From {TableName};");
                 }
 
-                using (SqliteCommand Command = new SqliteCommand(DeleteCommandBuilder.ToString(), Connection, Transaction))
-                {
-                    Command.ExecuteNonQuery();
-                }
+                using SqliteCommand Command = new SqliteCommand(DeleteCommandBuilder.ToString(), Connection, Transaction);
 
-                StringBuilder InsertCommandBuilder = new StringBuilder();
+                Command.ExecuteNonQuery();
+
+                List<SqliteParameter> Parameters = new List<SqliteParameter>();
 
                 foreach ((string TableName, IEnumerable<object[]> Data) in InputData)
                 {
+                    Command.CommandText = $"Insert Into {TableName} Values ({string.Join(", ", Enumerable.Range(0, Data.First().Length)).Select(i => $"$param_{i}")})";
+
                     foreach (object[] RowData in Data.Where((Row) => Row.Length > 0))
                     {
                         for (int i = 0; i < RowData.Length; i++)
                         {
-                            switch (RowData[i])
+                            if (Parameters.Count < i + 1)
                             {
-                                case string DataString:
-                                    {
-                                        RowData[i] = $"'{DataString.EscapeSQLQuery()}'";
-                                        break;
-                                    }
-                                case bool DataBool:
-                                    {
-                                        RowData[i] = Convert.ToBoolean(DataBool);
-                                        break;
-                                    }
+                                Parameters[i] = Command.CreateParameter();
+                                Parameters[i].ParameterName = $"$param_{i}";
                             }
+
+                            Parameters[i].Value = RowData[i] switch
+                            {
+                                string DataString => DataString,
+                                _ => RowData[i].ToString()
+                            };
                         }
 
-                        InsertCommandBuilder.Append($"Insert Into {TableName} Values ({string.Join(", ", RowData)});");
+                        Command.Parameters.Clear();
+                        Command.Parameters.AddRange(Parameters.Take(RowData.Length));
+                        Command.ExecuteNonQuery();
                     }
                 }
 
-                using (SqliteCommand Command = new SqliteCommand(InsertCommandBuilder.ToString(), Connection, Transaction))
-                {
-                    Command.ExecuteNonQuery();
-                }
 
                 Transaction.Commit();
             }
