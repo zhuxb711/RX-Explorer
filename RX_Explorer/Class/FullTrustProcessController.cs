@@ -507,7 +507,7 @@ namespace RX_Explorer.Class
                         {
                             if (Response.Message.TryGetValue("Error", out object ErrorMessage))
                             {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(GetDocumentProperties)}, message: {ErrorMessage}");
+                                LogTracer.Log($"An unexpected error was threw in {nameof(GetThumbnailSign)}, message: {ErrorMessage}");
                             }
 
                             return string.Empty;
@@ -515,19 +515,19 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        LogTracer.Log($"AppServiceResponse in {nameof(GetDocumentProperties)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        LogTracer.Log($"AppServiceResponse in {nameof(GetThumbnailSign)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
                         return string.Empty;
                     }
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(GetDocumentProperties)}: Failed to connect AppService ");
+                    LogTracer.Log($"{nameof(GetThumbnailSign)}: Failed to connect AppService ");
                     return string.Empty;
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{ nameof(GetDocumentProperties)} throw an error");
+                LogTracer.Log(ex, $"{ nameof(GetThumbnailSign)} throw an error");
                 return string.Empty;
             }
             finally

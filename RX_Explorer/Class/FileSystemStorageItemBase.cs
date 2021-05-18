@@ -462,32 +462,30 @@ namespace RX_Explorer.Class
         {
             if (CheckNeedLoadThumbnailSign())
             {
-                
-                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                try
                 {
-                    try
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                     {
-                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                        string ThumbnailSignStr = await Exclusive.Controller.GetThumbnailSign(Path);
+
+                        if (!string.IsNullOrEmpty(ThumbnailSignStr))
                         {
-                            string ThumbnailSignStr = await Exclusive.Controller.GetThumbnailSign(Path);
+                            using var ms = new MemoryStream(Convert.FromBase64String(ThumbnailSignStr));
+                            var image = new BitmapImage();
+                            await image.SetSourceAsync(ms.AsRandomAccessStream());
+                            ThumbnailSign = image;
 
-                            if (!string.IsNullOrEmpty(ThumbnailSignStr))
-                            {
-                                using var ms = new MemoryStream(Convert.FromBase64String(ThumbnailSignStr));
-                                var image = new BitmapImage();
-                                await image.SetSourceAsync(ms.AsRandomAccessStream());
-                                ThumbnailSign = image;
-
-                                OnPropertyChanged(nameof(ThumbnailSign));
-                            }
+                            
                         }
-                        
                     }
-                    catch (Exception ex)
-                    {
-                        LogTracer.Log(ex, $"An exception was threw in {nameof(LoadThumbnailSignAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
-                    }
-                });
+                    OnPropertyChanged(nameof(ThumbnailSign));
+
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, $"An exception was threw in {nameof(LoadThumbnailSignAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
+                }
+                
                 
  
             }
