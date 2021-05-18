@@ -45,19 +45,6 @@ namespace RX_Explorer.Class
     {
         private static int ContextMenuLockResource;
 
-        public static string EscapeSQLQuery(this string Input)
-        {
-            return Input.Replace("/", "//")
-                        .Replace("'", "''")
-                        .Replace("[", "/[")
-                        .Replace("]", "/]")
-                        .Replace("%", "/%")
-                        .Replace("&", "/&")
-                        .Replace("_", "/_")
-                        .Replace("(", "/(")
-                        .Replace(")", "/)");
-        }
-
         public static async Task<bool> CheckIfContainsAvailableDataAsync(this DataPackageView View)
         {
             if (View.Contains(StandardDataFormats.StorageItems))

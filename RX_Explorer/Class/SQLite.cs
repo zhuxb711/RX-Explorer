@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Office2010.CustomUI;
-using Microsoft.Data.Sqlite;
+﻿using Microsoft.Data.Sqlite;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
@@ -909,31 +908,39 @@ namespace RX_Explorer.Class
 
                 foreach ((string TableName, IEnumerable<object[]> Data) in InputData)
                 {
-                    Command.CommandText = $"Insert Into {TableName} Values ({string.Join(", ", Enumerable.Range(0, Data.First().Length)).Select(i => $"$param_{i}")})";
-
-                    foreach (object[] RowData in Data.Where((Row) => Row.Length > 0))
+                    if (Data.Any())
                     {
-                        for (int i = 0; i < RowData.Length; i++)
-                        {
-                            if (Parameters.Count < i + 1)
-                            {
-                                Parameters[i] = Command.CreateParameter();
-                                Parameters[i].ParameterName = $"$param_{i}";
-                            }
+                        int ColumnNum = Data.Max((Row) => Row.Length);
 
-                            Parameters[i].Value = RowData[i] switch
+                        if (Parameters.Count < ColumnNum)
+                        {
+                            for (int i = Parameters.Count; i < ColumnNum; i++)
                             {
-                                string DataString => DataString,
-                                _ => RowData[i].ToString()
-                            };
+                                SqliteParameter Para = Command.CreateParameter();
+                                Para.ParameterName = $"$param_{i}";
+                                Parameters.Add(Para);
+                            }
+                        }
+                        else if (Parameters.Count > ColumnNum)
+                        {
+                            Parameters.RemoveRange(ColumnNum, Parameters.Count - ColumnNum);
                         }
 
-                        Command.Parameters.Clear();
-                        Command.Parameters.AddRange(Parameters.Take(RowData.Length));
-                        Command.ExecuteNonQuery();
+                        Command.CommandText = $"Insert Into {TableName} Values ({string.Join(", ", Parameters.Select((Para) => Para.ParameterName))})";
+
+                        foreach (object[] RowData in Data.Where((Row) => Row.Length > 0))
+                        {
+                            for (int i = 0; i < RowData.Length; i++)
+                            {
+                                Parameters[i].Value = RowData[i];
+                            }
+
+                            Command.Parameters.Clear();
+                            Command.Parameters.AddRange(Parameters.Take(RowData.Length));
+                            Command.ExecuteNonQuery();
+                        }
                     }
                 }
-
 
                 Transaction.Commit();
             }
