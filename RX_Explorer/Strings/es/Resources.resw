@@ -3061,4 +3061,7 @@ Las denominaciones no válidas son:
   <data name="SystemTip_UpdateAvailableTitle" xml:space="preserve">
     <value>Hay una actualización disponible</value>
   </data>
+  <data name="OfflineAvailabilityStatusText7" xml:space="preserve">
+    <value>Synchronisation</value>
+  </data>
 </root>

@@ -4060,6 +4060,10 @@ Las denominaciones no válidas son:
           <source>An Update is available</source>
           <target state="translated">Hay una actualización disponible</target>
         </trans-unit>
+        <trans-unit id="OfflineAvailabilityStatusText7" translate="yes" xml:space="preserve">
+          <source>Syncing</source>
+          <target state="translated">Synchronisation</target>
+        </trans-unit>
       </group>
     </body>
   </file>

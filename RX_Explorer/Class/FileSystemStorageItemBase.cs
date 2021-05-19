@@ -506,9 +506,7 @@ namespace RX_Explorer.Class
                         {
                             IDictionary<string, object> Properties = await File.Properties.RetrievePropertiesAsync(new string[] { "System.FilePlaceholderStatus", "System.FileOfflineAvailabilityStatus" });
 
-                            object StatusIndex;
-
-                            if (!Properties.TryGetValue("System.FilePlaceholderStatus", out StatusIndex))
+                            if (!Properties.TryGetValue("System.FilePlaceholderStatus", out object StatusIndex))
                             {
                                 if (!Properties.TryGetValue("System.FileOfflineAvailabilityStatus", out StatusIndex))
                                 {
@@ -557,11 +555,10 @@ namespace RX_Explorer.Class
                         {
                             IDictionary<string, object> Properties = await Folder.Properties.RetrievePropertiesAsync(new string[] { "System.FilePlaceholderStatus", "System.FileOfflineAvailabilityStatus" });
 
-                            object StatusIndex;
 
-                            if (!Properties.TryGetValue("System.FilePlaceholderStatus", out StatusIndex))
+                            if (!Properties.TryGetValue("System.FileOfflineAvailabilityStatus", out object StatusIndex))
                             {
-                                if (!Properties.TryGetValue("System.FileOfflineAvailabilityStatus", out StatusIndex))
+                                if (!Properties.TryGetValue("System.FilePlaceholderStatus", out StatusIndex))
                                 {
                                     SyncStatus = SyncStatus.Unknown;
                                     break;
@@ -613,8 +610,10 @@ namespace RX_Explorer.Class
             }
             else
             {
-                SyncStatus = SyncStatus.AvailableOffline;
+                SyncStatus = SyncStatus.Unknown;
             }
+
+            OnPropertyChanged(nameof(SyncStatus));
         }
 
         private async Task LoadThumbnailOverlayAsync(FullTrustProcessController Controller)
@@ -676,7 +675,6 @@ namespace RX_Explorer.Class
                     OnPropertyChanged(nameof(ModifiedTime));
                     OnPropertyChanged(nameof(Thumbnail));
                     OnPropertyChanged(nameof(DisplayType));
-
                 }
                 else
                 {
@@ -839,7 +837,7 @@ namespace RX_Explorer.Class
                 {
                     case SpecialPathEnum.OneDrive:
                         {
-                            return OneDrivePathCollection.Where((Path) => !string.IsNullOrEmpty(Path)).Any((OneDrivePath) => Path.StartsWith(OneDrivePath, StringComparison.OrdinalIgnoreCase));
+                            return OneDrivePathCollection.Where((Path) => !string.IsNullOrEmpty(Path)).Any((OneDrivePath) => Path.StartsWith(OneDrivePath, StringComparison.OrdinalIgnoreCase) && !Path.Equals(OneDrivePath, StringComparison.OrdinalIgnoreCase));
                         }
                     default:
                         {

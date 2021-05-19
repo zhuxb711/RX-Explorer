@@ -3166,4 +3166,7 @@ Invalid names include
   <data name="SystemTip_UpdateAvailableTitle" xml:space="preserve">
     <value>An Update is available</value>
   </data>
+  <data name="OfflineAvailabilityStatusText7" xml:space="preserve">
+    <value>Syncing</value>
+  </data>
 </root>

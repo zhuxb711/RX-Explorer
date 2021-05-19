@@ -3061,4 +3061,7 @@
   <data name="SystemTip_UpdateAvailableTitle" xml:space="preserve">
     <value>有可用的更新</value>
   </data>
+  <data name="OfflineAvailabilityStatusText7" xml:space="preserve">
+    <value>正在同步</value>
+  </data>
 </root>

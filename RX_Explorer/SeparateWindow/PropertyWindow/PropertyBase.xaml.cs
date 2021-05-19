@@ -41,7 +41,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             { 2, Globalization.GetString("OfflineAvailabilityText3") }
         };
 
-        private static readonly Dictionary<uint, string> OfflineAvailabilityStatusMap = new Dictionary<uint, string>(6)
+        private static readonly Dictionary<uint, string> OfflineAvailabilityStatusMap = new Dictionary<uint, string>(10)
         {
             { 0, Globalization.GetString("OfflineAvailabilityStatusText1") },
             { 1, Globalization.GetString("OfflineAvailabilityStatusText2") },
@@ -50,6 +50,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             { 4, Globalization.GetString("OfflineAvailabilityStatusText5") },
             { 5, Globalization.GetString("OfflineAvailabilityStatusText6") },
             { 8, Globalization.GetString("OfflineAvailabilityStatusText1") },
+            { 9, Globalization.GetString("OfflineAvailabilityStatusText7") },
             { 14, Globalization.GetString("OfflineAvailabilityStatusText3") },
             { 15, Globalization.GetString("OfflineAvailabilityStatusText4") },
         };
