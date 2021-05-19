@@ -913,6 +913,10 @@ namespace RX_Explorer.Class
                                             {
                                                 SearchResult.Add(new HiddenStorageFolder(CurrentDataPath, Data));
                                             }
+                                            else if (FileSystemStorageItemBase.SpecialPath.IsPathIncluded(CurrentDataPath, FileSystemStorageItemBase.SpecialPath.SpecialPathEnum.OneDrive))
+                                            {
+                                                SearchResult.Add(new OneDriveStorageFolder(CurrentDataPath, Data));
+                                            }
                                             else
                                             {
                                                 SearchResult.Add(new FileSystemStorageFolder(CurrentDataPath, Data));
@@ -931,6 +935,10 @@ namespace RX_Explorer.Class
                                             else if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
                                             {
                                                 SearchResult.Add(new LinkStorageFile(CurrentDataPath, Data));
+                                            }
+                                            else if (FileSystemStorageItemBase.SpecialPath.IsPathIncluded(CurrentDataPath, FileSystemStorageItemBase.SpecialPath.SpecialPathEnum.OneDrive))
+                                            {
+                                                SearchResult.Add(new OneDriveStorageFile(CurrentDataPath, Data));
                                             }
                                             else
                                             {
@@ -1022,6 +1030,10 @@ namespace RX_Explorer.Class
                                         {
                                             Result.Add(new HiddenStorageFolder(CurrentDataPath, Data));
                                         }
+                                        else if (FileSystemStorageItemBase.SpecialPath.IsPathIncluded(CurrentDataPath, FileSystemStorageItemBase.SpecialPath.SpecialPathEnum.OneDrive))
+                                        {
+                                            Result.Add(new OneDriveStorageFolder(CurrentDataPath, Data));
+                                        }
                                         else
                                         {
                                             Result.Add(new FileSystemStorageFolder(CurrentDataPath, Data));
@@ -1045,6 +1057,10 @@ namespace RX_Explorer.Class
                                         else if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
                                         {
                                             Result.Add(new LinkStorageFile(CurrentDataPath, Data));
+                                        }
+                                        else if (FileSystemStorageItemBase.SpecialPath.IsPathIncluded(CurrentDataPath, FileSystemStorageItemBase.SpecialPath.SpecialPathEnum.OneDrive))
+                                        {
+                                            Result.Add(new OneDriveStorageFile(CurrentDataPath, Data));
                                         }
                                         else
                                         {
@@ -1101,6 +1117,10 @@ namespace RX_Explorer.Class
                                 {
                                     return new HiddenStorageFolder(ItemPath, Data);
                                 }
+                                else if (FileSystemStorageItemBase.SpecialPath.IsPathIncluded(ItemPath, FileSystemStorageItemBase.SpecialPath.SpecialPathEnum.OneDrive))
+                                {
+                                    return new OneDriveStorageFolder(ItemPath, Data);
+                                }
                                 else
                                 {
                                     return new FileSystemStorageFolder(ItemPath, Data);
@@ -1119,6 +1139,10 @@ namespace RX_Explorer.Class
                                 else if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
                                 {
                                     return new LinkStorageFile(ItemPath, Data);
+                                }
+                                else if (FileSystemStorageItemBase.SpecialPath.IsPathIncluded(ItemPath, FileSystemStorageItemBase.SpecialPath.SpecialPathEnum.OneDrive))
+                                {
+                                    return new OneDriveStorageFile(ItemPath, Data);
                                 }
                                 else
                                 {
@@ -1176,6 +1200,10 @@ namespace RX_Explorer.Class
                                     {
                                         Result.Add(new HiddenStorageFolder(Path, Data));
                                     }
+                                    else if (FileSystemStorageItemBase.SpecialPath.IsPathIncluded(Path, FileSystemStorageItemBase.SpecialPath.SpecialPathEnum.OneDrive))
+                                    {
+                                        Result.Add(new OneDriveStorageFolder(Path, Data));
+                                    }
                                     else
                                     {
                                         Result.Add(new FileSystemStorageFolder(Path, Data));
@@ -1194,6 +1222,10 @@ namespace RX_Explorer.Class
                                     else if (Data.cFileName.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
                                     {
                                         Result.Add(new LinkStorageFile(Path, Data));
+                                    }
+                                    else if (FileSystemStorageItemBase.SpecialPath.IsPathIncluded(Path, FileSystemStorageItemBase.SpecialPath.SpecialPathEnum.OneDrive))
+                                    {
+                                        Result.Add(new OneDriveStorageFile(Path, Data));
                                     }
                                     else
                                     {

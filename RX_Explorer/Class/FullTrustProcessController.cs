@@ -103,7 +103,7 @@ namespace RX_Explorer.Class
 
         private const string ExecuteType_LaunchUWP = "Execute_LaunchUWP";
 
-        private const string ExecuteType_GetThumbnailSign = "Execute_GetThumbnailSign";
+        private const string ExecuteType_GetThumbnailOverlay = "Execute_GetThumbnailOverlay";
 
         private readonly static Thread DispatcherThread = new Thread(DispatcherMethod)
         {
@@ -481,7 +481,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        public async Task<string> GetThumbnailSign(string Path)
+        public async Task<byte[]> GetThumbnailOverlayAsync(string Path)
         {
             try
             {
@@ -491,7 +491,7 @@ namespace RX_Explorer.Class
                 {
                     ValueSet Value = new ValueSet
                     {
-                        {"ExecuteType", ExecuteType_GetThumbnailSign},
+                        {"ExecuteType", ExecuteType_GetThumbnailOverlay},
                         {"Path", Path}
                     };
 
@@ -499,36 +499,36 @@ namespace RX_Explorer.Class
 
                     if (Response.Status == AppServiceResponseStatus.Success)
                     {
-                        if (Response.Message.TryGetValue("Success", out object ThumbnailSignStr))
+                        if (Response.Message.TryGetValue("Success", out object ThumbnailOverlayStr))
                         {
-                            return Convert.ToString(ThumbnailSignStr);
+                            return JsonSerializer.Deserialize<byte[]>(Convert.ToString(ThumbnailOverlayStr));
                         }
                         else
                         {
                             if (Response.Message.TryGetValue("Error", out object ErrorMessage))
                             {
-                                LogTracer.Log($"An unexpected error was threw in {nameof(GetThumbnailSign)}, message: {ErrorMessage}");
+                                LogTracer.Log($"An unexpected error was threw in {nameof(GetThumbnailOverlayAsync)}, message: {ErrorMessage}");
                             }
 
-                            return string.Empty;
+                            return Array.Empty<byte>();
                         }
                     }
                     else
                     {
-                        LogTracer.Log($"AppServiceResponse in {nameof(GetThumbnailSign)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
-                        return string.Empty;
+                        LogTracer.Log($"AppServiceResponse in {nameof(GetThumbnailOverlayAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        return Array.Empty<byte>();
                     }
                 }
                 else
                 {
-                    LogTracer.Log($"{nameof(GetThumbnailSign)}: Failed to connect AppService ");
-                    return string.Empty;
+                    LogTracer.Log($"{nameof(GetThumbnailOverlayAsync)}: Failed to connect AppService ");
+                    return Array.Empty<byte>();
                 }
             }
             catch (Exception ex)
             {
-                LogTracer.Log(ex, $"{ nameof(GetThumbnailSign)} throw an error");
-                return string.Empty;
+                LogTracer.Log(ex, $"{ nameof(GetThumbnailOverlayAsync)} throw an error");
+                return Array.Empty<byte>();
             }
             finally
             {

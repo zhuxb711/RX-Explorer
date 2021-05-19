@@ -23,6 +23,8 @@ namespace RX_Explorer.Interface
 
         public BitmapImage Thumbnail { get; }
 
+        public BitmapImage ThumbnailOverlay { get; }
+
         public DateTimeOffset ModifiedTimeRaw { get; }
 
         public DateTimeOffset CreationTimeRaw { get; }

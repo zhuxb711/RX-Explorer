@@ -368,13 +368,16 @@ namespace RX_Explorer
 
         private void SearchResultList_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
         {
-            args.RegisterUpdateCallback(async (s, e) =>
+            if (!args.InRecycleQueue)
             {
-                if (e.Item is FileSystemStorageItemBase Item)
+                args.RegisterUpdateCallback(async (s, e) =>
                 {
-                    await Item.LoadMorePropertiesAsync().ConfigureAwait(false);
-                }
-            });
+                    if (e.Item is FileSystemStorageItemBase Item)
+                    {
+                        await Item.LoadMorePropertiesAsync().ConfigureAwait(false);
+                    }
+                });
+            }
         }
 
         private void ListHeaderSize_Click(object sender, RoutedEventArgs e)

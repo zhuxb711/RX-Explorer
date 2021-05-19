@@ -1,7 +1,9 @@
 ﻿using RX_Explorer.Interface;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
@@ -124,7 +126,7 @@ namespace RX_Explorer.Class
 
         public virtual BitmapImage Thumbnail { get; protected set; }
 
-        public virtual BitmapImage ThumbnailSign { get; protected set; }
+        public virtual BitmapImage ThumbnailOverlay { get; protected set; }
 
         public virtual bool IsReadOnly { get; protected set; }
 
@@ -135,10 +137,6 @@ namespace RX_Explorer.Class
         protected static readonly Uri Const_File_White_Image_Uri = new Uri("ms-appx:///Assets/Page_Solid_White.png");
 
         protected static readonly Uri Const_File_Black_Image_Uri = new Uri("ms-appx:///Assets/Page_Solid_Black.png");
-
-        protected static readonly string One_Drive_Consumer_Path = Environment.GetEnvironmentVariable("OneDriveConsumer");
-
-        protected static readonly string One_Drive_Commercial_Path = Environment.GetEnvironmentVariable("OneDriveCommercial");
 
         public static async Task<bool> CheckExistAsync(string Path)
         {
@@ -192,13 +190,28 @@ namespace RX_Explorer.Class
             {
                 case StorageFile File:
                     {
-                        foreach (ConstructorInfo Info in typeof(FileSystemStorageFile).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
+                        if (SpecialPath.OneDrivePathCollection.Where((Path) => !string.IsNullOrEmpty(Path)).Any((OneDrivePath) => File.Path.StartsWith(OneDrivePath, StringComparison.OrdinalIgnoreCase)))
                         {
-                            ParameterInfo[] Parameters = Info.GetParameters();
-
-                            if (Parameters[0].ParameterType == typeof(StorageFile))
+                            foreach (ConstructorInfo Info in typeof(OneDriveStorageFile).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
                             {
-                                return (FileSystemStorageFile)Info.Invoke(new object[] { File, await File.GetModifiedTimeAsync(), await File.GetSizeRawDataAsync() });
+                                ParameterInfo[] Parameters = Info.GetParameters();
+
+                                if (Parameters[0].ParameterType == typeof(StorageFile))
+                                {
+                                    return (OneDriveStorageFile)Info.Invoke(new object[] { File, await File.GetModifiedTimeAsync(), await File.GetSizeRawDataAsync() });
+                                }
+                            }
+                        }
+                        else
+                        {
+                            foreach (ConstructorInfo Info in typeof(FileSystemStorageFile).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
+                            {
+                                ParameterInfo[] Parameters = Info.GetParameters();
+
+                                if (Parameters[0].ParameterType == typeof(StorageFile))
+                                {
+                                    return (FileSystemStorageFile)Info.Invoke(new object[] { File, await File.GetModifiedTimeAsync(), await File.GetSizeRawDataAsync() });
+                                }
                             }
                         }
 
@@ -206,13 +219,28 @@ namespace RX_Explorer.Class
                     }
                 case StorageFolder Folder:
                     {
-                        foreach (ConstructorInfo Info in typeof(FileSystemStorageFolder).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
+                        if (SpecialPath.OneDrivePathCollection.Where((Path) => !string.IsNullOrEmpty(Path)).Any((OneDrivePath) => Folder.Path.StartsWith(OneDrivePath, StringComparison.OrdinalIgnoreCase)))
                         {
-                            ParameterInfo[] Parameters = Info.GetParameters();
-
-                            if (Parameters[0].ParameterType == typeof(StorageFolder))
+                            foreach (ConstructorInfo Info in typeof(OneDriveStorageFolder).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
                             {
-                                return (FileSystemStorageFolder)Info.Invoke(new object[] { Folder, await Folder.GetModifiedTimeAsync() });
+                                ParameterInfo[] Parameters = Info.GetParameters();
+
+                                if (Parameters[0].ParameterType == typeof(StorageFolder))
+                                {
+                                    return (OneDriveStorageFolder)Info.Invoke(new object[] { Folder, await Folder.GetModifiedTimeAsync() });
+                                }
+                            }
+                        }
+                        else
+                        {
+                            foreach (ConstructorInfo Info in typeof(FileSystemStorageFolder).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
+                            {
+                                ParameterInfo[] Parameters = Info.GetParameters();
+
+                                if (Parameters[0].ParameterType == typeof(StorageFolder))
+                                {
+                                    return (FileSystemStorageFolder)Info.Invoke(new object[] { Folder, await Folder.GetModifiedTimeAsync() });
+                                }
                             }
                         }
 
@@ -437,13 +465,37 @@ namespace RX_Explorer.Class
                     {
                         try
                         {
-                            await LoadMorePropertiesCore(false);
+                            if (LoadMorePropertiesWithFullTrustProcess())
+                            {
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                {
+                                    await LoadMorePropertiesCore(Exclusive.Controller, false);
 
-                            OnPropertyChanged(nameof(Size));
+                                    if (CheckIfNeedLoadThumbnailOverlay())
+                                    {
+                                        await LoadThumbnailOverlayAsync(Exclusive.Controller);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                await LoadMorePropertiesCore(false);
+
+                                if (CheckIfNeedLoadThumbnailOverlay())
+                                {
+                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                    {
+                                        await LoadThumbnailOverlayAsync(Exclusive.Controller);
+                                    }
+                                }
+                            }
+
                             OnPropertyChanged(nameof(Name));
+                            OnPropertyChanged(nameof(Size));
+                            OnPropertyChanged(nameof(DisplayType));
                             OnPropertyChanged(nameof(ModifiedTime));
                             OnPropertyChanged(nameof(Thumbnail));
-                            OnPropertyChanged(nameof(DisplayType));
+                            OnPropertyChanged(nameof(ThumbnailOverlay));
                         }
                         catch (Exception ex)
                         {
@@ -454,56 +506,20 @@ namespace RX_Explorer.Class
 
                 await LoadForegroundConfiguration();
             }
-            await LoadThumbnailSignAsync();
-            
         }
 
-        public async Task LoadThumbnailSignAsync()
+        private async Task LoadThumbnailOverlayAsync(FullTrustProcessController Controller)
         {
-            if (CheckNeedLoadThumbnailSign())
+            byte[] ThumbnailOverlayByteArray = await Controller.GetThumbnailOverlayAsync(Path);
+
+            if (ThumbnailOverlayByteArray.Length > 0)
             {
-                try
+                using (MemoryStream Ms = new MemoryStream(ThumbnailOverlayByteArray))
                 {
-                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                    {
-                        string ThumbnailSignStr = await Exclusive.Controller.GetThumbnailSign(Path);
-
-                        if (!string.IsNullOrEmpty(ThumbnailSignStr))
-                        {
-                            using var ms = new MemoryStream(Convert.FromBase64String(ThumbnailSignStr));
-                            var image = new BitmapImage();
-                            await image.SetSourceAsync(ms.AsRandomAccessStream());
-                            ThumbnailSign = image;
-
-                            
-                        }
-                    }
-                    OnPropertyChanged(nameof(ThumbnailSign));
-
+                    ThumbnailOverlay = new BitmapImage();
+                    await ThumbnailOverlay.SetSourceAsync(Ms.AsRandomAccessStream());
                 }
-                catch (Exception ex)
-                {
-                    LogTracer.Log(ex, $"An exception was threw in {nameof(LoadThumbnailSignAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
-                }
-                
-                
- 
             }
-        }
-
-        protected bool CheckNeedLoadThumbnailSign()
-        {
-            //OneDriveConsumer  and OneDriveCommercial
-            if (!string.IsNullOrEmpty(One_Drive_Commercial_Path) &&Path.StartsWith(One_Drive_Commercial_Path, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-            if (!string.IsNullOrEmpty(One_Drive_Consumer_Path) && Path.StartsWith(One_Drive_Consumer_Path, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-            //another...
-            return false;
         }
 
         private async Task LoadForegroundConfiguration()
@@ -516,9 +532,15 @@ namespace RX_Explorer.Class
             }
         }
 
+        protected abstract bool CheckIfNeedLoadThumbnailOverlay();
+
         protected abstract bool CheckIfPropertiesLoaded();
 
         protected abstract Task LoadMorePropertiesCore(bool ForceUpdate);
+
+        protected abstract Task LoadMorePropertiesCore(FullTrustProcessController Controller, bool ForceUpdate);
+
+        protected abstract bool LoadMorePropertiesWithFullTrustProcess();
 
         public abstract Task<IStorageItem> GetStorageItemAsync();
 
@@ -528,14 +550,24 @@ namespace RX_Explorer.Class
             {
                 if (await CheckExistAsync(Path))
                 {
-                    await LoadMorePropertiesCore(true);
-                    
+                    if (LoadMorePropertiesWithFullTrustProcess())
+                    {
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                        {
+                            await LoadMorePropertiesCore(Exclusive.Controller, true);
+                        }
+                    }
+                    else
+                    {
+                        await LoadMorePropertiesCore(true);
+                    }
+
                     OnPropertyChanged(nameof(Size));
                     OnPropertyChanged(nameof(Name));
                     OnPropertyChanged(nameof(ModifiedTime));
                     OnPropertyChanged(nameof(Thumbnail));
                     OnPropertyChanged(nameof(DisplayType));
-                   
+
                 }
                 else
                 {
@@ -674,6 +706,36 @@ namespace RX_Explorer.Class
                 else
                 {
                     return !left.Path.Equals(right.Path, StringComparison.OrdinalIgnoreCase);
+                }
+            }
+        }
+
+        public sealed class SpecialPath
+        {
+            public static IReadOnlyList<string> OneDrivePathCollection { get; } = new List<string>
+            {
+                Environment.GetEnvironmentVariable("OneDriveConsumer"),
+                Environment.GetEnvironmentVariable("OneDriveCommercial"),
+                Environment.GetEnvironmentVariable("OneDrive")
+            };
+
+            public enum SpecialPathEnum
+            {
+                OneDrive
+            }
+
+            public static bool IsPathIncluded(string Path, SpecialPathEnum Enum)
+            {
+                switch (Enum)
+                {
+                    case SpecialPathEnum.OneDrive:
+                        {
+                            return OneDrivePathCollection.Where((Path) => !string.IsNullOrEmpty(Path)).Any((OneDrivePath) => Path.StartsWith(OneDrivePath, StringComparison.OrdinalIgnoreCase));
+                        }
+                    default:
+                        {
+                            return false;
+                        }
                 }
             }
         }

@@ -20,9 +20,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override async Task LoadMorePropertiesCore(bool ForceUpdate)
+        protected override async Task LoadMorePropertiesCore(FullTrustProcessController Controller, bool ForceUpdate)
         {
-            RawData = await GetRawDataAsync();
+            RawData = await GetRawDataAsync(Controller);
 
             if ((RawData?.IconData.Length).GetValueOrDefault() > 0)
             {
@@ -33,6 +33,11 @@ namespace RX_Explorer.Class
                     Thumbnail = Image;
                 }
             }
+        }
+
+        protected override bool LoadMorePropertiesWithFullTrustProcess()
+        {
+            return true;
         }
 
         protected override bool CheckIfPropertiesLoaded()
@@ -55,8 +60,13 @@ namespace RX_Explorer.Class
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                return await Exclusive.Controller.GetHiddenItemDataAsync(Path);
+                return await GetRawDataAsync(Exclusive.Controller);
             }
+        }
+
+        public async Task<HiddenDataPackage> GetRawDataAsync(FullTrustProcessController Controller)
+        {
+            return await Controller.GetHiddenItemDataAsync(Path);
         }
 
         public HiddenStorageFile(string Path, WIN_Native_API.WIN32_FIND_DATA Data) : base(Path, Data)

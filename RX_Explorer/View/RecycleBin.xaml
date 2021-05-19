@@ -195,10 +195,11 @@
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment"
-                            Value="Stretch">
-                    </Setter>
+                            Value="Stretch" />
                     <Setter Property="Padding"
                             Value="0" />
+                    <Setter Property="AllowFocusOnInteraction" 
+                            Value="False"/>
                 </Style>
             </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
@@ -225,6 +226,15 @@
                                    Height="30"
                                    Width="30" 
                                    x:Phase="1"/>
+                            <Image x:Name="ThumbnailOverlay"
+                                   Margin="5,0,0,0"
+                                   Width="16"
+                                   Height="16"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Bottom"
+                                   x:Phase="1"
+                                   Source="{x:Bind ThumbnailOverlay, Mode=OneWay}"
+                                   Stretch="Uniform" />
                             <TextBlock VerticalAlignment="Center"
                                        FontSize="14"
                                        Grid.Column="1"

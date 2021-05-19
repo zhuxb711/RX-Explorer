@@ -33,8 +33,13 @@ namespace RX_Explorer.Class
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                return await Exclusive.Controller.GetUrlDataAsync(Path);
+                return await GetRawDataAsync(Exclusive.Controller);
             }
+        }
+
+        public async Task<UrlDataPackage> GetRawDataAsync(FullTrustProcessController Controller)
+        {
+            return await Controller.GetUrlDataAsync(Path);
         }
 
         public async Task LaunchAsync()
@@ -57,9 +62,14 @@ namespace RX_Explorer.Class
             return Task.FromResult<IStorageItem>(null);
         }
 
-        protected override async Task LoadMorePropertiesCore(bool ForceUpdate)
+        protected override bool LoadMorePropertiesWithFullTrustProcess()
         {
-            RawData = await GetRawDataAsync();
+            return true;
+        }
+
+        protected override async Task LoadMorePropertiesCore(FullTrustProcessController Controller, bool ForceUpdate)
+        {
+            RawData = await GetRawDataAsync(Controller);
 
             if (!string.IsNullOrEmpty(RawData.UrlTargetPath))
             {

@@ -14,6 +14,7 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -1860,14 +1861,13 @@ namespace FullTrustProcess
 
                             break;
                         }
-                    case "Execute_GetThumbnailSign":
+                    case "Execute_GetThumbnailOverlay":
                         {
                             string Path = Convert.ToString(args.Request.Message["Path"]);
 
                             ValueSet Value = new ValueSet();
 
-                            string result = StorageController.GetFileThumbnailSign(Path);
-                            Value.Add("Success", result);
+                            Value.Add("Success", JsonSerializer.Serialize(StorageController.GetThumbnailOverlay(Path)));
 
                             await args.Request.SendResponseAsync(Value);
 

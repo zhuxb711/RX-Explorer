@@ -12,9 +12,9 @@ namespace RX_Explorer.Class
     {
         protected HiddenDataPackage RawData { get; set; }
 
-        protected override async Task LoadMorePropertiesCore(bool ForceUpdate)
+        protected override async Task LoadMorePropertiesCore(FullTrustProcessController Controller, bool ForceUpdate)
         {
-            RawData = await GetRawDataAsync();
+            RawData = await GetRawDataAsync(Controller);
 
             if ((RawData?.IconData.Length).GetValueOrDefault() > 0)
             {
@@ -37,12 +37,22 @@ namespace RX_Explorer.Class
             return Task.FromResult<IStorageItem>(null);
         }
 
+        protected override bool LoadMorePropertiesWithFullTrustProcess()
+        {
+            return true;
+        }
+
         public async Task<HiddenDataPackage> GetRawDataAsync()
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                return await Exclusive.Controller.GetHiddenItemDataAsync(Path);
+                return await GetRawDataAsync(Exclusive.Controller);
             }
+        }
+
+        public async Task<HiddenDataPackage> GetRawDataAsync(FullTrustProcessController Controller)
+        {
+            return await Controller.GetHiddenItemDataAsync(Path);
         }
 
         public override void SetThumbnailOpacity(ThumbnailStatus Status)

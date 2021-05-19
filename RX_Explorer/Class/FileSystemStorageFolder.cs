@@ -439,6 +439,16 @@ namespace RX_Explorer.Class
             }
         }
 
+        protected override Task LoadMorePropertiesCore(FullTrustProcessController Controller, bool ForceUpdate)
+        {
+            return LoadMorePropertiesCore(ForceUpdate);
+        }
+
+        protected override bool LoadMorePropertiesWithFullTrustProcess()
+        {
+            return false;
+        }
+
         protected override bool CheckIfPropertiesLoaded()
         {
             return StorageItem != null && InnerThumbnail != null;
@@ -455,6 +465,11 @@ namespace RX_Explorer.Class
                 LogTracer.Log(ex, $"Could not get StorageFolder, Path: {Path}");
                 return null;
             }
+        }
+
+        protected override bool CheckIfNeedLoadThumbnailOverlay()
+        {
+            return false;
         }
     }
 }
