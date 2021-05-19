@@ -1163,7 +1163,7 @@
                     <ColumnDefinition Width="40" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <Border Padding="3,0"
+                <Border Padding="3,2,3,0"
                         ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}"
                         Visibility="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusVisibilityConverter}}">
                     <Viewbox MaxWidth="15"
@@ -1272,12 +1272,11 @@
                                TextTrimming="CharacterEllipsis"
                                PointerPressed="NameLabel_PointerPressed"
                                x:Name="NameLabel" />
-                    <Border Padding="5,0"
+                    <Border Padding="5,2,5,0"
                             Grid.Column="2"
                             Visibility="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusVisibilityConverter}}"
                             ToolTipService.ToolTip="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusToolTipConverter}}">
                         <Viewbox MaxWidth="15"
-                                 HorizontalAlignment="Center"
                                  VerticalAlignment="Center">
                             <FontIcon Glyph="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusIconConverter}}"
                                       Foreground="{x:Bind SyncStatus,Mode=OneWay,Converter={StaticResource SyncStatusColorConverter}}"/>

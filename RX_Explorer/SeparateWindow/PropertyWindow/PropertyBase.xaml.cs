@@ -355,7 +355,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
 
             if (await StorageItem.GetStorageItemAsync() is StorageFile File)
             {
-                IDictionary<string, object> BasicResult = await File.Properties.RetrievePropertiesAsync(new string[] { "System.OfflineAvailability", "System.FileOfflineAvailabilityStatus", "System.FileOwner", "System.ComputerName" });
+                IDictionary<string, object> BasicResult = await File.Properties.RetrievePropertiesAsync(new string[] { "System.OfflineAvailability", "System.FileOfflineAvailabilityStatus", "System.FileOwner", "System.ComputerName", "System.FilePlaceholderStatus" });
 
                 if (BasicResult.TryGetValue("System.OfflineAvailability", out object Availability))
                 {
@@ -369,6 +369,10 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 if (BasicResult.TryGetValue("System.FileOfflineAvailabilityStatus", out object AvailabilityStatus))
                 {
                     BasicPropertiesDictionary.Add(Globalization.GetString("Properties_Details_OfflineAvailabilityStatus"), OfflineAvailabilityStatusMap[Convert.ToUInt32(AvailabilityStatus)]);
+                }
+                else if(BasicResult.TryGetValue("System.FilePlaceholderStatus", out object PlaceholderStatus))
+                {
+                    BasicPropertiesDictionary.Add(Globalization.GetString("Properties_Details_OfflineAvailabilityStatus"), OfflineAvailabilityStatusMap[Convert.ToUInt32(PlaceholderStatus)]);
                 }
                 else
                 {
