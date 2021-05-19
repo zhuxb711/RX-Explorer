@@ -936,7 +936,7 @@ namespace RX_Explorer.Class
                             }
 
                             Command.Parameters.Clear();
-                            Command.Parameters.AddRange(Parameters.Take(RowData.Length));
+                            Command.Parameters.AddRange(Parameters);
                             Command.ExecuteNonQuery();
                         }
                     }
