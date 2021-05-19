@@ -92,11 +92,7 @@ namespace RX_Explorer.View
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
                 IReadOnlyList<IRecycleStorageItem> Result = await Exclusive.Controller.GetRecycleBinItemsAsync();
-
-                foreach (IRecycleStorageItem Item in SortCollectionGenerator.GetSortedCollection(Result, SortTarget.Name, SortDirection.Ascending))
-                {
-                    FileCollection.Add(Item);
-                }
+                FileCollection.AddRange(SortCollectionGenerator.GetSortedCollection(Result, SortTarget.Name, SortDirection.Ascending));
             }
 
             if (FileCollection.Count == 0)

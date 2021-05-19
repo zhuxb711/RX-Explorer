@@ -474,8 +474,10 @@ namespace RX_Explorer.Class
                         OnPropertyChanged(nameof(ModifiedTime));
                         OnPropertyChanged(nameof(Thumbnail));
                         OnPropertyChanged(nameof(ThumbnailOverlay));
-
-                        await Task.WhenAll(LoadForegroundConfigurationAsync(), LoadSyncStatusAsync());
+                        
+                        LoadForegroundConfiguration();
+                        
+                        await LoadSyncStatusAsync();
                     }
                     catch (Exception ex)
                     {
@@ -629,9 +631,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        private async Task LoadForegroundConfigurationAsync()
+        private void LoadForegroundConfiguration()
         {
-            string ColorString = await SQLite.Current.GetFileColorAsync(Path);
+            string ColorString = SQLite.Current.GetFileColor(Path);
 
             if (!string.IsNullOrEmpty(ColorString))
             {

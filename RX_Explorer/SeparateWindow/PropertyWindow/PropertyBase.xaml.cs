@@ -782,7 +782,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 StorageItemName.Text = File.Name;
                 ReadonlyAttribute.IsChecked = File.IsReadOnly;
 
-                string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(File.Type);
+                string AdminExecutablePath = SQLite.Current.GetDefaultProgramPickerRecord(File.Type);
 
                 if (string.IsNullOrEmpty(AdminExecutablePath) || AdminExecutablePath == Package.Current.Id.FamilyName)
                 {

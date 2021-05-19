@@ -700,7 +700,7 @@ namespace RX_Explorer
                             }
                     }
 
-                    await SQLite.Current.SetPathConfigurationAsync(new PathConfiguration(CurrentFolder.Path, e.Index));
+                    SQLite.Current.SetPathConfiguration(new PathConfiguration(CurrentFolder.Path, e.Index));
                 }
                 catch (Exception ex)
                 {
@@ -816,7 +816,7 @@ namespace RX_Explorer
                     Container.ViewModeComboBox.IsEnabled = true;
                     RootFolderControl.Visibility = Visibility.Collapsed;
 
-                    await SQLite.Current.SetPathHistoryAsync(FolderPath);
+                    SQLite.Current.SetPathHistory(FolderPath);
 
                     CurrentFolder = await FileSystemStorageItemBase.OpenAsync(FolderPath) as FileSystemStorageFolder;
 
@@ -827,7 +827,7 @@ namespace RX_Explorer
 
                     FileCollection.Clear();
 
-                    PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(FolderPath);
+                    PathConfiguration Config = SQLite.Current.GetPathConfiguration(FolderPath);
 
                     await Container.ViewModeControl.SetCurrentViewMode(Config.Path, Config.DisplayModeIndex.GetValueOrDefault());
 
@@ -854,10 +854,7 @@ namespace RX_Explorer
                             IsGroupedEnable = false;
                         }
 
-                        foreach (FileSystemStorageItemBase SubItem in SortCollectionGenerator.GetSortedCollection(ChildItems, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()))
-                        {
-                            FileCollection.Add(SubItem);
-                        }
+                        FileCollection.AddRange(SortCollectionGenerator.GetSortedCollection(ChildItems, Config.SortTarget.GetValueOrDefault(), Config.SortDirection.GetValueOrDefault()));
                     }
                     else
                     {
@@ -1007,7 +1004,7 @@ namespace RX_Explorer
 
         private async void FileCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
+            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
 
             await CollectionChangeLock.WaitAsync();
 
@@ -2543,7 +2540,7 @@ namespace RX_Explorer
                                         }
                                     default:
                                         {
-                                            string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(File.Type);
+                                            string AdminExecutablePath = SQLite.Current.GetDefaultProgramPickerRecord(File.Type);
 
                                             if (string.IsNullOrEmpty(AdminExecutablePath) || AdminExecutablePath == Package.Current.Id.FamilyName)
                                             {
@@ -2880,59 +2877,59 @@ namespace RX_Explorer
             }
         }
 
-        private async void ListHeaderName_Click(object sender, RoutedEventArgs e)
+        private void ListHeaderName_Click(object sender, RoutedEventArgs e)
         {
-            PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
+            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
 
             if (Config.SortDirection == SortDirection.Ascending)
             {
-                await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.Name, SortDirection.Descending);
+                SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.Name, SortDirection.Descending);
             }
             else
             {
-                await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.Name, SortDirection.Ascending);
+                SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.Name, SortDirection.Ascending);
             }
         }
 
-        private async void ListHeaderModifiedTime_Click(object sender, RoutedEventArgs e)
+        private void ListHeaderModifiedTime_Click(object sender, RoutedEventArgs e)
         {
-            PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
+            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
 
             if (Config.SortDirection == SortDirection.Ascending)
             {
-                await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.ModifiedTime, SortDirection.Descending);
+                SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.ModifiedTime, SortDirection.Descending);
             }
             else
             {
-                await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.ModifiedTime, SortDirection.Ascending);
+                SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.ModifiedTime, SortDirection.Ascending);
             }
         }
 
-        private async void ListHeaderType_Click(object sender, RoutedEventArgs e)
+        private void ListHeaderType_Click(object sender, RoutedEventArgs e)
         {
-            PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
+            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
 
             if (Config.SortDirection == SortDirection.Ascending)
             {
-                await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.Type, SortDirection.Descending);
+                SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.Type, SortDirection.Descending);
             }
             else
             {
-                await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.Type, SortDirection.Ascending);
+                SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.Type, SortDirection.Ascending);
             }
         }
 
-        private async void ListHeaderSize_Click(object sender, RoutedEventArgs e)
+        private void ListHeaderSize_Click(object sender, RoutedEventArgs e)
         {
-            PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
+            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
 
             if (Config.SortDirection == SortDirection.Ascending)
             {
-                await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.Size, SortDirection.Descending);
+                SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.Size, SortDirection.Descending);
             }
             else
             {
-                await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.Size, SortDirection.Ascending);
+                SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.Size, SortDirection.Ascending);
             }
         }
 
@@ -3672,7 +3669,7 @@ namespace RX_Explorer
         {
             CloseAllFlyout();
 
-            if (await SQLite.Current.GetTerminalProfileByName(Convert.ToString(ApplicationData.Current.LocalSettings.Values["DefaultTerminal"])) is TerminalProfile Profile)
+            if (SQLite.Current.GetTerminalProfileByName(Convert.ToString(ApplicationData.Current.LocalSettings.Values["DefaultTerminal"])) is TerminalProfile Profile)
             {
                 using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                 {
@@ -3879,55 +3876,49 @@ namespace RX_Explorer
             await Ctrl_Z_Click().ConfigureAwait(false);
         }
 
-        private async void OrderByName_Click(object sender, RoutedEventArgs e)
+        private void OrderByName_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+            SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.Name, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+        }
+
+        private void OrderByTime_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+            SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.ModifiedTime, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+        }
+
+        private void OrderByType_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+            SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.Type, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+        }
+
+        private void OrderBySize_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+            SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, SortTarget.Size, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+        }
+
+        private void SortDesc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.Name, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+            SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, Config.SortTarget.GetValueOrDefault(), SortDirection.Descending);
         }
 
-        private async void OrderByTime_Click(object sender, RoutedEventArgs e)
+        private void SortAsc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.ModifiedTime, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
+            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+            SortCollectionGenerator.SavePathSortState(CurrentFolder.Path, Config.SortTarget.GetValueOrDefault(), SortDirection.Ascending);
         }
 
-        private async void OrderByType_Click(object sender, RoutedEventArgs e)
+        private void SortMenuFlyout_Opening(object sender, object e)
         {
-            CloseAllFlyout();
-
-            await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.Type, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
-        }
-
-        private async void OrderBySize_Click(object sender, RoutedEventArgs e)
-        {
-            CloseAllFlyout();
-
-            await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, SortTarget.Size, SortDesc.IsChecked ? SortDirection.Descending : SortDirection.Ascending);
-        }
-
-        private async void SortDesc_Click(object sender, RoutedEventArgs e)
-        {
-            CloseAllFlyout();
-
-            PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
-
-            await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, Config.SortTarget.GetValueOrDefault(), SortDirection.Descending);
-        }
-
-        private async void SortAsc_Click(object sender, RoutedEventArgs e)
-        {
-            CloseAllFlyout();
-
-            PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
-
-            await SortCollectionGenerator.SavePathSortStateAsync(CurrentFolder.Path, Config.SortTarget.GetValueOrDefault(), SortDirection.Ascending);
-        }
-
-        private async void SortMenuFlyout_Opening(object sender, object e)
-        {
-            PathConfiguration Configuration = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
+            PathConfiguration Configuration = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
 
             if (Configuration.SortDirection == SortDirection.Ascending)
             {
@@ -4247,9 +4238,9 @@ namespace RX_Explorer
             Container.BlockKeyboardShortCutInput = true;
         }
 
-        private async void Filter_RefreshListRequested(object sender, FilterController.RefreshRequestedEventArgs args)
+        private void Filter_RefreshListRequested(object sender, FilterController.RefreshRequestedEventArgs args)
         {
-            PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
+            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
 
             if (IsGroupedEnable)
             {
@@ -4421,38 +4412,36 @@ namespace RX_Explorer
 
 
             }
-
-
         }
 
-        private async void UnTag_Click(object sender, RoutedEventArgs e)
+        private void UnTag_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
             SelectedItem.SetColorAsNormal();
-            await SQLite.Current.DeleteFileColorAsync(SelectedItem.Path).ConfigureAwait(false);
+            SQLite.Current.DeleteFileColor(SelectedItem.Path);
         }
 
 
-        private async void MixUnTag_Click(object sender, RoutedEventArgs e)
+        private void MixUnTag_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
             foreach (FileSystemStorageItemBase Item in SelectedItems)
             {
                 Item.SetColorAsNormal();
-                await SQLite.Current.DeleteFileColorAsync(Item.Path).ConfigureAwait(false);
+                SQLite.Current.DeleteFileColor(Item.Path);
             }
         }
 
-        private async void Color_Click(object sender, RoutedEventArgs e)
+        private void Color_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
             Color ForegroundColor = ((Windows.UI.Xaml.Media.SolidColorBrush)((AppBarButton)sender).Foreground).Color;
 
             SelectedItem.SetColorAsSpecific(ForegroundColor);
-            await SQLite.Current.SetFileColorAsync(SelectedItem.Path, ForegroundColor.ToHex()).ConfigureAwait(false);
+            SQLite.Current.SetFileColor(SelectedItem.Path, ForegroundColor.ToHex());
         }
 
         private void ColorTag_PointerEntered(object sender, PointerRoutedEventArgs e)
@@ -4510,7 +4499,7 @@ namespace RX_Explorer
             }
         }
 
-        private async void MixColor_Click(object sender, RoutedEventArgs e)
+        private void MixColor_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
@@ -4519,7 +4508,7 @@ namespace RX_Explorer
             foreach (FileSystemStorageItemBase Item in SelectedItems)
             {
                 Item.SetColorAsSpecific(ForegroundColor);
-                await SQLite.Current.SetFileColorAsync(Item.Path, ForegroundColor.ToHex()).ConfigureAwait(false);
+                SQLite.Current.SetFileColor(Item.Path, ForegroundColor.ToHex());
             }
         }
 
@@ -4589,9 +4578,9 @@ namespace RX_Explorer
             ViewModeController.ViewModeChanged -= Current_ViewModeChanged;
         }
 
-        private async void GroupMenuFlyout_Opening(object sender, object e)
+        private void GroupMenuFlyout_Opening(object sender, object e)
         {
-            PathConfiguration Configuration = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
+            PathConfiguration Configuration = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
 
             if (Configuration.GroupDirection == GroupDirection.Ascending)
             {
@@ -4664,57 +4653,50 @@ namespace RX_Explorer
             }
         }
 
-        private async void GroupByName_Click(object sender, RoutedEventArgs e)
+        private void GroupByName_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-
-            await GroupCollectionGenerator.SavePathGroupStateAsync(CurrentFolder.Path, GroupTarget.Name, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending);
+            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, GroupTarget.Name, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending);
         }
 
-        private async void GroupByTime_Click(object sender, RoutedEventArgs e)
+        private void GroupByTime_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-
-            await GroupCollectionGenerator.SavePathGroupStateAsync(CurrentFolder.Path, GroupTarget.ModifiedTime, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending);
+            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, GroupTarget.ModifiedTime, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending);
         }
 
-        private async void GroupByType_Click(object sender, RoutedEventArgs e)
+        private void GroupByType_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-
-            await GroupCollectionGenerator.SavePathGroupStateAsync(CurrentFolder.Path, GroupTarget.Type, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending);
+            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, GroupTarget.Type, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending);
         }
 
-        private async void GroupBySize_Click(object sender, RoutedEventArgs e)
+        private void GroupBySize_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-
-            await GroupCollectionGenerator.SavePathGroupStateAsync(CurrentFolder.Path, GroupTarget.Size, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending);
+            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, GroupTarget.Size, GroupAsc.IsChecked ? GroupDirection.Ascending : GroupDirection.Descending);
         }
 
-        private async void GroupAsc_Click(object sender, RoutedEventArgs e)
+        private void GroupAsc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
-
-            await GroupCollectionGenerator.SavePathGroupStateAsync(CurrentFolder.Path, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Ascending);
+            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Ascending);
         }
 
-        private async void GroupDesc_Click(object sender, RoutedEventArgs e)
+        private void GroupDesc_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
 
-            PathConfiguration Config = await SQLite.Current.GetPathConfigurationAsync(CurrentFolder.Path);
-
-            await GroupCollectionGenerator.SavePathGroupStateAsync(CurrentFolder.Path, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Descending);
+            PathConfiguration Config = SQLite.Current.GetPathConfiguration(CurrentFolder.Path);
+            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, Config.GroupTarget.GetValueOrDefault(), GroupDirection.Descending);
         }
 
-        private async void GroupNone_Click(object sender, RoutedEventArgs e)
+        private void GroupNone_Click(object sender, RoutedEventArgs e)
         {
             CloseAllFlyout();
-
-            await GroupCollectionGenerator.SavePathGroupStateAsync(CurrentFolder.Path, GroupTarget.None, GroupDirection.Ascending);
+            GroupCollectionGenerator.SavePathGroupState(CurrentFolder.Path, GroupTarget.None, GroupDirection.Ascending);
         }
 
         private async void RootFolderControl_EnterActionRequested(object sender, string Path)
