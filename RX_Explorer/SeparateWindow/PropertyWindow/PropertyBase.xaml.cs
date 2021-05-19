@@ -48,7 +48,10 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             { 2, Globalization.GetString("OfflineAvailabilityStatusText3") },
             { 3, Globalization.GetString("OfflineAvailabilityStatusText4") },
             { 4, Globalization.GetString("OfflineAvailabilityStatusText5") },
-            { 5, Globalization.GetString("OfflineAvailabilityStatusText6") }
+            { 5, Globalization.GetString("OfflineAvailabilityStatusText6") },
+            { 8, Globalization.GetString("OfflineAvailabilityStatusText1") },
+            { 14, Globalization.GetString("OfflineAvailabilityStatusText3") },
+            { 15, Globalization.GetString("OfflineAvailabilityStatusText4") },
         };
 
         private CancellationTokenSource FolderCancellation;

@@ -132,6 +132,10 @@ namespace RX_Explorer.Class
 
         public virtual bool IsSystemItem { get; protected set; }
 
+        public SyncStatus SyncStatus { get; protected set; } = SyncStatus.Unknown;
+
+        protected IStorageItem StorageItem { get; set; }
+
         protected static readonly Uri Const_Folder_Image_Uri = new Uri("ms-appx:///Assets/FolderIcon.png");
 
         protected static readonly Uri Const_File_White_Image_Uri = new Uri("ms-appx:///Assets/Page_Solid_White.png");
@@ -190,28 +194,13 @@ namespace RX_Explorer.Class
             {
                 case StorageFile File:
                     {
-                        if (SpecialPath.OneDrivePathCollection.Where((Path) => !string.IsNullOrEmpty(Path)).Any((OneDrivePath) => File.Path.StartsWith(OneDrivePath, StringComparison.OrdinalIgnoreCase)))
+                        foreach (ConstructorInfo Info in typeof(FileSystemStorageFile).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
                         {
-                            foreach (ConstructorInfo Info in typeof(OneDriveStorageFile).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
-                            {
-                                ParameterInfo[] Parameters = Info.GetParameters();
+                            ParameterInfo[] Parameters = Info.GetParameters();
 
-                                if (Parameters[0].ParameterType == typeof(StorageFile))
-                                {
-                                    return (OneDriveStorageFile)Info.Invoke(new object[] { File, await File.GetModifiedTimeAsync(), await File.GetSizeRawDataAsync() });
-                                }
-                            }
-                        }
-                        else
-                        {
-                            foreach (ConstructorInfo Info in typeof(FileSystemStorageFile).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
+                            if (Parameters[0].ParameterType == typeof(StorageFile))
                             {
-                                ParameterInfo[] Parameters = Info.GetParameters();
-
-                                if (Parameters[0].ParameterType == typeof(StorageFile))
-                                {
-                                    return (FileSystemStorageFile)Info.Invoke(new object[] { File, await File.GetModifiedTimeAsync(), await File.GetSizeRawDataAsync() });
-                                }
+                                return (FileSystemStorageFile)Info.Invoke(new object[] { File, await File.GetModifiedTimeAsync(), await File.GetSizeRawDataAsync() });
                             }
                         }
 
@@ -219,28 +208,13 @@ namespace RX_Explorer.Class
                     }
                 case StorageFolder Folder:
                     {
-                        if (SpecialPath.OneDrivePathCollection.Where((Path) => !string.IsNullOrEmpty(Path)).Any((OneDrivePath) => Folder.Path.StartsWith(OneDrivePath, StringComparison.OrdinalIgnoreCase)))
+                        foreach (ConstructorInfo Info in typeof(FileSystemStorageFolder).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
                         {
-                            foreach (ConstructorInfo Info in typeof(OneDriveStorageFolder).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
-                            {
-                                ParameterInfo[] Parameters = Info.GetParameters();
+                            ParameterInfo[] Parameters = Info.GetParameters();
 
-                                if (Parameters[0].ParameterType == typeof(StorageFolder))
-                                {
-                                    return (OneDriveStorageFolder)Info.Invoke(new object[] { Folder, await Folder.GetModifiedTimeAsync() });
-                                }
-                            }
-                        }
-                        else
-                        {
-                            foreach (ConstructorInfo Info in typeof(FileSystemStorageFolder).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance))
+                            if (Parameters[0].ParameterType == typeof(StorageFolder))
                             {
-                                ParameterInfo[] Parameters = Info.GetParameters();
-
-                                if (Parameters[0].ParameterType == typeof(StorageFolder))
-                                {
-                                    return (FileSystemStorageFolder)Info.Invoke(new object[] { Folder, await Folder.GetModifiedTimeAsync() });
-                                }
+                                return (FileSystemStorageFolder)Info.Invoke(new object[] { Folder, await Folder.GetModifiedTimeAsync() });
                             }
                         }
 
@@ -459,52 +433,185 @@ namespace RX_Explorer.Class
         {
             if (!CheckIfPropertiesLoaded())
             {
-                if ((this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.FileAndFolder)
+                async void LocalLoadFunction()
                 {
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                    try
                     {
-                        try
+                        if (LoadMorePropertiesWithFullTrustProcess())
                         {
-                            if (LoadMorePropertiesWithFullTrustProcess())
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                             {
-                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                if ((this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.FileAndFolder)
                                 {
-                                    await LoadMorePropertiesCore(Exclusive.Controller, false);
-
-                                    if (CheckIfNeedLoadThumbnailOverlay())
-                                    {
-                                        await LoadThumbnailOverlayAsync(Exclusive.Controller);
-                                    }
+                                    await LoadMorePropertiesCoreAsync(Exclusive.Controller, false);
                                 }
-                            }
-                            else
-                            {
-                                await LoadMorePropertiesCore(false);
 
                                 if (CheckIfNeedLoadThumbnailOverlay())
                                 {
-                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                                    {
-                                        await LoadThumbnailOverlayAsync(Exclusive.Controller);
-                                    }
+                                    await LoadThumbnailOverlayAsync(Exclusive.Controller);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if ((this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.FileAndFolder)
+                            {
+                                await LoadMorePropertiesCoreAsync(false);
+                            }
+
+                            if (CheckIfNeedLoadThumbnailOverlay())
+                            {
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                {
+                                    await LoadThumbnailOverlayAsync(Exclusive.Controller);
+                                }
+                            }
+                        }
+
+                        OnPropertyChanged(nameof(Name));
+                        OnPropertyChanged(nameof(Size));
+                        OnPropertyChanged(nameof(DisplayType));
+                        OnPropertyChanged(nameof(ModifiedTime));
+                        OnPropertyChanged(nameof(Thumbnail));
+                        OnPropertyChanged(nameof(ThumbnailOverlay));
+
+                        await Task.WhenAll(LoadForegroundConfigurationAsync(), LoadSyncStatusAsync());
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, $"An exception was threw in {nameof(LoadMorePropertiesAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
+                    }
+                };
+
+                if (CoreApplication.MainView.CoreWindow.Dispatcher.HasThreadAccess)
+                {
+                    LocalLoadFunction();
+                }
+                else
+                {
+                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, LocalLoadFunction);
+                }
+            }
+        }
+
+        private async Task LoadSyncStatusAsync()
+        {
+            if (SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive))
+            {
+                switch (await GetStorageItemAsync())
+                {
+                    case StorageFile File:
+                        {
+                            IDictionary<string, object> Properties = await File.Properties.RetrievePropertiesAsync(new string[] { "System.FilePlaceholderStatus", "System.FileOfflineAvailabilityStatus" });
+
+                            object StatusIndex;
+
+                            if (!Properties.TryGetValue("System.FilePlaceholderStatus", out StatusIndex))
+                            {
+                                if (!Properties.TryGetValue("System.FileOfflineAvailabilityStatus", out StatusIndex))
+                                {
+                                    SyncStatus = SyncStatus.Unknown;
+                                    break;
                                 }
                             }
 
-                            OnPropertyChanged(nameof(Name));
-                            OnPropertyChanged(nameof(Size));
-                            OnPropertyChanged(nameof(DisplayType));
-                            OnPropertyChanged(nameof(ModifiedTime));
-                            OnPropertyChanged(nameof(Thumbnail));
-                            OnPropertyChanged(nameof(ThumbnailOverlay));
-                        }
-                        catch (Exception ex)
-                        {
-                            LogTracer.Log(ex, $"An exception was threw in {nameof(LoadMorePropertiesAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
-                        }
-                    });
-                }
+                            switch (Convert.ToUInt32(StatusIndex))
+                            {
+                                case 0:
+                                case 1:
+                                case 8:
+                                    {
+                                        SyncStatus = SyncStatus.AvailableOnline;
+                                        break;
+                                    }
+                                case 2:
+                                case 3:
+                                case 14:
+                                case 15:
+                                    {
+                                        SyncStatus = SyncStatus.AvailableOffline;
+                                        break;
+                                    }
+                                case 9:
+                                    {
+                                        SyncStatus = SyncStatus.Sync;
+                                        break;
+                                    }
+                                case 4:
+                                    {
+                                        SyncStatus = SyncStatus.Excluded;
+                                        break;
+                                    }
+                                default:
+                                    {
+                                        SyncStatus = SyncStatus.Unknown;
+                                        break;
+                                    }
+                            }
 
-                await LoadForegroundConfiguration();
+                            break;
+                        }
+                    case StorageFolder Folder:
+                        {
+                            IDictionary<string, object> Properties = await Folder.Properties.RetrievePropertiesAsync(new string[] { "System.FilePlaceholderStatus", "System.FileOfflineAvailabilityStatus" });
+
+                            object StatusIndex;
+
+                            if (!Properties.TryGetValue("System.FilePlaceholderStatus", out StatusIndex))
+                            {
+                                if (!Properties.TryGetValue("System.FileOfflineAvailabilityStatus", out StatusIndex))
+                                {
+                                    SyncStatus = SyncStatus.Unknown;
+                                    break;
+                                }
+                            }
+
+                            switch (Convert.ToUInt32(StatusIndex))
+                            {
+                                case 0:
+                                case 1:
+                                case 8:
+                                    {
+                                        SyncStatus = SyncStatus.AvailableOnline;
+                                        break;
+                                    }
+                                case 2:
+                                case 3:
+                                case 14:
+                                case 15:
+                                    {
+                                        SyncStatus = SyncStatus.AvailableOffline;
+                                        break;
+                                    }
+                                case 9:
+                                    {
+                                        SyncStatus = SyncStatus.Sync;
+                                        break;
+                                    }
+                                case 4:
+                                    {
+                                        SyncStatus = SyncStatus.Excluded;
+                                        break;
+                                    }
+                                default:
+                                    {
+                                        SyncStatus = SyncStatus.Unknown;
+                                        break;
+                                    }
+                            }
+
+                            break;
+                        }
+                    default:
+                        {
+                            SyncStatus = SyncStatus.Unknown;
+                            break;
+                        }
+                }
+            }
+            else
+            {
+                SyncStatus = SyncStatus.AvailableOffline;
             }
         }
 
@@ -522,7 +629,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        private async Task LoadForegroundConfiguration()
+        private async Task LoadForegroundConfigurationAsync()
         {
             string ColorString = await SQLite.Current.GetFileColorAsync(Path);
 
@@ -536,9 +643,9 @@ namespace RX_Explorer.Class
 
         protected abstract bool CheckIfPropertiesLoaded();
 
-        protected abstract Task LoadMorePropertiesCore(bool ForceUpdate);
+        protected abstract Task LoadMorePropertiesCoreAsync(bool ForceUpdate);
 
-        protected abstract Task LoadMorePropertiesCore(FullTrustProcessController Controller, bool ForceUpdate);
+        protected abstract Task LoadMorePropertiesCoreAsync(FullTrustProcessController Controller, bool ForceUpdate);
 
         protected abstract bool LoadMorePropertiesWithFullTrustProcess();
 
@@ -554,12 +661,12 @@ namespace RX_Explorer.Class
                     {
                         using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
                         {
-                            await LoadMorePropertiesCore(Exclusive.Controller, true);
+                            await LoadMorePropertiesCoreAsync(Exclusive.Controller, true);
                         }
                     }
                     else
                     {
-                        await LoadMorePropertiesCore(true);
+                        await LoadMorePropertiesCoreAsync(true);
                     }
 
                     OnPropertyChanged(nameof(Size));

@@ -22,7 +22,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return StorageItem?.FileType ?? System.IO.Path.GetExtension(OriginPath).ToUpper();
+                return ((StorageItem as StorageFile)?.FileType) ?? System.IO.Path.GetExtension(OriginPath).ToUpper();
             }
         }
 

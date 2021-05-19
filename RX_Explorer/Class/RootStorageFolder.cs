@@ -44,7 +44,7 @@ namespace RX_Explorer.Class
             return true;
         }
 
-        protected override Task LoadMorePropertiesCore(bool ForceUpdate)
+        protected override Task LoadMorePropertiesCoreAsync(bool ForceUpdate)
         {
             return Task.CompletedTask;
         }

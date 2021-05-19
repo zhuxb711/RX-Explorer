@@ -24,7 +24,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return (StorageItem?.DisplayName) ?? Name;
+                return ((StorageItem as StorageFile)?.DisplayName) ?? Name;
             }
         }
 
@@ -40,7 +40,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return (StorageItem?.DisplayType) ?? Type;
+                return ((StorageItem as StorageFile)?.DisplayType) ?? Type;
             }
         }
 
@@ -90,8 +90,6 @@ namespace RX_Explorer.Class
                 }
             }
         }
-
-        protected StorageFile StorageItem { get; set; }
 
         protected FileSystemStorageFile(StorageFile Item, DateTimeOffset ModifiedTime, ulong Size) : base(Item.Path)
         {
@@ -144,7 +142,7 @@ namespace RX_Explorer.Class
             return await FileRandomAccessStream.OpenTransactedWriteAsync(Path, StorageOpenOptions.AllowReadersAndWriters, FileOpenDisposition.OpenExisting);
         }
 
-        protected override async Task LoadMorePropertiesCore(bool ForceUpdate)
+        protected override async Task LoadMorePropertiesCoreAsync(bool ForceUpdate)
         {
             if (await GetStorageItemAsync() is StorageFile File)
             {
@@ -158,9 +156,9 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override Task LoadMorePropertiesCore(FullTrustProcessController Controller, bool ForceUpdate)
+        protected override Task LoadMorePropertiesCoreAsync(FullTrustProcessController Controller, bool ForceUpdate)
         {
-            return LoadMorePropertiesCore(ForceUpdate);
+            return LoadMorePropertiesCoreAsync(ForceUpdate);
         }
 
         protected override bool LoadMorePropertiesWithFullTrustProcess()
@@ -401,7 +399,7 @@ namespace RX_Explorer.Class
 
         protected override bool CheckIfNeedLoadThumbnailOverlay()
         {
-            return false;
+            return SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive);
         }
     }
 }

@@ -2,10 +2,13 @@
 
 namespace RX_Explorer.Class
 {
-    public enum OneDriveSyncStatus
+    public enum SyncStatus
     {
+        Unknown,
         AvailableOnline,
-        AvailableOffline
+        AvailableOffline,
+        Sync,
+        Excluded
     }
 
     public enum CompressionAlgorithm

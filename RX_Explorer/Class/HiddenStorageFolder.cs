@@ -12,7 +12,7 @@ namespace RX_Explorer.Class
     {
         protected HiddenDataPackage RawData { get; set; }
 
-        protected override async Task LoadMorePropertiesCore(FullTrustProcessController Controller, bool ForceUpdate)
+        protected override async Task LoadMorePropertiesCoreAsync(FullTrustProcessController Controller, bool ForceUpdate)
         {
             RawData = await GetRawDataAsync(Controller);
 
