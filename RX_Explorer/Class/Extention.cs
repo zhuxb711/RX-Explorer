@@ -5,6 +5,7 @@ using NetworkAccess;
 using RX_Explorer.Interface;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -42,19 +43,6 @@ namespace RX_Explorer.Class
     public static class Extention
     {
         private static int ContextMenuLockResource;
-
-        public static string EscapeSQLQuery(this string Input)
-        {
-            return Input.Replace("/", "//")
-                        .Replace("'", "''")
-                        .Replace("[", "/[")
-                        .Replace("]", "/]")
-                        .Replace("%", "/%")
-                        .Replace("&", "/&")
-                        .Replace("_", "/_")
-                        .Replace("(", "/(")
-                        .Replace(")", "/)");
-        }
 
         public static async Task<bool> CheckIfContainsAvailableDataAsync(this DataPackageView View)
         {
@@ -222,6 +210,14 @@ namespace RX_Explorer.Class
             }
 
             return Package;
+        }
+
+        public static void AddRange<T>(this ObservableCollection<T> Collection, IEnumerable<T> InputCollection)
+        {
+            foreach (T Item in InputCollection)
+            {
+                Collection.Add(Item);
+            }
         }
 
         public static string ConvertTimsSpanToString(this TimeSpan Span)

@@ -445,13 +445,13 @@ namespace RX_Explorer.Class
                     });
                 }
 
-                await LoadForegroundConfiguration();
+                LoadForegroundConfiguration();
             }
         }
 
-        private async Task LoadForegroundConfiguration()
+        private void LoadForegroundConfiguration()
         {
-            string ColorString = await SQLite.Current.GetFileColorAsync(Path);
+            string ColorString = SQLite.Current.GetFileColor(Path);
 
             if (!string.IsNullOrEmpty(ColorString))
             {

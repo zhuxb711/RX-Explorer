@@ -129,34 +129,34 @@ namespace RX_Explorer
             {
                 if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("QuickStartInitialFinished1"))
                 {
-                    await SQLite.Current.ClearTableAsync("QuickStart");
+                    SQLite.Current.ClearTable("QuickStart");
 
-                    await SQLite.Current.SetQuickStartItemAsync(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_1"), "ms-appx:///QuickStartImage/MicrosoftStore.png", "ms-windows-store://home", QuickStartType.Application);
-                    await SQLite.Current.SetQuickStartItemAsync(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_2"), "ms-appx:///QuickStartImage/Calculator.png", "calculator:", QuickStartType.Application);
-                    await SQLite.Current.SetQuickStartItemAsync(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_3"), "ms-appx:///QuickStartImage/Setting.png", "ms-settings:", QuickStartType.Application);
-                    await SQLite.Current.SetQuickStartItemAsync(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_4"), "ms-appx:///QuickStartImage/Email.png", "mailto:", QuickStartType.Application);
-                    await SQLite.Current.SetQuickStartItemAsync(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_5"), "ms-appx:///QuickStartImage/Calendar.png", "outlookcal:", QuickStartType.Application);
-                    await SQLite.Current.SetQuickStartItemAsync(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_6"), "ms-appx:///QuickStartImage/Photos.png", "ms-photos:", QuickStartType.Application);
-                    await SQLite.Current.SetQuickStartItemAsync(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_7"), "ms-appx:///QuickStartImage/Weather.png", "msnweather:", QuickStartType.Application);
-                    await SQLite.Current.SetQuickStartItemAsync(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_9"), "ms-appx:///HotWebImage/Facebook.png", "https://www.facebook.com/", QuickStartType.WebSite);
-                    await SQLite.Current.SetQuickStartItemAsync(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_10"), "ms-appx:///HotWebImage/Instagram.png", "https://www.instagram.com/", QuickStartType.WebSite);
-                    await SQLite.Current.SetQuickStartItemAsync(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_11"), "ms-appx:///HotWebImage/Twitter.png", "https://twitter.com", QuickStartType.WebSite);
+                    SQLite.Current.SetQuickStartItem(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_1"), "ms-appx:///QuickStartImage/MicrosoftStore.png", "ms-windows-store://home", QuickStartType.Application);
+                    SQLite.Current.SetQuickStartItem(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_2"), "ms-appx:///QuickStartImage/Calculator.png", "calculator:", QuickStartType.Application);
+                    SQLite.Current.SetQuickStartItem(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_3"), "ms-appx:///QuickStartImage/Setting.png", "ms-settings:", QuickStartType.Application);
+                    SQLite.Current.SetQuickStartItem(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_4"), "ms-appx:///QuickStartImage/Email.png", "mailto:", QuickStartType.Application);
+                    SQLite.Current.SetQuickStartItem(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_5"), "ms-appx:///QuickStartImage/Calendar.png", "outlookcal:", QuickStartType.Application);
+                    SQLite.Current.SetQuickStartItem(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_6"), "ms-appx:///QuickStartImage/Photos.png", "ms-photos:", QuickStartType.Application);
+                    SQLite.Current.SetQuickStartItem(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_7"), "ms-appx:///QuickStartImage/Weather.png", "msnweather:", QuickStartType.Application);
+                    SQLite.Current.SetQuickStartItem(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_9"), "ms-appx:///HotWebImage/Facebook.png", "https://www.facebook.com/", QuickStartType.WebSite);
+                    SQLite.Current.SetQuickStartItem(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_10"), "ms-appx:///HotWebImage/Instagram.png", "https://www.instagram.com/", QuickStartType.WebSite);
+                    SQLite.Current.SetQuickStartItem(Globalization.GetString("ExtendedSplash_QuickStartItem_Name_11"), "ms-appx:///HotWebImage/Twitter.png", "https://twitter.com", QuickStartType.WebSite);
 
                     ApplicationData.Current.LocalSettings.Values["QuickStartInitialFinished1"] = true;
                 }
 
                 if (ApplicationData.Current.LocalSettings.Values.ContainsKey("RefreshQuickStart"))
                 {
-                    await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/MicrosoftStore.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_1"), QuickStartType.Application);
-                    await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Calculator.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_2"), QuickStartType.Application);
-                    await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Setting.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_3"), QuickStartType.Application);
-                    await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Email.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_4"), QuickStartType.Application);
-                    await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Calendar.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_5"), QuickStartType.Application);
-                    await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Photos.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_6"), QuickStartType.Application);
-                    await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///QuickStartImage/Weather.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_7"), QuickStartType.Application);
-                    await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///HotWebImage/Facebook.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_9"), QuickStartType.WebSite);
-                    await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///HotWebImage/Instagram.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_10"), QuickStartType.WebSite);
-                    await SQLite.Current.UpdateQuickStartItemAsync("ms-appx:///HotWebImage/Twitter.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_11"), QuickStartType.WebSite);
+                    SQLite.Current.UpdateQuickStartItem("ms-appx:///QuickStartImage/MicrosoftStore.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_1"), QuickStartType.Application);
+                    SQLite.Current.UpdateQuickStartItem("ms-appx:///QuickStartImage/Calculator.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_2"), QuickStartType.Application);
+                    SQLite.Current.UpdateQuickStartItem("ms-appx:///QuickStartImage/Setting.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_3"), QuickStartType.Application);
+                    SQLite.Current.UpdateQuickStartItem("ms-appx:///QuickStartImage/Email.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_4"), QuickStartType.Application);
+                    SQLite.Current.UpdateQuickStartItem("ms-appx:///QuickStartImage/Calendar.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_5"), QuickStartType.Application);
+                    SQLite.Current.UpdateQuickStartItem("ms-appx:///QuickStartImage/Photos.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_6"), QuickStartType.Application);
+                    SQLite.Current.UpdateQuickStartItem("ms-appx:///QuickStartImage/Weather.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_7"), QuickStartType.Application);
+                    SQLite.Current.UpdateQuickStartItem("ms-appx:///HotWebImage/Facebook.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_9"), QuickStartType.WebSite);
+                    SQLite.Current.UpdateQuickStartItem("ms-appx:///HotWebImage/Instagram.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_10"), QuickStartType.WebSite);
+                    SQLite.Current.UpdateQuickStartItem("ms-appx:///HotWebImage/Twitter.png", Globalization.GetString("ExtendedSplash_QuickStartItem_Name_11"), QuickStartType.WebSite);
 
                     ApplicationData.Current.LocalSettings.Values.Remove("RefreshQuickStart");
                 }

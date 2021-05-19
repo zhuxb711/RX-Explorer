@@ -22,10 +22,9 @@ namespace RX_Explorer.Dialog
             Loading += ModifyDefaultTerminalDialog_Loading;
         }
 
-        private async void ModifyDefaultTerminalDialog_Loading(FrameworkElement sender, object args)
+        private void ModifyDefaultTerminalDialog_Loading(FrameworkElement sender, object args)
         {
-            TerminalList = new ObservableCollection<TerminalProfile>(await SQLite.Current.GetAllTerminalProfile());
-
+            TerminalList = new ObservableCollection<TerminalProfile>(SQLite.Current.GetAllTerminalProfile());
             ProfileSelector.ItemsSource = TerminalList;
         }
 
@@ -57,7 +56,7 @@ namespace RX_Explorer.Dialog
             }
         }
 
-        private async void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private void QueueContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             var Deferral = args.GetDeferral();
 
@@ -93,12 +92,12 @@ namespace RX_Explorer.Dialog
             {
                 foreach (TerminalProfile Profile in DeletedProfile)
                 {
-                    await SQLite.Current.DeleteTerminalProfile(Profile);
+                    SQLite.Current.DeleteTerminalProfile(Profile);
                 }
 
                 foreach (TerminalProfile Profile in TerminalList)
                 {
-                    await SQLite.Current.SetOrModifyTerminalProfile(Profile);
+                    SQLite.Current.SetOrModifyTerminalProfile(Profile);
                 }
             }
 

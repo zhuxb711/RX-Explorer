@@ -22,7 +22,7 @@ namespace RX_Explorer.Class
         /// <summary>
         /// 图标位置
         /// </summary>
-        public string RelativePath { get; private set; }
+        public string IconPath { get; private set; }
 
         /// <summary>
         /// 快速启动项类型
@@ -52,7 +52,7 @@ namespace RX_Explorer.Class
 
             if (RelativePath != null)
             {
-                this.RelativePath = RelativePath;
+                this.IconPath = RelativePath;
             }
 
             OnPropertyChanged(nameof(DisplayName));
@@ -68,18 +68,18 @@ namespace RX_Explorer.Class
         /// 初始化QuickStartItem对象
         /// </summary>
         /// <param name="Image">图标</param>
-        /// <param name="Uri">协议</param>
+        /// <param name="Protocol">协议</param>
         /// <param name="Type">类型</param>
-        /// <param name="RelativePath">图标位置</param>
+        /// <param name="IconPath">图标位置</param>
         /// <param name="DisplayName">显示名称</param>
-        public QuickStartItem(BitmapImage Image, string Protocol, QuickStartType Type, string RelativePath, string DisplayName = null)
+        public QuickStartItem(QuickStartType Type, BitmapImage Image, string Protocol, string IconPath, string DisplayName = null)
         {
             this.Image = Image;
             this.Protocol = Protocol;
             this.Type = Type;
 
             this.DisplayName = DisplayName;
-            this.RelativePath = RelativePath;
+            this.IconPath = IconPath;
         }
 
         public QuickStartItem()

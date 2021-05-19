@@ -307,7 +307,7 @@ namespace RX_Explorer
                     SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfi_UseEverythingAsDefault"));
                 }
 
-                foreach (TerminalProfile Profile in await SQLite.Current.GetAllTerminalProfile())
+                foreach (TerminalProfile Profile in SQLite.Current.GetAllTerminalProfile())
                 {
                     DefaultTerminal.Items.Add(Profile.Name);
                 }
@@ -325,7 +325,7 @@ namespace RX_Explorer
                 {
                     try
                     {
-                        IEnumerable<string> DataBase = (await SQLite.Current.GetAllTerminalProfile()).Select((Profile) => Profile.Name);
+                        IEnumerable<string> DataBase = SQLite.Current.GetAllTerminalProfile().Select((Profile) => Profile.Name);
 
                         foreach (string NewProfile in DataBase.Except(DefaultTerminal.Items).ToList())
                         {
@@ -1502,7 +1502,7 @@ namespace RX_Explorer
 
                 if (PictureList.Count == 0)
                 {
-                    foreach (Uri ImageUri in await SQLite.Current.GetBackgroundPictureAsync())
+                    foreach (Uri ImageUri in SQLite.Current.GetBackgroundPicture())
                     {
                         BitmapImage Bitmap = new BitmapImage
                         {
@@ -1524,7 +1524,7 @@ namespace RX_Explorer
                         catch (Exception ex)
                         {
                             LogTracer.Log(ex, "Error when loading background pictures, the file might lost");
-                            await SQLite.Current.DeleteBackgroundPictureAsync(ImageUri);
+                            SQLite.Current.DeleteBackgroundPicture(ImageUri);
                         }
                     }
                 }
@@ -1797,7 +1797,7 @@ namespace RX_Explorer
                 PictureGirdView.UpdateLayout();
                 PictureGirdView.SelectedItem = Picture;
 
-                await SQLite.Current.SetBackgroundPictureAsync(Picture.PictureUri).ConfigureAwait(false);
+                SQLite.Current.SetBackgroundPicture(Picture.PictureUri);
             }
         }
 
@@ -1813,7 +1813,7 @@ namespace RX_Explorer
                         await ImageFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
                     }
 
-                    await SQLite.Current.DeleteBackgroundPictureAsync(Picture.PictureUri);
+                    SQLite.Current.DeleteBackgroundPicture(Picture.PictureUri);
 
                     PictureList.Remove(Picture);
                     PictureGirdView.UpdateLayout();
@@ -2295,7 +2295,7 @@ namespace RX_Explorer
 
             if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
             {
-                IEnumerable<string> DataBase = (await SQLite.Current.GetAllTerminalProfile()).Select((Profile) => Profile.Name);
+                IEnumerable<string> DataBase = SQLite.Current.GetAllTerminalProfile().Select((Profile) => Profile.Name);
 
                 foreach (string NewProfile in DataBase.Except(DefaultTerminal.Items).ToList())
                 {
@@ -2566,7 +2566,8 @@ namespace RX_Explorer
                                             }
                                         }
 
-                                        await SQLite.Current.ImportDataAsync(DatabaseFormattedArray);
+                                        SQLite.Current.ImportData(DatabaseFormattedArray);
+
                                         await CommonAccessCollection.LoadLibraryFoldersAsync(true);
 
                                         ApplicationData.Current.SignalDataChanged();
@@ -2644,39 +2645,46 @@ namespace RX_Explorer
 
         private async void ExportConfiguration_Click(object sender, RoutedEventArgs e)
         {
-            FileSavePicker Picker = new FileSavePicker
+            try
             {
-                SuggestedStartLocation = PickerLocationId.Desktop,
-                SuggestedFileName = "RX_Configuration"
-            };
-
-            Picker.FileTypeChoices.Add("JSON", new List<string> { ".json" });
-
-            if (await Picker.PickSaveFileAsync() is StorageFile SaveFile)
-            {
-                Dictionary<string, string> DataBaseDic = new Dictionary<string, string>();
-
-                await foreach ((string TableName, IReadOnlyList<object[]> Data) in SQLite.Current.ExportDataAsync())
+                FileSavePicker Picker = new FileSavePicker
                 {
-                    DataBaseDic.Add(TableName, JsonSerializer.Serialize(Data));
-                }
+                    SuggestedStartLocation = PickerLocationId.Desktop,
+                    SuggestedFileName = "RX_Configuration"
+                };
 
-                string DatabaseString = JsonSerializer.Serialize(DataBaseDic);
-                string ConfigurationString = JsonSerializer.Serialize(new Dictionary<string, object>(ApplicationData.Current.LocalSettings.Values.ToArray()));
+                Picker.FileTypeChoices.Add("JSON", new List<string> { ".json" });
 
-                using (MD5 MD5Alg = MD5.Create())
+                if (await Picker.PickSaveFileAsync() is StorageFile SaveFile)
                 {
-                    Dictionary<string, string> BaseDic = new Dictionary<string, string>
+                    Dictionary<string, string> DataBaseDic = new Dictionary<string, string>();
+
+                    foreach ((string TableName, IReadOnlyList<object[]> Data) in SQLite.Current.ExportData())
                     {
-                        { "Identitifier", "RX_Explorer_Export_Configuration" },
-                        { "Configuration",  await ConfigurationString.EncryptAsync(Package.Current.Id.FamilyName)},
-                        { "ConfigHash", MD5Alg.GetHash(ConfigurationString) },
-                        { "Database", await DatabaseString.EncryptAsync(Package.Current.Id.FamilyName) },
-                        { "DatabaseHash", MD5Alg.GetHash(DatabaseString)}
-                    };
+                        DataBaseDic.Add(TableName, JsonSerializer.Serialize(Data));
+                    }
 
-                    await FileIO.WriteTextAsync(SaveFile, JsonSerializer.Serialize(BaseDic), UnicodeEncoding.Utf16LE);
+                    string DatabaseString = JsonSerializer.Serialize(DataBaseDic);
+                    string ConfigurationString = JsonSerializer.Serialize(new Dictionary<string, object>(ApplicationData.Current.LocalSettings.Values.ToArray()));
+
+                    using (MD5 MD5Alg = MD5.Create())
+                    {
+                        Dictionary<string, string> BaseDic = new Dictionary<string, string>
+                        {
+                            { "Identitifier", "RX_Explorer_Export_Configuration" },
+                            { "Configuration",  await ConfigurationString.EncryptAsync(Package.Current.Id.FamilyName)},
+                            { "ConfigHash", MD5Alg.GetHash(ConfigurationString) },
+                            { "Database", await DatabaseString.EncryptAsync(Package.Current.Id.FamilyName) },
+                            { "DatabaseHash", MD5Alg.GetHash(DatabaseString)}
+                        };
+
+                        await FileIO.WriteTextAsync(SaveFile, JsonSerializer.Serialize(BaseDic), UnicodeEncoding.Utf16LE);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex);
             }
         }
 

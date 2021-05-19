@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace RX_Explorer.Class
 {
@@ -10,18 +9,18 @@ namespace RX_Explorer.Class
     {
         public static event EventHandler<SortStateChangedEventArgs> SortStateChanged;
 
-        public static async Task SavePathSortStateAsync(string Path, SortTarget Target, SortDirection Direction)
+        public static void SavePathSortState(string Path, SortTarget Target, SortDirection Direction)
         {
             if (Target == SortTarget.OriginPath || Target == SortTarget.Path)
             {
                 throw new NotSupportedException("SortTarget.Path and SortTarget.OriginPath is not allowed in this method");
             }
 
-            PathConfiguration CurrentConfiguration = await SQLite.Current.GetPathConfigurationAsync(Path);
+            PathConfiguration CurrentConfiguration = SQLite.Current.GetPathConfiguration(Path);
 
             if (CurrentConfiguration.SortTarget != Target || CurrentConfiguration.SortDirection != Direction)
             {
-                await SQLite.Current.SetPathConfigurationAsync(new PathConfiguration(Path, Target, Direction));
+                SQLite.Current.SetPathConfiguration(new PathConfiguration(Path, Target, Direction));
                 SortStateChanged?.Invoke(null, new SortStateChangedEventArgs(Path, Target, Direction));
             }
         }

@@ -161,10 +161,7 @@ namespace RX_Explorer
                                 }
                                 else
                                 {
-                                    foreach (FileSystemStorageItemBase Item in SortCollectionGenerator.GetSortedCollection(SearchItems, SortTarget.Name, SortDirection.Ascending))
-                                    {
-                                        SearchResult.Add(Item);
-                                    }
+                                    SearchResult.AddRange(SortCollectionGenerator.GetSortedCollection(SearchItems, SortTarget.Name, SortDirection.Ascending));
                                 }
                             }
 
@@ -721,7 +718,7 @@ namespace RX_Explorer
                                     }
                                 default:
                                     {
-                                        string AdminExecutablePath = await SQLite.Current.GetDefaultProgramPickerRecordAsync(File.Type);
+                                        string AdminExecutablePath = SQLite.Current.GetDefaultProgramPickerRecord(File.Type);
 
                                         if (string.IsNullOrEmpty(AdminExecutablePath) || AdminExecutablePath == Package.Current.Id.FamilyName)
                                         {
