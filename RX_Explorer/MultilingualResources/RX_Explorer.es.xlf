@@ -4072,6 +4072,10 @@ Las denominaciones no válidas son:
           <source>Desktop (Create shortcut)</source>
           <target state="translated">Escritorio (crear acceso directo)</target>
         </trans-unit>
+        <trans-unit id="SendTo_Document" translate="yes" xml:space="preserve">
+          <source>Document</source>
+          <target state="translated">Documento</target>
+        </trans-unit>
       </group>
     </body>
   </file>

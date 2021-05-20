@@ -4072,6 +4072,10 @@ Inkorrekte Namen sind
           <source>Desktop (Create shortcut)</source>
           <target state="translated">Desktop (Verknüpfung erstellen)</target>
         </trans-unit>
+        <trans-unit id="SendTo_Document" translate="yes" xml:space="preserve">
+          <source>Document</source>
+          <target state="translated">Dokument</target>
+        </trans-unit>
       </group>
     </body>
   </file>

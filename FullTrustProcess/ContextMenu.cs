@@ -64,7 +64,7 @@ namespace FullTrustProcess
 
                             using (User32.SafeHMENU Menu = User32.CreatePopupMenu())
                             {
-                                if (ContextObject.QueryContextMenu(Menu, 0, 0, 0x7FFF, IncludeExtensionItem ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL).Succeeded)
+                                if (ContextObject.QueryContextMenu(Menu, 0, 0, 0x7FFF, (IncludeExtensionItem ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_SYNCCASCADEMENU).Succeeded)
                                 {
                                     return FetchContextMenuCore(ContextObject, Menu, PathArray, IncludeExtensionItem);
                                 }

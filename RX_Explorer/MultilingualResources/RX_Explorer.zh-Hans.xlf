@@ -4074,6 +4074,10 @@ Invalid names include
           <source>Desktop (Create shortcut)</source>
           <target state="translated">桌面 (创建快捷方式)</target>
         </trans-unit>
+        <trans-unit id="SendTo_Document" translate="yes" xml:space="preserve">
+          <source>Document</source>
+          <target state="translated">文档</target>
+        </trans-unit>
       </group>
     </body>
   </file>

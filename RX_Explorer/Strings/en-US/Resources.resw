@@ -3175,4 +3175,7 @@ Invalid names include
   <data name="SendTo_CreateDesktopShortcut" xml:space="preserve">
     <value>Desktop (Create shortcut)</value>
   </data>
+  <data name="SendTo_Document" xml:space="preserve">
+    <value>Document</value>
+  </data>
 </root>

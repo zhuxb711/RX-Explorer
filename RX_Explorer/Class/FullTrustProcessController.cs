@@ -223,7 +223,7 @@ namespace RX_Explorer.Class
                         {
                             if (Controller.IsDisposed)
                             {
-                                CompletionSource.SetResult(new ExclusiveUsage(CreateAsync().GetAwaiter().GetResult(), ExtendedExecutionController.TryCreateExtendedExecution().Result));
+                                CompletionSource.SetResult(new ExclusiveUsage(CreateAsync().Result, ExtendedExecutionController.TryCreateExtendedExecution().Result));
                             }
                             else
                             {

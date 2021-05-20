@@ -3070,4 +3070,7 @@ Les noms non valides incluent
   <data name="SendTo_CreateDesktopShortcut" xml:space="preserve">
     <value>Bureau (Créer un raccourci)</value>
   </data>
+  <data name="SendTo_Document" xml:space="preserve">
+    <value>Document</value>
+  </data>
 </root>

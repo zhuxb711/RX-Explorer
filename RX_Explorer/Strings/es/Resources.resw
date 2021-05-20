@@ -3070,4 +3070,7 @@ Las denominaciones no válidas son:
   <data name="SendTo_CreateDesktopShortcut" xml:space="preserve">
     <value>Escritorio (crear acceso directo)</value>
   </data>
+  <data name="SendTo_Document" xml:space="preserve">
+    <value>Documento</value>
+  </data>
 </root>

@@ -3070,4 +3070,7 @@ Inkorrekte Namen sind
   <data name="SendTo_CreateDesktopShortcut" xml:space="preserve">
     <value>Desktop (Verknüpfung erstellen)</value>
   </data>
+  <data name="SendTo_Document" xml:space="preserve">
+    <value>Dokument</value>
+  </data>
 </root>

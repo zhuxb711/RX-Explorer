@@ -4074,6 +4074,10 @@ Les noms non valides incluent
           <source>Desktop (Create shortcut)</source>
           <target state="translated">Bureau (Créer un raccourci)</target>
         </trans-unit>
+        <trans-unit id="SendTo_Document" translate="yes" xml:space="preserve">
+          <source>Document</source>
+          <target state="translated">Document</target>
+        </trans-unit>
       </group>
     </body>
   </file>

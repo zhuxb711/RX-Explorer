@@ -124,6 +124,7 @@ namespace RX_Explorer
             InfoTip.Title = Title;
             InfoTip.Message = Message;
             InfoTip.IsClosable = Closable;
+            InfoTip.ActionButton = null;
 
             if (ActionButton != null)
             {
@@ -136,6 +137,7 @@ namespace RX_Explorer
         public void HideInfoTip()
         {
             InfoTip.IsOpen = false;
+            InfoTip.ActionButton = null;
         }
 
         private async void Current_ThemeChanged(object sender, ElementTheme Theme)
@@ -844,7 +846,7 @@ namespace RX_Explorer
             }
         }
 
-        private void BluetoothAudioSelectionTip_Closed(Microsoft.UI.Xaml.Controls.TeachingTip sender, Microsoft.UI.Xaml.Controls.TeachingTipClosedEventArgs args)
+        private void BluetoothAudioSelectionTip_Closed(TeachingTip sender, TeachingTipClosedEventArgs args)
         {
             if (BluetoothAudioWatcher != null)
             {

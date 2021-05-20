@@ -4716,6 +4716,18 @@ namespace RX_Explorer
 
                 Flyout.Items.Clear();
 
+                MenuFlyoutItemWithImage SendDocumentItem = new MenuFlyoutItemWithImage
+                {
+                    Name = "SendDocumentItem",
+                    Text = Globalization.GetString("SendTo_Document"),
+                    ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/DesktopIcon.ico")),
+                    MinWidth = 150,
+                    MaxWidth = 350
+                };
+                SendDocumentItem.Click += SendToItem_Click;
+
+                Flyout.Items.Add(SendDocumentItem);
+
                 MenuFlyoutItemWithImage SendLinkItem = new MenuFlyoutItemWithImage
                 {
                     Name = "SendLinkItem",
@@ -4733,10 +4745,11 @@ namespace RX_Explorer
                     MenuFlyoutItemWithImage SendRemovableDriveItem = new MenuFlyoutItemWithImage
                     {
                         Name = "SendRemovableItem",
-                        Text = $"{(string.IsNullOrEmpty(RemovableDrive.DisplayName) ? RemovableDrive.Path : RemovableDrive.DisplayName)} ({RemovableDrive.Path})",
+                        Text = $"{(string.IsNullOrEmpty(RemovableDrive.DisplayName) ? RemovableDrive.Path : RemovableDrive.DisplayName)}",
                         ImageIcon = RemovableDrive.Thumbnail,
                         MinWidth = 150,
-                        MaxWidth = 350
+                        MaxWidth = 350,
+                        Tag = RemovableDrive.Path
                     };
                     SendRemovableDriveItem.Click += SendToItem_Click;
 
@@ -4751,20 +4764,103 @@ namespace RX_Explorer
 
             if (sender is MenuFlyoutItemWithImage Item)
             {
+                FileSystemStorageItemBase SItem = SelectedItem;
+
                 switch (Item.Name)
                 {
                     case "SendLinkItem":
                         {
-                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                            string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+
+                            if (string.IsNullOrEmpty(DesktopPath))
                             {
-                                if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), $"{(SelectedItem is FileSystemStorageFolder ? SelectedItem.Name : Path.GetFileNameWithoutExtension(SelectedItem.Name))}.lnk"), 
-                                                                                SelectedItem.Path, 
-                                                                                string.Empty, 
-                                                                                WindowState.Normal, 
-                                                                                0, 
-                                                                                string.Empty))
+                                try
                                 {
-                                    
+                                    IReadOnlyList<User> UserList = await User.FindAllAsync();
+
+                                    UserDataPaths DataPath = UserList.FirstOrDefault((User) => User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && User.Type == UserType.LocalUser) is User CurrentUser
+                                                             ? UserDataPaths.GetForUser(CurrentUser)
+                                                             : UserDataPaths.GetDefault();
+
+                                    DesktopPath = DataPath.Desktop;
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex, "Could not get desktop path from UserDataPaths");
+                                }
+                            }
+
+                            if (string.IsNullOrEmpty(DesktopPath))
+                            {
+                                LogTracer.Log("Could not execute \"Send to\" command because desktop path is null or empty");
+                            }
+                            else
+                            {
+                                if (await FileSystemStorageItemBase.CheckExistAsync(DesktopPath))
+                                {
+                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                    {
+                                        if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), $"{(SItem is FileSystemStorageFolder ? SItem.Name : Path.GetFileNameWithoutExtension(SItem.Name))}.lnk"),
+                                                                                        SItem.Path,
+                                                                                        string.Empty,
+                                                                                        WindowState.Normal,
+                                                                                        0,
+                                                                                        string.Empty))
+                                        {
+                                            QueueContentDialog Dialog = new QueueContentDialog
+                                            {
+                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
+                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                            };
+
+                                            await Dialog.ShowAsync();
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    LogTracer.Log($"Could not execute \"Send to\" command because desktop path \"{DesktopPath}\" is not exists");
+                                }
+                            }
+
+                            break;
+                        }
+                    case "SendDocumentItem":
+                        {
+                            string DocumentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+                            if (string.IsNullOrEmpty(DocumentPath))
+                            {
+                                try
+                                {
+                                    IReadOnlyList<User> UserList = await User.FindAllAsync();
+
+                                    UserDataPaths DataPath = UserList.FirstOrDefault((User) => User.AuthenticationStatus == UserAuthenticationStatus.LocallyAuthenticated && User.Type == UserType.LocalUser) is User CurrentUser
+                                                             ? UserDataPaths.GetForUser(CurrentUser)
+                                                             : UserDataPaths.GetDefault();
+
+                                    DocumentPath = DataPath.Documents;
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogTracer.Log(ex, "Could not get document path from UserDataPaths");
+                                }
+                            }
+
+                            if (string.IsNullOrEmpty(DocumentPath))
+                            {
+                                LogTracer.Log("Could not execute \"Send to\" command because document path is null or empty");
+                            }
+                            else
+                            {
+                                if (await FileSystemStorageItemBase.CheckExistAsync(DocumentPath))
+                                {
+                                    QueueTaskController.EnqueueCopyOpeartion(SItem.Path, DocumentPath);
+                                }
+                                else
+                                {
+                                    LogTracer.Log($"Could not execute \"Send to\" command because document path \"{DocumentPath}\" is not exists");
                                 }
                             }
 
@@ -4772,6 +4868,10 @@ namespace RX_Explorer
                         }
                     case "SendRemovableItem":
                         {
+                            if (Item.Tag is string RemovablePath)
+                            {
+                                QueueTaskController.EnqueueCopyOpeartion(SItem.Path, RemovablePath);
+                            }
 
                             break;
                         }

@@ -67,10 +67,7 @@ namespace FullTrustProcess
 
                         if (Directory.Exists(TempFolderPath))
                         {
-                            await Helper.ExecuteOnSTAThreadAsync(() =>
-                            {
-                                ContextMenu.FetchContextMenuItemsAsync(TempFolderPath).Wait();
-                            });
+                            await ContextMenu.FetchContextMenuItemsAsync(TempFolderPath);
                         }
                     }
                     catch (Exception ex)
