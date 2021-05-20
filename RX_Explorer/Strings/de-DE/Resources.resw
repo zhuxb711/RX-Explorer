@@ -3064,4 +3064,10 @@ Inkorrekte Namen sind
   <data name="OfflineAvailabilityStatusText7" xml:space="preserve">
     <value>Synchronisieren</value>
   </data>
+  <data name="SendTo.Label" xml:space="preserve">
+    <value>Senden an</value>
+  </data>
+  <data name="SendTo_CreateDesktopShortcut" xml:space="preserve">
+    <value>Desktop (Verknüpfung erstellen)</value>
+  </data>
 </root>

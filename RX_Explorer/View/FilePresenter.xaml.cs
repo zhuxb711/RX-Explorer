@@ -4,6 +4,7 @@ using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.UI.Xaml.Controls;
 using RX_Explorer.Class;
+using RX_Explorer.CustomControl;
 using RX_Explorer.Dialog;
 using RX_Explorer.SeparateWindow.PropertyWindow;
 using ShareClassLibrary;
@@ -4702,6 +4703,80 @@ namespace RX_Explorer
         private async void RootFolderControl_EnterActionRequested(object sender, string Path)
         {
             await DisplayItemsInFolder(Path);
+        }
+
+        private void SendToFlyout_Opening(object sender, object e)
+        {
+            if (sender is MenuFlyout Flyout)
+            {
+                foreach (MenuFlyoutItemWithImage Item in Flyout.Items)
+                {
+                    Item.Click -= SendToItem_Click;
+                }
+
+                Flyout.Items.Clear();
+
+                MenuFlyoutItemWithImage SendLinkItem = new MenuFlyoutItemWithImage
+                {
+                    Name = "SendLinkItem",
+                    Text = Globalization.GetString("SendTo_CreateDesktopShortcut"),
+                    ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/DesktopIcon.ico")),
+                    MinWidth = 150,
+                    MaxWidth = 350
+                };
+                SendLinkItem.Click += SendToItem_Click;
+
+                Flyout.Items.Add(SendLinkItem);
+
+                foreach (DriveDataBase RemovableDrive in CommonAccessCollection.DriveList.Where((Drive) => (Drive.DriveType == DriveType.Removable || Drive.DriveType == DriveType.Network) && !string.IsNullOrEmpty(Drive.Path)))
+                {
+                    MenuFlyoutItemWithImage SendRemovableDriveItem = new MenuFlyoutItemWithImage
+                    {
+                        Name = "SendRemovableItem",
+                        Text = $"{(string.IsNullOrEmpty(RemovableDrive.DisplayName) ? RemovableDrive.Path : RemovableDrive.DisplayName)} ({RemovableDrive.Path})",
+                        ImageIcon = RemovableDrive.Thumbnail,
+                        MinWidth = 150,
+                        MaxWidth = 350
+                    };
+                    SendRemovableDriveItem.Click += SendToItem_Click;
+
+                    Flyout.Items.Add(SendRemovableDriveItem);
+                }
+            }
+        }
+
+        private async void SendToItem_Click(object sender, RoutedEventArgs e)
+        {
+            CloseAllFlyout();
+
+            if (sender is MenuFlyoutItemWithImage Item)
+            {
+                switch (Item.Name)
+                {
+                    case "SendLinkItem":
+                        {
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                            {
+                                if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), $"{(SelectedItem is FileSystemStorageFolder ? SelectedItem.Name : Path.GetFileNameWithoutExtension(SelectedItem.Name))}.lnk"), 
+                                                                                SelectedItem.Path, 
+                                                                                string.Empty, 
+                                                                                WindowState.Normal, 
+                                                                                0, 
+                                                                                string.Empty))
+                                {
+                                    
+                                }
+                            }
+
+                            break;
+                        }
+                    case "SendRemovableItem":
+                        {
+
+                            break;
+                        }
+                }
+            }
         }
     }
 }

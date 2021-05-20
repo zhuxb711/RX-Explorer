@@ -393,14 +393,14 @@ namespace RX_Explorer
         {
             FullTrustProcessController.RequestResizeController(TabCollection.Count + 1);
 
-            Frame frame = new Frame();
+            Frame BaseFrame = new Frame();
 
             TabViewItem Item = new TabViewItem
             {
                 IconSource = new SymbolIconSource { Symbol = Symbol.Document },
                 AllowDrop = true,
                 IsDoubleTapEnabled = true,
-                Content = frame
+                Content = BaseFrame
             };
             Item.DragEnter += Item_DragEnter;
             Item.PointerPressed += Item_PointerPressed;
@@ -426,15 +426,15 @@ namespace RX_Explorer
                 Item.Header = Path.GetFileName(ValidPathArray.Last());
             }
 
-            frame.Tag = ValidPathArray.ToArray();
+            BaseFrame.Tag = ValidPathArray.ToArray();
 
             if (AnimationController.Current.IsEnableAnimation)
             {
-                frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, string[]>(Item, ValidPathArray.ToArray()), new DrillInNavigationTransitionInfo());
+                BaseFrame.Navigate(typeof(FileControl), new Tuple<TabViewItem, string[]>(Item, ValidPathArray.ToArray()), new DrillInNavigationTransitionInfo());
             }
             else
             {
-                frame.Navigate(typeof(FileControl), new Tuple<TabViewItem, string[]>(Item, ValidPathArray.ToArray()), new SuppressNavigationTransitionInfo());
+                BaseFrame.Navigate(typeof(FileControl), new Tuple<TabViewItem, string[]>(Item, ValidPathArray.ToArray()), new SuppressNavigationTransitionInfo());
             }
 
             return Item;

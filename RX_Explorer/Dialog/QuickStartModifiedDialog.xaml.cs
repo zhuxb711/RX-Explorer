@@ -200,7 +200,7 @@ namespace RX_Explorer.Dialog
                             }
                         case QuickStartType.WebSite:
                             {
-                                if (Uri.TryCreate(Protocol.Text, UriKind.Absolute, out _))
+                                if (Uri.TryCreate(Protocol.Text, UriKind.Absolute, out Uri Result) && !Result.IsFile)
                                 {
                                     if (!FileSystemItemNameChecker.IsValid(DisplayName.Text))
                                     {
@@ -552,39 +552,65 @@ namespace RX_Explorer.Dialog
                         {
                             try
                             {
-                                Uri QueryUrl = Globalization.CurrentLanguage == LanguageEnum.Chinese_Simplified
-                                    ? new Uri($"http://statics.dnspod.cn/proxy_favicon/_/favicon?domain={new Uri(Protocol.Text).Host}")
-                                    : new Uri($"http://www.google.com/s2/favicons?domain={new Uri(Protocol.Text).Host}");
+                                Uri QueryUrl1 = new Uri($"http://statics.dnspod.cn/proxy_favicon/_/favicon?domain={new Uri(Protocol.Text).Host}");
+                                Uri QueryUrl2 = new Uri($"http://www.google.com/s2/favicons?domain={new Uri(Protocol.Text).Host}");
 
-                                HttpWebRequest Request = WebRequest.CreateHttp(QueryUrl);
-                                using (WebResponse Response = await Request.GetResponseAsync())
-                                using (Stream WebImageStream = Response.GetResponseStream())
-                                using (MemoryStream TemplateStream = new MemoryStream())
+                                WebResponse Response;
+                                HttpWebRequest Request;
+
+                                if (Globalization.CurrentLanguage == LanguageEnum.Chinese_Simplified)
                                 {
-                                    await WebImageStream.CopyToAsync(TemplateStream);
-
-                                    TemplateStream.Seek(0, SeekOrigin.Begin);
-
-                                    if (TemplateStream.Length > 0)
+                                    Request = WebRequest.CreateHttp(QueryUrl1);
+                                    Response = await Request.GetResponseAsync();
+                                }
+                                else
+                                {
+                                    try
                                     {
-                                        BitmapImage Bitmap = new BitmapImage();
-                                        Icon.Source = Bitmap;
-                                        await Bitmap.SetSourceAsync(TemplateStream.AsRandomAccessStream());
+                                        Request = WebRequest.CreateHttp(QueryUrl2);
+                                        Response = await Request.GetResponseAsync();
+                                    }
+                                    catch
+                                    {
+                                        Request = WebRequest.CreateHttp(QueryUrl1);
+                                        Response = await Request.GetResponseAsync();
+                                    }
+                                }
+
+                                try
+                                {
+                                    using (Stream WebImageStream = Response.GetResponseStream())
+                                    using (MemoryStream TemplateStream = new MemoryStream())
+                                    {
+                                        await WebImageStream.CopyToAsync(TemplateStream);
 
                                         TemplateStream.Seek(0, SeekOrigin.Begin);
 
-                                        StorageFile DownloadImage = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("DownloadFile.ico", CreationCollisionOption.ReplaceExisting);
-                                        using (Stream LocalFileStream = await DownloadImage.OpenStreamForWriteAsync())
+                                        if (TemplateStream.Length > 0)
                                         {
-                                            await TemplateStream.CopyToAsync(LocalFileStream);
-                                        }
+                                            BitmapImage Bitmap = new BitmapImage();
+                                            Icon.Source = Bitmap;
+                                            await Bitmap.SetSourceAsync(TemplateStream.AsRandomAccessStream());
 
-                                        ImageFile = DownloadImage;
+                                            TemplateStream.Seek(0, SeekOrigin.Begin);
+
+                                            StorageFile DownloadImage = await ApplicationData.Current.TemporaryFolder.CreateFileAsync("DownloadFile.ico", CreationCollisionOption.ReplaceExisting);
+                                            using (Stream LocalFileStream = await DownloadImage.OpenStreamForWriteAsync())
+                                            {
+                                                await TemplateStream.CopyToAsync(LocalFileStream);
+                                            }
+
+                                            ImageFile = DownloadImage;
+                                        }
+                                        else
+                                        {
+                                            FailureTips.IsOpen = true;
+                                        }
                                     }
-                                    else
-                                    {
-                                        FailureTips.IsOpen = true;
-                                    }
+                                }
+                                finally
+                                {
+                                    Response?.Dispose();
                                 }
                             }
                             catch

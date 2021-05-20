@@ -4064,6 +4064,14 @@ Las denominaciones no válidas son:
           <source>Syncing</source>
           <target state="translated">Synchronisation</target>
         </trans-unit>
+        <trans-unit id="SendTo.Label" translate="yes" xml:space="preserve">
+          <source>Send to</source>
+          <target state="translated">Enviar a</target>
+        </trans-unit>
+        <trans-unit id="SendTo_CreateDesktopShortcut" translate="yes" xml:space="preserve">
+          <source>Desktop (Create shortcut)</source>
+          <target state="translated">Escritorio (crear acceso directo)</target>
+        </trans-unit>
       </group>
     </body>
   </file>

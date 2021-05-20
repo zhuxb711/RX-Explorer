@@ -4064,6 +4064,14 @@ Inkorrekte Namen sind
           <source>Syncing</source>
           <target state="translated">Synchronisieren</target>
         </trans-unit>
+        <trans-unit id="SendTo.Label" translate="yes" xml:space="preserve">
+          <source>Send to</source>
+          <target state="translated">Senden an</target>
+        </trans-unit>
+        <trans-unit id="SendTo_CreateDesktopShortcut" translate="yes" xml:space="preserve">
+          <source>Desktop (Create shortcut)</source>
+          <target state="translated">Desktop (Verknüpfung erstellen)</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -21,6 +21,13 @@ namespace RX_Explorer.Class
     /// </summary>
     public class DriveDataBase : INotifyPropertyChanged, IDriveData
     {
+        private static readonly Uri SystemDriveIconUri = new Uri("ms-appx:///Assets/SystemDrive.ico");
+        private static readonly Uri NormalDriveIconUri = new Uri("ms-appx:///Assets/NormalDrive.ico");
+        private static readonly Uri NormalDriveLockedIconUri = new Uri("ms-appx:///Assets/NormalDriveLocked.ico");
+        private static readonly Uri NormalDriveUnLockedIconUri = new Uri("ms-appx:///Assets/NormalDriveUnLocked.ico");
+        private static readonly Uri SystemDriveUnLockedIconUri = new Uri("ms-appx:///Assets/SystemDriveUnLocked.ico");
+        private static readonly Uri NetworkDriveIconUri = new Uri("ms-appx:///Assets/NetworkDrive.ico");
+
         /// <summary>
         /// 驱动器缩略图
         /// </summary>
@@ -31,12 +38,12 @@ namespace RX_Explorer.Class
         /// </summary>
         public StorageFolder DriveFolder { get; }
 
-        public string Name 
-        { 
+        public string Name
+        {
             get
             {
                 return (DriveFolder?.Name) ?? string.Empty;
-            } 
+            }
         }
         /// <summary>
         /// 驱动器名称
@@ -168,12 +175,11 @@ namespace RX_Explorer.Class
         {
             BasicProperties Properties = await Drive.GetBasicPropertiesAsync();
 
-            BitmapImage Thumbnail = await Drive.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem);
             IDictionary<string, object> PropertiesRetrieve = await Properties.RetrievePropertiesAsync(new string[] { "System.Capacity", "System.FreeSpace", "System.Volume.FileSystem", "System.Volume.BitLockerProtection" });
 
             if (Drive.Path.StartsWith(@"\\wsl", StringComparison.OrdinalIgnoreCase))
             {
-                return new WslDriveData(Drive, Thumbnail, PropertiesRetrieve);
+                return new WslDriveData(Drive, await Drive.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem) ?? new BitmapImage(NetworkDriveIconUri), PropertiesRetrieve);
             }
             else
             {
@@ -200,17 +206,71 @@ namespace RX_Explorer.Class
                  */
                 if (PropertiesRetrieve.TryGetValue("System.Volume.BitLockerProtection", out object BitlockerStateRaw) && BitlockerStateRaw is int BitlockerState)
                 {
-                    if (BitlockerState == 6 && !PropertiesRetrieve.ContainsKey("System.Capacity") && !PropertiesRetrieve.ContainsKey("System.FreeSpace"))
+                    switch (BitlockerState)
                     {
-                        return new LockedDriveData(Drive, Thumbnail, PropertiesRetrieve, DriveType);
-                    }
-                    else
-                    {
-                        return new NormalDriveData(Drive, Thumbnail, PropertiesRetrieve, DriveType);
+                        case 6 when !PropertiesRetrieve.ContainsKey("System.Capacity") && !PropertiesRetrieve.ContainsKey("System.FreeSpace"):
+                            {
+                                return new LockedDriveData(Drive, await Drive.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem) ?? new BitmapImage(NormalDriveLockedIconUri), PropertiesRetrieve, DriveType);
+                            }
+                        case 3:
+                        case 2:
+                            {
+                                BitmapImage Thumbnail = await Drive.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem);
+
+                                if (Thumbnail == null)
+                                {
+                                    if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(Drive.Path, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        Thumbnail = new BitmapImage(SystemDriveIconUri);
+                                    }
+                                    else
+                                    {
+                                        Thumbnail = new BitmapImage(NormalDriveIconUri);
+                                    }
+                                }
+
+                                return new NormalDriveData(Drive, Thumbnail, PropertiesRetrieve, DriveType);
+                            }
+                        default:
+                            {
+                                BitmapImage Thumbnail = await Drive.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem);
+
+                                if (Thumbnail == null)
+                                {
+                                    if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(Drive.Path, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        Thumbnail = new BitmapImage(SystemDriveUnLockedIconUri);
+                                    }
+                                    else
+                                    {
+                                        Thumbnail = new BitmapImage(NormalDriveUnLockedIconUri);
+                                    }
+                                }
+
+                                return new NormalDriveData(Drive, Thumbnail, PropertiesRetrieve, DriveType);
+                            }
                     }
                 }
                 else
                 {
+                    BitmapImage Thumbnail = await Drive.GetThumbnailBitmapAsync(ThumbnailMode.SingleItem);
+
+                    if (Thumbnail == null)
+                    {
+                        if (System.IO.Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)).Equals(Drive.Path, StringComparison.OrdinalIgnoreCase))
+                        {
+                            Thumbnail = new BitmapImage(SystemDriveIconUri);
+                        }
+                        else if (DriveType == DriveType.Network)
+                        {
+                            Thumbnail = new BitmapImage(NetworkDriveIconUri);
+                        }
+                        else
+                        {
+                            Thumbnail = new BitmapImage(NormalDriveIconUri);
+                        }
+                    }
+
                     return new NormalDriveData(Drive, Thumbnail, PropertiesRetrieve, DriveType);
                 }
             }
@@ -234,7 +294,7 @@ namespace RX_Explorer.Class
         protected DriveDataBase(StorageFolder DriveFolder, BitmapImage Thumbnail, IDictionary<string, object> PropertiesRetrieve, DriveType DriveType)
         {
             this.DriveFolder = DriveFolder ?? throw new FileNotFoundException();
-            this.Thumbnail = Thumbnail ?? new BitmapImage(new Uri("ms-appx:///Assets/DeviceIcon.png"));
+            this.Thumbnail = Thumbnail;
             this.DriveType = DriveType;
 
             UIS = new UISettings();

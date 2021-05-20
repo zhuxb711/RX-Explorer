@@ -4066,6 +4066,14 @@ Les noms non valides incluent
           <source>Syncing</source>
           <target state="translated">Synchronisation</target>
         </trans-unit>
+        <trans-unit id="SendTo.Label" translate="yes" xml:space="preserve">
+          <source>Send to</source>
+          <target state="translated">Envoyer à</target>
+        </trans-unit>
+        <trans-unit id="SendTo_CreateDesktopShortcut" translate="yes" xml:space="preserve">
+          <source>Desktop (Create shortcut)</source>
+          <target state="translated">Bureau (Créer un raccourci)</target>
+        </trans-unit>
       </group>
     </body>
   </file>

@@ -3064,4 +3064,10 @@ Les noms non valides incluent
   <data name="OfflineAvailabilityStatusText7" xml:space="preserve">
     <value>Synchronisation</value>
   </data>
+  <data name="SendTo.Label" xml:space="preserve">
+    <value>Envoyer à</value>
+  </data>
+  <data name="SendTo_CreateDesktopShortcut" xml:space="preserve">
+    <value>Bureau (Créer un raccourci)</value>
+  </data>
 </root>

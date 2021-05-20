@@ -3064,4 +3064,10 @@ Las denominaciones no válidas son:
   <data name="OfflineAvailabilityStatusText7" xml:space="preserve">
     <value>Synchronisation</value>
   </data>
+  <data name="SendTo.Label" xml:space="preserve">
+    <value>Enviar a</value>
+  </data>
+  <data name="SendTo_CreateDesktopShortcut" xml:space="preserve">
+    <value>Escritorio (crear acceso directo)</value>
+  </data>
 </root>

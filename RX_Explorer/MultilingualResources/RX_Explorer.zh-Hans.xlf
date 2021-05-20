@@ -4066,6 +4066,14 @@ Invalid names include
           <source>Syncing</source>
           <target state="translated">正在同步</target>
         </trans-unit>
+        <trans-unit id="SendTo.Label" translate="yes" xml:space="preserve">
+          <source>Send to</source>
+          <target state="translated">发送到</target>
+        </trans-unit>
+        <trans-unit id="SendTo_CreateDesktopShortcut" translate="yes" xml:space="preserve">
+          <source>Desktop (Create shortcut)</source>
+          <target state="translated">桌面 (创建快捷方式)</target>
+        </trans-unit>
       </group>
     </body>
   </file>

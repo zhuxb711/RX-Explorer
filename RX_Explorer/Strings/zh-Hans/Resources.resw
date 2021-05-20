@@ -3064,4 +3064,10 @@
   <data name="OfflineAvailabilityStatusText7" xml:space="preserve">
     <value>正在同步</value>
   </data>
+  <data name="SendTo.Label" xml:space="preserve">
+    <value>发送到</value>
+  </data>
+  <data name="SendTo_CreateDesktopShortcut" xml:space="preserve">
+    <value>桌面 (创建快捷方式)</value>
+  </data>
 </root>

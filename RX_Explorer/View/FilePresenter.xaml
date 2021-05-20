@@ -347,6 +347,13 @@
                         </MenuFlyout>
                     </AppBarButton.Flyout>
                 </AppBarButton>
+                <AppBarButton Label="Send to"
+                              x:Uid="SendTo"
+                              Icon="Send">
+                    <AppBarButton.Flyout>
+                        <MenuFlyout Opening="SendToFlyout_Opening"/>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton x:Name="Compression"
                               MinWidth="250"
@@ -706,6 +713,13 @@
                         <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xE7B8;" />
                     </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton Label="Send to"
+                              x:Uid="SendTo"
+                              Icon="Send">
+                    <AppBarButton.Flyout>
+                        <MenuFlyout Opening="SendToFlyout_Opening"/>
+                    </AppBarButton.Flyout>
                 </AppBarButton>
                 <AppBarSeparator />
                 <AppBarButton Icon="Tag"

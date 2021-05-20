@@ -410,7 +410,8 @@
     <Content Include="Assets\AddImage.png" />
     <Content Include="Assets\AlphaPNG.png" />
     <Content Include="Assets\ColorPickerHero.png" />
-    <Content Include="Assets\DeviceIcon.png" />
+    <Content Include="Assets\DesktopIcon.ico" />
+    <Content Include="Assets\NormalDriveLocked.ico" />
     <Content Include="Assets\FolderIcon.png" />
     <Content Include="Assets\Github-Intro1.png" />
     <Content Include="Assets\Github-Intro2.png" />
@@ -424,6 +425,9 @@
     <Content Include="Assets\IntroFile-Spanish.txt" />
     <Content Include="Assets\Lock.png" />
     <Content Include="Assets\LockFile.png" />
+    <Content Include="Assets\NetworkDrive.ico" />
+    <Content Include="Assets\NormalDrive.ico" />
+    <Content Include="Assets\NormalDriveUnLocked.ico" />
     <Content Include="Assets\Page_Solid_Black.png" />
     <Content Include="Assets\Page_Solid_White.png" />
     <Content Include="Assets\RX-icon.png" />
@@ -433,6 +437,8 @@
     <Content Include="Assets\SAIntro_cn_t.png" />
     <Content Include="Assets\SAIntro_en.png" />
     <Content Include="Assets\SAIntro_fr.png" />
+    <Content Include="Assets\SystemDrive.ico" />
+    <Content Include="Assets\SystemDriveUnLocked.ico" />
     <Content Include="Assets\UpdateLog-Chinese_S.txt" />
     <Content Include="Assets\UpdateLog-Chinese_T.txt" />
     <Content Include="Assets\UpdateLog-English.txt" />

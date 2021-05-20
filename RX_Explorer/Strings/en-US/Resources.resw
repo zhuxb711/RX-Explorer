@@ -3169,4 +3169,10 @@ Invalid names include
   <data name="OfflineAvailabilityStatusText7" xml:space="preserve">
     <value>Syncing</value>
   </data>
+  <data name="SendTo.Label" xml:space="preserve">
+    <value>Send to</value>
+  </data>
+  <data name="SendTo_CreateDesktopShortcut" xml:space="preserve">
+    <value>Desktop (Create shortcut)</value>
+  </data>
 </root>

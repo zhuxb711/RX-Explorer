@@ -157,6 +157,8 @@ namespace RX_Explorer.Class
 
         public static event EventHandler FullTrustProcessExitedUnexpected;
 
+        public static readonly AutoResetEvent ResizeLocker = new AutoResetEvent(true);
+
         static FullTrustProcessController()
         {
             DispatcherThread.Start();
@@ -255,14 +257,13 @@ namespace RX_Explorer.Class
 
         public static void RequestResizeController(int RequestedTarget)
         {
-            _ = Task.Run(() =>
-            {
-                ResizeController(RequestedTarget);
-            });
+            _ = Task.Run(() => ResizeController(RequestedTarget));
         }
 
         private static void ResizeController(int RequestedTarget)
         {
+            ResizeLocker.WaitOne();
+
             try
             {
                 LastRequestedControllerNum = RequestedTarget;
@@ -277,7 +278,7 @@ namespace RX_Explorer.Class
                     }
                     else
                     {
-                        if (!SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty, 2000))
+                        if (!SpinWait.SpinUntil(() => !AvailableControllerQueue.IsEmpty, 3000))
                         {
                             break;
                         }
@@ -286,12 +287,16 @@ namespace RX_Explorer.Class
 
                 while (CurrentRunningControllerNum < RequestedTarget)
                 {
-                    AvailableControllerQueue.Enqueue(CreateAsync().GetAwaiter().GetResult());
+                    AvailableControllerQueue.Enqueue(CreateAsync().Result);
                 }
             }
             catch (Exception ex)
             {
                 LogTracer.Log(ex, "An exception was threw when maintance FullTrustProcessController");
+            }
+            finally
+            {
+                ResizeLocker.Set();
             }
         }
 
