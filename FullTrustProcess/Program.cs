@@ -66,7 +66,10 @@ namespace FullTrustProcess
 
                         if (Directory.Exists(TempFolderPath))
                         {
-                            await ContextMenu.FetchContextMenuItemsAsync(TempFolderPath, true);
+                            Helper.ExecuteOnSTAThread(() =>
+                            {
+                                ContextMenu.FetchContextMenuItems(TempFolderPath, true);
+                            });
                         }
                     }
                     catch (Exception ex)
@@ -157,7 +160,7 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    if (await Helper.LaunchApplicationFromAUMID(AppUserModelId, PathArray))
+                                    if (Helper.LaunchApplicationFromAUMID(AppUserModelId, PathArray))
                                     {
                                         Value.Add("Success", string.Empty);
                                     }
@@ -450,7 +453,7 @@ namespace FullTrustProcess
                         {
                             string[] ExecutePath = JsonSerializer.Deserialize<string[]>(Convert.ToString(args.Request.Message["ExecutePath"]));
 
-                            ContextMenuPackage[] ContextMenuItems = await ContextMenu.FetchContextMenuItemsAsync(ExecutePath, Convert.ToBoolean(args.Request.Message["IncludeExtensionItem"]));
+                            ContextMenuPackage[] ContextMenuItems = ContextMenu.FetchContextMenuItems(ExecutePath, Convert.ToBoolean(args.Request.Message["IncludeExtensionItem"]));
 
                             ValueSet Value = new ValueSet
                             {
@@ -470,7 +473,7 @@ namespace FullTrustProcess
 
                             ValueSet Value = new ValueSet();
 
-                            if (await ContextMenu.InvokeVerbAsync(RelatedPath, Verb, Id, IncludeExtensionItem))
+                            if (ContextMenu.InvokeVerb(RelatedPath, Verb, Id, IncludeExtensionItem))
                             {
                                 Value.Add("Success", string.Empty);
                             }
@@ -1619,7 +1622,7 @@ namespace FullTrustProcess
                                 {
                                     try
                                     {
-                                        await Helper.CreateSTATask(() =>
+                                        Helper.ExecuteOnSTAThread(() =>
                                         {
                                             ShowWindowCommand WindowCommand;
 
@@ -1799,7 +1802,7 @@ namespace FullTrustProcess
 
                             ValueSet Value = new ValueSet();
 
-                            if (await Helper.CreateSTATask(() =>
+                            if (Helper.ExecuteOnSTAThread(() =>
                             {
                                 try
                                 {

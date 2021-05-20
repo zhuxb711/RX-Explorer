@@ -32,67 +32,93 @@ namespace FullTrustProcess
             }
         }
 
-        public static Task CreateSTATask(Action Executor)
+        public static void ExecuteOnSTAThread(Action Executor)
         {
-            TaskCompletionSource CompletionSource = new TaskCompletionSource();
-
-            Thread STAThread = new Thread(() =>
+            if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
             {
-                Ole32.OleInitialize();
+                Exception Ex = null;
 
-                try
+                Thread STAThread = new Thread(() =>
                 {
-                    Executor();
-                    CompletionSource.SetResult();
-                }
-                catch (Exception ex)
+                    Ole32.OleInitialize();
+
+                    try
+                    {
+                        Executor();
+                    }
+                    catch (Exception ex)
+                    {
+                        Ex = ex;
+                    }
+                    finally
+                    {
+                        Ole32.OleUninitialize();
+                    }
+                })
                 {
-                    CompletionSource.SetException(ex);
-                }
-                finally
+                    IsBackground = true,
+                    Priority = ThreadPriority.Normal
+                };
+                STAThread.SetApartmentState(ApartmentState.STA);
+                STAThread.Start();
+                STAThread.Join();
+
+                if (Ex != null)
                 {
-                    Ole32.OleUninitialize();
+                    throw Ex;
                 }
-            })
+            }
+            else
             {
-                IsBackground = true,
-                Priority = ThreadPriority.Normal
-            };
-            STAThread.SetApartmentState(ApartmentState.STA);
-            STAThread.Start();
-
-            return CompletionSource.Task;
+                Executor();
+            }
         }
 
-        public static Task<T> CreateSTATask<T>(Func<T> Executor)
+        public static T ExecuteOnSTAThread<T>(Func<T> Executor)
         {
-            TaskCompletionSource<T> CompletionSource = new TaskCompletionSource<T>();
-
-            Thread STAThread = new Thread(() =>
+            if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
             {
-                Ole32.OleInitialize();
+                T Result = default;
+                Exception Ex = null;
 
-                try
+                Thread STAThread = new Thread(() =>
                 {
-                    CompletionSource.SetResult(Executor());
-                }
-                catch (Exception ex)
+                    Ole32.OleInitialize();
+
+                    try
+                    {
+                        Result = Executor();
+                    }
+                    catch (Exception ex)
+                    {
+                        Ex = ex;
+                    }
+                    finally
+                    {
+                        Ole32.OleUninitialize();
+                    }
+                })
                 {
-                    CompletionSource.SetException(ex);
-                }
-                finally
+                    IsBackground = true,
+                    Priority = ThreadPriority.Normal
+                };
+                STAThread.SetApartmentState(ApartmentState.STA);
+                STAThread.Start();
+                STAThread.Join();
+
+                if (Ex == null)
                 {
-                    Ole32.OleUninitialize();
+                    return Result;
                 }
-            })
+                else
+                {
+                    throw Ex;
+                }
+            }
+            else
             {
-                IsBackground = true,
-                Priority = ThreadPriority.Normal
-            };
-            STAThread.SetApartmentState(ApartmentState.STA);
-            STAThread.Start();
-
-            return CompletionSource.Task;
+                return Executor();
+            }
         }
 
         public static string GetPackageFamilyNameFromUWPShellLink(string LinkPath)
@@ -136,11 +162,11 @@ namespace FullTrustProcess
             return Manager.FindPackagesForUserWithPackageTypes(string.Empty, PackageFamilyName, PackageTypes.Main).Any();
         }
 
-        public static Task<bool> LaunchApplicationFromAUMID(string AppUserModelId, params string[] PathArray)
+        public static bool LaunchApplicationFromAUMID(string AppUserModelId, params string[] PathArray)
         {
             if (PathArray.Length > 0)
             {
-                return CreateSTATask(() =>
+                return ExecuteOnSTAThread(() =>
                 {
                     List<ShellItem> SItemList = new List<ShellItem>(PathArray.Length);
 
@@ -181,9 +207,9 @@ namespace FullTrustProcess
             }
         }
 
-        public static Task<bool> LaunchApplicationFromAUMID(string AppUserModelId)
+        public static bool LaunchApplicationFromAUMID(string AppUserModelId)
         {
-            return CreateSTATask(() =>
+            return ExecuteOnSTAThread(() =>
             {
                 try
                 {
@@ -216,7 +242,7 @@ namespace FullTrustProcess
                     {
                         if (!string.IsNullOrEmpty(Entry.AppUserModelId))
                         {
-                            return await LaunchApplicationFromAUMID(Entry.AppUserModelId, PathArray);
+                            return LaunchApplicationFromAUMID(Entry.AppUserModelId, PathArray);
                         }
                     }
                     else
@@ -227,7 +253,7 @@ namespace FullTrustProcess
                         }
                         else if (!string.IsNullOrEmpty(Entry.AppUserModelId))
                         {
-                            return await LaunchApplicationFromAUMID(Entry.AppUserModelId);
+                            return LaunchApplicationFromAUMID(Entry.AppUserModelId);
                         }
                     }
                 }

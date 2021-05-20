@@ -1,11 +1,14 @@
 ﻿using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -18,6 +21,7 @@ namespace FullTrustProcess
     public static class ContextMenu
     {
         private const int BufferSize = 512;
+        private const uint CchMax = BufferSize - 1;
 
         private static readonly HashSet<string> VerbFilterHashSet = new HashSet<string>
         {
@@ -41,16 +45,16 @@ namespace FullTrustProcess
             }
         }
 
-        public static Task<ContextMenuPackage[]> FetchContextMenuItemsAsync(string Path, bool IncludeExtensionItem = false)
+        public static ContextMenuPackage[] FetchContextMenuItems(string Path, bool IncludeExtensionItem = false)
         {
-            return FetchContextMenuItemsAsync(new string[] { Path }, IncludeExtensionItem);
+            return FetchContextMenuItems(new string[] { Path }, IncludeExtensionItem);
         }
 
-        public static Task<ContextMenuPackage[]> FetchContextMenuItemsAsync(string[] PathArray, bool IncludeExtensionItem = false)
+        public static ContextMenuPackage[] FetchContextMenuItems(string[] PathArray, bool IncludeExtensionItem = false)
         {
             if (PathArray.Length > 0)
             {
-                return Helper.CreateSTATask(() =>
+                return Helper.ExecuteOnSTAThread(() =>
                 {
                     try
                     {
@@ -60,9 +64,14 @@ namespace FullTrustProcess
 
                             using (User32.SafeHMENU Menu = User32.CreatePopupMenu())
                             {
-                                ContextObject.QueryContextMenu(Menu, 0, 0, Convert.ToUInt32(short.MaxValue), (IncludeExtensionItem ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_SYNCCASCADEMENU).ThrowIfFailed();
-
-                                return FetchContextMenuCore(ContextObject, Menu, PathArray, IncludeExtensionItem);
+                                if (ContextObject.QueryContextMenu(Menu, 0, 0, uint.MaxValue, (IncludeExtensionItem ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_SYNCCASCADEMENU).Succeeded)
+                                {
+                                    return FetchContextMenuCore(ContextObject, Menu, PathArray, IncludeExtensionItem);
+                                }
+                                else
+                                {
+                                    return Array.Empty<ContextMenuPackage>();
+                                }
                             }
                         }
                         else
@@ -78,7 +87,7 @@ namespace FullTrustProcess
             }
             else
             {
-                return Task.FromResult(Array.Empty<ContextMenuPackage>());
+                return Array.Empty<ContextMenuPackage>();
             }
         }
 
@@ -136,6 +145,8 @@ namespace FullTrustProcess
             }
         }
 
+        [SecurityCritical]
+        [HandleProcessCorruptedStateExceptions]
         private static ContextMenuPackage[] FetchContextMenuCore(Shell32.IContextMenu Context, HMENU Menu, string[] RelatedPath, bool IncludeExtensionItem)
         {
             int MenuItemNum = User32.GetMenuItemCount(Menu);
@@ -144,7 +155,7 @@ namespace FullTrustProcess
 
             for (uint i = 0; i < MenuItemNum; i++)
             {
-                IntPtr DataHandle = Marshal.AllocHGlobal(BufferSize);
+                IntPtr DataHandle = Marshal.AllocCoTaskMem(BufferSize);
 
                 try
                 {
@@ -153,20 +164,38 @@ namespace FullTrustProcess
                         cbSize = Convert.ToUInt32(Marshal.SizeOf(typeof(User32.MENUITEMINFO))),
                         fMask = User32.MenuItemInfoMask.MIIM_ID | User32.MenuItemInfoMask.MIIM_SUBMENU | User32.MenuItemInfoMask.MIIM_FTYPE | User32.MenuItemInfoMask.MIIM_STRING | User32.MenuItemInfoMask.MIIM_STATE | User32.MenuItemInfoMask.MIIM_BITMAP,
                         dwTypeData = DataHandle,
-                        cch = BufferSize
+                        cch = CchMax
                     };
 
                     if (User32.GetMenuItemInfo(Menu, i, true, ref Info))
                     {
                         if (Info.fType.IsFlagSet(User32.MenuItemType.MFT_STRING) && !Info.fState.IsFlagSet(User32.MenuItemState.MFS_DISABLED))
                         {
-                            IntPtr VerbHandle = Marshal.AllocHGlobal(BufferSize);
+                            IntPtr VerbWHandle = IntPtr.Zero;
+                            IntPtr VerbAHandle = IntPtr.Zero;
 
                             try
                             {
-                                string Verb = Context.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VERBW, IntPtr.Zero, VerbHandle, Convert.ToUInt32(BufferSize)).Succeeded ? Marshal.PtrToStringUni(VerbHandle) : string.Empty;
+                                string Verb = null;
 
-                                if (!VerbFilterHashSet.Contains(Verb.ToLower()))
+                                VerbWHandle = Marshal.AllocCoTaskMem(BufferSize);
+
+                                if (Context.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VERBW, IntPtr.Zero, VerbWHandle, CchMax).Succeeded)
+                                {
+                                    Verb = Marshal.PtrToStringUni(VerbWHandle);
+                                }
+
+                                if (string.IsNullOrEmpty(Verb))
+                                {
+                                    VerbAHandle = Marshal.AllocCoTaskMem(BufferSize);
+
+                                    if (Context.GetCommandString(new IntPtr(Info.wID), Shell32.GCS.GCS_VERBA, IntPtr.Zero, VerbAHandle, CchMax).Succeeded)
+                                    {
+                                        Verb = Marshal.PtrToStringAnsi(VerbAHandle);
+                                    }
+                                }
+
+                                if (!string.IsNullOrEmpty(Verb) && !VerbFilterHashSet.Contains(Verb.ToLower()))
                                 {
                                     try
                                     {
@@ -230,25 +259,37 @@ namespace FullTrustProcess
                             }
                             finally
                             {
-                                Marshal.FreeHGlobal(VerbHandle);
+                                if (VerbAHandle != IntPtr.Zero)
+                                {
+                                    Marshal.FreeCoTaskMem(VerbAHandle);
+                                }
+
+                                if (VerbWHandle != IntPtr.Zero)
+                                {
+                                    Marshal.FreeCoTaskMem(VerbWHandle);
+                                }
                             }
                         }
                     }
                 }
+                catch (AccessViolationException)
+                {
+                    Debug.WriteLine("AccessViolationException was threw in context menu item");
+                }
                 finally
                 {
-                    Marshal.FreeHGlobal(DataHandle);
+                    Marshal.FreeCoTaskMem(DataHandle);
                 }
             }
 
             return MenuItems.ToArray();
         }
 
-        public static Task<bool> InvokeVerbAsync(string[] RelatedPath, string Verb, int Id, bool IncludeExtensionItem)
+        public static bool InvokeVerb(string[] RelatedPath, string Verb, int Id, bool IncludeExtensionItem)
         {
             if (RelatedPath.Length > 0)
             {
-                return Helper.CreateSTATask(() =>
+                return Helper.ExecuteOnSTAThread(() =>
                 {
                     try
                     {
@@ -258,7 +299,7 @@ namespace FullTrustProcess
 
                             using (User32.SafeHMENU Menu = User32.CreatePopupMenu())
                             {
-                                ContextObject.QueryContextMenu(Menu, 0, 0, Convert.ToUInt32(short.MaxValue), (IncludeExtensionItem ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_SYNCCASCADEMENU).ThrowIfFailed();
+                                ContextObject.QueryContextMenu(Menu, 0, 0, uint.MaxValue, (IncludeExtensionItem ? Shell32.CMF.CMF_EXTENDEDVERBS : Shell32.CMF.CMF_NORMAL) | Shell32.CMF.CMF_SYNCCASCADEMENU).ThrowIfFailed();
 
                                 if (string.IsNullOrEmpty(Verb))
                                 {
@@ -324,7 +365,7 @@ namespace FullTrustProcess
             }
             else
             {
-                return Task.FromResult(false);
+                return false;
             }
         }
     }
