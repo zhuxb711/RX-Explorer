@@ -1,4 +1,47 @@
 ﻿*****
+###Was ist neu in Ver.6.5.4.0
+
+#####Funktionsaktualisierung
+
+>#####Fügen Sie In-App-Tipps und Warnbanner hinzu
+
+>#####Export- und Importkonfigurationsdateien sind jetzt verschlüsselt und enthalten Datenbankdaten
+
+#####UI-Update
+
+>#####"Einstellungen-Personalisierung" wurde an eine höhere Position gesetzt
+
+>#####Die Feedback-Liste kann jetzt ausgeblendet werden
+
+>#####Die Implementierung der folgenden Überschriften im Modus "Details" wurde verbessert und das Problem des unscharfen Texts beim Scrollen in der Liste behoben
+
+>#####OneDrive-Verfügbarkeitsstatussymbol hinzugefügt
+
+>#####Eckbeschriftungen für OneDrive-Dateien, .url- und .lnk-Dateien hinzugefügt (danke @silentmoooon) [PR #235](https://github.com/zhuxb711/RX-Explorer/pull/235)
+
+>#####Mengenindikator für jede Gruppe in "Gruppieren nach" hinzugefügt.
+
+>#####Klicken Sie nun auf die Gruppenüberschrift, um zur Überschriftenliste zu gelangen und schnell zur entsprechenden Gruppe zu springen
+
+#####Leistungsverbesserung
+
+>#####Verbesserte Datenbankleistung (danke @taooceros) [PR #234](https://github.com/zhuxb711/RX-Explorer/pull/234)
+
+>#####Die Geschwindigkeit des Dialogfelds "Öffnen mit" wurde verbessert (danke @taooceros) [PR #234](https://github.com/zhuxb711/RX-Explorer/pull/234)
+
+#####Fehlerbehebung
+
+>#####Beheben Sie das Problem, dass die Startgeschwindigkeit zu langsam ist
+
+>#####Das Problem falscher Sortierregeln wurde behoben
+
+>#####Es wurde das Problem behoben, dass die Einstellungsseite nicht sofort nach der Eingabe zurückgegeben werden konnte
+
+>#####Es wurde das Problem behoben, dass benutzerdefinierte Bilder beim Start in einigen Fällen nicht korrekt angezeigt werden konnten
+
+>#####Es wurde das Problem behoben, dass einige Menüelemente den Hilfsprozess zum Absturz bringen konnten
+
+*****
 ###Was ist neu in Ver.6.5.1.0
 
 #####Funktionsaktualisierung

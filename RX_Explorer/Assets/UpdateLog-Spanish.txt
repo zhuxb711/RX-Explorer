@@ -1,4 +1,47 @@
 ﻿*****
+###Novedades de la versión 6.5.4.0
+
+#####Actualización de funciones
+
+>#####Agrega sugerencias en la aplicación y pancartas de advertencia
+
+>#####Los archivos de configuración de exportación e importación ahora están encriptados y contendrán datos de la base de datos
+
+#####Actualización de la interfaz de usuario
+
+>#####"Configuración-Personalización" se ha colocado en una posición más alta
+
+>#####La lista de comentarios ahora se puede ocultar
+
+>#####Se mejoró la implementación de los siguientes encabezados en el modo "Detalles" y se resolvió el problema del texto borroso al desplazarse por la lista
+
+>#####Se agregó el ícono de estado de disponibilidad de OneDrive
+
+>#####Se agregaron etiquetas de esquina para archivos OneDrive, archivos .url y .lnk (gracias @silentmoooon) [PR #235](https://github.com/zhuxb711/RX-Explorer/pull/235) 
+
+>#####Indicador de cantidad agregado para cada grupo en "Agrupar por"
+
+>#####Ahora haz clic en el encabezado del grupo para ir a la lista de encabezados y saltar rápidamente al grupo correspondiente
+
+#####Mejora del rendimiento
+
+>#####Rendimiento mejorado de la base de datos (gracias @taooceros) [PR #234](https://github.com/zhuxb711/RX-Explorer/pull/234)
+
+>#####Se mejoró la velocidad del cuadro de diálogo "Abrir con" (gracias @taooceros) [PR #234](https://github.com/zhuxb711/RX-Explorer/pull/234)
+
+#####Arreglo del fallo
+
+>#####Soluciona el problema de que la velocidad de inicio es demasiado lenta
+
+>#####Se solucionó el problema de las reglas de clasificación incorrectas
+
+>#####Se solucionó el problema de que la página de configuración no se podía devolver inmediatamente después de ingresar
+
+>#####Se solucionó el problema de que las imágenes personalizadas no se podían mostrar correctamente al inicio en algunos casos
+
+>#####Se solucionó el problema de que algunos elementos del menú podían hacer que el proceso auxiliar se bloqueara
+
+*****
 ###Novedades de la versión 6.5.1.0
 
 #####Actualización de funciones

@@ -32,11 +32,11 @@ namespace FullTrustProcess
             }
         }
 
-        public static void ExecuteOnSTAThread(Action Executor)
+        public static async Task ExecuteOnSTAThreadAsync(Action Executor)
         {
             if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
             {
-                Exception Ex = null;
+                TaskCompletionSource CompletionSource = new TaskCompletionSource();
 
                 Thread STAThread = new Thread(() =>
                 {
@@ -45,10 +45,11 @@ namespace FullTrustProcess
                     try
                     {
                         Executor();
+                        CompletionSource.SetResult();
                     }
                     catch (Exception ex)
                     {
-                        Ex = ex;
+                        CompletionSource.SetException(ex);
                     }
                     finally
                     {
@@ -61,12 +62,8 @@ namespace FullTrustProcess
                 };
                 STAThread.SetApartmentState(ApartmentState.STA);
                 STAThread.Start();
-                STAThread.Join();
 
-                if (Ex != null)
-                {
-                    throw Ex;
-                }
+                await CompletionSource.Task;
             }
             else
             {
@@ -74,12 +71,11 @@ namespace FullTrustProcess
             }
         }
 
-        public static T ExecuteOnSTAThread<T>(Func<T> Executor)
+        public static async Task<T> ExecuteOnSTAThreadAsync<T>(Func<T> Executor)
         {
             if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
             {
-                T Result = default;
-                Exception Ex = null;
+                TaskCompletionSource<T> CompletionSource = new TaskCompletionSource<T>();
 
                 Thread STAThread = new Thread(() =>
                 {
@@ -87,11 +83,11 @@ namespace FullTrustProcess
 
                     try
                     {
-                        Result = Executor();
+                        CompletionSource.SetResult(Executor());
                     }
                     catch (Exception ex)
                     {
-                        Ex = ex;
+                        CompletionSource.SetException(ex);
                     }
                     finally
                     {
@@ -104,16 +100,8 @@ namespace FullTrustProcess
                 };
                 STAThread.SetApartmentState(ApartmentState.STA);
                 STAThread.Start();
-                STAThread.Join();
 
-                if (Ex == null)
-                {
-                    return Result;
-                }
-                else
-                {
-                    throw Ex;
-                }
+                return await CompletionSource.Task;
             }
             else
             {
@@ -129,7 +117,7 @@ namespace FullTrustProcess
             }
         }
 
-        public static async Task<byte[]> GetIconDataFromPackageFamilyName(string PackageFamilyName)
+        public static async Task<byte[]> GetIconDataFromPackageFamilyNameAsync(string PackageFamilyName)
         {
             PackageManager Manager = new PackageManager();
 
@@ -162,11 +150,11 @@ namespace FullTrustProcess
             return Manager.FindPackagesForUserWithPackageTypes(string.Empty, PackageFamilyName, PackageTypes.Main).Any();
         }
 
-        public static bool LaunchApplicationFromAUMID(string AppUserModelId, params string[] PathArray)
+        public static Task<bool> LaunchApplicationFromAUMIDAsync(string AppUserModelId, params string[] PathArray)
         {
             if (PathArray.Length > 0)
             {
-                return ExecuteOnSTAThread(() =>
+                return ExecuteOnSTAThreadAsync(() =>
                 {
                     List<ShellItem> SItemList = new List<ShellItem>(PathArray.Length);
 
@@ -203,13 +191,13 @@ namespace FullTrustProcess
             }
             else
             {
-                return LaunchApplicationFromAUMID(AppUserModelId);
+                return LaunchApplicationFromAUMIDAsync(AppUserModelId);
             }
         }
 
-        public static bool LaunchApplicationFromAUMID(string AppUserModelId)
+        public static Task<bool> LaunchApplicationFromAUMIDAsync(string AppUserModelId)
         {
-            return ExecuteOnSTAThread(() =>
+            return ExecuteOnSTAThreadAsync(() =>
             {
                 try
                 {
@@ -230,7 +218,7 @@ namespace FullTrustProcess
             });
         }
 
-        public static async Task<bool> LaunchApplicationFromPackageFamilyName(string PackageFamilyName, params string[] PathArray)
+        public static async Task<bool> LaunchApplicationFromPackageFamilyNameAsync(string PackageFamilyName, params string[] PathArray)
         {
             PackageManager Manager = new PackageManager();
 
@@ -242,7 +230,7 @@ namespace FullTrustProcess
                     {
                         if (!string.IsNullOrEmpty(Entry.AppUserModelId))
                         {
-                            return LaunchApplicationFromAUMID(Entry.AppUserModelId, PathArray);
+                            return await LaunchApplicationFromAUMIDAsync(Entry.AppUserModelId, PathArray);
                         }
                     }
                     else
@@ -253,7 +241,7 @@ namespace FullTrustProcess
                         }
                         else if (!string.IsNullOrEmpty(Entry.AppUserModelId))
                         {
-                            return LaunchApplicationFromAUMID(Entry.AppUserModelId);
+                            return await LaunchApplicationFromAUMIDAsync(Entry.AppUserModelId);
                         }
                     }
                 }

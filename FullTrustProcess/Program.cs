@@ -67,9 +67,9 @@ namespace FullTrustProcess
 
                         if (Directory.Exists(TempFolderPath))
                         {
-                            Helper.ExecuteOnSTAThread(() =>
+                            await Helper.ExecuteOnSTAThreadAsync(() =>
                             {
-                                ContextMenu.FetchContextMenuItems(TempFolderPath, true);
+                                ContextMenu.FetchContextMenuItemsAsync(TempFolderPath).Wait();
                             });
                         }
                     }
@@ -137,7 +137,7 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    if (await Helper.LaunchApplicationFromPackageFamilyName(PackageFamilyName, PathArray))
+                                    if (await Helper.LaunchApplicationFromPackageFamilyNameAsync(PackageFamilyName, PathArray))
                                     {
                                         Value.Add("Success", string.Empty);
                                     }
@@ -161,7 +161,7 @@ namespace FullTrustProcess
                                 }
                                 else
                                 {
-                                    if (Helper.LaunchApplicationFromAUMID(AppUserModelId, PathArray))
+                                    if (await Helper.LaunchApplicationFromAUMIDAsync(AppUserModelId, PathArray))
                                     {
                                         Value.Add("Success", string.Empty);
                                     }
@@ -454,7 +454,7 @@ namespace FullTrustProcess
                         {
                             string[] ExecutePath = JsonSerializer.Deserialize<string[]>(Convert.ToString(args.Request.Message["ExecutePath"]));
 
-                            ContextMenuPackage[] ContextMenuItems = ContextMenu.FetchContextMenuItems(ExecutePath, Convert.ToBoolean(args.Request.Message["IncludeExtensionItem"]));
+                            ContextMenuPackage[] ContextMenuItems = await ContextMenu.FetchContextMenuItemsAsync(ExecutePath, Convert.ToBoolean(args.Request.Message["IncludeExtensionItem"]));
 
                             ValueSet Value = new ValueSet
                             {
@@ -474,7 +474,7 @@ namespace FullTrustProcess
 
                             ValueSet Value = new ValueSet();
 
-                            if (ContextMenu.InvokeVerb(RelatedPath, Verb, Id, IncludeExtensionItem))
+                            if (await ContextMenu.InvokeVerbAsync(RelatedPath, Verb, Id, IncludeExtensionItem))
                             {
                                 Value.Add("Success", string.Empty);
                             }
@@ -883,7 +883,7 @@ namespace FullTrustProcess
                                             }
                                             else
                                             {
-                                                byte[] IconData = await Helper.GetIconDataFromPackageFamilyName(PackageFamilyName);
+                                                byte[] IconData = await Helper.GetIconDataFromPackageFamilyNameAsync(PackageFamilyName);
 
                                                 Value.Add("Success", JsonSerializer.Serialize(new LinkDataPackage(ExecutePath, PackageFamilyName, string.Empty, (WindowState)Enum.Parse(typeof(WindowState), Enum.GetName(typeof(FormWindowState), Link.ShowState)), (int)Link.HotKey, Link.Description, false, IconData)));
                                             }
@@ -1623,7 +1623,7 @@ namespace FullTrustProcess
                                 {
                                     try
                                     {
-                                        Helper.ExecuteOnSTAThread(() =>
+                                        Helper.ExecuteOnSTAThreadAsync(() =>
                                         {
                                             ShowWindowCommand WindowCommand;
 
@@ -1803,7 +1803,7 @@ namespace FullTrustProcess
 
                             ValueSet Value = new ValueSet();
 
-                            if (Helper.ExecuteOnSTAThread(() =>
+                            if (await Helper.ExecuteOnSTAThreadAsync(() =>
                             {
                                 try
                                 {

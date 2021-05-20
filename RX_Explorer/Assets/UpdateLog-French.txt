@@ -1,4 +1,47 @@
 ﻿*****
+###Quoi de neuf dans la version 6.5.4.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Ajoutez des astuces et des bannières d'avertissement dans l'application
+
+>#####Les fichiers de configuration d'exportation et d'importation sont désormais cryptés et contiendront des données de base de données
+
+#####Mise à jour de l'interface utilisateur
+
+>#####"Paramètres-Personnalisation" a été placé dans une position plus élevée
+
+>#####La liste de commentaires peut maintenant être masquée
+
+>#####Amélioration de l'implémentation des en-têtes suivants dans le mode "Détails" et résolution du problème du texte flou lors du défilement de la liste
+
+>#####Ajout de l'icône d'état de disponibilité OneDrive
+
+>#####Ajout d'étiquettes d'angle pour les fichiers OneDrive, .url et .lnk (merci @silentmoooon) [PR #235](https://github.com/zhuxb711/RX-Explorer/pull/235)
+
+>#####Ajout d'un indicateur de quantité pour chaque groupe dans "Regrouper par"
+
+>#####Cliquez maintenant sur l'en-tête du groupe pour accéder à la liste des en-têtes et passer rapidement au groupe correspondant
+
+#####Amélioration des performances
+
+>#####Amélioration des performances de la base de données (merci @taooceros) [PR #234](https://github.com/zhuxb711/RX-Explorer/pull/234)
+
+>#####Amélioration de la vitesse de la boîte de dialogue "Ouvrir avec" (merci @taooceros) [PR #234](https://github.com/zhuxb711/RX-Explorer/pull/234)
+
+#####Correction d'un bug
+
+>#####Résoudre le problème que la vitesse de démarrage est trop lente
+
+>#####Correction du problème des règles de tri incorrectes
+
+>#####Correction du problème selon lequel la page de configuration ne pouvait pas être renvoyée immédiatement après l'entrée
+
+>#####Correction du problème selon lequel les images personnalisées ne pouvaient pas être affichées correctement au démarrage dans certains cas
+
+>#####Correction du problème selon lequel certains éléments de menu peuvent provoquer le blocage du processus auxiliaire
+
+*****
 ###Quoi de neuf dans la version 6.5.1.0
 
 #####Mise à jour des fonctionnalités

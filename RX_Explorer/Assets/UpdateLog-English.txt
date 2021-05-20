@@ -1,4 +1,47 @@
 ﻿*****
+###What's new in Ver.6.5.4.0
+
+#####Feature update
+
+>#####Add in-app tips and warning banners
+
+>#####Export and import configuration files are now encrypted and will contain database data
+
+#####UI update
+
+>#####"Settings-Personalization" has been placed in a higher position
+
+>#####The feedback list can now be hidden
+
+>#####Improved the implementation of the following headers in the "Details" mode, and solved the problem of blurred text when scrolling the list
+
+>#####Added OneDrive availability status icon
+
+>#####Added subscript for OneDrive files, .url and .lnk files (thanks @silentmoooon) [PR #235](https://github.com/zhuxb711/RX-Explorer/pull/235)
+
+>#####Added quantity indicator for each group in "Group by"
+
+>#####Now click on the group header can go to the header list and quickly jump to the corresponding group
+
+#####Performance improvement
+
+>#####Improved database performance (thanks @taooceros) [PR #234](https://github.com/zhuxb711/RX-Explorer/pull/234)
+
+>#####Improved the speed of the "Open with" dialog (thanks @taooceros) [PR #234](https://github.com/zhuxb711/RX-Explorer/pull/234)
+
+#####Bug fix
+
+>#####Fix the problem that the startup speed is too slow
+
+>#####Fixed the problem of incorrect sorting rules
+
+>#####Fixed the problem that the setting page could not be returned immediately after entering
+
+>#####Fixed the problem that custom pictures could not be displayed correctly at startup in some cases
+
+>#####Fixed the problem that some menu items may cause the auxiliary process to crash
+
+*****
 ###What's new in Ver.6.5.1.0
 
 #####Feature update
