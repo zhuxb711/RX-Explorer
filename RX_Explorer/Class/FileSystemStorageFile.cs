@@ -24,7 +24,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return (StorageItem?.DisplayName) ?? Name;
+                return ((StorageItem as StorageFile)?.DisplayName) ?? Name;
             }
         }
 
@@ -40,7 +40,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return (StorageItem?.DisplayType) ?? Type;
+                return ((StorageItem as StorageFile)?.DisplayType) ?? Type;
             }
         }
 
@@ -90,8 +90,6 @@ namespace RX_Explorer.Class
                 }
             }
         }
-
-        protected StorageFile StorageItem { get; set; }
 
         protected FileSystemStorageFile(StorageFile Item, DateTimeOffset ModifiedTime, ulong Size) : base(Item.Path)
         {
@@ -144,7 +142,7 @@ namespace RX_Explorer.Class
             return await FileRandomAccessStream.OpenTransactedWriteAsync(Path, StorageOpenOptions.AllowReadersAndWriters, FileOpenDisposition.OpenExisting);
         }
 
-        protected override async Task LoadMorePropertiesCore(bool ForceUpdate)
+        protected override async Task LoadMorePropertiesCoreAsync(bool ForceUpdate)
         {
             if (await GetStorageItemAsync() is StorageFile File)
             {
@@ -156,6 +154,16 @@ namespace RX_Explorer.Class
                     SizeRaw = await File.GetSizeRawDataAsync();
                 }
             }
+        }
+
+        protected override Task LoadMorePropertiesCoreAsync(FullTrustProcessController Controller, bool ForceUpdate)
+        {
+            return LoadMorePropertiesCoreAsync(ForceUpdate);
+        }
+
+        protected override bool LoadMorePropertiesWithFullTrustProcess()
+        {
+            return false;
         }
 
         protected override bool CheckIfPropertiesLoaded()
@@ -387,6 +395,11 @@ namespace RX_Explorer.Class
                     return Globalization.GetString("UnknownText");
                 }
             }
+        }
+
+        protected override bool CheckIfNeedLoadThumbnailOverlay()
+        {
+            return SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive);
         }
     }
 }

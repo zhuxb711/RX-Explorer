@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RX_Explorer.Class;
+using System;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace RX_Explorer.Interface
@@ -23,8 +24,12 @@ namespace RX_Explorer.Interface
 
         public BitmapImage Thumbnail { get; }
 
+        public BitmapImage ThumbnailOverlay { get; }
+
         public DateTimeOffset ModifiedTimeRaw { get; }
 
         public DateTimeOffset CreationTimeRaw { get; }
+
+        public SyncStatus SyncStatus { get; }
     }
 }

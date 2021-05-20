@@ -4060,6 +4060,10 @@ Inkorrekte Namen sind
           <source>An Update is available</source>
           <target state="translated">Eine Aktualisierung ist verfügbar</target>
         </trans-unit>
+        <trans-unit id="OfflineAvailabilityStatusText7" translate="yes" xml:space="preserve">
+          <source>Syncing</source>
+          <target state="translated">Synchronisieren</target>
+        </trans-unit>
       </group>
     </body>
   </file>

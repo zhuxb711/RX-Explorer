@@ -4062,6 +4062,10 @@ Les noms non valides incluent
           <source>An Update is available</source>
           <target state="translated">Une mise à jour est disponible</target>
         </trans-unit>
+        <trans-unit id="OfflineAvailabilityStatusText7" translate="yes" xml:space="preserve">
+          <source>Syncing</source>
+          <target state="translated">Synchronisation</target>
+        </trans-unit>
       </group>
     </body>
   </file>

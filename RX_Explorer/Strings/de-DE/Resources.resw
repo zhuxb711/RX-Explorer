@@ -3061,4 +3061,7 @@ Inkorrekte Namen sind
   <data name="SystemTip_UpdateAvailableTitle" xml:space="preserve">
     <value>Eine Aktualisierung ist verfügbar</value>
   </data>
+  <data name="OfflineAvailabilityStatusText7" xml:space="preserve">
+    <value>Synchronisieren</value>
+  </data>
 </root>

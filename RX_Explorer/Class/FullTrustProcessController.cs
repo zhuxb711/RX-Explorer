@@ -103,6 +103,8 @@ namespace RX_Explorer.Class
 
         private const string ExecuteType_LaunchUWP = "Execute_LaunchUWP";
 
+        private const string ExecuteType_GetThumbnailOverlay = "Execute_GetThumbnailOverlay";
+
         private readonly static Thread DispatcherThread = new Thread(DispatcherMethod)
         {
             IsBackground = true,
@@ -472,6 +474,61 @@ namespace RX_Explorer.Class
             {
                 LogTracer.Log(ex, $"{ nameof(GetMIMEContentType)} throw an error");
                 return string.Empty;
+            }
+            finally
+            {
+                IsAnyActionExcutingInCurrentController = false;
+            }
+        }
+
+        public async Task<byte[]> GetThumbnailOverlayAsync(string Path)
+        {
+            try
+            {
+                IsAnyActionExcutingInCurrentController = true;
+
+                if (await ConnectRemoteAsync())
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExecuteType", ExecuteType_GetThumbnailOverlay},
+                        {"Path", Path}
+                    };
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Success", out object ThumbnailOverlayStr))
+                        {
+                            return JsonSerializer.Deserialize<byte[]>(Convert.ToString(ThumbnailOverlayStr));
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(GetThumbnailOverlayAsync)}, message: {ErrorMessage}");
+                            }
+
+                            return Array.Empty<byte>();
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"AppServiceResponse in {nameof(GetThumbnailOverlayAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        return Array.Empty<byte>();
+                    }
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(GetThumbnailOverlayAsync)}: Failed to connect AppService ");
+                    return Array.Empty<byte>();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{ nameof(GetThumbnailOverlayAsync)} throw an error");
+                return Array.Empty<byte>();
             }
             finally
             {

@@ -144,8 +144,13 @@ namespace RX_Explorer.Class
         {
             using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
             {
-                return await Exclusive.Controller.GetLnkDataAsync(Path);
+                return await GetRawDataAsync(Exclusive.Controller);
             }
+        }
+
+        public async Task<LinkDataPackage> GetRawDataAsync(FullTrustProcessController Controller)
+        {
+            return await Controller.GetLnkDataAsync(Path);
         }
 
         public override Task<IStorageItem> GetStorageItemAsync()
@@ -153,9 +158,14 @@ namespace RX_Explorer.Class
             return Task.FromResult<IStorageItem>(null);
         }
 
-        protected override async Task LoadMorePropertiesCore(bool ForceUpdate)
+        protected override bool LoadMorePropertiesWithFullTrustProcess()
         {
-            RawData = await GetRawDataAsync();
+            return true;
+        }
+
+        protected override async Task LoadMorePropertiesCoreAsync(FullTrustProcessController Controller, bool ForceUpdate)
+        {
+            RawData = await GetRawDataAsync(Controller);
 
             if (RawData != null && !string.IsNullOrEmpty(RawData.LinkTargetPath))
             {
@@ -183,6 +193,11 @@ namespace RX_Explorer.Class
         protected override bool CheckIfPropertiesLoaded()
         {
             return RawData != null;
+        }
+
+        protected override bool CheckIfNeedLoadThumbnailOverlay()
+        {
+            return true;
         }
 
         public LinkStorageFile(string Path, WIN_Native_API.WIN32_FIND_DATA Data) : base(Path, Data)

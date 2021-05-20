@@ -1,6 +1,9 @@
 ﻿using RX_Explorer.Interface;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
@@ -123,9 +126,15 @@ namespace RX_Explorer.Class
 
         public virtual BitmapImage Thumbnail { get; protected set; }
 
+        public virtual BitmapImage ThumbnailOverlay { get; protected set; }
+
         public virtual bool IsReadOnly { get; protected set; }
 
         public virtual bool IsSystemItem { get; protected set; }
+
+        public SyncStatus SyncStatus { get; protected set; } = SyncStatus.Unknown;
+
+        protected IStorageItem StorageItem { get; set; }
 
         protected static readonly Uri Const_Folder_Image_Uri = new Uri("ms-appx:///Assets/FolderIcon.png");
 
@@ -424,28 +433,200 @@ namespace RX_Explorer.Class
         {
             if (!CheckIfPropertiesLoaded())
             {
-                if ((this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.FileAndFolder)
+                async void LocalLoadFunction()
                 {
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, async () =>
+                    try
                     {
-                        try
+                        if (LoadMorePropertiesWithFullTrustProcess())
                         {
-                            await LoadMorePropertiesCore(false);
+                            using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                            {
+                                if ((this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.FileAndFolder)
+                                {
+                                    await LoadMorePropertiesCoreAsync(Exclusive.Controller, false);
+                                }
 
-                            OnPropertyChanged(nameof(Size));
-                            OnPropertyChanged(nameof(Name));
-                            OnPropertyChanged(nameof(ModifiedTime));
-                            OnPropertyChanged(nameof(Thumbnail));
-                            OnPropertyChanged(nameof(DisplayType));
+                                if (CheckIfNeedLoadThumbnailOverlay())
+                                {
+                                    await LoadThumbnailOverlayAsync(Exclusive.Controller);
+                                }
+                            }
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            LogTracer.Log(ex, $"An exception was threw in {nameof(LoadMorePropertiesAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
+                            if ((this is FileSystemStorageFile && SettingControl.ContentLoadMode == LoadMode.OnlyFile) || SettingControl.ContentLoadMode == LoadMode.FileAndFolder)
+                            {
+                                await LoadMorePropertiesCoreAsync(false);
+                            }
+
+                            if (CheckIfNeedLoadThumbnailOverlay())
+                            {
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                {
+                                    await LoadThumbnailOverlayAsync(Exclusive.Controller);
+                                }
+                            }
                         }
-                    });
+
+                        OnPropertyChanged(nameof(Name));
+                        OnPropertyChanged(nameof(Size));
+                        OnPropertyChanged(nameof(DisplayType));
+                        OnPropertyChanged(nameof(ModifiedTime));
+                        OnPropertyChanged(nameof(Thumbnail));
+                        OnPropertyChanged(nameof(ThumbnailOverlay));
+                        
+                        LoadForegroundConfiguration();
+                        
+                        await LoadSyncStatusAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogTracer.Log(ex, $"An exception was threw in {nameof(LoadMorePropertiesAsync)}, StorageType: {GetType().FullName}, Path: {Path}");
+                    }
+                };
+
+                if (CoreApplication.MainView.CoreWindow.Dispatcher.HasThreadAccess)
+                {
+                    LocalLoadFunction();
                 }
+                else
+                {
+                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Low, LocalLoadFunction);
+                }
+            }
+        }
 
-                LoadForegroundConfiguration();
+        private async Task LoadSyncStatusAsync()
+        {
+            if (SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive))
+            {
+                switch (await GetStorageItemAsync())
+                {
+                    case StorageFile File:
+                        {
+                            IDictionary<string, object> Properties = await File.Properties.RetrievePropertiesAsync(new string[] { "System.FilePlaceholderStatus", "System.FileOfflineAvailabilityStatus" });
+
+                            if (!Properties.TryGetValue("System.FilePlaceholderStatus", out object StatusIndex))
+                            {
+                                if (!Properties.TryGetValue("System.FileOfflineAvailabilityStatus", out StatusIndex))
+                                {
+                                    SyncStatus = SyncStatus.Unknown;
+                                    break;
+                                }
+                            }
+
+                            switch (Convert.ToUInt32(StatusIndex))
+                            {
+                                case 0:
+                                case 1:
+                                case 8:
+                                    {
+                                        SyncStatus = SyncStatus.AvailableOnline;
+                                        break;
+                                    }
+                                case 2:
+                                case 3:
+                                case 14:
+                                case 15:
+                                    {
+                                        SyncStatus = SyncStatus.AvailableOffline;
+                                        break;
+                                    }
+                                case 9:
+                                    {
+                                        SyncStatus = SyncStatus.Sync;
+                                        break;
+                                    }
+                                case 4:
+                                    {
+                                        SyncStatus = SyncStatus.Excluded;
+                                        break;
+                                    }
+                                default:
+                                    {
+                                        SyncStatus = SyncStatus.Unknown;
+                                        break;
+                                    }
+                            }
+
+                            break;
+                        }
+                    case StorageFolder Folder:
+                        {
+                            IDictionary<string, object> Properties = await Folder.Properties.RetrievePropertiesAsync(new string[] { "System.FilePlaceholderStatus", "System.FileOfflineAvailabilityStatus" });
+
+
+                            if (!Properties.TryGetValue("System.FileOfflineAvailabilityStatus", out object StatusIndex))
+                            {
+                                if (!Properties.TryGetValue("System.FilePlaceholderStatus", out StatusIndex))
+                                {
+                                    SyncStatus = SyncStatus.Unknown;
+                                    break;
+                                }
+                            }
+
+                            switch (Convert.ToUInt32(StatusIndex))
+                            {
+                                case 0:
+                                case 1:
+                                case 8:
+                                    {
+                                        SyncStatus = SyncStatus.AvailableOnline;
+                                        break;
+                                    }
+                                case 2:
+                                case 3:
+                                case 14:
+                                case 15:
+                                    {
+                                        SyncStatus = SyncStatus.AvailableOffline;
+                                        break;
+                                    }
+                                case 9:
+                                    {
+                                        SyncStatus = SyncStatus.Sync;
+                                        break;
+                                    }
+                                case 4:
+                                    {
+                                        SyncStatus = SyncStatus.Excluded;
+                                        break;
+                                    }
+                                default:
+                                    {
+                                        SyncStatus = SyncStatus.Unknown;
+                                        break;
+                                    }
+                            }
+
+                            break;
+                        }
+                    default:
+                        {
+                            SyncStatus = SyncStatus.Unknown;
+                            break;
+                        }
+                }
+            }
+            else
+            {
+                SyncStatus = SyncStatus.Unknown;
+            }
+
+            OnPropertyChanged(nameof(SyncStatus));
+        }
+
+        private async Task LoadThumbnailOverlayAsync(FullTrustProcessController Controller)
+        {
+            byte[] ThumbnailOverlayByteArray = await Controller.GetThumbnailOverlayAsync(Path);
+
+            if (ThumbnailOverlayByteArray.Length > 0)
+            {
+                using (MemoryStream Ms = new MemoryStream(ThumbnailOverlayByteArray))
+                {
+                    ThumbnailOverlay = new BitmapImage();
+                    await ThumbnailOverlay.SetSourceAsync(Ms.AsRandomAccessStream());
+                }
             }
         }
 
@@ -459,9 +640,20 @@ namespace RX_Explorer.Class
             }
         }
 
+        protected abstract bool CheckIfNeedLoadThumbnailOverlay();
+
         protected abstract bool CheckIfPropertiesLoaded();
 
-        protected abstract Task LoadMorePropertiesCore(bool ForceUpdate);
+        //Use this overload if subclass has no need for FullTrustProcessController.
+        //Make sure override LoadMorePropertiesWithFullTrustProcess() and reture false.
+        protected abstract Task LoadMorePropertiesCoreAsync(bool ForceUpdate);
+
+        //Use this overload to share common FullTrustProcessController. FileSystemStorageItemBase will create a common FullTrustProcessController for you.
+        //Subclass who want to use FullTrustProcessController should override this method.
+        //Make sure override LoadMorePropertiesWithFullTrustProcess() and reture true.
+        protected abstract Task LoadMorePropertiesCoreAsync(FullTrustProcessController Controller, bool ForceUpdate);
+
+        protected abstract bool LoadMorePropertiesWithFullTrustProcess();
 
         public abstract Task<IStorageItem> GetStorageItemAsync();
 
@@ -471,7 +663,17 @@ namespace RX_Explorer.Class
             {
                 if (await CheckExistAsync(Path))
                 {
-                    await LoadMorePropertiesCore(true);
+                    if (LoadMorePropertiesWithFullTrustProcess())
+                    {
+                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                        {
+                            await LoadMorePropertiesCoreAsync(Exclusive.Controller, true);
+                        }
+                    }
+                    else
+                    {
+                        await LoadMorePropertiesCoreAsync(true);
+                    }
 
                     OnPropertyChanged(nameof(Size));
                     OnPropertyChanged(nameof(Name));
@@ -616,6 +818,36 @@ namespace RX_Explorer.Class
                 else
                 {
                     return !left.Path.Equals(right.Path, StringComparison.OrdinalIgnoreCase);
+                }
+            }
+        }
+
+        public sealed class SpecialPath
+        {
+            public static IReadOnlyList<string> OneDrivePathCollection { get; } = new List<string>
+            {
+                Environment.GetEnvironmentVariable("OneDriveConsumer"),
+                Environment.GetEnvironmentVariable("OneDriveCommercial"),
+                Environment.GetEnvironmentVariable("OneDrive")
+            };
+
+            public enum SpecialPathEnum
+            {
+                OneDrive
+            }
+
+            public static bool IsPathIncluded(string Path, SpecialPathEnum Enum)
+            {
+                switch (Enum)
+                {
+                    case SpecialPathEnum.OneDrive:
+                        {
+                            return OneDrivePathCollection.Where((Path) => !string.IsNullOrEmpty(Path)).Any((OneDrivePath) => Path.StartsWith(OneDrivePath, StringComparison.OrdinalIgnoreCase) && !Path.Equals(OneDrivePath, StringComparison.OrdinalIgnoreCase));
+                        }
+                    default:
+                        {
+                            return false;
+                        }
                 }
             }
         }

@@ -3061,4 +3061,7 @@ Les noms non valides incluent
   <data name="SystemTip_UpdateAvailableTitle" xml:space="preserve">
     <value>Une mise à jour est disponible</value>
   </data>
+  <data name="OfflineAvailabilityStatusText7" xml:space="preserve">
+    <value>Synchronisation</value>
+  </data>
 </root>

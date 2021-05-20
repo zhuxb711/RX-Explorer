@@ -4062,6 +4062,10 @@ Invalid names include
           <source>An Update is available</source>
           <target state="translated">有可用的更新</target>
         </trans-unit>
+        <trans-unit id="OfflineAvailabilityStatusText7" translate="yes" xml:space="preserve">
+          <source>Syncing</source>
+          <target state="translated">正在同步</target>
+        </trans-unit>
       </group>
     </body>
   </file>

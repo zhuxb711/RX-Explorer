@@ -2,6 +2,14 @@
 
 namespace RX_Explorer.Class
 {
+    public enum SyncStatus
+    {
+        Unknown,
+        AvailableOnline,
+        AvailableOffline,
+        Sync,
+        Excluded
+    }
 
     public enum CompressionAlgorithm
     {

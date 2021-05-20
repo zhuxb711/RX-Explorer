@@ -26,7 +26,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return (StorageItem?.DisplayName) ?? Name;
+                return ((StorageItem as StorageFolder)?.DisplayName) ?? Name;
             }
         }
 
@@ -93,8 +93,6 @@ namespace RX_Explorer.Class
                 }
             }
         }
-
-        protected StorageFolder StorageItem { get; set; }
 
         protected FileSystemStorageFolder(StorageFolder Item, DateTimeOffset ModifiedTime) : base(Item.Path)
         {
@@ -426,7 +424,7 @@ namespace RX_Explorer.Class
             }
         }
 
-        protected override async Task LoadMorePropertiesCore(bool ForceUpdate)
+        protected override async Task LoadMorePropertiesCoreAsync(bool ForceUpdate)
         {
             if (await GetStorageItemAsync() is StorageFolder Folder)
             {
@@ -437,6 +435,16 @@ namespace RX_Explorer.Class
                     ModifiedTimeRaw = await Folder.GetModifiedTimeAsync();
                 }
             }
+        }
+
+        protected override Task LoadMorePropertiesCoreAsync(FullTrustProcessController Controller, bool ForceUpdate)
+        {
+            return LoadMorePropertiesCoreAsync(ForceUpdate);
+        }
+
+        protected override bool LoadMorePropertiesWithFullTrustProcess()
+        {
+            return false;
         }
 
         protected override bool CheckIfPropertiesLoaded()
@@ -455,6 +463,11 @@ namespace RX_Explorer.Class
                 LogTracer.Log(ex, $"Could not get StorageFolder, Path: {Path}");
                 return null;
             }
+        }
+
+        protected override bool CheckIfNeedLoadThumbnailOverlay()
+        {
+            return SpecialPath.IsPathIncluded(Path, SpecialPath.SpecialPathEnum.OneDrive);
         }
     }
 }

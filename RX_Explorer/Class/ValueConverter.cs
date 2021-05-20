@@ -1,6 +1,8 @@
 ﻿using System;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
+using Windows.UI.Xaml.Media;
 
 namespace RX_Explorer.Class
 {
@@ -316,6 +318,156 @@ namespace RX_Explorer.Class
         public object ConvertBack(object value, Type targetType, object parameter, string language)
         {
             return (Visibility)value == Visibility.Visible;
+        }
+    }
+
+    public sealed class SyncStatusIconConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is SyncStatus Status)
+            {
+                switch (Status)
+                {
+                    case SyncStatus.AvailableOffline:
+                        {
+                            return "\uEC61";
+                        }
+                    case SyncStatus.AvailableOnline:
+                        {
+                            return "\uE753";
+                        }
+                    case SyncStatus.Sync:
+                        {
+                            return "\uEDAB";
+                        }
+                    case SyncStatus.Excluded:
+                        {
+                            return "\uE194";
+                        }
+                    default:
+                        {
+                            return string.Empty;
+                        }
+                }
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public sealed class SyncStatusColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is SyncStatus Status)
+            {
+                switch (Status)
+                {
+                    case SyncStatus.AvailableOffline:
+                        {
+                            return new SolidColorBrush(Colors.LightGreen);
+                        }
+                    case SyncStatus.AvailableOnline:
+                    case SyncStatus.Sync:
+                        {
+                            return new SolidColorBrush(Colors.DeepSkyBlue);
+                        }
+                    case SyncStatus.Excluded:
+                        {
+                            return new SolidColorBrush(Colors.Orange);
+                        }
+                    default:
+                        {
+                            return new SolidColorBrush(Colors.Transparent);
+                        }
+                }
+            }
+            else
+            {
+                return new SolidColorBrush(Colors.Transparent);
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public sealed class SyncStatusVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is SyncStatus Status)
+            {
+                if (Status == SyncStatus.Unknown)
+                {
+                    return Visibility.Collapsed;
+                }
+                else
+                {
+                    return Visibility.Visible;
+                }
+            }
+            else
+            {
+                return Visibility.Visible;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public sealed class SyncStatusToolTipConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is SyncStatus Status)
+            {
+                switch(Status)
+                {
+                    case SyncStatus.AvailableOffline:
+                        {
+                            return Globalization.GetString("OfflineAvailabilityText3");
+                        }
+                    case SyncStatus.AvailableOnline:
+                        {
+                            return Globalization.GetString("OfflineAvailabilityText1");
+                        }
+                    case SyncStatus.Excluded:
+                        {
+                            return Globalization.GetString("OfflineAvailabilityStatusText5");
+                        }
+                    case SyncStatus.Sync:
+                        {
+                            return Globalization.GetString("OfflineAvailabilityStatusText7");
+                        }
+                    default:
+                        {
+                            return null;
+                        }
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -169,19 +169,17 @@ namespace RX_Explorer.View
             }
         }
 
-        private async void ListViewControl_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
+        private void ListViewControl_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
         {
-            if (args.InRecycleQueue)
+            if (!args.InRecycleQueue)
             {
-                args.ItemContainer.AllowFocusOnInteraction = true;
-            }
-            else
-            {
-                if (args.Item is FileSystemStorageItemBase File)
+                args.RegisterUpdateCallback(async (s, e) =>
                 {
-                    await File.LoadMorePropertiesAsync();
-                    args.ItemContainer.AllowFocusOnInteraction = false;
-                }
+                    if (e.Item is FileSystemStorageItemBase Item)
+                    {
+                        await Item.LoadMorePropertiesAsync().ConfigureAwait(false);
+                    }
+                });
             }
         }
 
