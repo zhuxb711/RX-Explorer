@@ -8,6 +8,7 @@ namespace RX_Explorer.Interface
     {
         public Task<T> GetRawDataAsync();
 
+        //Use this overload to avoid create another FullTrustProcessController
         public Task<T> GetRawDataAsync(FullTrustProcessController Controller);
     }
 

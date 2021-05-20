@@ -644,8 +644,13 @@ namespace RX_Explorer.Class
 
         protected abstract bool CheckIfPropertiesLoaded();
 
+        //Use this overload if subclass has no need for FullTrustProcessController.
+        //Make sure override LoadMorePropertiesWithFullTrustProcess() and reture false.
         protected abstract Task LoadMorePropertiesCoreAsync(bool ForceUpdate);
 
+        //Use this overload to share common FullTrustProcessController. FileSystemStorageItemBase will create a common FullTrustProcessController for you.
+        //Subclass who want to use FullTrustProcessController should override this method.
+        //Make sure override LoadMorePropertiesWithFullTrustProcess() and reture true.
         protected abstract Task LoadMorePropertiesCoreAsync(FullTrustProcessController Controller, bool ForceUpdate);
 
         protected abstract bool LoadMorePropertiesWithFullTrustProcess();

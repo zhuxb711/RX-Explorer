@@ -67,6 +67,11 @@ namespace RX_Explorer.Class
             return true;
         }
 
+        protected override bool CheckIfNeedLoadThumbnailOverlay()
+        {
+            return true;
+        }
+
         protected override async Task LoadMorePropertiesCoreAsync(FullTrustProcessController Controller, bool ForceUpdate)
         {
             RawData = await GetRawDataAsync(Controller);

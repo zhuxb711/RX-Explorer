@@ -2,9 +2,7 @@
 using Microsoft.Toolkit.Uwp.Helpers;
 using System;
 using System.ComponentModel;
-using System.IO;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -352,20 +350,20 @@ namespace RX_Explorer.Class
 
                                     PictureBackgroundBrush.ImageSource = Bitmap;
 
-                                    string PicturePath = Path.Combine(Package.Current.InstalledPath, UriString.Replace("ms-appx:///", string.Empty).Replace("/", @"\"));
-
-                                    if (await FileSystemStorageItemBase.OpenAsync(PicturePath) is FileSystemStorageFile File)
+                                    try
                                     {
-                                        using (IRandomAccessStream Stream = await File.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
+                                        StorageFile File = await StorageFile.GetFileFromApplicationUriAsync(new Uri(UriString));
+
+                                        using (IRandomAccessStream Stream = await File.OpenReadAsync())
                                         {
                                             await Bitmap.SetSourceAsync(Stream);
                                         }
 
                                         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
                                     }
-                                    else
+                                    catch (Exception ex)
                                     {
-                                        LogTracer.Log($"PicturePath is \"{PicturePath}\" but could not found, {nameof(BackgroundController.InitializeAsync)} is not finished");
+                                        LogTracer.Log(ex, $"PicturePath is \"{UriString}\" but could not found, {nameof(BackgroundController.InitializeAsync)} is not finished");
                                     }
                                 }
                                 else
