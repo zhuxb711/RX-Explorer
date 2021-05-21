@@ -4080,6 +4080,10 @@ Las denominaciones no válidas son:
           <source>Not a OneDrive file</source>
           <target state="translated">No es un archivo de OneDrive</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_CouldNotLoadMedia_Content" translate="yes" xml:space="preserve">
+          <source>The media file could not be loaded due to failure to read the file or other reasons</source>
+          <target state="translated">El archivo multimedia no se pudo cargar debido a que no se pudo leer el archivo u otras razones</target>
+        </trans-unit>
       </group>
     </body>
   </file>

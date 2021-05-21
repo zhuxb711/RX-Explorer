@@ -3076,4 +3076,7 @@ Les noms non valides incluent
   <data name="OfflineAvailabilityStatusText8" xml:space="preserve">
     <value>Pas un fichier OneDrive</value>
   </data>
+  <data name="QueueDialog_CouldNotLoadMedia_Content" xml:space="preserve">
+    <value>Le fichier multimédia n'a pas pu être chargé en raison d'un échec de lecture du fichier ou pour d'autres raisons</value>
+  </data>
 </root>

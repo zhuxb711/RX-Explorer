@@ -4082,6 +4082,10 @@ Invalid names include
           <source>Not a OneDrive file</source>
           <target state="translated">非OneDrive文件</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_CouldNotLoadMedia_Content" translate="yes" xml:space="preserve">
+          <source>The media file could not be loaded due to failure to read the file or other reasons</source>
+          <target state="translated">由于读取文件失败或其他原因，无法加载媒体文件</target>
+        </trans-unit>
       </group>
     </body>
   </file>

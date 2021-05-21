@@ -57,7 +57,7 @@ namespace RX_Explorer.Dialog
         {
             string FormatText = Globalization.GetString("Transcode_Dialog_Format_Text");
 
-            switch (SourceFile.FileType)
+            switch (SourceFile.FileType.ToLower())
             {
                 case ".mp4":
                     {

@@ -3076,4 +3076,7 @@ Las denominaciones no válidas son:
   <data name="OfflineAvailabilityStatusText8" xml:space="preserve">
     <value>No es un archivo de OneDrive</value>
   </data>
+  <data name="QueueDialog_CouldNotLoadMedia_Content" xml:space="preserve">
+    <value>El archivo multimedia no se pudo cargar debido a que no se pudo leer el archivo u otras razones</value>
+  </data>
 </root>

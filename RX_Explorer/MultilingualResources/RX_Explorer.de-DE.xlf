@@ -4080,6 +4080,10 @@ Inkorrekte Namen sind
           <source>Not a OneDrive file</source>
           <target state="translated">Keine OneDrive-Datei</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_CouldNotLoadMedia_Content" translate="yes" xml:space="preserve">
+          <source>The media file could not be loaded due to failure to read the file or other reasons</source>
+          <target state="translated">Die Mediendatei konnte aufgrund eines Fehlers beim Lesen der Datei oder aus anderen Gründen nicht geladen werden</target>
+        </trans-unit>
       </group>
     </body>
   </file>

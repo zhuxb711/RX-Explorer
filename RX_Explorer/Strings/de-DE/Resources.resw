@@ -3076,4 +3076,7 @@ Inkorrekte Namen sind
   <data name="OfflineAvailabilityStatusText8" xml:space="preserve">
     <value>Keine OneDrive-Datei</value>
   </data>
+  <data name="QueueDialog_CouldNotLoadMedia_Content" xml:space="preserve">
+    <value>Die Mediendatei konnte aufgrund eines Fehlers beim Lesen der Datei oder aus anderen Gründen nicht geladen werden</value>
+  </data>
 </root>

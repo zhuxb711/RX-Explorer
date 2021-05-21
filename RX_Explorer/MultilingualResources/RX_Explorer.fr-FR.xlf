@@ -4082,6 +4082,10 @@ Les noms non valides incluent
           <source>Not a OneDrive file</source>
           <target state="translated">Pas un fichier OneDrive</target>
         </trans-unit>
+        <trans-unit id="QueueDialog_CouldNotLoadMedia_Content" translate="yes" xml:space="preserve">
+          <source>The media file could not be loaded due to failure to read the file or other reasons</source>
+          <target state="translated">Le fichier multimédia n'a pas pu être chargé en raison d'un échec de lecture du fichier ou pour d'autres raisons</target>
+        </trans-unit>
       </group>
     </body>
   </file>

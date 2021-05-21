@@ -39,56 +39,74 @@ namespace RX_Explorer
             InitializeComponent();
         }
 
-        private async Task Initialize()
+        private async Task InitializeAsync()
         {
-            using (IRandomAccessStream Stream = await MediaFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
+            try
             {
-                Source = MediaSource.CreateFromStream(Stream, MIMEDictionary[MediaFile.Type.ToLower()]);
-                MediaPlaybackItem Item = new MediaPlaybackItem(Source);
-
-                switch (MediaFile.Type.ToLower())
+                using (IRandomAccessStream Stream = await MediaFile.GetRandomAccessStreamFromFileAsync(FileAccessMode.Read))
                 {
-                    case ".mp3":
-                    case ".flac":
-                    case ".wma":
-                    case ".m4a":
-                        {
-                            MusicCover.Visibility = Visibility.Visible;
+                    Source = MediaSource.CreateFromStream(Stream, MIMEDictionary[MediaFile.Type.ToLower()]);
+                    MediaPlaybackItem Item = new MediaPlaybackItem(Source);
 
-                            MediaItemDisplayProperties Props = Item.GetDisplayProperties();
-                            Props.Type = Windows.Media.MediaPlaybackType.Music;
-                            Props.MusicProperties.Title = MediaFile.DisplayName;
-                            Props.MusicProperties.AlbumArtist = await GetArtistAsync();
-
-                            Item.ApplyDisplayProperties(Props);
-
-                            if (await GetMusicCoverAsync() is BitmapImage Thumbnail)
+                    switch (MediaFile.Type.ToLower())
+                    {
+                        case ".mp3":
+                        case ".flac":
+                        case ".wma":
+                        case ".m4a":
                             {
-                                Cover.Source = Thumbnail;
-                                Cover.Visibility = Visibility.Visible;
+                                MusicCover.Visibility = Visibility.Visible;
+
+                                MediaItemDisplayProperties Props = Item.GetDisplayProperties();
+                                Props.Type = Windows.Media.MediaPlaybackType.Music;
+                                Props.MusicProperties.Title = MediaFile.DisplayName;
+                                Props.MusicProperties.AlbumArtist = await GetArtistAsync();
+
+                                Item.ApplyDisplayProperties(Props);
+
+                                if (await GetMusicCoverAsync() is BitmapImage Thumbnail)
+                                {
+                                    Cover.Source = Thumbnail;
+                                    Cover.Visibility = Visibility.Visible;
+                                }
+                                else
+                                {
+                                    Cover.Visibility = Visibility.Collapsed;
+                                }
+
+                                Display.Text = $"{Globalization.GetString("Media_Tip_Text")} {MediaFile.DisplayName}";
+                                MVControl.Source = Item;
+                                break;
                             }
-                            else
+                        default:
                             {
-                                Cover.Visibility = Visibility.Collapsed;
+                                MusicCover.Visibility = Visibility.Collapsed;
+
+                                MediaItemDisplayProperties Props = Item.GetDisplayProperties();
+                                Props.Type = Windows.Media.MediaPlaybackType.Video;
+                                Props.VideoProperties.Title = MediaFile.DisplayName;
+                                Item.ApplyDisplayProperties(Props);
+
+                                MVControl.Source = Item;
+                                break;
                             }
-
-                            Display.Text = $"{Globalization.GetString("Media_Tip_Text")} {MediaFile.DisplayName}";
-                            MVControl.Source = Item;
-                            break;
-                        }
-                    default:
-                        {
-                            MusicCover.Visibility = Visibility.Collapsed;
-
-                            MediaItemDisplayProperties Props = Item.GetDisplayProperties();
-                            Props.Type = Windows.Media.MediaPlaybackType.Video;
-                            Props.VideoProperties.Title = MediaFile.DisplayName;
-                            Item.ApplyDisplayProperties(Props);
-
-                            MVControl.Source = Item;
-                            break;
-                        }
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, "Could not load media because an exception was threw");
+
+                QueueContentDialog Dialog = new QueueContentDialog
+                {
+                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                    Content = Globalization.GetString("QueueDialog_CouldNotLoadMedia_Content"),
+                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                };
+
+                await Dialog.ShowAsync();
+
+                Frame.GoBack();
             }
         }
 
@@ -116,7 +134,7 @@ namespace RX_Explorer
                                     DecodePixelHeight = 250,
                                     DecodePixelWidth = 250
                                 };
-                                
+
                                 await Bitmap.SetSourceAsync(ImageStream.AsRandomAccessStream());
 
                                 return Bitmap;
@@ -180,12 +198,12 @@ namespace RX_Explorer
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            CoreWindow.GetForCurrentThread().KeyDown -= MediaPlayer_KeyDown; ;
+            CoreWindow.GetForCurrentThread().KeyDown -= MediaPlayer_KeyDown;
             MVControl.MediaPlayer.Pause();
             MediaFile = null;
             MVControl.Source = null;
             Cover.Source = null;
-            Source.Dispose();
+            Source?.Dispose();
             Source = null;
         }
 
@@ -195,7 +213,7 @@ namespace RX_Explorer
             {
                 MediaFile = File;
                 CoreWindow.GetForCurrentThread().KeyDown += MediaPlayer_KeyDown;
-                await Initialize().ConfigureAwait(false);
+                await InitializeAsync().ConfigureAwait(false);
             }
         }
 
@@ -221,7 +239,7 @@ namespace RX_Explorer
             {
                 MVControl.MediaPlayer.Pause();
             }
-            else if(MVControl.MediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Paused)
+            else if (MVControl.MediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Paused)
             {
                 MVControl.MediaPlayer.Play();
             }

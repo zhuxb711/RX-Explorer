@@ -3076,4 +3076,7 @@
   <data name="OfflineAvailabilityStatusText8" xml:space="preserve">
     <value>非OneDrive文件</value>
   </data>
+  <data name="QueueDialog_CouldNotLoadMedia_Content" xml:space="preserve">
+    <value>由于读取文件失败或其他原因，无法加载媒体文件</value>
+  </data>
 </root>

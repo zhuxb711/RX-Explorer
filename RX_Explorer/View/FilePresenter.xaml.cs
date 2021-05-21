@@ -1640,48 +1640,23 @@ namespace RX_Explorer
 
         private void ViewControl_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase Item)
+            if (e.OriginalSource is FrameworkElement Element && Element.DataContext is FileSystemStorageItemBase Item)
             {
-                PointerPoint PointerInfo = e.GetCurrentPoint(null);
+                if (Element.FindParentOfType<TextBox>() == null)
+                {
+                    PointerPoint PointerInfo = e.GetCurrentPoint(null);
 
-                if (PointerInfo.Properties.IsMiddleButtonPressed && Item is FileSystemStorageFolder)
-                {
-                    SelectionExtention.Disable();
-                    SelectedItem = Item;
-                    _ = TabViewContainer.ThisPage.CreateNewTabAsync(null, Item.Path);
-                }
-                else if ((e.OriginalSource as FrameworkElement).FindParentOfType<SelectorItem>() is SelectorItem SItem)
-                {
-                    if (e.KeyModifiers == VirtualKeyModifiers.None && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple)
+                    if (PointerInfo.Properties.IsMiddleButtonPressed && Item is FileSystemStorageFolder)
                     {
-                        if (SelectedItems.Contains(Item))
+                        SelectionExtention.Disable();
+                        SelectedItem = Item;
+                        _ = TabViewContainer.ThisPage.CreateNewTabAsync(null, Item.Path);
+                    }
+                    else if (Element.FindParentOfType<SelectorItem>() is SelectorItem SItem)
+                    {
+                        if (e.KeyModifiers == VirtualKeyModifiers.None && ItemPresenter.SelectionMode != ListViewSelectionMode.Multiple)
                         {
-                            SelectionExtention.Disable();
-
-                            DelayDragCancel?.Cancel();
-                            DelayDragCancel?.Dispose();
-                            DelayDragCancel = new CancellationTokenSource();
-
-                            Task.Delay(300).ContinueWith((task, input) =>
-                            {
-                                if (input is (CancellationTokenSource Cancel, UIElement Item, PointerPoint Point) && !Cancel.IsCancellationRequested)
-                                {
-                                    _ = Item.StartDragAsync(Point);
-                                }
-                            }, (DelayDragCancel, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
-                        }
-                        else
-                        {
-                            if (PointerInfo.Properties.IsLeftButtonPressed)
-                            {
-                                SelectedItem = Item;
-                            }
-
-                            if (e.OriginalSource is Grid || (e.OriginalSource is TextBlock Block && Block.Name == "EmptyTextblock"))
-                            {
-                                SelectionExtention.Enable();
-                            }
-                            else
+                            if (SelectedItems.Contains(Item))
                             {
                                 SelectionExtention.Disable();
 
@@ -1697,12 +1672,44 @@ namespace RX_Explorer
                                     }
                                 }, (DelayDragCancel, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
                             }
+                            else
+                            {
+                                if (PointerInfo.Properties.IsLeftButtonPressed)
+                                {
+                                    SelectedItem = Item;
+                                }
+
+                                if (e.OriginalSource is Grid || (e.OriginalSource is TextBlock Block && Block.Name == "EmptyTextblock"))
+                                {
+                                    SelectionExtention.Enable();
+                                }
+                                else
+                                {
+                                    SelectionExtention.Disable();
+
+                                    DelayDragCancel?.Cancel();
+                                    DelayDragCancel?.Dispose();
+                                    DelayDragCancel = new CancellationTokenSource();
+
+                                    Task.Delay(300).ContinueWith((task, input) =>
+                                    {
+                                        if (input is (CancellationTokenSource Cancel, UIElement Item, PointerPoint Point) && !Cancel.IsCancellationRequested)
+                                        {
+                                            _ = Item.StartDragAsync(Point);
+                                        }
+                                    }, (DelayDragCancel, SItem, e.GetCurrentPoint(SItem)), TaskScheduler.FromCurrentSynchronizationContext());
+                                }
+                            }
+                        }
+                        else
+                        {
+                            SelectionExtention.Disable();
                         }
                     }
-                    else
-                    {
-                        SelectionExtention.Disable();
-                    }
+                }
+                else
+                {
+                    SelectionExtention.Disable();
                 }
             }
             else
@@ -3298,6 +3305,8 @@ namespace RX_Explorer
 
             try
             {
+                e.Handled = true;
+
                 switch ((sender as SelectorItem)?.Content)
                 {
                     case FileSystemStorageFolder Folder:
@@ -3317,7 +3326,6 @@ namespace RX_Explorer
 
                                 e.DragUIOverride.IsContentVisible = true;
                                 e.DragUIOverride.IsCaptionVisible = true;
-                                e.Handled = true;
                             }
                             else
                             {
@@ -3328,14 +3336,15 @@ namespace RX_Explorer
                         }
                     case FileSystemStorageFile File when File.Type.Equals(".exe", StringComparison.OrdinalIgnoreCase):
                         {
-                            if (await e.DataView.CheckIfContainsAvailableDataAsync())
+                            IReadOnlyList<string> PathArray = await e.DataView.GetAsPathListAsync();
+
+                            if (PathArray.Any() && PathArray.All((Path) => !Path.Equals(File.Path, StringComparison.OrdinalIgnoreCase)))
                             {
                                 e.AcceptedOperation = DataPackageOperation.Link;
                                 e.DragUIOverride.Caption = Globalization.GetString("Drag_Tip_RunWith").Replace("{Placeholder}", $"\"{File.Name}\"");
 
                                 e.DragUIOverride.IsContentVisible = true;
                                 e.DragUIOverride.IsCaptionVisible = true;
-                                e.Handled = true;
                             }
                             else
                             {
@@ -3783,7 +3792,7 @@ namespace RX_Explorer
                         return;
                     }
 
-                    if (await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(CurrentFolder.Path, NameEditBox.Text)))
+                    if (!CurrentEditItem.Name.Equals(NameEditBox.Text, StringComparison.OrdinalIgnoreCase) && await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(CurrentFolder.Path, NameEditBox.Text)))
                     {
                         QueueContentDialog Dialog = new QueueContentDialog
                         {

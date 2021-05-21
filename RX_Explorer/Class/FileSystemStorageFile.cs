@@ -134,12 +134,12 @@ namespace RX_Explorer.Class
 
         public virtual async Task<IRandomAccessStream> GetRandomAccessStreamFromFileAsync(FileAccessMode Mode)
         {
-            return await FileRandomAccessStream.OpenAsync(Path, Mode, StorageOpenOptions.AllowReadersAndWriters, FileOpenDisposition.OpenExisting);
+            return await FileRandomAccessStream.OpenAsync(Path, Mode);
         }
 
         public virtual async Task<StorageStreamTransaction> GetTransactionStreamFromFileAsync()
         {
-            return await FileRandomAccessStream.OpenTransactedWriteAsync(Path, StorageOpenOptions.AllowReadersAndWriters, FileOpenDisposition.OpenExisting);
+            return await FileRandomAccessStream.OpenTransactedWriteAsync(Path);
         }
 
         protected override async Task LoadMorePropertiesCoreAsync(bool ForceUpdate)
