@@ -1,11 +1,13 @@
 ﻿*****
-###Quoi de neuf dans la version 6.5.4.0
+###Quoi de neuf dans la version 6.5.5.0
 
 #####Mise à jour des fonctionnalités
 
 >#####Ajoutez des astuces et des bannières d'avertissement dans l'application
 
 >#####Les fichiers de configuration d'exportation et d'importation sont désormais cryptés et contiendront des données de base de données
+
+>#####Nouvel élément de menu contextuel « Envoyer à »
 
 #####Mise à jour de l'interface utilisateur
 
@@ -40,6 +42,10 @@
 >#####Correction du problème selon lequel les images personnalisées ne pouvaient pas être affichées correctement au démarrage dans certains cas
 
 >#####Correction du problème selon lequel certains éléments de menu peuvent provoquer le blocage du processus auxiliaire
+
+>#####Correction du problème d'affichage incorrect de l'emplacement dans les propriétés
+
+>#####Correction du problème pouvant entraîner des processus auxiliaires redondants lors de l'ouverture et de la fermeture rapides des onglets
 
 *****
 ###Quoi de neuf dans la version 6.5.1.0

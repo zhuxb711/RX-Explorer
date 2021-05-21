@@ -1,11 +1,13 @@
 ﻿*****
-###Novedades de la versión 6.5.4.0
+###Novedades de la versión 6.5.5.0
 
 #####Actualización de funciones
 
 >#####Agrega sugerencias en la aplicación y pancartas de advertencia
 
 >#####Los archivos de configuración de exportación e importación ahora están encriptados y contendrán datos de la base de datos
+
+>#####Nuevo elemento del menú contextual "Enviar a"
 
 #####Actualización de la interfaz de usuario
 
@@ -40,6 +42,10 @@
 >#####Se solucionó el problema de que las imágenes personalizadas no se podían mostrar correctamente al inicio en algunos casos
 
 >#####Se solucionó el problema de que algunos elementos del menú podían hacer que el proceso auxiliar se bloqueara
+
+>#####Se solucionó el problema de que la ubicación en las propiedades se mostraba incorrectamente
+
+>#####Se solucionó el problema que podía causar procesos auxiliares redundantes al abrir y cerrar pestañas rápidamente
 
 *****
 ###Novedades de la versión 6.5.1.0

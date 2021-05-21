@@ -1,11 +1,13 @@
 ﻿*****
-###What's new in Ver.6.5.4.0
+###What's new in Ver.6.5.5.0
 
 #####Feature update
 
 >#####Add in-app tips and warning banners
 
 >#####Export and import configuration files are now encrypted and will contain database data
+
+>#####New context menu item "Send to"
 
 #####UI update
 
@@ -40,6 +42,10 @@
 >#####Fixed the problem that custom pictures could not be displayed correctly at startup in some cases
 
 >#####Fixed the problem that some menu items may cause the auxiliary process to crash
+
+>#####Fixed the problem that the location in the properties was displayed incorrectly
+
+>#####Fixed the problem that may cause redundant auxiliary processes when opening and closing tabs quickly
 
 *****
 ###What's new in Ver.6.5.1.0

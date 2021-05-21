@@ -1253,8 +1253,49 @@ namespace RX_Explorer
 
         private async void UpdateLogLink_Click(object sender, RoutedEventArgs e)
         {
-            WhatIsNew Dialog = new WhatIsNew();
-            _ = await Dialog.ShowAsync();
+            string Text = string.Empty;
+
+            switch (Globalization.CurrentLanguage)
+            {
+                case LanguageEnum.Chinese_Simplified:
+                    {
+                        StorageFile UpdateFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Chinese_S.txt"));
+                        Text = await FileIO.ReadTextAsync(UpdateFile);
+                        break;
+                    }
+                case LanguageEnum.Chinese_Traditional:
+                    {
+                        StorageFile UpdateFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Chinese_T.txt"));
+                        Text = await FileIO.ReadTextAsync(UpdateFile);
+                        break;
+                    }
+                case LanguageEnum.English:
+                    {
+                        StorageFile UpdateFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-English.txt"));
+                        Text = await FileIO.ReadTextAsync(UpdateFile);
+                        break;
+                    }
+                case LanguageEnum.French:
+                    {
+                        StorageFile UpdateFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-French.txt"));
+                        Text = await FileIO.ReadTextAsync(UpdateFile);
+                        break;
+                    }
+                case LanguageEnum.Spanish:
+                    {
+                        StorageFile UpdateFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-Spanish.txt"));
+                        Text = await FileIO.ReadTextAsync(UpdateFile);
+                        break;
+                    }
+                case LanguageEnum.German:
+                    {
+                        StorageFile UpdateFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/UpdateLog-German.txt"));
+                        Text = await FileIO.ReadTextAsync(UpdateFile);
+                        break;
+                    }
+            }
+
+            await new WhatIsNew(Text).ShowAsync();
         }
 
         private async void SystemInfoButton_Click(object sender, RoutedEventArgs e)

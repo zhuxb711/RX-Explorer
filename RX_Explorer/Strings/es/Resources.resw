@@ -3073,4 +3073,7 @@ Las denominaciones no válidas son:
   <data name="SendTo_Document" xml:space="preserve">
     <value>Documento</value>
   </data>
+  <data name="OfflineAvailabilityStatusText8" xml:space="preserve">
+    <value>No es un archivo de OneDrive</value>
+  </data>
 </root>

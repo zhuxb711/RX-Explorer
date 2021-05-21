@@ -3073,4 +3073,7 @@ Inkorrekte Namen sind
   <data name="SendTo_Document" xml:space="preserve">
     <value>Dokument</value>
   </data>
+  <data name="OfflineAvailabilityStatusText8" xml:space="preserve">
+    <value>Keine OneDrive-Datei</value>
+  </data>
 </root>

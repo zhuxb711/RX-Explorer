@@ -4078,6 +4078,10 @@ Les noms non valides incluent
           <source>Document</source>
           <target state="translated">Document</target>
         </trans-unit>
+        <trans-unit id="OfflineAvailabilityStatusText8" translate="yes" xml:space="preserve">
+          <source>Not a OneDrive file</source>
+          <target state="translated">Pas un fichier OneDrive</target>
+        </trans-unit>
       </group>
     </body>
   </file>

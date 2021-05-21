@@ -144,7 +144,7 @@ namespace RX_Explorer.Class
 
         public static async Task<bool> CheckExistAsync(string Path)
         {
-            if (System.IO.Path.IsPathRooted(Path))
+            if (!string.IsNullOrEmpty(Path) && System.IO.Path.IsPathRooted(Path))
             {
                 if (WIN_Native_API.CheckLocationAvailability(System.IO.Path.GetDirectoryName(Path)))
                 {

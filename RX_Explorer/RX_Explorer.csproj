@@ -411,6 +411,7 @@
     <Content Include="Assets\AlphaPNG.png" />
     <Content Include="Assets\ColorPickerHero.png" />
     <Content Include="Assets\DesktopIcon.ico" />
+    <Content Include="Assets\DocumentIcon.ico" />
     <Content Include="Assets\NormalDriveLocked.ico" />
     <Content Include="Assets\FolderIcon.png" />
     <Content Include="Assets\Github-Intro1.png" />

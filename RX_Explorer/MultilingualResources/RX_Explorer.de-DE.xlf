@@ -4076,6 +4076,10 @@ Inkorrekte Namen sind
           <source>Document</source>
           <target state="translated">Dokument</target>
         </trans-unit>
+        <trans-unit id="OfflineAvailabilityStatusText8" translate="yes" xml:space="preserve">
+          <source>Not a OneDrive file</source>
+          <target state="translated">Keine OneDrive-Datei</target>
+        </trans-unit>
       </group>
     </body>
   </file>

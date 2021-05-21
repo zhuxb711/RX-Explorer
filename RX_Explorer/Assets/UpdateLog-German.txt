@@ -1,11 +1,13 @@
 ﻿*****
-###Was ist neu in Ver.6.5.4.0
+###Was ist neu in Ver.6.5.5.0
 
 #####Funktionsaktualisierung
 
 >#####Fügen Sie In-App-Tipps und Warnbanner hinzu
 
 >#####Export- und Importkonfigurationsdateien sind jetzt verschlüsselt und enthalten Datenbankdaten
+
+>#####Neuer Kontextmenüpunkt "Senden an"
 
 #####UI-Update
 
@@ -40,6 +42,10 @@
 >#####Es wurde das Problem behoben, dass benutzerdefinierte Bilder beim Start in einigen Fällen nicht korrekt angezeigt werden konnten
 
 >#####Es wurde das Problem behoben, dass einige Menüelemente den Hilfsprozess zum Absturz bringen konnten
+
+>#####Es wurde das Problem behoben, dass die Position in den Eigenschaften falsch angezeigt wurde
+
+>#####Das Problem wurde behoben, das zu redundanten Hilfsprozessen beim schnellen Öffnen und Schließen von Registerkarten führen kann
 
 *****
 ###Was ist neu in Ver.6.5.1.0

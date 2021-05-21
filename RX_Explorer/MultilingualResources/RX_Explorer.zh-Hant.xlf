@@ -4078,6 +4078,10 @@ Invalid names include
           <source>Document</source>
           <target state="translated">文檔</target>
         </trans-unit>
+        <trans-unit id="OfflineAvailabilityStatusText8" translate="yes" xml:space="preserve">
+          <source>Not a OneDrive file</source>
+          <target state="translated">不是OneDrive文件</target>
+        </trans-unit>
       </group>
     </body>
   </file>

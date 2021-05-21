@@ -4076,6 +4076,10 @@ Las denominaciones no válidas son:
           <source>Document</source>
           <target state="translated">Documento</target>
         </trans-unit>
+        <trans-unit id="OfflineAvailabilityStatusText8" translate="yes" xml:space="preserve">
+          <source>Not a OneDrive file</source>
+          <target state="translated">No es un archivo de OneDrive</target>
+        </trans-unit>
       </group>
     </body>
   </file>

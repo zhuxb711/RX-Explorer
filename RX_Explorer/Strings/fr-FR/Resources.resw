@@ -3073,4 +3073,7 @@ Les noms non valides incluent
   <data name="SendTo_Document" xml:space="preserve">
     <value>Document</value>
   </data>
+  <data name="OfflineAvailabilityStatusText8" xml:space="preserve">
+    <value>Pas un fichier OneDrive</value>
+  </data>
 </root>

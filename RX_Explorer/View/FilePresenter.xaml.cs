@@ -4720,7 +4720,7 @@ namespace RX_Explorer
                 {
                     Name = "SendDocumentItem",
                     Text = Globalization.GetString("SendTo_Document"),
-                    ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/DesktopIcon.ico")),
+                    ImageIcon = new BitmapImage(new Uri("ms-appx:///Assets/DocumentIcon.ico")),
                     MinWidth = 150,
                     MaxWidth = 350
                 };
@@ -4772,7 +4772,29 @@ namespace RX_Explorer
                         {
                             string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
 
-                            if (string.IsNullOrEmpty(DesktopPath))
+                            if (await FileSystemStorageItemBase.CheckExistAsync(DesktopPath))
+                            {
+                                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                {
+                                    if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(DesktopPath, $"{(SItem is FileSystemStorageFolder ? SItem.Name : Path.GetFileNameWithoutExtension(SItem.Name))}.lnk"),
+                                                                                    SItem.Path,
+                                                                                    string.Empty,
+                                                                                    WindowState.Normal,
+                                                                                    0,
+                                                                                    string.Empty))
+                                    {
+                                        QueueContentDialog Dialog = new QueueContentDialog
+                                        {
+                                            Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                            Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
+                                            CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                        };
+
+                                        await Dialog.ShowAsync();
+                                    }
+                                }
+                            }
+                            else
                             {
                                 try
                                 {
@@ -4782,45 +4804,36 @@ namespace RX_Explorer
                                                              ? UserDataPaths.GetForUser(CurrentUser)
                                                              : UserDataPaths.GetDefault();
 
-                                    DesktopPath = DataPath.Desktop;
+                                    if (await FileSystemStorageItemBase.CheckExistAsync(DataPath.Desktop))
+                                    {
+                                        using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                                        {
+                                            if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(DataPath.Desktop, $"{(SItem is FileSystemStorageFolder ? SItem.Name : Path.GetFileNameWithoutExtension(SItem.Name))}.lnk"),
+                                                                                            SItem.Path,
+                                                                                            string.Empty,
+                                                                                            WindowState.Normal,
+                                                                                            0,
+                                                                                            string.Empty))
+                                            {
+                                                QueueContentDialog Dialog = new QueueContentDialog
+                                                {
+                                                    Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                                    Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
+                                                    CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                                                };
+
+                                                await Dialog.ShowAsync();
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        LogTracer.Log($"Could not execute \"Send to\" command because desktop path \"{DataPath.Desktop}\" is not exists");
+                                    }
                                 }
                                 catch (Exception ex)
                                 {
                                     LogTracer.Log(ex, "Could not get desktop path from UserDataPaths");
-                                }
-                            }
-
-                            if (string.IsNullOrEmpty(DesktopPath))
-                            {
-                                LogTracer.Log("Could not execute \"Send to\" command because desktop path is null or empty");
-                            }
-                            else
-                            {
-                                if (await FileSystemStorageItemBase.CheckExistAsync(DesktopPath))
-                                {
-                                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
-                                    {
-                                        if (!await Exclusive.Controller.CreateLinkAsync(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), $"{(SItem is FileSystemStorageFolder ? SItem.Name : Path.GetFileNameWithoutExtension(SItem.Name))}.lnk"),
-                                                                                        SItem.Path,
-                                                                                        string.Empty,
-                                                                                        WindowState.Normal,
-                                                                                        0,
-                                                                                        string.Empty))
-                                        {
-                                            QueueContentDialog Dialog = new QueueContentDialog
-                                            {
-                                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
-                                                Content = Globalization.GetString("QueueDialog_UnauthorizedCreateNewFile_Content"),
-                                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
-                                            };
-
-                                            await Dialog.ShowAsync();
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    LogTracer.Log($"Could not execute \"Send to\" command because desktop path \"{DesktopPath}\" is not exists");
                                 }
                             }
 
@@ -4830,7 +4843,11 @@ namespace RX_Explorer
                         {
                             string DocumentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-                            if (string.IsNullOrEmpty(DocumentPath))
+                            if (await FileSystemStorageItemBase.CheckExistAsync(DocumentPath))
+                            {
+                                QueueTaskController.EnqueueCopyOpeartion(SItem.Path, DocumentPath);
+                            }
+                            else
                             {
                                 try
                                 {
@@ -4840,27 +4857,18 @@ namespace RX_Explorer
                                                              ? UserDataPaths.GetForUser(CurrentUser)
                                                              : UserDataPaths.GetDefault();
 
-                                    DocumentPath = DataPath.Documents;
+                                    if (await FileSystemStorageItemBase.CheckExistAsync(DataPath.Documents))
+                                    {
+                                        QueueTaskController.EnqueueCopyOpeartion(SItem.Path, DataPath.Documents);
+                                    }
+                                    else
+                                    {
+                                        LogTracer.Log($"Could not execute \"Send to\" command because document path \"{DataPath.Documents}\" is not exists");
+                                    }
                                 }
                                 catch (Exception ex)
                                 {
                                     LogTracer.Log(ex, "Could not get document path from UserDataPaths");
-                                }
-                            }
-
-                            if (string.IsNullOrEmpty(DocumentPath))
-                            {
-                                LogTracer.Log("Could not execute \"Send to\" command because document path is null or empty");
-                            }
-                            else
-                            {
-                                if (await FileSystemStorageItemBase.CheckExistAsync(DocumentPath))
-                                {
-                                    QueueTaskController.EnqueueCopyOpeartion(SItem.Path, DocumentPath);
-                                }
-                                else
-                                {
-                                    LogTracer.Log($"Could not execute \"Send to\" command because document path \"{DocumentPath}\" is not exists");
                                 }
                             }
 

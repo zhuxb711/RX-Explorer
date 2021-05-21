@@ -49,6 +49,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
             { 3, Globalization.GetString("OfflineAvailabilityStatusText4") },
             { 4, Globalization.GetString("OfflineAvailabilityStatusText5") },
             { 5, Globalization.GetString("OfflineAvailabilityStatusText6") },
+            { 6, Globalization.GetString("OfflineAvailabilityStatusText8") },
             { 8, Globalization.GetString("OfflineAvailabilityStatusText1") },
             { 9, Globalization.GetString("OfflineAvailabilityStatusText7") },
             { 14, Globalization.GetString("OfflineAvailabilityStatusText3") },
@@ -738,7 +739,7 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
         {
             Thumbnail.Source = StorageItem.Thumbnail;
             TypeContent.Text = $"{StorageItem.DisplayType} ({StorageItem.Type.ToLower()})";
-            LocationContent.Text = StorageItem.Path;
+            LocationContent.Text = Path.GetDirectoryName(StorageItem.Path);
             SizeContent.Text = $"{StorageItem.Size} ({StorageItem.SizeRaw:N0} {Globalization.GetString("Device_Capacity_Unit")})";
             CreatedContent.Text = StorageItem.CreationTimeRaw.ToString("F");
             ModifiedContent.Text = StorageItem.ModifiedTimeRaw.ToString("F");

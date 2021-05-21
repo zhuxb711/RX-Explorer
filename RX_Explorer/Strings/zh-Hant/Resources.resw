@@ -3073,4 +3073,7 @@
   <data name="SendTo_Document" xml:space="preserve">
     <value>文檔</value>
   </data>
+  <data name="OfflineAvailabilityStatusText8" xml:space="preserve">
+    <value>不是OneDrive文件</value>
+  </data>
 </root>
