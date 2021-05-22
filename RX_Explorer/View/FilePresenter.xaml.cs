@@ -1383,6 +1383,26 @@ namespace RX_Explorer
 
                 if (ExecuteDelete)
                 {
+                    foreach ((TabViewItem Tab, BladeItem[] Blades) in TabViewContainer.ThisPage.TabCollection.Where((Tab) => Tab.Tag is FileControl)
+                                                                                                             .Select((Tab) => (Tab, (Tab.Tag as FileControl).BladeViewer.Items.Cast<BladeItem>().ToArray())).ToArray())
+                    {
+                        foreach (string DeletePath in PathList)
+                        {
+                            if (Blades.Select((BItem) => (BItem.Content as FilePresenter)?.CurrentFolder?.Path)
+                                      .All((BladePath) => BladePath.StartsWith(DeletePath, StringComparison.OrdinalIgnoreCase)))
+                            {
+                                await TabViewContainer.ThisPage.CleanUpAndRemoveTabItem(Tab);
+                            }
+                            else
+                            {
+                                foreach (BladeItem BItem in Blades.Where((Item) => ((Item.Content as FilePresenter).CurrentFolder?.Path.StartsWith(DeletePath, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault()))
+                                {
+                                    await (Tab.Tag as FileControl).CloseBladeAsync(BItem);
+                                }
+                            }
+                        }
+                    }
+
                     QueueTaskController.EnqueueDeleteOpeartion(PathList, PermanentDelete);
                 }
             }
@@ -1413,7 +1433,7 @@ namespace RX_Explorer
 
                     if ((await dialog.ShowAsync()) == ContentDialogResult.Primary)
                     {
-                        if (await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(CurrentFolder.Path, dialog.DesireName)))
+                        if (!RenameItem.Name.Equals(dialog.DesireName, StringComparison.OrdinalIgnoreCase) && await FileSystemStorageItemBase.CheckExistAsync(Path.Combine(CurrentFolder.Path, dialog.DesireName)))
                         {
                             QueueContentDialog Dialog = new QueueContentDialog
                             {

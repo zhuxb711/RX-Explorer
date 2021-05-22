@@ -4086,6 +4086,14 @@ Les noms non valides incluent
           <source>The media file could not be loaded due to failure to read the file or other reasons</source>
           <target state="translated">Le fichier multimédia n'a pas pu être chargé en raison d'un échec de lecture du fichier ou pour d'autres raisons</target>
         </trans-unit>
+        <trans-unit id="Development_Version" translate="yes" xml:space="preserve">
+          <source>Development Version</source>
+          <target state="translated">Version de développement</target>
+        </trans-unit>
+        <trans-unit id="Trial_Version" translate="yes" xml:space="preserve">
+          <source>Trial Version</source>
+          <target state="translated">Version d'essai</target>
+        </trans-unit>
       </group>
     </body>
   </file>

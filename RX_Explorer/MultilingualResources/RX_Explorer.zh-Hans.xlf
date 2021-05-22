@@ -4086,6 +4086,14 @@ Invalid names include
           <source>The media file could not be loaded due to failure to read the file or other reasons</source>
           <target state="translated">由于读取文件失败或其他原因，无法加载媒体文件</target>
         </trans-unit>
+        <trans-unit id="Development_Version" translate="yes" xml:space="preserve">
+          <source>Development Version</source>
+          <target state="translated">开发版本</target>
+        </trans-unit>
+        <trans-unit id="Trial_Version" translate="yes" xml:space="preserve">
+          <source>Trial Version</source>
+          <target state="translated">试用版本</target>
+        </trans-unit>
       </group>
     </body>
   </file>

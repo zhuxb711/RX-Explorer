@@ -3079,4 +3079,10 @@
   <data name="QueueDialog_CouldNotLoadMedia_Content" xml:space="preserve">
     <value>由于读取文件失败或其他原因，无法加载媒体文件</value>
   </data>
+  <data name="Development_Version" xml:space="preserve">
+    <value>开发版本</value>
+  </data>
+  <data name="Trial_Version" xml:space="preserve">
+    <value>试用版本</value>
+  </data>
 </root>

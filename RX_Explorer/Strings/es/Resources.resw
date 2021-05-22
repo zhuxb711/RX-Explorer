@@ -3079,4 +3079,10 @@ Las denominaciones no válidas son:
   <data name="QueueDialog_CouldNotLoadMedia_Content" xml:space="preserve">
     <value>El archivo multimedia no se pudo cargar debido a que no se pudo leer el archivo u otras razones</value>
   </data>
+  <data name="Development_Version" xml:space="preserve">
+    <value>Versión de desarrollo</value>
+  </data>
+  <data name="Trial_Version" xml:space="preserve">
+    <value>Versión de prueba</value>
+  </data>
 </root>

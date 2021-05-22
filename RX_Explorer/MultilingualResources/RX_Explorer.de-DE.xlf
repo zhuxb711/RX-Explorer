@@ -4084,6 +4084,14 @@ Inkorrekte Namen sind
           <source>The media file could not be loaded due to failure to read the file or other reasons</source>
           <target state="translated">Die Mediendatei konnte aufgrund eines Fehlers beim Lesen der Datei oder aus anderen Gründen nicht geladen werden</target>
         </trans-unit>
+        <trans-unit id="Development_Version" translate="yes" xml:space="preserve">
+          <source>Development Version</source>
+          <target state="translated">Entwicklungsversion</target>
+        </trans-unit>
+        <trans-unit id="Trial_Version" translate="yes" xml:space="preserve">
+          <source>Trial Version</source>
+          <target state="translated">Probeversion</target>
+        </trans-unit>
       </group>
     </body>
   </file>

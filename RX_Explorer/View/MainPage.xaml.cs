@@ -83,7 +83,21 @@ namespace RX_Explorer
 
             if (Package.Current.IsDevelopmentMode)
             {
-                AppName.Text += " (Development Mode)";
+                AppName.Text += $" ({Globalization.GetString("Development_Version")})";
+            }
+            else
+            {
+                if (ApplicationData.Current.LocalSettings.Values.TryGetValue("LicenseGrant", out object GrantState))
+                {
+                    if (!Convert.ToBoolean(GrantState))
+                    {
+                        AppName.Text += $" ({Globalization.GetString("Trial_Version")})";
+                    }
+                }
+                else
+                {
+                    AppName.Text += $" ({Globalization.GetString("Trial_Version")})";
+                }
             }
 
             this.ActivatePathArray = ActivatePathArray;

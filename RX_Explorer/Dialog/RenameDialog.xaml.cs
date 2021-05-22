@@ -18,6 +18,7 @@ namespace RX_Explorer.Dialog
             InitializeComponent();
             
             this.Item = Item ?? throw new ArgumentNullException(nameof(Item), "Argument could not be null");
+
             RenameText.Text = Item.Name;
             Preview.Text = $"{Item.Name}\r⋙⋙   ⋙⋙   ⋙⋙\r{Item.Name}";
             Loaded += RenameDialog_Loaded;

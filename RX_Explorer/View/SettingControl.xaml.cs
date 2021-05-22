@@ -301,11 +301,7 @@ namespace RX_Explorer
 
                 SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfi_AlwaysPopup"));
                 SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfi_UseBuildInAsDefault"));
-
-                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
-                {
-                    SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfi_UseEverythingAsDefault"));
-                }
+                SearchEngineConfig.Items.Add(Globalization.GetString("SearchEngineConfi_UseEverythingAsDefault"));
 
                 foreach (TerminalProfile Profile in SQLite.Current.GetAllTerminalProfile())
                 {
@@ -313,6 +309,21 @@ namespace RX_Explorer
                 }
 
                 await ApplyLocalSetting(false);
+
+                if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
+                {
+                    Purchase.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    if (SearchEngineConfig.SelectedIndex == 2)
+                    {
+                        SearchEngineConfig.SelectedIndex = 0;
+                    }
+
+                    SearchEngineConfig.Items.Remove(Globalization.GetString("SearchEngineConfi_UseEverythingAsDefault"));
+                }
+
                 await LoadFeedBackList();
             }
         }

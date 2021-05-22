@@ -3079,4 +3079,10 @@ Les noms non valides incluent
   <data name="QueueDialog_CouldNotLoadMedia_Content" xml:space="preserve">
     <value>Le fichier multimédia n'a pas pu être chargé en raison d'un échec de lecture du fichier ou pour d'autres raisons</value>
   </data>
+  <data name="Development_Version" xml:space="preserve">
+    <value>Version de développement</value>
+  </data>
+  <data name="Trial_Version" xml:space="preserve">
+    <value>Version d'essai</value>
+  </data>
 </root>

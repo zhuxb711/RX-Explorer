@@ -3184,4 +3184,10 @@ Invalid names include
   <data name="QueueDialog_CouldNotLoadMedia_Content" xml:space="preserve">
     <value>The media file could not be loaded due to failure to read the file or other reasons</value>
   </data>
+  <data name="Development_Version" xml:space="preserve">
+    <value>Development Version</value>
+  </data>
+  <data name="Trial_Version" xml:space="preserve">
+    <value>Trial Version</value>
+  </data>
 </root>

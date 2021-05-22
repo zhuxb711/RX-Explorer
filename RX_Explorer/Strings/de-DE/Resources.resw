@@ -3079,4 +3079,10 @@ Inkorrekte Namen sind
   <data name="QueueDialog_CouldNotLoadMedia_Content" xml:space="preserve">
     <value>Die Mediendatei konnte aufgrund eines Fehlers beim Lesen der Datei oder aus anderen Gründen nicht geladen werden</value>
   </data>
+  <data name="Development_Version" xml:space="preserve">
+    <value>Entwicklungsversion</value>
+  </data>
+  <data name="Trial_Version" xml:space="preserve">
+    <value>Probeversion</value>
+  </data>
 </root>
