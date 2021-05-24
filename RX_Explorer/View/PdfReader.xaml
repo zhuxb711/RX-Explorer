@@ -19,6 +19,12 @@
         <ItemsPanelTemplate x:Name="HorizontalPanel">
             <VirtualizingStackPanel Orientation="Horizontal" />
         </ItemsPanelTemplate>
+
+        <AcrylicBrush x:Key="AppBarCommandBackground"
+                      BackgroundSource="Backdrop"
+                      TintLuminosityOpacity="0.5"
+                      TintColor="{ThemeResource SystemAltMediumColor}"
+                      FallbackColor="{ThemeResource SystemAccentColor}" />
     </Page.Resources>
     
     <Grid Background="{StaticResource ElementAcrylicBrush}">
@@ -28,7 +34,7 @@
         </Grid.RowDefinitions>
         <CommandBar DefaultLabelPosition="Right"
                     VerticalContentAlignment="Center"
-                    Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+                    Background="{StaticResource AppBarCommandBackground}">
             <CommandBar.PrimaryCommands>
                 <AppBarButton Label="Zoom"
                               Icon="Zoom"
@@ -91,7 +97,9 @@
                         <TextBox x:Name="TextBoxControl"
                                  MinWidth="30" 
                                  MinHeight="25"
-                                 Padding="5"
+                                 Height="28"
+                                 Padding="5,4"
+                                 IsSpellCheckEnabled="False"
                                  KeyDown="TextBoxControl_KeyDown"
                                  LostFocus="TextBoxControl_LostFocus"
                                  TextAlignment="Center"/>
