@@ -27,6 +27,8 @@ namespace RX_Explorer.Class
 
         public bool IsEnabled { get; private set; }
 
+        private double HeaderHeight;
+
         private ListViewBase View;
 
         private Rectangle RectangleInCanvas;
@@ -121,6 +123,7 @@ namespace RX_Explorer.Class
                     try
                     {
                         Point RelativeEndPoint = e.GetCurrentPoint(View).Position;
+
                         SrcollIfNeed(RelativeEndPoint);
 
                         Point AbsEndPoint = new Point(RelativeEndPoint.X + InnerScrollView.HorizontalOffset, RelativeEndPoint.Y + InnerScrollView.VerticalOffset);
@@ -136,18 +139,24 @@ namespace RX_Explorer.Class
                             {
                                 ItemsStackPanel VirtualPanel = View.ItemsPanelRoot as ItemsStackPanel;
 
-                                for (int i = VirtualPanel.FirstVisibleIndex; i <= VirtualPanel.LastVisibleIndex; i++)
+                                if (VirtualPanel.FirstVisibleIndex >= 0 && VirtualPanel.LastVisibleIndex >= 0)
                                 {
-                                    VisibleList.Add(View.Items[i] as FileSystemStorageItemBase);
+                                    for (int i = VirtualPanel.FirstVisibleIndex; i <= VirtualPanel.LastVisibleIndex; i++)
+                                    {
+                                        VisibleList.Add(View.Items[i] as FileSystemStorageItemBase);
+                                    }
                                 }
                             }
                             else
                             {
                                 ItemsWrapGrid VirtualPanel = View.ItemsPanelRoot as ItemsWrapGrid;
 
-                                for (int i = VirtualPanel.FirstVisibleIndex; i <= VirtualPanel.LastVisibleIndex; i++)
+                                if (VirtualPanel.FirstVisibleIndex >= 0 && VirtualPanel.LastVisibleIndex >= 0)
                                 {
-                                    VisibleList.Add(View.Items[i] as FileSystemStorageItemBase);
+                                    for (int i = VirtualPanel.FirstVisibleIndex; i <= VirtualPanel.LastVisibleIndex; i++)
+                                    {
+                                        VisibleList.Add(View.Items[i] as FileSystemStorageItemBase);
+                                    }
                                 }
                             }
 
@@ -282,27 +291,29 @@ namespace RX_Explorer.Class
         {
             if (IsEnabled)
             {
+                HeaderHeight = View.Header == null ? 0 : 35;
+
                 if (StartPoint.X <= EndPoint.X)
                 {
                     if (StartPoint.Y >= EndPoint.Y)
                     {
                         double LeftPoint = Math.Max(0, StartPoint.X);
-                        double TopPoint = Math.Max(0, EndPoint.Y);
+                        double TopPoint = Math.Max(HeaderHeight, EndPoint.Y);
 
                         RectangleInCanvas.SetValue(Canvas.LeftProperty, LeftPoint);
                         RectangleInCanvas.SetValue(Canvas.TopProperty, TopPoint);
                         RectangleInCanvas.Width = Math.Max(0, Math.Min(Math.Max(0, EndPoint.X), InnerScrollView.ViewportWidth) - LeftPoint);
-                        RectangleInCanvas.Height = Math.Max(0, Math.Min(Math.Max(0, StartPoint.Y), InnerScrollView.ViewportHeight) - TopPoint);
+                        RectangleInCanvas.Height = Math.Max(0, Math.Min(Math.Max(0, StartPoint.Y), InnerScrollView.ViewportHeight + HeaderHeight) - TopPoint);
                     }
                     else
                     {
                         double LeftPoint = Math.Max(0, StartPoint.X);
-                        double TopPoint = Math.Max(0, StartPoint.Y);
+                        double TopPoint = Math.Max(HeaderHeight, StartPoint.Y);
 
                         RectangleInCanvas.SetValue(Canvas.LeftProperty, LeftPoint);
                         RectangleInCanvas.SetValue(Canvas.TopProperty, TopPoint);
                         RectangleInCanvas.Width = Math.Max(0, Math.Min(Math.Max(0, EndPoint.X), InnerScrollView.ViewportWidth) - LeftPoint);
-                        RectangleInCanvas.Height = Math.Max(0, Math.Min(Math.Max(0, EndPoint.Y), InnerScrollView.ViewportHeight) - TopPoint);
+                        RectangleInCanvas.Height = Math.Max(0, Math.Min(Math.Max(0, EndPoint.Y), InnerScrollView.ViewportHeight + HeaderHeight) - TopPoint);
                     }
                 }
                 else
@@ -310,22 +321,22 @@ namespace RX_Explorer.Class
                     if (StartPoint.Y >= EndPoint.Y)
                     {
                         double LeftPoint = Math.Max(0, EndPoint.X);
-                        double TopPoint = Math.Max(0, EndPoint.Y);
+                        double TopPoint = Math.Max(HeaderHeight, EndPoint.Y);
 
                         RectangleInCanvas.SetValue(Canvas.LeftProperty, LeftPoint);
                         RectangleInCanvas.SetValue(Canvas.TopProperty, TopPoint);
                         RectangleInCanvas.Width = Math.Max(0, Math.Min(Math.Max(0, StartPoint.X), InnerScrollView.ViewportWidth) - LeftPoint);
-                        RectangleInCanvas.Height = Math.Max(0, Math.Min(Math.Max(0, StartPoint.Y), InnerScrollView.ViewportHeight) - TopPoint);
+                        RectangleInCanvas.Height = Math.Max(0, Math.Min(Math.Max(0, StartPoint.Y), InnerScrollView.ViewportHeight + HeaderHeight) - TopPoint);
                     }
                     else
                     {
                         double LeftPoint = Math.Max(0, EndPoint.X);
-                        double TopPoint = Math.Max(0, StartPoint.Y);
+                        double TopPoint = Math.Max(HeaderHeight, StartPoint.Y);
 
                         RectangleInCanvas.SetValue(Canvas.LeftProperty, LeftPoint);
                         RectangleInCanvas.SetValue(Canvas.TopProperty, TopPoint);
                         RectangleInCanvas.Width = Math.Max(0, Math.Min(Math.Max(0, StartPoint.X), InnerScrollView.ViewportWidth) - LeftPoint);
-                        RectangleInCanvas.Height = Math.Max(0, Math.Min(Math.Max(0, EndPoint.Y), InnerScrollView.ViewportHeight) - TopPoint);
+                        RectangleInCanvas.Height = Math.Max(0, Math.Min(Math.Max(0, EndPoint.Y), InnerScrollView.ViewportHeight + HeaderHeight) - TopPoint);
                     }
                 }
             }
