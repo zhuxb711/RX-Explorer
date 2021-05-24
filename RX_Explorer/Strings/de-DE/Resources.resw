@@ -1586,10 +1586,6 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
   <data name="Operate_Text_Decompression" xml:space="preserve">
     <value>Dekomprimierung:</value>
   </data>
-  <data name="Pdf_Page_Tip" xml:space="preserve">
-    <value>Seite [CurrentPageIndex] / ([TotalPageCount] Seiten)</value>
-    <comment>Used to display the current number of PDF pages and the total number of pages. Do not modify [CurrentPageIndex] and [TotalPageCount]. They are placeholders. Please place it in the correct position according to the word order of the corresponding language</comment>
-  </data>
   <data name="Progress_Tip_NoFeedback" xml:space="preserve">
     <value>Keine Rückmeldungen oder Vorschläge</value>
   </data>
@@ -3084,5 +3080,11 @@ Inkorrekte Namen sind
   </data>
   <data name="Trial_Version" xml:space="preserve">
     <value>Probeversion</value>
+  </data>
+  <data name="PdfPanelToggle.Label" xml:space="preserve">
+    <value>Horizontaler Ansichtsmodus</value>
+  </data>
+  <data name="PdfZoom.Label" xml:space="preserve">
+    <value>Zoomen</value>
   </data>
 </root>

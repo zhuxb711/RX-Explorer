@@ -822,6 +822,16 @@ namespace RX_Explorer.Class
             }
         }
 
+        public static explicit operator StorageFile(FileSystemStorageItemBase File)
+        {
+            return File.StorageItem as StorageFile;
+        }
+
+        public static explicit operator StorageFolder(FileSystemStorageItemBase File)
+        {
+            return File.StorageItem as StorageFolder;
+        }
+
         public sealed class SpecialPath
         {
             public static IReadOnlyList<string> OneDrivePathCollection { get; } = new List<string>

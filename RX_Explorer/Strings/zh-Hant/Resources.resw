@@ -1540,10 +1540,6 @@
   <data name="Operate_Text_Decompression" xml:space="preserve">
     <value>解壓縮</value>
   </data>
-  <data name="Pdf_Page_Tip" xml:space="preserve">
-    <value>[CurrentPageIndex] / ([TotalPageCount] 頁 )</value>
-    <comment>Used to display the current number of PDF pages and the total number of pages. Do not modify [CurrentPageIndex] and [TotalPageCount]. They are placeholders. Please place it in the correct position according to the word order of the corresponding language</comment>
-  </data>
   <data name="Progress_Tip_NoFeedback" xml:space="preserve">
     <value>沒有回饋或建議</value>
   </data>
@@ -3084,5 +3080,11 @@
   </data>
   <data name="Trial_Version" xml:space="preserve">
     <value>試用版</value>
+  </data>
+  <data name="PdfPanelToggle.Label" xml:space="preserve">
+    <value>水平檢視模式</value>
+  </data>
+  <data name="PdfZoom.Label" xml:space="preserve">
+    <value>變倍</value>
   </data>
 </root>

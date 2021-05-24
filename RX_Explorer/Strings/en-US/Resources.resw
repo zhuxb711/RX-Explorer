@@ -1694,10 +1694,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</value>
   <data name="Operate_Text_Decompression" xml:space="preserve">
     <value>Decompression</value>
   </data>
-  <data name="Pdf_Page_Tip" xml:space="preserve">
-    <value>Page [CurrentPageIndex] / ([TotalPageCount] pages)</value>
-    <comment>Used to display the current number of PDF pages and the total number of pages. Do not modify [CurrentPageIndex] and [TotalPageCount]. They are placeholders. Please place it in the correct position according to the word order of the corresponding language</comment>
-  </data>
   <data name="Progress_Tip_NoFeedback" xml:space="preserve">
     <value>No feedback or suggestions</value>
   </data>
@@ -3189,5 +3185,11 @@ Invalid names include
   </data>
   <data name="Trial_Version" xml:space="preserve">
     <value>Trial Version</value>
+  </data>
+  <data name="PdfPanelToggle.Label" xml:space="preserve">
+    <value>Horizontal view mode</value>
+  </data>
+  <data name="PdfZoom.Label" xml:space="preserve">
+    <value>Zoom</value>
   </data>
 </root>

@@ -2005,11 +2005,6 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <source>Decompression</source>
           <target state="translated">解压</target>
         </trans-unit>
-        <trans-unit id="Pdf_Page_Tip" translate="yes" xml:space="preserve">
-          <source>Page [CurrentPageIndex] / ([TotalPageCount] pages)</source>
-          <target state="translated">第 [CurrentPageIndex] 页 / (共 [TotalPageCount] 页)</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Used to display the current number of PDF pages and the total number of pages. Do not modify [CurrentPageIndex] and [TotalPageCount]. They are placeholders. Please place it in the correct position according to the word order of the corresponding language</note>
-        </trans-unit>
         <trans-unit id="Progress_Tip_NoFeedback" translate="yes" xml:space="preserve">
           <source>No feedback or suggestions</source>
           <target state="translated">无任何反馈或建议</target>
@@ -4093,6 +4088,14 @@ Invalid names include
         <trans-unit id="Trial_Version" translate="yes" xml:space="preserve">
           <source>Trial Version</source>
           <target state="translated">试用版本</target>
+        </trans-unit>
+        <trans-unit id="PdfPanelToggle.Label" translate="yes" xml:space="preserve">
+          <source>Horizontal view mode</source>
+          <target state="translated">水平查看模式</target>
+        </trans-unit>
+        <trans-unit id="PdfZoom.Label" translate="yes" xml:space="preserve">
+          <source>Zoom</source>
+          <target state="translated">缩放</target>
         </trans-unit>
       </group>
     </body>

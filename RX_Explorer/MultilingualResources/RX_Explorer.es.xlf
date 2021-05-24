@@ -2095,11 +2095,6 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <source>Decompression</source>
           <target state="translated">Descompresión</target>
         </trans-unit>
-        <trans-unit id="Pdf_Page_Tip" translate="yes" xml:space="preserve">
-          <source>Page [CurrentPageIndex] / ([TotalPageCount] pages)</source>
-          <target state="translated">Página [CurrentPageIndex] / ([TotalPageCount] páginas)</target>
-          <note from="MultilingualBuild" annotates="source" priority="2">Used to display the current number of PDF pages and the total number of pages. Do not modify [CurrentPageIndex] and [TotalPageCount]. They are placeholders. Please place it in the correct position according to the word order of the corresponding language</note>
-        </trans-unit>
         <trans-unit id="Progress_Tip_NoFeedback" translate="yes" xml:space="preserve">
           <source>No feedback or suggestions</source>
           <target state="translated">Sin comentarios ni sugerencias</target>
@@ -4091,6 +4086,14 @@ Las denominaciones no válidas son:
         <trans-unit id="Trial_Version" translate="yes" xml:space="preserve">
           <source>Trial Version</source>
           <target state="translated">Versión de prueba</target>
+        </trans-unit>
+        <trans-unit id="PdfPanelToggle.Label" translate="yes" xml:space="preserve">
+          <source>Horizontal view mode</source>
+          <target state="translated">Modo de vista horizontal</target>
+        </trans-unit>
+        <trans-unit id="PdfZoom.Label" translate="yes" xml:space="preserve">
+          <source>Zoom</source>
+          <target state="translated">Zoom</target>
         </trans-unit>
       </group>
     </body>

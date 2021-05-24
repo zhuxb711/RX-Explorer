@@ -11,15 +11,107 @@
       mc:Ignorable="d"
       NavigationCacheMode="Enabled"
       Background="Transparent">
-    <Grid>
+
+    <Page.Resources>
+        <ItemsPanelTemplate x:Name="VerticalPanel">
+            <VirtualizingStackPanel Orientation="Vertical" />
+        </ItemsPanelTemplate>
+        <ItemsPanelTemplate x:Name="HorizontalPanel">
+            <VirtualizingStackPanel Orientation="Horizontal" />
+        </ItemsPanelTemplate>
+    </Page.Resources>
+    
+    <Grid Background="{StaticResource ElementAcrylicBrush}">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*" />
-            <RowDefinition Height="100" />
         </Grid.RowDefinitions>
+        <CommandBar DefaultLabelPosition="Right"
+                    VerticalContentAlignment="Center"
+                    Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+            <CommandBar.PrimaryCommands>
+                <AppBarButton Label="Zoom"
+                              Icon="Zoom"
+                              x:Uid="PdfZoom">
+                    <AppBarButton.Flyout>
+                        <Flyout Placement="Bottom"
+                                Opening="Flyout_Opening">
+                            <Flyout.FlyoutPresenterStyle>
+                                <Style TargetType="FlyoutPresenter">
+                                    <Setter Property="CornerRadius"
+                                            Value="0" />
+                                    <Setter Property="Background"
+                                            Value="{StaticResource SystemControlChromeHighAcrylicElementMediumBrush}" />
+                                </Style>
+                            </Flyout.FlyoutPresenterStyle>
+                            <StackPanel Orientation="Horizontal">
+                                <RepeatButton Style="{ThemeResource RepeatButtonRevealStyle}"
+                                              Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                              Name="ZoomOutButton"
+                                              Click="ZoomOutButton_Click">
+                                    <Viewbox>
+                                        <SymbolIcon Symbol="ZoomOut" />
+                                    </Viewbox>
+                                </RepeatButton>
+                                <TextBlock Text="100%"
+                                           Margin="10,0"
+                                           Name="ZoomFactorDisplay"
+                                           VerticalAlignment="Center" />
+                                <RepeatButton Style="{ThemeResource RepeatButtonRevealStyle}"
+                                              Background="{ThemeResource SystemControlTransparentRevealBackgroundBrush}"
+                                              Name="ZoomInButton"
+                                              Click="ZoomInButton_Click">
+                                    <Viewbox>
+                                        <SymbolIcon Symbol="ZoomIn" />
+                                    </Viewbox>
+                                </RepeatButton>
+                            </StackPanel>
+                        </Flyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
+                <AppBarToggleButton Label="水平查看模式"
+                                    x:Uid="PdfPanelToggle"
+                                    Name="PanelToggle"
+                                    Checked="PanelToggle_Checked"
+                                    Unchecked="PanelToggle_Unchecked">
+                    <AppBarToggleButton.Icon>
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                  Glyph="&#xECE7;" />
+                    </AppBarToggleButton.Icon>
+                </AppBarToggleButton>
+            </CommandBar.PrimaryCommands>
+            <CommandBar.Content>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MinWidth="100"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal"
+                                Padding="10,0">
+                        <TextBox x:Name="TextBoxControl"
+                                 MinWidth="30" 
+                                 MinHeight="25"
+                                 Padding="5"
+                                 KeyDown="TextBoxControl_KeyDown"
+                                 LostFocus="TextBoxControl_LostFocus"
+                                 TextAlignment="Center"/>
+                        <TextBlock Text="/"
+                                   Margin="5,0"
+                                   VerticalAlignment="Center" />
+                        <TextBlock x:Name="NumIndicator"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                    <TextBlock Grid.Column="1"
+                               Name="FileNameDisplay"
+                               TextTrimming="CharacterEllipsis"
+                               VerticalAlignment="Center"/>
+                </Grid>
+            </CommandBar.Content>
+        </CommandBar>
         <FlipView Name="Flip"
-                  Grid.RowSpan="2"
-                  ItemsSource="{x:Bind PdfCollection}"
-                  Background="Transparent">
+                  Grid.Row="1"
+                  Background="Transparent"
+                  UseSystemFocusVisuals="False">
             <FlipView.ItemTemplate>
                 <DataTemplate>
                     <ScrollViewer x:Name="ScrollViewerMain"
@@ -27,10 +119,12 @@
                                   PointerPressed="ScrollViewerMain_PointerPressed"
                                   PointerMoved="ScrollViewerMain_PointerMoved"
                                   PointerReleased="ScrollViewerMain_PointerReleased"
+                                  PointerCanceled="ScrollViewerMain_PointerReleased"
+                                  PointerCaptureLost="ScrollViewerMain_PointerReleased"
                                   DoubleTapped="ScrollViewerMain_DoubleTapped"
                                   ZoomMode="Enabled"
                                   MinZoomFactor="0.5"
-                                  MaxZoomFactor="4"
+                                  MaxZoomFactor="5"
                                   HorizontalScrollMode="Enabled"
                                   VerticalScrollMode="Enabled"
                                   HorizontalScrollBarVisibility="Hidden"
@@ -42,12 +136,6 @@
                 </DataTemplate>
             </FlipView.ItemTemplate>
         </FlipView>
-        <controls:InAppNotification ShowDismissButton="False"
-                                    Name="PageNotification"
-                                    StackMode="Replace"
-                                    HorizontalAlignment="Center"
-                                    HorizontalContentAlignment="Center"
-                                    Grid.Row="1" />
         <controls:Loading x:Name="LoadingControl"
                           IsLoading="False"
                           Grid.RowSpan="2">
