@@ -4095,6 +4095,10 @@ Inkorrekte Namen sind
           <source>Zoom</source>
           <target state="translated">Zoomen</target>
         </trans-unit>
+        <trans-unit id="HashError" translate="yes" xml:space="preserve">
+          <source>Calculation error</source>
+          <target state="new">Calculation error</target>
+        </trans-unit>
       </group>
     </body>
   </file>

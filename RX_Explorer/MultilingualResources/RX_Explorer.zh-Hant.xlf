@@ -4097,6 +4097,10 @@ Invalid names include
           <source>Zoom</source>
           <target state="translated">變倍</target>
         </trans-unit>
+        <trans-unit id="HashError" translate="yes" xml:space="preserve">
+          <source>Calculation error</source>
+          <target state="new">Calculation error</target>
+        </trans-unit>
       </group>
     </body>
   </file>

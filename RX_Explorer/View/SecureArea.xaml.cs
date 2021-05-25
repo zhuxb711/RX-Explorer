@@ -32,7 +32,7 @@ namespace RX_Explorer
 
         private readonly PointerEventHandler PointerPressedHandler;
 
-        private string AESKey
+        internal static string AESKey
         {
             get
             {
@@ -40,13 +40,13 @@ namespace RX_Explorer
             }
         }
 
-        private string UnlockPassword
+        internal static string UnlockPassword
         {
             get
             {
-                return CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword"); ;
+                return CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword");
             }
-            set
+            private set
             {
                 CredentialProtector.RequestProtectPassword("SecureAreaPrimaryPassword", value);
             }
@@ -397,8 +397,7 @@ namespace RX_Explorer
 
                                 await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                 {
-                                    ProBar.IsIndeterminate = false;
-                                    Convert.ToInt32(CurrentPosition * 100d / TotalSize);
+                                    ProBar.Value = Convert.ToInt32(CurrentPosition * 100d / TotalSize);
                                 });
                             }
 
@@ -638,11 +637,10 @@ namespace RX_Explorer
 
                                 await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
                                 {
-                                    ProBar.IsIndeterminate = false;
-                                    Convert.ToInt32(CurrentPosition * 100d / TotalSize);
+                                    ProBar.Value = Convert.ToInt32(CurrentPosition * 100d / TotalSize);
                                 });
 
-                                await DecryptedFile.RenameAsync(SLEStream.FileName);
+                                await DecryptedFile.RenameAsync(SLEStream.Version > SLEVersion.Version_1_0_0 ? SLEStream.FileName : $"{Path.GetFileNameWithoutExtension(OriginFile.Name)}{SLEStream.FileName}");
                             }
 
                             SecureCollection.Remove(OriginFile);

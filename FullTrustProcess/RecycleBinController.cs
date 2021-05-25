@@ -40,7 +40,7 @@ namespace FullTrustProcess
                         {
                             PropertyDic.Add("StorageType", Enum.GetName(typeof(StorageItemTypes), StorageItemTypes.File));
 
-                            if (Path.HasExtension(Item.Name))
+                            if (Path.GetExtension(Item.Name).Equals(Item.FileInfo.Extension, StringComparison.OrdinalIgnoreCase))
                             {
                                 PropertyDic.Add("OriginPath", Item.Name);
                             }
@@ -98,7 +98,7 @@ namespace FullTrustProcess
                 {
                     if (File.Exists(Item.FileSystemPath))
                     {
-                        if (Path.HasExtension(Item.Name))
+                        if (Path.GetExtension(Item.Name).Equals(Item.FileInfo.Extension, StringComparison.OrdinalIgnoreCase))
                         {
                             PathDic.TryAdd(Item.Name, Item);
                         }

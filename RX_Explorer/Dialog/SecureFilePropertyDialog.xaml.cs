@@ -36,7 +36,12 @@ namespace RX_Explorer.Dialog
             FileSize = StorageItem.Size;
             FileName = StorageItem.Name;
             FileType = StorageItem.DisplayType;
-            Level = await StorageItem.GetEncryptionLevelAsync();
+
+            using (FileStream FStream = await StorageItem.GetFileStreamFromFileAsync(AccessMode.Read))
+            using (SLEInputStream SLEStream = new SLEInputStream(FStream, SecureArea.AESKey))
+            {
+                Level = SLEStream.KeySize == 128 ? "AES-128bit" : "AES-256bit";
+            }
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FileSize)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FileName)));

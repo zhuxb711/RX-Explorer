@@ -217,7 +217,6 @@
     <Compile Include="Dialog\WinAndETipDialog.xaml.cs">
       <DependentUpon>WinAndETipDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Interface\ICryptable.cs" />
     <Compile Include="Interface\IDriveData.cs" />
     <Compile Include="Interface\IHiddenStorageItem.cs" />
     <Compile Include="Interface\IIndirectLaunchStorageItem.cs" />

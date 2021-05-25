@@ -965,8 +965,6 @@ namespace RX_Explorer
 
                     if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder"), StorageItemTypes.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder SecureFolder)
                     {
-                        string AesKey = KeyGenerator.GetMD5WithLength(CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword"), 16);
-
                         try
                         {
                             foreach (FileSystemStorageFile Item in await SecureFolder.GetChildItemsAsync(false, false, Filter: ItemFilters.File))
@@ -976,7 +974,7 @@ namespace RX_Explorer
                                 if (await FileSystemStorageItemBase.CreateAsync(DecryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile DecryptedFile)
                                 {
                                     using (FileStream EncryptedFStream = await Item.GetFileStreamFromFileAsync(AccessMode.Read))
-                                    using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, AesKey))
+                                    using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, SecureArea.AESKey))
                                     {
                                         using (FileStream DecryptedFStream = await DecryptedFile.GetFileStreamFromFileAsync(AccessMode.Write))
                                         {

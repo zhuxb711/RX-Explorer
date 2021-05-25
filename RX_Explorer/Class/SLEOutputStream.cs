@@ -57,6 +57,30 @@ namespace RX_Explorer.Class
 
         public string Key { get; }
 
+        public SLEVersion Version
+        {
+            get
+            {
+                string VersionString = string.Format("{0}{1}{2}", Package.Current.Id.Version.Major, Package.Current.Id.Version.Minor, Package.Current.Id.Version.Build);
+
+                if (ushort.TryParse(VersionString, out ushort Version))
+                {
+                    if (Version > 655)
+                    {
+                        return SLEVersion.Version_1_1_0;
+                    }
+                    else
+                    {
+                        return SLEVersion.Version_1_0_0;
+                    }
+                }
+                else
+                {
+                    return SLEVersion.Version_1_0_0;
+                }
+            }
+        }
+
         private Stream BaseFileStream;
         private CryptoStream TransformStream;
         private readonly string FileName;
@@ -99,15 +123,26 @@ namespace RX_Explorer.Class
         {
             int KeyLengthNeed = KeySize / 8;
 
-            byte[] KeyArray = Key.Length > KeyLengthNeed
-                               ? Encoding.UTF8.GetBytes(Key.Substring(0, KeyLengthNeed))
-                               : Encoding.UTF8.GetBytes(Key.PadRight(KeyLengthNeed, '0'));
+            byte[] KeyArray;
+
+            if (Key.Length > KeyLengthNeed)
+            {
+                KeyArray = Encoding.UTF8.GetBytes(Key.Substring(0, KeyLengthNeed));
+            }
+            else if (Key.Length < KeyLengthNeed)
+            {
+                KeyArray = Encoding.UTF8.GetBytes(Key.PadRight(KeyLengthNeed, '0'));
+            }
+            else
+            {
+                KeyArray = Encoding.UTF8.GetBytes(Key);
+            }
 
             using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
             {
                 KeySize = KeySize,
                 Mode = CipherMode.CBC,
-                Padding = PaddingMode.PKCS7,
+                Padding = Version > SLEVersion.Version_1_0_0 ? PaddingMode.PKCS7 : PaddingMode.Zeros,
                 Key = KeyArray,
                 IV = Encoding.UTF8.GetBytes(SecureAccessProvider.GetFileEncryptionAesIV(Package.Current))
             })
@@ -118,7 +153,7 @@ namespace RX_Explorer.Class
 
         private void WriteHeader()
         {
-            byte[] ExtraInfo = Encoding.UTF8.GetBytes($"${KeySize}|{FileName}$");
+            byte[] ExtraInfo = Encoding.UTF8.GetBytes($"${KeySize}|{FileName.Replace('$', '_')}|{(int)Version}$");
             BaseFileStream.Write(ExtraInfo, 0, ExtraInfo.Length);
 
             byte[] PasswordConfirm = Encoding.UTF8.GetBytes("PASSWORD_CORRECT");

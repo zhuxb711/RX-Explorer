@@ -54,6 +54,8 @@ namespace RX_Explorer.Class
             }
         }
 
+        public SLEVersion Version { get; private set; }
+
         public int KeySize { get; private set; }
 
         public string FileName { get; private set; }
@@ -103,7 +105,7 @@ namespace RX_Explorer.Class
             using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
             {
                 Mode = CipherMode.CBC,
-                Padding = PaddingMode.PKCS7,
+                Padding = Version > SLEVersion.Version_1_0_0 ? PaddingMode.PKCS7 : PaddingMode.Zeros,
                 KeySize = KeySize,
                 Key = KeyArray,
                 IV = Encoding.UTF8.GetBytes(SecureAccessProvider.GetFileEncryptionAesIV(Package.Current))
@@ -164,28 +166,54 @@ namespace RX_Explorer.Class
 
                 if (RawInfoData.Split('$', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() is string InfoData)
                 {
-                    string[] InfoGroup = InfoData.Split('|');
+                    string[] FieldArray = InfoData.Split('|', StringSplitOptions.RemoveEmptyEntries);
 
-                    if (InfoGroup.Length == 2)
+                    switch (FieldArray.Length)
                     {
-                        KeySize = Convert.ToInt32(InfoGroup[0]);
-                        FileName = InfoGroup[1];
-
-                        if ((KeySize != 128 && KeySize != 256) || string.IsNullOrWhiteSpace(FileName))
-                        {
-                            throw new FileDamagedException("File damaged, could not be decrypted");
-                        }
-                        else
-                        {
-                            int KeyLengthNeed = KeySize / 8;
-
-                            KeyArray = Key.Length > KeyLengthNeed ? Encoding.UTF8.GetBytes(Key.Substring(0, KeyLengthNeed)) : Encoding.UTF8.GetBytes(Key.PadRight(KeyLengthNeed, '0'));
-                        }
+                        case 2:
+                            {
+                                Version = SLEVersion.Version_1_0_0;
+                                break;
+                            }
+                        case 3:
+                            {
+                                Version = (SLEVersion)Convert.ToInt32(FieldArray[2]);
+                                break;
+                            }
+                        default:
+                            {
+                                throw new FileDamagedException("File damaged, could not be decrypted");
+                            }
                     }
-                    else
+
+                    KeySize = Convert.ToInt32(FieldArray[0]);
+                    FileName = FieldArray[1];
+
+                    if ((KeySize != 128 && KeySize != 256) || string.IsNullOrWhiteSpace(FileName))
                     {
                         throw new FileDamagedException("File damaged, could not be decrypted");
                     }
+                    else
+                    {
+                        int KeyLengthNeed = KeySize / 8;
+
+                        if (Key.Length > KeyLengthNeed)
+                        {
+                            KeyArray = Encoding.UTF8.GetBytes(Key.Substring(0, KeyLengthNeed));
+                        }
+                        else if (Key.Length < KeyLengthNeed)
+                        {
+                            KeyArray = Encoding.UTF8.GetBytes(Key.PadRight(KeyLengthNeed, '0'));
+                        }
+                        else
+                        {
+                            KeyArray = Encoding.UTF8.GetBytes(Key);
+                        }
+                    }
+                }
+                else
+                {
+                    throw new FileDamagedException("File damaged, could not be decrypted");
                 }
             }
         }

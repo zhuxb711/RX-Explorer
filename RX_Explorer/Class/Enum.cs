@@ -2,6 +2,12 @@
 
 namespace RX_Explorer.Class
 {
+    public enum SLEVersion
+    {
+        Version_1_0_0 = 100,
+        Version_1_1_0 = 110
+    }
+
     public enum SyncStatus
     {
         Unknown,

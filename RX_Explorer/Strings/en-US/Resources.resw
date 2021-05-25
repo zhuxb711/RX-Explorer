@@ -3192,4 +3192,7 @@ Invalid names include
   <data name="PdfZoom.Label" xml:space="preserve">
     <value>Zoom</value>
   </data>
+  <data name="HashError" xml:space="preserve">
+    <value>Calculation error</value>
+  </data>
 </root>

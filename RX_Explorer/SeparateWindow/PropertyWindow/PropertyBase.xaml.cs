@@ -1088,6 +1088,9 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                     catch (Exception ex)
                     {
                         LogTracer.Log(ex, "Calculate MD5 failed");
+
+                        MD5TextBox.Text = Globalization.GetString("HashError");
+                        CalculateMd5.IsEnabled = true;
                     }
                     finally
                     {
@@ -1121,6 +1124,9 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 catch (Exception ex)
                 {
                     LogTracer.Log(ex, "Calculate SHA1 failed");
+
+                    SHA1TextBox.Text = Globalization.GetString("HashError");
+                    CalculateSHA1.IsEnabled = true;
                 }
                 finally
                 {
@@ -1153,6 +1159,9 @@ namespace RX_Explorer.SeparateWindow.PropertyWindow
                 catch (Exception ex)
                 {
                     LogTracer.Log(ex, "Calculate SHA256 failed");
+
+                    SHA256TextBox.Text = Globalization.GetString("HashError");
+                    CalculateSHA256.IsEnabled = true;
                 }
                 finally
                 {
