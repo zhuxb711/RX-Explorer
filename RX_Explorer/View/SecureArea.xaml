@@ -268,8 +268,10 @@
                 <TextBlock Name="LoadingText"
                            FontSize="15"
                            TextAlignment="Center" />
-                <muxc:ProgressBar IsIndeterminate="True"
-                                  Margin="0,10,0,0" />
+                <muxc:ProgressBar Margin="0,10,0,0" 
+                                  Maximum="100"
+                                  Minimum="0"
+                                  Name="ProBar"/>
                 <Button Content="取消"
                         Margin="0,10,0,0"
                         x:Uid="SecureAreaImportCancelButton"

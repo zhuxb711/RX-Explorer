@@ -227,7 +227,7 @@ namespace RX_Explorer.Class
                         using (FileStream OriginFileStream = await GetFileStreamFromFileAsync(AccessMode.Read))
                         using (ICryptoTransform Encryptor = AES.CreateEncryptor())
                         {
-                            byte[] ExtraInfoPart1 = Encoding.UTF8.GetBytes($"${KeySize}|{System.IO.Path.GetExtension(Path)}$");
+                            byte[] ExtraInfoPart1 = Encoding.UTF8.GetBytes($"${KeySize}|{System.IO.Path.GetFileName(Path)}$");
                             await EncryptFileStream.WriteAsync(ExtraInfoPart1, 0, ExtraInfoPart1.Length, CancelToken);
 
                             byte[] PasswordConfirm = Encoding.UTF8.GetBytes("PASSWORD_CORRECT");

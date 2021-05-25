@@ -190,13 +190,13 @@ namespace RX_Explorer.Class
                     }
                 case AccessMode.Write:
                     {
-                        Handle = CreateFileFromApp(Path, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                        Handle = CreateFileFromApp(Path, GENERIC_WRITE, FILE_SHARE_READ, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
 
                         break;
                     }
                 case AccessMode.ReadWrite:
                     {
-                        Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
+                        Handle = CreateFileFromApp(Path, GENERIC_WRITE | GENERIC_READ, FILE_SHARE_READ, IntPtr.Zero, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, IntPtr.Zero);
 
                         break;
                     }

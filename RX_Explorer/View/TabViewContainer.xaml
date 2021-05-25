@@ -1,32 +1,30 @@
-﻿<Page
-    x:Class="RX_Explorer.TabViewContainer"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+﻿<Page x:Class="RX_Explorer.TabViewContainer"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       xmlns:Cls="using:RX_Explorer.Class"
       xmlns:sys="using:System"
       mc:Ignorable="d"
-    Background="Transparent"
-    NavigationCacheMode="Required">
+      Background="Transparent"
+      NavigationCacheMode="Required">
 
     <Page.Resources>
-        <Cls:StringToVisibilityConverter x:Key="VisibilityConverter"/>
-        
+        <Cls:StringToVisibilityConverter x:Key="VisibilityConverter" />
+
         <muxc:CommandBarFlyout x:Name="TabCommandFlyout">
             <muxc:CommandBarFlyout.SecondaryCommands>
                 <AppBarButton Icon="ClosePane"
                               Label="关闭此标签页"
                               x:Uid="CloseThisTab"
                               x:Name="CloseThisTab"
-                              Click="CloseThisTab_Click"/>
+                              Click="CloseThisTab_Click" />
                 <AppBarButton Icon="ClosePane"
                               x:Uid="CloseButThis"
                               Label="关闭除此之外的标签页"
                               x:Name="CloseButThis"
-                              Click="CloseButThis_Click"/>
+                              Click="CloseButThis_Click" />
             </muxc:CommandBarFlyout.SecondaryCommands>
         </muxc:CommandBarFlyout>
     </Page.Resources>
@@ -87,16 +85,16 @@
         <SplitView.Pane>
             <Grid Margin="10">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="30" />
                     <RowDefinition />
-                    <RowDefinition MaxHeight="100"/>
+                    <RowDefinition MaxHeight="100" />
                 </Grid.RowDefinitions>
                 <RelativePanel>
                     <TextBlock Text="任务列表"
                                FontSize="16"
                                x:Uid="TaskListPanelTitle"
                                RelativePanel.AlignVerticalCenterWithPanel="True"
-                               RelativePanel.AlignLeftWithPanel="True"/>
+                               RelativePanel.AlignLeftWithPanel="True" />
                     <Button RelativePanel.AlignRightWithPanel="True"
                             RelativePanel.AlignVerticalCenterWithPanel="True"
                             Width="24"
@@ -117,7 +115,7 @@
                             <Setter Property="HorizontalContentAlignment"
                                     Value="Stretch" />
                             <Setter Property="Padding"
-                                    Value="10"/>
+                                    Value="10" />
                         </Style>
                     </ListView.ItemContainerStyle>
                     <ListView.ItemTemplate>
@@ -211,7 +209,7 @@
                                            TextWrapping="Wrap"
                                            Margin="0,5,0,0"
                                            FontSize="12"
-                                           HorizontalAlignment="Left"/>
+                                           HorizontalAlignment="Left" />
                             </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>
@@ -234,7 +232,7 @@
                            Text="无内容"
                            x:Uid="TaskListEmptyTip"
                            Name="EmptyTip"
-                           FontSize="16"/>
+                           FontSize="16" />
             </Grid>
         </SplitView.Pane>
     </SplitView>

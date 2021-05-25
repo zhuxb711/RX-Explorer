@@ -245,7 +245,7 @@ namespace RX_Explorer.Class
             return string.Format("{0:D2}:{1:D2}:{2:D2}", Hour, Minute, Second);
         }
 
-        public static Task CopyToAsync(this Stream From, Stream To, long Length = -1, ProgressChangedEventHandler ProgressHandler = null)
+        public static Task CopyToAsync(this Stream From, Stream To, long Length = -1, ProgressChangedEventHandler ProgressHandler = null, CancellationToken CancelToken = default)
         {
             return Task.Run(() =>
             {
@@ -283,9 +283,11 @@ namespace RX_Explorer.Class
                                 ProgressHandler.Invoke(null, new ProgressChangedEventArgs(ProgressValue, null));
                             }
                         }
+
+                        CancelToken.ThrowIfCancellationRequested();
                     }
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not OperationCanceledException)
                 {
                     LogTracer.Log(ex, "Could not track the progress of coping the stream");
                     From.CopyTo(To);
@@ -824,7 +826,7 @@ namespace RX_Explorer.Class
         /// <param name="OriginText">要加密的内容</param>
         /// <param name="Key">密钥</param>
         /// <returns></returns>
-        public static async Task<string> EncryptAsync(this string OriginText, string Key)
+        public static string EncryptToString(this string OriginText, string Key)
         {
             if (string.IsNullOrEmpty(OriginText))
             {
@@ -850,14 +852,12 @@ namespace RX_Explorer.Class
                 })
                 {
                     using (MemoryStream EncryptStream = new MemoryStream())
+                    using (ICryptoTransform Encryptor = AES.CreateEncryptor())
+                    using (CryptoStream TransformStream = new CryptoStream(EncryptStream, Encryptor, CryptoStreamMode.Write))
                     {
-                        using (ICryptoTransform Encryptor = AES.CreateEncryptor())
-                        using (CryptoStream TransformStream = new CryptoStream(EncryptStream, Encryptor, CryptoStreamMode.Write))
-                        using (StreamWriter Writer = new StreamWriter(TransformStream))
-                        {
-                            await Writer.WriteAsync(OriginText).ConfigureAwait(false);
-                        }
-
+                        byte[] OriginBytes = Encoding.UTF8.GetBytes(OriginText);
+                        TransformStream.Write(OriginBytes, 0, OriginBytes.Length);
+                        TransformStream.FlushFinalBlock();
                         return Convert.ToBase64String(EncryptStream.ToArray());
                     }
                 }
@@ -875,7 +875,7 @@ namespace RX_Explorer.Class
         /// <param name="OriginText">密文</param>
         /// <param name="Key">密钥</param>
         /// <returns></returns>
-        public static async Task<string> DecryptAsync(this string OriginText, string Key)
+        public static string DecryptToString(this string OriginText, string Key)
         {
             if (string.IsNullOrEmpty(OriginText))
             {
@@ -889,25 +889,23 @@ namespace RX_Explorer.Class
 
             try
             {
-                string IV = SecureAccessProvider.GetStringEncryptionAesIV(Package.Current);
-
                 using (AesCryptoServiceProvider AES = new AesCryptoServiceProvider
                 {
                     KeySize = 128,
                     Key = Key.Length > 16 ? Encoding.UTF8.GetBytes(Key.Substring(0, 16)) : Encoding.UTF8.GetBytes(Key.PadRight(16, '0')),
                     Mode = CipherMode.CBC,
                     Padding = PaddingMode.PKCS7,
-                    IV = Encoding.UTF8.GetBytes(IV)
+                    IV = Encoding.UTF8.GetBytes(SecureAccessProvider.GetStringEncryptionAesIV(Package.Current))
                 })
                 {
-                    using (MemoryStream DecryptStream = new MemoryStream(Convert.FromBase64String(OriginText)))
+                    using (MemoryStream DecryptStream = new MemoryStream())
+                    using (ICryptoTransform Decryptor = AES.CreateDecryptor())
+                    using (CryptoStream TransformStream = new CryptoStream(DecryptStream, Decryptor, CryptoStreamMode.Write))
                     {
-                        using (ICryptoTransform Decryptor = AES.CreateDecryptor())
-                        using (CryptoStream TransformStream = new CryptoStream(DecryptStream, Decryptor, CryptoStreamMode.Read))
-                        using (StreamReader Writer = new StreamReader(TransformStream, Encoding.UTF8))
-                        {
-                            return await Writer.ReadToEndAsync().ConfigureAwait(false);
-                        }
+                        byte[] EncryptedBytes = Convert.FromBase64String(OriginText);
+                        TransformStream.Write(EncryptedBytes, 0, EncryptedBytes.Length);
+                        TransformStream.FlushFinalBlock();
+                        return Encoding.UTF8.GetString(DecryptStream.ToArray());
                     }
                 }
             }

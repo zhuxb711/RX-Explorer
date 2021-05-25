@@ -965,25 +965,33 @@ namespace RX_Explorer
 
                     if (await FileSystemStorageItemBase.CreateAsync(Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder"), StorageItemTypes.Folder, CreateOption.OpenIfExist) is FileSystemStorageFolder SecureFolder)
                     {
-                        string FileEncryptionAesKey = KeyGenerator.GetMD5WithLength(CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword"), 16);
+                        string AesKey = KeyGenerator.GetMD5WithLength(CredentialProtector.GetPasswordFromProtector("SecureAreaPrimaryPassword"), 16);
 
                         try
                         {
                             foreach (FileSystemStorageFile Item in await SecureFolder.GetChildItemsAsync(false, false, Filter: ItemFilters.File))
                             {
-                                if (await Item.DecryptAsync(Dialog.ExportFolder.Path, FileEncryptionAesKey) is FileSystemStorageItemBase)
+                                string DecryptedFilePath = Path.Combine(Dialog.ExportFolder.Path, Path.GetRandomFileName());
+
+                                if (await FileSystemStorageItemBase.CreateAsync(DecryptedFilePath, StorageItemTypes.File, CreateOption.GenerateUniqueName) is FileSystemStorageFile DecryptedFile)
                                 {
-                                    await Item.DeleteAsync(true);
+                                    using (FileStream EncryptedFStream = await Item.GetFileStreamFromFileAsync(AccessMode.Read))
+                                    using (SLEInputStream SLEStream = new SLEInputStream(EncryptedFStream, AesKey))
+                                    {
+                                        using (FileStream DecryptedFStream = await DecryptedFile.GetFileStreamFromFileAsync(AccessMode.Write))
+                                        {
+                                            await SLEStream.CopyToAsync(DecryptedFStream, 2048);
+                                        }
+
+                                        await DecryptedFile.RenameAsync(SLEStream.FileName);
+                                    }
                                 }
                             }
 
                             try
                             {
                                 SQLite.Current.Dispose();
-
-                                await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Local);
-                                await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Temporary);
-                                await ApplicationData.Current.ClearAsync(ApplicationDataLocality.Roaming);
+                                await ApplicationData.Current.ClearAsync();
                             }
                             catch (Exception ex)
                             {
@@ -991,11 +999,11 @@ namespace RX_Explorer
                                 LogTracer.Log(ex, $"{nameof(ClearUp_Click)} threw an exception");
                             }
 
-                            await Task.Delay(1000);
+                            await Task.Delay(500);
 
                             LoadingControl.IsLoading = false;
 
-                            await Task.Delay(1000);
+                            await Task.Delay(500);
 
                             Window.Current.Activate();
 
@@ -2506,7 +2514,7 @@ namespace RX_Explorer
                         {
                             using (MD5 MD5Alg = MD5.Create())
                             {
-                                string ConfigDecryptedString = await Configuration.DecryptAsync(Package.Current.Id.FamilyName);
+                                string ConfigDecryptedString = Configuration.DecryptToString(Package.Current.Id.FamilyName);
 
                                 if (MD5Alg.GetHash(ConfigDecryptedString).Equals(ConfigHash, StringComparison.OrdinalIgnoreCase))
                                 {
@@ -2553,7 +2561,7 @@ namespace RX_Explorer
                                         }
                                     }
 
-                                    string DatabaseDecryptedString = await Database.DecryptAsync(Package.Current.Id.FamilyName);
+                                    string DatabaseDecryptedString = Database.DecryptToString(Package.Current.Id.FamilyName);
 
                                     if (MD5Alg.GetHash(DatabaseDecryptedString).Equals(DatabaseHash, StringComparison.OrdinalIgnoreCase))
                                     {
@@ -2724,9 +2732,9 @@ namespace RX_Explorer
                         Dictionary<string, string> BaseDic = new Dictionary<string, string>
                         {
                             { "Identitifier", "RX_Explorer_Export_Configuration" },
-                            { "Configuration",  await ConfigurationString.EncryptAsync(Package.Current.Id.FamilyName)},
+                            { "Configuration",  ConfigurationString.EncryptToString(Package.Current.Id.FamilyName)},
                             { "ConfigHash", MD5Alg.GetHash(ConfigurationString) },
-                            { "Database", await DatabaseString.EncryptAsync(Package.Current.Id.FamilyName) },
+                            { "Database", DatabaseString.EncryptToString(Package.Current.Id.FamilyName) },
                             { "DatabaseHash", MD5Alg.GetHash(DatabaseString)}
                         };
 
