@@ -40,6 +40,7 @@ namespace RX_Explorer.Dialog
             using (FileStream FStream = await StorageItem.GetFileStreamFromFileAsync(AccessMode.Read))
             using (SLEInputStream SLEStream = new SLEInputStream(FStream, SecureArea.AESKey))
             {
+                SLEStream.LoadPropertiesOnly();
                 Level = SLEStream.KeySize == 128 ? "AES-128bit" : "AES-256bit";
             }
 

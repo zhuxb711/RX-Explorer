@@ -218,6 +218,11 @@ namespace RX_Explorer.Class
             }
         }
 
+        public void LoadPropertiesOnly()
+        {
+            ReadHeader();
+        }
+
         protected override void Dispose(bool disposing)
         {
             TransformStream?.Dispose();

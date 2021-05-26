@@ -132,7 +132,6 @@ namespace RX_Explorer.Dialog
                                     {
                                         args.Cancel = true;
                                         InvalidCharTip.IsOpen = true;
-                                        Deferral.Complete();
                                         return;
                                     }
 
@@ -206,7 +205,6 @@ namespace RX_Explorer.Dialog
                                     {
                                         args.Cancel = true;
                                         InvalidCharTip.IsOpen = true;
-                                        Deferral.Complete();
                                         return;
                                     }
 

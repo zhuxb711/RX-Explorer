@@ -1620,7 +1620,7 @@ namespace FullTrustProcess
                                 {
                                     try
                                     {
-                                        Helper.ExecuteOnSTAThreadAsync(() =>
+                                        await Helper.ExecuteOnSTAThreadAsync(() =>
                                         {
                                             ShowWindowCommand WindowCommand;
 
