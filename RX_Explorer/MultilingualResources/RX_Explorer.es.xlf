@@ -4097,7 +4097,27 @@ Las denominaciones no válidas son:
         </trans-unit>
         <trans-unit id="HashError" translate="yes" xml:space="preserve">
           <source>Calculation error</source>
-          <target state="new">Calculation error</target>
+          <target state="translated">Error de cálculo</target>
+        </trans-unit>
+        <trans-unit id="SecureArea_MustResetPath_Content" translate="yes" xml:space="preserve">
+          <source>The storage location is lost and must be reset</source>
+          <target state="translated">La ubicación de almacenamiento se pierde y debe restablecerse</target>
+        </trans-unit>
+        <trans-unit id="SecureArea_StorageLocation_ChangeButton" translate="yes" xml:space="preserve">
+          <source>Change location</source>
+          <target state="translated">Cambiar locación</target>
+        </trans-unit>
+        <trans-unit id="SecureArea_StorageLocation_Title" translate="yes" xml:space="preserve">
+          <source>Storage location</source>
+          <target state="translated">Ubicación de almacenamiento</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_SecureAreaTransferFileFailed_Content" translate="yes" xml:space="preserve">
+          <source>File transfer failed. Some files could not be transferred. Please manually transfer to the new folder</source>
+          <target state="translated">Error en la transferencia de archivos. Algunos archivos no se pudieron transferir. Transfiera manualmente a la nueva carpeta</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Transfering" translate="yes" xml:space="preserve">
+          <source>Transferring</source>
+          <target state="translated">Transfiriendo</target>
         </trans-unit>
       </group>
     </body>

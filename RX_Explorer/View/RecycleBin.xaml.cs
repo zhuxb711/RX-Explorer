@@ -111,11 +111,11 @@ namespace RX_Explorer.View
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            FileCollection.Clear();
-
             SelectionExtention?.Dispose();
             CoreWindow.GetForCurrentThread().KeyDown -= RecycleBin_KeyDown;
             ListViewControl.RemoveHandler(PointerPressedEvent, PointerPressedHandler);
+
+            FileCollection.Clear();
         }
 
         private void ListViewControl_PointerPressed(object sender, PointerRoutedEventArgs e)

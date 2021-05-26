@@ -3087,4 +3087,22 @@
   <data name="PdfZoom.Label" xml:space="preserve">
     <value>缩放</value>
   </data>
+  <data name="HashError" xml:space="preserve">
+    <value>计算出错</value>
+  </data>
+  <data name="SecureArea_MustResetPath_Content" xml:space="preserve">
+    <value>存储位置丢失，必须重新设置</value>
+  </data>
+  <data name="SecureArea_StorageLocation_ChangeButton" xml:space="preserve">
+    <value>更改位置</value>
+  </data>
+  <data name="SecureArea_StorageLocation_Title" xml:space="preserve">
+    <value>存储位置</value>
+  </data>
+  <data name="QueueDialog_SecureAreaTransferFileFailed_Content" xml:space="preserve">
+    <value>文件传输失败。 部分文件无法传输。 请手动转移到新文件夹</value>
+  </data>
+  <data name="Progress_Tip_Transfering" xml:space="preserve">
+    <value>正在转移</value>
+  </data>
 </root>

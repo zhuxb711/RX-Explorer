@@ -28,7 +28,17 @@
                                         IsSkipBackwardEnabled="True"
                                         IsSkipForwardEnabled="True"
                                         IsSkipForwardButtonVisible="True"
-                                        IsSkipBackwardButtonVisible="True" />
+                                        IsSkipBackwardButtonVisible="True" 
+                                        IsFastForwardButtonVisible="True"
+                                        IsFastForwardEnabled="True"
+                                        IsFastRewindButtonVisible="True"
+                                        IsFastRewindEnabled="True"
+                                        IsPlaybackRateButtonVisible="True"
+                                        IsPlaybackRateEnabled="True"
+                                        IsRepeatButtonVisible="True"
+                                        IsRepeatEnabled="True"
+                                        IsStopButtonVisible="True"
+                                        IsStopEnabled="True"/>
             </MediaPlayerElement.TransportControls>
         </MediaPlayerElement>
         <StackPanel VerticalAlignment="Center"

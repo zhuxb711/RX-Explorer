@@ -20,7 +20,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media.Animation;
 
 namespace RX_Explorer
 {
@@ -31,6 +30,8 @@ namespace RX_Explorer
         private FileSystemStorageFolder SecureFolder;
 
         private readonly PointerEventHandler PointerPressedHandler;
+
+        private readonly string DefaultSecureAreaFolderPath = Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder");
 
         internal static string AESKey
         {
@@ -131,7 +132,7 @@ namespace RX_Explorer
                                         }
                                         else
                                         {
-                                            GoBack();
+                                            Frame.GoBack();
                                             return;
                                         }
 
@@ -178,7 +179,7 @@ namespace RX_Explorer
                                         }
                                         else
                                         {
-                                            GoBack();
+                                            Frame.GoBack();
                                             return;
                                         }
 
@@ -199,9 +200,7 @@ namespace RX_Explorer
                 {
                     try
                     {
-                        LoadingText.Text = Globalization.GetString("Progress_Tip_CheckingLicense");
-                        CancelButton.Visibility = Visibility.Collapsed;
-                        LoadingControl.IsLoading = true;
+                        await ActivateLoading(true, false, Globalization.GetString("Progress_Tip_CheckingLicense"));
 
                         if (await MSStoreHelper.Current.CheckPurchaseStatusAsync())
                         {
@@ -228,21 +227,20 @@ namespace RX_Explorer
                                 }
                                 else
                                 {
-                                    GoBack();
+                                    Frame.GoBack();
                                     return;
                                 }
                             }
                             else
                             {
-                                GoBack();
+                                Frame.GoBack();
                                 return;
                             }
                         }
                     }
                     finally
                     {
-                        await Task.Delay(500);
-                        LoadingControl.IsLoading = false;
+                        await ActivateLoading(false);
                     }
 
                     SecureAreaWelcomeDialog Dialog = new SecureAreaWelcomeDialog();
@@ -263,7 +261,7 @@ namespace RX_Explorer
                             await WindowsHelloAuthenticator.DeleteUserAsync();
                         }
 
-                        GoBack();
+                        Frame.GoBack();
                         return;
                     }
                 }
@@ -305,33 +303,70 @@ namespace RX_Explorer
         private async Task<bool> EnterByPassword()
         {
             SecureAreaVerifyDialog Dialog = new SecureAreaVerifyDialog(UnlockPassword);
+
             if ((await Dialog.ShowAsync()) == ContentDialogResult.Primary)
             {
                 return true;
             }
             else
             {
-                GoBack();
+                Frame.GoBack();
                 return false;
             }
-        }
-
-        private void GoBack()
-        {
-            MainPage.ThisPage.Nav.Navigate(typeof(TabViewContainer), null, new DrillInNavigationTransitionInfo());
         }
 
         private async Task LoadSecureFile()
         {
             IsNewStart = false;
 
-            SecureFolder = await FileSystemStorageItemBase.CreateAsync(Path.Combine(ApplicationData.Current.LocalCacheFolder.Path, "SecureFolder"), StorageItemTypes.Folder, CreateOption.OpenIfExist) as FileSystemStorageFolder;
+            SecureCollection.Clear();
 
-            SecureCollection.AddRange((await SecureFolder.GetChildItemsAsync(false, false, Filter: ItemFilters.File)).Cast<FileSystemStorageFile>());
+        Retry:
+            string SecureAreaFolderPath;
 
-            if (SecureCollection.Count == 0)
+            if (ApplicationData.Current.LocalSettings.Values.TryGetValue("SecureAreaStorageLocation", out object SPath))
             {
-                EmptyTips.Visibility = Visibility.Visible;
+                SecureAreaFolderPath = Convert.ToString(SPath);
+            }
+            else
+            {
+                SecureAreaFolderPath = DefaultSecureAreaFolderPath;
+                ApplicationData.Current.LocalSettings.Values["SecureAreaStorageLocation"] = DefaultSecureAreaFolderPath;
+            }
+
+            FileSystemStorageItemBase SItem;
+
+            if (SecureAreaFolderPath.Equals(DefaultSecureAreaFolderPath, StringComparison.OrdinalIgnoreCase))
+            {
+                SItem = await FileSystemStorageItemBase.CreateAsync(SecureAreaFolderPath, StorageItemTypes.Folder, CreateOption.OpenIfExist);
+            }
+            else
+            {
+                SItem = await FileSystemStorageItemBase.OpenAsync(SecureAreaFolderPath);
+            }
+
+            if (SItem is FileSystemStorageFolder SFolder)
+            {
+                SecureFolder = SFolder;
+                SecureCollection.AddRange((await SecureFolder.GetChildItemsAsync(false, false, Filter: ItemFilters.File, AdvanceFilter: (Name) => Path.GetExtension(Name).Equals(".sle", StringComparison.OrdinalIgnoreCase))).Cast<FileSystemStorageFile>());
+
+                if (SecureCollection.Count == 0)
+                {
+                    EmptyTips.Visibility = Visibility.Visible;
+                }
+            }
+            else
+            {
+                SecureAreaChangeLocationDialog Dialog = new SecureAreaChangeLocationDialog();
+
+                if (await Dialog.ShowAsync() == ContentDialogResult.Primary)
+                {
+                    goto Retry;
+                }
+                else
+                {
+                    Frame.GoBack();
+                }
             }
         }
 
@@ -354,7 +389,7 @@ namespace RX_Explorer
         {
             if (FileList.Any())
             {
-                ActivateLoading(true, true);
+                await ActivateLoading(true, DisplayString: Globalization.GetString("Progress_Tip_Importing"));
 
                 Cancellation = new CancellationTokenSource();
 
@@ -431,9 +466,7 @@ namespace RX_Explorer
                     Cancellation.Dispose();
                     Cancellation = null;
 
-                    await Task.Delay(500);
-
-                    ActivateLoading(false);
+                    await ActivateLoading(false);
                 }
             }
         }
@@ -598,7 +631,7 @@ namespace RX_Explorer
 
             if ((await Picker.PickSingleFolderAsync()) is StorageFolder Folder)
             {
-                ActivateLoading(true, false);
+                await ActivateLoading (true, DisplayString: Globalization.GetString("Progress_Tip_Exporting"));
 
                 Cancellation = new CancellationTokenSource();
 
@@ -695,8 +728,7 @@ namespace RX_Explorer
                     Cancellation.Dispose();
                     Cancellation = null;
 
-                    await Task.Delay(500);
-                    ActivateLoading(false);
+                    await ActivateLoading(false);
                 }
             }
         }
@@ -763,13 +795,15 @@ namespace RX_Explorer
             }
         }
 
-        private void ActivateLoading(bool ActivateOrNot, bool IsImport = true)
+        private async Task ActivateLoading(bool ActivateOrNot, bool ShowCancelButton = true, string DisplayString = null)
         {
+            await Task.Delay(500);
+
             if (ActivateOrNot)
             {
                 ProBar.IsIndeterminate = true;
-                LoadingText.Text = IsImport ? Globalization.GetString("Progress_Tip_Importing") : Globalization.GetString("Progress_Tip_Exporting");
-                CancelButton.Visibility = Visibility.Visible;
+                LoadingText.Text = DisplayString;
+                CancelButton.Visibility = ShowCancelButton ? Visibility.Visible : Visibility.Collapsed;
             }
 
             LoadingControl.IsLoading = ActivateOrNot;
@@ -823,6 +857,8 @@ namespace RX_Explorer
                 ImmediateLockMode.IsChecked = true;
                 ApplicationData.Current.LocalSettings.Values["SecureAreaLockMode"] = nameof(ImmediateLockMode);
             }
+
+            StorageLocation.Text = Convert.ToString(ApplicationData.Current.LocalSettings.Values["SecureAreaStorageLocation"]);
 
             UseWindowsHello.Toggled += UseWindowsHello_Toggled;
             AES128Mode.Checked += AES128Mode_Checked;
@@ -927,6 +963,76 @@ namespace RX_Explorer
             if (args.Item is FileSystemStorageItemBase Item)
             {
                 await Item.LoadMorePropertiesAsync().ConfigureAwait(false);
+            }
+        }
+
+        private async void ChangeLocation_Click(object sender, RoutedEventArgs args)
+        {
+            FolderPicker Picker = new FolderPicker
+            {
+                ViewMode = PickerViewMode.List,
+                SuggestedStartLocation = PickerLocationId.ComputerFolder
+            };
+            Picker.FileTypeFilter.Add("*");
+
+            if (await Picker.PickSingleFolderAsync() is StorageFolder Folder)
+            {
+                string OldPath = Convert.ToString(ApplicationData.Current.LocalSettings.Values["SecureAreaStorageLocation"]);
+
+                StorageLocation.Text = Folder.Path;
+                ApplicationData.Current.LocalSettings.Values["SecureAreaStorageLocation"] = Folder.Path;
+
+                await ActivateLoading(true, DisplayString:  Globalization.GetString("Progress_Tip_Transfering"));
+
+                try
+                {
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    {
+                        await Exclusive.Controller.MoveAsync(SecureCollection.Select((Item) => Item.Path), Folder.Path, ProgressHandler: async (s, e) =>
+                        {
+                            await Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+                            {
+                                ProBar.IsIndeterminate = false;
+                                ProBar.Value = e.ProgressPercentage;
+                            });
+                        });
+                    }
+
+                    await LoadSecureFile();
+                }
+                catch (Exception ex)
+                {
+                    LogTracer.Log(ex, "Transfering in SecureArea failed for unexpected error");
+
+                    QueueContentDialog Dialog = new QueueContentDialog
+                    {
+                        Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                        Content = Globalization.GetString("QueueDialog_SecureAreaTransferFileFailed_Content"),
+                        CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                    };
+
+                    await Dialog.ShowAsync();
+
+                    await Launcher.LaunchFolderPathAsync(OldPath);
+                }
+                finally
+                {
+                    await ActivateLoading(false);
+                }
+            }
+        }
+
+        private void SecureGridView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (SecureGridView.SelectedItems.Count > 0)
+            {
+                ExportFile.IsEnabled = true;
+                DeleteFile.IsEnabled = true;
+            }
+            else
+            {
+                ExportFile.IsEnabled = false;
+                DeleteFile.IsEnabled = false;
             }
         }
     }

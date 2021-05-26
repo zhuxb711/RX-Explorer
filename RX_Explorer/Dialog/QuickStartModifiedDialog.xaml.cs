@@ -126,15 +126,15 @@ namespace RX_Explorer.Dialog
                     {
                         case QuickStartType.Application:
                             {
+                                if (!FileSystemItemNameChecker.IsValid(DisplayName.Text))
+                                {
+                                    args.Cancel = true;
+                                    InvalidCharTip.IsOpen = true;
+                                    return;
+                                }
+
                                 if (Uri.TryCreate(Protocol.Text, UriKind.Absolute, out _))
                                 {
-                                    if (!FileSystemItemNameChecker.IsValid(DisplayName.Text))
-                                    {
-                                        args.Cancel = true;
-                                        InvalidCharTip.IsOpen = true;
-                                        return;
-                                    }
-
                                     if (IsUpdate)
                                     {
                                         if (ImageFile == null)
@@ -199,15 +199,15 @@ namespace RX_Explorer.Dialog
                             }
                         case QuickStartType.WebSite:
                             {
+                                if (!FileSystemItemNameChecker.IsValid(DisplayName.Text))
+                                {
+                                    args.Cancel = true;
+                                    InvalidCharTip.IsOpen = true;
+                                    return;
+                                }
+
                                 if (Uri.TryCreate(Protocol.Text, UriKind.Absolute, out Uri Result) && !Result.IsFile)
                                 {
-                                    if (!FileSystemItemNameChecker.IsValid(DisplayName.Text))
-                                    {
-                                        args.Cancel = true;
-                                        InvalidCharTip.IsOpen = true;
-                                        return;
-                                    }
-
                                     if (IsUpdate)
                                     {
                                         if (ImageFile == null)

@@ -1743,22 +1743,32 @@ namespace RX_Explorer
 
             if (Btn.DataContext is AddressBlock Block)
             {
-                if (await FileSystemStorageItemBase.OpenAsync(Block.Path) is FileSystemStorageFolder Folder)
+                if (Block.Path.Equals(RootStorageFolder.Instance.Path))
                 {
-                    foreach (FileSystemStorageFolder SubFolder in await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, Filter: ItemFilters.Folder))
+                    foreach (DriveDataBase Drive in CommonAccessCollection.DriveList)
                     {
-                        AddressExtentionList.Add(new AddressBlock(SubFolder.Path));
+                        AddressExtentionList.Add(new AddressBlock(Drive.Path, Drive.DisplayName));
                     }
-
-                    if (AddressExtentionList.Count > 0 && Btn.Content is FrameworkElement DropDownElement)
+                }
+                else
+                {
+                    if (await FileSystemStorageItemBase.OpenAsync(Block.Path) is FileSystemStorageFolder Folder)
                     {
-                        Vector2 RotationCenter = new Vector2(Convert.ToSingle(DropDownElement.ActualWidth * 0.45), Convert.ToSingle(DropDownElement.ActualHeight * 0.57));
-
-                        await AnimationBuilder.Create().CenterPoint(RotationCenter, RotationCenter).RotationInDegrees(90, duration: TimeSpan.FromMilliseconds(150)).StartAsync(DropDownElement);
-
-                        FlyoutBase.SetAttachedFlyout(Btn, AddressExtentionFlyout);
-                        FlyoutBase.ShowAttachedFlyout(Btn);
+                        foreach (FileSystemStorageFolder SubFolder in await Folder.GetChildItemsAsync(SettingControl.IsDisplayHiddenItem, SettingControl.IsDisplayProtectedSystemItems, Filter: ItemFilters.Folder))
+                        {
+                            AddressExtentionList.Add(new AddressBlock(SubFolder.Path));
+                        }
                     }
+                }
+
+                if (AddressExtentionList.Count > 0 && Btn.Content is FrameworkElement DropDownElement)
+                {
+                    Vector2 RotationCenter = new Vector2(Convert.ToSingle(DropDownElement.ActualWidth * 0.45), Convert.ToSingle(DropDownElement.ActualHeight * 0.57));
+
+                    await AnimationBuilder.Create().CenterPoint(RotationCenter, RotationCenter).RotationInDegrees(90, duration: TimeSpan.FromMilliseconds(150)).StartAsync(DropDownElement);
+
+                    FlyoutBase.SetAttachedFlyout(Btn, AddressExtentionFlyout);
+                    FlyoutBase.ShowAttachedFlyout(Btn);
                 }
             }
         }

@@ -3087,4 +3087,22 @@ Inkorrekte Namen sind
   <data name="PdfZoom.Label" xml:space="preserve">
     <value>Zoomen</value>
   </data>
+  <data name="HashError" xml:space="preserve">
+    <value>Berechnungsfehler</value>
+  </data>
+  <data name="SecureArea_MustResetPath_Content" xml:space="preserve">
+    <value>Der Speicherort geht verloren und muss zurückgesetzt werden</value>
+  </data>
+  <data name="SecureArea_StorageLocation_ChangeButton" xml:space="preserve">
+    <value>Den Ort wechseln</value>
+  </data>
+  <data name="SecureArea_StorageLocation_Title" xml:space="preserve">
+    <value>Lagerort</value>
+  </data>
+  <data name="QueueDialog_SecureAreaTransferFileFailed_Content" xml:space="preserve">
+    <value>Dateiübertragung fehlgeschlagen. Einige Dateien konnten nicht übertragen werden. Bitte manuell in den neuen Ordner übertragen</value>
+  </data>
+  <data name="Progress_Tip_Transfering" xml:space="preserve">
+    <value>Übertragen</value>
+  </data>
 </root>

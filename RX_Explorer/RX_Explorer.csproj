@@ -212,6 +212,9 @@
     <Compile Include="Dialog\DecompressDialog.xaml.cs">
       <DependentUpon>DecompressDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialog\SecureAreaChangeLocationDialog.xaml.cs">
+      <DependentUpon>SecureAreaChangeLocationDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\TextEncodingDialog.xaml.cs">
       <DependentUpon>TextEncodingDialog.xaml</DependentUpon>
     </Compile>
@@ -478,7 +481,6 @@
     <Content Include="SecureAccess\NetworkAccess.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="Package.StoreAssociation.xml" />
     <Content Include="Assets\LargeTile.scale-100.png" />
     <Content Include="Assets\LargeTile.scale-125.png" />
     <Content Include="Assets\LargeTile.scale-150.png" />
@@ -591,6 +593,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialog\ResetDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialog\SecureAreaChangeLocationDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

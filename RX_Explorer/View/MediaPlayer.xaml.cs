@@ -227,21 +227,27 @@ namespace RX_Explorer
 
         private void MVControl_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
-            if (MusicCover.Visibility != Visibility.Visible)
+            if (MVControl.ActualHeight - e.GetPosition(MVControl).Y > 100)
             {
-                MVControl.IsFullWindow = !MVControl.IsFullWindow;
+                if (MusicCover.Visibility != Visibility.Visible)
+                {
+                    MVControl.IsFullWindow = !MVControl.IsFullWindow;
+                }
             }
         }
 
         private void MVControl_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            if (MVControl.MediaPlayer.PlaybackSession.CanPause && (MVControl.MediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Playing || MVControl.MediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Buffering))
+            if (MVControl.ActualHeight - e.GetCurrentPoint(MVControl).Position.Y > 100)
             {
-                MVControl.MediaPlayer.Pause();
-            }
-            else if (MVControl.MediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Paused)
-            {
-                MVControl.MediaPlayer.Play();
+                if (MVControl.MediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Paused)
+                {
+                    MVControl.MediaPlayer.Play();
+                }
+                else if (MVControl.MediaPlayer.PlaybackSession.CanPause)
+                {
+                    MVControl.MediaPlayer.Pause();
+                }
             }
         }
     }

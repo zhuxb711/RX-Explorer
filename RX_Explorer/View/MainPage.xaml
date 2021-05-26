@@ -366,16 +366,16 @@
                         <FontIcon Glyph="&#xED10;" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_SecureArea_Label')}">
-                    <muxc:NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="ProtectedDocument" />
-                    </muxc:NavigationViewItem.Icon>
-                </muxc:NavigationViewItem>
                 <muxc:NavigationViewItem x:Name="QuickStartNav"
                                          Content="{x:Bind Cls:Globalization.GetString('MainPage_QuickStart_Label')}"
                                          SelectsOnInvoked="False">
                     <muxc:NavigationViewItem.Icon>
                         <SymbolIcon Symbol="AllApps" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_SecureArea_Label')}">
+                    <muxc:NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="ProtectedDocument" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
                 <muxc:NavigationViewItem x:Name="BluetoothAudio"

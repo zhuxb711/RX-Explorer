@@ -91,57 +91,67 @@ namespace FullTrustProcess
             }
         }
 
+        [SecurityCritical]
+        [HandleProcessCorruptedStateExceptions]
         private static Shell32.IContextMenu GetContextMenuObject(params string[] PathArray)
         {
-            if (PathArray.Count() > 1)
+            try
             {
-                ShellItem[] Items = PathArray.Select((Path) => new ShellItem(Path)).ToArray();
-                ShellFolder[] ParentFolders = Items.Select((Item) => Item.Parent).ToArray();
+                if (PathArray.Count() > 1)
+                {
+                    ShellItem[] Items = PathArray.Select((Path) => new ShellItem(Path)).ToArray();
+                    ShellFolder[] ParentFolders = Items.Select((Item) => Item.Parent).ToArray();
 
-                try
-                {
-                    if (ParentFolders.Skip(1).All((Folder) => Folder == ParentFolders[0]))
+                    try
                     {
-                        return ParentFolders[0].GetChildrenUIObjects<Shell32.IContextMenu>(null, Items);
-                    }
-                    else
-                    {
-                        throw new ArgumentException("All items must have the same parent");
-                    }
-                }
-                finally
-                {
-                    Array.ForEach(Items, (It) => It.Dispose());
-                    Array.ForEach(ParentFolders, (It) => It.Dispose());
-                }
-            }
-            else
-            {
-                using (ShellItem Item = new ShellItem(PathArray.First()))
-                {
-                    if (Item is ShellFolder Folder)
-                    {
-                        return Folder.IShellFolder.CreateViewObject<Shell32.IContextMenu>(HWND.NULL);
-                    }
-                    else
-                    {
-                        if (Item.Parent is ShellFolder ParentFolder)
+                        if (ParentFolders.Skip(1).All((Folder) => Folder == ParentFolders[0]))
                         {
-                            try
-                            {
-                                return ParentFolder.GetChildrenUIObjects<Shell32.IContextMenu>(null, Item);
-                            }
-                            finally
-                            {
-                                ParentFolder?.Dispose();
-                            }
+                            return ParentFolders[0].GetChildrenUIObjects<Shell32.IContextMenu>(null, Items);
                         }
                         else
                         {
-                            return Item.GetHandler<Shell32.IContextMenu>(Shell32.BHID.BHID_SFUIObject);
+                            throw new ArgumentException("All items must have the same parent");
+                        }
+                    }
+                    finally
+                    {
+                        Array.ForEach(Items, (It) => It.Dispose());
+                        Array.ForEach(ParentFolders, (It) => It.Dispose());
+                    }
+                }
+                else
+                {
+                    using (ShellItem Item = new ShellItem(PathArray.First()))
+                    {
+                        if (Item is ShellFolder Folder)
+                        {
+                            return Folder.IShellFolder.CreateViewObject<Shell32.IContextMenu>(HWND.NULL);
+                        }
+                        else
+                        {
+                            if (Item.Parent is ShellFolder ParentFolder)
+                            {
+                                try
+                                {
+                                    return ParentFolder.GetChildrenUIObjects<Shell32.IContextMenu>(null, Item);
+                                }
+                                finally
+                                {
+                                    ParentFolder?.Dispose();
+                                }
+                            }
+                            else
+                            {
+                                return Item.GetHandler<Shell32.IContextMenu>(Shell32.BHID.BHID_SFUIObject);
+                            }
                         }
                     }
                 }
+            }
+            catch (Exception)
+            {
+                Debug.WriteLine("Exception was threw when getting the context menu COM object");
+                return null;
             }
         }
 
@@ -272,9 +282,9 @@ namespace FullTrustProcess
                         }
                     }
                 }
-                catch (AccessViolationException)
+                catch (Exception)
                 {
-                    Debug.WriteLine("AccessViolationException was threw in context menu item");
+                    Debug.WriteLine("Exception was threw when fetching the context menu item");
                 }
                 finally
                 {
@@ -285,6 +295,8 @@ namespace FullTrustProcess
             return MenuItems.ToArray();
         }
 
+        [SecurityCritical]
+        [HandleProcessCorruptedStateExceptions]
         public static Task<bool> InvokeVerbAsync(string[] RelatedPath, string Verb, int Id, bool IncludeExtensionItem)
         {
             if (RelatedPath.Length > 0)
@@ -357,8 +369,9 @@ namespace FullTrustProcess
                             return false;
                         }
                     }
-                    catch
+                    catch (Exception)
                     {
+                        Debug.WriteLine("Exception was threw when invoke the context menu item");
                         return false;
                     }
                 });

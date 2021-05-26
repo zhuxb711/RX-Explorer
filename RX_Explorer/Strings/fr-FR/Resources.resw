@@ -3087,4 +3087,22 @@ Les noms non valides incluent
   <data name="PdfZoom.Label" xml:space="preserve">
     <value>Zoom</value>
   </data>
+  <data name="HashError" xml:space="preserve">
+    <value>Erreur de calcul</value>
+  </data>
+  <data name="SecureArea_MustResetPath_Content" xml:space="preserve">
+    <value>L'emplacement de stockage est perdu et doit être réinitialisé</value>
+  </data>
+  <data name="SecureArea_StorageLocation_ChangeButton" xml:space="preserve">
+    <value>Changer de lieu</value>
+  </data>
+  <data name="SecureArea_StorageLocation_Title" xml:space="preserve">
+    <value>Emplacement de stockage</value>
+  </data>
+  <data name="QueueDialog_SecureAreaTransferFileFailed_Content" xml:space="preserve">
+    <value>Le transfert de fichier a échoué. Certains fichiers n'ont pas pu être transférés. Veuillez transférer manuellement vers le nouveau dossier</value>
+  </data>
+  <data name="Progress_Tip_Transfering" xml:space="preserve">
+    <value>Transfert</value>
+  </data>
 </root>

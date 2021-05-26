@@ -4099,7 +4099,27 @@ Invalid names include
         </trans-unit>
         <trans-unit id="HashError" translate="yes" xml:space="preserve">
           <source>Calculation error</source>
-          <target state="new">Calculation error</target>
+          <target state="translated">计算出错</target>
+        </trans-unit>
+        <trans-unit id="SecureArea_MustResetPath_Content" translate="yes" xml:space="preserve">
+          <source>The storage location is lost and must be reset</source>
+          <target state="translated">存储位置丢失，必须重新设置</target>
+        </trans-unit>
+        <trans-unit id="SecureArea_StorageLocation_ChangeButton" translate="yes" xml:space="preserve">
+          <source>Change location</source>
+          <target state="translated">更改位置</target>
+        </trans-unit>
+        <trans-unit id="SecureArea_StorageLocation_Title" translate="yes" xml:space="preserve">
+          <source>Storage location</source>
+          <target state="translated">存储位置</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_SecureAreaTransferFileFailed_Content" translate="yes" xml:space="preserve">
+          <source>File transfer failed. Some files could not be transferred. Please manually transfer to the new folder</source>
+          <target state="translated">文件传输失败。 部分文件无法传输。 请手动转移到新文件夹</target>
+        </trans-unit>
+        <trans-unit id="Progress_Tip_Transfering" translate="yes" xml:space="preserve">
+          <source>Transferring</source>
+          <target state="translated">正在转移</target>
         </trans-unit>
       </group>
     </body>

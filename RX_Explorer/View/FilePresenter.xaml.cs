@@ -263,7 +263,7 @@ namespace RX_Explorer
             {
                 if (ItemPresenter != null)
                 {
-                    return ItemPresenter.SelectedItems.Select((Item) => Item as FileSystemStorageItemBase).ToList();
+                    return ItemPresenter.SelectedItems.OfType<FileSystemStorageItemBase>().ToList();
                 }
                 else
                 {
@@ -1559,7 +1559,9 @@ namespace RX_Explorer
         {
             DelayRenameCancel?.Cancel();
 
-            if (SelectedItem is FileSystemStorageFile File)
+            List<FileSystemStorageItemBase> SelectedItemsCopy = SelectedItems;
+
+            if (SelectedItemsCopy.Count == 1 && SelectedItemsCopy.First() is FileSystemStorageFile File)
             {
                 FileEdit.IsEnabled = false;
                 FileShare.IsEnabled = true;
@@ -1620,14 +1622,15 @@ namespace RX_Explorer
 
             string[] StatusTipsSplit = StatusTips.Text.Split("  |  ", StringSplitOptions.RemoveEmptyEntries);
 
-            if (SelectedItems.Count > 0)
+            if (SelectedItemsCopy.Count > 0)
             {
                 string SizeInfo = string.Empty;
 
-                if (SelectedItems.All((Item) => Item is FileSystemStorageFile))
+                if (SelectedItemsCopy.All((Item) => Item is FileSystemStorageFile))
                 {
                     ulong TotalSize = 0;
-                    foreach (ulong Size in SelectedItems.Select((Item) => Item.SizeRaw).ToArray())
+
+                    foreach (ulong Size in SelectedItemsCopy.Cast<FileSystemStorageFile>().Select((Item) => Item.SizeRaw).ToArray())
                     {
                         TotalSize += Size;
                     }
@@ -1637,11 +1640,11 @@ namespace RX_Explorer
 
                 if (StatusTipsSplit.Length > 0)
                 {
-                    StatusTips.Text = $"{StatusTipsSplit[0]}  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItems.Count.ToString())}{SizeInfo}";
+                    StatusTips.Text = $"{StatusTipsSplit[0]}  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItemsCopy.Count.ToString())}{SizeInfo}";
                 }
                 else
                 {
-                    StatusTips.Text += $"  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItems.Count.ToString())}{SizeInfo}";
+                    StatusTips.Text += $"  |  {Globalization.GetString("FilePresenterBottomStatusTip_SelectedItem").Replace("{ItemNum}", SelectedItemsCopy.Count.ToString())}{SizeInfo}";
                 }
             }
             else

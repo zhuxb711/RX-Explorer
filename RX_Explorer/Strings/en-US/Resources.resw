@@ -3195,4 +3195,19 @@ Invalid names include
   <data name="HashError" xml:space="preserve">
     <value>Calculation error</value>
   </data>
+  <data name="SecureArea_MustResetPath_Content" xml:space="preserve">
+    <value>The storage location is lost and must be reset</value>
+  </data>
+  <data name="SecureArea_StorageLocation_ChangeButton" xml:space="preserve">
+    <value>Change location</value>
+  </data>
+  <data name="SecureArea_StorageLocation_Title" xml:space="preserve">
+    <value>Storage location</value>
+  </data>
+  <data name="QueueDialog_SecureAreaTransferFileFailed_Content" xml:space="preserve">
+    <value>File transfer failed. Some files could not be transferred. Please manually transfer to the new folder</value>
+  </data>
+  <data name="Progress_Tip_Transfering" xml:space="preserve">
+    <value>Transferring</value>
+  </data>
 </root>
