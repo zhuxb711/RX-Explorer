@@ -1,4 +1,71 @@
 ﻿*****
+###Novedades de la versión 6.5.9.0
+
+#####Actualización de funciones
+
+>#####Cuando el usuario elimina una carpeta, todas las pestañas o ventanas divididas verticales que abren esta carpeta se cerrarán
+
+>#####El visor de PDF integrado ahora puede especificar la reasignación de números de página, cambiar la dirección de desplazamiento, ajustar la relación de zoom, etc.
+
+>#####Agrega la opción "ubicación de almacenamiento" para el Área de seguridad, ahora puedes especificar la carpeta donde el Área de seguridad almacena los archivos
+
+>#####El reproductor multimedia incorporado agrega funciones como ajustar la velocidad de reproducción, reproducción en bucle, etc.
+
+>#####Agrega el interruptor "Siempre visible" para mantener la ventana siempre en primer plano
+
+#####Actualización de la interfaz de usuario
+
+>#####Si el usuario ya ha comprado la aplicación, el botón de compra en la configuración se ocultará automáticamente
+
+>#####Importar o exportar archivos en el Área de seguridad ahora admite el seguimiento del progreso
+
+>#####Actualización de la interfaz de usuario del visor de PDF incorporado
+
+>#####Después de iniciar otras aplicaciones, RX colocará automáticamente la ventana en la parte superior
+
+#####Arreglo del fallo
+
+>#####Se solucionó el problema de que la función de arrastrar y soltar podía activarse al cambiar el nombre
+
+>#####Se corrigieron los problemas relacionados con la prevención de la transcodificación de los archivos de video
+
+>#####Se solucionó el problema de evitar cambios de nombre que solo cambiaban entre mayúsculas y minúsculas
+
+>#####Se solucionó el problema que podía causar atascos al arrastrar
+
+>#####Se solucionó el problema de que el archivo .exe se puede arrastrar y soltar sobre sí mismo
+
+>#####Se solucionó el problema de que la apertura de archivos multimedia con el visor incorporado causaba un bloqueo en algunos casos
+
+>#####Se solucionó el problema de que el sufijo se podía perder al restaurar archivos en la papelera de reciclaje en algunos casos
+
+>#####Se solucionó el problema de que no se podía volver a hacer clic en el botón "Calcular" si fallaba el cálculo del hash
+
+>#####Se solucionó el problema del rango incorrecto de selección de caja
+
+>#####Se solucionó el problema de que la función de selección de caja se atascaba anormalmente en una carpeta vacía
+
+>#####Se solucionó el problema que podía causar un bloqueo al modificar el elemento en Inicio rápido
+
+>#####Se solucionó el problema de que los caracteres ilegales no se interceptaran al agregar elementos de inicio rápido
+
+>#####Se solucionó el problema de que la barra de comandos en el Área de seguridad se ha deshabilitado todo el tiempo
+
+>#####Se solucionó el problema de que el cuadrado "Esta PC" del cuadro de dirección no se podía expandir con la subcarpeta
+
+>#####Se solucionó el problema de que los gestos como "Hacer clic para reproducir / Pausar" también se comportan en el área de control del reproductor multimedia incorporado
+
+>#####Se corrigieron los problemas relacionados con la estructura de archivos del Área de seguridad
+
+>>#####En algunos casos, el archivo del Área de seguridad puede estar dañado
+
+>>#####Actualización de la forma de relleno del cifrado AES
+
+>>#####Estructura de archivo SLE actualizada, agregando nombre de archivo y número de versión
+
+>>#####El archivo recién agregado en el Área de seguridad adoptará el nuevo formato. Se recomienda volver a agregar el archivo del Área de seguridad después de la actualización.
+
+*****
 ###Novedades de la versión 6.5.5.0
 
 #####Actualización de funciones

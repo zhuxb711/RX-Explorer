@@ -3105,4 +3105,22 @@
   <data name="Progress_Tip_Transfering" xml:space="preserve">
     <value>正在转移</value>
   </data>
+  <data name="AttributeVersion.Text" xml:space="preserve">
+    <value>版本</value>
+  </data>
+  <data name="AlwaysOnTop.Header" xml:space="preserve">
+    <value>悬浮于其他应用之上</value>
+  </data>
+  <data name="AlwaysOnTop.OffContent" xml:space="preserve">
+    <value>禁用</value>
+  </data>
+  <data name="AlwaysOnTop.OnContent" xml:space="preserve">
+    <value>启用</value>
+  </data>
+  <data name="QueueDialog_RemoveTopMostFailed_Content" xml:space="preserve">
+    <value>无法从最上方移除此窗口</value>
+  </data>
+  <data name="QueueDialog_SetTopMostFailed_Content" xml:space="preserve">
+    <value>无法将此窗口设置为最顶部</value>
+  </data>
 </root>

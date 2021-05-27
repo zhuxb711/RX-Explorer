@@ -71,12 +71,12 @@
           <target state="translated">Ejecutar al inicio</target>
         </trans-unit>
         <trans-unit id="AutoBootOnStartup.OffContent" translate="yes" xml:space="preserve">
-          <source>Disable</source>
-          <target state="translated">Deshabilitar</target>
+          <source>Disabled</source>
+          <target state="translated">Discapacitado</target>
         </trans-unit>
         <trans-unit id="AutoBootOnStartup.OnContent" translate="yes" xml:space="preserve">
-          <source>Enable</source>
-          <target state="translated">Habilitar</target>
+          <source>Enabled</source>
+          <target state="translated">Activado</target>
         </trans-unit>
         <trans-unit id="BlueScreenReport.Content" translate="yes" xml:space="preserve">
           <source>Report to Developer</source>
@@ -1206,12 +1206,12 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <target state="translated">Mostrar</target>
         </trans-unit>
         <trans-unit id="EnableQuicklook.OffContent" translate="yes" xml:space="preserve">
-          <source>Disable</source>
-          <target state="translated">Deshabilitar</target>
+          <source>Disabled</source>
+          <target state="translated">Discapacitado</target>
         </trans-unit>
         <trans-unit id="EnableQuicklook.OnContent" translate="yes" xml:space="preserve">
-          <source>Enable</source>
-          <target state="translated">Habilitar</target>
+          <source>Enabled</source>
+          <target state="translated">Activado</target>
         </trans-unit>
         <trans-unit id="QuicklookHeader.Text" translate="yes" xml:space="preserve">
           <source>Quicklook</source>
@@ -2307,12 +2307,12 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <target state="translated">Efecto de animación</target>
         </trans-unit>
         <trans-unit id="SettingPageAnimationSwitch.OffContent" translate="yes" xml:space="preserve">
-          <source>Disable</source>
-          <target state="translated">Deshabilitar</target>
+          <source>Disabled</source>
+          <target state="translated">Discapacitado</target>
         </trans-unit>
         <trans-unit id="SettingPageAnimationSwitch.OnContent" translate="yes" xml:space="preserve">
-          <source>Enable</source>
-          <target state="translated">Habilitar</target>
+          <source>Enabled</source>
+          <target state="translated">Activado</target>
         </trans-unit>
         <trans-unit id="ThankTranslate.Text" translate="yes" xml:space="preserve">
           <source>Special thanks to the following translators:</source>
@@ -2479,12 +2479,12 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <target state="translated">Mostrar archivos/carpetas ocultos</target>
         </trans-unit>
         <trans-unit id="SettingDisplayHiddenItem.OffContent" translate="yes" xml:space="preserve">
-          <source>Disable</source>
-          <target state="translated">Deshabilitar</target>
+          <source>Disabled</source>
+          <target state="translated">Discapacitado</target>
         </trans-unit>
         <trans-unit id="SettingDisplayHiddenItem.OnContent" translate="yes" xml:space="preserve">
-          <source>Enable</source>
-          <target state="translated">Habilitar</target>
+          <source>Enabled</source>
+          <target state="translated">Activado</target>
         </trans-unit>
         <trans-unit id="Operate_Text_Undo" translate="yes" xml:space="preserve">
           <source>Undo</source>
@@ -2527,12 +2527,12 @@ Los caracteres no válidos son \ / : * ? " <it id="1" pos="open">&lt; &gt;</it> 
           <target state="translated">Usar [Win+E] para activar esta aplicación</target>
         </trans-unit>
         <trans-unit id="UseWinAndEActivate.OffContent" translate="yes" xml:space="preserve">
-          <source>Disable</source>
-          <target state="translated">Deshabilitar</target>
+          <source>Disabled</source>
+          <target state="translated">Discapacitado</target>
         </trans-unit>
         <trans-unit id="UseWinAndEActivate.OnContent" translate="yes" xml:space="preserve">
-          <source>Enable</source>
-          <target state="translated">Habilitar</target>
+          <source>Enabled</source>
+          <target state="translated">Activado</target>
         </trans-unit>
         <trans-unit id="PresentInvalidCharTip.Subtitle" translate="yes" xml:space="preserve">
           <source>Cannot contain illegal characters 
@@ -3013,12 +3013,12 @@ Las denominaciones no válidas son:
           <target state="translated">Menú contextual extendido</target>
         </trans-unit>
         <trans-unit id="SettingPageContextMenuExt.OffContent" translate="yes" xml:space="preserve">
-          <source>Disable</source>
-          <target state="translated">Deshabilitar</target>
+          <source>Disabled</source>
+          <target state="translated">Discapacitado</target>
         </trans-unit>
         <trans-unit id="SettingPageContextMenuExt.OnContent" translate="yes" xml:space="preserve">
-          <source>Enable</source>
-          <target state="translated">Habilitar</target>
+          <source>Enabled</source>
+          <target state="translated">Activado</target>
         </trans-unit>
         <trans-unit id="VerticalSplitViewButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
           <source>Create a new vertical split view</source>
@@ -3113,12 +3113,12 @@ Las denominaciones no válidas son:
           <target state="translated">Mostrar confirmación para eliminarla</target>
         </trans-unit>
         <trans-unit id="DeleteConfirmSwitch.OffContent" translate="yes" xml:space="preserve">
-          <source>Disable</source>
-          <target state="translated">Deshabilitar</target>
+          <source>Disabled</source>
+          <target state="translated">Discapacitado</target>
         </trans-unit>
         <trans-unit id="DeleteConfirmSwitch.OnContent" translate="yes" xml:space="preserve">
-          <source>Enable</source>
-          <target state="translated">Habilitar</target>
+          <source>Enabled</source>
+          <target state="translated">Activado</target>
         </trans-unit>
         <trans-unit id="QuickStartPickFileType.Text" translate="yes" xml:space="preserve">
           <source>Which type do you want to choose?</source>
@@ -4118,6 +4118,30 @@ Las denominaciones no válidas son:
         <trans-unit id="Progress_Tip_Transfering" translate="yes" xml:space="preserve">
           <source>Transferring</source>
           <target state="translated">Transfiriendo</target>
+        </trans-unit>
+        <trans-unit id="AttributeVersion.Text" translate="yes" xml:space="preserve">
+          <source>Version</source>
+          <target state="translated">Versión</target>
+        </trans-unit>
+        <trans-unit id="AlwaysOnTop.Header" translate="yes" xml:space="preserve">
+          <source>Always On Top</source>
+          <target state="translated">Siempre en la cima</target>
+        </trans-unit>
+        <trans-unit id="AlwaysOnTop.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">Discapacitado</target>
+        </trans-unit>
+        <trans-unit id="AlwaysOnTop.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">Activado</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_RemoveTopMostFailed_Content" translate="yes" xml:space="preserve">
+          <source>Cannot remove this window from top most</source>
+          <target state="translated">No se puede eliminar esta ventana de la parte superior más</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_SetTopMostFailed_Content" translate="yes" xml:space="preserve">
+          <source>Cannot set this window to the top most</source>
+          <target state="translated">No se puede establecer esta ventana en la parte superior más</target>
         </trans-unit>
       </group>
     </body>

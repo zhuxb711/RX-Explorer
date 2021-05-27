@@ -1,4 +1,71 @@
 ﻿*****
+###Quoi de neuf dans la version 6.5.9.0
+
+#####Mise à jour des fonctionnalités
+
+>#####Lorsque l'utilisateur supprime un dossier, tous les onglets ou fenêtres fractionnées verticales qui ouvrent ce dossier seront fermés
+
+>#####Le visualiseur PDF intégré peut désormais spécifier la réaffectation des numéros de page, modifier le sens de défilement, ajuster le taux de zoom, etc.
+
+>#####Ajoutez l'option "emplacement de stockage" pour la zone de sécurité, vous pouvez maintenant spécifier le dossier dans lequel la zone de sécurité stocke les fichiers
+
+>#####Le lecteur multimédia intégré ajoute des fonctions telles que le réglage de la vitesse de lecture, la lecture en boucle, etc.
+
+>#####Ajoutez le commutateur "Always On Top" pour garder la fenêtre toujours au premier plan
+
+#####Mise à jour de l'interface utilisateur
+
+>#####Si l'utilisateur a déjà acheté l'application, le bouton d'achat dans les paramètres sera automatiquement masqué
+
+>#####L'importation ou l'exportation de fichiers dans la zone de sécurité prend désormais en charge le suivi de la progression
+
+>#####Mise à jour de l'interface utilisateur de la visionneuse PDF intégrée
+
+>#####Après avoir démarré d'autres applications, RX mettra automatiquement la fenêtre en haut
+
+#####Correction d'un bug
+
+>#####Correction du problème d'activation de la fonction glisser-déposer lors du changement de nom
+
+>#####Correction des problèmes liés à la prévention du transcodage des fichiers vidéo
+
+>#####Correction du problème consistant à empêcher les changements de nom qui ne changent que la casse
+
+>#####Correction du problème pouvant entraîner un blocage lors du glissement
+
+>#####Correction du problème selon lequel le fichier .exe pouvait être glissé et déposé sur lui-même
+
+>#####Correction du problème selon lequel l'ouverture de fichiers multimédias avec la visionneuse intégrée provoquait un plantage dans certains cas
+
+>#####Correction du problème de perte du suffixe lors de la restauration de fichiers dans la corbeille dans certains cas
+
+>#####Correction du problème qui empêchait de cliquer à nouveau sur le bouton "Calculer" si le calcul de hachage échouait
+
+>#####Correction du problème de plage incorrecte de sélection de boîte
+
+>#####Correction du problème que la fonction de sélection de boîte était anormalement bloquée dans un dossier vide
+
+>#####Correction du problème pouvant provoquer un plantage lors de la modification de l'élément dans Quick Start
+
+>#####Correction du problème selon lequel les caractères illégaux ne pouvaient pas être interceptés lors de l'ajout d'éléments de lancement rapide
+
+>#####Correction du problème de désactivation permanente de la barre de commande dans la zone de sécurité
+
+>#####Correction du problème que le carré "Ce PC" de la zone d'adresse ne pouvait pas se développer avec le sous-dossier
+
+>#####Correction du problème de comportement des gestes tels que "Cliquer pour lire / Pause" dans la zone de contrôle du lecteur multimédia intégré
+
+>#####Correction des problèmes liés à la structure des fichiers de la zone de sécurité
+
+>>#####Dans certains cas, le fichier de la zone de sécurité peut être endommagé
+
+>>#####Mise à jour de la méthode de remplissage du cryptage AES
+
+>>#####Structure de fichier SLE mise à jour, ajout du nom de fichier et du numéro de version
+
+>>#####Le fichier nouvellement ajouté dans la zone de sécurité adoptera le nouveau format. Il est recommandé d'ajouter à nouveau le fichier de la zone de sécurité après la mise à jour
+
+*****
 ###Quoi de neuf dans la version 6.5.5.0
 
 #####Mise à jour des fonctionnalités

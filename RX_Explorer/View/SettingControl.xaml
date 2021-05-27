@@ -7,7 +7,6 @@
              xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
              xmlns:control="using:Microsoft.Toolkit.Uwp.UI.Controls"
              xmlns:sys="using:System"
-             xmlns:model="using:Windows.ApplicationModel"
              mc:Ignorable="d"
              d:DesignHeight="3500"
              d:DesignWidth="1280">
@@ -265,9 +264,9 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="QuickLook预览"
                                        x:Uid="QuicklookHeader" />
-                            <Viewbox Margin="10,0,0,0"
+                            <Viewbox Margin="10,1,0,0"
                                      Height="15"
-                                     VerticalAlignment="Bottom">
+                                     VerticalAlignment="Center">
                                 <FontIcon Glyph="&#xE9CE;"
                                           Name="QuicklookQuestion"
                                           Tapped="QuicklookQuestion_Tapped" />
@@ -279,6 +278,13 @@
                                       Name="EnableQuicklook"
                                       Toggled="EnableQuicklook_Toggled" />
                     </StackPanel>
+
+                    <ToggleSwitch Header="悬浮于其他应用之上"
+                                  OnContent="启用"
+                                  OffContent="禁用"
+                                  Name="AlwaysOnTop"
+                                  x:Uid="AlwaysOnTop"
+                                  Margin="0,20,0,0" />
 
                     <StackPanel Orientation="Horizontal"
                                 Margin="0,20,0,0">

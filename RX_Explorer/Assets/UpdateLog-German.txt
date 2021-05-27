@@ -1,4 +1,71 @@
 ﻿*****
+###Was ist neu in Ver.6.5.9.0
+
+#####Funktionsaktualisierung
+
+>#####Wenn der Benutzer einen Ordner löscht, werden alle Registerkarten oder vertikalen geteilten Fenster, die diesen Ordner öffnen, geschlossen
+
+>#####Der integrierte PDF-Viewer kann jetzt die Neuzuweisung von Seitenzahlen festlegen, die Bildlaufrichtung ändern, das Zoomverhältnis anpassen usw.
+
+>#####Fügen Sie die Option "Speicherort" für den Sicherheitsbereich hinzu. Jetzt können Sie den Ordner angeben, in dem der Sicherheitsbereich Dateien speichert
+
+>#####Der eingebaute Media Player fügt Funktionen wie das Anpassen der Wiedergaberate, der Loop-Wiedergabe usw. hinzu.
+
+>#####Fügen Sie den Schalter "Always On Top" hinzu, um das Fenster immer im Vordergrund zu halten
+
+#####UI-Update
+
+>#####Wenn der Benutzer die App bereits gekauft hat, wird die Kaufschaltfläche in den Einstellungen automatisch ausgeblendet
+
+>#####Das Importieren oder Exportieren von Dateien in den Sicherheitsbereich unterstützt jetzt die Fortschrittsverfolgung
+
+>#####Integriertes Update der Benutzeroberfläche des PDF-Viewers
+
+>#####Nach dem Starten anderer Anwendungen setzt RX das Fenster automatisch nach oben
+
+#####Fehlerbehebung
+
+>#####Das Problem, dass die Drag & Drop-Funktion beim Umbenennen aktiviert werden kann, wurde behoben
+
+>#####Die Probleme im Zusammenhang mit der Verhinderung der Transcodierung der Videodateien wurden behoben
+
+>#####Es wurde das Problem behoben, dass Umbenennungen verhindert wurden, bei denen nur die Groß- und Kleinschreibung geändert wurde
+
+>#####Das Problem wurde behoben, das dazu führen konnte, dass es beim Ziehen hängen blieb
+
+>#####Es wurde das Problem behoben, dass die EXE-Datei per Drag & Drop über sich selbst gezogen werden kann
+
+>#####Es wurde das Problem behoben, dass das Öffnen von Mediendateien mit dem integrierten Viewer in einigen Fällen zu einem Absturz führte
+
+>#####Es wurde das Problem behoben, dass das Suffix in einigen Fällen beim Wiederherstellen von Dateien im Papierkorb verloren gehen kann
+
+>#####Es wurde das Problem behoben, dass die Schaltfläche "Berechnen" nicht erneut angeklickt werden konnte, wenn die Hash-Berechnung fehlschlug
+
+>#####Das Problem der falschen Auswahl der Box wurde behoben
+
+>#####Es wurde das Problem behoben, dass die Boxauswahlfunktion abnormal in einem leeren Ordner steckte
+
+>#####Das Problem, das beim Ändern des Elements im Schnellstart zu einem Absturz führen konnte, wurde behoben
+
+>#####Es wurde das Problem behoben, dass beim Hinzufügen von Schnellstartelementen möglicherweise keine unzulässigen Zeichen abgefangen werden
+
+>#####Das Problem wurde behoben, dass die Befehlsleiste im Sicherheitsbereich ständig deaktiviert wurde
+
+>#####Es wurde das Problem behoben, dass das Quadrat "Dieser PC" des Adressfelds nicht mit dem Unterordner erweitert werden konnte
+
+>#####Es wurde das Problem behoben, dass sich Gesten wie "Click to Play/Pause" auch im Kontrollbereich des integrierten Media Players verhalten
+
+>#####Die damit verbundenen Probleme der Dateistruktur des Sicherheitsbereichs wurden behoben
+
+>>#####In einigen Fällen kann die Sicherheitsbereichsdatei beschädigt sein
+
+>>#####Die Auffüllmethode der AES-Verschlüsselung wurde aktualisiert
+
+>>#####Die SLE-Dateistruktur wurde aktualisiert und der Dateiname und die Versionsnummer wurden hinzugefügt
+
+>>#####Die neu hinzugefügte Datei im Sicherheitsbereich übernimmt das neue Format. Es wird empfohlen, die Sicherheitsbereichsdatei nach dem Update erneut hinzuzufügen
+
+*****
 ###Was ist neu in Ver.6.5.5.0
 
 #####Funktionsaktualisierung

@@ -8,6 +8,7 @@ using RX_Explorer.View;
 using ShareClassLibrary;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -248,6 +249,29 @@ namespace RX_Explorer
             if (!ApplicationData.Current.LocalSettings.Values.ContainsKey("AlwaysStartNew"))
             {
                 ApplicationData.Current.LocalSettings.Values["AlwaysStartNew"] = true;
+            }
+
+            if (ApplicationData.Current.LocalSettings.Values["AlwaysOnTop"] is bool IsAlwayOnTop)
+            {
+                if (IsAlwayOnTop)
+                {
+                    using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                    {
+                        using Process CurrentProcess = Process.GetCurrentProcess();
+
+                        if (!await Exclusive.Controller.SetAsTopMostWindowAsync(Package.Current.Id.FamilyName, Convert.ToUInt32(CurrentProcess.Id)))
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_SetTopMostFailed_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            await Dialog.ShowAsync();
+                        }
+                    }
+                }
             }
         }
 

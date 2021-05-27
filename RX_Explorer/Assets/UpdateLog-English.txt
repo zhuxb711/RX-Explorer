@@ -1,4 +1,71 @@
 ﻿*****
+###What's new in Ver.6.5.9.0
+
+#####Feature update
+
+>#####When the user deletes a folder, all tabs or vertical split windows that open this folder will be closed
+
+>#####The built-in PDF viewer can now specify the reassignment of page numbers, change the scrolling direction, adjust the zoom ratio, etc.
+
+>#####Add the "storage location" option for Security Area, now you can specify the folder where the Security Area stores files
+
+>#####The built-in media player adds functions such as adjusting the playback rate, loop playback, etc.
+
+>#####Add "Always On Top" switch to keep the window always in the forefront
+
+#####UI update
+
+>#####If the user has already purchased the app, the purchase button in the settings will be automatically hidden
+
+>#####Importing or exporting files in Security Area now supports progress tracking
+
+>#####Built-in PDF viewer UI update
+
+>#####After starting other applications, RX will automatically puts the window to top
+
+#####Bug fix
+
+>#####Fixed the problem that the drag and drop function may be activated when renaming
+
+>#####Fixed the issues related to preventing transcoding the video files
+
+>#####Fixed the problem of preventing renames that only change case
+
+>#####Fixed the problem that may cause stuck when dragging
+
+>#####Fixed the problem that the .exe file can be dragged and dropped on top of itself
+
+>#####Fixed the problem that opening media files with the built-in viewer would cause a crash in some cases
+
+>#####Fixed the problem that the suffix may be lost when restoring files in the recycle bin in some cases
+
+>#####Fixed the problem that the "Calculate" button could not be clicked again if the hash calculation failed
+
+>#####Fixed the problem of incorrect range of box selection
+
+>#####Fixed the problem that the box selection function was abnormally stuck in an empty folder
+
+>#####Fixed the problem that may cause a crash when modifying the item in Quick Start
+
+>#####Fixed the problem that illegal characters may not be intercepted when adding quick launch items
+
+>#####Fixed the problem that the command bar in the Security Area has been disabled all the time
+
+>#####Fixed the problem that the square "This PC" of the address box could not expand with subfolder
+
+>#####Fixed the problem that gestures such as "Click to Play/Pause" will also behave in the control area of ​​the built-in media player
+
+>#####Fixed the related problems of the Security Area file structure
+
+>>#####In some cases, the Security Area file may be damaged
+
+>>#####Updated the padding way of AES encryption
+
+>>#####Updated SLE file structure, adding file name and version number
+
+>>#####The newly added file in Security Area will adopt the new format. It is recommended to add the Security Area file again after the update
+
+*****
 ###What's new in Ver.6.5.5.0
 
 #####Feature update

@@ -2,9 +2,6 @@
 using System;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Text;
-using Windows.Storage;
 
 namespace RX_Explorer.Dialog
 {
@@ -17,6 +14,8 @@ namespace RX_Explorer.Dialog
         public string FileSize { get; private set; }
 
         public string Level { get; private set; }
+
+        public string Version { get; private set; }
 
         private readonly FileSystemStorageFile StorageItem;
 
@@ -42,12 +41,14 @@ namespace RX_Explorer.Dialog
             {
                 SLEStream.LoadPropertiesOnly();
                 Level = SLEStream.KeySize == 128 ? "AES-128bit" : "AES-256bit";
+                Version = string.Join('.', Convert.ToString((int)SLEStream.Version).ToCharArray());
             }
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FileSize)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FileName)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FileType)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Level)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Version)));
         }
     }
 }

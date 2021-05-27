@@ -14,7 +14,6 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -1873,6 +1872,48 @@ namespace FullTrustProcess
 
                             break;
                         }
+                    case "Execute_SetAsTopMostWindow":
+                        {
+                            string PackageFamilyName = Convert.ToString(args.Request.Message["PackageFamilyName"]);
+                            uint? WithPID = args.Request.Message.ContainsKey("WithPID") ? Convert.ToUInt32(args.Request.Message["WithPID"]) : null;
+
+                            ValueSet Value = new ValueSet();
+
+                            if (Helper.GetUWPWindowInformation(PackageFamilyName, WithPID) is WindowInformation Info && !Info.Handle.IsNull)
+                            {
+                                User32.SetWindowPos(Info.Handle, new IntPtr(-1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
+                                Value.Add("Success", string.Empty);
+                            }
+                            else
+                            {
+                                Value.Add("Error", "Could not found the window handle");
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
+
+                            break;
+                        }
+                    case "Execute_RemoveTopMostWindow":
+                        {
+                            string PackageFamilyName = Convert.ToString(args.Request.Message["PackageFamilyName"]);
+                            uint? WithPID = args.Request.Message.ContainsKey("WithPID") ? Convert.ToUInt32(args.Request.Message["WithPID"]) : null;
+
+                            ValueSet Value = new ValueSet();
+
+                            if (Helper.GetUWPWindowInformation(PackageFamilyName, WithPID) is WindowInformation Info && !Info.Handle.IsNull)
+                            {
+                                User32.SetWindowPos(Info.Handle, new IntPtr(-2), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
+                                Value.Add("Success", string.Empty);
+                            }
+                            else
+                            {
+                                Value.Add("Error", "Could not found the window handle");
+                            }
+
+                            await args.Request.SendResponseAsync(Value);
+
+                            break;
+                        }
                     case "Execute_Exit":
                         {
                             ExitLocker.Set();
@@ -1906,17 +1947,26 @@ namespace FullTrustProcess
         {
             try
             {
+                if (Helper.GetUWPWindowInformation(Package.Current.Id.FamilyName, (uint?)ExplorerProcess?.Id) is WindowInformation Info && !Info.Handle.IsNull)
+                {
+                    User32.SetWindowPos(Info.Handle, new IntPtr(1), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE | User32.SetWindowPosFlags.SWP_NOACTIVATE);
+                }
+
                 if (OtherProcess.WaitForInputIdle(5000))
                 {
-                    for (int i = 0; i < 10 && OtherProcess.MainWindowHandle == IntPtr.Zero; i++)
+                    IntPtr InvalidHandle = new IntPtr(-1);
+
+                    for (int i = 0; i < 10 && (OtherProcess.MainWindowHandle == IntPtr.Zero || OtherProcess.MainWindowHandle == InvalidHandle); i++)
                     {
                         Thread.Sleep(500);
                         OtherProcess.Refresh();
                     }
 
-                    if (OtherProcess.MainWindowHandle != IntPtr.Zero)
+                    if (OtherProcess.MainWindowHandle != IntPtr.Zero && OtherProcess.MainWindowHandle != InvalidHandle)
                     {
-                        User32.SwitchToThisWindow(OtherProcess.MainWindowHandle, true);
+                        User32.ShowWindow(OtherProcess.MainWindowHandle, ShowWindowCommand.SW_SHOWNORMAL);
+                        User32.SetWindowPos(OtherProcess.MainWindowHandle, new IntPtr(0), 0, 0, 0, 0, User32.SetWindowPosFlags.SWP_NOMOVE | User32.SetWindowPosFlags.SWP_NOSIZE);
+                        User32.SetForegroundWindow(OtherProcess.MainWindowHandle);
                     }
                     else
                     {

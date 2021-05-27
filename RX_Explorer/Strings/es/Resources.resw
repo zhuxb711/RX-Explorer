@@ -61,10 +61,10 @@
     <value>Ejecutar al inicio</value>
   </data>
   <data name="AutoBootOnStartup.OffContent" xml:space="preserve">
-    <value>Deshabilitar</value>
+    <value>Discapacitado</value>
   </data>
   <data name="AutoBootOnStartup.OnContent" xml:space="preserve">
-    <value>Habilitar</value>
+    <value>Activado</value>
   </data>
   <data name="BlueScreenReport.Content" xml:space="preserve">
     <value>Notificar al desarrollador</value>
@@ -912,10 +912,10 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>Mostrar</value>
   </data>
   <data name="EnableQuicklook.OffContent" xml:space="preserve">
-    <value>Deshabilitar</value>
+    <value>Discapacitado</value>
   </data>
   <data name="EnableQuicklook.OnContent" xml:space="preserve">
-    <value>Habilitar</value>
+    <value>Activado</value>
   </data>
   <data name="QuicklookHeader.Text" xml:space="preserve">
     <value>QuickLook</value>
@@ -1748,10 +1748,10 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>Efecto de animación</value>
   </data>
   <data name="SettingPageAnimationSwitch.OffContent" xml:space="preserve">
-    <value>Deshabilitar</value>
+    <value>Discapacitado</value>
   </data>
   <data name="SettingPageAnimationSwitch.OnContent" xml:space="preserve">
-    <value>Habilitar</value>
+    <value>Activado</value>
   </data>
   <data name="ThankTranslate.Text" xml:space="preserve">
     <value>Agradecimiento especial a los siguientes traductores:</value>
@@ -1877,10 +1877,10 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>Mostrar archivos/carpetas ocultos</value>
   </data>
   <data name="SettingDisplayHiddenItem.OffContent" xml:space="preserve">
-    <value>Deshabilitar</value>
+    <value>Discapacitado</value>
   </data>
   <data name="SettingDisplayHiddenItem.OnContent" xml:space="preserve">
-    <value>Habilitar</value>
+    <value>Activado</value>
   </data>
   <data name="Operate_Text_Undo" xml:space="preserve">
     <value>Deshacer</value>
@@ -1913,10 +1913,10 @@ Los caracteres no válidos son \ / : * ? " &lt; &gt; |</value>
     <value>Usar [Win+E] para activar esta aplicación</value>
   </data>
   <data name="UseWinAndEActivate.OffContent" xml:space="preserve">
-    <value>Deshabilitar</value>
+    <value>Discapacitado</value>
   </data>
   <data name="UseWinAndEActivate.OnContent" xml:space="preserve">
-    <value>Habilitar</value>
+    <value>Activado</value>
   </data>
   <data name="PresentInvalidCharTip.Subtitle" xml:space="preserve">
     <value>No puede contener caracteres no válidos 
@@ -2275,10 +2275,10 @@ Las denominaciones no válidas son:
     <value>Menú contextual extendido</value>
   </data>
   <data name="SettingPageContextMenuExt.OffContent" xml:space="preserve">
-    <value>Deshabilitar</value>
+    <value>Discapacitado</value>
   </data>
   <data name="SettingPageContextMenuExt.OnContent" xml:space="preserve">
-    <value>Habilitar</value>
+    <value>Activado</value>
   </data>
   <data name="VerticalSplitViewButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Crear una vista dividida vertical nueva</value>
@@ -2350,10 +2350,10 @@ Las denominaciones no válidas son:
     <value>Mostrar confirmación para eliminarla</value>
   </data>
   <data name="DeleteConfirmSwitch.OffContent" xml:space="preserve">
-    <value>Deshabilitar</value>
+    <value>Discapacitado</value>
   </data>
   <data name="DeleteConfirmSwitch.OnContent" xml:space="preserve">
-    <value>Habilitar</value>
+    <value>Activado</value>
   </data>
   <data name="QuickStartPickFileType.Text" xml:space="preserve">
     <value>¿Qué tipo deseas elegir?</value>
@@ -3104,5 +3104,23 @@ Las denominaciones no válidas son:
   </data>
   <data name="Progress_Tip_Transfering" xml:space="preserve">
     <value>Transfiriendo</value>
+  </data>
+  <data name="AttributeVersion.Text" xml:space="preserve">
+    <value>Versión</value>
+  </data>
+  <data name="AlwaysOnTop.Header" xml:space="preserve">
+    <value>Siempre en la cima</value>
+  </data>
+  <data name="AlwaysOnTop.OffContent" xml:space="preserve">
+    <value>Discapacitado</value>
+  </data>
+  <data name="AlwaysOnTop.OnContent" xml:space="preserve">
+    <value>Activado</value>
+  </data>
+  <data name="QueueDialog_RemoveTopMostFailed_Content" xml:space="preserve">
+    <value>No se puede eliminar esta ventana de la parte superior más</value>
+  </data>
+  <data name="QueueDialog_SetTopMostFailed_Content" xml:space="preserve">
+    <value>No se puede establecer esta ventana en la parte superior más</value>
   </data>
 </root>

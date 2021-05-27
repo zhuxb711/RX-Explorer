@@ -71,11 +71,11 @@
           <target state="translated">随系统自动启动</target>
         </trans-unit>
         <trans-unit id="AutoBootOnStartup.OffContent" translate="yes" xml:space="preserve">
-          <source>Disable</source>
+          <source>Disabled</source>
           <target state="translated">禁用</target>
         </trans-unit>
         <trans-unit id="AutoBootOnStartup.OnContent" translate="yes" xml:space="preserve">
-          <source>Enable</source>
+          <source>Enabled</source>
           <target state="translated">启用</target>
         </trans-unit>
         <trans-unit id="BlueScreenReport.Content" translate="yes" xml:space="preserve">
@@ -1145,11 +1145,11 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">启用</target>
         </trans-unit>
         <trans-unit id="EnableQuicklook.OffContent" translate="yes" xml:space="preserve">
-          <source>Disable</source>
+          <source>Disabled</source>
           <target state="translated">禁用</target>
         </trans-unit>
         <trans-unit id="EnableQuicklook.OnContent" translate="yes" xml:space="preserve">
-          <source>Enable</source>
+          <source>Enabled</source>
           <target state="translated">启用</target>
         </trans-unit>
         <trans-unit id="QuicklookHeader.Text" translate="yes" xml:space="preserve">
@@ -2205,11 +2205,11 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">动画效果</target>
         </trans-unit>
         <trans-unit id="SettingPageAnimationSwitch.OffContent" translate="yes" xml:space="preserve">
-          <source>Disable</source>
+          <source>Disabled</source>
           <target state="translated">禁用</target>
         </trans-unit>
         <trans-unit id="SettingPageAnimationSwitch.OnContent" translate="yes" xml:space="preserve">
-          <source>Enable</source>
+          <source>Enabled</source>
           <target state="translated">启用</target>
         </trans-unit>
         <trans-unit id="ThankTranslate.Text" translate="yes" xml:space="preserve">
@@ -2406,11 +2406,11 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">显示隐藏文件/文件夹</target>
         </trans-unit>
         <trans-unit id="SettingDisplayHiddenItem.OffContent" translate="yes" xml:space="preserve">
-          <source>Disable</source>
+          <source>Disabled</source>
           <target state="translated">禁用</target>
         </trans-unit>
         <trans-unit id="SettingDisplayHiddenItem.OnContent" translate="yes" xml:space="preserve">
-          <source>Enable</source>
+          <source>Enabled</source>
           <target state="translated">启用</target>
         </trans-unit>
         <trans-unit id="Operate_Text_Undo" translate="yes" xml:space="preserve">
@@ -2454,11 +2454,11 @@ Illegal characters include \ / : * ? " &lt; &gt; |</source>
           <target state="translated">使用[Win+E]激活此应用</target>
         </trans-unit>
         <trans-unit id="UseWinAndEActivate.OffContent" translate="yes" xml:space="preserve">
-          <source>Disable</source>
+          <source>Disabled</source>
           <target state="translated">禁用</target>
         </trans-unit>
         <trans-unit id="UseWinAndEActivate.OnContent" translate="yes" xml:space="preserve">
-          <source>Enable</source>
+          <source>Enabled</source>
           <target state="translated">启用</target>
         </trans-unit>
         <trans-unit id="PresentInvalidCharTip.Subtitle" translate="yes" xml:space="preserve">
@@ -2974,11 +2974,11 @@ Invalid names include
           <target state="translated">扩展右键菜单</target>
         </trans-unit>
         <trans-unit id="SettingPageContextMenuExt.OffContent" translate="yes" xml:space="preserve">
-          <source>Disable</source>
+          <source>Disabled</source>
           <target state="translated">禁用</target>
         </trans-unit>
         <trans-unit id="SettingPageContextMenuExt.OnContent" translate="yes" xml:space="preserve">
-          <source>Enable</source>
+          <source>Enabled</source>
           <target state="translated">启用</target>
         </trans-unit>
         <trans-unit id="VerticalSplitViewButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
@@ -3087,11 +3087,11 @@ Invalid names include
           <target state="translated">弹出删除确认提示框</target>
         </trans-unit>
         <trans-unit id="DeleteConfirmSwitch.OffContent" translate="yes" xml:space="preserve">
-          <source>Disable</source>
+          <source>Disabled</source>
           <target state="translated">禁用</target>
         </trans-unit>
         <trans-unit id="DeleteConfirmSwitch.OnContent" translate="yes" xml:space="preserve">
-          <source>Enable</source>
+          <source>Enabled</source>
           <target state="translated">启用</target>
         </trans-unit>
         <trans-unit id="QuickStartPickFileType.Text" translate="yes" xml:space="preserve">
@@ -4120,6 +4120,30 @@ Invalid names include
         <trans-unit id="Progress_Tip_Transfering" translate="yes" xml:space="preserve">
           <source>Transferring</source>
           <target state="translated">正在转移</target>
+        </trans-unit>
+        <trans-unit id="AttributeVersion.Text" translate="yes" xml:space="preserve">
+          <source>Version</source>
+          <target state="translated">版本</target>
+        </trans-unit>
+        <trans-unit id="AlwaysOnTop.Header" translate="yes" xml:space="preserve">
+          <source>Always On Top</source>
+          <target state="translated">悬浮于其他应用之上</target>
+        </trans-unit>
+        <trans-unit id="AlwaysOnTop.OffContent" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">禁用</target>
+        </trans-unit>
+        <trans-unit id="AlwaysOnTop.OnContent" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <target state="translated">启用</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_RemoveTopMostFailed_Content" translate="yes" xml:space="preserve">
+          <source>Cannot remove this window from top most</source>
+          <target state="translated">无法从最上方移除此窗口</target>
+        </trans-unit>
+        <trans-unit id="QueueDialog_SetTopMostFailed_Content" translate="yes" xml:space="preserve">
+          <source>Cannot set this window to the top most</source>
+          <target state="translated">无法将此窗口设置为最顶部</target>
         </trans-unit>
       </group>
     </body>

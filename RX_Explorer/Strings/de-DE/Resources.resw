@@ -61,10 +61,10 @@
     <value>Autostart beim Hochfahren</value>
   </data>
   <data name="AutoBootOnStartup.OffContent" xml:space="preserve">
-    <value>Deaktivieren</value>
+    <value>Deaktiviert</value>
   </data>
   <data name="AutoBootOnStartup.OnContent" xml:space="preserve">
-    <value>Aktivieren</value>
+    <value>Aktiviert</value>
   </data>
   <data name="BlueScreenReport.Content" xml:space="preserve">
     <value>An Entwickler senden</value>
@@ -912,10 +912,10 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>Zeigen</value>
   </data>
   <data name="EnableQuicklook.OffContent" xml:space="preserve">
-    <value>Deaktivieren</value>
+    <value>Deaktiviert</value>
   </data>
   <data name="EnableQuicklook.OnContent" xml:space="preserve">
-    <value>Aktivieren</value>
+    <value>Aktiviert</value>
   </data>
   <data name="QuicklookHeader.Text" xml:space="preserve">
     <value>Quicklook</value>
@@ -1748,10 +1748,10 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>Animationseffekt</value>
   </data>
   <data name="SettingPageAnimationSwitch.OffContent" xml:space="preserve">
-    <value>Deaktivieren</value>
+    <value>Deaktiviert</value>
   </data>
   <data name="SettingPageAnimationSwitch.OnContent" xml:space="preserve">
-    <value>Aktivieren</value>
+    <value>Aktiviert</value>
   </data>
   <data name="ThankTranslate.Text" xml:space="preserve">
     <value>Speziellen Dank für die folgenden Übersetzer.:</value>
@@ -1877,10 +1877,10 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>Ausgeblendete Dateien/Ordner anzeigen</value>
   </data>
   <data name="SettingDisplayHiddenItem.OffContent" xml:space="preserve">
-    <value>Deaktivieren</value>
+    <value>Deaktiviert</value>
   </data>
   <data name="SettingDisplayHiddenItem.OnContent" xml:space="preserve">
-    <value>Aktivieren</value>
+    <value>Aktiviert</value>
   </data>
   <data name="Operate_Text_Undo" xml:space="preserve">
     <value>Rückgängig machen</value>
@@ -1913,10 +1913,10 @@ Nicht erlaubte Zeichen sind \ / : * ? " &lt; &gt; |</value>
     <value>Win+E benutzen um diese App zu öffnen</value>
   </data>
   <data name="UseWinAndEActivate.OffContent" xml:space="preserve">
-    <value>Dekativieren</value>
+    <value>Deaktiviert</value>
   </data>
   <data name="UseWinAndEActivate.OnContent" xml:space="preserve">
-    <value>Aktivieren</value>
+    <value>Aktiviert</value>
   </data>
   <data name="QueueDialog_CouldNotAccess_Content" xml:space="preserve">
     <value>RX unterstützt das Anzeigen dieses Laufwerks nicht da sein Pfad leer ist.</value>
@@ -2278,10 +2278,10 @@ Inkorrekte Namen sind
     <value>Erweitertes Kontextmenü</value>
   </data>
   <data name="SettingPageContextMenuExt.OffContent" xml:space="preserve">
-    <value>Deaktivieren</value>
+    <value>Deaktiviert</value>
   </data>
   <data name="SettingPageContextMenuExt.OnContent" xml:space="preserve">
-    <value>Aktivieren</value>
+    <value>Aktiviert</value>
   </data>
   <data name="VerticalSplitViewButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>In horizontaler Geteiltansicht öffnen</value>
@@ -2353,10 +2353,10 @@ Inkorrekte Namen sind
     <value>Pop-up der Bestätigung zum Löschen</value>
   </data>
   <data name="DeleteConfirmSwitch.OffContent" xml:space="preserve">
-    <value>Deaktivieren</value>
+    <value>Deaktiviert</value>
   </data>
   <data name="DeleteConfirmSwitch.OnContent" xml:space="preserve">
-    <value>Aktivieren</value>
+    <value>Aktiviert</value>
   </data>
   <data name="QuickStartPickFileType.Text" xml:space="preserve">
     <value>Welchen Typ möchten sie auswählen?</value>
@@ -3104,5 +3104,23 @@ Inkorrekte Namen sind
   </data>
   <data name="Progress_Tip_Transfering" xml:space="preserve">
     <value>Übertragen</value>
+  </data>
+  <data name="AttributeVersion.Text" xml:space="preserve">
+    <value>Fassung</value>
+  </data>
+  <data name="AlwaysOnTop.Header" xml:space="preserve">
+    <value>Immer oben</value>
+  </data>
+  <data name="AlwaysOnTop.OffContent" xml:space="preserve">
+    <value>Deaktiviert</value>
+  </data>
+  <data name="AlwaysOnTop.OnContent" xml:space="preserve">
+    <value>Aktiviert</value>
+  </data>
+  <data name="QueueDialog_RemoveTopMostFailed_Content" xml:space="preserve">
+    <value>Dieses Fenster kann nicht von oben entfernt werden</value>
+  </data>
+  <data name="QueueDialog_SetTopMostFailed_Content" xml:space="preserve">
+    <value>Dieses Fenster kann nicht ganz nach oben gesetzt werden</value>
   </data>
 </root>

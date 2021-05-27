@@ -105,6 +105,10 @@ namespace RX_Explorer.Class
 
         private const string ExecuteType_GetThumbnailOverlay = "Execute_GetThumbnailOverlay";
 
+        private const string ExecuteType_SetAsTopMostWindow = "Execute_SetAsTopMostWindow";
+
+        private const string ExecuteType_RemoveTopMostWindow = "Execute_RemoveTopMostWindow";
+
         private readonly static Thread DispatcherThread = new Thread(DispatcherMethod)
         {
             IsBackground = true,
@@ -534,6 +538,126 @@ namespace RX_Explorer.Class
             {
                 LogTracer.Log(ex, $"{ nameof(GetThumbnailOverlayAsync)} throw an error");
                 return Array.Empty<byte>();
+            }
+            finally
+            {
+                IsAnyActionExcutingInCurrentController = false;
+            }
+        }
+
+        public async Task<bool> SetAsTopMostWindowAsync(string PackageFamilyName, uint? WithPID = null)
+        {
+            try
+            {
+                IsAnyActionExcutingInCurrentController = true;
+
+                if (await ConnectRemoteAsync())
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExecuteType", ExecuteType_SetAsTopMostWindow},
+                        {"PackageFamilyName", PackageFamilyName}
+                    };
+
+                    if (WithPID != null)
+                    {
+                        Value.Add("WithPID", WithPID);
+                    }
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Success", out object ThumbnailOverlayStr))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(SetAsTopMostWindowAsync)}, message: {ErrorMessage}");
+                            }
+
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"AppServiceResponse in {nameof(SetAsTopMostWindowAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        return false;
+                    }
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(SetAsTopMostWindowAsync)}: Failed to connect AppService ");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{ nameof(SetAsTopMostWindowAsync)} throw an error");
+                return false;
+            }
+            finally
+            {
+                IsAnyActionExcutingInCurrentController = false;
+            }
+        }
+
+        public async Task<bool> RemoveTopMostWindowAsync(string PackageFamilyName, uint? WithPID = null)
+        {
+            try
+            {
+                IsAnyActionExcutingInCurrentController = true;
+
+                if (await ConnectRemoteAsync())
+                {
+                    ValueSet Value = new ValueSet
+                    {
+                        {"ExecuteType", ExecuteType_RemoveTopMostWindow},
+                        {"PackageFamilyName", PackageFamilyName}
+                    };
+
+                    if (WithPID != null)
+                    {
+                        Value.Add("WithPID", WithPID);
+                    }
+
+                    AppServiceResponse Response = await Connection.SendMessageAsync(Value);
+
+                    if (Response.Status == AppServiceResponseStatus.Success)
+                    {
+                        if (Response.Message.TryGetValue("Success", out object ThumbnailOverlayStr))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            if (Response.Message.TryGetValue("Error", out object ErrorMessage))
+                            {
+                                LogTracer.Log($"An unexpected error was threw in {nameof(RemoveTopMostWindowAsync)}, message: {ErrorMessage}");
+                            }
+
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        LogTracer.Log($"AppServiceResponse in {nameof(RemoveTopMostWindowAsync)} return an invalid status. Status: {Enum.GetName(typeof(AppServiceResponseStatus), Response.Status)}");
+                        return false;
+                    }
+                }
+                else
+                {
+                    LogTracer.Log($"{nameof(RemoveTopMostWindowAsync)}: Failed to connect AppService ");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"{ nameof(RemoveTopMostWindowAsync)} throw an error");
+                return false;
             }
             finally
             {

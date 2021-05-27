@@ -6,6 +6,7 @@ using RX_Explorer.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -622,6 +623,7 @@ namespace RX_Explorer
                     FileLoadMode.SelectionChanged -= FileLoadMode_SelectionChanged;
                     SearchEngineConfig.SelectionChanged -= SearchEngineConfig_SelectionChanged;
                     LanguageComboBox.SelectionChanged -= LanguageComboBox_SelectionChanged;
+                    AlwaysOnTop.Toggled -= AlwaysOnTop_Toggled;
                 }
 
                 DefaultTerminal.SelectionChanged -= DefaultTerminal_SelectionChanged;
@@ -765,6 +767,15 @@ namespace RX_Explorer
                     FeedBackHideButton.IsChecked = true;
                 }
 
+                if (ApplicationData.Current.LocalSettings.Values["AlwaysOnTop"] is bool IsAlwayOnTop)
+                {
+                    AlwaysOnTop.IsOn = IsAlwayOnTop;
+                }
+                else
+                {
+                    AlwaysOnTop.IsOn = false;
+                }
+
                 switch (StartupModeController.GetStartupMode())
                 {
                     case StartupMode.CreateNewTab:
@@ -816,6 +827,7 @@ namespace RX_Explorer
                     FileLoadMode.SelectionChanged += FileLoadMode_SelectionChanged;
                     SearchEngineConfig.SelectionChanged += SearchEngineConfig_SelectionChanged;
                     LanguageComboBox.SelectionChanged += LanguageComboBox_SelectionChanged;
+                    AlwaysOnTop.Toggled += AlwaysOnTop_Toggled;
                 }
 
                 UseWinAndEActivate.Toggled += UseWinAndEActivate_Toggled;
@@ -825,6 +837,56 @@ namespace RX_Explorer
                 HideProtectedSystemItems.Unchecked += HideProtectedSystemItems_Unchecked;
 
                 _ = Interlocked.Exchange(ref LocalSettingLock, 0);
+            }
+        }
+
+        private async void AlwaysOnTop_Toggled(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                ApplicationData.Current.LocalSettings.Values["AlwaysOnTop"] = AlwaysOnTop.IsOn;
+
+                using (FullTrustProcessController.ExclusiveUsage Exclusive = await FullTrustProcessController.GetAvailableController())
+                {
+                    using Process CurrentProcess = Process.GetCurrentProcess();
+
+                    if (AlwaysOnTop.IsOn)
+                    {
+                        if (!await Exclusive.Controller.SetAsTopMostWindowAsync(Package.Current.Id.FamilyName, Convert.ToUInt32(CurrentProcess.Id)))
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_SetTopMostFailed_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            await Dialog.ShowAsync();
+                        }
+                    }
+                    else
+                    {
+                        if (!await Exclusive.Controller.RemoveTopMostWindowAsync(Package.Current.Id.FamilyName, Convert.ToUInt32(CurrentProcess.Id)))
+                        {
+                            QueueContentDialog Dialog = new QueueContentDialog
+                            {
+                                Title = Globalization.GetString("Common_Dialog_ErrorTitle"),
+                                Content = Globalization.GetString("QueueDialog_RemoveTopMostFailed_Content"),
+                                CloseButtonText = Globalization.GetString("Common_Dialog_CloseButton")
+                            };
+
+                            await Dialog.ShowAsync();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogTracer.Log(ex, $"An error was threw in {nameof(AlwaysOnTop_Toggled)}");
+            }
+            finally
+            {
+                ApplicationData.Current.SignalDataChanged();
             }
         }
 

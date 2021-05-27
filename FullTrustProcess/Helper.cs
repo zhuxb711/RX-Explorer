@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Vanara.PInvoke;
@@ -16,6 +18,106 @@ namespace FullTrustProcess
 {
     public static class Helper
     {
+        public static WindowInformation GetUWPWindowInformation(string PackageFamilyName, uint? WithPID = null)
+        {
+            WindowInformation Info = null;
+
+            User32.EnumWindowsProc Callback = new User32.EnumWindowsProc((HWND hWnd, IntPtr lParam) =>
+            {
+                StringBuilder SbClassName = new StringBuilder(260);
+
+                if (User32.GetClassName(hWnd, SbClassName, SbClassName.Capacity) > 0)
+                {
+                    string ClassName = SbClassName.ToString();
+
+                    // Minimized : "Windows.UI.Core.CoreWindow" top window
+                    // Normal : "Windows.UI.Core.CoreWindow" child of "ApplicationFrameWindow"
+                    if (ClassName == "ApplicationFrameWindow")
+                    {
+                        if (Shell32.SHGetPropertyStoreForWindow(hWnd, new Guid("{886D8EEB-8CF2-4446-8D02-CDBA1DBDCF99}"), out object PropertyStore).Succeeded)
+                        {
+                            Ole32.PROPVARIANT Prop = new Ole32.PROPVARIANT();
+
+                            ((PropSys.IPropertyStore)PropertyStore).GetValue(Ole32.PROPERTYKEY.System.AppUserModel.ID, Prop);
+
+                            string AUMID = Prop.pwszVal;
+
+                            if (!string.IsNullOrEmpty(AUMID) && AUMID.Contains(PackageFamilyName))
+                            {
+                                WindowState State = WindowState.Normal;
+
+                                if (User32.GetWindowRect(hWnd, out RECT CurrentRect))
+                                {
+                                    IntPtr RectWorkAreaPtr = Marshal.AllocHGlobal(Marshal.SizeOf<RECT>());
+
+                                    try
+                                    {
+                                        if (User32.SystemParametersInfo(User32.SPI.SPI_GETWORKAREA, 0, RectWorkAreaPtr, User32.SPIF.None))
+                                        {
+                                            RECT WorkAreaRect = Marshal.PtrToStructure<RECT>(RectWorkAreaPtr);
+
+                                            //If Window rect is out of SPI_GETWORKAREA, it means it's maximized;
+                                            if (CurrentRect.left < WorkAreaRect.left && CurrentRect.top < WorkAreaRect.top && CurrentRect.right > WorkAreaRect.right && CurrentRect.bottom > WorkAreaRect.bottom)
+                                            {
+                                                State = WindowState.Maximized;
+                                            }
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        Marshal.FreeHGlobal(RectWorkAreaPtr);
+                                    }
+                                }
+
+                                HWND hWndFind = User32.FindWindowEx(hWnd, IntPtr.Zero, "Windows.UI.Core.CoreWindow", null);
+
+                                if (!hWndFind.IsNull)
+                                {
+                                    if (User32.GetWindowThreadProcessId(hWndFind, out uint PID) > 0)
+                                    {
+                                        if (WithPID != null && WithPID.Value != PID)
+                                        {
+                                            return true;
+                                        }
+
+                                        using (Kernel32.SafeHPROCESS ProcessHandle = Kernel32.OpenProcess(new ACCESS_MASK(0x1000), false, PID))
+                                        {
+                                            if (!ProcessHandle.IsInvalid && !ProcessHandle.IsNull)
+                                            {
+                                                uint Size = 260;
+                                                StringBuilder PackageFamilyNameBuilder = new StringBuilder((int)Size);
+
+                                                if (Kernel32.GetPackageFamilyName(ProcessHandle, ref Size, PackageFamilyNameBuilder).Succeeded)
+                                                {
+                                                    if (PackageFamilyNameBuilder.ToString() == PackageFamilyName && User32.IsWindowVisible(hWnd))
+                                                    {
+                                                        Size = 260;
+                                                        StringBuilder ProcessImageName = new StringBuilder((int)Size);
+
+                                                        Kernel32.QueryFullProcessImageName(ProcessHandle, 0, ProcessImageName, ref Size);
+
+                                                        Info = new WindowInformation(ProcessImageName.ToString(), PID, State, hWnd);
+
+                                                        return false;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return true;
+            });
+
+            User32.EnumWindows(Callback, IntPtr.Zero);
+
+            return Info;
+        }
+
         public static IEnumerable<FileInfo> GetAllSubFiles(DirectoryInfo Directory)
         {
             foreach (FileInfo File in Directory.EnumerateFiles())

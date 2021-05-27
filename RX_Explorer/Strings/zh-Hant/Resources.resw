@@ -2244,7 +2244,7 @@
     <value>擴展上下文菜單</value>
   </data>
   <data name="SettingPageContextMenuExt.OffContent" xml:space="preserve">
-    <value>禁用</value>
+    <value>停用</value>
   </data>
   <data name="SettingPageContextMenuExt.OnContent" xml:space="preserve">
     <value>啟用</value>
@@ -2329,7 +2329,7 @@
     <value>彈出刪除確認</value>
   </data>
   <data name="DeleteConfirmSwitch.OffContent" xml:space="preserve">
-    <value>禁用</value>
+    <value>停用</value>
   </data>
   <data name="DeleteConfirmSwitch.OnContent" xml:space="preserve">
     <value>啟用</value>
@@ -3104,5 +3104,23 @@
   </data>
   <data name="Progress_Tip_Transfering" xml:space="preserve">
     <value>正在轉移</value>
+  </data>
+  <data name="AttributeVersion.Text" xml:space="preserve">
+    <value>版本</value>
+  </data>
+  <data name="AlwaysOnTop.Header" xml:space="preserve">
+    <value>總在最前面</value>
+  </data>
+  <data name="AlwaysOnTop.OffContent" xml:space="preserve">
+    <value>停用</value>
+  </data>
+  <data name="AlwaysOnTop.OnContent" xml:space="preserve">
+    <value>啟用</value>
+  </data>
+  <data name="QueueDialog_RemoveTopMostFailed_Content" xml:space="preserve">
+    <value>無法從最上方移除此窗口</value>
+  </data>
+  <data name="QueueDialog_SetTopMostFailed_Content" xml:space="preserve">
+    <value>無法將此窗口設置為最頂部</value>
   </data>
 </root>

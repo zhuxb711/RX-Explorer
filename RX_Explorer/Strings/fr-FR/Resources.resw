@@ -61,10 +61,10 @@
     <value>Lancement au démarrage</value>
   </data>
   <data name="AutoBootOnStartup.OffContent" xml:space="preserve">
-    <value>Désactiver</value>
+    <value>Désactivé</value>
   </data>
   <data name="AutoBootOnStartup.OnContent" xml:space="preserve">
-    <value>Activer</value>
+    <value>Activé</value>
   </data>
   <data name="BlueScreenReport.Content" xml:space="preserve">
     <value>Rapport au développeur</value>
@@ -866,10 +866,10 @@
     <value>Afficher</value>
   </data>
   <data name="EnableQuicklook.OffContent" xml:space="preserve">
-    <value>Désactiver</value>
+    <value>Désactivé</value>
   </data>
   <data name="EnableQuicklook.OnContent" xml:space="preserve">
-    <value>Activer</value>
+    <value>Activé</value>
   </data>
   <data name="QuicklookHeader.Text" xml:space="preserve">
     <value>Quicklook</value>
@@ -1671,10 +1671,10 @@
     <value>Effet d'animation</value>
   </data>
   <data name="SettingPageAnimationSwitch.OffContent" xml:space="preserve">
-    <value>Désactiver</value>
+    <value>Désactivé</value>
   </data>
   <data name="SettingPageAnimationSwitch.OnContent" xml:space="preserve">
-    <value>Activer</value>
+    <value>Activé</value>
   </data>
   <data name="ThankTranslate.Text" xml:space="preserve">
     <value>Remerciements particuliers aux traducteurs suivants:</value>
@@ -1822,10 +1822,10 @@
     <value>Afficher les fichiers/dossiers</value>
   </data>
   <data name="SettingDisplayHiddenItem.OffContent" xml:space="preserve">
-    <value>Désactiver</value>
+    <value>Désactivé</value>
   </data>
   <data name="SettingDisplayHiddenItem.OnContent" xml:space="preserve">
-    <value>Activer</value>
+    <value>Activé</value>
   </data>
   <data name="Operate_Text_Undo" xml:space="preserve">
     <value>Annuler</value>
@@ -1858,10 +1858,10 @@
     <value>Utilisez [Win+E] pour activer l'application</value>
   </data>
   <data name="UseWinAndEActivate.OffContent" xml:space="preserve">
-    <value>Désactiver</value>
+    <value>Désactivé</value>
   </data>
   <data name="UseWinAndEActivate.OnContent" xml:space="preserve">
-    <value>Activer</value>
+    <value>Activé</value>
   </data>
   <data name="PresentInvalidCharTip.Subtitle" xml:space="preserve">
     <value>Ne peut pas contenir de caractères illégaux
@@ -2244,10 +2244,10 @@ Les noms non valides incluent
     <value>Menu contextuel étendu</value>
   </data>
   <data name="SettingPageContextMenuExt.OffContent" xml:space="preserve">
-    <value>Désactiver</value>
+    <value>Désactivé</value>
   </data>
   <data name="SettingPageContextMenuExt.OnContent" xml:space="preserve">
-    <value>Activer</value>
+    <value>Activé</value>
   </data>
   <data name="VerticalSplitViewButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Créer une nouvelle vue fractionnée verticale</value>
@@ -2329,10 +2329,10 @@ Les noms non valides incluent
     <value>Pop-up la confirmation de la suppression</value>
   </data>
   <data name="DeleteConfirmSwitch.OffContent" xml:space="preserve">
-    <value>Désactiver</value>
+    <value>Désactivé</value>
   </data>
   <data name="DeleteConfirmSwitch.OnContent" xml:space="preserve">
-    <value>Permettre</value>
+    <value>Activé</value>
   </data>
   <data name="QuickStartPickFileType.Text" xml:space="preserve">
     <value>Quel type souhaitez-vous choisir?</value>
@@ -3104,5 +3104,23 @@ Les noms non valides incluent
   </data>
   <data name="Progress_Tip_Transfering" xml:space="preserve">
     <value>Transfert</value>
+  </data>
+  <data name="AttributeVersion.Text" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="AlwaysOnTop.Header" xml:space="preserve">
+    <value>Toujours au top</value>
+  </data>
+  <data name="AlwaysOnTop.OffContent" xml:space="preserve">
+    <value>Désactivé</value>
+  </data>
+  <data name="AlwaysOnTop.OnContent" xml:space="preserve">
+    <value>Activé</value>
+  </data>
+  <data name="QueueDialog_RemoveTopMostFailed_Content" xml:space="preserve">
+    <value>Impossible de supprimer cette fenêtre du haut</value>
+  </data>
+  <data name="QueueDialog_SetTopMostFailed_Content" xml:space="preserve">
+    <value>Impossible de définir cette fenêtre au maximum</value>
   </data>
 </root>

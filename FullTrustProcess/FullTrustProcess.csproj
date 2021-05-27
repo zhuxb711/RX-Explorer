@@ -99,6 +99,7 @@
     <Compile Include="QuicklookConnector.cs" />
     <Compile Include="RecycleBinController.cs" />
     <Compile Include="USBController.cs" />
+    <Compile Include="WindowInformation.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig">
