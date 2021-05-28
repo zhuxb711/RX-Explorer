@@ -334,11 +334,12 @@ namespace RX_Explorer
             }
         }
 
-        private void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
+        private async void Dispatcher_AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs args)
         {
             if (Container.CurrentPresenter == this
                 && args.KeyStatus.IsMenuKeyDown
                 && Container.Frame.CurrentSourcePageType == typeof(FileControl)
+                && Container.Frame == TabViewContainer.CurrentNavigationControl
                 && MainPage.ThisPage.NavView.SelectedItem is NavigationViewItem NavItem
                 && Convert.ToString(NavItem.Content) == Globalization.GetString("MainPage_PageDictionary_Home_Label"))
             {
@@ -346,12 +347,42 @@ namespace RX_Explorer
                 {
                     case VirtualKey.Left:
                         {
-                            Container.GoBackRecord_Click(null, null);
+                            args.Handled = true;
+
+                            if (Container.GoBackRecord.IsEnabled)
+                            {
+                                Container.GoBackRecord_Click(null, null);
+                            }
                             break;
                         }
                     case VirtualKey.Right:
                         {
-                            Container.GoForwardRecord_Click(null, null);
+                            args.Handled = true;
+
+                            if (Container.GoForwardRecord.IsEnabled)
+                            {
+                                Container.GoForwardRecord_Click(null, null);
+                            }
+                            break;
+                        }
+                    case VirtualKey.Enter when SelectedItems.Count == 1:
+                        {
+                            args.Handled = true;
+
+                            AppWindow NewWindow = await AppWindow.TryCreateAsync();
+                            NewWindow.RequestSize(new Size(420, 600));
+                            NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+                            NewWindow.PersistedStateId = "Properties";
+                            NewWindow.Title = Globalization.GetString("Properties_Window_Title");
+                            NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+                            NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
+                            NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                            NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
+                            ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, SelectedItem));
+                            WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
+
+                            await NewWindow.TryShowAsync();
                             break;
                         }
                 }
@@ -426,7 +457,7 @@ namespace RX_Explorer
                                 await EnterSelectedItemAsync(Item).ConfigureAwait(false);
                                 break;
                             }
-                        case VirtualKey.Back:
+                        case VirtualKey.Back when Container.GoBackRecord.IsEnabled:
                             {
                                 Container.GoBackRecord_Click(null, null);
                                 break;
@@ -1951,7 +1982,27 @@ namespace RX_Explorer
 
             if ((e.OriginalSource as FrameworkElement)?.DataContext is FileSystemStorageItemBase ReFile)
             {
-                await EnterSelectedItemAsync(ReFile).ConfigureAwait(false);
+                if (CoreWindow.GetForCurrentThread().GetKeyState(VirtualKey.Menu).HasFlag(CoreVirtualKeyStates.Down))
+                {
+                    AppWindow NewWindow = await AppWindow.TryCreateAsync();
+                    NewWindow.RequestSize(new Size(420, 600));
+                    NewWindow.RequestMoveRelativeToCurrentViewContent(new Point(Window.Current.Bounds.Width / 2 - 200, Window.Current.Bounds.Height / 2 - 300));
+                    NewWindow.PersistedStateId = "Properties";
+                    NewWindow.Title = Globalization.GetString("Properties_Window_Title");
+                    NewWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+                    NewWindow.TitleBar.ButtonForegroundColor = AppThemeController.Current.Theme == ElementTheme.Dark ? Colors.White : Colors.Black;
+                    NewWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                    NewWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
+                    ElementCompositionPreview.SetAppWindowContent(NewWindow, new PropertyBase(NewWindow, ReFile));
+                    WindowManagementPreview.SetPreferredMinSize(NewWindow, new Size(420, 600));
+
+                    await NewWindow.TryShowAsync();
+                }
+                else
+                {
+                    await EnterSelectedItemAsync(ReFile).ConfigureAwait(false);
+                }
             }
             else if (e.OriginalSource is Grid)
             {

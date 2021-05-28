@@ -141,7 +141,7 @@
                               x:Name="LnkOpenLocation"
                               Click="LnkOpenLocation_Click">
                     <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xF133;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
@@ -216,8 +216,8 @@
                         </AppBarButton.Icon>
                     </AppBarButton>
                     <AppBarButton Foreground="#CC6EFF"
-                                  x:Uid="YellowTag"
-                                  ToolTipService.ToolTip="Yellow"
+                                  x:Uid="PurpleTag"
+                                  ToolTipService.ToolTip="Purple"
                                   Click="Color_Click">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -267,7 +267,7 @@
                                             Name="RunWithSystemAuthority"
                                             Click="RunWithSystemAuthority_Click">
                                 <MenuFlyoutItem.Icon>
-                                    <FontIcon FontFamily="Segoe MDL2 Assets"
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                               Glyph="&#xEA0D;" />
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
@@ -472,8 +472,8 @@
                         </AppBarButton.Icon>
                     </AppBarButton>
                     <AppBarButton Foreground="#CC6EFF"
-                                  x:Uid="YellowTag"
-                                  ToolTipService.ToolTip="Yellow"
+                                  x:Uid="PurpleTag"
+                                  ToolTipService.ToolTip="Purple"
                                   Click="MixColor_Click">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -622,8 +622,8 @@
                         </AppBarButton.Icon>
                     </AppBarButton>
                     <AppBarButton Foreground="#CC6EFF"
-                                  x:Uid="YellowTag"
-                                  ToolTipService.ToolTip="Yellow"
+                                  x:Uid="PurpleTag"
+                                  ToolTipService.ToolTip="Purple"
                                   Click="Color_Click">
                         <AppBarButton.Icon>
                             <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
@@ -667,7 +667,7 @@
                               x:Name="OpenFolderInNewTab"
                               Click="OpenFolderInNewTab_Click">
                     <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xF7ED;" />
                     </AppBarButton.Icon>
                     <AppBarButton.KeyboardAccelerators>
@@ -681,7 +681,7 @@
                               x:Name="OpenFolderInNewWindow"
                               Click="OpenFolderInNewWindow_Click">
                     <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xE727;" />
                     </AppBarButton.Icon>
                     <AppBarButton.KeyboardAccelerators>
@@ -695,7 +695,7 @@
                               x:Name="OpenFolderInVerticalSplitView"
                               Click="OpenFolderInVerticalSplitView_Click">
                     <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xE140;" />
                     </AppBarButton.Icon>
                     <AppBarButton.KeyboardAccelerators>
@@ -861,7 +861,7 @@
                               MinWidth="250"
                               Click="OpenInTerminal_Click">
                     <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xE756;" />
                     </AppBarButton.Icon>
                     <AppBarButton.KeyboardAccelerators>
@@ -875,7 +875,7 @@
                               x:Name="UseSystemFileMananger"
                               Click="UseSystemFileMananger_Click">
                     <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xEC50;" />
                     </AppBarButton.Icon>
                     <AppBarButton.KeyboardAccelerators>
@@ -921,7 +921,7 @@
                                 Margin="5,0,0,0"
                                 Name="CopyLinkButton"
                                 Click="CopyLinkButton_Click">
-                            <FontIcon FontFamily="Segoe MDL2 Assets"
+                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                       Glyph="&#xE8C8;" />
                         </Button>
                     </RelativePanel>
@@ -1452,7 +1452,7 @@
                                                 Style="{StaticResource ListHeaderButtonStyle}"
                                                 RelativePanel.AlignRightWithPanel="True">
                                             <Viewbox Width="10">
-                                                <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                           Glyph="&#xE96E;" />
                                             </Viewbox>
                                             <Button.Flyout>
@@ -1474,7 +1474,7 @@
                                                             <StackPanel Orientation="Horizontal">
                                                                 <Viewbox Height="16"
                                                                          VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                               Glyph="&#xE81E;" />
                                                                 </Viewbox>
                                                                 <TextBlock Margin="10,0,0,0"
@@ -1485,7 +1485,7 @@
                                                             <StackPanel Orientation="Horizontal">
                                                                 <Viewbox Height="16"
                                                                          VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                               Glyph="&#xE81E;" />
                                                                 </Viewbox>
                                                                 <TextBlock Margin="10,0,0,0"
@@ -1496,7 +1496,7 @@
                                                             <StackPanel Orientation="Horizontal">
                                                                 <Viewbox Height="16"
                                                                          VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                               Glyph="&#xE81E;" />
                                                                 </Viewbox>
                                                                 <TextBlock Margin="10,0,0,0"
@@ -1507,7 +1507,7 @@
                                                             <StackPanel Orientation="Horizontal">
                                                                 <Viewbox Height="16"
                                                                          VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                               Glyph="&#xE81E;" />
                                                                 </Viewbox>
                                                                 <TextBlock Margin="10,0,0,0"
@@ -1518,11 +1518,65 @@
                                                             <StackPanel Orientation="Horizontal">
                                                                 <Viewbox Height="16"
                                                                          VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                               Glyph="&#xE81E;" />
                                                                 </Viewbox>
                                                                 <TextBlock Margin="10,0,0,0"
                                                                            Text="其他"
+                                                                           x:Uid="NameFilterCheckBox5Text" />
+                                                            </StackPanel>
+                                                        </CheckBox>
+                                                        <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox1,Mode=TwoWay}">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <Viewbox Height="16"
+                                                                         Margin="0,2,0,0"
+                                                                         VerticalAlignment="Center">
+                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                              Glyph="&#xF127;"
+                                                                              Foreground="Orange"/>
+                                                                </Viewbox>
+                                                                <TextBlock Margin="10,0,0,0"
+                                                                           Text="{x:Bind Cls:Globalization.GetString('OrangeTag/ToolTipService/ToolTip')}" />
+                                                            </StackPanel>
+                                                        </CheckBox>
+                                                        <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox2,Mode=TwoWay}">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <Viewbox Height="16"
+                                                                         Margin="0,2,0,0"
+                                                                         VerticalAlignment="Center">
+                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                              Glyph="&#xF127;"
+                                                                              Foreground="#22B324" />
+                                                                </Viewbox>
+                                                                <TextBlock Margin="10,0,0,0"
+                                                                           Text="{x:Bind Cls:Globalization.GetString('GreenTag/ToolTipService/ToolTip')}"/>
+                                                            </StackPanel>
+                                                        </CheckBox>
+                                                        <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox3,Mode=TwoWay}">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <Viewbox Height="16"
+                                                                         Margin="0,2,0,0"
+                                                                         VerticalAlignment="Center">
+                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                              Glyph="&#xF127;"
+                                                                              Foreground="#CC6EFF" />
+                                                                </Viewbox>
+                                                                <TextBlock Margin="10,0,0,0"
+                                                                           Text="{x:Bind Cls:Globalization.GetString('PurpleTag/ToolTipService/ToolTip')}"
+                                                                           x:Uid="NameFilterCheckBox5Text" />
+                                                            </StackPanel>
+                                                        </CheckBox>
+                                                        <CheckBox IsChecked="{x:Bind Filter.ColorFilterCheckBox4,Mode=TwoWay}">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <Viewbox Height="16"
+                                                                         Margin="0,2,0,0"
+                                                                         VerticalAlignment="Center">
+                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                                              Glyph="&#xF127;"
+                                                                              Foreground="#42C5FF" />
+                                                                </Viewbox>
+                                                                <TextBlock Margin="10,0,0,0"
+                                                                           Text="{x:Bind Cls:Globalization.GetString('BlueTag/ToolTipService/ToolTip')}"
                                                                            x:Uid="NameFilterCheckBox5Text" />
                                                             </StackPanel>
                                                         </CheckBox>
@@ -1531,7 +1585,7 @@
                                                                 <Viewbox Height="16"
                                                                          Margin="0,2,0,0"
                                                                          VerticalAlignment="Top">
-                                                                    <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                               Glyph="&#xE81E;" />
                                                                 </Viewbox>
                                                                 <TextBox Margin="10,0,0,0"
@@ -1593,7 +1647,7 @@
                                                 Style="{StaticResource ListHeaderButtonStyle}"
                                                 RelativePanel.AlignRightWithPanel="True">
                                             <Viewbox Width="10">
-                                                <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                           Glyph="&#xE96E;" />
                                             </Viewbox>
                                             <Button.Flyout>
@@ -1616,7 +1670,7 @@
                                                                 <Viewbox Height="16"
                                                                          Margin="0,2,0,0"
                                                                          VerticalAlignment="Top">
-                                                                    <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                               Glyph="&#xE81E;" />
                                                                 </Viewbox>
                                                                 <StackPanel Margin="10,0,0,0">
@@ -1640,7 +1694,7 @@
                                                             <StackPanel Orientation="Horizontal">
                                                                 <Viewbox Height="16"
                                                                          VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                               Glyph="&#xE81E;" />
                                                                 </Viewbox>
                                                                 <TextBlock Margin="10,0,0,0"
@@ -1652,7 +1706,7 @@
                                                             <StackPanel Orientation="Horizontal">
                                                                 <Viewbox Height="16"
                                                                          VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                               Glyph="&#xE81E;" />
                                                                 </Viewbox>
                                                                 <TextBlock Margin="10,0,0,0"
@@ -1664,7 +1718,7 @@
                                                             <StackPanel Orientation="Horizontal">
                                                                 <Viewbox Height="16"
                                                                          VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                               Glyph="&#xE81E;" />
                                                                 </Viewbox>
                                                                 <TextBlock Margin="10,0,0,0"
@@ -1722,7 +1776,7 @@
                                                 Style="{StaticResource ListHeaderButtonStyle}"
                                                 RelativePanel.AlignRightWithPanel="True">
                                             <Viewbox Width="10">
-                                                <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                           Glyph="&#xE96E;" />
                                             </Viewbox>
                                             <Button.Flyout>
@@ -1792,7 +1846,7 @@
                                                 Style="{StaticResource ListHeaderButtonStyle}"
                                                 RelativePanel.AlignRightWithPanel="True">
                                             <Viewbox Width="10">
-                                                <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                           Glyph="&#xE96E;" />
                                             </Viewbox>
                                             <Button.Flyout>
@@ -1814,7 +1868,7 @@
                                                             <StackPanel Orientation="Horizontal">
                                                                 <Viewbox Height="16"
                                                                          VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                               Glyph="&#xE81E;" />
                                                                 </Viewbox>
                                                                 <TextBlock Margin="10,0,0,0"
@@ -1826,7 +1880,7 @@
                                                             <StackPanel Orientation="Horizontal">
                                                                 <Viewbox Height="16"
                                                                          VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                               Glyph="&#xE81E;" />
                                                                 </Viewbox>
                                                                 <TextBlock Margin="10,0,0,0"
@@ -1838,7 +1892,7 @@
                                                             <StackPanel Orientation="Horizontal">
                                                                 <Viewbox Height="16"
                                                                          VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                               Glyph="&#xE81E;" />
                                                                 </Viewbox>
                                                                 <TextBlock Margin="10,0,0,0"
@@ -1850,7 +1904,7 @@
                                                             <StackPanel Orientation="Horizontal">
                                                                 <Viewbox Height="16"
                                                                          VerticalAlignment="Bottom">
-                                                                    <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                                               Glyph="&#xE81E;" />
                                                                 </Viewbox>
                                                                 <TextBlock Margin="10,0,0,0"

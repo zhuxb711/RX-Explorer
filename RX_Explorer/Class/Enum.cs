@@ -70,6 +70,16 @@ namespace RX_Explorer.Class
     }
 
     [Flags]
+    public enum ColorFilterCondition
+    {
+        None = 0,
+        Orange = 1,
+        Green = 2,
+        Purple = 4,
+        Blue = 8
+    }
+
+    [Flags]
     public enum NameFilterCondition
     {
         None = 0,

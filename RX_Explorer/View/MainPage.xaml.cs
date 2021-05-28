@@ -494,18 +494,21 @@ namespace RX_Explorer
                         }
                 }
 
-                if (await MSStoreHelper.Current.CheckHasUpdateAsync())
+                if (!Package.Current.IsDevelopmentMode)
                 {
-                    Button ActionButton = new Button
+                    if (await MSStoreHelper.Current.CheckHasUpdateAsync())
                     {
-                        Content = Globalization.GetString("SystemTip_UpdateAvailableActionButton")
-                    };
-                    ActionButton.Click += async (s, e) =>
-                    {
-                        await Launcher.LaunchUriAsync(new Uri("ms-windows-store://pdp/?productid=9N88QBQKF2RS"));
-                    };
+                        Button ActionButton = new Button
+                        {
+                            Content = Globalization.GetString("SystemTip_UpdateAvailableActionButton")
+                        };
+                        ActionButton.Click += async (s, e) =>
+                        {
+                            await Launcher.LaunchUriAsync(new Uri("ms-windows-store://pdp/?productid=9N88QBQKF2RS"));
+                        };
 
-                    ShowInfoTip(InfoBarSeverity.Informational, Globalization.GetString("SystemTip_UpdateAvailableTitle"), Globalization.GetString("SystemTip_UpdateAvailableContent"), ActionButton: ActionButton);
+                        ShowInfoTip(InfoBarSeverity.Informational, Globalization.GetString("SystemTip_UpdateAvailableTitle"), Globalization.GetString("SystemTip_UpdateAvailableContent"), ActionButton: ActionButton);
+                    }
                 }
             }
             catch (Exception ex)

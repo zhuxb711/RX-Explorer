@@ -56,7 +56,7 @@ namespace RX_Explorer
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e?.Parameter is Tuple<FileControl, SearchOptions> Parameters)
+            if (e.Parameter is Tuple<FileControl, SearchOptions> Parameters)
             {
                 CoreWindow.GetForCurrentThread().KeyDown += SearchPage_KeyDown;
 
@@ -118,9 +118,11 @@ namespace RX_Explorer
         {
             HasItem.Visibility = Visibility.Collapsed;
 
+            CancellationTokenSource Cancellation = new CancellationTokenSource();
+
             try
             {
-                Cancellation = new CancellationTokenSource();
+                this.Cancellation = Cancellation;
 
                 SearchStatus.Text = Globalization.GetString("SearchProcessingText");
                 SearchStatusBar.Visibility = Visibility.Visible;
@@ -179,13 +181,18 @@ namespace RX_Explorer
             finally
             {
                 Cancellation.Dispose();
-                Cancellation = null;
+
+                if (this.Cancellation == Cancellation)
+                {
+                    this.Cancellation = null;
+                }
             }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             CoreWindow.GetForCurrentThread().KeyDown -= SearchPage_KeyDown;
+
             Cancellation?.Cancel();
 
             SearchResultList.RemoveHandler(PointerPressedEvent, PointerPressedEventHandler);

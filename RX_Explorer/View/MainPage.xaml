@@ -357,7 +357,7 @@
                 <muxc:NavigationViewItem Content="{x:Bind Cls:Globalization.GetString('MainPage_PageDictionary_Home_Label')}"
                                          IsSelected="True">
                     <muxc:NavigationViewItem.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xE8CC;" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
@@ -392,7 +392,7 @@
                         </Viewbox>
                     </StackPanel>
                     <muxc:NavigationViewItem.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xE702;" />
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>

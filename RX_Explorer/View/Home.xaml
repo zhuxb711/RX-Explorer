@@ -119,7 +119,7 @@
                               Name="EjectButton"
                               Click="EjectButton_Click">
                     <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xF847;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
@@ -141,7 +141,7 @@
                               x:Uid="UnlockBitlocker"
                               Click="UnlockBitlocker_Click">
                     <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xE785;" />
                     </AppBarButton.Icon>
                 </AppBarButton>

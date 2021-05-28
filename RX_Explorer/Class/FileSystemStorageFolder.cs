@@ -310,7 +310,7 @@ namespace RX_Explorer.Class
 
                     for (uint Index = 0; !CancelToken.IsCancellationRequested; Index += 25)
                     {
-                        IReadOnlyList<IStorageItem> ReadOnlyItemList = await Query.GetItemsAsync(Index, 25);
+                        IReadOnlyList<IStorageItem> ReadOnlyItemList = await Query.GetItemsAsync(Index, 25).AsTask(CancelToken);
 
                         if (ReadOnlyItemList.Count > 0)
                         {

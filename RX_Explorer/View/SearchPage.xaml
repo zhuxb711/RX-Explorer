@@ -15,7 +15,7 @@
                           Name="MuiltSelect"
                           Click="MuiltSelect_Click">
                 <AppBarButton.Icon>
-                    <FontIcon FontFamily="Segoe MDL2 Assets"
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                               Glyph="&#xE762;" />
                 </AppBarButton.Icon>
             </AppBarButton>
@@ -48,7 +48,7 @@
                                              IsEnabled="False" />
                     </AppBarButton.KeyboardAccelerators>
                     <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xF133;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
@@ -75,7 +75,7 @@
             <AppBarButton ToolTipService.ToolTip="{x:Bind local:Globalization.GetString('Operate_Text_MultiSelect')}"
                           Click="MuiltSelect_Click">
                 <AppBarButton.Icon>
-                    <FontIcon FontFamily="Segoe MDL2 Assets"
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                               Glyph="&#xE762;" />
                 </AppBarButton.Icon>
             </AppBarButton>

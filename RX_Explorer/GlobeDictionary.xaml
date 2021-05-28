@@ -1019,7 +1019,7 @@
                                 VerticalAlignment="Stretch"
                                 VerticalContentAlignment="Stretch">
                             <TextBlock AutomationProperties.AccessibilityView="Raw"
-                                       FontFamily="Segoe MDL2 Assets"
+                                       FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                        FontSize="12"
                                        HorizontalAlignment="Right"
                                        Text="&#xE70D;"
@@ -1081,7 +1081,7 @@
 
                         <FontIcon x:Name="Arrow"
                                   Margin="12"
-                                  FontFamily="Segoe MDL2 Assets"
+                                  FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   FontSize="12"
                                   Glyph="&#xE76C;"
                                   RenderTransformOrigin="0.5,0.5">

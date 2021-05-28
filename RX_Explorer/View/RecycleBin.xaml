@@ -68,7 +68,7 @@
                               IsEnabled="False"
                               Click="ClearRecycleBin_Click">
                     <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xED62;" />
                     </AppBarButton.Icon>
                     <AppBarButton.KeyboardAccelerators>

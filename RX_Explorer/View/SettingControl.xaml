@@ -141,7 +141,7 @@
                               Label="翻译"
                               Click="FeedBackTranslate_Click">
                     <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xF2B7;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
@@ -158,7 +158,7 @@
                               Label="翻译"
                               Click="FeedBackTranslate_Click">
                     <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xF2B7;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
@@ -166,7 +166,7 @@
                               Name="FeedBackNotice"
                               Click="FeedBackNotice_Click">
                     <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xE168;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
@@ -352,7 +352,7 @@
                                 <Viewbox Height="16"
                                          Margin="0,1,0,0"
                                          VerticalAlignment="Center">
-                                    <FontIcon FontFamily="Segoe MDL2 Assets"
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                               Glyph="&#xE7BA;"
                                               Foreground="Yellow" />
                                 </Viewbox>

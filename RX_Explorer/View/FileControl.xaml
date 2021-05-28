@@ -88,7 +88,7 @@
                               x:Name="OpenFolderInNewWindow"
                               Click="OpenFolderInNewWindow_Click">
                     <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xE727;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
@@ -96,7 +96,7 @@
                               x:Name="OpenFolderInNewTab"
                               Click="OpenFolderInNewTab_Click">
                     <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xF7ED;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
@@ -104,7 +104,7 @@
                               x:Name="OpenFolderInVerticalSplitView"
                               Click="OpenFolderInVerticalSplitView_Click">
                     <AppBarButton.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets"
+                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                   Glyph="&#xE140;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
@@ -349,7 +349,7 @@
                     x:FieldModifier="public"
                     ToolTipService.ToolTip="创建新的垂直拆分视图">
                 <Viewbox>
-                    <FontIcon FontFamily="Segoe MDL2 Assets"
+                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                               Glyph="&#xE140;" />
                 </Viewbox>
             </Button>
@@ -582,7 +582,7 @@
                             <Viewbox Height="24"
                                      Margin="0,4,0,0"
                                      VerticalAlignment="Center">
-                                <FontIcon FontFamily="Segoe MDL2 Assets"
+                                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                           Glyph="{Binding IsExpanded,Converter={StaticResource StateConverter},Mode=OneWay}"
                                           Name="Icon" />
                             </Viewbox>

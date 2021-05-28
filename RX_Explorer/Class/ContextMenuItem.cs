@@ -84,7 +84,6 @@ namespace RX_Explorer.Class
                         MaxWidth = 350,
                         Icon = new FontIcon
                         {
-                            FontFamily = new Windows.UI.Xaml.Media.FontFamily("Segoe MDL2 Assets"),
                             Glyph = "\uE2AC"
                         }
                     };
@@ -118,7 +117,6 @@ namespace RX_Explorer.Class
                     {
                         FlyoutItem.Icon = new FontIcon
                         {
-                            FontFamily = new Windows.UI.Xaml.Media.FontFamily("Segoe MDL2 Assets"),
                             Glyph = "\uE2AC"
                         };
                     }
@@ -156,7 +154,6 @@ namespace RX_Explorer.Class
             {
                 Button.Icon = new FontIcon
                 {
-                    FontFamily = new Windows.UI.Xaml.Media.FontFamily("Segoe MDL2 Assets"),
                     Glyph = "\uE2AC"
                 };
             }

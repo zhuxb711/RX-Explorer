@@ -78,9 +78,9 @@ namespace RX_Explorer.Class
         {
             foreach (DriveDataBase Drive in CommonAccessCollection.DriveList)
             {
-                if (WIN_Native_API.CheckLocationAvailability(Path))
+                if (WIN_Native_API.CheckLocationAvailability(Drive.Path))
                 {
-                    foreach (FileSystemStorageItemBase Item in await Task.Run(() => WIN_Native_API.Search(Drive.Path, SearchWord, SearchInSubFolders, IncludeHiddenItem, IncludeSystemItem, IsRegexExpresstion, IgnoreCase, CancelToken)))
+                    foreach (FileSystemStorageItemBase Item in await Task.Factory.StartNew(() => WIN_Native_API.Search(Drive.Path, SearchWord, SearchInSubFolders, IncludeHiddenItem, IncludeSystemItem, IsRegexExpresstion, IgnoreCase, CancelToken), TaskCreationOptions.LongRunning))
                     {
                         yield return Item;
                     }
@@ -106,7 +106,7 @@ namespace RX_Explorer.Class
 
                         for (uint Index = 0; !CancelToken.IsCancellationRequested; Index += 25)
                         {
-                            IReadOnlyList<IStorageItem> ReadOnlyItemList = await Query.GetItemsAsync(Index, 25);
+                            IReadOnlyList<IStorageItem> ReadOnlyItemList = await Query.GetItemsAsync(Index, 25).AsTask(CancelToken);
 
                             if (ReadOnlyItemList.Count > 0)
                             {

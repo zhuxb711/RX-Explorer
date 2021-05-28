@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Microsoft.Toolkit.Uwp.Helpers;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -14,11 +15,11 @@ namespace RX_Explorer.Class
         private NameFilterCondition NameCondition;
         private ModTimeFilterCondition ModTimeCondition;
         private SizeFilterCondition SizeCondition;
+        private ColorFilterCondition ColorCondition;
         private DateTimeOffset ModTimeFrom;
         private DateTimeOffset ModTimeTo;
         private readonly List<string> TypeFilter;
         private readonly List<FileSystemStorageItemBase> OriginCopy;
-        public event PropertyChangedEventHandler PropertyChanged;
 
         private DateTimeOffset? fromDate;
         private DateTimeOffset fromDateMax = DateTimeOffset.Now;
@@ -39,7 +40,17 @@ namespace RX_Explorer.Class
         private bool sizeFilterCheckBox2;
         private bool sizeFilterCheckBox3;
         private bool sizeFilterCheckBox4;
+        private bool colorFilterCheckBox1;
+        private bool colorFilterCheckBox2;
+        private bool colorFilterCheckBox3;
+        private bool colorFilterCheckBox4;
 
+        private readonly Color OrangeColor = Colors.Orange;
+        private readonly Color GreenColor = "#22B324".ToColor();
+        private readonly Color PurpleColor = "#CC6EFF".ToColor();
+        private readonly Color BlueColor = "#42C5FF".ToColor();
+
+        public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler<RefreshRequestedEventArgs> RefreshListRequested;
 
         public bool? NameFilterCheckBox1
@@ -548,7 +559,6 @@ namespace RX_Explorer.Class
                         VerticalAlignment = VerticalAlignment.Bottom,
                         Child = new FontIcon
                         {
-                            FontFamily = new Windows.UI.Xaml.Media.FontFamily("Segoe MDL2 Assets"),
                             Glyph = "\uE81E"
                         }
                     });
@@ -579,7 +589,7 @@ namespace RX_Explorer.Class
         {
             get
             {
-                return NameCondition != NameFilterCondition.None || ModTimeCondition != ModTimeFilterCondition.None || SizeCondition != SizeFilterCondition.None || TypeFilter.Count > 0;
+                return NameCondition != NameFilterCondition.None || ColorCondition != ColorFilterCondition.None || ModTimeCondition != ModTimeFilterCondition.None || SizeCondition != SizeFilterCondition.None || TypeFilter.Count > 0;
             }
         }
 
@@ -602,6 +612,114 @@ namespace RX_Explorer.Class
                 if (Box.FindChildOfType<TextBlock>() is TextBlock Block)
                 {
                     RemoveTypeCondition(Block.Text);
+                    FireRefreshEvent();
+                }
+            }
+        }
+
+        public bool? ColorFilterCheckBox1
+        {
+            get
+            {
+                return colorFilterCheckBox1;
+            }
+            set
+            {
+                if (colorFilterCheckBox1 != value.GetValueOrDefault())
+                {
+                    colorFilterCheckBox1 = value.GetValueOrDefault();
+
+                    if (colorFilterCheckBox1)
+                    {
+                        AddColorCondition(ColorFilterCondition.Orange);
+                    }
+                    else
+                    {
+                        RemoveColorCondition(ColorFilterCondition.Orange);
+                    }
+
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ColorFilterCheckBox1)));
+                    FireRefreshEvent();
+                }
+            }
+        }
+
+        public bool? ColorFilterCheckBox2
+        {
+            get
+            {
+                return colorFilterCheckBox2;
+            }
+            set
+            {
+                if (colorFilterCheckBox2 != value.GetValueOrDefault())
+                {
+                    colorFilterCheckBox2 = value.GetValueOrDefault();
+
+                    if (colorFilterCheckBox2)
+                    {
+                        AddColorCondition(ColorFilterCondition.Green);
+                    }
+                    else
+                    {
+                        RemoveColorCondition(ColorFilterCondition.Green);
+                    }
+
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ColorFilterCheckBox2)));
+                    FireRefreshEvent();
+                }
+            }
+        }
+
+        public bool? ColorFilterCheckBox3
+        {
+            get
+            {
+                return colorFilterCheckBox3;
+            }
+            set
+            {
+                if (colorFilterCheckBox3 != value.GetValueOrDefault())
+                {
+                    colorFilterCheckBox3 = value.GetValueOrDefault();
+
+                    if (colorFilterCheckBox3)
+                    {
+                        AddColorCondition(ColorFilterCondition.Purple);
+                    }
+                    else
+                    {
+                        RemoveColorCondition(ColorFilterCondition.Purple);
+                    }
+
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ColorFilterCheckBox3)));
+                    FireRefreshEvent();
+                }
+            }
+        }
+
+        public bool? ColorFilterCheckBox4
+        {
+            get
+            {
+                return colorFilterCheckBox4;
+            }
+            set
+            {
+                if (colorFilterCheckBox4 != value.GetValueOrDefault())
+                {
+                    colorFilterCheckBox4 = value.GetValueOrDefault();
+
+                    if (colorFilterCheckBox4)
+                    {
+                        AddColorCondition(ColorFilterCondition.Blue);
+                    }
+                    else
+                    {
+                        RemoveColorCondition(ColorFilterCondition.Blue);
+                    }
+
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ColorFilterCheckBox4)));
                     FireRefreshEvent();
                 }
             }
@@ -679,6 +797,20 @@ namespace RX_Explorer.Class
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TypeCheckBoxPanel)));
         }
 
+        private void AddColorCondition(ColorFilterCondition Condition)
+        {
+            ColorCondition |= Condition;
+        }
+
+        private void RemoveColorCondition(ColorFilterCondition Condition)
+        {
+            if (ColorCondition != ColorFilterCondition.None)
+            {
+                ColorCondition ^= Condition;
+            }
+        }
+
+
         private void AddNameCondition(NameFilterCondition Condition)
         {
             NameCondition |= Condition;
@@ -746,6 +878,7 @@ namespace RX_Explorer.Class
             List<FileSystemStorageItemBase> ModTimeFilterResult = null;
             List<FileSystemStorageItemBase> TypeFilterResult = null;
             List<FileSystemStorageItemBase> SizeFilterResult = null;
+            List<FileSystemStorageItemBase> ColorFilterResult = null;
 
             if (NameCondition != NameFilterCondition.None)
             {
@@ -788,6 +921,31 @@ namespace RX_Explorer.Class
                     {
                         NameFilterResult.AddRange(OriginCopy.Where((Item) => Item.Name.FirstOrDefault() < 65 || (Item.Name.FirstOrDefault() > 90 && Item.Name.FirstOrDefault() < 97) || Item.Name.FirstOrDefault() > 122));
                     }
+                }
+            }
+
+            if (ColorCondition != ColorFilterCondition.None)
+            {
+                ColorFilterResult = new List<FileSystemStorageItemBase>();
+
+                if (ColorCondition.HasFlag(ColorFilterCondition.Orange))
+                {
+                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.BackgroundColor.Color == OrangeColor));
+                }
+
+                if (ColorCondition.HasFlag(ColorFilterCondition.Green))
+                {
+                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.BackgroundColor.Color == GreenColor));
+                }
+
+                if (ColorCondition.HasFlag(ColorFilterCondition.Purple))
+                {
+                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.BackgroundColor.Color == PurpleColor));
+                }
+
+                if (ColorCondition.HasFlag(ColorFilterCondition.Blue))
+                {
+                    ColorFilterResult.AddRange(OriginCopy.Where((Item) => Item.BackgroundColor.Color == BlueColor));
                 }
             }
 
@@ -857,6 +1015,18 @@ namespace RX_Explorer.Class
                 else
                 {
                     FilterIntersct = FilterIntersct.Intersect(NameFilterResult);
+                }
+            }
+
+            if (ColorFilterResult != null)
+            {
+                if (FilterIntersct == null)
+                {
+                    FilterIntersct = ColorFilterResult;
+                }
+                else
+                {
+                    FilterIntersct = FilterIntersct.Intersect(ColorFilterResult);
                 }
             }
 
